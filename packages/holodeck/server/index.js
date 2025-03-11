@@ -43,7 +43,9 @@ async function getCertInfo() {
     const KEY = Bun.file(KEY_PATH);
 
     if (!(await CERT.exists()) || !(await KEY.exists())) {
-      throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
+      throw new Error(
+        'SSL certificate or key not found, you may need to run `pnpm dlx @warp-drive/holodeck ensure-cert`'
+      );
     }
 
     return {
@@ -54,7 +56,9 @@ async function getCertInfo() {
     };
   } else {
     if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-      throw new Error('SSL certificate or key not found, you may need to run `pnpx @warp-drive/holodeck ensure-cert`');
+      throw new Error(
+        'SSL certificate or key not found, you may need to run `pnpm dlx @warp-drive/holodeck ensure-cert`'
+      );
     }
 
     return {
