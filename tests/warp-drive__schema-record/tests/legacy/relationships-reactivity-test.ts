@@ -14,7 +14,7 @@ import type { Type } from '@warp-drive/core-types/symbols';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
-import { reactiveContext } from '../../-utils/reactive-context';
+import { reactiveContext } from '../-utils/reactive-context';
 
 module('Legacy | Reactivity | relationships', function (hooks) {
   setupRenderingTest(hooks);
