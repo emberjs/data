@@ -1973,15 +1973,12 @@ function setupRelationships(
   identifier: StableRecordIdentifier,
   data: ExistingResourceObject
 ) {
-  // TODO @runspired iterating by definitions instead of by payload keys
-  // allows relationship payloads to be ignored silently if no relationship
-  // definition exists. Ensure there's a test for this and then consider
-  // moving this to an assertion. This check should possibly live in the graph.
-  for (const [name, field] of fields) {
-    if (!isRelationship(field)) continue;
-
-    const relationshipData = data.relationships![name];
-    if (!relationshipData) continue;
+  for (const name in data.relationships!) {
+    const relationshipData = data.relationships[name];
+    const field = fields.get(name);
+    // TODO consider asserting if the relationship is not in the schema
+    // we intentionally ignore relationships that are not in the schema
+    if (!relationshipData || !field || !isRelationship(field)) continue;
 
     graph.push({
       op: 'updateRelationship',
