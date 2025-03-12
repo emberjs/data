@@ -1992,9 +1992,9 @@ function setupRelationships(
   }
 }
 
-const RelationshipKinds = new Set(['hasMany', 'belongsTo', 'resource', 'collection']);
 function isRelationship(field: FieldSchema): field is LegacyRelationshipSchema | CollectionField | ResourceField {
-  return RelationshipKinds.has(field.kind);
+  const { kind } = field;
+  return kind === 'hasMany' || kind === 'belongsTo' || kind === 'resource' || kind === 'collection';
 }
 
 function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<string>): boolean {

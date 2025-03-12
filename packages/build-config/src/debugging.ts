@@ -119,3 +119,15 @@ export const LOG_METRIC_COUNTS: boolean = false;
  * @public
  */
 export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;
+
+/**
+ * A private flag to enable logging of the native Map/Set
+ * constructor and method calls.
+ *
+ * EXTREMELY MALPERFORMANT
+ *
+ * LOG_METRIC_COUNTS must also be enabled.
+ *
+ * @typedoc
+ */
+export const __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS: boolean = false;
