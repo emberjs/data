@@ -2,6 +2,9 @@
 
 ## Feature Overview
 - [Inverses](./features/inverses.md)
+- [LinksMode](./features/links-mode.md)
+- [Polymorphism](./features/polymorphism.md)
+
 <!--
 - [Resource Relationships]()
 - [Collection Relationships]()
