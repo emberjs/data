@@ -8,7 +8,12 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import type RequestManager from '@ember-data/request';
 import type { Future } from '@ember-data/request';
-import { LOG_METRIC_COUNTS, LOG_PAYLOADS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import {
+  __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS,
+  LOG_METRIC_COUNTS,
+  LOG_PAYLOADS,
+  LOG_REQUESTS,
+} from '@warp-drive/build-config/debugging';
 import {
   DEPRECATE_HAS_RECORD,
   DEPRECATE_PROMISE_PROXIES,
@@ -75,16 +80,114 @@ globalThis.setWarpDriveLogging = setLogging;
 globalThis.getWarpDriveRuntimeConfig = getRuntimeConfig;
 
 if (LOG_METRIC_COUNTS) {
-  // @ts-expect-error
+  // @ts-expect-error adding to globalThis
   // eslint-disable-next-line
   globalThis.__WarpDriveMetricCountData = globalThis.__WarpDriveMetricCountData || {};
 
-  // @ts-expect-error
+  // @ts-expect-error adding to globalThis
   globalThis.getWarpDriveMetricCounts = () => {
     // @ts-expect-error
     // eslint-disable-next-line
-    return globalThis.__WarpDriveMetricCountData;
+    return structuredClone(globalThis.__WarpDriveMetricCountData);
   };
+
+  // @ts-expect-error adding to globalThis
+  globalThis.resetWarpDriveMetricCounts = () => {
+    // @ts-expect-error
+    globalThis.__WarpDriveMetricCountData = {};
+  };
+
+  if (__INTERNAL_LOG_NATIVE_MAP_SET_COUNTS) {
+    // @ts-expect-error adding to globalThis
+    globalThis.__primitiveInstanceId = 0;
+
+    function interceptAndLog(
+      klassName: 'Set' | 'Map' | 'WeakSet' | 'WeakMap',
+      methodName: 'add' | 'set' | 'delete' | 'has' | 'get' | 'constructor'
+    ) {
+      const klass = globalThis[klassName];
+
+      if (methodName === 'constructor') {
+        const instantiationLabel = `new ${klassName}()`;
+        // @ts-expect-error
+        globalThis[klassName] = class extends klass {
+          // @ts-expect-error
+          constructor(...args) {
+            // eslint-disable-next-line
+            super(...args);
+            // @ts-expect-error
+
+            const instanceId = globalThis.__primitiveInstanceId++;
+            // @ts-expect-error
+            // eslint-disable-next-line
+            globalThis.__WarpDriveMetricCountData[instantiationLabel] =
+              // @ts-expect-error
+              // eslint-disable-next-line
+              (globalThis.__WarpDriveMetricCountData[instantiationLabel] || 0) + 1;
+            // @ts-expect-error
+            this.instanceName = `${klassName}:${instanceId} - ${new Error().stack?.split('\n')[2]}`;
+          }
+        };
+      } else {
+        // @ts-expect-error
+        // eslint-disable-next-line
+        const original = klass.prototype[methodName];
+        const logName = `${klassName}.${methodName}`;
+
+        // @ts-expect-error
+        klass.prototype[methodName] = function (...args) {
+          // @ts-expect-error
+          // eslint-disable-next-line
+          globalThis.__WarpDriveMetricCountData[logName] = (globalThis.__WarpDriveMetricCountData[logName] || 0) + 1;
+          // @ts-expect-error
+          const { instanceName } = this;
+          if (!instanceName) {
+            // @ts-expect-error
+            const instanceId = globalThis.__primitiveInstanceId++;
+            // @ts-expect-error
+            this.instanceName = `${klassName}.${methodName}:${instanceId} - ${new Error().stack?.split('\n')[2]}`;
+          }
+          const instanceLogName = `${logName} (${instanceName})`;
+          // @ts-expect-error
+          // eslint-disable-next-line
+          globalThis.__WarpDriveMetricCountData[instanceLogName] =
+            // @ts-expect-error
+            // eslint-disable-next-line
+            (globalThis.__WarpDriveMetricCountData[instanceLogName] || 0) + 1;
+          // eslint-disable-next-line
+          return original.apply(this, args);
+        };
+      }
+    }
+
+    interceptAndLog('Set', 'constructor');
+    interceptAndLog('Set', 'add');
+    interceptAndLog('Set', 'delete');
+    interceptAndLog('Set', 'has');
+    interceptAndLog('Set', 'set');
+    interceptAndLog('Set', 'get');
+
+    interceptAndLog('Map', 'constructor');
+    interceptAndLog('Map', 'set');
+    interceptAndLog('Map', 'delete');
+    interceptAndLog('Map', 'has');
+    interceptAndLog('Map', 'add');
+    interceptAndLog('Map', 'get');
+
+    interceptAndLog('WeakSet', 'constructor');
+    interceptAndLog('WeakSet', 'add');
+    interceptAndLog('WeakSet', 'delete');
+    interceptAndLog('WeakSet', 'has');
+    interceptAndLog('WeakSet', 'set');
+    interceptAndLog('WeakSet', 'get');
+
+    interceptAndLog('WeakMap', 'constructor');
+    interceptAndLog('WeakMap', 'set');
+    interceptAndLog('WeakMap', 'delete');
+    interceptAndLog('WeakMap', 'has');
+    interceptAndLog('WeakMap', 'add');
+    interceptAndLog('WeakMap', 'get');
+  }
 }
 
 export { storeFor };
