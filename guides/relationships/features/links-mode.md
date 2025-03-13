@@ -24,9 +24,9 @@ you are using Model (including via [Legacy Mode](../../reactive-data/legacy/over
 Relationships in WarpDrive are stored using the same top-level structure as resource documents, a structure
 adopted from the [JSON:API](https://jsonapi.org) specification.
 
-- **meta** *(optional)*: an object of arbitrary extra information about the relationship
-- **links** *(optional)*: an object containing various links for fetching and managing the relationship
 - **data**: the membership (state of) the relationship
+- **links** *(optional)*: an object containing various links for fetching and managing the relationship
+- **meta** *(optional)*: an object of arbitrary extra information about the relationship
 
 This is roughly described by the interface below:
 
