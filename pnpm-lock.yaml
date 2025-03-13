@@ -5325,6 +5325,7 @@ packages:
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     resolution: {directory: internal-tooling, type: directory}
+    engines: {node: '>= 18.20.7'}
     hasBin: true
 
   '@warp-drive/schema-record@file:packages/schema-record':

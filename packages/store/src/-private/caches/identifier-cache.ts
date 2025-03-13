@@ -650,16 +650,14 @@ function makeStableRecordIdentifier(
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
-    let wrapper: StableRecordIdentifier = {
-      get lid() {
-        return recordIdentifier.lid;
-      },
+    let wrapper = {
+      type: recordIdentifier.type,
+      lid: recordIdentifier.lid,
       get id() {
         return recordIdentifier.id;
       },
-      get type() {
-        return recordIdentifier.type;
-      },
+    } as StableRecordIdentifier;
+    const proto = {
       get [CACHE_OWNER](): number | undefined {
         return recordIdentifier[CACHE_OWNER];
       },
@@ -672,23 +670,28 @@ function makeStableRecordIdentifier(
       set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
         (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER] = value;
       },
+      get [DEBUG_CLIENT_ORIGINATED]() {
+        return clientOriginated;
+      },
+      get [DEBUG_IDENTIFIER_BUCKET]() {
+        return bucket;
+      },
     };
-    Object.defineProperty(wrapper, 'toString', {
+    Object.defineProperty(proto, 'toString', {
       enumerable: false,
       value: () => {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
       },
     });
-    Object.defineProperty(wrapper, 'toJSON', {
+    Object.defineProperty(proto, 'toJSON', {
       enumerable: false,
       value: () => {
         const { type, id, lid } = recordIdentifier;
         return { type, id, lid };
       },
     });
-    wrapper[DEBUG_CLIENT_ORIGINATED] = clientOriginated;
-    wrapper[DEBUG_IDENTIFIER_BUCKET] = bucket;
+    Object.setPrototypeOf(wrapper, proto);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     wrapper = freeze(wrapper);
     return wrapper;
