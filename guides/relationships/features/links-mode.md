@@ -90,7 +90,7 @@ interface FetchRelationshipRequest {
 }
 ```
 
-The most important 3 things in this request are
+The three most important things in this request are:
 
 - the `op` code: this is how the cache will know to use the response to update the state of a relationship
 - `data.field`: this is how the cache will know which field it should update
