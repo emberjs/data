@@ -9,7 +9,7 @@
 It allows that relationship to be fetched using the standard `request` experience instead of via the legacy `adapter` interface.
 
 LinksMode behaves *slightly* differently depending on whether
-you are using Model (including via [Legacy Mode](../../reactive-data/legacy/overview.md)) or [Polaris Mode](../../reactive-data/polaris/overview.md). We'll explain this nuance below.
+you are using Model (including via [LegacyMode](../../reactive-data/legacy/overview.md)) or [PolarisMode](../../reactive-data/polaris/overview.md). We'll explain this nuance below.
 
 > [!TIP]
 > The next-generation of reactive data which replaces Model is SchemaRecord.
@@ -62,7 +62,11 @@ interface LinksModeRelationship {
 
 ### Related Links May Be Provided by Handlers
 
-This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. If your API does not provide this link, a request handler could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
+This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. 
+
+If your API does not provide this link, a [request handler](https://api.emberjs.com/ember-data/release/classes/%3Cinterface%3E%20handler/) could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
+
+Note that this approach can even work if your API requires you to send a POST request to fetch the relationship. [This blog post](https://runspired.com/2025/02/26/exploring-advanced-handlers.html) contains an overview of advanced request handling to achieve a similar aim for pagination.
 
 ### When a Relationship Is Fetched, the Related Link Is Used
 
@@ -83,7 +87,7 @@ interface FetchRelationshipRequest {
     record: StableRecordIdentifier; // the parent record
   };
 
-  // tells the store not to automatically convert the response into something reactive
+  // tells the store to not automatically convert the response into something reactive
   // since the reactive relationship class itself will do that
   [EnableHydration]: false; 
 }
@@ -100,13 +104,15 @@ The normalized API response (what your handler must return either directly from 
 The contents of `data` will be inserted into the resource cache and the list of records contained therein will be used to update the state of the relationship. The `meta` and `links` of the response will become the `meta` and `links` available for the
 relationship as well.
 
-Sideloads (included records) are valid to include in these response.
+Sideloads (included records) are valid to include in these responses.
 
 ## Activating LinksMode
 
-### For a Relationship on a Model
+LinksMode is activated by adding `linksMode: true` to the relationship's options.
 
-Add `linksMode: true` to the relationship's options.
+Read on below for examples and nuances specific to Model vs SchemaRecord
+
+### For a Relationship on a Model
 
 ```ts
 import Model, { belongsTo, hasMany } from '@ember-data/model';
@@ -130,7 +136,7 @@ import type { ResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 const UserSchema = {
   type: 'user',
-  // this is what puts the record instance into legacy mode
+  // this is what puts the record instance into LegacyMode
   legacy: true,
   fields: [
     {
@@ -146,7 +152,8 @@ const UserSchema = {
 } satisfies ResourceSchema;
 ```
 
-The behavior of relationships for a SchemaRecord in LegacyMode is always identical to that of Model's.
+The behavior of a relationship for a SchemaRecord in LegacyMode is always identical to that of a the same
+relationship defined on a Model.
 
 ### For a SchemaRecord in PolarisMode
 
@@ -171,28 +178,54 @@ const UserSchema = {
 
 The only difference here is that we don't mark the resource schemas as `legacy`. This puts us in the standard/default mode (`polaris`);
 
-**Async relationships are not (currently) supported in Polaris mode!** This aligns with the general direction of 
-the (as yet not implemented) `resource` and `collection` fields which replace `belongsTo` and `hasMany`.
+When using PolarisMode, `hasMany` and `belongsTo` relationships have additional constraints:
 
-Polaris mode relationship fields have no `autofetch` behavior.
+- 1. They MUST use linksMode. Nothing except linksMode is supported.
+- 2. They MUST be `async: false`. Async relationships will never be supported in PolarisMode (read more on this below)
+- 3. There is no `autofetch` behavior (because relationships are `async: false`)
 
-In the future, a `non-async` resource or collection field would refer to a relationship that is both *always*
-included within the parent of another record AND *never directly retreivable via its own endpoint* (e.g. to get
-the updated state for the relationship would require reloading the request that delivered the parent record).
+You can load this link to fetch the relationship, though it is less easy to because the utility methods and links are
+not as readily exposed via references as they are with Model.
 
-A `non-async` resource or collection would behave very similarly to `sync` hasMany/belongsTo relationships in that
-the field would give direct access to the value. E.G. `user.homeAddress` would be an address record instance.
+For `belongsTo` this is a particularly large drawback. `belongsTo` has no mechanism by which to expose its links or a reload method. There are work arounds via the cache API / via derivations if needed, but cumbersome.
 
-Meanwhile in the future an `async` resource or collection field would refer to a relationship that *may or may not*
-be included in the response containing a parent record and which can be retreived via its own link.
+For `hasMany`, this restriction is not too difficult as it can be loaded via its link by calling `reload`, e.g. `user.friends.reload()`. As with hasMany in LegacyMode, its links are also available via `user.friends.links`.
 
-An `async` resource or collection would look and behave like a request's response document. `user.homeAddress.links`
-would provide access to its associated links, `user.homeAddress.meta` would provide access to any associated meta and
-`user.homeAddress.data` would provide access to the address record instance IF (and only if) the relationship data had been included as part of the response for a parent record previously OR fetched explicitly via its link.
+This makes PolarisMode relationships intentionally limited. This limitation is not permanent – there is a replacement
+in the works for `belongsTo` and `hasMany` that aligns relationships with the intended Polaris experience.
 
-For now, until we implement `resource` and `collection`, we are allowing use of `belongsTo` and `hasMany` in a synchronous mode only. These relationships MUST be put `linksMode`.
+In the meantime, we've enabled synchronous linksMode relationships in order to allow folks to experiment with the polaris experience while still staying generally aligned with the direction relationships will evolve.
 
-`hasMany` can be loaded via its link by calling `reload`, e.g. `user.friends.reload()`. As with hasMany in legacy-mode, its links are also available via `user.friends.links`.
+If this limitation is too great we would recommend continuing to use `LegacyMode` until the full story for 
+relationships in PolarisMode is shipped.
 
-`belongsTo` has no mechanism by which to expose its links or a reload method.
+#### What To Expect from PolarisMode Relationships in the Future
+
+We intend to replace `belongsTo` and `hasMany` fields with the (as yet not implemented)
+`resource` and `collection` fields.
+
+These fields will have no `autofetch` behavior, and no async proxy. There will still be `sync` and `async`
+variations of the field but this flag will take on a better meaning.
+
+An `async` relationship represents a POTENTIALLY asynchronous boundary in your API, meaning that even if
+sometimes the data for that relationship is included as a sideload, it may not always be and may require
+its own request. Async collection relationships can be paginated.
+
+A `sync` relationship represents an ALWAYS synchronous boundary, meaning that the full state of the relationship
+is ALWAYS included as a sideload and cannot ever be loaded as its own request. Sync relationships can never be
+paginated, and generally require use of a request which fetches their parent record to get updated state.
+
+In LegacyMode, sync relationships gave direct access to the record or array while async relationships gave access
+to a promisified proxy to the record/array.
+
+In PolarisMode using `resource` and `collection`, sync relationships will also give direct access while async
+relationships will instead provide access to a [reactive document](https://api.emberjs.com/ember-data/release/classes/Document).
+
+So for instance, if `user.homeAddress` were `async: false`, then its value would be an instance of an `Address` record.
+But if `user.homeAddress` were `asunc: true`, it would instead be a reactive class with `links`, `meta` and (only-if-loaded) `data`.
+
+- `user.homeAddress.links` would provide access to its associated links
+- `user.homeAddress.meta` would provide access to any associated meta
+- `user.homeAddress.data` would provide access to the address record instance IF (and only if) the relationship data had been included as part of the response for a parent record previously OR fetched explicitly via its link.
+
 
