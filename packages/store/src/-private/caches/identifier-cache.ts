@@ -676,15 +676,21 @@ function makeStableRecordIdentifier(
       get [DEBUG_IDENTIFIER_BUCKET]() {
         return bucket;
       },
-      toString() {
+    };
+    Object.defineProperty(proto, 'toString', {
+      enumerable: false,
+      value: () => {
         const { type, id, lid } = recordIdentifier;
         return `${clientOriginated ? '[CLIENT_ORIGINATED] ' : ''}${String(type)}:${String(id)} (${lid})`;
       },
-      toJSON() {
+    });
+    Object.defineProperty(proto, 'toJSON', {
+      enumerable: false,
+      value: () => {
         const { type, id, lid } = recordIdentifier;
         return { type, id, lid };
       },
-    };
+    });
     Object.setPrototypeOf(wrapper, proto);
     DEBUG_MAP.set(wrapper, recordIdentifier);
     wrapper = freeze(wrapper);
