@@ -62,7 +62,7 @@ interface LinksModeRelationship {
 
 ### Related Links May be provided by Handlers
 
-This means that in order to use links mode a relationship payload given to the cache MUST contain this related link. If your API does not provide this link, a request handler could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
+This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. If your API does not provide this link, a request handler could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
 
 ### When A Relationship is Fetched, the related link is used
 
