@@ -272,7 +272,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       // no change has occurred to preserve the legacy behavior
       relationship.definition.kind === 'hasMany' &&
       relationship.definition.resetOnRemoteUpdate !== false &&
-      diff.changed
+      (diff.changed || wasDirty)
     ) {
       const deprecationInfo: {
         removals: StableRecordIdentifier[];
