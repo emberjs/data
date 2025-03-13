@@ -105,7 +105,7 @@ Sideloads (included records) are valid to include in these response.
 
 ## Activating LinksMode
 
-### For A Relationship on a Model
+### For a Relationship on a Model
 
 Add `linksMode: true` to the relationship's options.
 
