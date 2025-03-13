@@ -6,6 +6,7 @@ import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
 import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
@@ -687,6 +688,21 @@ export class SchemaRecord {
         }
       }
     );
+
+    if (DEBUG) {
+      Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+        enumerable: false,
+        configurable: true,
+        get() {
+          const data: Record<string, unknown> = {};
+          for (const key of fields.keys()) {
+            data[key] = proxy[key as keyof SchemaRecord];
+          }
+
+          return data;
+        },
+      });
+    }
 
     return proxy;
   }

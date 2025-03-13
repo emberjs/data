@@ -11,6 +11,7 @@ import {
   subscribe,
 } from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -447,6 +448,16 @@ export class IdentifierArray<T = unknown> {
         return Array.prototype as unknown as IdentifierArray<T>;
       },
     }) as IdentifierArray<T>;
+
+    if (DEBUG) {
+      Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+        enumerable: false,
+        configurable: true,
+        get() {
+          return proxy.slice();
+        },
+      });
+    }
 
     createArrayTags(proxy, _SIGNAL);
 

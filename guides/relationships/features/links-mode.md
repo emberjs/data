@@ -60,6 +60,8 @@ interface LinksModeRelationship {
 }
 ```
 
+<br>
+
 ### Related Links May Be Provided by Handlers
 
 This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. 
@@ -67,6 +69,8 @@ This means that, in order to use links mode, a relationship payload given to the
 If your API does not provide this link, a [request handler](https://api.emberjs.com/ember-data/release/classes/%3Cinterface%3E%20handler/) could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
 
 Note that this approach can even work if your API requires you to send a POST request to fetch the relationship. [This blog post](https://runspired.com/2025/02/26/exploring-advanced-handlers.html) contains an overview of advanced request handling to achieve a similar aim for pagination.
+
+<br>
 
 ### When a Relationship Is Fetched, the Related Link Is Used
 
@@ -106,11 +110,17 @@ relationship as well.
 
 Sideloads (included records) are valid to include in these responses.
 
+<br>
+
+---
+
 ## Activating LinksMode
 
 LinksMode is activated by adding `linksMode: true` to the relationship's options.
 
 Read on below for examples and nuances specific to Model vs SchemaRecord
+
+<br>
 
 ### For a Relationship on a Model
 
@@ -128,6 +138,8 @@ export default class User extends Model {
 ```
 
 This works for both `async` and `non-async` relationships and only changes the fetching behavior of the field it is defined on. For instance, in the example above, `homeAddress` is fetched in links mode while `<Address>.residents` might still be using the legacy adapter experience.
+
+<br>
 
 ### For a SchemaRecord in LegacyMode
 
@@ -154,6 +166,8 @@ const UserSchema = {
 
 The behavior of a relationship for a SchemaRecord in LegacyMode is always identical to that of a the same
 relationship defined on a Model.
+
+<br>
 
 ### For a SchemaRecord in PolarisMode
 
@@ -198,6 +212,10 @@ In the meantime, we've enabled synchronous linksMode relationships in order to a
 
 If this limitation is too great we would recommend continuing to use `LegacyMode` until the full story for 
 relationships in PolarisMode is shipped.
+
+<br>
+
+---
 
 #### What To Expect from PolarisMode Relationships in the Future
 
