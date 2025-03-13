@@ -4,6 +4,11 @@ const RuntimeConfig = {
   debug: {},
 };
 
+const settings = globalThis.sessionStorage?.getItem('WarpDriveRuntimeConfig');
+if (settings) {
+  Object.assign(RuntimeConfig, JSON.parse(settings));
+}
+
 export function getRuntimeConfig(): typeof RuntimeConfig {
   return RuntimeConfig;
 }
@@ -18,4 +23,5 @@ export function getRuntimeConfig(): typeof RuntimeConfig {
  */
 export function setLogging(config: Partial<LOG_CONFIG>): void {
   Object.assign(RuntimeConfig.debug, config);
+  globalThis.sessionStorage?.setItem('WarpDriveRuntimeConfig', JSON.stringify(RuntimeConfig));
 }
