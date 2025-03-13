@@ -747,7 +747,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         class App extends Model {
           @attr declare name: string;
           @hasMany('config', { async: false, inverse: 'app' }) declare configs: Config[];
-          @hasMany('namespace', { async: false, inverse: 'apps' }) declare namespaces: Namespace | null;
+          @hasMany('namespace', { async: false, inverse: 'apps' }) declare namespaces: Namespace[];
         }
 
         class Namespace extends Model {
@@ -777,7 +777,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         // each namespace has the app and 2 more apps
         store._join(() => {
           // setup primary app relationships
-          // this also convers the belongsTo side on config
+          // this also converts the belongsTo side on config
           graph.push({
             op: 'updateRelationship',
             field: 'configs',
@@ -821,6 +821,12 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
           });
         });
 
+        // we access these relationships so that we do not fall victim
+        // in this test to laziness optimizations where calcs are not made
+        // if the data is not accessed
+        graph.getData(appIdentifier, 'configs');
+        graph.getData(appIdentifier, 'namespaces');
+
         // mutate app:1.configs, adding config:5
         // mutate app:1.namespaces, adding namespace:5
         store._join(() => {
@@ -842,7 +848,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         // for app:1
         store._join(() => {
           // setup primary app relationships
-          // this also convers the belongsTo side on config
+          // this also converts the belongsTo side on config
           graph.push({
             op: 'updateRelationship',
             field: 'configs',
