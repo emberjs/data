@@ -1,0 +1,6 @@
+# LegacyMode
+
+- ⮐ [ReactiveData](../index.md)
+
+---
+
