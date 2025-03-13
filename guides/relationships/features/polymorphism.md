@@ -68,6 +68,10 @@ interface Human {
 }
 ```
 
+<br>
+
+---
+
 ## How To Implement
 
 WarpDrive implements polymorphism structurally: as long as records on both sides of the relationship agree
@@ -78,6 +82,8 @@ There are two polymorphic modes in WarpDrive:
 
 - **open** - any type of record can be a value (this is like our last example above of `pets: unknown[]`)
 - **closed** - only types of records that conform to a specific contract can be a value
+
+<br>
 
 ### Open Polymorphism
 
@@ -116,6 +122,8 @@ store.schema.registerResource({
   ]
 })
 ```
+
+<br>
 
 ### Closed/Structural Polymorphism
 
@@ -218,6 +226,10 @@ schema:
   }
 }
 ```
+
+<br>
+
+---
 
 ## Fetching Polymorphic Data
 

@@ -45,6 +45,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@html-next/vertical-collection": "^4.0.2",
     "@types/morgan": "^1.9.9",
+    "@warp-drive/build-config": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-auto-import": "2.10.0",
