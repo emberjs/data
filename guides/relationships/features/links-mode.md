@@ -55,7 +55,7 @@ interface LinksModeRelationship {
   links: {
     related: string | { href: string };
 
-    // other links still as desired
+    // other links as desired
   }
 }
 ```
