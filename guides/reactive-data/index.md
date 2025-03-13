@@ -13,3 +13,7 @@ Each form of data can be accessed and managed reactively through one of two mode
 
 - *(upcoming, default in v6)* [PolarisMode](./polaris/overview.md)
 - *(current, default in v5)* [LegacyMode](./legacy/overview.md)
+
+These modes are interopable. The reactive object (record) for a resource in PolarisMode can relate to
+a record in LegacyMode and vice-versa. This interopability is true whether the record in LegacyMode is
+a SchemaRecord or a Model.
