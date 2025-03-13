@@ -122,7 +122,7 @@ export default class User extends Model {
 }
 ```
 
-This works for both `async` and `non-async` relationships and only changes the fetching behavior of the field it is defined on. So for instance, in the example above, `homeAddress` is fetched in links mode while `<Address>.residents` might still be using the legacy adapter experience.
+This works for both `async` and `non-async` relationships and only changes the fetching behavior of the field it is defined on. For instance, in the example above, `homeAddress` is fetched in links mode while `<Address>.residents` might still be using the legacy adapter experience.
 
 ### For A SchemaRecord in LegacyMode
 
