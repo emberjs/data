@@ -74,7 +74,7 @@ interface FetchRelationshipRequest {
   store: Store;
   url: string; // the related link
   method: 'GET';
-  records: StableRecordIdentifier[];
+  records: StableRecordIdentifier | StableRecordIdentifier[] | null; // the current membership of the relationship
   data: {
     useLink: true;
     field: LegacyBelongsToField | LegacyHasManyField;
