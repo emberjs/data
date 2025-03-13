@@ -149,7 +149,7 @@ const UserSchema = {
 
 The behavior of relationships for a SchemaRecord in LegacyMode is always identical to that of Model's.
 
-### For A SchemaRecord in PolarisMode
+### For a SchemaRecord in PolarisMode
 
 ```ts
 import type { ResourceSchema } from '@warp-drive/core-types/schema/fields';
