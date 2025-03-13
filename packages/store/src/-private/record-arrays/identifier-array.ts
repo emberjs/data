@@ -450,7 +450,9 @@ export class IdentifierArray<T = unknown> {
     }) as IdentifierArray<T>;
 
     if (DEBUG) {
-      Object.defineProperty(proxy, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+      Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+        enumerable: false,
+        configurable: true,
         get() {
           return proxy.slice();
         },
