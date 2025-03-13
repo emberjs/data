@@ -175,7 +175,7 @@ The only difference here is that we don't mark the resource schemas as `legacy`.
 **Async relationships are not (currently) supported in Polaris mode!** This aligns with the general direction of 
 the (as yet not implemented) `resource` and `collection` fields which replace `belongsTo` and `hasMany`.
 
-Polaris mode relationhip fields have no `autofetch` behavior.
+Polaris mode relationship fields have no `autofetch` behavior.
 
 In the future, a `non-async` resource or collection field would refer to a relationship that is both *always*
 included within the parent of another record AND *never directly retreivable via its own endpoint* (e.g. to get
