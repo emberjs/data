@@ -98,7 +98,7 @@ The three most important things in this request are:
 
 The normalized API response (what your handler must return either directly from your API or with some normalization on the client) that should be passed to the JSON:API cache should be a standard JSON:API document.
 
-The contents of `data` will be inserted into the resource cache and the list of records contained used to update the state of the relationship. The `meta` and `links` of the response will become the `meta` and `links` available for the
+The contents of `data` will be inserted into the resource cache and the list of records contained therein will be used to update the state of the relationship. The `meta` and `links` of the response will become the `meta` and `links` available for the
 relationship as well.
 
 Sideloads (included records) are valid to include in these response.
