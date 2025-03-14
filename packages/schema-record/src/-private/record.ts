@@ -66,9 +66,22 @@ const symbolList = [
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
+type ProxiedMethod = (...args: unknown[]) => unknown;
 
 function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
+function isNonEnumerableProp(prop: string | number | symbol) {
+  return (
+    prop === 'constructor' ||
+    prop === 'prototype' ||
+    prop === '__proto__' ||
+    prop === 'toString' ||
+    prop === 'toJSON' ||
+    prop === 'toHTML' ||
+    typeof prop === 'symbol'
+  );
 }
 
 const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
@@ -105,24 +118,27 @@ export class SchemaRecord {
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
-    const identityField = schema.resource(identifier).identity;
+    const identityField = schema.resource(isEmbedded ? { type: embeddedType as string } : identifier).identity;
+    const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
     this[EmbeddedType] = embeddedType;
     this[EmbeddedPath] = embeddedPath;
 
-    let fields: Map<string, FieldSchema>;
-    if (isEmbedded) {
-      fields = schema.fields({ type: embeddedType as string });
-    } else {
-      fields = schema.fields(identifier);
-    }
+    const fields: Map<string, FieldSchema> = isEmbedded
+      ? schema.fields({ type: embeddedType as string })
+      : schema.fields(identifier);
 
     const signals: Map<string, Signal> = new Map();
     this[Signals] = signals;
 
     const proxy = new Proxy(this, {
       ownKeys() {
-        return Array.from(fields.keys());
+        const identityKey = identityField?.name;
+        const keys = Array.from(fields.keys());
+        if (identityKey) {
+          keys.unshift(identityKey);
+        }
+        return keys;
       },
 
       has(target: SchemaRecord, prop: string | number | symbol) {
@@ -133,14 +149,27 @@ export class SchemaRecord {
       },
 
       getOwnPropertyDescriptor(target, prop) {
-        if (!fields.has(prop as string)) {
-          throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
+        const schemaForField = prop === identityField?.name ? identityField : fields.get(prop as string)!;
+        assert(`No field named ${String(prop)} on ${identifier.type}`, schemaForField);
+
+        if (isNonEnumerableProp(prop)) {
+          return {
+            writable: false,
+            enumerable: false,
+            configurable: true,
+          };
         }
-        const schemaForField = fields.get(prop as string)!;
+
         switch (schemaForField.kind) {
           case 'derived':
             return {
               writable: false,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@id':
+            return {
+              writable: identifier.id === null,
               enumerable: true,
               configurable: true,
             };
@@ -161,32 +190,18 @@ export class SchemaRecord {
               enumerable: true,
               configurable: true,
             };
+          default:
+            return {
+              writable: false,
+              enumerable: false,
+              configurable: false,
+            };
         }
       },
 
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
         if (RecordSymbols.has(prop as RecordSymbol)) {
           return target[prop as keyof SchemaRecord];
-        }
-
-        if (prop === Symbol.toStringTag) {
-          return `SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})>`;
-        }
-
-        if (prop === 'toString') {
-          return function () {
-            return `SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})>`;
-          };
-        }
-
-        if (prop === 'toHTML') {
-          return function () {
-            return `<div>SchemaRecord<${identifier.type}:${identifier.id} (${identifier.lid})></div>`;
-          };
-        }
-
-        if (prop === Symbol.toPrimitive) {
-          return null;
         }
 
         // TODO make this a symbol
@@ -203,19 +218,78 @@ export class SchemaRecord {
           if (IgnoredGlobalFields.has(prop as string)) {
             return undefined;
           }
+
+          /////////////////////////////////////////////////////////////
+          //// Note these bound function behaviors are essentially ////
+          //// built-in but overrideable derivations.              ////
+          ////                                                     ////
+          //// The bar for this has to be "basic expectations of   ////
+          ///  an object" – very, very high                        ////
+          /////////////////////////////////////////////////////////////
+
+          if (prop === Symbol.toStringTag || prop === 'toString') {
+            let fn = BoundFns.get('toString');
+            if (!fn) {
+              fn = function () {
+                entangleSignal(signals, receiver, '@identity');
+                return `Record<${identifier.type}:${identifier.id} (${identifier.lid})>`;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === 'toHTML') {
+            let fn = BoundFns.get('toHTML');
+            if (!fn) {
+              fn = function () {
+                entangleSignal(signals, receiver, '@identity');
+                return `<span>Record<${identifier.type}:${identifier.id} (${identifier.lid})></span>`;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === 'toJSON') {
+            let fn = BoundFns.get('toJSON');
+            if (!fn) {
+              fn = function () {
+                const json: Record<string, unknown> = {};
+                for (const key in receiver) {
+                  json[key] = receiver[key as keyof typeof receiver];
+                }
+
+                return json;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === Symbol.toPrimitive) return () => null;
+
+          if (prop === Symbol.iterator) {
+            let fn = BoundFns.get(Symbol.iterator);
+            if (!fn) {
+              fn = function* () {
+                for (const key in receiver) {
+                  yield [key, receiver[key as keyof typeof receiver]];
+                }
+              };
+              BoundFns.set(Symbol.iterator, fn);
+            }
+            return fn;
+          }
+
           if (prop === 'constructor') {
             return SchemaRecord;
           }
           // too many things check for random symbols
-          if (typeof prop === 'symbol') {
-            return undefined;
-          }
-          let type = identifier.type;
-          if (isEmbedded) {
-            type = embeddedType!;
-          }
+          if (typeof prop === 'symbol') return undefined;
 
-          throw new Error(`No field named ${String(prop)} on ${type}`);
+          assert(`No field named ${String(prop)} on ${isEmbedded ? embeddedType! : identifier.type}`);
+          return undefined;
         }
 
         const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;

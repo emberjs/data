@@ -83,7 +83,7 @@ export class ManagedObject {
         }
 
         if (prop === Symbol.toPrimitive) {
-          return null;
+          return () => null;
         }
         if (prop === Symbol.toStringTag) {
           return `ManagedObject<${identifier.type}:${identifier.id} (${identifier.lid})>`;
@@ -98,7 +98,12 @@ export class ManagedObject {
         }
         if (prop === 'toHTML') {
           return function () {
-            return '<div>ManagedObject</div>';
+            return '<span>ManagedObject</span>';
+          };
+        }
+        if (prop === 'toJSON') {
+          return function () {
+            return structuredClone(self[SOURCE]);
           };
         }
 

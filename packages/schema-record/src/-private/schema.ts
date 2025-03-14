@@ -17,6 +17,7 @@ import {
   type FieldSchema,
   type GenericField,
   type HashField,
+  type IdentityField,
   isResourceSchema,
   type LegacyAttributeField,
   type LegacyRelationshipSchema,
@@ -32,19 +33,18 @@ import { Identifier } from './symbols';
 
 const Support = getOrSetGlobal('Support', new WeakMap<WeakKey, Record<string, unknown>>());
 
-export const SchemaRecordFields: FieldSchema[] = [
-  {
-    type: '@constructor',
-    name: 'constructor',
-    kind: 'derived',
-  },
-  {
-    type: '@identity',
-    name: '$type',
-    kind: 'derived',
-    options: { key: 'type' },
-  },
-];
+const ConstructorField = {
+  type: '@constructor',
+  name: 'constructor',
+  kind: 'derived',
+} satisfies DerivedField;
+const TypeField = {
+  type: '@identity',
+  name: '$type',
+  kind: 'derived',
+  options: { key: 'type' },
+} satisfies DerivedField;
+const DefaultIdentityField = { name: 'id', kind: '@id' } satisfies IdentityField;
 
 function _constructor(record: SchemaRecord) {
   let state = Support.get(record as WeakKey);
@@ -56,15 +56,25 @@ function _constructor(record: SchemaRecord) {
   return (state._constructor = state._constructor || {
     name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
     get modelName() {
-      throw new Error('Cannot access record.constructor.modelName on non-Legacy Schema Records.');
+      assert(`record.constructor.modelName is not available outside of legacy mode`, false);
+      return undefined;
     },
   });
 }
 _constructor[Type] = '@constructor';
 
+/**
+ * Utility for constructing a ResourceSchema with the recommended fields
+ * for the Polaris experience.
+ */
 export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
-  schema.identity = schema.identity || { name: 'id', kind: '@id' };
-  schema.fields.push(...SchemaRecordFields);
+  schema.identity = schema.identity || DefaultIdentityField;
+
+  // because fields gets iterated in definition order,
+  // we add TypeField to the beginning so that it will
+  // appear right next to the identity field
+  schema.fields.unshift(TypeField);
+  schema.fields.push(ConstructorField);
   return schema as ResourceSchema;
 }
 

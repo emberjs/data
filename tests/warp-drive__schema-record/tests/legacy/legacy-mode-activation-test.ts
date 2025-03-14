@@ -135,8 +135,8 @@ module('Legacy Mode', function (hooks) {
     } catch (e) {
       assert.strictEqual(
         (e as Error).message,
-        'Cannot access record.constructor.modelName on non-Legacy Schema Records.',
-        'record.constructor.modelName throws'
+        'record.constructor.modelName is not available outside of legacy mode',
+        `record.constructor.modelName throws: ${(e as Error).message}`
       );
     }
     assert.strictEqual(record.constructor.name, 'SchemaRecord<user>', 'it has a useful constructor name');
