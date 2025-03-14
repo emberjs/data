@@ -79,7 +79,8 @@ function isNonEnumerableProp(prop: string | number | symbol) {
     prop === '__proto__' ||
     prop === 'toString' ||
     prop === 'toJSON' ||
-    prop === 'toHTML'
+    prop === 'toHTML' ||
+    typeof prop === 'symbol'
   );
 }
 
@@ -117,18 +118,15 @@ export class SchemaRecord {
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
-    const identityField = schema.resource(identifier).identity;
+    const identityField = schema.resource(isEmbedded ? { type: embeddedType as string } : identifier).identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
     this[EmbeddedType] = embeddedType;
     this[EmbeddedPath] = embeddedPath;
 
-    let fields: Map<string, FieldSchema>;
-    if (isEmbedded) {
-      fields = schema.fields({ type: embeddedType as string });
-    } else {
-      fields = schema.fields(identifier);
-    }
+    const fields: Map<string, FieldSchema> = isEmbedded
+      ? schema.fields({ type: embeddedType as string })
+      : schema.fields(identifier);
 
     const signals: Map<string, Signal> = new Map();
     this[Signals] = signals;

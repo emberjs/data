@@ -8,18 +8,19 @@ import type Store from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations } from '@warp-drive/schema-record';
 
-interface User {
-  id: string | null;
-  $type: 'user';
+interface ChatRelay {
+  id: string;
+  $type: 'chat-relay';
+  config: {
+    instanceName: string;
+    host: string;
+  };
+  activeUsers: Record<string, string>;
   name: string;
-  age: number;
-  netWorth: number;
-  coolometer: number;
-  rank: number;
-  [Type]: 'user';
+  [Type]: 'chat-relay';
 }
 
-module('SchemaRecord | Iterable Behaviors', function (hooks) {
+module('ManagedObject | Iterable Behaviors', function (hooks) {
   setupTest(hooks);
 
   test('we can use `JSON.stringify` on a record without providing toJSON in the schema', function (assert) {
@@ -28,7 +29,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -43,16 +53,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -65,8 +88,15 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
         value,
         {
           id: '1',
-          $type: 'user',
-          name: 'Rey Pupatine',
+          $type: 'chat-relay',
+          activeUsers: {
+            acf4g1: 'Rey Pupatine',
+          },
+          config: {
+            host: 'discord.com',
+            instanceName: 'discord',
+          },
+          name: 'discord.com',
         },
         'stringify should remove constructor and include all other fields in the schema'
       );
@@ -81,7 +111,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -96,16 +135,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -116,8 +168,11 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
         value,
         {
           id: '1',
-          $type: 'user',
-          name: 'Rey Pupatine',
+          $type: 'chat-relay',
+          // spread will preserve the original object references
+          activeUsers: record['activeUsers'],
+          config: record['config'],
+          name: 'discord.com',
         },
         'spread should remove constructor and include all other fields in the schema'
       );
@@ -132,7 +187,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -147,16 +211,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -164,7 +241,7 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
       const value = {} as Record<string, unknown>;
 
       for (const key in record) {
-        value[key] = record[key as keyof User];
+        value[key] = record[key as keyof ChatRelay];
       }
 
       assert.true(true, 'for...in should not throw');
@@ -172,8 +249,11 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
         value,
         {
           id: '1',
-          $type: 'user',
-          name: 'Rey Pupatine',
+          $type: 'chat-relay',
+          // for...in will preserve the original object references
+          activeUsers: record['activeUsers'],
+          config: record['config'],
+          name: 'discord.com',
         },
         'for...in should remove constructor and include all other fields in the schema'
       );
@@ -188,7 +268,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -203,16 +292,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -229,8 +331,11 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
         value,
         {
           id: '1',
-          $type: 'user',
-          name: 'Rey Pupatine',
+          $type: 'chat-relay',
+          // for...of will preserve the original object references
+          activeUsers: record['activeUsers'],
+          config: record['config'],
+          name: 'discord.com',
         },
         'for...of should remove constructor and include all other fields in the schema'
       );
@@ -245,7 +350,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -260,16 +374,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -278,7 +405,7 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
       assert.true(true, 'Object.keys should not throw');
       assert.arrayStrictEquals(
         keys,
-        ['id', '$type', 'name'],
+        ['id', '$type', 'config', 'activeUsers', 'name'],
         'Object.keys should remove constructor and include all other fields in the schema'
       );
     } catch (e: unknown) {
@@ -292,7 +419,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -307,16 +443,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -325,7 +474,7 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
       assert.true(true, 'Object.values should not throw');
       assert.arrayStrictEquals(
         values,
-        ['1', 'user', 'Rey Pupatine'],
+        ['1', 'chat-relay', record.config, record.activeUsers, 'discord.com'],
         'Object.values should remove constructor and include all other fields in the schema'
       );
     } catch (e: unknown) {
@@ -339,7 +488,16 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -354,16 +512,29 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
@@ -374,8 +545,10 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
         entries,
         [
           ['id', '1'],
-          ['$type', 'user'],
-          ['name', 'Rey Pupatine'],
+          ['$type', 'chat-relay'],
+          ['config', record.config],
+          ['activeUsers', record.activeUsers],
+          ['name', 'discord.com'],
         ],
         'Object.entries should remove constructor and include all other fields in the schema'
       );
@@ -385,7 +558,7 @@ module('SchemaRecord | Iterable Behaviors', function (hooks) {
   });
 });
 
-module('SchemaRecord | Iterable Behaviors | Rendering', function (hooks) {
+module('ManagedObject | Iterable Behaviors | Rendering', function (hooks) {
   setupRenderingTest(hooks);
 
   test('we can use `{{#each-in record as |key value|}}` in a template', async function (assert) {
@@ -394,7 +567,16 @@ module('SchemaRecord | Iterable Behaviors | Rendering', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -409,31 +591,47 @@ module('SchemaRecord | Iterable Behaviors | Rendering', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-
-    const record = store.push<User>({
+    const record = store.push<ChatRelay>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
+
+    const stringify = (value: unknown) => JSON.stringify(value);
 
     await render(
       <template>
         {{#each-in record as |key value|}}
-          <div data-test-key={{key}}>{{value}}</div>
+          <div data-test-key={{key}}>{{stringify value}}</div>
         {{/each-in}}
       </template>
     );
 
-    assert.dom('[data-test-key="id"]').hasText('1');
-    assert.dom('[data-test-key="$type"]').hasText('user');
-    assert.dom('[data-test-key="name"]').hasText('Rey Pupatine');
+    assert.dom('[data-test-key="id"]').hasText('"1"');
+    assert.dom('[data-test-key="$type"]').hasText('"chat-relay"');
+    assert.dom('[data-test-key="name"]').hasText('"discord.com"');
+    assert.dom('[data-test-key="config"]').hasText('{"instanceName":"discord","host":"discord.com"}');
+    assert.dom('[data-test-key="activeUsers"]').hasText('{"acf4g1":"Rey Pupatine"}');
   });
 
   test('we can use `{{#each record as |entry|}}` in a template', async function (assert) {
@@ -442,7 +640,16 @@ module('SchemaRecord | Iterable Behaviors | Rendering', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      type: 'user',
+      type: 'config',
+      identity: null,
+      fields: [
+        { kind: 'field', name: 'instanceName' },
+        { kind: 'field', name: 'host' },
+      ],
+    });
+
+    schema.registerResource({
+      type: 'chat-relay',
       identity: { kind: '@id', name: 'id' },
       fields: [
         {
@@ -457,32 +664,51 @@ module('SchemaRecord | Iterable Behaviors | Rendering', function (hooks) {
           options: { key: 'type' },
         },
         {
+          name: 'config',
+          kind: 'schema-object',
+          type: 'config',
+        },
+        {
+          name: 'activeUsers',
+          kind: 'object',
+        },
+        {
           name: 'name',
           kind: 'field',
         },
       ],
     });
-
-    const record = store.push<User & { [Symbol.iterator]: () => Iterator<[string, string]> }>({
+    const record = store.push<ChatRelay & { [Symbol.iterator]: () => Iterator<[string, unknown]> }>({
       data: {
-        type: 'user',
+        type: 'chat-relay',
         id: '1',
-        attributes: { name: 'Rey Pupatine' },
+        attributes: {
+          name: 'discord.com',
+          config: { instanceName: 'discord', host: 'discord.com' },
+          activeUsers: { acf4g1: 'Rey Pupatine' },
+        },
       },
     });
 
-    const get = (entry: [string, string], index: number) => entry[index];
+    interface get {
+      (entry: [string, unknown], index: 0): string;
+      (entry: [string, unknown], index: 1): unknown;
+    }
+    const get = ((entry: [string, unknown], index: 0 | 1) => entry[index]) as get;
+    const stringify = (value: unknown) => JSON.stringify(value);
 
     await render(
       <template>
         {{#each record as |entry|}}
-          <div data-test-key={{get entry 0}}>{{get entry 1}}</div>
+          <div data-test-key={{get entry 0}}>{{stringify (get entry 1)}}</div>
         {{/each}}
       </template>
     );
 
-    assert.dom('[data-test-key="id"]').hasText('1');
-    assert.dom('[data-test-key="$type"]').hasText('user');
-    assert.dom('[data-test-key="name"]').hasText('Rey Pupatine');
+    assert.dom('[data-test-key="id"]').hasText('"1"');
+    assert.dom('[data-test-key="$type"]').hasText('"chat-relay"');
+    assert.dom('[data-test-key="name"]').hasText('"discord.com"');
+    assert.dom('[data-test-key="config"]').hasText('{"instanceName":"discord","host":"discord.com"}');
+    assert.dom('[data-test-key="activeUsers"]').hasText('{"acf4g1":"Rey Pupatine"}');
   });
 });
