@@ -135,6 +135,15 @@ export async function main() {
     // ensure that the package.json scripts are up to date with defaults
     /////////////////////////////////////////////////////////////////////
 
+    if (project.isTest) {
+      if (!('private' in project.pkg)) {
+        project.pkg.private = true;
+        project.isPrivate = true;
+        pkgEdited = true;
+        log(`\t\t🔧 Added private flag to package.json`);
+      }
+    }
+
     if (!project.isPrivate) {
       if (!project.pkg.scripts) {
         project.pkg.scripts = {};

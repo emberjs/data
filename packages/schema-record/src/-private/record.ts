@@ -72,6 +72,17 @@ function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+function isNonEnumerableProp(prop: string | number | symbol) {
+  return (
+    prop === 'constructor' ||
+    prop === 'prototype' ||
+    prop === '__proto__' ||
+    prop === 'toString' ||
+    prop === 'toJSON' ||
+    prop === 'toHTML'
+  );
+}
+
 const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
 export class SchemaRecord {
   declare [RecordStore]: Store;
@@ -124,7 +135,12 @@ export class SchemaRecord {
 
     const proxy = new Proxy(this, {
       ownKeys() {
-        return Array.from(fields.keys());
+        const identityKey = identityField?.name;
+        const keys = Array.from(fields.keys());
+        if (identityKey) {
+          keys.unshift(identityKey);
+        }
+        return keys;
       },
 
       has(target: SchemaRecord, prop: string | number | symbol) {
@@ -135,10 +151,17 @@ export class SchemaRecord {
       },
 
       getOwnPropertyDescriptor(target, prop) {
-        if (!fields.has(prop as string)) {
-          throw new Error(`No field named ${String(prop)} on ${identifier.type}`);
-        }
         const schemaForField = prop === identityField?.name ? identityField : fields.get(prop as string)!;
+        assert(`No field named ${String(prop)} on ${identifier.type}`, schemaForField);
+
+        if (isNonEnumerableProp(prop)) {
+          return {
+            writable: false,
+            enumerable: false,
+            configurable: true,
+          };
+        }
+
         switch (schemaForField.kind) {
           case 'derived':
             return {
@@ -247,6 +270,19 @@ export class SchemaRecord {
           }
 
           if (prop === Symbol.toPrimitive) return () => null;
+
+          if (prop === Symbol.iterator) {
+            let fn = BoundFns.get(Symbol.iterator);
+            if (!fn) {
+              fn = function* () {
+                for (const key in receiver) {
+                  yield [key, receiver[key as keyof typeof receiver]];
+                }
+              };
+              BoundFns.set(Symbol.iterator, fn);
+            }
+            return fn;
+          }
 
           if (prop === 'constructor') {
             return SchemaRecord;

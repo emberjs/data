@@ -55,6 +55,10 @@ function _constructor(record: SchemaRecord) {
 
   return (state._constructor = state._constructor || {
     name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
+    get modelName() {
+      assert(`record.constructor.modelName is not available outside of legacy mode`, false);
+      return undefined;
+    },
   });
 }
 _constructor[Type] = '@constructor';
@@ -65,7 +69,12 @@ _constructor[Type] = '@constructor';
  */
 export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
   schema.identity = schema.identity || DefaultIdentityField;
-  schema.fields.push(TypeField, ConstructorField);
+
+  // because fields gets iterated in definition order,
+  // we add TypeField to the beginning so that it will
+  // appear right next to the identity field
+  schema.fields.unshift(TypeField);
+  schema.fields.push(ConstructorField);
   return schema as ResourceSchema;
 }
 
