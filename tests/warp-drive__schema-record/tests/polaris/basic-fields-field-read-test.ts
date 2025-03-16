@@ -225,9 +225,9 @@ module('Reads | basic fields', function (hooks) {
         id: '1',
         type: 'user',
         attributes: {
-          name: 'Rey Skybarker'
-        }
-      }
+          name: 'Rey Skybarker',
+        },
+      },
     });
 
     assert.strictEqual(immutableRecord.id, '1', 'id is accessible');
@@ -237,29 +237,17 @@ module('Reads | basic fields', function (hooks) {
       immutableRecord.name = 'Gilfoyle';
     }, /Error: Cannot set name on user because the record is not editable/);
 
-     // Verify address remains unchanged
-      assert.strictEqual(
-        immutableRecord.name,
-        "Rey Skybarker",
-        'name remains unchanged after failed mutation attempt'
-      );
+    // Verify address remains unchanged
+    assert.strictEqual(immutableRecord.name, 'Rey Skybarker', 'name remains unchanged after failed mutation attempt');
 
-      const editableRecord = await immutableRecord[Checkout]();
-      editableRecord.name = 'Gilfoyle';
+    const editableRecord = await immutableRecord[Checkout]();
+    editableRecord.name = 'Gilfoyle';
 
-      assert.strictEqual(
-        editableRecord.name,
-        "Gilfoyle",
-        'name can be mutated after checkout'
-      );
+    assert.strictEqual(editableRecord.name, 'Gilfoyle', 'name can be mutated after checkout');
 
-      // Verify cache updates
-      const identifier = recordIdentifierFor(editableRecord);
-      const cachedResourceData = store.cache.peek(identifier);
-      assert.strictEqual(
-        cachedResourceData?.attributes?.name,
-        "Gilfoyle",
-        'Cache reflects updated name after checkout'
-      );
+    // Verify cache updates
+    const identifier = recordIdentifierFor(editableRecord);
+    const cachedResourceData = store.cache.peek(identifier);
+    assert.strictEqual(cachedResourceData?.attributes?.name, 'Gilfoyle', 'Cache reflects updated name after checkout');
   });
 });
