@@ -66,7 +66,7 @@ export interface GenericField {
  *
  * @typedoc
  */
-export interface AliasField {
+export interface LegacyAliasField {
   kind: 'alias';
   name: string;
   type: null; // should always be null
@@ -82,11 +82,102 @@ export interface AliasField {
     | SchemaObjectField
     | ArrayField
     | SchemaArrayField
-    | ResourceField
-    | CollectionField
+    // | ResourceField
+    // | CollectionField
     | LegacyAttributeField
     | LegacyBelongsToField
     | LegacyHasManyField;
+}
+
+/**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export interface PolarisAliasField {
+  kind: 'alias';
+  name: string;
+  type: null; // should always be null
+
+  /**
+   * The field def for which this is an alias.
+   *
+   * @typedoc
+   */
+  options:
+    | GenericField
+    | ObjectField
+    | SchemaObjectField
+    | ArrayField
+    | SchemaArrayField
+    // | ResourceField
+    // | CollectionField
+    | LinksModeBelongsToField
+    | LinksModeHasManyField;
+}
+
+/**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export interface ObjectAliasField {
+  kind: 'alias';
+  name: string;
+  type: null; // should always be null
+
+  /**
+   * The field def for which this is an alias.
+   *
+   * @typedoc
+   */
+  options: GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField;
 }
 
 /**
@@ -1178,7 +1269,7 @@ export interface LinksModeHasManyField {
  */
 export type LegacyModeFieldSchema =
   | GenericField
-  | AliasField
+  | LegacyAliasField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -1198,7 +1289,7 @@ export type LegacyModeFieldSchema =
  */
 export type PolarisModeFieldSchema =
   | GenericField
-  | AliasField
+  | PolarisAliasField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -1223,7 +1314,8 @@ export type PolarisModeFieldSchema =
  */
 export type FieldSchema =
   | GenericField
-  | AliasField
+  | LegacyAliasField
+  | PolarisAliasField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -1246,7 +1338,7 @@ export type FieldSchema =
  */
 export type ObjectFieldSchema =
   | GenericField
-  | AliasField
+  | ObjectAliasField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -1494,5 +1586,28 @@ export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema 
   return schema?.identity?.kind === '@id';
 }
 
-export type LegacyFieldSchema = LegacyAttributeField | LegacyBelongsToField | LegacyHasManyField;
-export type LegacyRelationshipSchema = LegacyBelongsToField | LegacyHasManyField;
+/**
+ * A type utility to narrow a schema to LegacyResourceSchema
+ *
+ * @method isLegacyResourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param schema
+ * @returns {boolean}
+ * @public
+ */
+export function isLegacyResourceSchema(schema: ResourceSchema | ObjectSchema): schema is LegacyResourceSchema {
+  return isResourceSchema(schema) && schema.legacy === true;
+}
+
+export type LegacyField =
+  | LegacyAttributeField
+  | LegacyBelongsToField
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;
+export type LegacyRelationshipField =
+  | LegacyBelongsToField
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;

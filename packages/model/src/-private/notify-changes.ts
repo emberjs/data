@@ -4,7 +4,7 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 import { LEGACY_SUPPORT } from './legacy-relationships-support';
 import type { Model } from './model';

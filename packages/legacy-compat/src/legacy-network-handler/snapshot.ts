@@ -13,7 +13,7 @@ import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 
 import { upgradeStore } from '../-private';
 import type { SerializerOptions } from './minimum-serializer-interface';
@@ -519,7 +519,7 @@ export class Snapshot<R = unknown> {
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
   */
-  eachRelationship(callback: (key: string, meta: LegacyRelationshipSchema) => void, binding?: unknown): void {
+  eachRelationship(callback: (key: string, meta: LegacyRelationshipField) => void, binding?: unknown): void {
     const fields = this._store.schema.fields(this.identifier);
     fields.forEach((field, key) => {
       if (field.kind === 'belongsTo' || field.kind === 'hasMany') {

@@ -3,7 +3,7 @@ import { expectTypeOf } from 'expect-type';
 
 import Store from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 
 import { attr } from './attr';
@@ -189,7 +189,7 @@ user.eachAttribute((key, meta) => {
 });
 user.eachRelationship((key, meta) => {
   expectTypeOf(key).toEqualTypeOf<'twin' | 'enemies' | 'friends'>();
-  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipField>();
 });
 
 branded.eachAttribute((key, meta) => {
@@ -199,7 +199,7 @@ branded.eachAttribute((key, meta) => {
 
 branded.eachRelationship((key, meta) => {
   expectTypeOf(key).toEqualTypeOf<'bestFriend' | 'twin' | 'enemies' | 'friends'>();
-  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipSchema>();
+  expectTypeOf(meta).toEqualTypeOf<LegacyRelationshipField>();
 });
 
 // this ensures that `serialize` can be overridden
