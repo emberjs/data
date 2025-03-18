@@ -235,13 +235,21 @@ function _compare<T>(
         // we can disregard the change notification generation so long as
         // we are not configured to reset on remote update (which is deprecated)
         if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-          if (!remoteClearsLocal && i < priorLocalLength) {
+          if (i < priorLocalLength) {
             const priorLocalMember = priorLocalState![i];
-            if (priorLocalMember !== member) {
+            if (remoteClearsLocal) {
+              if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+                !changed && console.log(`changed because member !== prevMember && remoteClearsLocal`);
+              }
+              changed = true;
+            } else if (priorLocalMember !== member) {
+              if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+                !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
+              }
               changed = true;
             }
-          } else {
-            changed = true;
           }
         } else {
           if (i < priorLocalLength) {
