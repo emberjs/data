@@ -178,6 +178,145 @@ module('Legacy Mode', function (hooks) {
     assert.strictEqual(record.constructor.name, 'Record<user>', 'it has a useful constructor name');
   });
 
+  test('records not in legacy mode can access values with type "field"', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    });
+
+    assert.false(record[Legacy], 'record is NOT in legacy mode');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+
+    assert.strictEqual(record.name, 'Rey Pupatine', 'can access name field');
+  });
+
+  test('records in legacy mode cannot access values with type "field"', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerLegacyDerivations(schema);
+
+    schema.registerResource(
+      withLegacyFields({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: { name: 'Rey Pupatine' },
+      },
+    });
+
+    assert.true(record[Legacy], 'record is in legacy mode');
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      record.name;
+      assert.ok(false, 'record.name should throw');
+    } catch (e) {
+      assert.strictEqual(
+        (e as Error).message,
+        "SchemaRecord.name is not available in legacy mode because it has type 'field'",
+        'record.name throws'
+      );
+    }
+  });
+
+  test('records in legacy mode cannot access resources', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerLegacyDerivations(schema);
+
+    schema.registerResource(
+      withLegacyFields({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+          {
+            name: 'bestFriend',
+            type: 'user',
+            kind: 'resource',
+            options: { inverse: 'bestFriend', async: true },
+          },
+        ],
+      })
+    );
+
+    const record = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+        relationships: {
+          bestFriend: {
+            data: { type: 'user', id: '2' },
+          },
+        },
+      },
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            name: 'Rey',
+          },
+          relationships: {
+            bestFriend: {
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
+      ],
+    });
+
+    assert.true(record[Legacy], 'record is in legacy mode');
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      record.bestFriend;
+      assert.ok(false, 'record.bestFriend should throw');
+    } catch (e) {
+      assert.strictEqual(
+        (e as Error).message,
+        "SchemaRecord.bestFriend is not available in legacy mode because it has type 'resource'",
+        'record.bestFriend throws'
+      );
+    }
+  });
+
   test('we can access errors', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;

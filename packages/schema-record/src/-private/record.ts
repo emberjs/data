@@ -316,18 +316,30 @@ export class SchemaRecord {
             return lastValue;
           }
           case 'field':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
             entangleSignal(signals, receiver, field.name);
             return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
             entangleSignal(signals, receiver, field.name);
             return computeAttribute(cache, identifier, prop as string, IS_EDITABLE);
           case 'resource':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
             entangleSignal(signals, receiver, field.name);
             return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
           case 'array':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
             entangleSignal(signals, receiver, field.name);
             return computeArray(
               store,
@@ -341,9 +353,17 @@ export class SchemaRecord {
               Mode[Legacy]
             );
           case 'object':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
             entangleSignal(signals, receiver, field.name);
             return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
+            assert(
+              `SchemaRecord.${field.name} is not available in legacy mode because it has type '${field.kind}'`,
+              !target[Legacy]
+            );
             entangleSignal(signals, receiver, field.name);
             // run transform, then use that value as the object to manage
             return computeSchemaObject(
