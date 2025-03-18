@@ -505,6 +505,9 @@ export default class JSONAPICache implements Cache {
       const store = this._capabilities._store;
       const attrs = this._capabilities.schema.fields(identifier);
       attrs.forEach((attr, key) => {
+        if (attr.kind === 'alias') {
+          return;
+        }
         if (key in attributes && attributes[key] !== undefined) {
           return;
         }
