@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/codemods",
-  "version": "5.4.0-alpha.148",
+  "version": "5.4.0-alpha.149",
   "description": "Codemods for EmberData paradigms",
   "keywords": [],
   "repository": {
