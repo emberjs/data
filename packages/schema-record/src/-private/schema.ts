@@ -20,7 +20,7 @@ import {
   type IdentityField,
   isResourceSchema,
   type LegacyAttributeField,
-  type LegacyRelationshipSchema,
+  type LegacyRelationshipField,
   type ObjectField,
   type ObjectSchema,
   type ResourceSchema,
@@ -108,7 +108,7 @@ interface InternalSchema {
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipField>;
 }
 
 export type Transformation<T extends Value = Value, PT = unknown> = {
@@ -232,7 +232,7 @@ export class SchemaService implements SchemaServiceInterface {
   }
   registerResource(schema: ResourceSchema | ObjectSchema): void {
     const fields = new Map<string, FieldSchema>();
-    const relationships: Record<string, LegacyRelationshipSchema> = {};
+    const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
     schema.fields.forEach((field) => {

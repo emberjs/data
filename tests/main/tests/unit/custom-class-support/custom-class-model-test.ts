@@ -34,8 +34,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
-            type: null,
+            kind: 'field',
           },
         ],
       });
@@ -210,6 +209,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     const store = this.owner.lookup('service:store') as CustomStore;
     store.schema._assert = assert;
     store.schema.registerResource({
+      legacy: true,
       identity: { name: 'id', kind: '@id' },
       type: 'person',
       fields: [
@@ -341,6 +341,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     const store = this.owner.lookup('service:store') as CustomStore;
     store.schema.registerResources([
       {
+        legacy: true,
         identity: { name: 'id', kind: '@id' },
         type: 'person',
         fields: [
@@ -367,8 +368,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         fields: [
           {
             type: 'string',
-            kind: 'attribute',
-            options: {},
+            kind: 'field',
             name: 'address',
           },
         ],

@@ -1,6 +1,6 @@
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
-import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 
 import type { KeyOrString, ModelSchema } from '../../-types/q/ds-model';
 import type { Store } from '../store-service';
@@ -63,8 +63,8 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
     return attrs;
   }
 
-  get relationshipsByName(): Map<KeyOrString<T>, LegacyRelationshipSchema> {
-    const rels = new Map<KeyOrString<T>, LegacyRelationshipSchema>();
+  get relationshipsByName(): Map<KeyOrString<T>, LegacyRelationshipField> {
+    const rels = new Map<KeyOrString<T>, LegacyRelationshipField>();
     const fields = this.__store.schema.fields({ type: this.modelName });
 
     fields.forEach((schema, key) => {
@@ -85,7 +85,7 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   }
 
   eachRelationship<K extends KeyOrString<T>>(
-    callback: (key: K, relationship: LegacyRelationshipSchema) => void,
+    callback: (key: K, relationship: LegacyRelationshipField) => void,
     binding?: T
   ) {
     this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {

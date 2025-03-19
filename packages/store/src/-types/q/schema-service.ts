@@ -13,15 +13,13 @@ import type {
   GenericField,
   HashField,
   LegacyAttributeField,
-  LegacyBelongsToField,
-  LegacyHasManyField,
+  LegacyRelationshipField,
   ObjectField,
-  ObjectSchema,
-  ResourceSchema,
+  Schema,
 } from '@warp-drive/core-types/schema/fields';
 
 export type AttributesSchema = Record<string, LegacyAttributeField>;
-export type RelationshipsSchema = Record<string, LegacyBelongsToField | LegacyHasManyField>;
+export type RelationshipsSchema = Record<string, LegacyRelationshipField>;
 
 /**
  * The SchemaService provides the ability to query for information about the structure
@@ -172,7 +170,7 @@ export interface SchemaService {
    * @param {StableRecordIdentifier|{ type: string }} resource
    * @return {ResourceSchema}
    */
-  resource(resource: { type: string } | StableRecordIdentifier): ResourceSchema | ObjectSchema;
+  resource(resource: { type: string } | StableRecordIdentifier): Schema;
 
   /**
    * Enables registration of multiple ResourceSchemas at once.
@@ -185,7 +183,7 @@ export interface SchemaService {
    * @public
    * @param schemas
    */
-  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void;
+  registerResources(schemas: Schema[]): void;
 
   /**
    * Enables registration of a single ResourceSchema.
@@ -198,7 +196,7 @@ export interface SchemaService {
    * @public
    * @param {ResourceSchema} schema
    */
-  registerResource(schema: ResourceSchema | ObjectSchema): void;
+  registerResource(schema: Schema): void;
 
   /**
    * Enables registration of a transformation.

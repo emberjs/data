@@ -83,7 +83,14 @@ module('Reads | Alias fields', function (hooks) {
       '1000000.009',
       'cache value for netWorth is correct'
     );
-    assert.strictEqual(store.cache.getAttr(identifier, 'netWorth'), undefined, 'not caching the alias field');
+    const rawCache = store.cache.__cache.get(identifier);
+    const current = Object.assign(
+      Object.assign({}, rawCache?.remoteAttrs, rawCache?.inflightAttrs),
+      rawCache?.localAttrs,
+      rawCache?.defaultAttrs
+    );
+    assert.false('netWorth' in current, 'not caching the alias field');
+    assert.strictEqual(current.netWorth, undefined, 'not caching the alias field');
     assert.strictEqual(
       resource.attributes?.rawNetWorth,
       '1000000.009',
@@ -104,7 +111,15 @@ module('Reads | Alias fields', function (hooks) {
       '1000000.01',
       'cache value for netWorth is correct'
     );
-    assert.strictEqual(store.cache.getAttr(identifier2, 'netWorth'), undefined, 'not caching the alias field');
+
+    const rawCache2 = store.cache.__cache.get(identifier2);
+    const current2 = Object.assign(
+      Object.assign({}, rawCache2?.remoteAttrs, rawCache2?.inflightAttrs),
+      rawCache2?.localAttrs,
+      rawCache2?.defaultAttrs
+    );
+    assert.false('netWorth' in current2, 'not caching the alias field');
+    assert.strictEqual(current2.netWorth, undefined, 'not caching the alias field');
     assert.strictEqual(
       resource2.attributes?.rawNetWorth,
       '1000000.01',
