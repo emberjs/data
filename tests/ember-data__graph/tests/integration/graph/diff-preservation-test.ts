@@ -894,15 +894,15 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     );
   }
 
-  test('updateRelationship operation matching localState does not produce a notification', function (assert) {
+  test('updateRelationship operation matching localState does not produce a notification for a committed removal (resetOnRemoteUpdate=false)', function (assert) {
     class User extends Model {
       @attr declare name: string;
-      @hasMany('comment', { async: false, inverse: 'user' }) declare comments: Comment[];
+      @hasMany('comment', { async: false, inverse: 'user', resetOnRemoteUpdate: false }) declare comments: Comment[];
     }
 
     class Comment extends Model {
       @attr declare text: string;
-      @belongsTo('user', { async: false, inverse: 'comments' }) declare user: User | null;
+      @belongsTo('user', { async: false, inverse: 'comments', resetOnRemoteUpdate: false }) declare user: User | null;
     }
 
     const { owner } = this;
@@ -910,6 +910,9 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     owner.register('model:comment', Comment);
     const store = owner.lookup('service:store') as unknown as Store;
     const graph = graphFor(store);
+
+    // watch for changes
+    assert.watchNotifications(store);
 
     const Identifier = (type: string, id: string) => {
       return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
@@ -937,6 +940,14 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       });
     });
 
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'We should have no notifications after initial push'
+    );
+
     const data = graph.getData(userIdentifier, 'comments');
     assert.arrayStrictEquals(
       data.data,
@@ -954,6 +965,15 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       });
     });
 
+    // mutation should notify
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'We should have a notification after mutation removes comment 2'
+    );
+
     // check that comment 2 is removed
     const data2 = graph.getData(userIdentifier, 'comments');
     assert.arrayStrictEquals(
@@ -961,10 +981,6 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       [comment1Identifier, comment3Identifier, comment4Identifier],
       'comment 2 is removed'
     );
-
-    // watch for changes
-    assert.watchNotifications(store);
-    assert.clearNotifications();
 
     // push a new remote state that matches the local state
     store._join(() => {
@@ -990,8 +1006,13 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       'state is still the same'
     );
 
-    // we should have no notifications
-    assert.notified(userIdentifier, 'relationships', 'comments', 0);
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'We should have no notifciations after remote push matches local state'
+    );
 
     // push an update that does not match the local state
     store._join(() => {
@@ -1009,11 +1030,446 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     });
 
     // we should have notifications
-    assert.notified(userIdentifier, 'relationships', 'comments', 1);
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'We should have a notification after remote push that does not match local state'
+    );
 
     // check state is updated
     const data4 = graph.getData(userIdentifier, 'comments');
     assert.arrayStrictEquals(data4.data, [comment1Identifier, comment4Identifier], 'state is updated');
+  });
+
+  test('updateRelationship operation matching localState does not produce a notification for a committed addition (resetOnRemoteUpdate=false)', function (assert) {
+    class User extends Model {
+      @attr declare name: string;
+      @hasMany('comment', { async: false, inverse: 'user', resetOnRemoteUpdate: false }) declare comments: Comment[];
+    }
+
+    class Comment extends Model {
+      @attr declare text: string;
+      @belongsTo('user', { async: false, inverse: 'comments', resetOnRemoteUpdate: false }) declare user: User | null;
+    }
+
+    const { owner } = this;
+    owner.register('model:user', User);
+    owner.register('model:comment', Comment);
+    const store = owner.lookup('service:store') as unknown as Store;
+    const graph = graphFor(store);
+
+    // watch for changes
+    assert.watchNotifications(store);
+
+    const Identifier = (type: string, id: string) => {
+      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+    };
+    const userIdentifier = Identifier('user', '1');
+    const comment1Identifier = Identifier('comment', '1');
+    const comment2Identifier = Identifier('comment', '2');
+    const comment3Identifier = Identifier('comment', '3');
+    const comment4Identifier = Identifier('comment', '4');
+
+    // initially user has comments 1, 2, 3, 4
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // initial push should not notify
+    assert.notified(userIdentifier, 'relationships', 'comments', 0, 'initial push should not notify');
+
+    const data = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(data.data, [comment1Identifier, comment4Identifier], 'initial data is correct');
+
+    // remove comment 2
+    store._join(() => {
+      graph.update({
+        op: 'addToRelatedRecords',
+        record: userIdentifier,
+        field: 'comments',
+        index: 1,
+        value: comment3Identifier,
+      });
+    });
+
+    // mutation should notify
+    assert.notified(userIdentifier, 'relationships', 'comments', 1, 'mutation to add comment 3 should notify');
+
+    // check that comment 3 is added
+    const data2 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data2.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'comment 3 is added'
+    );
+
+    // push a new remote state that matches the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have no notifications
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'no notifications after remote push matches local state'
+    );
+
+    // check state is still the same
+    const data3 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data3.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'state is still the same'
+    );
+
+    // push an update that does not match the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '2' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have notifications
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'notifications after remote push does not match local state'
+    );
+
+    // check state is updated
+    const data4 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data4.data,
+      [comment1Identifier, comment2Identifier, comment3Identifier, comment4Identifier],
+      'state is updated'
+    );
+  });
+
+  test('updateRelationship operation matching localState does not produce a notification for a committed removal', function (assert) {
+    class User extends Model {
+      @attr declare name: string;
+      @hasMany('comment', { async: false, inverse: 'user', resetOnRemoteUpdate: true }) declare comments: Comment[];
+    }
+
+    class Comment extends Model {
+      @attr declare text: string;
+      @belongsTo('user', { async: false, inverse: 'comments', resetOnRemoteUpdate: true }) declare user: User | null;
+    }
+
+    const { owner } = this;
+    owner.register('model:user', User);
+    owner.register('model:comment', Comment);
+    const store = owner.lookup('service:store') as unknown as Store;
+    const graph = graphFor(store);
+
+    // watch for changes
+    assert.watchNotifications(store);
+
+    const Identifier = (type: string, id: string) => {
+      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+    };
+    const userIdentifier = Identifier('user', '1');
+    const comment1Identifier = Identifier('comment', '1');
+    const comment2Identifier = Identifier('comment', '2');
+    const comment3Identifier = Identifier('comment', '3');
+    const comment4Identifier = Identifier('comment', '4');
+
+    // initially user has comments 1, 2, 3, 4
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '2' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'We should have no notifications after initial push'
+    );
+
+    const data = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data.data,
+      [comment1Identifier, comment2Identifier, comment3Identifier, comment4Identifier],
+      'initial data is correct'
+    );
+
+    // remove comment 2
+    store._join(() => {
+      graph.update({
+        op: 'removeFromRelatedRecords',
+        record: userIdentifier,
+        field: 'comments',
+        value: comment2Identifier,
+      });
+    });
+
+    // mutation should notify
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'We should have a notification after mutation removes comment 2'
+    );
+
+    // check that comment 2 is removed
+    const data2 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data2.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'comment 2 is removed'
+    );
+
+    // push a new remote state that matches the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // check state is still the same
+    const data3 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data3.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'state is still the same'
+    );
+
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'We should have no notifciations after remote push matches local state'
+    );
+
+    // push an update that does not match the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have notifications
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'We should have a notification after remote push that does not match local state'
+    );
+
+    // check state is updated
+    const data4 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(data4.data, [comment1Identifier, comment4Identifier], 'state is updated');
+  });
+
+  test('updateRelationship operation matching localState does not produce a notification for a committed addition', function (assert) {
+    class User extends Model {
+      @attr declare name: string;
+      @hasMany('comment', { async: false, inverse: 'user', resetOnRemoteUpdate: true }) declare comments: Comment[];
+    }
+
+    class Comment extends Model {
+      @attr declare text: string;
+      @belongsTo('user', { async: false, inverse: 'comments', resetOnRemoteUpdate: true }) declare user: User | null;
+    }
+
+    const { owner } = this;
+    owner.register('model:user', User);
+    owner.register('model:comment', Comment);
+    const store = owner.lookup('service:store') as unknown as Store;
+    const graph = graphFor(store);
+
+    // watch for changes
+    assert.watchNotifications(store);
+
+    const Identifier = (type: string, id: string) => {
+      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+    };
+    const userIdentifier = Identifier('user', '1');
+    const comment1Identifier = Identifier('comment', '1');
+    const comment2Identifier = Identifier('comment', '2');
+    const comment3Identifier = Identifier('comment', '3');
+    const comment4Identifier = Identifier('comment', '4');
+
+    // initially user has comments 1, 2, 3, 4
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // initial push should not notify
+    assert.notified(userIdentifier, 'relationships', 'comments', 0, 'initial push should not notify');
+
+    const data = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(data.data, [comment1Identifier, comment4Identifier], 'initial data is correct');
+
+    // remove comment 2
+    store._join(() => {
+      graph.update({
+        op: 'addToRelatedRecords',
+        record: userIdentifier,
+        field: 'comments',
+        index: 1,
+        value: comment3Identifier,
+      });
+    });
+
+    // mutation should notify
+    assert.notified(userIdentifier, 'relationships', 'comments', 1, 'mutation to add comment 3 should notify');
+
+    // check that comment 3 is added
+    const data2 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data2.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'comment 3 is added'
+    );
+
+    // push a new remote state that matches the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have no notifications
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      0,
+      'no notifications after remote push matches local state'
+    );
+
+    // check state is still the same
+    const data3 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data3.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'state is still the same'
+    );
+
+    // push an update that does not match the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '2' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have notifications
+    assert.notified(
+      userIdentifier,
+      'relationships',
+      'comments',
+      1,
+      'notifications after remote push does not match local state'
+    );
+
+    // check state is updated
+    const data4 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data4.data,
+      [comment1Identifier, comment2Identifier, comment3Identifier, comment4Identifier],
+      'state is updated'
+    );
   });
 
   test('updateRelationship operation from the collection side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert) {

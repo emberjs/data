@@ -97,7 +97,8 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert) 
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     bucket: NotificationType | DocumentCacheOperation,
     key: string | null,
-    count: number
+    count: number,
+    message?: string
   ) {
     const counter = getCounter(context, identifier, bucket, key);
 
@@ -105,7 +106,7 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert) 
       result: counter.count === count,
       actual: counter.count,
       expected: count,
-      message: `Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
+      message: `${message ? message + ' | ' : ''}Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
     });
 
     counter.count = 0;
