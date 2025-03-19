@@ -894,6 +894,128 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     );
   }
 
+  test('updateRelationship operation matching localState does not produce a notification', function (assert) {
+    class User extends Model {
+      @attr declare name: string;
+      @hasMany('comment', { async: false, inverse: 'user' }) declare comments: Comment[];
+    }
+
+    class Comment extends Model {
+      @attr declare text: string;
+      @belongsTo('user', { async: false, inverse: 'comments' }) declare user: User | null;
+    }
+
+    const { owner } = this;
+    owner.register('model:user', User);
+    owner.register('model:comment', Comment);
+    const store = owner.lookup('service:store') as unknown as Store;
+    const graph = graphFor(store);
+
+    const Identifier = (type: string, id: string) => {
+      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+    };
+    const userIdentifier = Identifier('user', '1');
+    const comment1Identifier = Identifier('comment', '1');
+    const comment2Identifier = Identifier('comment', '2');
+    const comment3Identifier = Identifier('comment', '3');
+    const comment4Identifier = Identifier('comment', '4');
+
+    // initially user has comments 1, 2, 3, 4
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '2' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    const data = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data.data,
+      [comment1Identifier, comment2Identifier, comment3Identifier, comment4Identifier],
+      'initial data is correct'
+    );
+
+    // remove comment 2
+    store._join(() => {
+      graph.update({
+        op: 'removeFromRelatedRecords',
+        record: userIdentifier,
+        field: 'comments',
+        value: comment2Identifier,
+      });
+    });
+
+    // check that comment 2 is removed
+    const data2 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data2.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'comment 2 is removed'
+    );
+
+    // watch for changes
+    assert.watchNotifications(store);
+    assert.clearNotifications();
+
+    // push a new remote state that matches the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '3' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // check state is still the same
+    const data3 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(
+      data3.data,
+      [comment1Identifier, comment3Identifier, comment4Identifier],
+      'state is still the same'
+    );
+
+    // we should have no notifications
+    assert.notified(userIdentifier, 'relationships', 'comments', 0);
+
+    // push an update that does not match the local state
+    store._join(() => {
+      graph.push({
+        op: 'updateRelationship',
+        record: userIdentifier,
+        field: 'comments',
+        value: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '4' },
+          ],
+        },
+      });
+    });
+
+    // we should have notifications
+    assert.notified(userIdentifier, 'relationships', 'comments', 1);
+
+    // check state is updated
+    const data4 = graph.getData(userIdentifier, 'comments');
+    assert.arrayStrictEquals(data4.data, [comment1Identifier, comment4Identifier], 'state is updated');
+  });
+
   test('updateRelationship operation from the collection side does not clear local state when `resetOnRemoteUpdate: false` is set', function (assert) {
     // tests that Many:Many, Many:One do not clear local state from
     // either side when updating the relationship from the Many side
