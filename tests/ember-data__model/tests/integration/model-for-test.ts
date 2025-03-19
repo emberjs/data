@@ -28,8 +28,7 @@ module('modelFor without @ember-data/model', function () {
       fields: [
         {
           name: 'name',
-          type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
       ],
     });
@@ -76,8 +75,7 @@ module('modelFor without @ember-data/model', function () {
       fields: [
         {
           name: 'name',
-          type: null,
-          kind: 'attribute',
+          kind: 'field',
         },
       ],
     });

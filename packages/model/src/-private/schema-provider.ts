@@ -18,8 +18,8 @@ import type {
   GenericField,
   HashField,
   LegacyAttributeField,
-  LegacyFieldSchema,
-  LegacyRelationshipSchema,
+  LegacyField,
+  LegacyRelationshipField,
   ObjectField,
   ObjectSchema,
   ResourceSchema,
@@ -34,9 +34,9 @@ type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefini
 
 type InternalSchema = {
   schema: ResourceSchema;
-  fields: Map<string, LegacyAttributeField | LegacyRelationshipSchema>;
+  fields: Map<string, LegacyAttributeField | LegacyRelationshipField>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipField>;
 };
 
 export interface ModelSchemaProvider {
@@ -105,7 +105,7 @@ export class ModelSchemaProvider implements SchemaService {
     const attributes = Object.create(null) as AttributesSchema;
     attributeMap.forEach((meta, name) => (attributes[name] = meta));
     const relationships = modelClass.relationshipsObject || null;
-    const fields = new Map<string, LegacyAttributeField | LegacyRelationshipSchema>();
+    const fields = new Map<string, LegacyAttributeField | LegacyRelationshipField>();
 
     for (const attr of Object.values(attributes)) {
       fields.set(attr.name, attr);
@@ -134,7 +134,7 @@ export class ModelSchemaProvider implements SchemaService {
     return internalSchema;
   }
 
-  fields(resource: RecordIdentifier | { type: string }): Map<string, LegacyFieldSchema> {
+  fields(resource: RecordIdentifier | { type: string }): Map<string, LegacyField> {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {

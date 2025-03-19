@@ -11,7 +11,7 @@ import {
   type HashField,
   isResourceSchema,
   type LegacyAttributeField,
-  type LegacyRelationshipSchema,
+  type LegacyRelationshipField,
   type ObjectField,
   type ObjectSchema,
   type ResourceSchema,
@@ -23,7 +23,7 @@ type InternalSchema = {
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipField>;
 };
 
 export class TestSchema implements SchemaService {
@@ -116,7 +116,7 @@ export class TestSchema implements SchemaService {
 
   registerResource(schema: ResourceSchema | ObjectSchema): void {
     const fields = new Map<string, FieldSchema>();
-    const relationships: Record<string, LegacyRelationshipSchema> = {};
+    const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
     schema.fields.forEach((field) => {

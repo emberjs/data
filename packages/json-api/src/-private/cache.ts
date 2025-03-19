@@ -31,7 +31,7 @@ import type {
   CollectionField,
   FieldSchema,
   LegacyHasManyField,
-  LegacyRelationshipSchema,
+  LegacyRelationshipField,
   ResourceField,
 } from '@warp-drive/core-types/schema/fields';
 import type {
@@ -505,6 +505,9 @@ export default class JSONAPICache implements Cache {
       const store = this._capabilities._store;
       const attrs = this._capabilities.schema.fields(identifier);
       attrs.forEach((attr, key) => {
+        if (attr.kind === 'alias') {
+          return;
+        }
         if (key in attributes && attributes[key] !== undefined) {
           return;
         }
@@ -1817,6 +1820,8 @@ function getDefaultValue(
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
+  assert(`AliasFields should not be directly accessed from the cache`, schema?.kind !== 'alias');
+
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -1989,7 +1994,7 @@ function setupRelationships(
   }
 }
 
-function isRelationship(field: FieldSchema): field is LegacyRelationshipSchema | CollectionField | ResourceField {
+function isRelationship(field: FieldSchema): field is LegacyRelationshipField | CollectionField | ResourceField {
   const { kind } = field;
   return kind === 'hasMany' || kind === 'belongsTo' || kind === 'resource' || kind === 'collection';
 }

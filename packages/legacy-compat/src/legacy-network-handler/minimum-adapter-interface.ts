@@ -4,7 +4,7 @@
 import type Store from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
 import type { ModelSchema } from '@ember-data/store/types';
-import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 import type { Snapshot } from './snapshot';
 import type { SnapshotRecordArray } from './snapshot-record-array';

@@ -331,6 +331,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const store = new TestStore();
     store.schema.registerResource(
       resourceSchema({
+        legacy: true,
         identity: { kind: '@id', name: 'id ' },
         type: 'user',
         fields: [

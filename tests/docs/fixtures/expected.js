@@ -31,6 +31,7 @@ module.exports = {
     'ember-data-overview',
   ],
   classitems: [
+    '(public) @warp-drive/core-types @warp-drive/core-types#isLegacyResourceSchema',
     '(public) @warp-drive/core-types @warp-drive/core-types#isResourceSchema',
     '(public) @warp-drive/core-types @warp-drive/core-types#objectSchema',
     '(public) @warp-drive/core-types @warp-drive/core-types#resourceSchema',

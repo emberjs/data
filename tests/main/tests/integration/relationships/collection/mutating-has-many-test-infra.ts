@@ -435,6 +435,7 @@ export function runTestGroup(splitNum: number, offset: number) {
             const store = this.owner.lookup('service:store') as Store;
             const user = startingState.cb(store);
             const rc = await reactiveContext.call(this, user, {
+              legacy: true,
               identity: { kind: '@id', name: 'id' },
               type: 'user',
               fields: [{ name: 'friends', kind: 'hasMany', type: 'user', options: { async: false, inverse: null } }],
