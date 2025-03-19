@@ -188,7 +188,7 @@ By default when using with Ember you only need to implement this hook if you wan
 */
 
 import EmberObject from '@ember/object';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import type { AdapterPayload, MinimumAdapterInterface, SerializerOptions } from '@ember-data/legacy-compat';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
@@ -197,6 +197,7 @@ import type { ModelSchema } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
+const service = s.service ?? s.inject;
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
