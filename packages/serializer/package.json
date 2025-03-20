@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.4.0-beta.18",
+  "version": "5.3.12",
   "description": "Provides Legacy JSON, JSON:API and REST Implementations of the Serializer Interface for use with @ember-data/store",
   "keywords": [
     "ember-addon"

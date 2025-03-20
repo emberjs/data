@@ -1,7 +1,7 @@
 {
   "name": "warp-drive",
   "version": "0.1.0-beta.12",
-  "private": false,
+  "private": true,
   "description": "WarpDrive is the data framework for ambitious web applications",
   "keywords": [
     "typescript",
