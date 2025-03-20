@@ -1,8 +1,10 @@
-import { LOG_CONFIG } from './-private/utils/logging';
+import type { LOG_CONFIG } from '@warp-drive/build-config/-private/utils/logging';
 
-const RuntimeConfig = {
+import { getOrSetUniversal } from './-private';
+
+const RuntimeConfig: { debug: Partial<LOG_CONFIG> } = getOrSetUniversal('WarpDriveRuntimeConfig', {
   debug: {},
-};
+});
 
 const settings = globalThis.sessionStorage?.getItem('WarpDriveRuntimeConfig');
 if (settings) {

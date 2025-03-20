@@ -1203,6 +1203,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // watch for changes
     assert.watchNotifications(store);
 
+    console.groupCollapsed('initial state');
     const Identifier = (type: string, id: string) => {
       return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
     };
@@ -1243,6 +1244,8 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       [comment1Identifier, comment2Identifier, comment3Identifier, comment4Identifier],
       'initial data is correct'
     );
+    console.groupEnd();
+    console.groupCollapsed('remove comment 2');
 
     // remove comment 2
     store._join(() => {
@@ -1270,6 +1273,8 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       [comment1Identifier, comment3Identifier, comment4Identifier],
       'comment 2 is removed'
     );
+    console.groupEnd();
+    console.groupCollapsed('push a new remote state that matches the local state');
 
     // push a new remote state that matches the local state
     store._join(() => {
@@ -1303,6 +1308,9 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       'We should have no notifciations after remote push matches local state'
     );
 
+    console.groupEnd();
+    console.groupCollapsed('push an update that does not match the local state');
+
     // push an update that does not match the local state
     store._join(() => {
       graph.push({
@@ -1330,6 +1338,8 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // check state is updated
     const data4 = graph.getData(userIdentifier, 'comments');
     assert.arrayStrictEquals(data4.data, [comment1Identifier, comment4Identifier], 'state is updated');
+
+    console.groupEnd();
   });
 
   test('updateRelationship operation matching localState does not produce a notification for a committed addition', function (assert) {
