@@ -6,9 +6,20 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
+import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import type Store from 'warp-drive__schema-record/services/store';
+
+type EditableUser = {
+  readonly id: string;
+  readonly $type: 'user';
+  name: string;
+  age: number;
+  netWorth: number;
+  coolometer: number;
+  rank: number;
+  readonly [Type]: 'user';
+};
 
 interface User {
   id: string | null;
@@ -18,6 +29,9 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  bestFriend?: User | null;
+  [Type]: 'user';
+  [Checkout](): Promise<EditableUser>;
 }
 
 module('Reads | basic fields', function (hooks) {
@@ -192,5 +206,48 @@ module('Reads | basic fields', function (hooks) {
     assert.strictEqual(resource.attributes?.netWorth, '1000000.01', 'resource cache value for netWorth is correct');
     assert.strictEqual(resource.attributes?.coolometer, '100.000', 'resource cache value for coolometer is correct');
     assert.strictEqual(resource.attributes?.rank, '0', 'resource cache value for rank is correct');
+  });
+
+  test('Record is immutable without calling checkout', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [{ name: 'name', kind: 'field' }],
+      })
+    );
+
+    const immutableRecord = store.push<User>({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          name: 'Rey Skybarker',
+        },
+      },
+    });
+
+    assert.strictEqual(immutableRecord.id, '1', 'id is accessible');
+    assert.strictEqual(immutableRecord.name, 'Rey Skybarker', 'name is accessible');
+
+    assert.throws(() => {
+      immutableRecord.name = 'Gilfoyle';
+    }, /Error: Cannot set name on user because the record is not editable/);
+
+    // Verify address remains unchanged
+    assert.strictEqual(immutableRecord.name, 'Rey Skybarker', 'name remains unchanged after failed mutation attempt');
+
+    const editableRecord = await immutableRecord[Checkout]();
+    editableRecord.name = 'Gilfoyle';
+
+    assert.strictEqual(editableRecord.name, 'Gilfoyle', 'name can be mutated after checkout');
+
+    // Verify cache updates
+    const identifier = recordIdentifierFor(editableRecord);
+    const cachedResourceData = store.cache.peek(identifier);
+    assert.strictEqual(cachedResourceData?.attributes?.name, 'Gilfoyle', 'Cache reflects updated name after checkout');
   });
 });
