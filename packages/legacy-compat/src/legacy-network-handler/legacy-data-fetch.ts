@@ -7,10 +7,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type {
-  LegacyRelationshipField as RelationshipSchema,
-  LegacyRelationshipSchema as RelationshipSchema,
-} from '@warp-drive/core-types/schema/fields';
+import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { upgradeStore } from '../-private';
