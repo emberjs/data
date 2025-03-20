@@ -1,4 +1,4 @@
-import { getRuntimeConfig, setLogging } from '@warp-drive/build-config/runtime';
+import { getRuntimeConfig, setLogging } from '@warp-drive/core-types/runtime';
 
 export { RequestManager as default } from './-private/manager';
 export { createDeferred } from './-private/future';

@@ -20,7 +20,6 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import { getRuntimeConfig, setLogging } from '@warp-drive/build-config/runtime';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
 import type {
@@ -30,6 +29,7 @@ import type {
 } from '@warp-drive/core-types/identifier';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
+import { getRuntimeConfig, setLogging } from '@warp-drive/core-types/runtime';
 import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type {
   CollectionResourceDocument,

@@ -250,8 +250,20 @@ export default class NotificationManager {
           );
         }
       }
-    } else if (LOG_METRIC_COUNTS) {
-      count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+    } else {
+      if (LOG_NOTIFICATIONS) {
+        log(
+          'notify',
+          'discarded',
+          `${'type' in identifier ? identifier.type : 'document'}`,
+          identifier.lid,
+          `${value}`,
+          key || ''
+        );
+      }
+      if (LOG_METRIC_COUNTS) {
+        count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+      }
     }
 
     return hasSubscribers;

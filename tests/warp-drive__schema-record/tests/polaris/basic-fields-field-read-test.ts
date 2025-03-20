@@ -54,7 +54,7 @@ module('Reads | basic fields', function (hooks) {
       })
     );
 
-    const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
+    const record = store.createRecord<User>('user', { name: 'Rey Skybarker' });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');

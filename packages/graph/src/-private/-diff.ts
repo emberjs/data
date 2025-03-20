@@ -234,34 +234,24 @@ function _compare<T>(
         // however: if the new remote order matches the current local order
         // we can disregard the change notification generation so long as
         // we are not configured to reset on remote update (which is deprecated)
-        if (DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-          if (!remoteClearsLocal && i < priorLocalLength) {
-            const priorLocalMember = priorLocalState![i];
-            if (priorLocalMember !== member) {
-              changed = true;
-            }
-          } else {
-            changed = true;
-          }
-        } else {
-          if (i < priorLocalLength) {
-            const priorLocalMember = priorLocalState![i];
-            if (priorLocalMember !== member) {
-              if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
-                !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
-              }
-              changed = true;
-            }
-          } else if (i < finalLength) {
-            // if we have exceeded the length of priorLocalState and we are within the range
-            // of the finalState then we must have changed
+
+        if (i < priorLocalLength) {
+          const priorLocalMember = priorLocalState![i];
+          if (priorLocalMember !== member) {
             if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
               // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
-              !changed && console.log(`changed because priorMember !== member && index >= priorLocalLength`);
+              !changed && console.log(`changed because priorLocalMember !== member && member !== prevMember`);
             }
             changed = true;
           }
+        } else if (i < finalLength) {
+          // if we have exceeded the length of priorLocalState and we are within the range
+          // of the finalState then we must have changed
+          if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+            !changed && console.log(`changed because priorMember !== member && index >= priorLocalLength`);
+          }
+          changed = true;
         }
 
         // if remote order hasn't changed but local order differs
@@ -272,6 +262,10 @@ function _compare<T>(
           if (equalLength && !changed && i < priorLocalLength) {
             const priorLocalMember = priorLocalState![i];
             if (priorLocalMember !== prevMember) {
+              if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-console
+                !changed && console.log(`changed because priorLocalMember !== prevMember && remoteClearsLocal`);
+              }
               changed = true;
             }
           }
