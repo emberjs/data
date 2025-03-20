@@ -16,7 +16,9 @@ type UniversalKey =
   | 'RequestCache'
   // @warp-drive/core-types/request
   | 'SkipCache'
-  | 'EnableHydration';
+  | 'EnableHydration'
+  // @warp-drive/core-types/runtime
+  | 'WarpDriveRuntimeConfig';
 
 type TransientKey =
   // @ember-data/tracking

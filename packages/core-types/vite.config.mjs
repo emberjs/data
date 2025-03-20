@@ -18,6 +18,7 @@ export const entryPoints = [
   './src/utils.ts',
   // non-public
   './src/-private.ts',
+  './src/runtime.ts',
 ];
 
 export default createConfig(
