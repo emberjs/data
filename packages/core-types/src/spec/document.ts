@@ -39,8 +39,17 @@ export interface ResourceErrorDocument {
   errors: ApiError[];
 }
 
+export type MultiDocument<T = StableExistingRecordIdentifier, K extends string = string> = {
+  meta: {
+    isMulti: true;
+  };
+  results: Record<K, ResourceDocument<T>>;
+};
+
 export type ResourceDocument<T = StableExistingRecordIdentifier> =
   | ResourceMetaDocument
   | SingleResourceDataDocument<T>
   | CollectionResourceDataDocument<T>
   | ResourceErrorDocument;
+
+export type V3ResourceDocument<T = StableExistingRecordIdentifier> = ResourceDocument<T>;
