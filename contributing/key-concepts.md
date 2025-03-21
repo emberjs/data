@@ -33,4 +33,4 @@ const identifier = recordIdentifierFor(record);
 unloadRecord(identifier);
 ```
 
-Any identifier supplied by an EmberData API will always be the stable variant. APIs which are operating based on identity and which can reasonably presume that the data exists expect stable identifiers and should error if an unknown identifier is encountered to prevent potential system-correctness errors.
+Any identifier supplied by a WarpDrive API will always be the stable variant. APIs which are operating based on identity and which can reasonably presume that the data exists expect stable identifiers and should error if an unknown identifier is encountered to prevent potential system-correctness errors.

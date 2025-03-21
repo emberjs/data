@@ -7,7 +7,7 @@ import { DEPRECATE_NON_EXPLICIT_POLYMORPHISM } from '@warp-drive/build-config/de
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { FieldSchema, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { FieldSchema, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 
 import { Model } from '../model';
 
@@ -63,7 +63,7 @@ if (DEBUG) {
     return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
   };
 
-  const isRelationshipField = function isRelationshipField(meta: FieldSchema): meta is LegacyRelationshipSchema {
+  const isRelationshipField = function isRelationshipField(meta: FieldSchema): meta is LegacyRelationshipField {
     return meta.kind === 'hasMany' || meta.kind === 'belongsTo';
   };
 
@@ -115,6 +115,17 @@ if (DEBUG) {
 
           assert(assertionMessage, isPolymorphic);
         }
+      }
+
+      if (meta) {
+        assert(
+          `Expected the schema for the field ${parentDefinition.inverseKey} on ${addedIdentifier.type} to be for a legacy relationship`,
+          meta.kind === 'belongsTo' || meta.kind === 'hasMany'
+        );
+        assert(
+          `The schema for the relationship '${parentDefinition.inverseKey}' on '${addedIdentifier.type}' type does not implement '${parentDefinition.type}' and thus cannot be assigned to the '${parentDefinition.key}' relationship in '${parentIdentifier.type}'. The definition should specify 'as: "${parentDefinition.type}"' in options.`,
+          meta?.options?.as === parentDefinition.type
+        );
       }
     }
   };

@@ -1,11 +1,11 @@
 import { dasherize, singularize } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 
 import type { Model } from './model';
 
-function typeForRelationshipMeta(meta: LegacyRelationshipSchema): string {
+function typeForRelationshipMeta(meta: LegacyRelationshipField): string {
   let modelName = dasherize(meta.type || meta.name);
 
   if (meta.kind === 'hasMany') {
@@ -15,7 +15,7 @@ function typeForRelationshipMeta(meta: LegacyRelationshipSchema): string {
   return modelName;
 }
 
-function shouldFindInverse(relationshipMeta: LegacyRelationshipSchema): boolean {
+function shouldFindInverse(relationshipMeta: LegacyRelationshipField): boolean {
   const options = relationshipMeta.options;
   return !(options && options.inverse === null);
 }
@@ -26,9 +26,9 @@ class RelationshipDefinition {
   declare __hasCalculatedInverse: boolean;
   declare parentModelName: string;
   declare inverseIsAsync: string | null;
-  declare meta: LegacyRelationshipSchema;
+  declare meta: LegacyRelationshipField;
 
-  constructor(meta: LegacyRelationshipSchema, parentModelName: string) {
+  constructor(meta: LegacyRelationshipField, parentModelName: string) {
     this._type = '';
     this.__inverseKey = '';
     this.__hasCalculatedInverse = false;
@@ -63,7 +63,7 @@ class RelationshipDefinition {
   _calculateInverse(store: Store, modelClass: typeof Model): void {
     this.__hasCalculatedInverse = true;
     let inverseKey: string | null = null;
-    let inverse: LegacyRelationshipSchema | null = null;
+    let inverse: LegacyRelationshipField | null = null;
 
     if (shouldFindInverse(this.meta)) {
       inverse = modelClass.inverseFor(this.name, store);
@@ -85,9 +85,6 @@ class RelationshipDefinition {
 }
 export type { RelationshipDefinition };
 
-export function relationshipFromMeta(
-  meta: LegacyRelationshipSchema,
-  parentModelName: string
-): LegacyRelationshipSchema {
-  return new RelationshipDefinition(meta, parentModelName) as unknown as LegacyRelationshipSchema;
+export function relationshipFromMeta(meta: LegacyRelationshipField, parentModelName: string): LegacyRelationshipField {
+  return new RelationshipDefinition(meta, parentModelName) as unknown as LegacyRelationshipField;
 }

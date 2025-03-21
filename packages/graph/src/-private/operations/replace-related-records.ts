@@ -229,7 +229,6 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             );
           }
         }
-        relationship.isDirty = true;
       }
       addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
     },
@@ -248,7 +247,6 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
             );
           }
         }
-        relationship.isDirty = true;
       }
       removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
     }
@@ -276,7 +274,8 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       // because we want to clear local changes even if
       // no change has occurred to preserve the legacy behavior
       relationship.definition.kind === 'hasMany' &&
-      relationship.definition.resetOnRemoteUpdate !== false
+      relationship.definition.resetOnRemoteUpdate !== false &&
+      (diff.changed || wasDirty)
     ) {
       const deprecationInfo: {
         removals: StableRecordIdentifier[];

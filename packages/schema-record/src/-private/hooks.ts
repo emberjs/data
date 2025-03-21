@@ -1,6 +1,7 @@
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { isResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 import { SchemaRecord } from './record';
 import type { SchemaService } from './schema';
@@ -12,7 +13,9 @@ export function instantiateRecord(
   createArgs?: Record<string, unknown>
 ): SchemaRecord {
   const schema = store.schema as unknown as SchemaService;
-  const isLegacy = schema.resource(identifier)?.legacy ?? false;
+  const resourceSchema = schema.resource(identifier);
+  assert(`Expected a resource schema`, isResourceSchema(resourceSchema));
+  const isLegacy = resourceSchema?.legacy ?? false;
   const isEditable = isLegacy || store.cache.isNew(identifier);
   const record = new SchemaRecord(store, identifier, {
     [Editable]: isEditable,

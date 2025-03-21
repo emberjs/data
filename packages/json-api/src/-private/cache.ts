@@ -31,7 +31,7 @@ import type {
   CollectionField,
   FieldSchema,
   LegacyHasManyField,
-  LegacyRelationshipSchema,
+  LegacyRelationshipField,
   ResourceField,
 } from '@warp-drive/core-types/schema/fields';
 import type {
@@ -505,6 +505,9 @@ export default class JSONAPICache implements Cache {
       const store = this._capabilities._store;
       const attrs = this._capabilities.schema.fields(identifier);
       attrs.forEach((attr, key) => {
+        if (attr.kind === 'alias') {
+          return;
+        }
         if (key in attributes && attributes[key] !== undefined) {
           return;
         }
@@ -1817,6 +1820,8 @@ function getDefaultValue(
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
+  assert(`AliasFields should not be directly accessed from the cache`, schema?.kind !== 'alias');
+
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -1973,15 +1978,12 @@ function setupRelationships(
   identifier: StableRecordIdentifier,
   data: ExistingResourceObject
 ) {
-  // TODO @runspired iterating by definitions instead of by payload keys
-  // allows relationship payloads to be ignored silently if no relationship
-  // definition exists. Ensure there's a test for this and then consider
-  // moving this to an assertion. This check should possibly live in the graph.
-  for (const [name, field] of fields) {
-    if (!isRelationship(field)) continue;
-
-    const relationshipData = data.relationships![name];
-    if (!relationshipData) continue;
+  for (const name in data.relationships!) {
+    const relationshipData = data.relationships[name];
+    const field = fields.get(name);
+    // TODO consider asserting if the relationship is not in the schema
+    // we intentionally ignore relationships that are not in the schema
+    if (!relationshipData || !field || !isRelationship(field)) continue;
 
     graph.push({
       op: 'updateRelationship',
@@ -1992,9 +1994,9 @@ function setupRelationships(
   }
 }
 
-const RelationshipKinds = new Set(['hasMany', 'belongsTo', 'resource', 'collection']);
-function isRelationship(field: FieldSchema): field is LegacyRelationshipSchema | CollectionField | ResourceField {
-  return RelationshipKinds.has(field.kind);
+function isRelationship(field: FieldSchema): field is LegacyRelationshipField | CollectionField | ResourceField {
+  const { kind } = field;
+  return kind === 'hasMany' || kind === 'belongsTo' || kind === 'resource' || kind === 'collection';
 }
 
 function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<string>): boolean {

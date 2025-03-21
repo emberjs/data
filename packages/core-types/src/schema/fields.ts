@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/core-types
+ */
 import type { ObjectValue, PrimitiveValue } from '../json/raw';
 
 /**
@@ -16,7 +19,7 @@ import type { ObjectValue, PrimitiveValue } from '../json/raw';
  *
  * @typedoc
  */
-export type GenericField = {
+export interface GenericField {
   kind: 'field';
   name: string;
   /**
@@ -33,7 +36,7 @@ export type GenericField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * A field that can be used to alias one key to another
@@ -63,7 +66,7 @@ export type GenericField = {
  *
  * @typedoc
  */
-export type AliasField = {
+export interface LegacyAliasField {
   kind: 'alias';
   name: string;
   type: null; // should always be null
@@ -79,12 +82,103 @@ export type AliasField = {
     | SchemaObjectField
     | ArrayField
     | SchemaArrayField
-    | ResourceField
-    | CollectionField
+    // | ResourceField
+    // | CollectionField
     | LegacyAttributeField
     | LegacyBelongsToField
     | LegacyHasManyField;
-};
+}
+
+/**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export interface PolarisAliasField {
+  kind: 'alias';
+  name: string;
+  type: null; // should always be null
+
+  /**
+   * The field def for which this is an alias.
+   *
+   * @typedoc
+   */
+  options:
+    | GenericField
+    | ObjectField
+    | SchemaObjectField
+    | ArrayField
+    | SchemaArrayField
+    // | ResourceField
+    // | CollectionField
+    | LinksModeBelongsToField
+    | LinksModeHasManyField;
+}
+
+/**
+ * A field that can be used to alias one key to another
+ * key present in the cache version of the resource.
+ *
+ * Unlike DerivedField, an AliasField may write to its
+ * source when a record is in an editable mode.
+ *
+ * AliasFields may utilize a transform, specified by type,
+ * to pre/post process the field.
+ *
+ * An AliasField may also specify a `kind` via options.
+ * `kind` may be any other valid field kind other than
+ *
+ * - `@hash`
+ * - `@id`
+ * - `@local`
+ * - `derived`
+ *
+ * This allows an AliasField to rename any field in the cache.
+ *
+ * Alias fields are generally intended to be used to support migrating
+ * between different schemas, though there are times where they are useful
+ * as a form of advanced derivation when used with a transform. For instance,
+ * an AliasField could be used to expose both a string and a Date version of the
+ * same field, with both being capable of being written to.
+ *
+ * @typedoc
+ */
+export interface ObjectAliasField {
+  kind: 'alias';
+  name: string;
+  type: null; // should always be null
+
+  /**
+   * The field def for which this is an alias.
+   *
+   * @typedoc
+   */
+  options: GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField;
+}
 
 /**
  * Represents a field whose value is the primary
@@ -100,7 +194,7 @@ export type AliasField = {
  *
  * @typedoc
  */
-export type IdentityField = {
+export interface IdentityField {
   kind: '@id';
 
   /**
@@ -110,7 +204,7 @@ export type IdentityField = {
    * @typedoc
    */
   name: string;
-};
+}
 
 /**
  * Represents a specialized field whose computed value
@@ -135,7 +229,7 @@ export type IdentityField = {
  *
  * @typedoc
  */
-export type HashField = {
+export interface HashField {
   kind: '@hash';
 
   /**
@@ -165,7 +259,7 @@ export type HashField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * Represents a field whose value is a local
@@ -196,7 +290,7 @@ export type HashField = {
  *
  * @typedoc
  */
-export type LocalField = {
+export interface LocalField {
   kind: '@local';
   name: string;
   /**
@@ -207,7 +301,7 @@ export type LocalField = {
    */
   type?: string;
   options?: { defaultValue?: PrimitiveValue };
-};
+}
 
 /**
  * Represents a field whose value is an object
@@ -220,7 +314,7 @@ export type LocalField = {
  *
  * @typedoc
  */
-export type ObjectField = {
+export interface ObjectField {
   kind: 'object';
   name: string;
 
@@ -241,7 +335,7 @@ export type ObjectField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * Represents a field whose value is an object
@@ -253,7 +347,7 @@ export type ObjectField = {
  *
  * @typedoc
  */
-export type SchemaObjectField = {
+export interface SchemaObjectField {
   kind: 'schema-object';
   name: string;
 
@@ -287,7 +381,7 @@ export type SchemaObjectField = {
      */
     type?: string;
   };
-};
+}
 
 /**
  * Represents a field whose value is an array
@@ -298,7 +392,7 @@ export type SchemaObjectField = {
  *
  * @typedoc
  */
-export type ArrayField = {
+export interface ArrayField {
   kind: 'array';
   name: string;
 
@@ -320,7 +414,7 @@ export type ArrayField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * Represents a field whose value is an array
@@ -332,7 +426,7 @@ export type ArrayField = {
  *
  * @typedoc
  */
-export type SchemaArrayField = {
+export interface SchemaArrayField {
   kind: 'schema-array';
   name: string;
 
@@ -402,7 +496,7 @@ export type SchemaArrayField = {
      */
     type?: string;
   };
-};
+}
 
 /**
  * Represents a field whose value is derived
@@ -420,7 +514,7 @@ export type SchemaArrayField = {
  *
  * @typedoc
  */
-export type DerivedField = {
+export interface DerivedField {
   kind: 'derived';
   name: string;
 
@@ -454,15 +548,18 @@ export type DerivedField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * Represents a field that is a reference to
  * another resource.
  *
+ * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
+ * BY SchemaRecord
+ *
  * @typedoc
  */
-export type ResourceField = {
+export interface ResourceField {
   kind: 'resource';
   name: string;
 
@@ -528,16 +625,19 @@ export type ResourceField = {
      */
     polymorphic?: boolean;
   };
-};
+}
 
 /**
  * Represents a field that is a reference to
  * a collection of other resources, potentially
  * paginate.
  *
+ * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
+ * BY SchemaRecord
+ *
  * @typedoc
  */
-export type CollectionField = {
+export interface CollectionField {
   kind: 'collection';
   name: string;
 
@@ -614,11 +714,12 @@ export type CollectionField = {
      */
     polymorphic?: boolean;
   };
-};
+}
 
 /**
  * > [!CAUTION]
  * > This Field is LEGACY
+ * > It cannot be used with PolarisMode
  *
  * A generic "field" that can be used to define
  * primitive value fields.
@@ -632,7 +733,7 @@ export type CollectionField = {
  *
  * @typedoc
  */
-export type LegacyAttributeField = {
+export interface LegacyAttributeField {
   kind: 'attribute';
   name: string;
   /**
@@ -650,7 +751,7 @@ export type LegacyAttributeField = {
    * @typedoc
    */
   options?: ObjectValue;
-};
+}
 
 /**
  * > [!CAUTION]
@@ -663,7 +764,7 @@ export type LegacyAttributeField = {
  *
  * @typedoc
  */
-export type LegacyBelongsToField = {
+export interface LegacyBelongsToField {
   kind: 'belongsTo';
   name: string;
 
@@ -778,7 +879,134 @@ export type LegacyBelongsToField = {
      */
     resetOnRemoteUpdate?: false;
   };
-};
+}
+
+/**
+ * > [!CAUTION]
+ * > This Field is LEGACY
+ *
+ * Represents a field that is a reference to
+ * another resource.
+ *
+ * This is the legacy version of the `ResourceField`.
+ *
+ * @typedoc
+ */
+export interface LinksModeBelongsToField {
+  kind: 'belongsTo';
+  name: string;
+
+  /**
+   * The name of the resource that this field
+   * refers to. In the case of a polymorphic
+   * relationship, this should be the trait
+   * or abstract type.
+   *
+   * @typedoc
+   */
+  type: string;
+
+  /**
+   * Options for belongsTo are mandatory.
+   *
+   * @typedoc
+   */
+  options: {
+    /**
+     * Whether the relationship is async
+     *
+     * MUST be false for PolarisMode + LinksMode
+     *
+     * @typedoc
+     */
+    async: false;
+
+    /**
+     * The name of the inverse field on the
+     * related resource that points back to
+     * this field on this resource to form a
+     * bidirectional relationship.
+     *
+     * If null, the relationship is unidirectional.
+     *
+     * @typedoc
+     */
+    inverse: string | null;
+
+    /**
+     * If this field is satisfying a polymorphic
+     * relationship on another resource, then this
+     * should be set to the trait or abstract type
+     * that this resource implements.
+     *
+     * @typedoc
+     */
+    as?: string;
+
+    /**
+     * Whether this field is a polymorphic relationship,
+     * meaning that it can point to multiple types of
+     * resources so long as they implement the trait
+     * or abstract type specified in `type`.
+     *
+     * @typedoc
+     */
+    polymorphic?: boolean;
+
+    /**
+     * Whether this field should ever make use of the legacy support infra
+     * from @ember-data/model and the LegacyNetworkMiddleware for adapters and serializers.
+     *
+     * MUST be true for PolarisMode + LinksMode
+     *
+     * When true, none of the legacy support will be utilized. Sync relationships
+     * will be expected to already have all their data. When reloading a sync relationship
+     * you would be expected to have a `related link` available from a prior relationship
+     * payload e.g.
+     *
+     * ```ts
+     * {
+     *   data: {
+     *     type: 'user',
+     *     id: '2',
+     *     attributes: { name: 'Chris' },
+     *     relationships: {
+     *       bestFriend: {
+     *         links: { related: "/users/1/bestFriend" },
+     *         data: { type: 'user', id: '1' },
+     *       }
+     *     }
+     *   },
+     *   included: [
+     *     { type: 'user', id: '1', attributes: { name: 'Krystan' } }
+     *   ]
+     * }
+     * ```
+     *
+     * Async relationships will be loaded via their link if needed.
+     *
+     * @typedoc
+     */
+    linksMode: true;
+
+    /**
+     * When omitted, the cache data for this field will
+     * clear local state of all changes except for the
+     * addition of records still in the "new" state any
+     * time the remote data for this field is updated.
+     *
+     * When set to `false`, the cache data for this field
+     * will instead intelligently commit any changes from
+     * local state that are present in the remote data,
+     * leaving any remaining changes in local state still.
+     *
+     * MUST be false for PolarisMode + LinksMode
+     *
+     * @typedoc
+     */
+    resetOnRemoteUpdate: false;
+  };
+}
 
 /**
  * > [!CAUTION]
@@ -791,7 +1019,7 @@ export type LegacyBelongsToField = {
  *
  * @typedoc
  */
-export type LegacyHasManyField = {
+export interface LegacyHasManyField {
   kind: 'hasMany';
   name: string;
   type: string;
@@ -902,11 +1130,192 @@ export type LegacyHasManyField = {
      */
     resetOnRemoteUpdate?: false;
   };
-};
+}
 
+/**
+ * > [!CAUTION]
+ * > This Field is LEGACY
+ *
+ * Represents a field that is a reference to
+ * a collection of other resources.
+ *
+ * This is the legacy version of the `CollectionField`.
+ *
+ * @typedoc
+ */
+export interface LinksModeHasManyField {
+  kind: 'hasMany';
+  name: string;
+  type: string;
+
+  /**
+   * Options for hasMany are mandatory.
+   *
+   * @typedoc
+   */
+  options: {
+    /**
+     * Whether the relationship is async
+     *
+     * MUST be false for PolarisMode + LinksMode
+     *
+     * If true, it is expected that the cache
+     * data for this field will contain links
+     * or pointers that can be used to fetch
+     * the related resources when needed.
+     *
+     * When false, it is expected that all related
+     * resources are loaded together with this resource,
+     * and that the cache data for this field will
+     * contain the full list of pointers.
+     *
+     * hasMany relationships do not support pagination.
+     *
+     * @typedoc
+     */
+    async: false;
+
+    /**
+     * The name of the inverse field on the
+     * related resource that points back to
+     * this field on this resource to form a
+     * bidirectional relationship.
+     *
+     * If null, the relationship is unidirectional.
+     *
+     * @typedoc
+     */
+    inverse: string | null;
+
+    /**
+     * If this field is satisfying a polymorphic
+     * relationship on another resource, then this
+     * should be set to the trait or abstract type
+     * that this resource implements.
+     *
+     * @typedoc
+     */
+    as?: string;
+
+    /**
+     * Whether this field is a polymorphic relationship,
+     * meaning that it can point to multiple types of
+     * resources so long as they implement the trait
+     * or abstract type specified in `type`.
+     *
+     * @typedoc
+     */
+    polymorphic?: boolean;
+
+    /**
+     * Whether this field should ever make use of the legacy support infra
+     * from @ember-data/model and the LegacyNetworkMiddleware for adapters and serializers.
+     *
+     * MUST be true for PolarisMode + LinksMode
+     *
+     * When true, none of the legacy support will be utilized. Sync relationships
+     * will be expected to already have all their data. When reloading a sync relationship
+     * you would be expected to have a `related link` available from a prior relationship
+     * payload e.g.
+     *
+     * ```ts
+     * {
+     *   data: {
+     *     type: 'user',
+     *     id: '2',
+     *     attributes: { name: 'Chris' },
+     *     relationships: {
+     *       bestFriends: {
+     *         links: { related: "/users/1/bestFriends" },
+     *         data: [ { type: 'user', id: '1' } ],
+     *       }
+     *     }
+     *   },
+     *   included: [
+     *     { type: 'user', id: '1', attributes: { name: 'Krystan' } }
+     *   ]
+     * }
+     * ```
+     *
+     * Async relationships will be loaded via their link if needed.
+     *
+     * @typedoc
+     */
+    linksMode: true;
+
+    /**
+     * When omitted, the cache data for this field will
+     * clear local state of all changes except for the
+     * addition of records still in the "new" state any
+     * time the remote data for this field is updated.
+     *
+     * When set to `false`, the cache data for this field
+     * will instead intelligently commit any changes from
+     * local state that are present in the remote data,
+     * leaving any remaining changes in local state still.
+     *
+     * MUST be false for PolarisMode + LinksMode
+     *
+     * @typedoc
+     */
+    resetOnRemoteUpdate: false;
+  };
+}
+
+/**
+ * A union of all possible LegacyMode field schemas.
+ *
+ * @typedoc
+ */
+export type LegacyModeFieldSchema =
+  | GenericField
+  | LegacyAliasField
+  | LocalField
+  | ObjectField
+  | SchemaObjectField
+  | ArrayField
+  | SchemaArrayField
+  | DerivedField
+  //  | ResourceField
+  //  | CollectionField
+  | LegacyAttributeField
+  | LegacyBelongsToField
+  | LegacyHasManyField;
+
+/**
+ * A union of all possible PolarisMode field schemas.
+ *
+ * @typedoc
+ */
+export type PolarisModeFieldSchema =
+  | GenericField
+  | PolarisAliasField
+  | LocalField
+  | ObjectField
+  | SchemaObjectField
+  | ArrayField
+  | SchemaArrayField
+  | DerivedField
+  //  | ResourceField
+  //  | CollectionField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;
+
+/**
+ * A union of all possible LegacyMode and PolarisMode
+ * field schemas.
+ *
+ * You likely will want to use PolarisModeFieldSchema,
+ * LegacyModeFieldSchema, or ObjectFieldSchema instead
+ * as appropriate as they are more specific and will
+ * provide better guidance around what is valid.
+ *
+ * @typedoc
+ */
 export type FieldSchema =
   | GenericField
-  | AliasField
+  | LegacyAliasField
+  | PolarisAliasField
   | LocalField
   | ObjectField
   | SchemaObjectField
@@ -917,10 +1326,38 @@ export type FieldSchema =
   | CollectionField
   | LegacyAttributeField
   | LegacyBelongsToField
-  | LegacyHasManyField;
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;
 
-export type ResourceSchema = {
-  legacy?: boolean;
+/**
+ * A union of all possible field schemas that can be
+ * used in an ObjectSchema.
+ *
+ * @typedoc
+ */
+export type ObjectFieldSchema =
+  | GenericField
+  | ObjectAliasField
+  | LocalField
+  | ObjectField
+  | SchemaObjectField
+  | ArrayField
+  | SchemaArrayField
+  | DerivedField;
+
+/**
+ * Represents a schema for a primary resource in PolarisMode.
+ *
+ * Primary resources are objects with a unique identity of their
+ * own which may allow them to appear in relationships, or in multiple
+ * response documents.
+ *
+ * @typedoc
+ */
+export interface PolarisResourceSchema {
+  legacy?: false;
+
   /**
    * For primary resources, this should be an IdentityField
    *
@@ -928,7 +1365,8 @@ export type ResourceSchema = {
    *
    * @typedoc
    */
-  identity: IdentityField | HashField | null;
+  identity: IdentityField;
+
   /**
    * The name of the schema
    *
@@ -936,8 +1374,13 @@ export type ResourceSchema = {
    * primary resource type.
    *
    * For object schemas, this should be the name
-   * of the object schema. object schemas should
-   * follow the following guidelines for naming
+   * of the object schema.
+   *
+   * The names of object and resource schemas share
+   * a single namespace and must not conflict.
+   *
+   * We recommend a naming convention for object schemas
+   * such as below for ensuring uniqueness:
    *
    * - for globally shared objects: The pattern `$field:${KlassName}` e.g. `$field:AddressObject`
    * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
@@ -946,9 +1389,225 @@ export type ResourceSchema = {
    * @typedoc
    */
   type: string;
-  traits?: string[];
-  fields: FieldSchema[];
-};
 
-export type LegacyFieldSchema = LegacyAttributeField | LegacyBelongsToField | LegacyHasManyField;
-export type LegacyRelationshipSchema = LegacyBelongsToField | LegacyHasManyField;
+  /**
+   * The fields that make up the shape of the resource
+   *
+   * @typedoc
+   */
+  fields: PolarisModeFieldSchema[];
+
+  /**
+   * A list of traits that this resource implements. The fields for these
+   * traits should still be defined in the fields array.
+   *
+   * Each trait should be a string that matches the `type` of another
+   * resource schema. The trait can be abstract and reference a resource
+   * type that is never defined as a schema.
+   *
+   * @typedoc
+   */
+  traits?: string[];
+}
+
+/**
+ * Represents a schema for a primary resource in LegacyMode
+ *
+ * Primary resources are objects with a unique identity of their
+ * own which may allow them to appear in relationships, or in multiple
+ * response documents.
+ *
+ * @typedoc
+ */
+export interface LegacyResourceSchema {
+  legacy: true;
+
+  /**
+   * For primary resources, this should be an IdentityField
+   *
+   * for schema-objects, this should be either a HashField or null
+   *
+   * @typedoc
+   */
+  identity: IdentityField;
+
+  /**
+   * The name of the schema
+   *
+   * For cacheable resources, this should be the
+   * primary resource type.
+   *
+   * For object schemas, this should be the name
+   * of the object schema.
+   *
+   * The names of object and resource schemas share
+   * a single namespace and must not conflict.
+   *
+   * We recommend a naming convention for object schemas
+   * such as below for ensuring uniqueness:
+   *
+   * - for globally shared objects: The pattern `$field:${KlassName}` e.g. `$field:AddressObject`
+   * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
+   * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
+   *
+   * @typedoc
+   */
+  type: string;
+
+  /**
+   * The fields that make up the shape of the resource
+   *
+   * @typedoc
+   */
+  fields: LegacyModeFieldSchema[];
+
+  /**
+   * A list of traits that this resource implements. The fields for these
+   * traits should still be defined in the fields array.
+   *
+   * Each trait should be a string that matches the `type` of another
+   * resource schema. The trait can be abstract and reference a resource
+   * type that is never defined as a schema.
+   *
+   * @typedoc
+   */
+  traits?: string[];
+}
+
+/**
+ * A type which represents a valid JSON schema
+ * definition for either a PolarisMode or a
+ * LegacyMode resource.
+ *
+ * Note, this is separate from the type returned
+ * by the SchemaService which provides fields as a Map
+ * instead of as an Array.
+ *
+ * @typedoc
+ */
+export type ResourceSchema = PolarisResourceSchema | LegacyResourceSchema;
+
+/**
+ * Represents a schema for an object that is not
+ * a primary resource (has no unique identity of its own).
+ *
+ * ObjectSchemas may not currently contain relationships.
+ *
+ * @typedoc
+ */
+export interface ObjectSchema {
+  /**
+   * Either a HashField from which to calculate an identity or null
+   *
+   * In the case of `null`, the object's identity will be based
+   * on the referential identity of the object in the cache itself
+   * when an identity is needed.
+   *
+   * @typedoc
+   */
+  identity: HashField | null;
+
+  /**
+   * The name of the schema
+   *
+   * The names of object and resource schemas share
+   * a single namespace and must not conflict.
+   *
+   * We recommend a naming convention for object schemas
+   * such as below for ensuring uniqueness:
+   *
+   * - for globally shared objects: The pattern `$field:${KlassName}` e.g. `$field:AddressObject`
+   * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
+   * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
+   *
+   * @typedoc
+   */
+  type: string;
+
+  /**
+   * The fields that make up the shape of the object
+   *
+   * @typedoc
+   */
+  fields: ObjectFieldSchema[];
+}
+
+export type Schema = ResourceSchema | ObjectSchema;
+
+/**
+ * A no-op type utility that enables type-checking resource schema
+ * definitions.
+ *
+ * Will return the passed in schema.
+ *
+ * This will not validate relationship inverses or related types,
+ * as doing so would require a full schema graph to be passed in
+ * and no cycles in the graph to be present.
+ *
+ * @method resourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param {ResourceSchema} schema
+ * @returns {ResourceSchema} the passed in schema
+ * @public
+ */
+export function resourceSchema<T extends ResourceSchema>(schema: T): T {
+  return schema;
+}
+
+/**
+ * A no-op type utility that enables type-checking object schema
+ * definitions.
+ *
+ * Will return the passed in schema.
+ *
+ * @method objectSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param {ObjectSchema} schema
+ * @returns {ObjectSchema} the passed in schema
+ * @public
+ */
+export function objectSchema<T extends ObjectSchema>(schema: T): T {
+  return schema;
+}
+
+/**
+ * A type utility to narrow a schema to a ResourceSchema
+ *
+ * @method isResourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param schema
+ * @returns {boolean}
+ * @public
+ */
+export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
+  return schema?.identity?.kind === '@id';
+}
+
+/**
+ * A type utility to narrow a schema to LegacyResourceSchema
+ *
+ * @method isLegacyResourceSchema
+ * @static
+ * @for @warp-drive/core-types
+ * @param schema
+ * @returns {boolean}
+ * @public
+ */
+export function isLegacyResourceSchema(schema: ResourceSchema | ObjectSchema): schema is LegacyResourceSchema {
+  return isResourceSchema(schema) && schema.legacy === true;
+}
+
+export type LegacyField =
+  | LegacyAttributeField
+  | LegacyBelongsToField
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;
+export type LegacyRelationshipField =
+  | LegacyBelongsToField
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;

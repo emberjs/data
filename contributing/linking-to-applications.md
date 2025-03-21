@@ -1,6 +1,6 @@
-#### Testing EmberData source directly in your Application
+#### Testing WarpDrive source directly in your Application
 
-You can use package linking to test checkouts of ember-data against your application locally. This applies to consuming ember-data directly within an ember application. It will not work in your application if you are consuming ember-data through an addon (transitive dependency problem). This approach also presumes consuming all of ember-data.
+You can use package linking to test checkouts of WarpDrive against your application locally. This applies to consuming WarpDrive directly within an ember application. It will not work in your application if you are consuming WarpDrive through an addon (transitive dependency problem). This approach also presumes consuming all of WarpDrive.
 
 1. clone this repository or another fork
 2. install dependencies: `pnpm install`
@@ -14,4 +14,4 @@ If using `pnpm`
 
 If you don't use pnpm in your application, using the appropriate `yarn link` and `npm link` commands within the respective directories for the project and your app may work.
 
-Once you have linked EmberData to your application, you can run `ember serve` as usual in your application.
+Once you have linked WarpDrive to your application, you can run `ember serve` as usual in your application.

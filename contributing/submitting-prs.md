@@ -19,15 +19,17 @@ All PRs should have accompanying tests. For bug-fixes, this should include tests
 the issue being fixed and test that the solution works.
 
 - We do write tests for our deprecations and assertion messages, using the `assert.expectAssertion()` and `assert.expectDeprecation()` helpers.
-- Because we run tests in both development and `production` environments, assertions, deprecations and warnings may be stripped out. To avoid tests on failing for your PR in production environments, use the `testInDebug` function instead of `qunit` `test` to skip them in production when appropriate.
+- Because we run tests in both development and `production` environments, assertions, deprecations and warnings may be stripped out. To avoid tests of debug behaviors failing for your PR in production environments, use the `testInDebug` function instead of `qunit` `test` to skip them in production when appropriate.
+  - alternatively wrap specific assertions in `if (DEBUG)` or `if (PRODUCTION)`
 - Update the documentation, examples, and guides when affected by your contribution
 
 ### Running Tests
 
 - PRs will automatically run an extensive set of test scenarios for your work. In some cases a contributor
   may need to approve the workflow run if this is your first contribution.
-- `EmberData` is a collection of packages and comes with multiple test apps scoped to specific situations
-  or parts of the codebase we want to test. Tests live in the test applications in `<project>/tests`. These should look like familiar ember app/addon tests, and to run them from within a specific test app use `pnpm test` or `pnpm test --serve`. For additional test commands see the list
+- `WarpDrive` is a collection of packages and comes with multiple test apps scoped to specific situations
+  or parts of the codebase we want to test. These test applications can be found in `<project>/tests`.
+  These should look like familiar ember app/addon tests, and to run them from within a specific test app use `pnpm test` or `pnpm test --serve`. For additional test commands see the list
   of commands in the respective `package.json` files.
 
 ### Pull Request Titles

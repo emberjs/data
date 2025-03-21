@@ -5,7 +5,6 @@
 import { _backburner } from '@ember/runloop';
 
 import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
@@ -14,14 +13,14 @@ import { log } from '../debug/utils';
 import type { Store } from '../store-service';
 
 export type UnsubscribeToken = object;
-let tokenId = 0;
 
-const CacheOperations = new Set(['added', 'removed', 'state', 'updated', 'invalidated']);
 export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 export type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
 function isCacheOperationValue(value: NotificationType | DocumentCacheOperation): value is DocumentCacheOperation {
-  return CacheOperations.has(value);
+  return (
+    value === 'added' || value === 'state' || value === 'updated' || value === 'removed' || value === 'invalidated'
+  );
 }
 
 function runLoopIsFlushing(): boolean {
@@ -54,15 +53,21 @@ function count(label: string) {
   globalThis.__WarpDriveMetricCountData[label] = (globalThis.__WarpDriveMetricCountData[label] || 0) + 1;
 }
 
+function asInternalToken(token: unknown): asserts token is {
+  for: StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document';
+} & (NotificationCallback | ResourceOperationCallback | DocumentOperationCallback) {
+  assert(`Expected a token with a 'for' property`, token && typeof token === 'function' && 'for' in token);
+}
+
 function _unsubscribe(
-  tokens: Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>,
   token: UnsubscribeToken,
   cache: Map<
     'resource' | 'document' | StableDocumentIdentifier | StableRecordIdentifier,
-    Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
+    Array<NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >
 ) {
-  const identifier = tokens.get(token);
+  asInternalToken(token);
+  const identifier = token.for;
   if (LOG_NOTIFICATIONS) {
     if (!identifier) {
       // eslint-disable-next-line no-console
@@ -70,9 +75,18 @@ function _unsubscribe(
     }
   }
   if (identifier) {
-    tokens.delete(token);
-    const map = cache.get(identifier);
-    map?.delete(token);
+    const callbacks = cache.get(identifier);
+    if (!callbacks) {
+      return;
+    }
+
+    const index = callbacks.indexOf(token);
+    if (index === -1) {
+      assert(`Cannot unsubscribe a token that is not subscribed`, index !== -1);
+      return;
+    }
+
+    callbacks.splice(index, 1);
   }
 }
 
@@ -92,9 +106,8 @@ export default class NotificationManager {
   declare _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
   declare _cache: Map<
     StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
-    Map<UnsubscribeToken, NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
+    Array<NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >;
-  declare _tokens: Map<UnsubscribeToken, StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'>;
   declare _hasFlush: boolean;
   declare _onFlushCB?: () => void;
 
@@ -104,7 +117,6 @@ export default class NotificationManager {
     this._buffered = new Map();
     this._hasFlush = false;
     this._cache = new Map();
-    this._tokens = new Map();
   }
 
   /**
@@ -148,17 +160,20 @@ export default class NotificationManager {
         isStableIdentifier(identifier) ||
         isDocumentIdentifier(identifier)
     );
-    let map = this._cache.get(identifier);
+    let callbacks = this._cache.get(identifier);
+    assert(`expected to receive a valid callback`, typeof callback === 'function');
+    assert(`cannot subscribe with the same callback twice`, !callbacks || !callbacks.includes(callback));
+    // we use the callback as the cancellation token
+    //@ts-expect-error
+    callback.for = identifier;
 
-    if (!map) {
-      map = new Map();
-      this._cache.set(identifier, map);
+    if (!callbacks) {
+      callbacks = [];
+      this._cache.set(identifier, callbacks);
     }
 
-    const unsubToken = DEBUG ? { _tokenRef: tokenId++ } : {};
-    map.set(unsubToken, callback);
-    this._tokens.set(unsubToken, identifier);
-    return unsubToken;
+    callbacks.push(callback);
+    return callback;
   }
 
   /**
@@ -170,7 +185,7 @@ export default class NotificationManager {
    */
   unsubscribe(token: UnsubscribeToken) {
     if (!this.isDestroyed) {
-      _unsubscribe(this._tokens, token, this._cache);
+      _unsubscribe(token, this._cache);
     }
   }
 
@@ -210,7 +225,7 @@ export default class NotificationManager {
       return false;
     }
 
-    const hasSubscribers = Boolean(this._cache.get(identifier)?.size);
+    const hasSubscribers = Boolean(this._cache.get(identifier)?.length);
 
     if (isCacheOperationValue(value) || hasSubscribers) {
       let buffer = this._buffered.get(identifier);
@@ -235,8 +250,20 @@ export default class NotificationManager {
           );
         }
       }
-    } else if (LOG_METRIC_COUNTS) {
-      count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+    } else {
+      if (LOG_NOTIFICATIONS) {
+        log(
+          'notify',
+          'discarded',
+          `${'type' in identifier ? identifier.type : 'document'}`,
+          identifier.lid,
+          `${value}`,
+          key || ''
+        );
+      }
+      if (LOG_METRIC_COUNTS) {
+        count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+      }
     }
 
     return hasSubscribers;
@@ -302,8 +329,7 @@ export default class NotificationManager {
 
     // TODO for documents this will need to switch based on Identifier kind
     if (isCacheOperationValue(value)) {
-      const callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Map<
-        UnsubscribeToken,
+      const callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
         ResourceOperationCallback | DocumentOperationCallback
       >;
 
@@ -314,11 +340,11 @@ export default class NotificationManager {
       }
     }
 
-    const callbackMap = this._cache.get(identifier);
-    if (!callbackMap || !callbackMap.size) {
+    const callbacks = this._cache.get(identifier);
+    if (!callbacks || !callbacks.length) {
       return false;
     }
-    callbackMap.forEach((cb) => {
+    callbacks.forEach((cb) => {
       // @ts-expect-error overload doesn't narrow within body
       cb(identifier, value, key);
     });
@@ -327,7 +353,6 @@ export default class NotificationManager {
 
   destroy() {
     this.isDestroyed = true;
-    this._tokens.clear();
     this._cache.clear();
   }
 }

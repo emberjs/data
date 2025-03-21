@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import type { DocumentCacheOperation, NotificationType } from '@ember-data/store';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
-type Counter = { count: number };
+type Counter = { count: number; delivered: number; ignored: number };
 type NotificationStorage = Map<
   StableDocumentIdentifier | StableRecordIdentifier | 'document' | 'resource',
   Map<NotificationType | DocumentCacheOperation, Counter | Map<string | symbol, Counter>>
@@ -34,7 +34,7 @@ function getCounter(
   let bucketStorage = identifierStorage.get(bucket);
   if (!bucketStorage) {
     if (bucket === 'added' || bucket === 'removed' || bucket === 'updated' || bucket === 'state') {
-      bucketStorage = { count: 0 };
+      bucketStorage = { count: 0, delivered: 0, ignored: 0 };
     } else {
       bucketStorage = new Map();
     }
@@ -46,7 +46,7 @@ function getCounter(
     const _key = key || Symbol.for(bucket);
     counter = bucketStorage.get(_key)!;
     if (!counter) {
-      counter = { count: 0 };
+      counter = { count: 0, delivered: 0, ignored: 0 };
       bucketStorage.set(_key, counter);
     }
   } else {
@@ -79,7 +79,15 @@ function setupNotifications(context: TestContext, store: Store) {
     counter.count++;
 
     // @ts-expect-error TS is bad at curried overloads
-    return originalNotify.apply(notifications, [identifier, bucket, key]);
+    const scheduled = originalNotify.apply(notifications, [identifier, bucket, key]);
+
+    if (scheduled) {
+      counter.delivered++;
+    } else {
+      counter.ignored++;
+    }
+
+    return scheduled;
   };
 }
 
@@ -97,7 +105,8 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert) 
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     bucket: NotificationType | DocumentCacheOperation,
     key: string | null,
-    count: number
+    count: number,
+    message?: string
   ) {
     const counter = getCounter(context, identifier, bucket, key);
 
@@ -105,7 +114,7 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert) 
       result: counter.count === count,
       actual: counter.count,
       expected: count,
-      message: `Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
+      message: `${message ? message + ' | ' : ''}Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
     });
 
     counter.count = 0;

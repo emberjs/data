@@ -11,16 +11,19 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn } from '@warp-drive/core-types/schema/concepts';
-import type {
-  ArrayField,
-  DerivedField,
-  FieldSchema,
-  GenericField,
-  HashField,
-  LegacyAttributeField,
-  LegacyRelationshipSchema,
-  ObjectField,
-  ResourceSchema,
+import {
+  type ArrayField,
+  type DerivedField,
+  type FieldSchema,
+  type GenericField,
+  type HashField,
+  type IdentityField,
+  isResourceSchema,
+  type LegacyAttributeField,
+  type LegacyRelationshipField,
+  type ObjectField,
+  type ObjectSchema,
+  type ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { WithPartial } from '@warp-drive/core-types/utils';
@@ -30,19 +33,18 @@ import { Identifier } from './symbols';
 
 const Support = getOrSetGlobal('Support', new WeakMap<WeakKey, Record<string, unknown>>());
 
-export const SchemaRecordFields: FieldSchema[] = [
-  {
-    type: '@constructor',
-    name: 'constructor',
-    kind: 'derived',
-  },
-  {
-    type: '@identity',
-    name: '$type',
-    kind: 'derived',
-    options: { key: 'type' },
-  },
-];
+const ConstructorField = {
+  type: '@constructor',
+  name: 'constructor',
+  kind: 'derived',
+} satisfies DerivedField;
+const TypeField = {
+  type: '@identity',
+  name: '$type',
+  kind: 'derived',
+  options: { key: 'type' },
+} satisfies DerivedField;
+const DefaultIdentityField = { name: 'id', kind: '@id' } satisfies IdentityField;
 
 function _constructor(record: SchemaRecord) {
   let state = Support.get(record as WeakKey);
@@ -54,15 +56,25 @@ function _constructor(record: SchemaRecord) {
   return (state._constructor = state._constructor || {
     name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
     get modelName() {
-      throw new Error('Cannot access record.constructor.modelName on non-Legacy Schema Records.');
+      assert(`record.constructor.modelName is not available outside of legacy mode`, false);
+      return undefined;
     },
   });
 }
 _constructor[Type] = '@constructor';
 
+/**
+ * Utility for constructing a ResourceSchema with the recommended fields
+ * for the Polaris experience.
+ */
 export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
-  schema.identity = schema.identity || { name: 'id', kind: '@id' };
-  schema.fields.push(...SchemaRecordFields);
+  schema.identity = schema.identity || DefaultIdentityField;
+
+  // because fields gets iterated in definition order,
+  // we add TypeField to the beginning so that it will
+  // appear right next to the identity field
+  schema.fields.unshift(TypeField);
+  schema.fields.push(ConstructorField);
   return schema as ResourceSchema;
 }
 
@@ -91,13 +103,13 @@ export function registerDerivations(schema: SchemaServiceInterface) {
   schema.registerDerivation(_constructor);
 }
 
-type InternalSchema = {
-  original: ResourceSchema;
+interface InternalSchema {
+  original: ResourceSchema | ObjectSchema;
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
-};
+  relationships: Record<string, LegacyRelationshipField>;
+}
 
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
@@ -209,18 +221,18 @@ export class SchemaService implements SchemaServiceInterface {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     assert(`No resource registered with name '${resource.type}'`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }
-  registerResources(schemas: ResourceSchema[]): void {
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void {
     schemas.forEach((schema) => {
       this.registerResource(schema);
     });
   }
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     const fields = new Map<string, FieldSchema>();
-    const relationships: Record<string, LegacyRelationshipSchema> = {};
+    const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
     schema.fields.forEach((field) => {
@@ -237,7 +249,7 @@ export class SchemaService implements SchemaServiceInterface {
       }
     });
 
-    const traits = new Set<string>(schema.traits);
+    const traits = new Set<string>(isResourceSchema(schema) ? schema.traits : []);
     traits.forEach((trait) => {
       this._traits.add(trait);
     });

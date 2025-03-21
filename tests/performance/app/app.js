@@ -1,3 +1,7 @@
+// uncomment this to install Map/Set instrumentation
+// prior to app boot
+// import './services/store';
+
 import Application from '@ember/application';
 
 import compatModules from '@embroider/virtual/compat-modules';

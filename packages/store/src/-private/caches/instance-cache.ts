@@ -8,7 +8,7 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
-import type { LegacyRelationshipSchema as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type {
   ExistingResourceIdentifierObject,
   ExistingResourceObject,

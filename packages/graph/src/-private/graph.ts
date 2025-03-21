@@ -781,19 +781,22 @@ function addPending(
   definition: UpgradedMeta,
   op: RemoteRelationshipOperation & { field: string }
 ): void {
-  const lc = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
+  const cacheForKind = (cache[definition.kind as 'hasMany' | 'belongsTo'] =
     cache[definition.kind as 'hasMany' | 'belongsTo'] || new Map<string, Map<string, RemoteRelationshipOperation[]>>());
-  let lc2 = lc.get(definition.inverseType);
-  if (!lc2) {
-    lc2 = new Map<string, RemoteRelationshipOperation[]>();
-    lc.set(definition.inverseType, lc2);
+
+  let cacheForType = cacheForKind.get(definition.inverseType);
+  if (!cacheForType) {
+    cacheForType = new Map<string, RemoteRelationshipOperation[]>();
+    cacheForKind.set(definition.inverseType, cacheForType);
   }
-  let arr = lc2.get(op.field);
-  if (!arr) {
-    arr = [];
-    lc2.set(op.field, arr);
+
+  let cacheForField = cacheForType.get(op.field);
+  if (!cacheForField) {
+    cacheForField = [];
+    cacheForType.set(op.field, cacheForField);
   }
-  arr.push(op);
+
+  cacheForField.push(op);
 }
 
 function isReordered(relationship: CollectionEdge): boolean {

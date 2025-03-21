@@ -519,6 +519,16 @@ export class IdentifierArray<T = unknown> {
       };
     }
 
+    if (DEBUG) {
+      Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+        enumerable: false,
+        configurable: true,
+        get() {
+          return proxy.slice();
+        },
+      });
+    }
+
     createArrayTags(proxy, _SIGNAL);
 
     this[NOTIFY] = this[NOTIFY].bind(proxy);

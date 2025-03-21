@@ -3,25 +3,27 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
-import type {
-  ArrayField,
-  DerivedField,
-  FieldSchema,
-  GenericField,
-  HashField,
-  LegacyAttributeField,
-  LegacyRelationshipSchema,
-  ObjectField,
-  ResourceSchema,
+import {
+  type ArrayField,
+  type DerivedField,
+  type FieldSchema,
+  type GenericField,
+  type HashField,
+  isResourceSchema,
+  type LegacyAttributeField,
+  type LegacyRelationshipField,
+  type ObjectField,
+  type ObjectSchema,
+  type ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
 
 type InternalSchema = {
-  original: ResourceSchema;
+  original: ResourceSchema | ObjectSchema;
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipField>;
 };
 
 export class TestSchema implements SchemaService {
@@ -95,7 +97,7 @@ export class TestSchema implements SchemaService {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     assert(`No resource registered with name ${resource.type}`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }
@@ -112,9 +114,9 @@ export class TestSchema implements SchemaService {
     this._hashFns.set(hashFn[Type], hashFn as HashFn);
   }
 
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     const fields = new Map<string, FieldSchema>();
-    const relationships: Record<string, LegacyRelationshipSchema> = {};
+    const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
     schema.fields.forEach((field) => {
@@ -131,7 +133,7 @@ export class TestSchema implements SchemaService {
       }
     });
 
-    const traits = new Set<string>(schema.traits);
+    const traits = new Set<string>(isResourceSchema(schema) ? schema.traits : []);
     traits.forEach((trait) => {
       this._traits.add(trait);
     });
@@ -140,7 +142,7 @@ export class TestSchema implements SchemaService {
     this._schemas.set(schema.type, internalSchema);
   }
 
-  registerResources(resources: ResourceSchema[]) {
+  registerResources(resources: Array<ResourceSchema | ObjectSchema>) {
     resources.forEach((resource) => {
       this.registerResource(resource);
     });

@@ -18,9 +18,10 @@ import type {
   GenericField,
   HashField,
   LegacyAttributeField,
-  LegacyFieldSchema,
-  LegacyRelationshipSchema,
+  LegacyField,
+  LegacyRelationshipField,
   ObjectField,
+  ObjectSchema,
   ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 
@@ -33,9 +34,9 @@ type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefini
 
 type InternalSchema = {
   schema: ResourceSchema;
-  fields: Map<string, LegacyAttributeField | LegacyRelationshipSchema>;
+  fields: Map<string, LegacyAttributeField | LegacyRelationshipField>;
   attributes: Record<string, LegacyAttributeField>;
-  relationships: Record<string, LegacyRelationshipSchema>;
+  relationships: Record<string, LegacyRelationshipField>;
 };
 
 export interface ModelSchemaProvider {
@@ -73,7 +74,7 @@ export class ModelSchemaProvider implements SchemaService {
   hashFn(field: HashField | { type: string }): HashFn {
     assert(`hashFn is not available with @ember-data/model's SchemaService`);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {
@@ -82,10 +83,10 @@ export class ModelSchemaProvider implements SchemaService {
 
     return this._schemas.get(type)!.schema;
   }
-  registerResources(schemas: ResourceSchema[]): void {
+  registerResources(schemas: Array<ResourceSchema | ObjectSchema>): void {
     assert(`registerResources is not available with @ember-data/model's SchemaService`);
   }
-  registerResource(schema: ResourceSchema): void {
+  registerResource(schema: ResourceSchema | ObjectSchema): void {
     assert(`registerResource is not available with @ember-data/model's SchemaService`);
   }
   registerTransformation(transform: Transformation): void {
@@ -104,7 +105,7 @@ export class ModelSchemaProvider implements SchemaService {
     const attributes = Object.create(null) as AttributesSchema;
     attributeMap.forEach((meta, name) => (attributes[name] = meta));
     const relationships = modelClass.relationshipsObject || null;
-    const fields = new Map<string, LegacyAttributeField | LegacyRelationshipSchema>();
+    const fields = new Map<string, LegacyAttributeField | LegacyRelationshipField>();
 
     for (const attr of Object.values(attributes)) {
       fields.set(attr.name, attr);
@@ -133,7 +134,7 @@ export class ModelSchemaProvider implements SchemaService {
     return internalSchema;
   }
 
-  fields(resource: RecordIdentifier | { type: string }): Map<string, LegacyFieldSchema> {
+  fields(resource: RecordIdentifier | { type: string }): Map<string, LegacyField> {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {

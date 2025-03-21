@@ -16,7 +16,9 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
-    "prepack": "pnpm run build:pkg"
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "ember-addon": {
     "main": "addon-main.cjs",

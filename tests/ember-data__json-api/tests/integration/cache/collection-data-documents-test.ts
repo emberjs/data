@@ -4,6 +4,7 @@ import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
@@ -205,17 +206,19 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('object fields are accessible via `peek`', function (assert) {
     const store = new TestStore();
-    store.schema.registerResource({
-      identity: null,
-      type: 'user',
-      fields: [
-        { kind: 'attribute', name: 'name', type: null },
-        {
-          kind: 'object',
-          name: 'business',
-        },
-      ],
-    });
+    store.schema.registerResource(
+      resourceSchema({
+        identity: { kind: '@id', name: 'id' },
+        type: 'user',
+        fields: [
+          { kind: 'field', name: 'name' },
+          {
+            kind: 'object',
+            name: 'business',
+          },
+        ],
+      })
+    );
 
     let responseDocument: CollectionResourceDataDocument;
     store._run(() => {
@@ -326,40 +329,43 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
   test('resource relationships are accessible via `peek`', function (assert) {
     const store = new TestStore();
-    store.schema.registerResource({
-      identity: null,
-      type: 'user',
-      fields: [
-        { kind: 'attribute', name: 'name', type: null },
-        {
-          kind: 'belongsTo',
-          type: 'user',
-          name: 'bestFriend',
-          options: {
-            async: false,
-            inverse: 'bestFriend',
+    store.schema.registerResource(
+      resourceSchema({
+        legacy: true,
+        identity: { kind: '@id', name: 'id ' },
+        type: 'user',
+        fields: [
+          { kind: 'attribute', name: 'name', type: null },
+          {
+            kind: 'belongsTo',
+            type: 'user',
+            name: 'bestFriend',
+            options: {
+              async: false,
+              inverse: 'bestFriend',
+            },
           },
-        },
-        {
-          kind: 'belongsTo',
-          type: 'user',
-          name: 'worstEnemy',
-          options: {
-            async: false,
-            inverse: null,
+          {
+            kind: 'belongsTo',
+            type: 'user',
+            name: 'worstEnemy',
+            options: {
+              async: false,
+              inverse: null,
+            },
           },
-        },
-        {
-          kind: 'hasMany',
-          type: 'user',
-          name: 'friends',
-          options: {
-            async: false,
-            inverse: 'friends',
+          {
+            kind: 'hasMany',
+            type: 'user',
+            name: 'friends',
+            options: {
+              async: false,
+              inverse: 'friends',
+            },
           },
-        },
-      ],
-    });
+        ],
+      })
+    );
 
     let responseDocument: CollectionResourceDataDocument;
     store._run(() => {

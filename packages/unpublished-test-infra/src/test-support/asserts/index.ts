@@ -48,7 +48,8 @@ declare module '@warp-drive/diagnostic' {
       identifier: StableDocumentIdentifier | StableRecordIdentifier,
       bucket: NotificationType | CacheOperation,
       key: string | null,
-      count: number
+      count: number,
+      message?: string
     ): void;
 
     clearNotifications(): void;

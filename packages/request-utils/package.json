@@ -43,7 +43,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
-    "sync": "echo \"syncing\""
+    "sync": "echo \"syncing\"",
+    "start": "vite"
   },
   "ember-addon": {
     "main": "addon-main.cjs",
@@ -54,7 +55,7 @@
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/string": "^3.1.1 || ^4.0.0",
     "@warp-drive/core-types": "workspace:*",
-    "ember-inflector": "^4.0.2 || ^5.0.0"
+    "ember-inflector": "^4.0.2 || ^5.0.0 || ^6.0.0"
   },
   "peerDependenciesMeta": {
     "ember-inflector": {

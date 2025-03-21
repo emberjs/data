@@ -22,7 +22,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache, ChangedAttributesHash } from '@warp-drive/core-types/cache';
-import type { LegacyAttributeField, LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
 
 import { Errors } from './errors';
@@ -1060,17 +1060,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {any} binding the value to which the callback's `this` should be bound
    */
   eachRelationship<T>(
-    callback: (
-      this: NoInfer<T> | undefined,
-      key: MaybeRelationshipFields<this>,
-      meta: LegacyRelationshipSchema
-    ) => void,
+    callback: (this: NoInfer<T> | undefined, key: MaybeRelationshipFields<this>, meta: LegacyRelationshipField) => void,
     binding?: T
   ): void {
     (this.constructor as typeof Model).eachRelationship<T, this>(callback, binding);
   }
 
-  relationshipFor(name: string): LegacyRelationshipSchema | undefined {
+  relationshipFor(name: string): LegacyRelationshipField | undefined {
     return (this.constructor as typeof Model).relationshipsByName.get(name);
   }
 
@@ -1199,7 +1195,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   @computeOnce
-  static get inverseMap(): Record<string, LegacyRelationshipSchema | null> {
+  static get inverseMap(): Record<string, LegacyRelationshipField | null> {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1217,7 +1213,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
         this.modelName
       );
     }
-    return Object.create(null) as Record<string, LegacyRelationshipSchema | null>;
+    return Object.create(null) as Record<string, LegacyRelationshipField | null>;
   }
 
   /**
@@ -1253,7 +1249,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {Store} store
    @return {Object} the inverse relationship, or null
    */
-  static inverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
+  static inverseFor(name: string, store: Store): LegacyRelationshipField | null {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1282,7 +1278,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   //Calculate the inverse, ignoring the cache
-  static _findInverseFor(name: string, store: Store): LegacyRelationshipSchema | null {
+  static _findInverseFor(name: string, store: Store): LegacyRelationshipField | null {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1384,7 +1380,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
 
   @computeOnce
-  static get relationships(): Map<string, LegacyRelationshipSchema[]> {
+  static get relationships(): Map<string, LegacyRelationshipField[]> {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1403,7 +1399,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       );
     }
 
-    const map = new Map<string, LegacyRelationshipSchema[]>();
+    const map = new Map<string, LegacyRelationshipField[]>();
     const relationshipsByName = this.relationshipsByName;
 
     // Loop through each computed property on the class
@@ -1597,7 +1593,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readOnly
    */
   @computeOnce
-  static get relationshipsByName(): Map<string, LegacyRelationshipSchema> {
+  static get relationshipsByName(): Map<string, LegacyRelationshipField> {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1630,7 +1626,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   @computeOnce
-  static get relationshipsObject(): Record<string, LegacyRelationshipSchema> {
+  static get relationshipsObject(): Record<string, LegacyRelationshipField> {
     if (DEPRECATE_EARLY_STATIC) {
       deprecate(
         `Accessing schema information on Models without looking up the model via the store is deprecated. Use store.modelFor (or better Snapshots or the store.getSchemaDefinitionService() apis) instead.`,
@@ -1649,7 +1645,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
       );
     }
 
-    const relationships = Object.create(null) as Record<string, LegacyRelationshipSchema>;
+    const relationships = Object.create(null) as Record<string, LegacyRelationshipField>;
     const modelName = this.modelName;
     this.eachComputedProperty((name: string, meta: unknown) => {
       if (!isRelationshipSchema(meta)) {
@@ -1760,7 +1756,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     callback: (
       this: T | undefined,
       key: MaybeRelationshipFields<Schema>,
-      relationship: LegacyRelationshipSchema
+      relationship: LegacyRelationshipField
     ) => void,
     binding?: T
   ): void {
@@ -1833,7 +1829,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    * @deprecated
    */
   static determineRelationshipType(
-    knownSide: LegacyRelationshipSchema,
+    knownSide: LegacyRelationshipField,
     store: Store
   ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
     if (DEPRECATE_EARLY_STATIC) {
@@ -2302,7 +2298,7 @@ if (DEBUG) {
 
 export { Model };
 
-function isRelationshipSchema(meta: unknown): meta is LegacyRelationshipSchema {
+function isRelationshipSchema(meta: unknown): meta is LegacyRelationshipField {
   const hasKind = typeof meta === 'object' && meta !== null && 'kind' in meta && 'options' in meta;
   return hasKind && (meta.kind === 'hasMany' || meta.kind === 'belongsTo');
 }
@@ -2315,7 +2311,7 @@ function findPossibleInverses(
   Klass: typeof Model,
   inverseType: typeof Model,
   name: string,
-  relationshipsSoFar?: LegacyRelationshipSchema[]
+  relationshipsSoFar?: LegacyRelationshipField[]
 ) {
   const possibleRelationships = relationshipsSoFar || [];
 
@@ -2372,8 +2368,8 @@ function legacyFindInverseFor(Klass: typeof Model, name: string, store: Store) {
 
   let fieldOnInverse: string | null | undefined;
   let inverseKind: 'belongsTo' | 'hasMany';
-  let inverseRelationship: LegacyRelationshipSchema | undefined;
-  let inverseOptions: LegacyRelationshipSchema['options'] | undefined;
+  let inverseRelationship: LegacyRelationshipField | undefined;
+  let inverseOptions: LegacyRelationshipField['options'] | undefined;
   const inverseSchema = Klass.typeForRelationship(name, store);
   assert(`No model was found for '${relationship.type}'`, inverseSchema);
 

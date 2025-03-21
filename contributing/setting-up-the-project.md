@@ -68,8 +68,35 @@ Currently the install command is also what builds all of the individual packages
 ## Create certificates
 
 ```sh
-pnpx @warp-drive/holodeck ensure-cert
+pnpm dlx @warp-drive/holodeck ensure-cert
 ```
+
+## Building the project
+
+The project's packages will build whenever `pnpm install` is run. They can be rebuilt by running `pnpm prepare`.
+
+Both `install` and `prepare` will ensure turbo cache is ignored so that pnpm will automatically update "hardlinks" for
+the build output files in the node_modules directory of the various other packages and test apps that depend upon the package.
+
+However, this is pretty slow for development, so a fast albeit slightly manual approach is available for development
+by running the below commands in order:
+
+From the project root:
+
+- install: `pnpm install` - installs all dependencies and sets up initial hardlinks
+- start: `pnpm start` - starts the build for every public package in watch mode
+
+Then, from an individual test app:
+
+- `pnpm start` - starts the build for test assets in watch mode
+- `pnpm test:start` - launches a test server (and by opens a browser window for debugging them)
+
+Because the project uses hardlinks, even though the packages are rebuilding, the test apps won't be able
+to see the results of the change in many scenarios unless the hardlinks are regenerated.
+
+At anypoint, run `pnpm sync` from the root to regenerate the hardlinks. The test app server may
+pick up this change automatically, but if it does not saving any file (even without changing it)
+in the test app will trigger a rebuild.
 
 ## Run some commands
 

@@ -27,7 +27,7 @@ import type { NativeArray } from '@ember/array';
 import { A } from '@ember/array';
 import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
@@ -38,6 +38,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
 
+const service = s.service ?? s.inject;
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
 
 type RecordColor = 'black' | 'red' | 'blue' | 'green';

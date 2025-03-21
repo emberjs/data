@@ -9,12 +9,12 @@ export const DEBUG_CLIENT_ORIGINATED: unique symbol = Symbol('record-originated-
 export const DEBUG_IDENTIFIER_BUCKET: unique symbol = Symbol('identifier-bucket');
 export const DEBUG_STALE_CACHE_OWNER: unique symbol = Symbol('warpDriveStaleCache');
 
-function ProdSymbol<T extends string>(str: T): T {
-  return DEBUG ? (Symbol(str) as unknown as T) : str;
+function ProdSymbol<T extends string>(str: T, debugStr: string): T {
+  return DEBUG ? (Symbol(debugStr) as unknown as T) : str;
 }
 
 // also present in production
-export const CACHE_OWNER: '__$co' = ProdSymbol('__$co');
+export const CACHE_OWNER: '__$co' = ProdSymbol('__$co', 'CACHE_OWNER');
 
 export type IdentifierBucket = 'record' | 'document';
 

@@ -49,7 +49,8 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
   hooks.beforeEach(function () {
     store = new TestStore();
     store.schema.registerResource({
-      identity: null,
+      legacy: true,
+      identity: { kind: '@id', name: 'id' },
       type: 'user',
       fields: [
         { kind: 'attribute', name: 'firstName', type: null },

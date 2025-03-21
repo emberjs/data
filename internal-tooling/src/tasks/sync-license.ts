@@ -1,5 +1,3 @@
-#! /usr/bin/env bun
-
 import path from 'path';
 import fs from 'fs';
 import debug from 'debug';
@@ -33,7 +31,7 @@ async function updatePackageJson({ pkg, file, nicePath }: { pkg: any; file: BunF
   }
 }
 
-async function main() {
+export async function main() {
   log(
     `\n\t${chalk.gray('=').repeat(60)}\n\t\t${chalk.magentaBright('@warp-drive/')}${chalk.greenBright('internal-tooling')} Sync LICENSE.md\n\t${chalk.gray('=').repeat(60)}\n\n\t\t${chalk.gray(`Syncing LICENSE.md from monorepo root to each public package`)}\n\n`
   );
@@ -70,5 +68,3 @@ async function main() {
     log('\n');
   }
 }
-
-main();
