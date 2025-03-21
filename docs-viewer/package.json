@@ -8,7 +8,8 @@
     "src"
   ],
   "bin": {
-    "preview-api-docs": "./src/preview-docs.ts"
+    "preview-api-docs": "./src/preview-docs.ts",
+    "rebuild-api-docs": "./src/rebuild-docs.ts"
   },
   "dependencies": {
     "@types/bun": "^1.2.4",
