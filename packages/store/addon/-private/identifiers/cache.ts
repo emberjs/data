@@ -2,7 +2,6 @@
   @module @ember-data/store
 */
 import { warn } from '@ember/debug';
-import { assign } from '@ember/polyfills';
 import { DEBUG } from '@glimmer/env';
 
 import coerceId from '../system/coerce-id';
@@ -101,14 +100,14 @@ if (DEBUG) {
 
 /**
  * Each instance of {Store} receives a unique instance of a IdentifierCache.
- * 
+ *
  * This cache is responsible for assigning or retrieving the unique identify
  * for arbitrary resource data encountered by the store. Data representing
  * a unique resource or record should always be represented by the same
  * identifier.
- * 
+ *
  * It can be configured by consuming applications.
- * 
+ *
  * @class IdentifierCache
    @public
  */
@@ -300,7 +299,7 @@ export class IdentifierCache {
     - this referential stability of the object itself is guaranteed
 
     @method getOrCreateRecordIdentifier
-    @param resource 
+    @param resource
     @returns {StableRecordIdentifier}
     @public
   */
@@ -362,8 +361,8 @@ export class IdentifierCache {
     `forgetRecordIdentifier` codepaths.
 
     @method updateRecordIdentifier
-    @param identifierObject 
-    @param data 
+    @param identifierObject
+    @param data
     @returns {StableRecordIdentifier}
     @public
   */
@@ -380,7 +379,7 @@ export class IdentifierCache {
       // If the incoming type does not match the identifier type, we need to create an identifier for the incoming
       // data so we can merge the incoming data with the existing identifier, see #7325 and #7363
       if (data.type && identifier.type !== normalizeModelName(data.type)) {
-        let incomingDataResource = assign({}, data);
+        let incomingDataResource = Object.assign({}, data);
         // Need to strip the lid from the incomingData in order force a new identifier creation
         delete incomingDataResource.lid;
         existingIdentifier = this.getOrCreateRecordIdentifier(incomingDataResource);
