@@ -56,3 +56,6 @@ benchmarks/results/*.json
 !.vscode/
 .idea/
 *.iml
+
+# Ignore the cloned repos for docs viewer
+docs-viewer/projects
