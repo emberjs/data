@@ -4,6 +4,10 @@
  * Rebuilds the data used by the docs viewer app
  */
 
-async function main();
+import { generateDocs } from './-utils';
+
+async function main() {
+  await generateDocs();
+}
 
 main();
