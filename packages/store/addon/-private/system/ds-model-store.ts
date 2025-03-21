@@ -1,6 +1,5 @@
 import { getOwner, setOwner } from '@ember/application';
 import { assert, deprecate } from '@ember/debug';
-import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { isPresent } from '@ember/utils';
 import { DEBUG } from '@glimmer/env';
@@ -71,7 +70,7 @@ class Store extends CoreStore {
     let klass = maybeFactory && maybeFactory.class ? maybeFactory.class : maybeFactory;
     if (!klass || !klass.isModel) {
       if (!CUSTOM_MODEL_CLASS || !this.getSchemaDefinitionService().doesTypeExist(modelName)) {
-        throw new EmberError(`No model was found for '${modelName}' and no schema handles the type`);
+        throw new Error(`No model was found for '${modelName}' and no schema handles the type`);
       }
       return getShimClass(this, modelName);
     } else {

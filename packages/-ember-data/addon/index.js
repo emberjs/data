@@ -1,6 +1,5 @@
 import 'ember-inflector';
 
-import EmberError from '@ember/error';
 import { VERSION } from '@ember/version';
 
 import require, { has } from 'require';
@@ -49,7 +48,7 @@ import setupContainer from './setup-container';
 const HAS_DEBUG_PACKAGE = has('@ember-data/debug') || false;
 
 if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
-  throw new EmberError(
+  throw new Error(
     'Ember Data requires at least Ember 1.13.0, but you have ' +
       VERSION +
       '. Please upgrade your version of Ember, then upgrade Ember Data.'

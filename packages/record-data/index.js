@@ -12,7 +12,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
     return [
       '@ember/debug',
       '@ember/runloop',
-      '@ember/polyfills',
       '@ember/object',
       '@ember/object/internals',
       '@ember/utils',

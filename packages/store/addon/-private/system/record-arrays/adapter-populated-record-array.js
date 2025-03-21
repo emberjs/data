@@ -1,6 +1,5 @@
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { once } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -86,8 +85,8 @@ let AdapterPopulatedRecordArray = RecordArray.extend({
     this.setProperties({
       isLoaded: true,
       isUpdating: false,
-      meta: assign({}, payload.meta),
-      links: assign({}, payload.links),
+      meta: Object.assign({}, payload.meta),
+      links: Object.assign({}, payload.links),
     });
 
     this.manager._associateWithRecordArray(identifiersOrInternalModels, this);

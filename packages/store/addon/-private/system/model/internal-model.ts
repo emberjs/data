@@ -1,9 +1,7 @@
 import { getOwner, setOwner } from '@ember/application';
 import { A, default as EmberArray } from '@ember/array';
 import { assert, inspect } from '@ember/debug';
-import EmberError from '@ember/error';
 import { get, set } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner, cancel, run } from '@ember/runloop';
 import { DEBUG } from '@glimmer/env';
 
@@ -358,7 +356,7 @@ export default class InternalModel {
           }
 
           let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-          assign(createOptions, additionalCreateOptions);
+          Object.assign(createOptions, additionalCreateOptions);
 
           // ensure that `getOwner(this)` works inside a model instance
           setOwner(createOptions, getOwner(store));
@@ -837,9 +835,9 @@ export default class InternalModel {
   setDirtyAttribute(key, value) {
     if (this.isDeleted()) {
       if (DEBUG) {
-        throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
+        throw new Error(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
       } else {
-        throw new EmberError(`Attempted to set '${key}' on the deleted record ${this}`);
+        throw new Error(`Attempted to set '${key}' on the deleted record ${this}`);
       }
     }
 
@@ -1088,7 +1086,7 @@ export default class InternalModel {
       errorMessage += 'Called with ' + inspect(context) + '.';
     }
 
-    throw new EmberError(errorMessage);
+    throw new Error(errorMessage);
   }
 
   triggerLater(...args) {

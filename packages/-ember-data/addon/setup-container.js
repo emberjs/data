@@ -1,6 +1,8 @@
 import { deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
+import { gte } from 'ember-compatibility-helpers';
+
 import Store from '@ember-data/store';
 
 function initializeStore(application) {
@@ -47,9 +49,12 @@ function initializeStore(application) {
 }
 
 function initializeStoreInjections(application) {
-  let inject = application.inject || application.injection;
-  inject.call(application, 'controller', 'store', 'service:store');
-  inject.call(application, 'route', 'store', 'service:store');
+  // https://deprecations.emberjs.com/v3.x/#toc_implicit-injections
+  if (!gte('4.0.0')) {
+    let inject = application.inject || application.injection;
+    inject.call(application, 'controller', 'store', 'service:store');
+    inject.call(application, 'route', 'store', 'service:store');
+  }
 }
 
 export default function setupContainer(application) {

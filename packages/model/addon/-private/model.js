@@ -3,7 +3,6 @@
  */
 
 import { assert, deprecate, warn } from '@ember/debug';
-import EmberError from '@ember/error';
 import EmberObject, { get } from '@ember/object';
 import { dependentKeyCompat } from '@ember/object/compat';
 import { run } from '@ember/runloop';
@@ -104,10 +103,10 @@ function computeOnce(target, key, desc) {
 
 /**
   Base class from which Models can be define.
-  
+
   ```js
   import Model, { attr } from '@ember-data/model';
-  
+
   export default class User extends Model {
     @attr name;
   }
@@ -126,7 +125,7 @@ class Model extends EmberObject {
 
     if (DEBUG) {
       if (!this._internalModel) {
-        throw new EmberError(
+        throw new Error(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
         );
       }
@@ -2296,7 +2295,7 @@ if (DEBUG) {
       let idDesc = lookupDescriptor(this, 'id');
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {
-        throw new EmberError(
+        throw new Error(
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: attr('<type>')\` from ${this.constructor.toString()}`
         );
       }

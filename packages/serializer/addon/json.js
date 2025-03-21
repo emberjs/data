@@ -4,7 +4,6 @@
 import { getOwner } from '@ember/application';
 import { assert, warn } from '@ember/debug';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 
 import Serializer from '@ember-data/serializer';
@@ -1155,7 +1154,7 @@ const JSONSerializer = Serializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    assign(hash, this.serialize(snapshot, options));
+    Object.assign(hash, this.serialize(snapshot, options));
   },
 
   /**

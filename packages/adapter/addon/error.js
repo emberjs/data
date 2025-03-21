@@ -2,7 +2,6 @@
   @module @ember-data/adapter/error
  */
 import { assert } from '@ember/debug';
-import EmberError from '@ember/error';
 
 /**
   A `AdapterError` is used by an adapter to signal that an error occurred
@@ -74,10 +73,10 @@ import EmberError from '@ember/error';
 */
 function AdapterError(errors, message = 'Adapter operation failed') {
   this.isAdapterError = true;
-  let error = EmberError.call(this, message);
+  let error = Error.call(this, message);
 
-  // in ember 3.8+ Error is a Native Error and we don't
-  // gain these automatically from the EmberError.call
+  // it is a Native Error and we don't
+  // gain these automatically from the Error.call
   if (error) {
     this.stack = error.stack;
     this.description = error.description;
@@ -115,7 +114,7 @@ function extend(ParentErrorClass, defaultMessage) {
   return ErrorClass;
 }
 
-AdapterError.prototype = Object.create(EmberError.prototype);
+AdapterError.prototype = Object.create(Error.prototype);
 AdapterError.prototype.code = 'AdapterError';
 AdapterError.extend = extendFn(AdapterError);
 
