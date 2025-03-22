@@ -65,7 +65,7 @@ jobs:
           )
         name: Enable All In progress features
         env:
-          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
+          WARP_DRIVE_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
         run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (
@@ -73,7 +73,7 @@ jobs:
           )
         name: Disabled All In progress features
         env:
-          EMBER_DATA_FEATURE_OVERRIDE: DISABLE_ALL
+          WARP_DRIVE_FEATURE_OVERRIDE: DISABLE_ALL
         run: pnpm test
       - if: |
           github.event_name == 'pull_request' && (

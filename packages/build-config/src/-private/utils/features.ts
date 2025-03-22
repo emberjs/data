@@ -27,7 +27,7 @@ export function getFeatures(isProd: boolean): { [key in FEATURE]: boolean } {
     return features;
   }
 
-  const FEATURE_OVERRIDES = process.env.EMBER_DATA_FEATURE_OVERRIDE;
+  const FEATURE_OVERRIDES = process.env.WARP_DRIVE_FEATURE_OVERRIDE;
   if (FEATURE_OVERRIDES === 'ENABLE_ALL_OPTIONAL') {
     // enable all features with a current value of `null`
     for (const feature of keys) {

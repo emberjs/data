@@ -1,4 +1,10 @@
 /**
+ *
+ * @module @warp-drive/build-config
+ */
+
+/**
+ *
  * ## Canary Features
  *
  * EmberData allows users to test features that are implemented but not yet
@@ -31,24 +37,22 @@
  *
  * ```cli
  * # Activate a single flag
- * EMBER_DATA_FEATURE_OVERRIDE=SOME_FLAG ember build
+ * WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG ember build
  *
  * # Activate multiple flags by separating with commas
- * EMBER_DATA_FEATURE_OVERRIDE=SOME_FLAG,OTHER_FLAG ember build
+ * WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG,OTHER_FLAG ember build
  *
  * # Activate all flags
- * EMBER_DATA_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember build
+ * WARP_DRIVE_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember build
  * ```
  *
  * or by setting the appropriate flag in your `ember-cli-build` file:
  *
  * ```ts
- * let app = new EmberApp(defaults, {
- *   emberData: {
- *     features: {
- *       SAMPLE_FEATURE_FLAG: false // utliize existing behavior, strip code for the new feature
- *       OTHER_FEATURE_FLAG: true // utilize this new feature, strip code for the older behavior
- *     }
+ * setConfig(app, __dirname, {
+ *   features: {
+ *     SAMPLE_FEATURE_FLAG: false // utliize existing behavior, strip code for the new feature
+ *     OTHER_FEATURE_FLAG: true // utilize this new feature, strip code for the older behavior
  *   }
  * })
  * ```
@@ -70,20 +74,16 @@
  * }
  * ```
  *
-   @module @warp-drive/build-config/canary-features
-   @main @warp-drive/build-config/canary-features
- */
-/**
-  This is the current list of features used at build time for canary releases.
-  If empty there are no features currently gated by feature flags.
-
-  The valid values are:
-
-  - `true` | The feature is **enabled** at all times, and cannot be disabled.
-  - `false` | The feature is **disabled** at all times, and cannot be enabled.
-  - `null` | The feature is **disabled by default**, but can be enabled via configuration.
-
-  @class CanaryFeatureFlags
-  @public
+ * The current list of features used at build time for canary releases is defined below.
+ * If empty there are no features currently gated by feature flags.
+ *
+ * The valid values are:
+ *
+ *  - `true` | The feature is **enabled** at all times, and cannot be disabled.
+ *  - `false` | The feature is **disabled** at all times, and cannot be enabled.
+ *  - `null` | The feature is **disabled by default**, but can be enabled via configuration.
+ *
+ * @class CanaryFeatures
+ * @public
 */
 export const SAMPLE_FEATURE_FLAG: boolean | null = null;
