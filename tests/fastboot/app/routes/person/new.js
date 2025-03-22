@@ -1,5 +1,7 @@
 import Route from '@ember/routing/route';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
+
+const service = s.service ?? s.inject;
 
 export default class PersonNewRoute extends Route {
   @service store;

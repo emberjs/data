@@ -1,5 +1,5 @@
 import Route from '@ember/routing/route';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 // @ts-expect-error untyped
 import { buildTree } from 'ember-simple-tree/utils/tree';
@@ -9,6 +9,8 @@ import { setBuildURLConfig } from '@ember-data/request-utils';
 
 import type Person from '../models/person';
 import type Store from '../services/store';
+
+const service = s.service ?? s.inject;
 
 export default class IndexRoute extends Route {
   @service declare store: Store;
