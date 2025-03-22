@@ -1,5 +1,5 @@
 import { getOwner } from '@ember/application';
-import Service, { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import type { TestContext } from '@ember/test-helpers';
 
 import Resolver from 'ember-resolver';
@@ -7,6 +7,9 @@ import Resolver from 'ember-resolver';
 import RequestManager from '@ember-data/request';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+
+const Service = s.default;
+const service = s.service ?? s.inject;
 
 module('RequestManager | Ember Service Setup', function (hooks) {
   setupTest(hooks, { resolver: new Resolver() });

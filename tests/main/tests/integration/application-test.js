@@ -1,6 +1,6 @@
 // ensure DS namespace is set
 import Controller from '@ember/controller';
-import Service, { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import { module, test } from 'qunit';
 
@@ -8,6 +8,9 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+
+const Service = s.default;
+const service = s.service ?? s.inject;
 
 module('integration/application - Injecting a Custom Store', function (hooks) {
   setupTest(hooks);

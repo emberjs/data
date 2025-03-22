@@ -1,6 +1,6 @@
 import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
-import { inject } from '@ember/service';
+import * as s from '@ember/service';
 import { click, findAll, render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
@@ -11,6 +11,8 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+const service = s.service ?? s.inject;
 
 class Tag {
   @tracked rev = 0;
@@ -54,7 +56,7 @@ module('tracking state flags on a record', function (hooks) {
     }
     let childId = 1;
     class ChildrenList extends Component {
-      @inject store;
+      @service store;
       @tracked newChild = null;
 
       // an intentionally complicated way of resolving the async proxy
