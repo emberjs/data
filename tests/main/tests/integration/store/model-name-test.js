@@ -1,11 +1,14 @@
 import { computed } from '@ember/object';
-import Service, { inject } from '@ember/service';
+import * as s from '@ember/service';
 
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
+
+const Service = s.default;
+const service = s.service ?? s.inject;
 
 function startsWith(str, substr) {
   if (typeof str.startsWith === 'function') {
@@ -26,7 +29,7 @@ module('@ember-data/model klass.modelName', function (hooks) {
       @attr() name;
     }
     class AnimalHelper extends Service {
-      @inject store;
+      @service store;
 
       @computed('animal.constructor.modelName')
       get animalModelName() {

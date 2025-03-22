@@ -1,5 +1,5 @@
 import { setComponentTemplate } from '@ember/component';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
@@ -11,6 +11,8 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { cached, memoTransact, transact, untracked } from '@ember-data/tracking';
+
+const service = s.service ?? s.inject;
 
 module('acceptance/tracking-transactions', function (hooks) {
   setupRenderingTest(hooks);

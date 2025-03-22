@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import { click, find, findAll, render, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -17,6 +17,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+
+const service = s.service ?? s.inject;
 
 class Person extends Model {
   @attr()

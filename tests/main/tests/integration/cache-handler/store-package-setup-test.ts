@@ -1,4 +1,4 @@
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import { module, test } from 'qunit';
 
@@ -29,6 +29,8 @@ import type {
 } from '@warp-drive/core-types/spec/document';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Type } from '@warp-drive/core-types/symbols';
+
+const service = s.service ?? s.inject;
 
 type FakeRecord = { [key: string]: unknown; destroy: () => void };
 type UserRecord = {

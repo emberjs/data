@@ -61,6 +61,9 @@ module.exports = async function (defaults) {
 
   setConfig(app, __dirname, {
     compatWith: isEnabled(process.env.EMBER_DATA_FULL_COMPAT) ? '99.0' : null,
+    deprecations: {
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false,
+    },
     debug: {
       // LOG_GRAPH: true,
       // LOG_IDENTIFIERS: true,
