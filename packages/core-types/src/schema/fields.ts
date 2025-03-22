@@ -1548,7 +1548,7 @@ export type Schema = ResourceSchema | ObjectSchema;
  * @static
  * @for @warp-drive/core-types
  * @param {ResourceSchema} schema
- * @returns {ResourceSchema} the passed in schema
+ * @return {ResourceSchema} the passed in schema
  * @public
  */
 export function resourceSchema<T extends ResourceSchema>(schema: T): T {
@@ -1565,7 +1565,7 @@ export function resourceSchema<T extends ResourceSchema>(schema: T): T {
  * @static
  * @for @warp-drive/core-types
  * @param {ObjectSchema} schema
- * @returns {ObjectSchema} the passed in schema
+ * @return {ObjectSchema} the passed in schema
  * @public
  */
 export function objectSchema<T extends ObjectSchema>(schema: T): T {
@@ -1579,7 +1579,7 @@ export function objectSchema<T extends ObjectSchema>(schema: T): T {
  * @static
  * @for @warp-drive/core-types
  * @param schema
- * @returns {boolean}
+ * @return {boolean}
  * @public
  */
 export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
@@ -1593,7 +1593,7 @@ export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema 
  * @static
  * @for @warp-drive/core-types
  * @param schema
- * @returns {boolean}
+ * @return {boolean}
  * @public
  */
 export function isLegacyResourceSchema(schema: ResourceSchema | ObjectSchema): schema is LegacyResourceSchema {

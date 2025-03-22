@@ -9,6 +9,7 @@ or [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data), we coordinate wo
 
 - [Setting Up The Project](./setting-up-the-project.md)
 - [Project Architecture](./project-architecture.md)
+- [Writing API Docs](./writing-api-docs.md)
 - [Key Concepts](./key-concepts.md)
 - [Terminology](./terminology.md)
 - [RFC Process](./rfc-process.md)

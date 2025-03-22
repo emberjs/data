@@ -9,6 +9,7 @@ detailing how to become involved to best ensure your contributions are successfu
 - [Becoming a Contributor](./contributing/become-a-contributor.md)
 - [Requesting Features or Deprecations](./contributing/rfc-process.md)
 - [Submitting Pull Requests](./contributing/submitting-prs.md)
+- [Writing API Docs](./contributing/writing-api-docs.md)
 - [Linking the project to your application locally](./contributing/linking-to-applications.md)
 - [Key Concepts](./contributing/key-concepts.md)
 
