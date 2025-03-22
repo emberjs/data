@@ -76,6 +76,7 @@ export function repoDetails(gitUrl: string) {
     installPathFromRoot,
     location,
     relativePath: path.relative(__dirname, path.join(docsViewerRoot, installPathFromRoot)),
+    httpsUrl: `https://github.com/${repoPath}.git`,
   };
 }
 
