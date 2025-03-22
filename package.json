@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@warp-drive/internal-tooling": "workspace:*",
+    "@warp-drive/internal-docs-viewer": "workspace:*",
     "@babel/core": "^7.26.9",
     "@glimmer/component": "^1.1.2",
     "@glint/core": "1.5.2",

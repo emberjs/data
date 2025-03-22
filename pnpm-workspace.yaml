@@ -1,5 +1,7 @@
 packages:
   - "packages/*"
   - "internal-tooling"
+  - "docs-viewer"
+  - "!docs-viewer/projects/*"
   - "tests/*"
   - "config"

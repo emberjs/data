@@ -71,6 +71,9 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
+      '@warp-drive/internal-docs-viewer':
+        specifier: workspace:*
+        version: file:docs-viewer
       '@warp-drive/internal-tooling':
         specifier: workspace:*
         version: file:internal-tooling
@@ -212,6 +215,27 @@ importers:
       vite-plugin-dts:
         specifier: ^3.9.1
         version: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
+
+  docs-viewer:
+    dependencies:
+      '@pnpm/find-workspace-dir':
+        specifier: 1000.1.0
+        version: 1000.1.0
+      '@types/bun':
+        specifier: ^1.2.4
+        version: 1.2.4
+      '@types/debug':
+        specifier: 4.1.12
+        version: 4.1.12
+      chalk:
+        specifier: 5.4.1
+        version: 5.4.1
+      debug:
+        specifier: 4.4.0
+        version: 4.4.0
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
   internal-tooling:
     dependencies:
@@ -4927,7 +4951,7 @@ packages:
     peerDependencies:
       '@ember/string': ^3.1.1 || ^4.0.0
       '@warp-drive/core-types': workspace:*
-      ember-inflector: ^4.0.2 || ^5.0.0
+      ember-inflector: ^4.0.2 || ^5.0.0 || ^6.0.0
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
     peerDependenciesMeta:
       '@ember/string':
@@ -6504,6 +6528,11 @@ packages:
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
     engines: {node: '>= 18.20.7'}
+
+  '@warp-drive/internal-docs-viewer@file:docs-viewer':
+    resolution: {directory: docs-viewer, type: directory}
+    engines: {node: '>= 18.20.7'}
+    hasBin: true
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     resolution: {directory: internal-tooling, type: directory}
@@ -17878,6 +17907,17 @@ snapshots:
       - supports-color
       - terser
       - utf-8-validate
+
+  '@warp-drive/internal-docs-viewer@file:docs-viewer':
+    dependencies:
+      '@pnpm/find-workspace-dir': 1000.1.0
+      '@types/bun': 1.2.4
+      '@types/debug': 4.1.12
+      chalk: 5.4.1
+      debug: 4.4.0
+      typescript: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     dependencies:
