@@ -182,7 +182,7 @@ export class PersistedCache implements Cache {
    * @method peek
    * @internal
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
-   * @returns {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
