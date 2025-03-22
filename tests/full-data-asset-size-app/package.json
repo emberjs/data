@@ -31,7 +31,7 @@
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-terser": "^4.0.2",
     "ember-data": "workspace:*",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^4.1.0",
     "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-resolver": "^11.0.1",
