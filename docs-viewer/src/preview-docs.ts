@@ -9,13 +9,13 @@ import {
   determinePackageManager,
   docsViewerRoot,
   generateDocs,
-  getCurrentVersion,
+  installDeps,
   log,
   maybeMakePNPMInstallable,
   projectRoot,
   repoDetails,
   workspaceRoot,
-} from './-utils';
+} from './-utils.ts';
 
 const EMBER_API_DOCS_REPO = `git@github.com:ember-learn/ember-api-docs.git`;
 const EMBER_JSONAPI_DOCS_REPO = `git@github.com:ember-learn/ember-jsonapi-docs.git`;
@@ -24,10 +24,15 @@ const EMBER_API_DOCS_DATA_REPO = `git@github.com:ember-learn/ember-api-docs-data
 async function getOrUpdateRepo(gitUrl: string) {
   const details = repoDetails(gitUrl);
 
+  let updated = true;
   if (fs.existsSync(details.location)) {
-    await getLatest(details);
+    updated = await getLatest(details);
   } else {
     await cloneRepo(details);
+  }
+
+  if (!updated) {
+    return;
   }
 
   // install dependencies
@@ -40,32 +45,50 @@ async function getOrUpdateRepo(gitUrl: string) {
   }
 
   log(`Installing dependencies in ${chalk.green(details.installPathFromRoot)} using ${chalk.yellow(packageManager)}`);
-  const proc = Bun.spawn(
-    [packageManager, 'install', packageManager === 'pnpm' ? '--ignore-workspace' : ''].filter(Boolean),
-    {
-      cwd: details.location,
-      env: process.env,
-      stdio: ['inherit', 'inherit', 'inherit'],
-    }
-  );
-  await proc.exited;
+  await installDeps(packageManager, details);
+}
+
+async function getSHA(details: ReturnType<typeof repoDetails>, reference: string) {
+  log(`Getting commit sha for ${reference} for ${chalk.green(details.repoPath)}`);
+  const shaProc1 = Bun.spawn(['git', 'rev-parse', reference], {
+    cwd: details.location,
+  });
+  await shaProc1.exited;
+  return (await new Response(shaProc1.stdout).text()).trim();
 }
 
 /**
  * Updates the repo by fetching only the latest commit on the main branch
  * and resetting the local repo to that commit
+ *
+ * Returns true if the repo was updated, false if it was already up to date
  */
-async function getLatest(details: ReturnType<typeof repoDetails>) {
+async function getLatest(details: ReturnType<typeof repoDetails>): Promise<boolean> {
+  const currentSha = await getSHA(details, 'HEAD^1');
+
   log(`Updating ${chalk.green(details.repoPath)} in ${chalk.green(details.installPathFromRoot)} to latest`);
   const mainBranch = details.name === 'ember-jsonapi-docs' ? 'master' : 'main';
   const proc = Bun.spawn(['git', 'fetch', 'origin', mainBranch, '--depth=1'], {
     cwd: details.location,
   });
   await proc.exited;
+
+  // if the commit sha has not changed, we do not need to reset
+  const newSha = await getSHA(details, `origin/${mainBranch}`);
+
+  if (currentSha === newSha) {
+    log(`${chalk.green(details.repoPath)} is already up to date`);
+    return false;
+  } else {
+    log(`Resetting ${chalk.green(details.repoPath)} from ${chalk.red(currentSha)} to ${chalk.green(newSha)}`);
+  }
+
   const proc2 = Bun.spawn(['git', 'reset', '--hard', `origin/${mainBranch}`], {
     cwd: details.location,
   });
   await proc2.exited;
+
+  return true;
 }
 
 /**
@@ -91,12 +114,12 @@ async function main() {
   await getOrUpdateRepo(EMBER_JSONAPI_DOCS_REPO);
   await getOrUpdateRepo(EMBER_API_DOCS_REPO);
 
-  // symlink our own project root into projects as 'ember-data'
+  // symlink our own project root into projects as 'data'
   /////////////////////////////////////////////////////////////
   //
-  const emberDataLocation = path.join(projectRoot, 'ember-data');
+  const emberDataLocation = path.join(projectRoot, 'data');
   if (!fs.existsSync(emberDataLocation)) {
-    log(`Symlinking ${chalk.green('ember-data')} to ${chalk.green('./projects/ember-data')}`);
+    log(`Symlinking ${chalk.green('ember-data')} to ${chalk.green('./projects/data')}`);
     fs.symlinkSync(workspaceRoot, emberDataLocation);
   }
 
