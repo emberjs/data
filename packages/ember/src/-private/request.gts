@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/ember
+ */
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';
@@ -86,7 +89,8 @@ interface RequestSignature<T, RT> {
  * state in your Ember application. It provides declarative reactive control-flow
  * for managing requests and state in your application.
  *
- * @typedoc
+ * @class <Request />
+ * @public
  */
 export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   /**

@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/ember
+ */
 import { tracked } from '@glimmer/tracking';
 
 import type {
@@ -27,7 +30,6 @@ async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoa
   state._isStarted = true;
   state._startTime = performance.now();
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { value, done } = await reader.read();
     if (done) {
@@ -72,6 +74,11 @@ async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoa
   state._isStarted = false;
 }
 
+/**
+ *
+ * @class RequestLoadingState
+ * @public
+ */
 export class RequestLoadingState {
   _stream: TransformStream | null = null;
   _future: Future<unknown>;
@@ -219,6 +226,11 @@ export class RequestLoadingState {
   };
 }
 
+/**
+ *
+ * @class RequestState
+ * @public
+ */
 export class RequestState<T = unknown, RT = unknown> {
   #request: Future<RT>;
   #loadingState: RequestLoadingState | null = null;
@@ -282,6 +294,15 @@ export class RequestState<T = unknown, RT = unknown> {
   }
 }
 
+/**
+ *
+ * @method getRequestState
+ * @for @warp-drive/ember
+ * @static
+ * @public
+ * @param future
+ * @return {RequestState}
+ */
 export function getRequestState<RT, T>(future: Future<RT>): RequestState<T, RT> {
   let state = RequestCache.get(future) as RequestState<T, RT> | undefined;
 

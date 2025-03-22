@@ -19,8 +19,8 @@
 
 ---
 
-<blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <h4>💡 Tip</h4>
+<blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em rgb(35, 134, 54); background: #e0e0e0;">
+  <h4 style="color: rgb(35, 134, 54)">💡 TIP</h4>
   <p>
     EmberData is going universal and rebranding as WarpDrive
     with support for any signals based reactive framework!
@@ -41,13 +41,6 @@ rich application &mdash; letting you ship better experiences more quickly withou
 - 🔜 Seamless reactivity in any framework
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 
-
-## Quick Links
-
-- Getting Started
-  - [Basic Installation](#basic-installation)
-  - [Advanced Installation](#advanced-installation)
-  - [Configuration](../modules/@warp-drive%2Fbuild-config)
 
 ## Basic Installation
 
@@ -85,12 +78,16 @@ Some EmberData APIs are older than others, and these still interop via well-defi
 
 - [@ember-data/model](../modules/@ember-data%2Fmodel) provides a class-based approach to declaring schemas for reactive data.
 - [@ember-data/legacy-compat](../modules/@ember-data%2Flegacy-compat) provides support for the older adapter/serializer request paradigm that is being phased out
-- [@ember-data/adapter](../modules/@ember-data%2Fadapter) provides various network API integrations for APIs built over specific REST or `{JSON:API}` conventions.
-- [@ember-data/serializer](../modules/@ember-data%2Fserializer) provides an approach to normalizing and serializing data to and from an API format into the `{JSON:API}` format.
+- [@ember-data/adapter](../modules/@ember-data%2Fadapter) provides various network API integrations for APIs built over specific REST or [{JSON:API}](https://jsonapi.org) conventions.
+- [@ember-data/serializer](../modules/@ember-data%2Fserializer) provides an approach to normalizing and serializing data to and from an API format into the [{JSON:API}](https://jsonapi.org) format.
 
 And finally:
 
 - `ember-data` is a "meta" package which bundles many of these together for convenience in a "legacy" configuration.
+
+## Configuration Settings
+
+- [Configuration Settings](../modules/@warp-drive%2Fbuild-config)
 
 
  @module ember-data-overview

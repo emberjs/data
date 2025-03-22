@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/ember
+ */
 import Component from '@glimmer/component';
 
 import type { Awaitable } from '@ember-data/request';
@@ -11,6 +14,19 @@ interface ThrowSignature<E = Error | string | object> {
   };
 }
 
+/**
+ * The `<Throw />` component is used to throw an error in a template.
+ *
+ * That's all it does. So don't use it unless the application should
+ * throw an error if it reaches this point in the template.
+ *
+ * ```hbs
+ * <Throw @error={{anError}} />
+ * ```
+ *
+ * @class <Throw />
+ * @public
+ */
 export class Throw<T> extends Component<ThrowSignature<T>> {
   constructor(owner: unknown, args: ThrowSignature<T>['Args']) {
     super(owner, args);
@@ -33,6 +49,41 @@ interface AwaitSignature<T, E = Error | string | object> {
   };
 }
 
+/**
+ * The <Await /> component allow you to utilize reactive control flow
+ * for asynchronous states in your application.
+ *
+ * Await is ideal for handling "boundaries", outside which some state is
+ * still allowed to be unresolved and within which it MUST be resolved.
+ *
+ * ```gjs
+ * import { Await } from '@warp-drive/ember';
+ *
+ * <template>
+ *   <Await @promise={{@request}}>
+ *     <:pending>
+ *       <Spinner />
+ *     </:pending>
+ *
+ *     <:error as |error|>
+ *       <ErrorForm @error={{error}} />
+ *     </:error>
+ *
+ *     <:success as |result|>
+ *       <h1>{{result.title}}</h1>
+ *     </:success>
+ *   </Await>
+ * </template>
+ * ```
+ *
+ * The <Await /> component requires that error states are properly handled.
+ *
+ * If no error block is provided and the promise rejects, the error will
+ * be thrown.
+ *
+ * @class <Await />
+ * @public
+ */
 export class Await<T, E> extends Component<AwaitSignature<T, E>> {
   get state() {
     return getPromiseState<T, E>(this.args.promise);
