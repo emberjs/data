@@ -105,7 +105,7 @@
     "@babel/plugin-transform-typescript": "^7.26.8",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.26.0",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "2.19.10",
