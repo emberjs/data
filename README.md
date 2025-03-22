@@ -32,11 +32,11 @@ WarpDrive provides features that make it easy to build scalable, fast, feature
 rich application &mdash; letting you ship better experiences more quickly without re-architecting your app or API. WarpDrive is:
 
 - ⚡️ Committed to Best-In-Class Performance
-- 🌲 Focused on being as svelte as possible
-- 🚀 SSR Ready
 - 💚 Typed
-- 🔜 works with any framework
-- ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
+- ⚛️ Works with any API
+- 🌲 Focused on being as tiny as possible
+- 🚀 SSR Ready
+- 🔜 Seamless reactivity in any framework
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
 
 <br>

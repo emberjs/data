@@ -15,21 +15,35 @@
     />
 </p>
 
-<p align="center">The lightweight reactive data library for JavaScript applications</p>
+<p align="center">
+  <br>
+  <a href="https://warp-drive.io">EmberData</a> is a lightweight data library for web apps &mdash;
+  <br>
+  universal, typed, reactive, and ready to scale.
+  <br/><br/>
+<p>
+
+> [!TIP]
+> EmberData is going universal and rebranding as WarpDrive
+> with support for any signals based reactive framework!
+>
+> This means you may already see some references to WarpDrive.
 
 [![Build Status](https://github.com/emberjs/data/workflows/CI/badge.svg)](https://github.com/emberjs/data/actions?workflow=CI)
 [![Discord Community Server](https://img.shields.io/discord/480462759797063690.svg?logo=discord)](https://discord.gg/zT3asNS)
 
 ---
 
-Wrangle your application's data management with scalable patterns for developer productivity.
+EmberData provides features that make it easy to build scalable, fast, feature
+rich application &mdash; letting you ship better experiences more quickly without re-architecting your app or API. EmberData is:
 
 - ⚡️ Committed to Best-In-Class Performance
-- 🌲 Focused on being as svelte as possible
+- 💚 Typed
+- ⚛️ Works with any API
+- 🌲 Focused on being as tiny as possible
 - 🚀 SSR Ready
-- 🔜 Typescript Support
+- 🔜 Seamless reactivity in any framework
 - 🐹 Built with ♥️ by [Ember](https://emberjs.com)
-- ⚛️ Supports any API: `GraphQL` `JSON:API` `REST` `tRPC` ...bespoke or a mix
 
 **Tagged Releases**
 
@@ -91,22 +105,29 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 ## Advanced Installation
 
-*Ember***Data** is organized into primitives that compose together via public APIs.
+*Ember***Data** is organized into primitives that compose together via public APIs. These primitives are organized into
+small packages encapsulating these boundaries. These packages
+declare peer-dependencies (sometimes optional peer dependencies)
+on the other *Ember***Data**/*Warp***Drive** packages they require use of.
 
-- [@ember-data/request](./packages/request) provides managed `fetch` via its RequestManager and can be used without any other parts of EmberData.
-- [@ember-data/store](./packages/store) is the "core" of EmberData and handles coordination between the RequestManager, the Cache, and Presentation Concerns.
-- [@ember-data/tracking](./packages/tracking) is currently required when using the core and provides tracking primitives for change notification of Tracked properties.
-- [@ember-data/json-api](./packages/json-api) is a resource cache for JSON:API structured data. It integrates with the store via the hook `createCache`
-- [@ember-data/model](./packages/model) is a presentation layer, it integrates with the store via the hooks `instantiateRecord` and `teardownRecord`.
-- [@ember-data/debug](./packages/debug) provides (optional) debugging support for the `ember-inspector`.
-
+- [@ember-data/request](../packages/request) provides managed `fetch`
+- [@ember-data/request-utils](../packages/request-utils) provides optional utilities for managing requests and string manipulation
+- [@ember-data/store](../packages/store) provides core functionality around coordinating caching and reactivity 
+- [@ember-data/tracking](../packages/tracking) enables integration with Ember's reactivity system
+- [@ember-data/json-api](../packages/json-api) provides a cache for data in the [{JSON:API}](https://jsonapi.org) format.
+- [@ember-data/debug](../packages/debug) provides (optional) debugging support for the `ember-inspector`.
+- [@warp-drive/build-config](../packages/build-config) provides a build plugin which ensures proper settings configuration for deprecations, optional features, development/testing support and debug logging.
+- [@warp-drive/core-types](../packages/core-types) provides core types and symbols used by all other packages
+- [@warp-drive/schema-record](../packages/schema-record) provides a flexible, schema-based approach to reactive data.
+- [@warp-drive/ember](../packages/ember) provides Ember specific components and utilities for reactive control-flow and declarative state management.
 
 Some EmberData APIs are older than others, and these still interop via well-defined public API boundaries but are
 no longer the ideal approach.
 
-- [@ember-data/legacy-compat](./packages/legacy-compat) provides support for older paradigms that are being phased out
-- [@ember-data/adapter](./packages/adapter) provides various network API integrations for APIS built over specific REST or JSON:API conventions. It integrates with the Store via `store.adapterFor`, and with the request pipeline via the `LegacyNetworkHandler` available via `@ember-data/legacy-compat` which utilizes the Minimum Adapter Interface.
-- [@ember-data/serializer](./packages/serializer) pairs with `@ember-data/adapter` and the `LegacyNetworkHandler` to normalize and serialize data to and from an API format into the `JSON:API` format understood by `@ember-data/json-api`.
+- [@ember-data/model](../packages/model) provides a class-based approach to declaring schemas for reactive data.
+- [@ember-data/legacy-compat](../packages/legacy-compat) provides support for the older adapter/serializer request paradigm that is being phased out
+- [@ember-data/adapter](../packages/adapter) provides various network API integrations for APIs built over specific REST or `{JSON:API}` conventions.
+- [@ember-data/serializer](../packages/serializer) provides an approach to normalizing and serializing data to and from an API format into the `{JSON:API}` format.
 
 And finally:
 
@@ -118,16 +139,44 @@ public APIs, other libraries or applications may provide their own implementatio
 
 ## Configuration
 
+Settings configuration for deprecations, optional features, development/testing support and debug logging is done using `setConfig` in `ember-cli-build`
+
+```ts
+'use strict';
+
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive/build-config');
+
+  const app = new EmberApp(defaults, {});
+
+  setConfig(app, __dirname, {
+    // settings here
+  });
+
+  const { Webpack } = require('@embroider/webpack');
+  return require('@embroider/compat').compatBuild(app, Webpack, {});
+};
+
+```
+
 ### Deprecation Stripping
 
 *Ember***Data** allows users to opt-in and remove code that exists to support deprecated behaviors.
 
 If your app has resolved all deprecations present in a given version, you may specify that version as your "compatibility" version to remove the code that supported the deprecated behavior from your app.
 
+You may also specify that specific deprecations are resolved. These can be used together.
+
 ```ts
-let app = new EmberApp(defaults, {
-  emberData: {
-    compatWith: '4.8',
+setConfig(app, __dirname, {
+  // declare that all deprecations through "5.0" have been fully resolved
+  compatWith: '5.0',
+
+  // mark individual deprecations as resolved by setting them to `false`
+  deprecations: {
+    // resolve individual deprecations here
   },
 });
 ```
@@ -141,10 +190,8 @@ the necessary feature if your browser support or deployment environment demands 
 activate this polyfill:
 
 ```ts
-let app = new EmberApp(defaults, {
-  emberData: {
-    polyfillUUID: true,
-  },
+setConfig(app, __dirname, {
+  polyfillUUID: true,
 });
 ```
 
@@ -154,10 +201,8 @@ If you do not want to ship inspector support in your production application, you
 that all support for it should be stripped from the build.
 
 ```ts
-let app = new EmberApp(defaults, {
-  emberData: {
-    includeDataAdapterInProduction: false,
-  },
+setConfig(app, __dirname, {
+  includeDataAdapterInProduction: false
 });
 ```
 
@@ -170,21 +215,21 @@ at build time. This instrumentation is always removed from production builds or 
 that has not explicitly activated it. To activate it set the appropriate flag to `true`.
 
 ```ts
-let app = new EmberApp(defaults, {
-  emberData: {
-    debug: {
-      LOG_PAYLOADS: false, // data store received to update cache with
-      LOG_OPERATIONS: false, // updates to cache remote state
-      LOG_MUTATIONS: false, // updates to cache local state
-      LOG_NOTIFICATIONS: false,
-      LOG_REQUESTS: false, // log Requests issued via the request manager
-      LOG_REQUEST_STATUS: false,
-      LOG_IDENTIFIERS: false,
-      LOG_GRAPH: false, // relationship storage
-      LOG_INSTANCE_CACHE: false, // instance creation/deletion
-    },
+setConfig(app, __dirname, {
+  includeDataAdapterInProduction: false,
+  debug: {
+    LOG_PAYLOADS: false, // data store received to update cache with
+    LOG_OPERATIONS: false, // updates to cache remote state
+    LOG_MUTATIONS: false, // updates to cache local state
+    LOG_NOTIFICATIONS: false,
+    LOG_REQUESTS: false, // log Requests issued via the request manager
+    LOG_REQUEST_STATUS: false,
+    LOG_IDENTIFIERS: false,
+    LOG_GRAPH: false, // relationship storage
+    LOG_INSTANCE_CACHE: false, // instance creation/deletion
   },
 });
+
 ```
 
 ### License
