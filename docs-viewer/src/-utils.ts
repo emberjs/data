@@ -45,7 +45,7 @@ export function determinePackageManager(dir: string) {
 export async function generateDocs() {
   const currentVersion = require(path.join(workspaceRoot, 'package.json')).version;
   const absoluteVersion = currentVersion.split('-')[0];
-  const command = ['bun', 'gen', '--project', 'ember-data', '--version', absoluteVersion];
+  const command = ['bun', 'gen', '--skip-install', '--project', 'ember-data', '--version', absoluteVersion];
   const proc = Bun.spawn(command, {
     cwd: path.join(projectRoot, 'ember-jsonapi-docs'),
     env: Object.assign({}, process.env, { COREPACK_INTEGRITY_KEYS: 0 }),
