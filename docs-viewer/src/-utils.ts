@@ -128,6 +128,13 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
     // run install to pickup the lockfile change
     await installDeps('pnpm', details);
 
+    if (packageJson.name === 'ember-api-docs') {
+      const buildFile = fs.readFileSync(path.join(details.location, 'ember-cli-buildjs'), 'utf8');
+      // deactivate prember
+      const newFile = buildFile.replace('prember: {', '__prember: {');
+      fs.writeFileSync(path.join(details.location, 'ember-cli-build.js'), newFile);
+    }
+
     const proc = Bun.spawn(['git', 'commit', '-am', '"ensure volta works as expected"'], {
       cwd: details.location,
       env: process.env,
