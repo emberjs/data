@@ -129,7 +129,7 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
     await installDeps('pnpm', details);
 
     if (packageJson.name === 'ember-api-docs') {
-      const buildFile = fs.readFileSync(path.join(details.location, 'ember-cli-buildjs'), 'utf8');
+      const buildFile = fs.readFileSync(path.join(details.location, 'ember-cli-build.js'), 'utf8');
       // deactivate prember
       const newFile = buildFile.replace('prember: {', '__prember: {');
       fs.writeFileSync(path.join(details.location, 'ember-cli-build.js'), newFile);
