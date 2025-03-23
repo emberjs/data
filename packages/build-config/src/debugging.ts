@@ -1,39 +1,33 @@
 /**
- * ## Debugging
+  @module @warp-drive/build-config
+ */
+/**
+ * ## Debug Logging
  *
  * Many portions of the internals are helpfully instrumented with logging that can be activated
  * at build time. This instrumentation is always removed from production builds or any builds
  * that has not explicitly activated it. To activate it set the appropriate flag to `true`.
  *
-  @module @warp-drive/build-config/debugging
-  @main @warp-drive/build-config/debugging
- */
-/**
+ * ```ts
+ * setConfig(__dirname, app, {
+ *   debug: {
+ *     LOG_PAYLOADS: false, // data store received to update cache with
+ *     LOG_OPERATIONS: false, // updates to cache remote state
+ *     LOG_MUTATIONS: false, // updates to cache local state
+ *     LOG_NOTIFICATIONS: false,
+ *     LOG_REQUESTS: false,
+ *     LOG_REQUEST_STATUS: false,
+ *     LOG_IDENTIFIERS: false,
+ *     LOG_GRAPH: false,
+ *     LOG_INSTANCE_CACHE: false,
+ *     LOG_METRIC_COUNTS: false,
+ *     DEBUG_RELATIONSHIP_NOTIFICATIONS: false,
+ *   }
+ * });
+ * ```
  *
- * Many portions of the internals are helpfully instrumented with logging that can be activated
-at build time. This instrumentation is always removed from production builds or any builds
-that has not explicitly activated it. To activate it set the appropriate flag to `true`.
-
-```ts
-  let app = new EmberApp(defaults, {
-    emberData: {
-      debug: {
-          LOG_PAYLOADS: false, // data store received to update cache with
-          LOG_OPERATIONS: false, // updates to cache remote state
-          LOG_MUTATIONS: false, // updates to cache local state
-          LOG_NOTIFICATIONS: false,
-          LOG_REQUESTS: false,
-          LOG_REQUEST_STATUS: false,
-          LOG_IDENTIFIERS: false,
-          LOG_GRAPH: false,
-          LOG_INSTANCE_CACHE: false,
-      }
-    }
-  });
-  ```
-
-  @class DebugLogging
-  @public
+ * @class DebugLogging
+ * @public
  */
 /**
  * log payloads received by the store

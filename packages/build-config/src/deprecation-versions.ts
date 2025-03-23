@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/build-config
+ */
 // ========================
 // FOR CONTRIBUTING AUTHORS
 //
@@ -17,7 +20,7 @@
 //
 
 /**
- * ## Deprecations
+ * ## Deprecation Management
  *
  * EmberData allows users to opt-in and remove code that exists to support deprecated
  * behaviors.
@@ -35,54 +38,26 @@
  * with `3.12`. This would remove any deprecations that were present in or before `3.12`
  * but keep support for anything deprecated in or above `3.13`.
  *
- * ### Configuring Compatibility
+ * You may also specify that specific deprecations are resolved. These approaches
+ * may be used together.
  *
- * To configure your compatibility version, set the `compatWith` to the version you
- * are compatible with on the `emberData` config in your `ember-cli-build.js` file.
- *
- * ```js
- * const { setConfig } = await import('@warp-drive/build-config');
- *
- * let app = new EmberApp(defaults, {});
- *
- * setConfig(app, __dirname, { compatWith: '3.12' });
- * ```
- *
- * Alternatively, individual deprecations can be resolved (and thus have its support stripped)
- * via one of the flag names listed below. For instance, given a flag named `DEPRECATE_FOO_BEHAVIOR`.
- *
- * This capability is interopable with `compatWith`. You may set `compatWith` and then selectively resolve
- * additional deprecations, or set compatWith and selectively un-resolve specific deprecations.
- *
- * Note: EmberData does not test against permutations of deprecations being stripped, our tests run against
- * "all deprecated code included" and "all deprecated code removed". Unspecified behavior may sometimes occur
- * when removing code for only some deprecations associated to a version number.
- *
- * ```js
- * const { setConfig } = await import('@warp-drive/build-config');
- *
- * let app = new EmberApp(defaults, {});
- *
+ * ```ts
  * setConfig(app, __dirname, {
+ *   // declare that all deprecations through "5.0" have been fully resolved
+ *   compatWith: '5.0',
+ *
+ *   // mark individual deprecations as resolved by setting them to `false`
  *   deprecations: {
- *     DEPRECATE_FOO_BEHAVIOR: false // set to false to strip this code
- *     DEPRECATE_BAR_BEHAVIOR: true // force to true to not strip this code
- *   }
+ *     // resolve individual deprecations here
+ *   },
  * });
  * ```
  *
- * The complete list of which versions specific deprecations will be removed in
- * can be found [here](https://github.com/emberjs/data/blob/main/packages/build-config/src/virtual/deprecation-versions.ts "List of EmberData Deprecations")
- *
- * @module @warp-drive/build-config/deprecations
- * @main @warp-drive/build-config/deprecations
- */
-
-/**
- * The following list represents deprecations currently active.
- *
- * Some deprecation flags guard multiple deprecation IDs. All
- * associated IDs are listed.
+ * > [!TIP]
+ * > EmberData does not test against permutations of deprecations
+ * > being stripped, our tests run against "all deprecated code included"
+ * > and "all deprecated code removed". Unspecified behavior may sometimes occur
+ * > when removing code for only some deprecations associated to a version number.
  *
  * @class CurrentDeprecations
  * @public

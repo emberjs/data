@@ -133,7 +133,7 @@
       ],
       "dependsOn": ["^build:pkg"],
       "env": [
-        "EMBER_DATA_FEATURE_OVERRIDE",
+        "WARP_DRIVE_FEATURE_OVERRIDE",
         "NODE_ENV",
         "CI",
         "EMBER_ENV",
@@ -165,7 +165,7 @@
       ],
       "dependsOn": ["^build:pkg"],
       "env": [
-        "EMBER_DATA_FEATURE_OVERRIDE",
+        "WARP_DRIVE_FEATURE_OVERRIDE",
         "NODE_ENV",
         "CI",
         "EMBER_ENV",
