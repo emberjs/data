@@ -100,6 +100,8 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
   const proc = Bun.spawn(['git', 'clone', details.gitUrl, relativePath, '--depth=1'], {
     cwd: docsViewerRoot,
     stdin: 'inherit',
+    stdout: 'pipe',
+    stderr: 'pipe',
   });
   const exitCode = await proc.exited;
 
@@ -114,6 +116,12 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
       });
       await proc2.exited;
     } else {
+      console.log({
+        reason,
+        exitCode,
+        stdout: await new Response(proc.stdout).text(),
+      });
+
       throw new Error(reason);
     }
   }
