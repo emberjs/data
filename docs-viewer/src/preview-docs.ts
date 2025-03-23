@@ -100,10 +100,10 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
   const proc = Bun.spawn(['git', 'clone', details.gitUrl, relativePath, '--depth=1'], {
     cwd: docsViewerRoot,
   });
-  await proc.exited;
+  const exitCode = await proc.exited;
 
   // if the clone fails for publicKey we try https
-  if (proc.exitCode !== 0) {
+  if (exitCode !== 0) {
     const reason = await new Response(proc.stderr).text();
     if (reason.includes('publickey')) {
       log(`Cloning ${chalk.green(details.repoPath)} to ${chalk.green(relativePath)} using https`);
