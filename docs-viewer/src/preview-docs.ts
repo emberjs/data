@@ -159,12 +159,22 @@ async function main() {
   // start the docs viewer
   ////////////////////////
   //
-  const proc2 = Bun.spawn(['pnpm', 'start'], {
-    cwd: path.join(projectRoot, 'ember-api-docs'),
-    env: process.env,
-    stdio: ['inherit', 'inherit', 'inherit'],
-  });
-  await proc2.exited;
+  if (process.env.CI) {
+    log('CI environment detected, skipping docs viewer start, building instead');
+    const proc2 = Bun.spawn(['pnpm', 'build'], {
+      cwd: path.join(projectRoot, 'ember-api-docs'),
+      env: process.env,
+      stdio: ['inherit', 'inherit', 'inherit'],
+    });
+    await proc2.exited;
+  } else {
+    const proc2 = Bun.spawn(['pnpm', 'start'], {
+      cwd: path.join(projectRoot, 'ember-api-docs'),
+      env: process.env,
+      stdio: ['inherit', 'inherit', 'inherit'],
+    });
+    await proc2.exited;
+  }
 }
 
 main();
