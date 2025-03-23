@@ -133,6 +133,15 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
       // deactivate prember
       const newFile = buildFile.replace('prember: {', '__prember: {');
       fs.writeFileSync(path.join(details.location, 'ember-cli-build.js'), newFile);
+
+      if (process.env.CI) {
+        // in CI we need to change the routing setup to prepare for deployment to github pages
+        const routerFile = fs.readFileSync(path.join(details.location, 'config/environment.js'), 'utf8');
+        let newFile = routerFile.replace("rootURL: '/'", "rootURL: '/data/'");
+        newFile = newFile.replace("locationType: 'auto'", "locationType: 'hash'");
+        newFile = newFile.replace("routerRootURL: '/'", "routerRootURL: '/data/'");
+        fs.writeFileSync(path.join(details.location, 'config/environment.js'), newFile);
+      }
     }
 
     const proc = Bun.spawn(['git', 'commit', '-am', '"ensure volta works as expected"'], {
