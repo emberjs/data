@@ -75,6 +75,9 @@ async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoa
 }
 
 /**
+ * Lazily consumes the stream of a request, providing a number of
+ * reactive properties that can be used to build UIs that respond
+ * to the progress of a request.
  *
  * @class RequestLoadingState
  * @public
@@ -227,6 +230,29 @@ export class RequestLoadingState {
 }
 
 /**
+ * RequestState extends the concept of PromiseState to provide a reactive
+ * wrapper for a request `Future` which allows you write declarative code
+ * around a Future's control flow.
+ *
+ * It is useful in both Template and JavaScript contexts, allowing you
+ * to quickly derive behaviors and data from pending, error and success
+ * states.
+ *
+ * The key difference between a Promise and a Future is that Futures provide
+ * access to a stream of their content, the identity of the request (if any)
+ * as well as the ability to attempt to abort the request.
+ *
+ * ```ts
+ * interface Future<T> extends Promise<T>> {
+ *   getStream(): Promise<ReadableStream>;
+ *   abort(): void;
+ *   lid: StableDocumentIdentifier | null;
+ * }
+ * ```
+ *
+ * These additional APIs allow us to craft even richer state experiences.
+ *
+ * To get the state of a request, use `getRequestState`.
  *
  * @class RequestState
  * @public
@@ -295,6 +321,55 @@ export class RequestState<T = unknown, RT = unknown> {
 }
 
 /**
+ *
+ *
+ * `getRequestState` can be used in both JavaScript and Template contexts.
+ *
+ * ```ts
+ * import { getRequestState } from '@warp-drive/ember';
+ *
+ * const state = getRequestState(future);
+ * ```
+ *
+ * For instance, we could write a getter on a component that updates whenever
+ * the request state advances or the future changes, by combining the function
+ * with the use of `@cached`
+ *
+ * ```ts
+ * class Component {
+ *   @cached
+ *   get title() {
+ *     const state = getRequestState(this.args.request);
+ *     if (state.isPending) {
+ *       return 'loading...';
+ *     }
+ *     if (state.isError) { return null; }
+ *     return state.result.title;
+ *   }
+ * }
+ * ```
+ *
+ * Or in a template as a helper:
+ *
+ * ```gjs
+ * import { getRequestState } from '@warp-drive/ember';
+ *
+ * <template>
+ *   {{#let (getRequestState @request) as |state|}}
+ *     {{#if state.isPending}}
+ *       <Spinner />
+ *     {{else if state.isError}}
+ *       <ErrorForm @error={{state.error}} />
+ *     {{else}}
+ *       <h1>{{state.result.title}}</h1>
+ *     {{/if}}
+ *   {{/let}}
+ * </template>
+ * ```
+ *
+ * If looking to use in a template, consider also the `<Request />` component
+ * which offers a numbe of additional capabilities for requests *beyond* what
+ * `RequestState` provides.
  *
  * @method getRequestState
  * @for @warp-drive/ember
