@@ -30,7 +30,6 @@ jobs:
           restore-broccoli-cache: true
           jobs: 4
           parallel-build: true
-          with-cert: false
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install Docs Dependencies
