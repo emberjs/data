@@ -141,6 +141,11 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
         newFile = newFile.replace("locationType: 'auto'", "locationType: 'hash'");
         newFile = newFile.replace("routerRootURL: '/'", "routerRootURL: '/data/'");
         fs.writeFileSync(path.join(details.location, 'config/environment.js'), newFile);
+
+        // teach the adapter to use the correct base url
+        const adapterFile = fs.readFileSync(path.join(details.location, 'app/adapters/application.js'), 'utf8');
+        const newAdapterFile = adapterFile.replace('url = `/${url}.json`;', 'url = `/data/${url}.json`;');
+        fs.writeFileSync(path.join(details.location, 'app/adapters/application.js'), newAdapterFile);
       }
     }
 
