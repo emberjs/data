@@ -101,6 +101,18 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
     cwd: docsViewerRoot,
   });
   await proc.exited;
+
+  // if the clone fails for publicKey we try https
+  if (proc.exitCode !== 0) {
+    const reason = await new Response(proc.stderr).text();
+    if (reason.includes('publickey')) {
+      log(`Cloning ${chalk.green(details.repoPath)} to ${chalk.green(relativePath)} using https`);
+      const proc2 = Bun.spawn(['git', 'clone', details.httpsUrl, relativePath, '--depth=1'], {
+        cwd: docsViewerRoot,
+      });
+      await proc2.exited;
+    }
+  }
 }
 
 async function main() {
