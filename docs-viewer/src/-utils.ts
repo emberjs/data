@@ -82,7 +82,9 @@ export function repoDetails(gitUrl: string) {
 
 export async function installDeps(packageManager: 'pnpm' | 'npm' | 'yarn', details: ReturnType<typeof repoDetails>) {
   const proc = Bun.spawn(
-    [packageManager, 'install', packageManager === 'pnpm' ? '--ignore-workspace' : ''].filter(Boolean),
+    [packageManager, 'install', packageManager === 'pnpm' ? '--ignore-workspace' : '', '--no-frozen-lockfile'].filter(
+      Boolean
+    ),
     {
       cwd: details.location,
       env: process.env,
