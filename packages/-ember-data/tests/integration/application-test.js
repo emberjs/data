@@ -1,7 +1,7 @@
 import Application from '@ember/application';
 import Namespace from '@ember/application/namespace';
 import Controller from '@ember/controller';
-import Service, { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import { module, test } from 'qunit';
 
@@ -10,6 +10,9 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
+
+const service = s.service ?? s.inject;
+const Service = s.default;
 
 module('integration/application - Injecting a Custom Store', function (hooks) {
   setupTest(hooks);
