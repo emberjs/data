@@ -17,7 +17,7 @@
     "glob": "^11.0.1",
     "ember-eslint-parser": "^0.5.9",
     "eslint": "^9.21.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-mocha": "^10.5.0",
     "eslint-plugin-n": "^17.15.1",
