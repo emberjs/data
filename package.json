@@ -56,7 +56,7 @@
     "git-repo-version": "^1.0.2",
     "globby": "^14.1.0",
     "lerna-changelog": "^2.2.0",
-    "prettier": "^3.5.2",
+    "prettier": "^3.5.3",
     "prettier-plugin-ember-template-tag": "^2.0.4",
     "rimraf": "^6.0.1",
     "semver": "^7.7.1",
