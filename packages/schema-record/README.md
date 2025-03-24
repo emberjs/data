@@ -1,22 +1,20 @@
 <p align="center">
   <img
     class="project-logo"
-    src="./logos/NCC-1701-a-blue.svg#gh-light-mode-only"
-    alt="WarpDrive"
-    width="120px"
-    title="WarpDrive" />
+    src="./logos/github-header.svg#gh-light-mode-only"
+    alt="WarpDrive | Boldly go where no app has gone before"
+    title="WarpDrive | Boldly go where no app has gone before"
+    />
   <img
     class="project-logo"
-    src="./logos/NCC-1701-a.svg#gh-dark-mode-only"
-    alt="WarpDrive"
-    width="120px"
-    title="WarpDrive" />
+    src="./logos/github-header.svg#gh-dark-mode-only"
+    alt="WarpDrive | Boldly go where no app has gone before"
+    title="WarpDrive | Boldly go where no app has gone before"
+    />
 </p>
 
 <h3 align="center">Your Data, Managed.</h3>
 <p align="center">🌲 Get back to Nature 🐿️ Or shipping 💚</p>
-
-SchemaRecord is:
 
 - ⚡️ Fast
 - 📦 Tiny
@@ -25,11 +23,15 @@ SchemaRecord is:
 - ⚛️ Universal
 - ☢️ Reactive
 
-This package provides reactive capabilities for your resource data.
-It works together with a [*Warp***Drive**](https://github.com/emberjs/data/)
-[Cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts)
-and associated Schemas to simplify the most complex parts of your
-app's state management.
+SchemaRecord is a reactive object that transforms raw data from an [associated cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) into reactive data backed by Signals.
+
+The shape of the object and the transformation of raw cache data into its
+reactive form is controlled by a resource schema.
+
+Resource schemas are simple JSON, allowing them to be defined and delivered from anywhere.
+
+The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/emberjs/data/)
+will simplify even the most complex parts of your app's state management.
 
 ## Installation
 
