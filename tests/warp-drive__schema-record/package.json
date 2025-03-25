@@ -23,8 +23,8 @@
     "test:start": "bun run test --serve --no-launch"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/runtime": "^7.26.9",
+    "@babel/core": "^7.26.10",
+    "@babel/runtime": "^7.26.10",
     "@ember-data/debug": "workspace:*",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",
