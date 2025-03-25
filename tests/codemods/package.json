@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@ember-data/codemods": "workspace:*",
-    "@types/bun": "^1.2.4",
+    "@types/bun": "^1.2.5",
     "@types/jscodeshift": "0.12.0",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.21.0",
