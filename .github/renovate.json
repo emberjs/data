@@ -4,19 +4,6 @@
   "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "@types",
-        "eslint-config-prettier",
-        "eslint",
-        "glint",
-        "lint",
-        "prettier",
-        "stylelint",
-        "typescript"
-      ],
-      "groupName": "code-quality"
-    },
-    {
       "matchPackageNames": [
         "webpack",
         "npm-run-all",
@@ -35,7 +22,7 @@
         "ember-cli-sri",
         "ember-css-modules"
       ],
-      "matchPackagePatterns": ["@embroider", "postcss"],
+      "matchPackagePatterns": ["@embroider", "postcss", "babel", "terser", "vite", "rollup", "concurrently"],
       "groupName": "build-tools"
     },
     {
@@ -51,33 +38,6 @@
       ],
       "matchPackagePatterns": ["glimmer", "polyfill"],
       "groupName": "ember-core"
-    },
-    {
-      "matchPackageNames": ["ember-cli-babel", "ember-cli-htmlbars", "@embroider/macros", "ember-cli-terser"],
-      "matchPackagePatterns": ["babel", "postcss"],
-      "groupName": "asset-compilation"
-    },
-    {
-      "matchPackageNames": [
-        "chai",
-        "qunit-dom",
-        "sinon",
-        "ember-exam",
-        "testem",
-        "ember-cli-mirage",
-        "ember-qunit",
-        "qunit",
-        "ember-cli-deprecation-workflow",
-        "ember-a11y-testing",
-        "@ember/test-helpers",
-        "@ember/test-waiters"
-      ],
-      "matchPackagePatterns": ["percy", "quality", "test"],
-      "groupName": "testing"
-    },
-    {
-      "matchPackageNames": ["ember-promise-helpers"],
-      "groupName": "data-utils"
     },
     {
       "matchManagers": ["github-actions"],
