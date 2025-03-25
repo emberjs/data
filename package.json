@@ -154,7 +154,7 @@
       "ember-auto-import": "^2.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
-      "@glimmer/validator": "^0.94.6",
+      "@glimmer/validator": "^0.94.8",
       "@glint/core": "1.5.2",
       "@glint/environment-ember-loose": "1.5.2",
       "@glint/environment-ember-template-imports": "1.5.2",
