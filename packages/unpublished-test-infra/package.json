@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "chalk": "^4.1.2",
     "semver": "^7.7.1",
     "@warp-drive/build-config": "workspace:*"

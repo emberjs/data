@@ -41,7 +41,7 @@
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@glint/core": "1.5.2",

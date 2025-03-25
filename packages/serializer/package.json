@@ -55,7 +55,7 @@
     "@ember-data/store": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
