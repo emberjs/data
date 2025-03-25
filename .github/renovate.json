@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
     {
@@ -20,9 +20,15 @@
         "ember-cli-inject-live-reload",
         "emner-cli-inline-content",
         "ember-cli-sri",
-        "ember-css-modules"
+        "ember-css-modules",
+        "/@embroider/",
+        "/postcss/",
+        "/babel/",
+        "/terser/",
+        "/vite/",
+        "/rollup/",
+        "/concurrently/"
       ],
-      "matchPackagePatterns": ["@embroider", "postcss", "babel", "terser", "vite", "rollup", "concurrently"],
       "groupName": "build-tools"
     },
     {
@@ -34,9 +40,10 @@
         "ember-cached-decorator",
         "ember-modifier",
         "ember-page-title",
-        "tracked-built-ins"
+        "tracked-built-ins",
+        "/glimmer/",
+        "/polyfill/"
       ],
-      "matchPackagePatterns": ["glimmer", "polyfill"],
       "groupName": "ember-core"
     },
     {
@@ -45,7 +52,7 @@
     }
   ],
   "npm": {
-    "stabilityDays": 3
+    "minimumReleaseAge": "3 days"
   },
   "rangeStrategy": "bump",
   "prHourlyLimit": 10,
@@ -55,5 +62,9 @@
     "assignees": ["@runspired"],
     "enabled": true
   },
-  "ignorePaths": ["node_modules/**", "**/node_modules/**", "tests/smoke-tests/**"]
+  "ignorePaths": [
+    "node_modules/**",
+    "**/node_modules/**",
+    "tests/smoke-tests/**"
+  ]
 }
