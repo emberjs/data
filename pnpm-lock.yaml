@@ -186,8 +186,8 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0(eslint@9.21.0)
       eslint-plugin-n:
-        specifier: ^17.15.1
-        version: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+        specifier: ^17.16.2
+        version: 17.16.2(eslint@9.21.0)
       eslint-plugin-qunit:
         specifier: ^8.1.2
         version: 8.1.2(eslint@9.21.0)
@@ -3702,8 +3702,8 @@ importers:
         specifier: ^12.5.0
         version: 12.5.0(6b556f7ee463e0aebdcc5da9a28a4de4)
       eslint-plugin-n:
-        specifier: ^17.15.1
-        version: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+        specifier: ^17.16.2
+        version: 17.16.2(eslint@9.21.0)
       eslint-plugin-prettier:
         specifier: ^5.2.3
         version: 5.2.3(a1ef110e58a152ff827231cd1b36a9b8)
@@ -8659,8 +8659,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-n@17.16.1:
-    resolution: {integrity: sha512-/7FVAwjUrix9P5lycnsYRIQRwFo/DZROD+ZXWLpE+/EZWLyuLvyFaRdAPYJSz+nlAdZIZp+LAzlBerQSVYUNFg==}
+  eslint-plugin-n@17.16.2:
+    resolution: {integrity: sha512-iQM5Oj+9o0KaeLoObJC/uxNGpktZCkYiTTBo8PkRWq3HwNcRxwpvSDFjBhQ5+HLJzBTy+CLDC5+bw0Z5GyhlOQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: '>=8.23.0'
@@ -12244,11 +12244,6 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
-
-  ts-declaration-location@1.0.5:
-    resolution: {integrity: sha512-WqmlO9IoeYwCqJ2E9kHMcY9GZhhfLYItC3VnHDlPOrg6nNdUWS4wn4hhDZUPt60m1EvtjPIZyprTjpI992Bgzw==}
-    peerDependencies:
-      typescript: '>=4.0.0'
 
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
@@ -17570,7 +17565,7 @@ snapshots:
       eslint-config-prettier: 9.1.0(eslint@9.21.0)
       eslint-plugin-import: 2.31.0(6947e59b466db9f4f28df9fcac55d231)
       eslint-plugin-mocha: 10.5.0(eslint@9.21.0)
-      eslint-plugin-n: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+      eslint-plugin-n: 17.16.2(eslint@9.21.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.21.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.21.0)
       glob: 11.0.1
@@ -17614,7 +17609,7 @@ snapshots:
       eslint-config-prettier: 9.1.0(eslint@9.21.0)
       eslint-plugin-import: 2.31.0(6947e59b466db9f4f28df9fcac55d231)
       eslint-plugin-mocha: 10.5.0(eslint@9.21.0)
-      eslint-plugin-n: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+      eslint-plugin-n: 17.16.2(eslint@9.21.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.21.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.21.0)
       glob: 11.0.1
@@ -17658,7 +17653,7 @@ snapshots:
       eslint-config-prettier: 9.1.0(eslint@9.21.0)
       eslint-plugin-import: 2.31.0(6947e59b466db9f4f28df9fcac55d231)
       eslint-plugin-mocha: 10.5.0(eslint@9.21.0)
-      eslint-plugin-n: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+      eslint-plugin-n: 17.16.2(eslint@9.21.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.21.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.21.0)
       glob: 11.0.1
@@ -17702,7 +17697,7 @@ snapshots:
       eslint-config-prettier: 9.1.0(eslint@9.21.0)
       eslint-plugin-import: 2.31.0(6947e59b466db9f4f28df9fcac55d231)
       eslint-plugin-mocha: 10.5.0(eslint@9.21.0)
-      eslint-plugin-n: 17.16.1(eslint@9.21.0)(typescript@5.8.2)
+      eslint-plugin-n: 17.16.2(eslint@9.21.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.21.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.21.0)
       glob: 11.0.1
@@ -21206,10 +21201,9 @@ snapshots:
       globals: 13.24.0
       rambda: 7.5.0
 
-  eslint-plugin-n@17.16.1(eslint@9.21.0)(typescript@5.8.2):
+  eslint-plugin-n@17.16.2(eslint@9.21.0):
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.21.0)
-      '@typescript-eslint/utils': 8.25.0(eslint@9.21.0)(typescript@5.8.2)
       enhanced-resolve: 5.18.1
       eslint: 9.21.0
       eslint-plugin-es-x: 7.8.0(eslint@9.21.0)
@@ -21218,10 +21212,6 @@ snapshots:
       ignore: 5.3.2
       minimatch: 9.0.5
       semver: 7.7.1
-      ts-declaration-location: 1.0.5(typescript@5.8.2)
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
 
   eslint-plugin-prettier@5.2.3(a1ef110e58a152ff827231cd1b36a9b8):
     dependencies:
@@ -25504,11 +25494,6 @@ snapshots:
 
   ts-api-utils@2.0.1(typescript@5.8.2):
     dependencies:
-      typescript: 5.8.2
-
-  ts-declaration-location@1.0.5(typescript@5.8.2):
-    dependencies:
-      minimatch: 10.0.1
       typescript: 5.8.2
 
   tsconfig-paths@3.15.0:
