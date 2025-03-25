@@ -312,9 +312,9 @@
  *
  * Additionally, `@warp-drive/core-types` provides several utilities for type-checking and narrowing schemas.
  *
- * - (type) [PolarisResourceSchema]()
- * - (type) [LegacyResourceSchema]()
- * - (type) [ObjectSchema]()
+ * - (type) [PolarisResourceSchema](../classes/<Type>%20PolarisResourceSchema)
+ * - (type) [LegacyResourceSchema](../classes/<Type>%20LegacyResourceSchema)
+ * - (type) [ObjectSchema](../classes/<Type>%20ObjectSchema)
  * - [resourceSchema](../functions/@warp-drive%2Fcore-types/resourceSchema)
  * - [objectSchema](../functions/@warp-drive%2Fcore-types/objectSchema)
  * - [isResourceSchema](../functions/@warp-drive%2Fcore-types/isResourceSchema)
@@ -326,11 +326,11 @@
  *
  * LegacyMode
  *
- * - (type) [LegacyFieldSchema]()
+ * - (type) [LegacyModeFieldSchema](../classes/<Type>%20LegacyModeFieldSchema)
  *
  * PolarisMode
  *
- * - (type) [FieldSchema]()
+ * - (type) [PolarisModeFieldSchema](../classes/<Type>%20PolarisModeFieldSchema)
  *
  * @module @warp-drive/schema-record
  * @main @warp-drive/schema-record
