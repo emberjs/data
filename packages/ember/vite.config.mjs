@@ -5,6 +5,7 @@ export const externals = [
   '@ember/template-compilation',
   '@ember/component', // unsure where this comes from
   '@ember/service',
+  '@ember/owner',
   '@glimmer/component',
   '@ember/test-waiters',
   '@glimmer/tracking',

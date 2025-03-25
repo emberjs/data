@@ -1,6 +1,7 @@
 /**
  * @module @warp-drive/ember
  */
+import type Owner from '@ember/owner';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';
@@ -497,7 +498,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   declare _subscription: object | null;
   declare _subscribedTo: object | null;
 
-  constructor(owner: unknown, args: RequestSignature<T, RT>['Args']) {
+  constructor(owner: Owner, args: RequestSignature<T, RT>['Args']) {
     super(owner, args);
     this._subscribedTo = null;
     this._subscription = null;
@@ -587,7 +588,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
     this.intervalStart = Date.now();
     this.nextInterval = setTimeout(() => {
       this.maybeUpdate();
-    }, autorefreshThreshold);
+    }, autorefreshThreshold) as unknown as number;
   }
 
   clearInterval() {

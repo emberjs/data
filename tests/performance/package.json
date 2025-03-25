@@ -43,7 +43,7 @@
     "@embroider/config-meta-loader": "1.0.0-alpha.3",
     "@embroider/core": "4.0.0-alpha.9",
     "@embroider/vite": "1.0.0-alpha.11",
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-ember-template-compilation": "^2.3.0",
