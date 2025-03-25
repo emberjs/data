@@ -46,7 +46,7 @@
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
-    "babel-plugin-ember-template-compilation": "^2.3.0",
+    "babel-plugin-ember-template-compilation": "^2.4.0",
     "bun-types": "^1.2.6",
     "decorator-transforms": "^2.3.0",
     "ember-auto-import": "2.10.0",
