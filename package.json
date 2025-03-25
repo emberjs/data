@@ -165,7 +165,7 @@
       "webpack": "5.98.0",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
-      "testem": "~3.11.0"
+      "testem": "~3.15.2"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
