@@ -3516,7 +3516,7 @@ importers:
         specifier: ^5.39.0
         version: 5.39.0
       vite:
-        specifier: ^5.4.11
+        specifier: ^5.4.14
         version: 5.4.15(terser@5.39.0)
       vite-bundle-analyzer:
         specifier: ^0.17.1
