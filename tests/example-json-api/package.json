@@ -73,7 +73,7 @@
     "morgan": "^1.10.0",
     "qunit": "^2.20.1",
     "qunit-console-grouper": "^0.3.0",
-    "qunit-dom": "^3.1.1",
+    "qunit-dom": "^3.4.0",
     "silent-error": "^1.1.1",
     "typescript": "^5.8.2",
     "webpack": "^5.98.0"

@@ -2664,7 +2664,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       typescript:
         specifier: ^5.8.2
@@ -2808,7 +2808,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       testem:
         specifier: ~3.11.0
@@ -2980,7 +2980,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       silent-error:
         specifier: ^1.1.1
@@ -3109,7 +3109,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       testem:
         specifier: ~3.11.0
@@ -3390,7 +3390,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       testem:
         specifier: ~3.11.0
@@ -3726,7 +3726,7 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.3.0
+        specifier: ^3.4.0
         version: 3.4.0
       tracked-built-ins:
         specifier: ^3.4.0
@@ -4191,7 +4191,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.1.1
+        specifier: ^3.4.0
         version: 3.4.0
       silent-error:
         specifier: ^1.1.1
