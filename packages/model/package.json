@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
     "inflection": "~3.0.2",

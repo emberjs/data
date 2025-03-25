@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
