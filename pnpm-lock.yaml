@@ -211,10 +211,10 @@ importers:
         version: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
       vite-plugin-dts:
         specifier: ^3.9.1
-        version: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
+        version: 3.9.1(cddfbc1b53479b57d6bce8041e5b5612)
 
   docs-viewer:
     dependencies:
@@ -359,7 +359,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/-warp-drive:
     dependencies:
@@ -402,7 +402,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/active-record:
     dependencies:
@@ -451,7 +451,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/adapter:
     dependencies:
@@ -530,7 +530,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/build-config:
     dependencies:
@@ -576,7 +576,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14(@types/node@20.17.22)
+        version: 5.4.15(@types/node@20.17.22)
 
   packages/codemods:
     dependencies:
@@ -644,7 +644,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/debug:
     dependencies:
@@ -711,7 +711,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/diagnostic:
     dependencies:
@@ -766,7 +766,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/ember:
     dependencies:
@@ -863,7 +863,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/eslint-plugin-warp-drive:
     dependencies:
@@ -940,7 +940,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/graph:
     dependencies:
@@ -992,7 +992,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/holodeck:
     dependencies:
@@ -1032,7 +1032,7 @@ importers:
         version: file:config
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/json-api:
     dependencies:
@@ -1087,7 +1087,7 @@ importers:
         version: 1.2.0
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/legacy-compat:
     dependencies:
@@ -1148,7 +1148,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/model:
     dependencies:
@@ -1230,7 +1230,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/request:
     dependencies:
@@ -1270,7 +1270,7 @@ importers:
         version: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/request-utils:
     dependencies:
@@ -1316,7 +1316,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/rest:
     dependencies:
@@ -1365,7 +1365,7 @@ importers:
         version: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/schema:
     devDependencies:
@@ -1429,7 +1429,7 @@ importers:
         version: 5.12.0(ec1e7e9319201c91f4dab5a0c78f277d)
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/serializer:
     dependencies:
@@ -1505,7 +1505,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/store:
     dependencies:
@@ -1560,7 +1560,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/tracking:
     dependencies:
@@ -1603,7 +1603,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   packages/unpublished-eslint-rules: {}
 
@@ -1681,7 +1681,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   tests/blueprints:
     devDependencies:
@@ -3460,7 +3460,7 @@ importers:
         version: 4.0.0-alpha.6
       '@embroider/vite':
         specifier: 1.0.0-alpha.6
-        version: 1.0.0-alpha.6(56b9829d17a401117b29a41d7d28bea9)
+        version: 1.0.0-alpha.6(9f6d24cfcca22fbec016169d82712166)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.9)
@@ -3517,13 +3517,13 @@ importers:
         version: 5.39.0
       vite:
         specifier: ^5.4.11
-        version: 5.4.14(terser@5.39.0)
+        version: 5.4.15(terser@5.39.0)
       vite-bundle-analyzer:
         specifier: ^0.17.1
         version: 0.17.1
       vite-plugin-compression2:
         specifier: ^1.3.3
-        version: 1.3.3(vite@5.4.14(terser@5.39.0))
+        version: 1.3.3(vite@5.4.15(terser@5.39.0))
       zlib:
         specifier: 1.0.5
         version: 1.0.5
@@ -3604,7 +3604,7 @@ importers:
         version: 4.0.1-unstable.f40acf0
       '@embroider/vite':
         specifier: 1.0.1-unstable.f40acf0
-        version: 1.0.1-unstable.f40acf0(973b3eec538c22abc44364c24be5afbf)
+        version: 1.0.1-unstable.f40acf0(daf9b57846e35d643e0d1627cca5b273)
       '@glimmer/component':
         specifier: ^1.1.2
         version: 1.1.2(@babel/core@7.26.9)
@@ -3739,7 +3739,7 @@ importers:
         version: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
       vite:
         specifier: ^5.4.14
-        version: 5.4.14
+        version: 5.4.15
 
   tests/warp-drive__ember:
     dependencies:
@@ -10549,8 +10549,8 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
-  nanoid@3.3.8:
-    resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
+  nanoid@3.3.11:
+    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -12537,8 +12537,8 @@ packages:
       vite:
         optional: true
 
-  vite@5.4.14:
-    resolution: {integrity: sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==}
+  vite@5.4.15:
+    resolution: {integrity: sha512-6ANcZRivqL/4WtwPGTKNaosuNJr5tWiftOC7liM7G9+rMb8+oeJeyzymDu4rTN93seySBmbjSfsS3Vzr19KNtA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -15765,7 +15765,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@embroider/vite@1.0.0-alpha.6(56b9829d17a401117b29a41d7d28bea9)':
+  '@embroider/vite@1.0.0-alpha.6(9f6d24cfcca22fbec016169d82712166)':
     dependencies:
       '@babel/core': 7.26.9
       '@embroider/core': 4.0.0-alpha.6
@@ -15783,7 +15783,7 @@ snapshots:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.39.0
-      vite: 5.4.14(terser@5.39.0)
+      vite: 5.4.15(terser@5.39.0)
     transitivePeerDependencies:
       - '@glint/template'
       - bufferutil
@@ -15792,7 +15792,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@embroider/vite@1.0.1-unstable.f40acf0(973b3eec538c22abc44364c24be5afbf)':
+  '@embroider/vite@1.0.1-unstable.f40acf0(daf9b57846e35d643e0d1627cca5b273)':
     dependencies:
       '@babel/core': 7.26.9
       '@embroider/core': 4.0.1-unstable.f40acf0
@@ -15810,7 +15810,7 @@ snapshots:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.39.0
-      vite: 5.4.14
+      vite: 5.4.15
     transitivePeerDependencies:
       - '@glint/template'
       - bufferutil
@@ -17570,8 +17570,8 @@ snapshots:
       rollup: 4.34.9
       typescript: 5.8.2
       typescript-eslint: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
-      vite: 5.4.14
-      vite-plugin-dts: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
+      vite: 5.4.15
+      vite-plugin-dts: 3.9.1(cddfbc1b53479b57d6bce8041e5b5612)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -17614,8 +17614,8 @@ snapshots:
       rollup: 4.34.9
       typescript: 5.8.2
       typescript-eslint: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
-      vite: 5.4.14
-      vite-plugin-dts: 3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b)
+      vite: 5.4.15
+      vite-plugin-dts: 3.9.1(cddfbc1b53479b57d6bce8041e5b5612)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -17658,8 +17658,8 @@ snapshots:
       rollup: 4.34.9
       typescript: 5.8.2
       typescript-eslint: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
-      vite: 5.4.14(@types/node@20.17.22)
-      vite-plugin-dts: 3.9.1(668993b14b8c37725aa2a41157947157)
+      vite: 5.4.15(@types/node@20.17.22)
+      vite-plugin-dts: 3.9.1(8dce76bf4ffd917c34b91a87a815e556)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -17702,8 +17702,8 @@ snapshots:
       rollup: 4.34.9
       typescript: 5.8.2
       typescript-eslint: 8.25.0(eslint@9.21.0)(typescript@5.8.2)
-      vite: 5.4.14(terser@5.39.0)
-      vite-plugin-dts: 3.9.1(72c504023f24685e4a342acf6cf9f6cd)
+      vite: 5.4.15(terser@5.39.0)
+      vite-plugin-dts: 3.9.1(6695f5b91dcfc235acffdbd003fb3469)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -23479,7 +23479,7 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
-  nanoid@3.3.8: {}
+  nanoid@3.3.11: {}
 
   nanomatch@1.2.13:
     dependencies:
@@ -23981,7 +23981,7 @@ snapshots:
 
   postcss@8.5.3:
     dependencies:
-      nanoid: 3.3.8
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -25745,15 +25745,32 @@ snapshots:
 
   vite-bundle-analyzer@0.17.1: {}
 
-  vite-plugin-compression2@1.3.3(vite@5.4.14(terser@5.39.0)):
+  vite-plugin-compression2@1.3.3(vite@5.4.15(terser@5.39.0)):
     dependencies:
       '@rollup/pluginutils': 5.1.4
       tar-mini: 0.2.0
-      vite: 5.4.14(terser@5.39.0)
+      vite: 5.4.15(terser@5.39.0)
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-dts@3.9.1(668993b14b8c37725aa2a41157947157):
+  vite-plugin-dts@3.9.1(6695f5b91dcfc235acffdbd003fb3469):
+    dependencies:
+      '@microsoft/api-extractor': 7.43.0
+      '@rollup/pluginutils': 5.1.4(rollup@4.34.9)
+      '@vue/language-core': 1.8.27(typescript@5.8.2)
+      debug: 4.4.0
+      kolorist: 1.8.0
+      magic-string: 0.30.17
+      typescript: 5.8.2
+      vue-tsc: 1.8.27(typescript@5.8.2)
+    optionalDependencies:
+      vite: 5.4.15(terser@5.39.0)
+    transitivePeerDependencies:
+      - '@types/node'
+      - rollup
+      - supports-color
+
+  vite-plugin-dts@3.9.1(8dce76bf4ffd917c34b91a87a815e556):
     dependencies:
       '@microsoft/api-extractor': 7.43.0(@types/node@20.17.22)
       '@rollup/pluginutils': 5.1.4(rollup@4.34.9)
@@ -25764,13 +25781,13 @@ snapshots:
       typescript: 5.8.2
       vue-tsc: 1.8.27(typescript@5.8.2)
     optionalDependencies:
-      vite: 5.4.14(@types/node@20.17.22)
+      vite: 5.4.15(@types/node@20.17.22)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
 
-  vite-plugin-dts@3.9.1(72c504023f24685e4a342acf6cf9f6cd):
+  vite-plugin-dts@3.9.1(cddfbc1b53479b57d6bce8041e5b5612):
     dependencies:
       '@microsoft/api-extractor': 7.43.0
       '@rollup/pluginutils': 5.1.4(rollup@4.34.9)
@@ -25781,30 +25798,13 @@ snapshots:
       typescript: 5.8.2
       vue-tsc: 1.8.27(typescript@5.8.2)
     optionalDependencies:
-      vite: 5.4.14(terser@5.39.0)
+      vite: 5.4.15
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
 
-  vite-plugin-dts@3.9.1(ccfc48ed675f1f66dc2d9685c74e6f2b):
-    dependencies:
-      '@microsoft/api-extractor': 7.43.0
-      '@rollup/pluginutils': 5.1.4(rollup@4.34.9)
-      '@vue/language-core': 1.8.27(typescript@5.8.2)
-      debug: 4.4.0
-      kolorist: 1.8.0
-      magic-string: 0.30.17
-      typescript: 5.8.2
-      vue-tsc: 1.8.27(typescript@5.8.2)
-    optionalDependencies:
-      vite: 5.4.14
-    transitivePeerDependencies:
-      - '@types/node'
-      - rollup
-      - supports-color
-
-  vite@5.4.14:
+  vite@5.4.15:
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
@@ -25812,7 +25812,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@5.4.14(@types/node@20.17.22):
+  vite@5.4.15(@types/node@20.17.22):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
@@ -25821,7 +25821,7 @@ snapshots:
       '@types/node': 20.17.22
       fsevents: 2.3.3
 
-  vite@5.4.14(terser@5.39.0):
+  vite@5.4.15(terser@5.39.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
