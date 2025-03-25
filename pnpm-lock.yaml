@@ -3519,8 +3519,8 @@ importers:
         specifier: ^5.4.14
         version: 5.4.15(terser@5.39.0)
       vite-bundle-analyzer:
-        specifier: ^0.17.1
-        version: 0.17.1
+        specifier: ^0.18.1
+        version: 0.18.1
       vite-plugin-compression2:
         specifier: ^1.3.3
         version: 1.3.3(vite@5.4.15(terser@5.39.0))
@@ -12551,8 +12551,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vite-bundle-analyzer@0.17.1:
-    resolution: {integrity: sha512-ubjLhkuRgOSBNck+6xBbQmjmh8SeLTG4alEM5PX2TNzyGhKLwWlyCz1YG0an3RQnscbhVzSb6kYteoHXhP///A==}
+  vite-bundle-analyzer@0.18.1:
+    resolution: {integrity: sha512-VQgrvxRuiZuOhM61p85lGpxzWR3TUbgn1LYtCBL09LUVoKy+yoxPwWTq+ihuPqT5L4tp0Jiiaa/dGYIRF8Guag==}
     hasBin: true
 
   vite-plugin-compression2@1.3.3:
@@ -25835,7 +25835,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite-bundle-analyzer@0.17.1: {}
+  vite-bundle-analyzer@0.18.1: {}
 
   vite-plugin-compression2@1.3.3(vite@5.4.15(terser@5.39.0)):
     dependencies:
