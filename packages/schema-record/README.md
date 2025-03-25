@@ -152,7 +152,8 @@ store.registerSchemas([
         options: {
           async: false,
           inverse: 'owner',
-          polymorphic: true
+          polymorphic: true,
+          linksMode: true,
         }
       }
     ]
@@ -176,6 +177,7 @@ store.registerSchemas([
           async: false,
           inverse: 'pets',
           as: 'pet',
+          linksMode: true,
         }
       }
     ]
@@ -287,6 +289,16 @@ store.registerSchemas([
   })
 ]);
 ```
+
+Additionally, `@warp-drive/core-types` provides several utilities for type-checking and narrowing schemas.
+
+- (type) [PolarisResourceSchema]()
+- (type) [LegacyResourceSchema]()
+- (type) [ObjectSchema]()
+- [resourceSchema]()
+- [objectSchema]()
+- [isResourceSchema]()
+- [isLegacyResourceSchema]()
 
 
 ### Field Schemas
