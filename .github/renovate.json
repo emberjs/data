@@ -5,34 +5,6 @@
   "packageRules": [
     {
       "matchPackageNames": [
-        "webpack",
-        "npm-run-all",
-        "ember-cli",
-        "ember-cli-dotenv",
-        "ember-auto-import",
-        "broccoli-asset-rev",
-        "broccoli-debug",
-        "broccoli-funnel",
-        "broccoli-merge-trees",
-        "ember-cli-build-notifications",
-        "ember-cli-content-security-policy",
-        "ember-cli-dependency-checker",
-        "ember-cli-inject-live-reload",
-        "emner-cli-inline-content",
-        "ember-cli-sri",
-        "ember-css-modules",
-        "/@embroider/",
-        "/postcss/",
-        "/babel/",
-        "/terser/",
-        "/vite/",
-        "/rollup/",
-        "/concurrently/"
-      ],
-      "groupName": "build-tools"
-    },
-    {
-      "matchPackageNames": [
         "ember-source",
         "ember-resolver",
         "loader.js",
