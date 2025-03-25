@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependenciesMeta": {
@@ -60,11 +60,11 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
+    "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.26.8",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.26.0",
-    "@babel/runtime": "^7.26.9",
+    "@babel/runtime": "^7.26.10",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
     "@glimmer/validator": "^0.94.8",
@@ -73,7 +73,7 @@
     "@glint/environment-ember-template-imports": "1.5.2",
     "@glint/template": "1.5.2",
     "decorator-transforms": "^2.3.0",
-    "@embroider/addon-dev": "^7.1.1",
+    "@embroider/addon-dev": "^7.1.3",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
@@ -81,10 +81,10 @@
     "@ember/test-helpers": "5.1.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "babel-plugin-ember-template-compilation": "^2.3.0",
+    "babel-plugin-ember-template-compilation": "^2.4.0",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~5.12.0",
-    "rollup": "^4.34.9",
+    "rollup": "^4.36.0",
     "typescript": "^5.8.2",
     "vite": "^5.4.14",
     "ember-provide-consume-context": "^0.7.0"
