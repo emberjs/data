@@ -222,8 +222,8 @@ importers:
         specifier: 1000.1.0
         version: 1000.1.0
       '@types/bun':
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.5
+        version: 1.2.6
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -249,8 +249,8 @@ importers:
         specifier: 1000.0.0
         version: 1000.0.0
       '@types/bun':
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.5
+        version: 1.2.6
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -603,8 +603,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@types/bun':
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.5
+        version: 1.2.6
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -1912,8 +1912,8 @@ importers:
         specifier: workspace:*
         version: file:packages/codemods
       '@types/bun':
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.5
+        version: 1.2.6
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -6211,8 +6211,8 @@ packages:
     resolution: {integrity: sha512-VfG0WydDHFr6MGj75U16bKxOnrl8uP9bXvq7VD+NuvnAq5/22cQDrf8o7BnzBJQt+Xm9jkPt1hh2EHVWluGYIA==}
     deprecated: This is a stub types definition. broccoli-plugin provides its own type definitions, so you do not need this installed.
 
-  '@types/bun@1.2.4':
-    resolution: {integrity: sha512-QtuV5OMR8/rdKJs213iwXDpfVvnskPXY/S0ZiFbsTjQZycuqPbMW8Gf/XhLfwE5njW8sxI2WjISURXPlHypMFA==}
+  '@types/bun@1.2.6':
+    resolution: {integrity: sha512-fY9CAmTdJH1Llx7rugB0FpgWK2RKuHCs3g2cFDYXUutIy1QGiPQxKkGY8owhfZ4MXWNfxwIbQLChgH5gDsY7vw==}
 
   '@types/chai-as-promised@7.1.8':
     resolution: {integrity: sha512-ThlRVIJhr69FLlh6IctTXFkmhtP3NpMZ2QGq69StYLyKZFp/HOp1VdKZj7RvfNWYYcJ1xlbLGLLWj1UvP5u/Gw==}
@@ -7256,11 +7256,11 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  bun-types@1.2.4:
-    resolution: {integrity: sha512-nDPymR207ZZEoWD4AavvEaa/KZe/qlrbMSchqpQwovPZCKc7pwMoENjEtHgMKaAjJhy+x6vfqSBA1QU3bJgs0Q==}
-
   bun-types@1.2.5:
     resolution: {integrity: sha512-3oO6LVGGRRKI4kHINx5PIdIgnLRb7l/SprhzqXapmoYkFl5m4j6EvALvbDVuuBFaamB46Ap6HCUxIXNLCGy+tg==}
+
+  bun-types@1.2.6:
+    resolution: {integrity: sha512-FbCKyr5KDiPULUzN/nm5oqQs9nXCHD8dVc64BArxJadCvbNzAI6lUWGh9fSJZWeDIRD38ikceBU8Kj/Uh+53oQ==}
 
   bytes@1.0.0:
     resolution: {integrity: sha512-/x68VkHLeTl3/Ll8IvxdwzhrT+IyKc52e/oyHhA2RwqPqswSnjVbSddfPRwAsJtbilMAPSRWwAlpxdYsSWOTKQ==}
@@ -17134,9 +17134,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@types/bun@1.2.4':
+  '@types/bun@1.2.6':
     dependencies:
-      bun-types: 1.2.4
+      bun-types: 1.2.6
 
   '@types/chai-as-promised@7.1.8':
     dependencies:
@@ -17734,7 +17734,7 @@ snapshots:
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     dependencies:
       '@pnpm/find-workspace-dir': 1000.1.0
-      '@types/bun': 1.2.4
+      '@types/bun': 1.2.6
       '@types/debug': 4.1.12
       chalk: 5.4.1
       debug: 4.4.0
@@ -17747,7 +17747,7 @@ snapshots:
       '@pnpm/find-workspace-dir': 1000.1.0
       '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1000.0.0)
       '@pnpm/logger': 1000.0.0
-      '@types/bun': 1.2.4
+      '@types/bun': 1.2.6
       '@types/debug': 4.1.12
       chalk: 5.4.1
       comment-json: 4.2.5
@@ -18917,12 +18917,12 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.2.4:
+  bun-types@1.2.5:
     dependencies:
       '@types/node': 20.17.22
       '@types/ws': 8.5.14
 
-  bun-types@1.2.5:
+  bun-types@1.2.6:
     dependencies:
       '@types/node': 20.17.22
       '@types/ws': 8.5.14
