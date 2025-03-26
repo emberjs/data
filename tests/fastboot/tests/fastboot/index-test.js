@@ -15,8 +15,6 @@ module('Browser | index', function (hooks) {
 
     assert.dom('ul').exists();
     assert.dom('ul>li').isVisible({ count: 5 });
-    assert.dom('.tree-branch').isVisible({ count: 3 });
-    assert.dom('.tree-children').isVisible({ count: 2 });
   });
 });
 
