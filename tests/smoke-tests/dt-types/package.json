@@ -34,7 +34,7 @@
     "@ember-data/tracking": "file:./packages/ember-data-tracking.tgz",
     "@warp-drive/build-config": "file:./packages/warp-drive-build-config.tgz",
     "@warp-drive/core-types": "file:./packages/warp-drive-core-types.tgz",
-    "@types/ember": "^4.0.8",
+    "@types/ember": "^4.0.11",
     "@types/ember-data": "^4.4.13",
     "@types/ember-data__adapter": "^4.0.4",
     "@types/ember-data__model": "^4.0.3",
