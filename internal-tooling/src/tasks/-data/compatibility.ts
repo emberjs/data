@@ -55,7 +55,7 @@ export const Compatibility = [
     footnote: null,
   },
   {
-    name: 'V4 Special Release (vite support)',
+    name: 'V4 Special Release<br>(vite support)',
     channel: 'v4-canary',
     isActive: true,
     isSpecialRelease: true,

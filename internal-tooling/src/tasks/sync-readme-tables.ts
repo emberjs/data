@@ -12,6 +12,7 @@ import { getMonorepoRoot } from './-utils';
 import debug from 'debug';
 import path from 'path';
 import { Compatibility } from './-data/compatibility';
+import { table } from 'console';
 
 const log = debug('wd:sync-readme-infos');
 const COMPATIBILITY_START_PLACEHOLDER = '<!-- START-COMPATIBILITY-TABLE-PLACEHOLDER -->';
@@ -27,7 +28,7 @@ export async function main() {
   const text = await file.text();
 
   // Update Compatibility Table
-  let tableStr = '|  | Status | WarpDrive/EmberData | Lockstep | Supported | Tested | Range |';
+  let tableStr = '\n|  | Status | WarpDrive/EmberData | Lockstep | Supported | Tested | Range |';
   tableStr += '\n| --- | --- | --- | --- | --- | --- | --- |';
   for (const compatibility of Compatibility) {
     let rowStr: string[] = [];
@@ -42,6 +43,8 @@ export async function main() {
     rowStr.push(compatibility.range.map((v) => `\`${v}\``).join('<br>'));
     tableStr += `\n| ${rowStr.join(' | ')} |`;
   }
+
+  tableStr += '\n';
 
   const compatibilityStart = text.indexOf(COMPATIBILITY_START_PLACEHOLDER);
   const compatibilityEnd = text.indexOf(COMPATIBILITY_END_PLACEHOLDER);
