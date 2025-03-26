@@ -71,11 +71,7 @@ function createApplyAction(transformName: string) {
     const log = logger.for(transformName);
 
     log.debug('Running with options:', { targetGlobPattern: patterns, ...options });
-    // @ts-expect-error Ignore types don't work?
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const ig = ignore()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      .add(['**/*.d.ts', '**/node_modules/**/*', '**/dist/**/*', ...(options.ignore ?? [])]);
+    const ig = ignore().add(['**/*.d.ts', '**/node_modules/**/*', '**/dist/**/*', ...(options.ignore ?? [])]);
 
     log.debug('Running for paths:', Bun.inspect(patterns));
     if (options.dry) {
@@ -108,7 +104,6 @@ function createApplyAction(transformName: string) {
     for (const pattern of patterns) {
       const glob = new Bun.Glob(pattern);
       for await (const filepath of glob.scan('.')) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         if (ig.ignores(path.join(filepath))) {
           log.warn('Skipping ignored file:', filepath);
           result.skipped++;
