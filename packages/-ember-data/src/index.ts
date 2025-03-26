@@ -57,10 +57,10 @@ not wish to use `ember-data`, remove `ember-data` from your project's `package.j
 
 ## Advanced Installation
 
-*Ember***Data** is organized into primitives that compose together via public APIs. These primitives are organized into
+EmberData is organized into primitives that compose together via public APIs. These primitives are organized into
 small packages encapsulating these boundaries. These packages
 declare peer-dependencies (sometimes optional peer dependencies)
-on the other *Ember***Data**\/*Warp***Drive** packages they require use of.
+on the other EmberData\/WarpDrive packages they require use of.
 
 - [@ember-data/request](../modules/@ember-data%2Frequest) provides managed `fetch`
 - [@ember-data/request-utils](../modules/@ember-data%2Frequest-utils) provides optional utilities for managing requests and string manipulation
