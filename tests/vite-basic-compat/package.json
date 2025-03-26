@@ -51,7 +51,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.9",
-    "@types/eslint__js": "^8.42.3",
+    "@types/eslint__js": "^9.14.0",
     "@types/qunit": "2.19.10",
     "@types/rsvp": "^4.0.9",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
