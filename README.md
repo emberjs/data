@@ -93,6 +93,9 @@ the version of
 ember-source they were release with (lockstep), as well as the range of versions of ember-source that the
 project tested against at the point of release.
 
+The table is generated from [this data](./internal-tooling/src/tasks/-data/compatibility.ts) using the
+command `bun sync-readme-tables`.
+
 <!-- START-COMPATIBILITY-TABLE-PLACEHOLDER -->
 |  | Status | WarpDrive/EmberData | Lockstep | Supported | Tested | Range |
 | --- | --- | --- | --- | --- | --- | --- |
