@@ -107,7 +107,7 @@
     "@glimmer/component": "^2.0.0",
     "ember-cli-test-loader": "^3.1.0",
     "typescript": "^5.8.2",
-    "vite": "^5.4.14"
+    "vite": "^6.2.2"
   },
   "engines": {
     "node": ">= 18.20.7"
