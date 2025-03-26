@@ -1,0 +1,16 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+deleted file mode 100644
+index 7ab6fbae31241ccf49da5f1dcea7690738e659d9..0000000000000000000000000000000000000000
+diff --git a/dist/packages/@ember/-internals/runtime/.gitignore b/dist/packages/@ember/-internals/runtime/.gitignore
+deleted file mode 100644
+index a1136368651e6eb6d0d93a09c478f4978f4196fa..0000000000000000000000000000000000000000
+diff --git a/dist/packages/@ember/test/adapter.js b/dist/packages/@ember/test/adapter.js
+index 0d7eb512e58056cc71a6830cc08b9ad2d496ad87..7a118c356adba3493a250ffdcbf11c416b4d3ba0 100644
+--- a/dist/packages/@ember/test/adapter.js
++++ b/dist/packages/@ember/test/adapter.js
+@@ -1,2 +1,2 @@
+-import { Test } from 'ember-testing';
+-export default Test.Adapter;
+\ No newline at end of file
++import { Adapter } from 'ember-testing';
++export default Adapter;
