@@ -73,7 +73,7 @@
     "ember-resolver": "^13.1.0",
     "ember-route-template": "^1.0.3",
     "ember-source": "~5.12.0",
-    "ember-template-lint": "^6.0.0",
+    "ember-template-lint": "^6.1.0",
     "ember-welcome-page": "^7.0.2",
     "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
