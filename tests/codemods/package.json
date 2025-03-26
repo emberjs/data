@@ -27,7 +27,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "jscodeshift": "^17.2.0",
+    "jscodeshift": "^17.3.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2"
   },
