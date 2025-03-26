@@ -569,7 +569,7 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.17.25
+        specifier: ^20.17.27
         version: 20.17.27
       '@warp-drive/internal-config':
         specifier: workspace:*
