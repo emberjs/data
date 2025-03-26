@@ -93,6 +93,7 @@ the version of
 ember-source they were release with (lockstep), as well as the range of versions of ember-source that the
 project tested against at the point of release.
 
+<!-- START-COMPATIBILITY-TABLE-PLACEHOLDER -->
 | Status | WarpDrive/ EmberData | Lockstep | Supported | Tested | Range |
 | ------ | -------------------- | -------- | --------- | ------ | ----- |
 | Latest | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label&color=90EE90) | `5.3.0`    | `4.8` `4.12` `5.*` | `3.28` `4.4` `4.8` `4.12` `5.2` `5.3` | `3.28.12`<br> `>= 4.*` <br> `>= 5.*` |
@@ -101,8 +102,11 @@ project tested against at the point of release.
 | unsupported<br>(prior LTS) | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/lts-4-8?label&color=90EE90) | `4.8.6`   | `4.*` | `3.28` `4.4` `4.8` | `3.28.12`<br> `>= 4.*` |
 | unsupported[^1] | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/release-4-6?label&color=90EE90) | `4.6.0`   | `3.28` `4.*` | `3.28` `4.4` `4.5` `4.6` | `3.28.12`<br> `>= 4.*` |
 | unsupported[^1]<br>(prior LTS) | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/lts-4-4?label&color=90EE90) | `4.4.6`   | `3.28` `4.*` | `3.28` `4.4` | `3.28.12`<br> `>= 4.*` |
+<!-- END-COMPATIBILITY-TABLE-PLACEHOLDER -->
 
-[^1]: This version may receive special long-term patches to assist model-fragments users in creating a migration path onto 5.x and off of ModelFragments
+[^1]: Special release to support vite builds in apps using 4.x
+[^2]: This version may receive special long-term patches to assist model-fragments users in creating a migration path onto 5.x and off of ModelFragments
+[^3]: Special updates have occurred to extend support to ember-source v5 and v6
 
 <br>
 

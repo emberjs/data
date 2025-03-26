@@ -1,3 +1,9 @@
+/**
+ * Syncs the references and paths in the tsconfig.json files
+ * of each package in the monorepo and ensures that the
+ * tsconfig.json settings and package.json type exports are correct
+ * for using composite+references in a monorepo.
+ */
 import debug from 'debug';
 import path from 'path';
 import chalk from 'chalk';

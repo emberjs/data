@@ -1,3 +1,7 @@
+/**
+ * Sync LICENSE file from the monorepo root to each public package
+ * so that it can be included in the published artifacts.
+ */
 import path from 'path';
 import fs from 'fs';
 import debug from 'debug';

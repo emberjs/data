@@ -1,3 +1,7 @@
+/**
+ * Ensures that the package.json scripts are up to date with defaults
+ * we expect for each package type.
+ */
 import debug from 'debug';
 import chalk from 'chalk';
 import { runPrettier, walkPackages, type ProjectPackage } from './-utils';
