@@ -171,10 +171,10 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.26.10)(rollup@4.37.0)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(b154c71d0f43f6c1249465de5f6d9a5b)
       '@typescript-eslint/parser':
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       ember-eslint-parser:
         specifier: ^0.5.9
@@ -213,7 +213,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       typescript-eslint:
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       vite:
         specifier: ^5.4.14
@@ -3627,10 +3627,10 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(b154c71d0f43f6c1249465de5f6d9a5b)
       '@typescript-eslint/parser':
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       '@warp-drive/build-config':
         specifier: workspace:*
@@ -3735,7 +3735,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       typescript-eslint:
-        specifier: ^8.27.0
+        specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       vite:
         specifier: ^5.4.14
