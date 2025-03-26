@@ -121,6 +121,9 @@ command `bun sync-readme-tables`.
 
 ## The Big List of Versions
 
+The table below is generated using the command `bun sync-readme-tables`.
+
+<!-- START-VERSIONS-TABLE-PLACEHOLDER -->
 | Package | Audience | LTS-4-12 | LTS | Stable | Beta | Canary |
 | ------- | -------- | -------- | --- | ------ | ---- | ------ |
 | [ember-data](./packages/-ember-data#readme) | 🐹 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/ember-data/lts?label&color=0096FF) | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/ember-data/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label&color=FFBF00) |
@@ -145,6 +148,7 @@ command `bun sync-readme-tables`.
 | [@ember-data/serializer](./packages/serializer#readme) | 🐹 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/@ember-data/serializer/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/@ember-data/serializer/lts?label&color=0096ff) | ![NPM Stable Version](https://img.shields.io/npm/v/@ember-data/serializer/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/@ember-data/serializer/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/@ember-data/serializer/canary?label&color=FFBF00) |
 | [@ember-data/store](./packages/store#readme) | 🌌 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/@ember-data/store/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/@ember-data/store/lts?label&color=0096ff) | ![NPM Stable Version](https://img.shields.io/npm/v/@ember-data/store/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/@ember-data/store/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/@ember-data/store/canary?label&color=FFBF00) |
 | [@ember-data/tracking](./packages/tracking#readme) | 🌌🐹 | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/@ember-data/tracking/lts-4-12?label&color=bbbbbb) | ![NPM LTS Version](https://img.shields.io/npm/v/@ember-data/tracking/lts?label&color=0096ff) | ![NPM Stable Version](https://img.shields.io/npm/v/@ember-data/tracking/latest?label&color=90EE90) | ![NPM Beta Version](https://img.shields.io/npm/v/@ember-data/tracking/beta?label&color=ff00ff) | ![NPM Canary Version](https://img.shields.io/npm/v/@ember-data/tracking/canary?label&color=FFBF00) |
+<!-- END-VERSIONS-TABLE-PLACEHOLDER -->
 
 <br>
 
