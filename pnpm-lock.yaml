@@ -75,8 +75,8 @@ importers:
         specifier: 1.5.2
         version: 1.5.2
       '@types/semver':
-        specifier: ^7.5.8
-        version: 7.5.8
+        specifier: ^7.7.0
+        version: 7.7.0
       '@warp-drive/internal-docs-viewer':
         specifier: workspace:*
         version: file:docs-viewer
@@ -1662,8 +1662,8 @@ importers:
         specifier: 2.19.10
         version: 2.19.10
       '@types/semver':
-        specifier: ^7.5.8
-        version: 7.5.8
+        specifier: ^7.7.0
+        version: 7.7.0
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
@@ -6349,8 +6349,8 @@ packages:
   '@types/rsvp@4.0.9':
     resolution: {integrity: sha512-F6vaN5mbxw2MBCu/AD9fSKwrhnto2pE77dyUsi415qz9IP9ni9ZOWXHxnXfsM4NW9UjW+it189jvvqnhv37Z7Q==}
 
-  '@types/semver@7.5.8':
-    resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
+  '@types/semver@7.7.0':
+    resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
 
   '@types/send@0.17.4':
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
@@ -17459,7 +17459,7 @@ snapshots:
 
   '@types/rsvp@4.0.9': {}
 
-  '@types/semver@7.5.8': {}
+  '@types/semver@7.7.0': {}
 
   '@types/send@0.17.4':
     dependencies:
