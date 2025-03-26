@@ -52,7 +52,7 @@
     "@embroider/vite": "1.0.1-unstable.2aa8cae",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "1.5.0",
+    "@glint/core": "1.5.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.9",
     "@types/qunit": "2.19.10",
