@@ -40,7 +40,7 @@
     "@glint/environment-ember-loose": "1.5.2",
     "@glint/environment-ember-template-imports": "1.5.2",
     "@glint/template": "1.5.2",
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
     "@warp-drive/internal-docs-viewer": "workspace:*",
     "@warp-drive/internal-tooling": "workspace:*",
     "badge-maker": "4.1.0",

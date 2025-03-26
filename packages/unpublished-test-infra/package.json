@@ -74,7 +74,7 @@
     "@babel/preset-typescript": "^7.27.0",
     "@ember/test-helpers": "5.1.0",
     "@glimmer/component": "^2.0.0",
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
     "@types/qunit": "2.19.10",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
