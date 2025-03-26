@@ -4,7 +4,7 @@
   // https://turbo.build/repo/docs/core-concepts/caching/file-inputs#specifying-additional-inputs
   "globalDependencies": ["pnpm-lock.yaml", "patches/*", ".github/*"],
 
-  "pipeline": {
+  "tasks": {
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //
@@ -39,8 +39,8 @@
         "tsconfig.tsbuildinfo"
       ],
       "dependsOn": ["^build:pkg"],
-      // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      // https://turbo.build/repo/docs/reference/configuration#outputLogs
+      "outputLogs": "new-only"
     },
 
     // run build in all library packages
@@ -71,8 +71,8 @@
         // we should create a "triggers" repo and have it depend
         // on a TS "trigger"
       ],
-      // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      // https://turbo.build/repo/docs/reference/configuration#outputLogs
+      "outputLogs": "new-only"
     },
 
     /////////////////////////////////////////////////
@@ -100,15 +100,15 @@
     "lint": {
       "inputs": ["eslint.*", "tsconfig.json", "tsconfig.tsbuildinfo"],
       "dependsOn": ["^build:pkg"],
-      // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      // https://turbo.build/repo/docs/reference/configuration#outputLogs
+      "outputLogs": "new-only"
     },
 
     "check:types": {
       "inputs": ["tsconfig.json", "tsconfig.tsbuildinfo"],
       "dependsOn": ["^build:pkg"],
-      // https://turbo.build/repo/docs/reference/configuration#outputmode
-      "outputMode": "new-only"
+      // https://turbo.build/repo/docs/reference/configuration#outputLogs
+      "outputLogs": "new-only"
     },
 
     "build:tests": {
