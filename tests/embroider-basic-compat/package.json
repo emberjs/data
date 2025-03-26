@@ -72,7 +72,7 @@
     "typescript": "^5.8.2"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 22.14.0"
   },
   "ember": {
     "edition": "octane"

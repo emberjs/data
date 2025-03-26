@@ -563,11 +563,11 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.17.25
-        version: 20.17.27
+        specifier: ^22.13.11
+        version: 22.13.13
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(4e3b48c32d1d20d752e0b183ae13dd29)
+        version: file:config(1af8d74aea2dccecc59361e4368bba94)
       bun-types:
         specifier: ^1.2.5
         version: 1.2.5
@@ -576,7 +576,7 @@ importers:
         version: 5.8.2
       vite:
         specifier: ^5.4.14
-        version: 5.4.15(@types/node@20.17.27)
+        version: 5.4.15(@types/node@22.13.13)
 
   packages/codemods:
     dependencies:
@@ -4878,7 +4878,7 @@ packages:
 
   '@ember-data/active-record@file:packages/active-record':
     resolution: {directory: packages/active-record, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/request-utils': workspace:*
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -4886,7 +4886,7 @@ packages:
 
   '@ember-data/adapter@file:packages/adapter':
     resolution: {directory: packages/adapter, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4896,12 +4896,12 @@ packages:
 
   '@ember-data/codemods@file:packages/codemods':
     resolution: {directory: packages/codemods, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     hasBin: true
 
   '@ember-data/debug@file:packages/debug':
     resolution: {directory: packages/debug, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/model': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4911,7 +4911,7 @@ packages:
 
   '@ember-data/graph@file:packages/graph':
     resolution: {directory: packages/graph, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/store': workspace:*
       '@warp-drive/core-types': workspace:*
@@ -4919,7 +4919,7 @@ packages:
 
   '@ember-data/json-api@file:packages/json-api':
     resolution: {directory: packages/json-api, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4928,7 +4928,7 @@ packages:
 
   '@ember-data/legacy-compat@file:packages/legacy-compat':
     resolution: {directory: packages/legacy-compat, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/json-api': workspace:*
@@ -4946,7 +4946,7 @@ packages:
 
   '@ember-data/model@file:packages/model':
     resolution: {directory: packages/model, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/json-api': workspace:*
@@ -4964,7 +4964,7 @@ packages:
 
   '@ember-data/request-utils@file:packages/request-utils':
     resolution: {directory: packages/request-utils, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember/string': ^3.1.1 || ^4.0.0
       '@warp-drive/core-types': workspace:*
@@ -4978,13 +4978,13 @@ packages:
 
   '@ember-data/request@file:packages/request':
     resolution: {directory: packages/request, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@warp-drive/core-types': workspace:*
 
   '@ember-data/rest@file:packages/rest':
     resolution: {directory: packages/rest, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/request-utils': workspace:*
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -4995,7 +4995,7 @@ packages:
 
   '@ember-data/serializer@file:packages/serializer':
     resolution: {directory: packages/serializer, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -5005,7 +5005,7 @@ packages:
 
   '@ember-data/store@file:packages/store':
     resolution: {directory: packages/store, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -5015,14 +5015,14 @@ packages:
 
   '@ember-data/tracking@file:packages/tracking':
     resolution: {directory: packages/tracking, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@warp-drive/core-types': workspace:*
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
 
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra':
     resolution: {directory: packages/unpublished-test-infra, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/store': workspace:*
       '@ember/test-helpers': 3.3.0 || ^4.0.4 || ^5.1.0
@@ -6319,8 +6319,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.17.27':
-    resolution: {integrity: sha512-U58sbKhDrthHlxHRJw7ZLiLDZGmAUOZUbpw0S6nL27sYUdhvgBLCRu/keSd6qcTsfArd1sRFCCBxzWATGr/0UA==}
+  '@types/node@22.13.13':
+    resolution: {integrity: sha512-ClsL5nMwKaBRwPcCvH8E7+nU4GxHVx1axNvMZTFHMEfNI7oahimt26P5zjVCRrjiIWj6YFXfE1v3dEp94wLcGQ==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -6451,15 +6451,15 @@ packages:
 
   '@warp-drive/build-config@file:packages/build-config':
     resolution: {directory: packages/build-config, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
 
   '@warp-drive/core-types@file:packages/core-types':
     resolution: {directory: packages/core-types, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
 
   '@warp-drive/diagnostic@file:packages/diagnostic':
     resolution: {directory: packages/diagnostic, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember/test-helpers': 5.1.0
       ember-cli-test-loader: '>= 3.1.0'
@@ -6474,7 +6474,7 @@ packages:
 
   '@warp-drive/ember@file:packages/ember':
     resolution: {directory: packages/ember, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -6489,7 +6489,7 @@ packages:
 
   '@warp-drive/experiments@file:packages/experiments':
     resolution: {directory: packages/experiments, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -6502,7 +6502,7 @@ packages:
 
   '@warp-drive/holodeck@file:packages/holodeck':
     resolution: {directory: packages/holodeck, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     hasBin: true
     peerDependencies:
       '@ember-data/request': workspace:*
@@ -6510,21 +6510,21 @@ packages:
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
 
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     resolution: {directory: docs-viewer, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     hasBin: true
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     resolution: {directory: internal-tooling, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     hasBin: true
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember-data/model': workspace:*
       '@ember-data/request': workspace:*
@@ -8306,7 +8306,7 @@ packages:
 
   ember-data@file:packages/-ember-data:
     resolution: {directory: packages/-ember-data, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 22.14.0'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4 || ^5.1.0
       '@ember/test-waiters': ^3.1.0 || ^4.0.0
@@ -12421,8 +12421,8 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -16470,11 +16470,11 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor-model@7.28.13(@types/node@20.17.27)':
+  '@microsoft/api-extractor-model@7.28.13(@types/node@22.13.13)':
     dependencies:
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.17.27)
+      '@rushstack/node-core-library': 4.0.2(@types/node@22.13.13)
     transitivePeerDependencies:
       - '@types/node'
 
@@ -16496,15 +16496,15 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.43.0(@types/node@20.17.27)':
+  '@microsoft/api-extractor@7.43.0(@types/node@22.13.13)':
     dependencies:
-      '@microsoft/api-extractor-model': 7.28.13(@types/node@20.17.27)
+      '@microsoft/api-extractor-model': 7.28.13(@types/node@22.13.13)
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.17.27)
+      '@rushstack/node-core-library': 4.0.2(@types/node@22.13.13)
       '@rushstack/rig-package': 0.5.2
-      '@rushstack/terminal': 0.10.0(@types/node@20.17.27)
-      '@rushstack/ts-command-line': 4.19.1(@types/node@20.17.27)
+      '@rushstack/terminal': 0.10.0(@types/node@22.13.13)
+      '@rushstack/ts-command-line': 4.19.1(@types/node@22.13.13)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.10
@@ -17095,7 +17095,7 @@ snapshots:
       semver: 7.5.4
       z-schema: 5.0.5
 
-  '@rushstack/node-core-library@4.0.2(@types/node@20.17.27)':
+  '@rushstack/node-core-library@4.0.2(@types/node@22.13.13)':
     dependencies:
       fs-extra: 7.0.1
       import-lazy: 4.0.0
@@ -17104,7 +17104,7 @@ snapshots:
       semver: 7.5.4
       z-schema: 5.0.5
     optionalDependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@rushstack/rig-package@0.5.2':
     dependencies:
@@ -17116,12 +17116,12 @@ snapshots:
       '@rushstack/node-core-library': 4.0.2
       supports-color: 8.1.1
 
-  '@rushstack/terminal@0.10.0(@types/node@20.17.27)':
+  '@rushstack/terminal@0.10.0(@types/node@22.13.13)':
     dependencies:
-      '@rushstack/node-core-library': 4.0.2(@types/node@20.17.27)
+      '@rushstack/node-core-library': 4.0.2(@types/node@22.13.13)
       supports-color: 8.1.1
     optionalDependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@rushstack/ts-command-line@4.19.1':
     dependencies:
@@ -17132,9 +17132,9 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/ts-command-line@4.19.1(@types/node@20.17.27)':
+  '@rushstack/ts-command-line@4.19.1(@types/node@22.13.13)':
     dependencies:
-      '@rushstack/terminal': 0.10.0(@types/node@20.17.27)
+      '@rushstack/terminal': 0.10.0(@types/node@22.13.13)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -17207,7 +17207,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/broccoli-plugin@3.0.4':
     dependencies:
@@ -17227,11 +17227,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/cors@2.8.17':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/debug@4.1.12':
     dependencies:
@@ -17260,7 +17260,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -17274,12 +17274,12 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/http-errors@2.0.4': {}
 
@@ -17298,7 +17298,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/mime@1.3.5': {}
 
@@ -17308,13 +17308,13 @@ snapshots:
 
   '@types/morgan@1.9.9':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@20.17.27':
+  '@types/node@22.13.13':
     dependencies:
-      undici-types: 6.19.8
+      undici-types: 6.20.0
 
   '@types/qs@6.9.18': {}
 
@@ -17324,12 +17324,12 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/rsvp@4.0.9': {}
 
@@ -17338,19 +17338,19 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       '@types/send': 0.17.4
 
   '@types/sizzle@2.3.9': {}
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/supports-color@8.1.3': {}
 
@@ -17362,7 +17362,7 @@ snapshots:
 
   '@types/ws@8.5.14':
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -17680,7 +17680,7 @@ snapshots:
       - terser
       - utf-8-validate
 
-  '@warp-drive/internal-config@file:config(4e3b48c32d1d20d752e0b183ae13dd29)':
+  '@warp-drive/internal-config@file:config(1af8d74aea2dccecc59361e4368bba94)':
     dependencies:
       '@babel/cli': 7.26.4(@babel/core@7.26.10)
       '@babel/core': 7.26.10
@@ -17703,8 +17703,8 @@ snapshots:
       rollup: 4.37.0
       typescript: 5.8.2
       typescript-eslint: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
-      vite: 5.4.15(@types/node@20.17.27)
-      vite-plugin-dts: 3.9.1(9642e0760398043a7fbc3751a64fa995)
+      vite: 5.4.15(@types/node@22.13.13)
+      vite-plugin-dts: 3.9.1(17089754799b0ad32f4f2f45894eaef5)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -19000,12 +19000,12 @@ snapshots:
 
   bun-types@1.2.5:
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       '@types/ws': 8.5.14
 
   bun-types@1.2.6:
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       '@types/ws': 8.5.14
 
   bytes@1.0.0: {}
@@ -20994,7 +20994,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.17
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -22837,7 +22837,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -25719,7 +25719,7 @@ snapshots:
 
   underscore@1.13.7: {}
 
-  undici-types@6.19.8: {}
+  undici-types@6.20.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -25824,6 +25824,23 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
+  vite-plugin-dts@3.9.1(17089754799b0ad32f4f2f45894eaef5):
+    dependencies:
+      '@microsoft/api-extractor': 7.43.0(@types/node@22.13.13)
+      '@rollup/pluginutils': 5.1.4(rollup@4.37.0)
+      '@vue/language-core': 1.8.27(typescript@5.8.2)
+      debug: 4.4.0
+      kolorist: 1.8.0
+      magic-string: 0.30.17
+      typescript: 5.8.2
+      vue-tsc: 1.8.27(typescript@5.8.2)
+    optionalDependencies:
+      vite: 5.4.15(@types/node@22.13.13)
+    transitivePeerDependencies:
+      - '@types/node'
+      - rollup
+      - supports-color
+
   vite-plugin-dts@3.9.1(21ab0cd668c3badfa844c9f641c8c305):
     dependencies:
       '@microsoft/api-extractor': 7.43.0
@@ -25858,23 +25875,6 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-dts@3.9.1(9642e0760398043a7fbc3751a64fa995):
-    dependencies:
-      '@microsoft/api-extractor': 7.43.0(@types/node@20.17.27)
-      '@rollup/pluginutils': 5.1.4(rollup@4.37.0)
-      '@vue/language-core': 1.8.27(typescript@5.8.2)
-      debug: 4.4.0
-      kolorist: 1.8.0
-      magic-string: 0.30.17
-      typescript: 5.8.2
-      vue-tsc: 1.8.27(typescript@5.8.2)
-    optionalDependencies:
-      vite: 5.4.15(@types/node@20.17.27)
-    transitivePeerDependencies:
-      - '@types/node'
-      - rollup
-      - supports-color
-
   vite@5.4.15:
     dependencies:
       esbuild: 0.21.5
@@ -25883,13 +25883,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@5.4.15(@types/node@20.17.27):
+  vite@5.4.15(@types/node@22.13.13):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
       rollup: 4.37.0
     optionalDependencies:
-      '@types/node': 20.17.27
+      '@types/node': 22.13.13
       fsevents: 2.3.3
 
   vite@5.4.15(terser@5.39.0):

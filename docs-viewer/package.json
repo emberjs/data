@@ -20,7 +20,7 @@
     "@types/debug": "4.1.12"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 22.14.0"
   },
   "volta": {
     "extends": "../package.json"
