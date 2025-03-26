@@ -92,7 +92,7 @@
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.27.0",
     "vite": "^5.4.14",
-    "webpack": "^5.95.0"
+    "webpack": "^5.98.0"
   },
   "engines": {
     "node": ">= 18.20.7"
