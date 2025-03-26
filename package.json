@@ -177,7 +177,7 @@
         "typescript"
       ]
     },
-    "allowNonAppliedPatches": true,
+    "allowUnusedPatches": true,
     "patchedDependencies": {
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.11.0": "patches/testem@3.11.0.patch",
