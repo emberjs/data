@@ -131,7 +131,7 @@ export default function (babel) {
       },
 
       Program(path, state) {
-        state.importer = new ImportUtil(t, path);
+        state.importer = new ImportUtil(babel, path);
       },
     },
   };
