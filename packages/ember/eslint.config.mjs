@@ -12,13 +12,13 @@ export default [
   // browser (js/ts) ================
   typescript.browser({
     srcDirs: ['src'],
-    allowedImports: ['@ember/service', '@glimmer/tracking', '@glimmer/component'],
+    allowedImports: ['@ember/service', '@glimmer/tracking', '@glimmer/component', '@ember/owner'],
   }),
 
   // gts
   gts.browser({
     srcDirs: ['src'],
-    allowedImports: ['@ember/service', '@glimmer/tracking', '@glimmer/component'],
+    allowedImports: ['@ember/service', '@glimmer/tracking', '@glimmer/component', '@ember/owner'],
   }),
 
   // node (module) ================

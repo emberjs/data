@@ -47,7 +47,7 @@
     "@embroider/config-meta-loader": "1.0.1-unstable.9f1e74e",
     "@embroider/core": "4.0.1-unstable.f9c81e9",
     "@embroider/vite": "1.0.1-unstable.f9c81e9",
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.9",

@@ -74,7 +74,7 @@
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@ember/test-waiters": "^3.1.0",
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "decorator-transforms": "^2.3.0",
     "@types/jquery": "^3.5.32",
     "@warp-drive/core-types": "workspace:*",

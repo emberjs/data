@@ -1,6 +1,7 @@
 /**
  * @module @warp-drive/ember
  */
+import type Owner from '@ember/owner';
 import Component from '@glimmer/component';
 
 import type { Awaitable } from '@ember-data/request';
@@ -28,7 +29,7 @@ interface ThrowSignature<E = Error | string | object> {
  * @public
  */
 export class Throw<T> extends Component<ThrowSignature<T>> {
-  constructor(owner: unknown, args: ThrowSignature<T>['Args']) {
+  constructor(owner: Owner, args: ThrowSignature<T>['Args']) {
     super(owner, args);
     // this error is opaque (user supplied) so we don't validate it
     // as an Error instance.
