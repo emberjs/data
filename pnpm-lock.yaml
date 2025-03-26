@@ -2171,8 +2171,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2307,8 +2307,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2540,8 +2540,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -2956,8 +2956,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -3372,8 +3372,8 @@ importers:
         specifier: 4.3.0
         version: 4.3.0
       ember-try:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^4.0.0
+        version: 4.0.0
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -8480,9 +8480,9 @@ packages:
     resolution: {integrity: sha512-jAv7fqYJK7QYYekPc/8Nr7KOqDpv/asqM6F8xcRnbmf9UrD35BkSffY63qUuiD9e0aR5qiMNBIQzH8f65rGDqw==}
     engines: {node: 10.* || 12.* || >= 14}
 
-  ember-try@3.0.0:
-    resolution: {integrity: sha512-ZYVKYWMnrHSD3vywo7rV76kPCOC9ATIEnGGG/PEKfCcFE0lB26jltRDnOrhORfLKq0JFp62fFxC/4940U+MwRQ==}
-    engines: {node: 16.* || >= 18.*}
+  ember-try@4.0.0:
+    resolution: {integrity: sha512-gWG1k8+hio1rndJXxzIYhayL7ITof3ebkZ7HwFzFDaz3NARb8MjcVloKj1PFCheu8ZbY8iP8QTRPqb+J+N+Izg==}
+    engines: {node: '>= 18'}
 
   ember-welcome-page@7.0.2:
     resolution: {integrity: sha512-TyaKxFIRXhODW5BTbqD/by0Gu8Z9B9AA1ki3Bzzm6fOj2b30Qlprtt+XUG52kS0zVNmxYj/WWoT0TsKiU61VOw==}
@@ -8587,6 +8587,9 @@ packages:
   es-to-primitive@1.3.0:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
+
+  es-toolkit@1.33.0:
+    resolution: {integrity: sha512-X13Q/ZSc+vsO1q600bvNK4bxgXMkHcf//RxCmYDaRY5DAcT+eoXjY5hoAPGMdRnWQjvyLEcyauG3b6hz76LNqg==}
 
   esbuild@0.21.5:
     resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
@@ -12095,6 +12098,10 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+
+  temp-dir@2.0.0:
+    resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
+    engines: {node: '>=8'}
 
   temp@0.9.4:
     resolution: {integrity: sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==}
@@ -20963,18 +20970,19 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  ember-try@3.0.0:
+  ember-try@4.0.0:
     dependencies:
       chalk: 4.1.2
       cli-table3: 0.6.5
-      core-object: 3.1.5
       debug: 4.4.0
       ember-try-config: 4.0.0
+      es-toolkit: 1.33.0
       execa: 4.1.0
       fs-extra: 6.0.1
       resolve: 1.22.10
       rimraf: 3.0.2
       semver: 7.7.1
+      temp-dir: 2.0.0
       walk-sync: 2.2.0
     transitivePeerDependencies:
       - encoding
@@ -21132,6 +21140,8 @@ snapshots:
       is-callable: 1.2.7
       is-date-object: 1.1.0
       is-symbol: 1.1.1
+
+  es-toolkit@1.33.0: {}
 
   esbuild@0.21.5:
     optionalDependencies:
@@ -25212,6 +25222,8 @@ snapshots:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
+
+  temp-dir@2.0.0: {}
 
   temp@0.9.4:
     dependencies:
