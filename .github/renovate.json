@@ -19,6 +19,10 @@
       "groupName": "ember-core"
     },
     {
+      "matchPackageNames": ["/@types/ember-/"],
+      "groupName": "legacy-ember-types"
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions"
     }
