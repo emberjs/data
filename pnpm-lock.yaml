@@ -153,14 +153,14 @@ importers:
   config:
     dependencies:
       '@babel/cli':
-        specifier: ^7.26.4
-        version: 7.26.4(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/core':
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/eslint-parser':
-        specifier: 7.26.10
-        version: 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+        specifier: 7.27.0
+        version: 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@embroider/addon-dev':
         specifier: ^7.1.3
         version: 7.1.3(rollup@4.37.0)
@@ -325,14 +325,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(a9c862e7f68d65d63aac7c27d35456b9)
@@ -395,11 +395,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -423,11 +423,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -484,11 +484,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(86d697a77e895e88ec2cf8a874918ef0)
@@ -560,11 +560,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -637,11 +637,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -668,14 +668,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/legacy-compat':
         specifier: workspace:*
         version: file:packages/legacy-compat(b3ef492d58fcd846b325f316661c645d)
@@ -738,17 +738,17 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember/test-helpers':
         specifier: 5.1.0
         version: 5.1.0(patch_hash=ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421)(a9c862e7f68d65d63aac7c27d35456b9)
@@ -790,17 +790,17 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(6a8de57fb39c7c8949898f6f14ae1fdb)
@@ -906,14 +906,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -961,14 +961,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -1016,17 +1016,17 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -1053,14 +1053,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(86d697a77e895e88ec2cf8a874918ef0)
@@ -1108,14 +1108,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(86d697a77e895e88ec2cf8a874918ef0)
@@ -1181,14 +1181,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(86d697a77e895e88ec2cf8a874918ef0)
@@ -1254,14 +1254,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1291,14 +1291,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember/string':
         specifier: 4.0.1
         version: 4.0.1
@@ -1337,14 +1337,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -1392,14 +1392,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/legacy-compat':
         specifier: workspace:*
         version: file:packages/legacy-compat(b3ef492d58fcd846b325f316661c645d)
@@ -1462,14 +1462,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/legacy-compat':
         specifier: workspace:*
         version: file:packages/legacy-compat(b3ef492d58fcd846b325f316661c645d)
@@ -1526,14 +1526,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -1581,14 +1581,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1632,14 +1632,14 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.26.0(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -1773,8 +1773,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/active-record':
         specifier: workspace:*
         version: file:packages/active-record(787da495b74b8ddfec631d4266bfb103)
@@ -1951,8 +1951,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(507e6dc0a7ad9539270a21540d7406bd)
@@ -2069,8 +2069,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(875e71809f437fb34ae7d253ec4ea4dd)
@@ -2202,8 +2202,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(875e71809f437fb34ae7d253ec4ea4dd)
@@ -2338,8 +2338,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/adapter':
         specifier: workspace:*
         version: file:packages/adapter(f6ef5a7888c5a708a12983e2815792b7)
@@ -2453,8 +2453,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(a27b62f034eb7f7c405fb1ae64d3764e)
@@ -2571,8 +2571,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/adapter':
         specifier: workspace:*
         version: file:packages/adapter(f6ef5a7888c5a708a12983e2815792b7)
@@ -2685,8 +2685,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/adapter':
         specifier: workspace:*
         version: file:packages/adapter(57f0794cc4af8d2299d85e974d873c10)
@@ -2833,8 +2833,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(875e71809f437fb34ae7d253ec4ea4dd)
@@ -3001,8 +3001,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(36f7336e232b49bf684851fd63c508f2)
@@ -3131,8 +3131,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -3198,11 +3198,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/adapter':
         specifier: workspace:*
         version: file:packages/adapter(28161f2a7341f6fa693d8816bd69cd36)
@@ -3411,11 +3411,11 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10(@babel/core@7.26.10)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(48a8e98c3326df445a8b5f0c42274556)
@@ -3534,17 +3534,17 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/eslint-parser':
-        specifier: ^7.26.10
-        version: 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@babel/plugin-transform-runtime':
         specifier: ^7.26.10
         version: 7.26.10(@babel/core@7.26.10)
       '@babel/plugin-transform-typescript':
-        specifier: ^7.26.8
-        version: 7.26.8(@babel/core@7.26.10)
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/adapter':
         specifier: workspace:*
         version: file:packages/adapter(8c7233f1a4e8fb6babcbd24e6aa313ad)
@@ -3751,8 +3751,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(3d8326282adf74e0ab738321dd906aec)
@@ -3902,8 +3902,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(875e71809f437fb34ae7d253ec4ea4dd)
@@ -4059,8 +4059,8 @@ importers:
         specifier: ^7.26.10
         version: 7.26.10
       '@babel/runtime':
-        specifier: ^7.26.10
-        version: 7.26.10
+        specifier: ^7.27.0
+        version: 7.27.0
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(3d8326282adf74e0ab738321dd906aec)
@@ -4215,8 +4215,8 @@ packages:
   '@asamuzakjp/css-color@2.8.3':
     resolution: {integrity: sha512-GIc76d9UI1hCvOATjZPyHFmE5qhRccp3/zGfMPapK3jBi+yocEzp6BBB0UnfRYP9NP4FANqUZYb0hnfs3TM3hw==}
 
-  '@babel/cli@7.26.4':
-    resolution: {integrity: sha512-+mORf3ezU3p3qr+82WvJSnQNE1GAYeoCfEv4fik6B5/2cvKZ75AX8oawWQdXtM9MmndooQj15Jr9kelRFWsuRw==}
+  '@babel/cli@7.27.0':
+    resolution: {integrity: sha512-bZfxn8DRxwiVzDO5CEeV+7IqXeCkzI4yYnrQbpwjT76CUyossQc6RYE7n+xfm0/2k40lPaCpW0FhxYs7EBAetw==}
     engines: {node: '>=6.9.0'}
     hasBin: true
     peerDependencies:
@@ -4234,8 +4234,8 @@ packages:
     resolution: {integrity: sha512-vMqyb7XCDMPvJFFOaT9kxtiRh42GwlZEg1/uIgtZshS5a/8OaduUfCi7kynKgc3Tw/6Uo2D+db9qBttghhmxwQ==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/eslint-parser@7.26.10':
-    resolution: {integrity: sha512-QsfQZr4AiLpKqn7fz+j7SN+f43z2DZCgGyYbNJ2vJOqKfG4E6MZer1+jqGZqKJaxq/gdO2DC/nUu45+pOL5p2Q==}
+  '@babel/eslint-parser@7.27.0':
+    resolution: {integrity: sha512-dtnzmSjXfgL/HDgMcmsLSzyGbEosi4DrGWoCNfuI+W4IkVJw6izpTe7LtOdwAXnkDqw5yweboYCTkM2rQizCng==}
     engines: {node: ^10.13.0 || ^12.13.0 || >=14.0.0}
     peerDependencies:
       '@babel/core': ^7.11.0
@@ -4255,6 +4255,12 @@ packages:
 
   '@babel/helper-create-class-features-plugin@7.26.9':
     resolution: {integrity: sha512-ubbUqCofvxPRurw5L8WTsCLSkQiVpov4Qx0WMA+jUN+nXBK8ADPlJO1grkFw5CWKC5+sZSOfuGMdX1aI1iT9Sg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+
+  '@babel/helper-create-class-features-plugin@7.27.0':
+    resolution: {integrity: sha512-vSGCvMecvFCd/BdpGlhpXYNhhC4ccxyvQWpbGL4CWbvfEoLFWUZuSuf7s9Aw70flgQF+6vptvgK2IfOnKlRmBg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
@@ -4748,8 +4754,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/plugin-transform-typescript@7.26.8':
-    resolution: {integrity: sha512-bME5J9AC8ChwA7aEPJ6zym3w7aObZULHhbNLU0bKUhKsAkylkzUdq+0kdymh9rzi8nlNFl2bmldFBCKNJBUpuw==}
+  '@babel/plugin-transform-typescript@7.27.0':
+    resolution: {integrity: sha512-fRGGjO2UEGPjvEcyAZXRXAS8AfdaQoq7HnxAbJoAoW10B9xOKesmmndJv+Sym2a+9FHWZ9KbyyLCe9s0Sn5jtg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -4795,8 +4801,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0 || ^8.0.0-0 <8.0.0
 
-  '@babel/preset-typescript@7.26.0':
-    resolution: {integrity: sha512-NMk1IGZ5I/oHhoXEElcm+xUnL/szL6xflkFZmoEU9xj1qSJXpiS7rsspYo92B4DRCDvZn2erT5LdsCeXAKNCkg==}
+  '@babel/preset-typescript@7.27.0':
+    resolution: {integrity: sha512-vxaPFfJtHhgeOVXRKuHpHPAOgymmy8V8I65T1q53R7GCZlefKeCaTyDs3zOPHTTbmquvNlQYC5klEvWsBAtrBQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -4810,8 +4816,8 @@ packages:
   '@babel/runtime@7.12.18':
     resolution: {integrity: sha512-BogPQ7ciE6SYAUPtlm9tWbgI9+2AgqSam6QivMgXgAT+fKbgppaj4ZX15MHeLC1PVF5sNk70huBu20XxWOs8Cg==}
 
-  '@babel/runtime@7.26.10':
-    resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
+  '@babel/runtime@7.27.0':
+    resolution: {integrity: sha512-VtPOkrdPHZsKc/clNqyi9WUA8TINkZ4cGk63UUE3u4pmB2k+ZMQRDuIOagv8UVd6j7k0T3+RRIb7beKTebNbcw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.26.9':
@@ -12976,7 +12982,7 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
 
-  '@babel/cli@7.26.4(@babel/core@7.26.10)':
+  '@babel/cli@7.27.0(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
       '@jridgewell/trace-mapping': 0.3.25
@@ -13038,7 +13044,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/eslint-parser@7.26.10(@babel/core@7.26.10)(eslint@9.23.0)':
+  '@babel/eslint-parser@7.27.0(@babel/core@7.26.10)(eslint@9.23.0)':
     dependencies:
       '@babel/core': 7.26.10
       '@nicolo-ribaudo/eslint-scope-5-internals': 5.1.1-v1
@@ -13056,7 +13062,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.25.9':
     dependencies:
-      '@babel/types': 7.26.9
+      '@babel/types': 7.27.0
 
   '@babel/helper-compilation-targets@7.26.5':
     dependencies:
@@ -13088,6 +13094,19 @@ snapshots:
       '@babel/helper-replace-supers': 7.26.5(a49f5e7249619b9038bc1a464364137c)
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9(supports-color@8.1.1)
       '@babel/traverse': 7.26.9(supports-color@8.1.1)
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-create-class-features-plugin@7.27.0(@babel/core@7.26.10)':
+    dependencies:
+      '@babel/core': 7.26.10
+      '@babel/helper-annotate-as-pure': 7.25.9
+      '@babel/helper-member-expression-to-functions': 7.25.9
+      '@babel/helper-optimise-call-expression': 7.25.9
+      '@babel/helper-replace-supers': 7.26.5(@babel/core@7.26.10)
+      '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
+      '@babel/traverse': 7.27.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -13169,7 +13188,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.25.9':
     dependencies:
-      '@babel/types': 7.26.9
+      '@babel/types': 7.27.0
 
   '@babel/helper-plugin-utils@7.26.5': {}
 
@@ -13211,15 +13230,15 @@ snapshots:
 
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
-      '@babel/traverse': 7.26.9
-      '@babel/types': 7.26.9
+      '@babel/traverse': 7.27.0
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9(supports-color@8.1.1)':
     dependencies:
-      '@babel/traverse': 7.26.9(supports-color@8.1.1)
-      '@babel/types': 7.26.9
+      '@babel/traverse': 7.27.0(supports-color@8.1.1)
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -13233,7 +13252,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.26.9
       '@babel/traverse': 7.27.0
-      '@babel/types': 7.26.9
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -13241,7 +13260,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.26.9
       '@babel/traverse': 7.27.0(supports-color@8.1.1)
-      '@babel/types': 7.26.9
+      '@babel/types': 7.27.0
     transitivePeerDependencies:
       - supports-color
 
@@ -13867,11 +13886,11 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
 
-  '@babel/plugin-transform-typescript@7.26.8(@babel/core@7.26.10)':
+  '@babel/plugin-transform-typescript@7.27.0(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-annotate-as-pure': 7.25.9
-      '@babel/helper-create-class-features-plugin': 7.26.9(@babel/core@7.26.10)
+      '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10)
       '@babel/helper-plugin-utils': 7.26.5
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
@@ -14065,14 +14084,14 @@ snapshots:
       '@babel/types': 7.26.9
       esutils: 2.0.3
 
-  '@babel/preset-typescript@7.26.0(@babel/core@7.26.10)':
+  '@babel/preset-typescript@7.27.0(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
       '@babel/helper-validator-option': 7.25.9
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.26.8(@babel/core@7.26.10)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
     transitivePeerDependencies:
       - supports-color
 
@@ -14089,7 +14108,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.13.11
 
-  '@babel/runtime@7.26.10':
+  '@babel/runtime@7.27.0':
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -15506,7 +15525,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-runtime': 7.26.10(@babel/core@7.26.10)
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0
       '@embroider/core': 3.5.5
       '@embroider/macros': 1.16.12(@babel/core@7.26.10)
@@ -15559,7 +15578,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-runtime': 7.26.10(@babel/core@7.26.10)
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0
       '@embroider/core': 4.0.0-alpha.9
       '@embroider/macros': 1.17.0-alpha.7(@babel/core@7.26.10)
@@ -15618,7 +15637,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-runtime': 7.26.10(@babel/core@7.26.10)
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0
       '@embroider/core': 4.0.1-unstable.f9c81e9
       '@embroider/macros': 1.17.1-unstable.f9c81e9(@babel/core@7.26.10)
@@ -17767,9 +17786,9 @@ snapshots:
 
   '@warp-drive/internal-config@file:config':
     dependencies:
-      '@babel/cli': 7.26.4(@babel/core@7.26.10)
+      '@babel/cli': 7.27.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@embroider/addon-dev': 7.1.3(rollup@4.37.0)
       '@eslint/js': 9.23.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.10)(rollup@4.37.0)
@@ -17811,9 +17830,9 @@ snapshots:
 
   '@warp-drive/internal-config@file:config(4e3b48c32d1d20d752e0b183ae13dd29)':
     dependencies:
-      '@babel/cli': 7.26.4(@babel/core@7.26.10)
+      '@babel/cli': 7.27.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@embroider/addon-dev': 7.1.3(rollup@4.37.0)
       '@eslint/js': 9.23.0
       '@rollup/plugin-babel': 6.0.4(1c0dcc7a6a539ecaffd6c491cc3a6922)
@@ -17855,9 +17874,9 @@ snapshots:
 
   '@warp-drive/internal-config@file:config(@glint/template@1.5.2)':
     dependencies:
-      '@babel/cli': 7.26.4(@babel/core@7.26.10)
+      '@babel/cli': 7.27.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@embroider/addon-dev': 7.1.3(@glint/template@1.5.2)(rollup@4.37.0)
       '@eslint/js': 9.23.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.10)(rollup@4.37.0)
@@ -17899,9 +17918,9 @@ snapshots:
 
   '@warp-drive/internal-config@file:config(terser@5.39.0)':
     dependencies:
-      '@babel/cli': 7.26.4(@babel/core@7.26.10)
+      '@babel/cli': 7.27.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@embroider/addon-dev': 7.1.3(rollup@4.37.0)
       '@eslint/js': 9.23.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.10)(rollup@4.37.0)
@@ -18572,7 +18591,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-syntax-decorators': 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.26.8(@babel/core@7.26.10)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
       prettier: 2.8.8
     transitivePeerDependencies:
       - supports-color
@@ -20056,7 +20075,7 @@ snapshots:
       '@babel/plugin-transform-class-static-block': 7.26.0(@babel/core@7.26.10)
       '@babel/plugin-transform-modules-amd': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-runtime': 7.26.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.26.8(@babel/core@7.26.10)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
       '@babel/runtime': 7.12.18
       amd-name-resolver: 1.3.1
@@ -20598,7 +20617,7 @@ snapshots:
   ember-eslint-parser@0.5.9(f1ae5e0b24a357512664ee146215c263):
     dependencies:
       '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.26.10(@babel/core@7.26.10)(eslint@9.23.0)
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.23.0)
       '@glimmer/syntax': 0.92.3
       content-tag: 2.0.3
       eslint-scope: 7.2.2
@@ -21040,7 +21059,7 @@ snapshots:
       '@babel/generator': 7.27.0
       '@babel/parser': 7.27.0
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.26.8(@babel/core@7.26.10)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
       '@babel/traverse': 7.27.0
       '@lint-todo/utils': 13.1.1
       aria-query: 5.3.2
@@ -22858,7 +22877,7 @@ snapshots:
 
   is-language-code@3.1.0:
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.0
 
   is-map@2.0.3: {}
 
@@ -23027,7 +23046,7 @@ snapshots:
       '@babel/plugin-transform-optional-chaining': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-private-methods': 7.25.9(@babel/core@7.26.10)
       '@babel/preset-flow': 7.25.9(@babel/core@7.26.10)
-      '@babel/preset-typescript': 7.26.0(@babel/core@7.26.10)
+      '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
       '@babel/register': 7.25.9(@babel/core@7.26.10)
       flow-parser: 0.262.0
       graceful-fs: 4.2.11
@@ -24510,7 +24529,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.0
 
   regex-not@1.0.2:
     dependencies:
@@ -24557,7 +24576,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-syntax-decorators': 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-typescript': 7.26.8(@babel/core@7.26.10)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
       prettier: 2.8.8
     transitivePeerDependencies:
       - supports-color
