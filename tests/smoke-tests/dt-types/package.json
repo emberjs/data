@@ -60,7 +60,7 @@
     "@types/ember__template": "^4.0.7",
     "@types/ember__test": "^4.0.6",
     "@types/ember__utils": "^4.0.7",
-    "@ember/optional-features": "^2.1.0",
+    "@ember/optional-features": "^2.2.0",
     "@ember/string": "^4.0.1",
     "@ember/test-helpers": "5.1.0",
     "@ember/test-waiters": "^3.1.0",
