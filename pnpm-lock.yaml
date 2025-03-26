@@ -207,7 +207,7 @@ importers:
         specifier: ^16.0.0
         version: 16.0.0
       rollup:
-        specifier: ^4.36.0
+        specifier: ^4.37.0
         version: 4.37.0
       typescript:
         specifier: ^5.8.2
@@ -862,7 +862,7 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0
       rollup:
-        specifier: ^4.36.0
+        specifier: ^4.37.0
         version: 4.37.0
       typescript:
         specifier: ^5.8.2
