@@ -19,7 +19,7 @@
       "groupName": "ember-core"
     },
     {
-      "matchPackageNames": ["/@types/ember-/"],
+      "matchPackageNames": ["/@types\/ember/"],
       "groupName": "legacy-ember-types"
     },
     {
