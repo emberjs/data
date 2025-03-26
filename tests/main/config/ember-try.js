@@ -44,7 +44,6 @@ module.exports = function () {
               'ember-cli': '~4.12.3',
               'ember-source': '~3.28.12',
               '@glimmer/component': '^1.1.2',
-              '@ember/test-waiters': '~3.1.0',
             },
           },
         },
