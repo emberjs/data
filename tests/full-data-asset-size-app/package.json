@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
-    "@babel/runtime": "^7.26.10",
+    "@babel/runtime": "^7.27.0",
     "@ember/optional-features": "^2.2.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",

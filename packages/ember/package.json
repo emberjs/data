@@ -61,10 +61,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.26.0",
-    "@babel/runtime": "^7.26.10",
+    "@babel/preset-typescript": "^7.27.0",
+    "@babel/runtime": "^7.27.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@glimmer/validator": "^0.94.8",
