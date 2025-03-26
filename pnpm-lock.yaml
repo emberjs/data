@@ -596,7 +596,7 @@ importers:
         specifier: ^7.0.3
         version: 7.0.3
       jscodeshift:
-        specifier: ^17.2.0
+        specifier: ^17.3.0
         version: 17.3.0
       strip-ansi:
         specifier: ^7.1.0
@@ -1905,7 +1905,7 @@ importers:
   tests/codemods:
     dependencies:
       jscodeshift:
-        specifier: ^17.2.0
+        specifier: ^17.3.0
         version: 17.3.0
       prettier:
         specifier: ^3.5.3
