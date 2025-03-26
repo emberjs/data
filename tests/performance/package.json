@@ -27,7 +27,7 @@
     "@babel/plugin-transform-runtime": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.26.8",
     "@ember/test-helpers": "5.1.0",
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^4.1.0",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
