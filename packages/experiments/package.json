@@ -80,7 +80,7 @@
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~5.12.0",
+    "ember-source": "~6.3.0",
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
     "typescript": "^5.8.2",
     "vite": "^5.4.14"
