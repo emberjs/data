@@ -36,7 +36,7 @@
     "chalk": "^5.3.0",
     "commander": "^13.1.0",
     "ignore": "^5.3.2",
-    "jscodeshift": "^17.1.2",
+    "jscodeshift": "^17.2.0",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.8.2",
     "winston": "^3.17.0"
