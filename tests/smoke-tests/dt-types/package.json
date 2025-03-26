@@ -99,7 +99,7 @@
     "eslint-plugin-n": "^17.16.2",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-qunit": "^8.1.2",
-    "expect-type": "^0.20.0",
+    "expect-type": "^1.2.0",
     "globals": "^15.15.0",
     "loader.js": "^4.7.0",
     "prettier": "^3.5.3",
