@@ -35,6 +35,12 @@ patchedDependencies:
   '@ember/test-helpers@5.1.0':
     hash: ed8cc42d8dc0ec69d7f3c00f5c943370ae4b36fe4fa06afd3b5658bbf75bc421
     path: patches/@ember__test-helpers@5.1.0.patch
+  ember-source@3.28.12:
+    hash: 306d1f8a8f79f778b8ba547074e7040b1a08820d640d00b16ef8357dae8779ab
+    path: patches/ember-source@3.28.12.patch
+  ember-source@4.4.5:
+    hash: c4ad8e3def33c3f12f4d7d0931ea823b63e5f00d95b397206e9c19b38f4ac7a8
+    path: patches/ember-source@4.4.5.patch
   qunit@2.19.4:
     hash: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
     path: patches/qunit@2.19.4.patch
