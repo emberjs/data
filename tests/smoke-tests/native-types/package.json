@@ -22,11 +22,11 @@
     "test:vite": "vite build --mode test && ember test --path dist"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.5",
-    "@babel/eslint-parser": "^7.25.9",
-    "@babel/plugin-transform-runtime": "^7.25.9",
-    "@babel/plugin-transform-typescript": "^7.25.9",
-    "@babel/runtime": "^7.26.0",
+    "@babel/core": "^7.26.10",
+    "@babel/eslint-parser": "^7.26.10",
+    "@babel/plugin-transform-runtime": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/runtime": "^7.26.10",
     "ember-data": "file:./packages/ember-data.tgz",
     "@ember-data/adapter": "file:./packages/ember-data-adapter.tgz",
     "@ember-data/debug": "file:./packages/ember-data-debug.tgz",
