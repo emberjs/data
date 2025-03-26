@@ -59,7 +59,7 @@
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "babel-plugin-ember-template-compilation": "^2.4.0",
+    "babel-plugin-ember-template-compilation": "^2.4.1",
     "concurrently": "^9.1.2",
     "decorator-transforms": "^2.3.0",
     "ember-auto-import": "2.10.0",
