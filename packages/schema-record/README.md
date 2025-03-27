@@ -126,7 +126,7 @@ We could describe the `'user'` and `'dog'` resources in the above payload
 with the following schemas:
 
 ```ts
-store.registerSchemas([
+store.schema.registerResources([
   {
     type: 'user',
     identity: { type: '@id', name: 'id' },
@@ -247,7 +247,7 @@ definition above using this utility like so:
 ```ts
 import { withDefaults } from '@warp-drive/schema-record';
 
-store.registerSchemas([
+store.schema.registerResources([
   withDefaults({
     type: 'user',
     fields: [

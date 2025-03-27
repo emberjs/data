@@ -142,7 +142,7 @@
  * with the following schemas:
  *
  * ```ts
- * store.registerSchemas([
+ * store.schema.registerResources([
  *   {
  *     type: 'user',
  *     identity: { type: '@id', name: 'id' },
@@ -265,7 +265,7 @@
  * ```ts
  * import { withDefaults } from '@warp-drive/schema-record';
  *
- * store.registerSchemas([
+ * store.schema.registerResources([
  *   withDefaults({
  *     type: 'user',
  *     fields: [
