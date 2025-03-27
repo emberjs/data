@@ -29,7 +29,9 @@ async function updateCompatibilityTable(file: BunFile) {
   for (const compatibility of Compatibility) {
     let rowStr: string[] = [];
     rowStr.push(compatibility.isActive ? '✅' : compatibility.isSpecialRelease ? '⚠️' : '❌');
-    rowStr.push(compatibility.isActive ? compatibility.name : `(unsupported)<br>${compatibility.name}`);
+    rowStr.push(
+      `${compatibility.isActive ? compatibility.name : `(unsupported)<br>${compatibility.name}`}${compatibility.footnote ? `[^${compatibility.footnote}]` : ''}`
+    );
     rowStr.push(
       `![NPM ${compatibility.channel} Version](https://img.shields.io/npm/v/ember-data/${compatibility.channel}?label&color=90EE90)`
     );

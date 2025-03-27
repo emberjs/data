@@ -103,12 +103,12 @@ command `bun sync-readme-tables`.
 | ✅ | Beta | ![NPM beta Version](https://img.shields.io/npm/v/ember-data/beta?label&color=90EE90) | `6.4` | `4.8`<br>`4.12`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |
 | ✅ | Latest (Stable) | ![NPM latest Version](https://img.shields.io/npm/v/ember-data/latest?label&color=90EE90) | `>= 5.3`<br>`6.0`<br>`6.1`<br>`6.2`<br>`6.3` | `4.8`<br>`4.12`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |
 | ✅ | LTS | ![NPM lts Version](https://img.shields.io/npm/v/ember-data/lts?label&color=90EE90) | `>= 5.3`<br>`6.0`<br>`6.1`<br>`6.2`<br>`6.3` | `4.8`<br>`4.12`<br>`5.*`<br>`6.*` |  |  |
-| ✅ | V4 Special Release<br>(vite support) | ![NPM v4-canary Version](https://img.shields.io/npm/v/ember-data/v4-canary?label&color=90EE90) | `6.3` | `4.*`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |
+| ✅ | V4 Special Release<br>(vite support)[^1] | ![NPM v4-canary Version](https://img.shields.io/npm/v/ember-data/v4-canary?label&color=90EE90) | `6.3` | `4.*`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |
 | ❌ | (unsupported)<br>Prior LTS | ![NPM lts-4-12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label&color=90EE90) | `4.12.3` | `4.*`<br>`5.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.0` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*` |
 | ❌ | (unsupported)<br>Prior LTS | ![NPM lts-4-8 Version](https://img.shields.io/npm/v/ember-data/lts-4-8?label&color=90EE90) | `4.8.6` | `4.*` | `3.28`<br>`4.4`<br>`4.8` | `3.28.12`<br>`>= 4.*` |
-| ⚠️ | (unsupported)<br>ModelFragments | ![NPM release-4-6 Version](https://img.shields.io/npm/v/ember-data/release-4-6?label&color=90EE90) | `4.6.0` | `3.28`<br>`4.*` | `3.28`<br>`4.4`<br>`4.5`<br>`4.6` | `3.28.12`<br>`>= 4.*` |
-| ⚠️ | (unsupported)<br>Prior LTS | ![NPM lts-4-4 Version](https://img.shields.io/npm/v/ember-data/lts-4-4?label&color=90EE90) | `4.4.5` | `3.28`<br>`4.*` | `3.28`<br>`4.4` | `3.28.12`<br>`>= 4.*` |
-| ⚠️ | (unsupported)<br>Prior LTS | ![NPM lts-3-28 Version](https://img.shields.io/npm/v/ember-data/lts-3-28?label&color=90EE90) | `3.28.12` | `3.*`<br>`4.*` | `3.20`<br>`3.24`<br>`3.28` | `>= 3.*`<br>`>= 4.*` |
+| ⚠️ | (unsupported)<br>ModelFragments[^2] | ![NPM release-4-6 Version](https://img.shields.io/npm/v/ember-data/release-4-6?label&color=90EE90) | `4.6.0` | `3.28`<br>`4.*` | `3.28`<br>`4.4`<br>`4.5`<br>`4.6` | `3.28.12`<br>`>= 4.*` |
+| ⚠️ | (unsupported)<br>Prior LTS[^2] | ![NPM lts-4-4 Version](https://img.shields.io/npm/v/ember-data/lts-4-4?label&color=90EE90) | `4.4.5` | `3.28`<br>`4.*` | `3.28`<br>`4.4` | `3.28.12`<br>`>= 4.*` |
+| ⚠️ | (unsupported)<br>Prior LTS[^3] | ![NPM lts-3-28 Version](https://img.shields.io/npm/v/ember-data/lts-3-28?label&color=90EE90) | `3.28.12` | `3.*`<br>`4.*` | `3.20`<br>`3.24`<br>`3.28` | `>= 3.*`<br>`>= 4.*` |
 <!-- END-COMPATIBILITY-TABLE-PLACEHOLDER -->
 
 [^1]: Special release to support vite builds in apps using 4.x
