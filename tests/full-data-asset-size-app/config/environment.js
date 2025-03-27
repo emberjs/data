@@ -8,7 +8,7 @@ module.exports = function (environment) {
     locationType: 'history',
     EmberENV: {
       FEATURES: {},
-      EXTEND_PROTOTYPES: {},
+      EXTEND_PROTOTYPES: false,
     },
 
     APP: {},
