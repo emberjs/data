@@ -1,3 +1,7 @@
+/**
+ * Sync logos from the monorepo root to each public package
+ * for use in README files etc. in published artifacts.
+ */
 import path from 'path';
 import fs from 'fs';
 import debug from 'debug';
