@@ -219,7 +219,7 @@ importers:
         specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
       vite-plugin-dts:
         specifier: ^4.5.3
@@ -367,7 +367,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/-warp-drive:
@@ -410,7 +410,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/active-record:
@@ -459,7 +459,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/adapter:
@@ -538,7 +538,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/build-config:
@@ -584,7 +584,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15(@types/node@20.17.27)
 
   packages/codemods:
@@ -652,7 +652,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/debug:
@@ -719,7 +719,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/diagnostic:
@@ -774,7 +774,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/ember:
@@ -871,7 +871,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/eslint-plugin-warp-drive:
@@ -948,7 +948,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/graph:
@@ -1000,7 +1000,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/holodeck:
@@ -1040,7 +1040,7 @@ importers:
         specifier: workspace:*
         version: file:config
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/json-api:
@@ -1095,7 +1095,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/legacy-compat:
@@ -1156,7 +1156,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/model:
@@ -1238,7 +1238,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/request:
@@ -1278,7 +1278,7 @@ importers:
         specifier: ~6.3.0
         version: 6.3.0(@glimmer/component@2.0.0)
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/request-utils:
@@ -1324,7 +1324,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/rest:
@@ -1373,7 +1373,7 @@ importers:
         specifier: ~6.3.0
         version: 6.3.0(@glimmer/component@2.0.0)
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/schema:
@@ -1437,7 +1437,7 @@ importers:
         specifier: ~6.3.0
         version: 6.3.0(@glimmer/component@2.0.0)
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/serializer:
@@ -1513,7 +1513,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/store:
@@ -1568,7 +1568,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/tracking:
@@ -1611,7 +1611,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   packages/unpublished-eslint-rules: {}
@@ -1689,7 +1689,7 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   tests/blueprints:
@@ -3519,7 +3519,7 @@ importers:
         specifier: ^5.39.0
         version: 5.39.0
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15(terser@5.39.0)
       vite-bundle-analyzer:
         specifier: ^0.18.1
@@ -3738,7 +3738,7 @@ importers:
         specifier: ^8.28.0
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       vite:
-        specifier: ^5.4.14
+        specifier: ^5.4.15
         version: 5.4.15
 
   tests/warp-drive__ember:

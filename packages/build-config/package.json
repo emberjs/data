@@ -58,7 +58,7 @@
     "@babel/core": "^7.26.10",
     "typescript": "^5.8.2",
     "bun-types": "^1.2.6",
-    "vite": "^5.4.14"
+    "vite": "^5.4.15"
   },
   "engines": {
     "node": ">= 18.20.7"
