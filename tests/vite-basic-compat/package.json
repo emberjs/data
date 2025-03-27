@@ -62,7 +62,7 @@
     "concurrently": "^9.1.2",
     "decorator-transforms": "^2.3.0",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.2.3",
+    "ember-cli": "~6.3.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-data": "workspace:*",

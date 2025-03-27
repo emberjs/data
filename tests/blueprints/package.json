@@ -35,7 +35,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-cli": "~6.2.3",
+    "ember-cli": "~6.3.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-source": "~6.3.0",
     "mocha": "^11.1.0",
