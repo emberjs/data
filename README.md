@@ -89,9 +89,13 @@ ember compatibility.
 - **Tested**: the versions of ember-source the project tested this release against
 - **Range**: the peer-dep range the release states for ember-source
 
-the version of 
-ember-source they were release with (lockstep), as well as the range of versions of ember-source that the
-project tested against at the point of release.
+The library is often compatible with a larger range than was officially supported at
+the time of release, and we make an effort to test against a larger range than we officially
+state is supported. In many cases it will be compatible for a larger range than is shown here.
+
+Where possible, we try to maintain this larger window of support as long as possible, but if
+it does become necessary to break compatibility with an older, unsupported release we do not
+consider it a breaking change.
 
 The table is generated from [this data](./internal-tooling/src/tasks/-data/compatibility.ts) using the
 command `bun sync-readme-tables`.
