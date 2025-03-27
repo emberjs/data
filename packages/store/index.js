@@ -8,6 +8,15 @@ const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
+
+  included() {
+    this._super.included.apply(this, arguments);
+
+    this._setupBabelOptions();
+
+    this.import('vendor/assign-polyfill.js');
+  },
+
   externalDependenciesForPrivateModule() {
     return [
       'ember-cached-decorator-polyfill',
@@ -19,7 +28,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/array/proxy',
       '@ember/array',
       '@ember/debug',
-      '@ember/error',
       '@ember/object',
       '@ember/object/computed',
       '@ember/object/evented',
@@ -28,7 +36,6 @@ module.exports = Object.assign({}, addonBaseConfig, {
       '@ember/object/compat',
       '@ember/object/promise-proxy-mixin',
       '@ember/object/proxy',
-      '@ember/polyfills',
       '@ember/runloop',
       '@ember/service',
       '@ember/string',

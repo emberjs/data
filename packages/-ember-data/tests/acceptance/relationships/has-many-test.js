@@ -1,7 +1,7 @@
 import ArrayProxy from '@ember/array/proxy';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import { click, find, findAll, render } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import Ember from 'ember';
@@ -17,6 +17,8 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
+
+const service = s.service ?? s.inject;
 
 class Person extends Model {
   @attr()

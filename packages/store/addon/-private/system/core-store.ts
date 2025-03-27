@@ -5,7 +5,6 @@ import { getOwner } from '@ember/application';
 import { A } from '@ember/array';
 import { assert, deprecate, inspect, warn } from '@ember/debug';
 import { computed, defineProperty, get, set } from '@ember/object';
-import { assign } from '@ember/polyfills';
 import { _backburner as emberBackburner } from '@ember/runloop';
 import Service from '@ember/service';
 import { registerWaiter, unregisterWaiter } from '@ember/test';
@@ -642,7 +641,7 @@ abstract class CoreStore extends Service {
     return emberBackburner.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
-        let properties = assign({}, inputProperties);
+        let properties = Object.assign({}, inputProperties);
 
         // If the passed properties do not include a primary key,
         // give the adapter an opportunity to generate one. Typically,

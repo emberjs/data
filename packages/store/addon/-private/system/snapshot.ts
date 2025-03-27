@@ -3,7 +3,6 @@
 */
 import { assert } from '@ember/debug';
 import { get } from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 import { CUSTOM_MODEL_CLASS } from '@ember-data/canary-features';
 import { HAS_RECORD_DATA_PACKAGE } from '@ember-data/private-build-infra';
@@ -36,8 +35,8 @@ export type PrivateSnapshot = ProtoExntends<Snapshot, _PrivateSnapshot>;
 /**
   Snapshot is not directly instantiable.
   Instances are provided to a consuming application's
-  adapters and serializers for certain requests.  
-  
+  adapters and serializers for certain requests.
+
   @class Snapshot
   @public
 */
@@ -236,7 +235,7 @@ export default class Snapshot implements Snapshot {
    @public
    */
   attributes(): Dict<unknown> {
-    return assign({}, this._attributes);
+    return Object.assign({}, this._attributes);
   }
 
   /**

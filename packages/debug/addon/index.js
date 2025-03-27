@@ -28,11 +28,13 @@ import { assert } from '@ember/debug';
 import DataAdapter from '@ember/debug/data-adapter';
 import { get } from '@ember/object';
 import { addObserver, removeObserver } from '@ember/object/observers';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import { capitalize, underscore } from '@ember/string';
 import { next } from '@ember/runloop';
 
 import { typesMapFor } from './setup';
+
+const service = s.service ?? s.inject;
 
 /**
   Implements `@ember/debug/data-adapter` with for EmberData
