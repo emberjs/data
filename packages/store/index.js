@@ -8,6 +8,15 @@ const addonBaseConfig = addonBuildConfigForDataPackage(name);
 
 module.exports = Object.assign({}, addonBaseConfig, {
   shouldRollupPrivate: true,
+
+  included() {
+    this._super.included.apply(this, arguments);
+
+    this._setupBabelOptions();
+
+    this.import('vendor/assign-polyfill.js');
+  },
+
   externalDependenciesForPrivateModule() {
     return [
       'ember-cached-decorator-polyfill',
