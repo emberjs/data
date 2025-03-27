@@ -97,23 +97,24 @@ async function updateVersionsTable(file: BunFile) {
     /*
     | [ember-data](./packages/-ember-data#readme)
     | 🐹
-    | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label&color=bbbbbb)
-    | ![NPM LTS Version](https://img.shields.io/npm/v/ember-data/lts?label&color=0096FF)
-    | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label&color=90EE90)
-    | ![NPM Beta Version](https://img.shields.io/npm/v/ember-data/beta?label&color=ff00ff)
     | ![NPM Canary Version](https://img.shields.io/npm/v/ember-data/canary?label&color=FFBF00)
+    | ![NPM Beta Version](https://img.shields.io/npm/v/ember-data/beta?label&color=ff00ff)
+    | ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label&color=90EE90)
+    | ![NPM LTS Version](https://img.shields.io/npm/v/ember-data/lts?label&color=0096FF)
+    | ![NPM V4 Canary Version](https://img.shields.io/npm/v/ember-data/v4-canary?label&color=FFBF00)
+    | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/ember-data/lts-4-12?label&color=bbbbbb)
     |
     */
 
     let rowStr: string[] = [];
     rowStr.push(`[${name}](./packages/${version.directory}#readme)`);
     rowStr.push(version.audience);
-    rowStr.push(`![NPM V4 Canary Version](https://img.shields.io/npm/v/${name}/v4-canary?label&color=bbbbbb)`);
-    rowStr.push(`![NPM LTS 4.12 Version](https://img.shields.io/npm/v/${name}/lts-4-12?label&color=bbbbbb)`);
-    rowStr.push(`![NPM LTS Version](https://img.shields.io/npm/v/${name}/lts?label&color=0096FF)`);
-    rowStr.push(`![NPM Stable Version](https://img.shields.io/npm/v/${name}/latest?label&color=90EE90)`);
-    rowStr.push(`![NPM Beta Version](https://img.shields.io/npm/v/${name}/beta?label&color=ff00ff)`);
     rowStr.push(`![NPM Canary Version](https://img.shields.io/npm/v/${name}/canary?label&color=FFBF00)`);
+    rowStr.push(`![NPM Beta Version](https://img.shields.io/npm/v/${name}/beta?label&color=ff00ff)`);
+    rowStr.push(`![NPM Stable Version](https://img.shields.io/npm/v/${name}/latest?label&color=90EE90)`);
+    rowStr.push(`![NPM LTS Version](https://img.shields.io/npm/v/${name}/lts?label&color=0096FF)`);
+    rowStr.push(`![NPM V4 Canary Version](https://img.shields.io/npm/v/${name}/v4-canary?label&color=FFBF00)`);
+    rowStr.push(`![NPM LTS 4.12 Version](https://img.shields.io/npm/v/${name}/lts-4-12?label&color=bbbbbb)`);
     tableStr += `\n| ${rowStr.join(' | ')} |`;
   }
 

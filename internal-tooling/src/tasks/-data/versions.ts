@@ -28,6 +28,14 @@ export const Versions = [
     audience: '🐹',
   },
   {
+    name: '@ember-data/debug',
+    audience: '🐹',
+  },
+  {
+    name: '@ember-data/serializer',
+    audience: '🐹',
+  },
+  {
     name: '@ember-data/graph',
     audience: '🌌',
   },
