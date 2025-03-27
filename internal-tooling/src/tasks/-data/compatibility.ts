@@ -50,8 +50,8 @@ export const Compatibility = [
     isSpecialRelease: false,
     lockstep: ['>= 5.3', '6.0', '6.1', '6.2', '6.3'],
     supported: ['4.8', '4.12', '5.*', '6.*'],
-    tested: [],
-    range: [],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
     footnote: null,
   },
   {
