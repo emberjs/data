@@ -40,7 +40,8 @@
     "start": "vite"
   },
   "dependencies": {
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/core-types": "workspace:*"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",

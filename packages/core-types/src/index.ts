@@ -6,3 +6,5 @@
  * @main @warp-drive/core-types
  */
 export type { StableRecordIdentifier } from './identifier';
+
+export { resourceSchema, objectSchema, isResourceSchema, isLegacyResourceSchema } from './schema/fields';

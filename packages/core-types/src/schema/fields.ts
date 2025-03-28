@@ -1952,7 +1952,7 @@ export type Schema = ResourceSchema | ObjectSchema;
  *
  * @method resourceSchema
  * @static
- * @for @warp-drive/core-types
+ * @for @warp-drive/core-types/fields
  * @param {ResourceSchema} schema
  * @return {ResourceSchema} the passed in schema
  * @public
@@ -1969,7 +1969,7 @@ export function resourceSchema<T extends ResourceSchema>(schema: T): T {
  *
  * @method objectSchema
  * @static
- * @for @warp-drive/core-types
+ * @for @warp-drive/core-types/fields
  * @param {ObjectSchema} schema
  * @return {ObjectSchema} the passed in schema
  * @public
@@ -1983,7 +1983,7 @@ export function objectSchema<T extends ObjectSchema>(schema: T): T {
  *
  * @method isResourceSchema
  * @static
- * @for @warp-drive/core-types
+ * @for @warp-drive/core-types/fields
  * @param schema
  * @return {boolean}
  * @public
@@ -1997,7 +1997,7 @@ export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema 
  *
  * @method isLegacyResourceSchema
  * @static
- * @for @warp-drive/core-types
+ * @for @warp-drive/core-types/fields
  * @param schema
  * @return {boolean}
  * @public

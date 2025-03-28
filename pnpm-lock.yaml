@@ -4211,6 +4211,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.26.10)
+      '@warp-drive/core-types':
+        specifier: workspace:*
+        version: file:packages/core-types(@babel/core@7.26.10)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
