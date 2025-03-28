@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/core",
-  "version": "5.4.0-alpha.151",
-  "private": false,
+  "version": "0.0.1-alpha.1",
+  "private": true,
   "description": "Core package for WarpDrive | All the Universal Basics",
   "files": [
     "dist",

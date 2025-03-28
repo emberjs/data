@@ -102,10 +102,10 @@
       "mirrorPublish": true
     },
     "@warp-drive/core": {
-      "stage": "stable",
+      "stage": "alpha",
       "types": "stable",
-      "typesPublish": true,
-      "mirrorPublish": true
+      "typesPublish": false,
+      "mirrorPublish": false
     }
   }
 }

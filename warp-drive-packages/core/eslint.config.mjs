@@ -20,6 +20,9 @@ export default [
   typescript.browser({
     srcDirs: ['src'],
     allowedImports: externals,
+    rules: {
+      '@typescript-eslint/no-inferrable-types': 'off',
+    },
   }),
 
   // node (module) ================
