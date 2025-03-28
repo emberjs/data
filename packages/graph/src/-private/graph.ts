@@ -807,7 +807,11 @@ function isReordered(relationship: CollectionEdge): boolean {
   }
 
   const { remoteState, localState, additions, removals } = relationship;
-  assert(`Expected localSate`, localState);
+
+  if (localState === null) {
+    // the relationship has never been accessed, so it hasn't been reordered either
+    return false;
+  }
 
   for (let i = 0, j = 0; i < remoteState.length; i++) {
     const member = remoteState[i];
