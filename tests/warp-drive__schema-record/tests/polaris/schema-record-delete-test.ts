@@ -2,13 +2,11 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
-import RequestManager from '@ember-data/request';
-import type Store from '@ember-data/store';
-import { CacheHandler } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { Checkout,registerDerivations, withDefaults } from '@warp-drive/schema-record';
+import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 import type { Editable, Legacy } from '@warp-drive/schema-record/-private';
+
+import type Store from 'warp-drive__schema-record/services/store';
 
 interface User {
   [Editable]: boolean;
@@ -35,7 +33,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -64,7 +68,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -96,7 +106,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -124,7 +140,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -143,7 +165,11 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     await editableRecord.destroyRecord();
 
     const fetchedImmutableRecord = store.peekRecord('user', '1');
-    assert.strictEqual(fetchedImmutableRecord, null, 'immutable record is removed from the store after editable destroyRecord');
+    assert.strictEqual(
+      fetchedImmutableRecord,
+      null,
+      'immutable record is removed from the store after editable destroyRecord'
+    );
   });
 
   test('unloadRecord removes a record from the store', async function (assert) {
@@ -154,7 +180,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -184,7 +216,13 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     schema.registerResource(
       withDefaults({
         type: 'user',
-        fields: [{ name: 'name', kind: 'field' }],
+        fields: [
+          {
+            name: 'name',
+            type: null,
+            kind: 'attribute',
+          },
+        ],
       })
     );
 
@@ -196,12 +234,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
       },
     });
 
-    const editableRecord = await immutableRecord[Checkout]() as User;
-
-    if (typeof editableRecord.unloadRecord !== 'function') {
-      assert.ok(false, 'unloadRecord method is not available on the editable record');
-      return;
-    }
+    const editableRecord = await immutableRecord[Checkout]();
 
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
@@ -215,8 +248,10 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     }
 
     const fetchedImmutableRecord = store.peekRecord('user', '1');
-    assert.strictEqual(fetchedImmutableRecord, null, 'immutable record is removed from the store after editable unloadRecord');
-
-    assert.verifySteps([]);
+    assert.strictEqual(
+      fetchedImmutableRecord,
+      null,
+      'immutable record is removed from the store after editable unloadRecord'
+    );
   });
 });
