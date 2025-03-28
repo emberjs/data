@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '../identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier';
 
 export interface Op {
   op: string;
@@ -21,12 +21,50 @@ export interface MergeOperation extends Op {
 }
 
 export interface RemoveOperation extends Op {
-  op: 'removeIdentifier';
+  op: 'remove';
+  record: StableRecordIdentifier | StableDocumentIdentifier;
+}
+
+export interface AddToResourceRelationshipOperation extends Op {
+  op: 'add';
   record: StableRecordIdentifier;
+  field: string;
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
+}
+
+export interface AddToDocumentOperation extends Op {
+  op: 'add';
+  record: StableDocumentIdentifier;
+  field: 'data' | 'included';
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
+}
+
+export interface RemoveFromResourceRelationshipOperation extends Op {
+  op: 'remove';
+  record: StableRecordIdentifier;
+  field: string;
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
+}
+
+export interface RemoveFromDocumentOperation extends Op {
+  op: 'remove';
+  record: StableDocumentIdentifier;
+  field: 'data' | 'included';
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
 }
 
 // An Operation is an action that updates
 // the remote state of the Cache in some
 // manner. Additional Operations will be
 // added in the future.
-export type Operation = MergeOperation | RemoveOperation;
+export type Operation =
+  | MergeOperation
+  | RemoveOperation
+  | AddToResourceRelationshipOperation
+  | RemoveFromResourceRelationshipOperation
+  | AddToDocumentOperation
+  | RemoveFromDocumentOperation;

@@ -5,6 +5,7 @@ import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } fro
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import { isStableIdentifier, logGroup } from '@ember-data/store/-private';
+import { isDocumentIdentifier } from '@ember-data/store/-private/caches/identifier-cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -12,7 +13,12 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
-import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
+import type {
+  AddToResourceRelationshipOperation,
+  Op,
+  Operation,
+  RemoveFromResourceRelationshipOperation,
+} from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
@@ -396,7 +402,12 @@ export default class JSONAPICache implements Cache {
    * @param {Operation} op the operation to perform
    * @return {void}
    */
-  patch(op: MergeOperation): void {
+  patch(op: Operation): void {
+    const isRecord = isStableIdentifier(op.record);
+    const isDocument = !isRecord && isDocumentIdentifier(op.record);
+
+    assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
+
     if (LOG_OPERATIONS) {
       try {
         const _data = JSON.parse(JSON.stringify(op)) as object;
@@ -407,13 +418,43 @@ export default class JSONAPICache implements Cache {
         console.log(`EmberData | Operation - patch ${op.op}`, op);
       }
     }
-    if (op.op === 'mergeIdentifiers') {
-      const cache = this.__cache.get(op.record);
-      if (cache) {
-        this.__cache.set(op.value, cache);
-        this.__cache.delete(op.record);
+
+    switch (op.op) {
+      case 'mergeIdentifiers': {
+        const cache = this.__cache.get(op.record);
+        if (cache) {
+          this.__cache.set(op.value, cache);
+          this.__cache.delete(op.record);
+        }
+        this.__graph.update(op, true);
+        break;
       }
-      this.__graph.update(op, true);
+      case 'add': {
+        if (isRecord) {
+          this.__graph.update(op as AddToResourceRelationshipOperation, true);
+        } else {
+          // FIXME add to document
+        }
+        break;
+      }
+      case 'remove': {
+        if ('field' in op) {
+          if (isRecord) {
+            this.__graph.update(op as RemoveFromResourceRelationshipOperation, true);
+          } else {
+            // FIXME remove from document
+          }
+        } else {
+          if (isRecord) {
+            // FIXME remove record entirely
+          } else {
+            // FIXME remove document entirely
+          }
+        }
+        break;
+      }
+      default:
+        assert(`Unhandled cache.patch operation ${(op as unknown as Op).op}`);
     }
   }
 

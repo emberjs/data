@@ -546,7 +546,7 @@ function mutateAddToRelatedRecords<T>(
   mutate(
     collection,
     {
-      op: 'addToRelatedRecords',
+      op: 'add',
       record: collection.identifier,
       field: collection.key,
       ...operationInfo,
@@ -563,7 +563,7 @@ function mutateRemoveFromRelatedRecords<T>(
   mutate(
     collection,
     {
-      op: 'removeFromRelatedRecords',
+      op: 'remove',
       record: collection.identifier,
       field: collection.key,
       ...operationInfo,

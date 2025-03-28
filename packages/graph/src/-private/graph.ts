@@ -487,14 +487,14 @@ export class Graph {
       case 'replaceRelatedRecord':
         /*#__NOINLINE__*/ replaceRelatedRecord(this, op, isRemote);
         break;
-      case 'addToRelatedRecords':
+      case 'add':
         // we will lift this restriction once the cache is allowed to make remote updates directly
-        assert(`Can only perform the operation addToRelatedRecords on local state`, !isRemote);
+        assert(`Can only perform the operation 'add' on local state`, !isRemote);
         /*#__NOINLINE__*/ addToRelatedRecords(this, op, isRemote);
         break;
-      case 'removeFromRelatedRecords':
+      case 'remove':
         // we will lift this restriction once the cache is allowed to make remote updates directly
-        assert(`Can only perform the operation removeFromRelatedRecords on local state`, !isRemote);
+        assert(`Can only perform the operation 'remove' on local state`, !isRemote);
         /*#__NOINLINE__*/ removeFromRelatedRecords(this, op, isRemote);
         break;
       case 'replaceRelatedRecords':
