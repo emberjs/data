@@ -197,7 +197,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       store._join(() => {
         // change a hasMany relationship
         store.cache.mutate({
-          op: 'addToRelatedRecords',
+          op: 'add',
           record: user1Identifier,
           field: 'friends',
           value: store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
@@ -229,7 +229,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       store._join(() => {
         // change a hasMany relationship
         store.cache.mutate({
-          op: 'removeFromRelatedRecords',
+          op: 'remove',
           record: user1Identifier,
           field: 'friends',
           value: store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
