@@ -21,10 +21,10 @@ const config = {
 type BabelPlugin = [string, Record<string, unknown>, string];
 
 export function macros(): BabelPlugin[] {
-  const TransformAsserts = import.meta.resolve('./babel-plugin-transform-asserts.js').slice(7);
-  const TransformDeprecations = import.meta.resolve('./babel-plugin-transform-deprecations.js').slice(7);
-  const TransformDebugLogging = import.meta.resolve('./babel-plugin-transform-logging.js').slice(7);
-  const TransformFeatures = import.meta.resolve('./babel-plugin-transform-features.js').slice(7);
+  const TransformAsserts = import.meta.resolve('./babel-plugin-transform-asserts.cjs').slice(7);
+  const TransformDeprecations = import.meta.resolve('./babel-plugin-transform-deprecations.cjs').slice(7);
+  const TransformDebugLogging = import.meta.resolve('./babel-plugin-transform-logging.cjs').slice(7);
+  const TransformFeatures = import.meta.resolve('./babel-plugin-transform-features.cjs').slice(7);
 
   let plugins = [
     [
