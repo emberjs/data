@@ -9,6 +9,7 @@ export const entryPoints = [
   './src/macros.ts',
   './src/debugging.ts',
   './src/deprecations.ts',
+  './src/deprecation-versions.ts',
   './src/canary-features.ts',
 ];
 
