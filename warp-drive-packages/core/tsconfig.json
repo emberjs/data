@@ -1,0 +1,53 @@
+{
+  "include": ["src/**/**/**/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDeclarationOnly": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": false,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "types",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "erasableSyntaxOnly": true,
+    "paths": {
+      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+    },
+    "checkJs": false,
+    "isolatedDeclarations": true
+  },
+  "references": [
+    {
+      "path": "../../packages/build-config"
+    }
+  ]
+}

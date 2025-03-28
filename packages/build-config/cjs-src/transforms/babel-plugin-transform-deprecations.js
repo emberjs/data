@@ -16,7 +16,7 @@ export default function (babel) {
       ImportDeclaration(path, state) {
         const importPath = path.node.source.value;
 
-        if (importPath === state.opts.source) {
+        if (state.opts.sources.includes(importPath)) {
           const specifiers = path.get('specifiers');
           specifiers.forEach((specifier) => {
             let name = specifier.node.imported.name;

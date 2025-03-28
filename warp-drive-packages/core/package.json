@@ -1,5 +1,63 @@
 {
   "name": "@warp-drive/core",
-  "version": "5.4.0-alpha.142",
-  "description": "Core package for WarpDrive | All the Universal Basics"
+  "version": "5.4.0-alpha.151",
+  "private": false,
+  "description": "Core package for WarpDrive | All the Universal Basics",
+  "files": [
+    "dist",
+    "raw-src",
+    "cjs-src",
+    "types",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "logos"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./build-config/transforms/*.js": {
+      "default": "./raw-src/build-config/*.js"
+    },
+    "./build-config/*.cjs": {
+      "default": "./cjs-src/build-config/*.cjs"
+    },
+    "./*": {
+      "types": "./types/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "type": "module",
+  "scripts": {
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "sync": "echo \"syncing\"",
+    "start": "vite"
+  },
+  "dependencies": {
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@warp-drive/internal-config": "workspace:*",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^20.17.27",
+    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.26.10",
+    "typescript": "^5.8.2",
+    "bun-types": "^1.2.6",
+    "vite": "^5.4.15"
+  },
+  "engines": {
+    "node": ">= 18.20.7"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@10.7.0"
 }

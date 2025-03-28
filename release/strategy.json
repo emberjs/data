@@ -1,7 +1,7 @@
 {
   "config": {
-    "packageRoots": ["packages/*", "tests/*", "config"],
-    "changelogRoots": ["packages/*"],
+    "packageRoots": ["packages/*", "tests/*", "config", "internal-config", "warp-drive-packages/*", "docs-viewer"],
+    "changelogRoots": ["packages/*", "warp-drive-packages/*"],
     "changelog": {
       "labelOrder": [
         ":boom: Breaking Change",
@@ -99,6 +99,12 @@
       "stage": "stable",
       "types": "alpha",
       "typesPublish": false,
+      "mirrorPublish": true
+    },
+    "@warp-drive/core": {
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": true,
       "mirrorPublish": true
     }
   }

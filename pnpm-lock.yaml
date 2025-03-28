@@ -4206,6 +4206,40 @@ importers:
         specifier: 5.98.0
         version: 5.98.0
 
+  warp-drive-packages/core:
+    dependencies:
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:packages/build-config(@babel/core@7.26.10)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.26.10
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/node':
+        specifier: ^20.17.27
+        version: 20.17.27
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config(4e3b48c32d1d20d752e0b183ae13dd29)
+      bun-types:
+        specifier: ^1.2.6
+        version: 1.2.6
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+      vite:
+        specifier: ^5.4.15
+        version: 5.4.15(@types/node@20.17.27)
+
 packages:
 
   '@ampproject/remapping@2.3.0':

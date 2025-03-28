@@ -21,43 +21,49 @@ const config = {
 type BabelPlugin = [string, Record<string, unknown>, string];
 
 export function macros(): BabelPlugin[] {
-  const TransformAsserts = import.meta.resolve('./babel-plugin-transform-asserts.cjs').slice(7);
-  const TransformDeprecations = import.meta.resolve('./babel-plugin-transform-deprecations.cjs').slice(7);
-  const TransformDebugLogging = import.meta.resolve('./babel-plugin-transform-logging.cjs').slice(7);
-  const TransformFeatures = import.meta.resolve('./babel-plugin-transform-features.cjs').slice(7);
+  const TransformAsserts = import.meta.resolve('./babel-plugin-transform-asserts.js').slice(7);
+  const TransformDeprecations = import.meta.resolve('./babel-plugin-transform-deprecations.js').slice(7);
+  const TransformDebugLogging = import.meta.resolve('./babel-plugin-transform-logging.js').slice(7);
+  const TransformFeatures = import.meta.resolve('./babel-plugin-transform-features.js').slice(7);
 
   let plugins = [
-    [TransformAsserts, {}, '@warp-drive/build-config/asserts-stripping'],
+    [
+      TransformAsserts,
+      {
+        sources: ['@warp-drive/build-config/macros', '@warp-drive/core/build-config/macros'],
+      },
+      '@warp-drive/core/build-config/asserts-stripping',
+    ],
     [
       TransformFeatures,
       {
-        source: '@warp-drive/build-config/canary-features',
+        sources: ['@warp-drive/build-config/canary-features', '@warp-drive/core/build-config/canary-features'],
         flags: config.features,
       },
-      '@warp-drive/build-config/canary-features-stripping',
+      '@warp-drive/core/build-config/canary-features-stripping',
     ],
     [
       TransformDeprecations,
       {
-        source: '@warp-drive/build-config/deprecations',
+        sources: ['@warp-drive/build-config/deprecations', '@warp-drive/core/build-config/deprecations'],
         flags: config.deprecations,
       },
-      '@warp-drive/build-config/deprecation-stripping',
+      '@warp-drive/core/build-config/deprecation-stripping',
     ],
     [
       TransformDebugLogging,
       {
-        source: '@warp-drive/build-config/debugging',
+        sources: ['@warp-drive/build-config/debugging', '@warp-drive/core/build-config/debugging'],
         configKey: 'debug',
         runtimeKey: 'activeLogging',
         flags: config.debug,
       },
-      '@warp-drive/build-config/debugging-stripping',
+      '@warp-drive/core/build-config/debugging-stripping',
     ],
     [
       TransformDebugLogging,
       {
-        source: '@warp-drive/build-config/env',
+        sources: ['@warp-drive/build-config/env', '@warp-drive/core/build-config/env'],
         configKey: 'env',
         flags: {
           TESTING: true,
@@ -68,7 +74,7 @@ export function macros(): BabelPlugin[] {
           SHOULD_RECORD: true,
         },
       },
-      '@warp-drive/build-config/env',
+      '@warp-drive/core/build-config/env',
     ],
   ] satisfies BabelPlugin[];
 

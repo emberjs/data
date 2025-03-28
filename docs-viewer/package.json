@@ -1,11 +1,12 @@
 {
   "name": "@warp-drive/internal-docs-viewer",
-  "version": "5.4.0-alpha.142",
+  "version": "5.4.0-alpha.151",
   "description": "API Docs Viewer for the WarpDrive Project Monorepo | Unpublished",
   "private": true,
   "type": "module",
   "files": [
-    "src"
+    "src",
+    "unstable-preview-types"
   ],
   "bin": {
     "preview-api-docs": "./src/preview-docs.ts",
