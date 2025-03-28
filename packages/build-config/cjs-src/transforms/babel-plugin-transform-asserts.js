@@ -73,13 +73,13 @@ export default function (babel) {
       ImportDeclaration(path, state) {
         const importPath = path.node.source.value;
 
-        if (importPath === '@warp-drive/build-config/macros') {
+        if (state.opts.sources.includes(importPath)) {
           const specifiers = path.get('specifiers');
 
           specifiers.forEach((specifier) => {
             const name = specifier.node.imported.name;
             if (!Utils.has(name)) {
-              throw new Error(`Unexpected import '${name}' imported from '@warp-drive/build-config/macros'`);
+              throw new Error(`Unexpected import '${name}' imported from '${importPath}'`);
             }
 
             const localBindingName = specifier.node.local.name;
