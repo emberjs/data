@@ -3,8 +3,8 @@ import type { NotificationType } from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import type { RequestState, RequestStateService } from '@ember-data/store/-private';
 import { recordIdentifierFor } from '@ember-data/store/-private';
-import { cached, compat } from '@ember-data/tracking';
-import { addToTransaction, defineSignal, getSignal, peekSignal, subscribe } from '@ember-data/tracking/-private';
+import { cached, notifySignal } from '@ember-data/tracking';
+import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -24,48 +24,6 @@ function isInvalidError(error: unknown): error is Error & { isAdapterError: true
     'code' in error &&
     error.code === 'InvalidError'
   );
-}
-
-/**
- * A decorator that caches a getter while
- * providing the ability to bust that cache
- * when we so choose in a way that notifies
- * tracking systems.
- *
- * @internal
- */
-export function tagged<T extends object, K extends keyof T & string>(_target: T, key: K, desc: PropertyDescriptor) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const getter = desc.get as (this: T) => unknown;
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const setter = desc.set as (this: T, v: unknown) => void;
-
-  desc.get = function (this: T) {
-    const signal = getSignal(this, key, true);
-    subscribe(signal);
-
-    if (signal.shouldReset) {
-      signal.shouldReset = false;
-      signal.lastValue = getter.call(this);
-    }
-
-    return signal.lastValue;
-  };
-  desc.set = function (this: T, v: unknown) {
-    getSignal(this, key, true); // ensure signal is setup in case we want to use it.
-    // probably notify here but not yet.
-    setter.call(this, v);
-  };
-  compat(desc);
-  return desc;
-}
-
-export function notifySignal<T extends object, K extends keyof T & string>(obj: T, key: K) {
-  const signal = peekSignal(obj, key);
-  if (signal) {
-    signal.shouldReset = true;
-    addToTransaction(signal);
-  }
 }
 
 /**

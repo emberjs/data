@@ -1,4 +1,7 @@
 import { tagForProperty } from '@ember/-internals/metal';
+// temporary so we can remove the glimmer and ember imports elsewhere
+// eslint-disable-next-line no-restricted-imports
+import { dependentKeyCompat as compat } from '@ember/object/compat';
 import { consumeTag, dirtyTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
@@ -334,6 +337,14 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
   });
 }
 
+export function defineSubscription<T extends object>(obj: T, key: string, desc: PropertyDescriptor) {
+  const options = Object.assign(
+    { enumerable: true, configurable: false },
+    subscribed(obj, key as keyof T & string, desc)
+  );
+  Object.defineProperty(obj, key, options);
+}
+
 export interface Signal {
   /**
    * Key on the associated object
@@ -480,5 +491,40 @@ export function peekSignal<T extends object>(obj: T, key: string): Signal | unde
   const signals = (obj as Signaler)[Signals];
   if (signals) {
     return signals.get(key);
+  }
+}
+
+export function subscribed<T extends object, K extends keyof T & string>(_target: T, key: K, desc: PropertyDescriptor) {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const getter = desc.get as (this: T) => unknown;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const setter = desc.set as (this: T, v: unknown) => void;
+
+  desc.get = function (this: T) {
+    const signal = getSignal(this, key, true);
+    subscribe(signal);
+
+    if (signal.shouldReset) {
+      signal.shouldReset = false;
+      signal.lastValue = getter.call(this);
+    }
+
+    return signal.lastValue;
+  };
+  desc.set = function (this: T, v: unknown) {
+    getSignal(this, key, true); // ensure signal is setup in case we want to use it.
+    // probably notify here but not yet.
+    setter.call(this, v);
+  };
+  compat(desc);
+  return desc;
+}
+export { compat };
+
+export function notifySignal<T extends object, K extends keyof T & string>(obj: T, key: K) {
+  const signal = peekSignal(obj, key);
+  if (signal) {
+    signal.shouldReset = true;
+    addToTransaction(signal);
   }
 }

@@ -13,23 +13,21 @@ import type {
 } from '@warp-drive/core-types/request';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import type {
-  CollectionResourceDataDocument,
   ResourceDataDocument,
+  ResourceDocument,
   ResourceErrorDocument,
 } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { Document } from '../document';
+import { ReactiveDocument } from '../document';
 import type { Store } from '../store-service';
 import {
   calcShouldBackgroundFetch,
   calcShouldFetch,
   cloneError,
-  copyDocumentProperties,
   getPriority,
   isCacheAffecting,
-  isErrorDocument,
   isMutation,
 } from './utils';
 
@@ -149,12 +147,7 @@ export const CacheHandler: CacheHandlerType = {
 
     if ('error' in peeked) {
       const content = shouldHydrate
-        ? maybeUpdateErrorUiObjects<T>(
-            store,
-            { shouldHydrate, identifier },
-            peeked.content as ResourceErrorDocument,
-            true
-          )
+        ? maybeUpdateUiObjects<T>(store, context.request, { shouldHydrate, identifier }, peeked.content!)
         : peeked.content;
       const newError = cloneError(peeked);
       newError.content = content as object;
@@ -162,13 +155,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     const result = shouldHydrate
-      ? (maybeUpdateUiObjects<T>(
-          store,
-          context.request,
-          { shouldHydrate, identifier },
-          peeked.content as ResourceDataDocument,
-          true
-        ) as T)
+      ? (maybeUpdateUiObjects<T>(store, context.request, { shouldHydrate, identifier }, peeked.content) as T)
       : (peeked.content as T);
 
     return result;
@@ -188,121 +175,30 @@ function maybeUpdateUiObjects<T>(
   store: Store,
   request: ImmutableRequestInfo,
   options: HydrationOptions,
-  document: ResourceDataDocument | null,
-  isFromCache: boolean
-): Document<T> | ResourceDataDocument | null {
+  document: ResourceDocument | null
+): ReactiveDocument<T> | ResourceDocument | null {
   const { identifier } = options;
 
-  if (!document) {
+  if (!document || !options.shouldHydrate) {
     assert(`The CacheHandler expected response content but none was found`, !options.shouldHydrate);
     return document;
   }
 
-  if (Array.isArray(document.data)) {
-    const { recordArrayManager } = store;
-    if (!identifier) {
-      if (!options.shouldHydrate) {
-        return document;
-      }
-      const data = recordArrayManager.createArray({
-        type: request.url as string,
-        identifiers: document.data,
-        doc: document as CollectionResourceDataDocument,
-        query: request,
-      }) as T;
-
-      const doc = new Document<T>(store, null);
-      doc.data = data;
-      doc.meta = document.meta!;
-      doc.links = document.links!;
-
-      return doc;
-    }
-    let managed = recordArrayManager._keyedArrays.get(identifier.lid);
-
-    if (!managed) {
-      managed = recordArrayManager.createArray({
-        type: identifier.lid,
-        identifiers: document.data,
-        doc: document as CollectionResourceDataDocument,
-      });
-      recordArrayManager._keyedArrays.set(identifier.lid, managed);
-      const doc = new Document<T>(store, identifier);
-      doc.data = managed as T;
-      doc.meta = document.meta!;
-      doc.links = document.links!;
-      store._documentCache.set(identifier, doc);
-
-      return options.shouldHydrate ? doc : document;
-    } else {
-      const doc = store._documentCache.get(identifier) as Document<T>;
-      if (!isFromCache) {
-        recordArrayManager.populateManagedArray(managed, document.data, document as CollectionResourceDataDocument);
-        doc.data = managed as T;
-        doc.meta = document.meta!;
-        doc.links = document.links!;
-      }
-
-      return options.shouldHydrate ? doc : document;
-    }
-  } else {
-    if (!identifier && !options.shouldHydrate) {
-      return document;
-    }
-    const data = (document.data ? store.peekRecord(document.data) : null) as T;
-    let doc: Document<T> | undefined;
-    if (identifier) {
-      doc = store._documentCache.get(identifier) as Document<T> | undefined;
-    }
-
-    if (!doc) {
-      doc = new Document<T>(store, identifier);
-      doc.data = data;
-      copyDocumentProperties(doc, document);
-
-      if (identifier) {
-        store._documentCache.set(identifier, doc);
-      }
-    } else if (!isFromCache) {
-      doc.data = data;
-      copyDocumentProperties(doc, document);
-    }
-
-    return options.shouldHydrate ? doc : document;
-  }
-}
-
-function maybeUpdateErrorUiObjects<T>(
-  store: Store,
-  options: HydrationOptions,
-  document: ResourceErrorDocument,
-  isFromCache: boolean
-): ResourceErrorDocument {
-  const { identifier } = options;
-
-  // TODO investigate why ResourceErrorDocument is insufficient for expressing all error types
-  if (!isErrorDocument(document) || (!identifier && !options.shouldHydrate)) {
-    return document;
-  }
-
-  let doc: Document<T> | undefined;
   if (identifier) {
-    doc = store._documentCache.get(identifier) as Document<T> | undefined;
-  }
-
-  if (!doc) {
-    doc = new Document<T>(store, identifier);
-    copyDocumentProperties(doc, document);
-
-    if (identifier) {
+    let doc = store._documentCache.get(identifier);
+    if (!doc) {
+      doc = new ReactiveDocument<T>(store, identifier, null);
       store._documentCache.set(identifier, doc);
     }
-  } else if (!isFromCache) {
-    doc.data = undefined;
-    copyDocumentProperties(doc, document);
+    return doc as ReactiveDocument<T>;
   }
 
-  return options.shouldHydrate ? (doc as ResourceErrorDocument) : document;
+  // if we don't have an identifier, we give the document
+  // its own local cache
+  return new ReactiveDocument<T>(store, null, {
+    request,
+    document,
+  });
 }
 
 function updateCacheForSuccess<T>(
@@ -326,7 +222,7 @@ function updateCacheForSuccess<T>(
   } else {
     response = store.cache.put(document) as ResourceDataDocument;
   }
-  return maybeUpdateUiObjects(store, request, options, response, false);
+  return maybeUpdateUiObjects(store, request, options, response);
 }
 
 function handleFetchSuccess<T>(
@@ -380,7 +276,7 @@ function updateCacheForError<T>(
     store.cache.commitWasRejected(record, errors);
   } else {
     response = store.cache.put(error) as ResourceErrorDocument;
-    return maybeUpdateErrorUiObjects(store, options, response, false);
+    return maybeUpdateUiObjects(store, context.request, options, response);
   }
 }
 
@@ -397,7 +293,7 @@ function handleFetchError<T>(
   store._enableAsyncFlush = true;
   let response: ResourceErrorDocument | undefined;
   store._join(() => {
-    response = updateCacheForError(store, context, options, error);
+    response = updateCacheForError(store, context, options, error) as ResourceErrorDocument;
   });
   store._enableAsyncFlush = null;
 

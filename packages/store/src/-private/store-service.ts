@@ -56,7 +56,7 @@ import {
   resourceIsFullyDeleted,
   storeFor,
 } from './caches/instance-cache';
-import type { Document } from './document';
+import type { ReactiveDocument } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
@@ -658,7 +658,7 @@ export class Store extends BaseClass {
   declare _instanceCache: InstanceCache;
   declare _documentCache: Map<
     StableDocumentIdentifier,
-    Document<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
+    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
   >;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
