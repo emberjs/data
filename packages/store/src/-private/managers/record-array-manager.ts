@@ -270,7 +270,11 @@ export class RecordArrayManager {
     return pending;
   }
 
-  populateManagedArray(array: Collection, identifiers: StableRecordIdentifier[], payload: CollectionResourceDocument) {
+  populateManagedArray(
+    array: Collection,
+    identifiers: StableRecordIdentifier[],
+    payload: CollectionResourceDocument | null
+  ) {
     this._pending.delete(array);
     const source = array[SOURCE];
     const old = source.slice();
@@ -279,8 +283,8 @@ export class RecordArrayManager {
     this._set.set(array, new Set(identifiers));
 
     notifyArray(array);
-    array.meta = payload.meta || null;
-    array.links = payload.links || null;
+    array.meta = payload?.meta || null;
+    array.links = payload?.links || null;
     array.isLoaded = true;
 
     disassociate(this._identifiers, array, old);

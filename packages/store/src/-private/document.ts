@@ -6,7 +6,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo, RequestInfo } from '@warp-drive/core-types/request';
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import type { CollectionResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Mutable } from '@warp-drive/core-types/utils';
 
@@ -109,6 +109,8 @@ export class ReactiveDocument<T> {
         (_identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
           switch (type) {
             case 'updated':
+              // FIXME in the case of a collection we need to notify it's length
+              // and have it recalc
               notifySignal(this, 'data');
               notifySignal(this, 'links');
               notifySignal(this, 'meta');
@@ -265,33 +267,30 @@ defineSubscription(ReactiveDocument.prototype, 'errors', {
 });
 defineSubscription(ReactiveDocument.prototype, 'data', {
   get<T>(this: ReactiveDocument<T>) {
-    const { identifier } = this;
+    const { identifier, _localCache } = this;
 
-    if (!identifier) {
-      const { document } = this._localCache!;
-      if ('data' in document) {
-        return document.data as T;
-      }
-      return;
-    }
-
-    const doc = this._store.cache.peek(identifier);
-    assert(`No cache data was found for the document '${identifier.lid}'`, doc);
+    const doc = identifier ? this._store.cache.peek(identifier) : _localCache!.document;
+    assert(`No cache data was found for the document '${identifier?.lid ?? '<uncached document>'}'`, doc);
     const data = 'data' in doc ? (doc.data as T | undefined) : undefined;
 
     if (Array.isArray(data)) {
       const { recordArrayManager } = this._store;
-      const managed = recordArrayManager._keyedArrays.get(identifier.lid);
+      const managed = identifier ? recordArrayManager._keyedArrays.get(identifier.lid) : undefined;
 
       if (managed) {
+        // FIXME dont pass doc if no localState
+        // FIXME array should manage its own recalc
+        recordArrayManager.populateManagedArray(managed, data, null);
         return managed as T;
       }
 
       const recordArray = recordArrayManager.createArray({
-        type: identifier.lid,
+        type: identifier ? identifier.lid : _localCache!.request.url,
         identifiers: data,
+        doc: identifier ? undefined : (doc as CollectionResourceDataDocument),
       });
-      recordArrayManager._keyedArrays.set(identifier.lid, recordArray);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      identifier && recordArrayManager._keyedArrays.set(identifier.lid, recordArray);
       return recordArray as T;
     } else if (data) {
       return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
