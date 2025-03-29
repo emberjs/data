@@ -95,6 +95,7 @@ export type IdentifierArrayCreateOptions<T = unknown> = {
   manager: MinimumManager;
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
+  identifier?: StableDocumentIdentifier | null;
 };
 
 interface PrivateState {
@@ -185,6 +186,7 @@ export class IdentifierArray<T = unknown> {
   isDestroying = false;
   isDestroyed = false;
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
+  readonly identifier: StableDocumentIdentifier | null;
 
   [IS_COLLECTION] = true;
   declare [ARRAY_SIGNAL]: Signal;
@@ -230,6 +232,7 @@ export class IdentifierArray<T = unknown> {
     this.modelName = options.type;
     this.store = options.store;
     this._manager = options.manager;
+    this.identifier = options.identifier || null;
     this[SOURCE] = options.identifiers;
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const store = options.store;
@@ -569,19 +572,16 @@ export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   manager: RecordArrayManager;
   query: ImmutableRequestInfo | Record<string, unknown> | null;
   isLoaded: boolean;
-  identifier: StableDocumentIdentifier | null;
 };
 
 export class Collection<T = unknown> extends IdentifierArray<T> {
   query: ImmutableRequestInfo | Record<string, unknown> | null = null;
   declare _manager: RecordArrayManager;
-  declare readonly identifier: StableDocumentIdentifier | null;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
     this.query = options.query || null;
     this.isLoaded = options.isLoaded || false;
-    this.identifier = options.identifier;
   }
 
   _update(): Promise<Collection<T>> {

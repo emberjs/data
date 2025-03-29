@@ -135,7 +135,7 @@ export class RecordArrayManager {
 
   _syncArray(array: IdentifierArray | Collection) {
     const pending = this._pending.get(array);
-    const isRequestArray = 'identifier' in array && array.identifier !== null;
+    const isRequestArray = isCollection(array);
 
     if ((!isRequestArray && !pending) || this.isDestroying || this.isDestroyed) {
       return;
@@ -492,4 +492,10 @@ function sync(
     }
     */
   }
+}
+
+function isCollection(
+  array: IdentifierArray | Collection
+): array is Collection & { identifier: StableDocumentIdentifier } {
+  return array.identifier !== null;
 }
