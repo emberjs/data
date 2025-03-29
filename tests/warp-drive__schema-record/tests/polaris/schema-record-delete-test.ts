@@ -1,3 +1,5 @@
+import { settled } from '@ember/test-helpers';
+
 import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
@@ -53,10 +55,9 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
-    record.deleteRecord();
+    store.deleteRecord(record);
 
     const fetchedRecord = store.peekRecord('user', '1');
-    assert.true(record.isDeleted, 'record is marked as deleted');
     assert.ok(fetchedRecord, 'record still exists in store');
   });
 
@@ -90,12 +91,11 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
-    editableRecord.deleteRecord();
-
+    store.deleteRecord(editableRecord);
+    await settled();
     const fetchedRecord = store.peekRecord('user', '1');
-    assert.true(editableRecord.isDeleted, 'editable record is marked as deleted');
-    assert.true(immutableRecord.isDeleted, 'immutable record is marked as deleted');
     assert.ok(fetchedRecord, 'record still exists in store');
+    assert.strictEqual(fetchedRecord, null, 'immutable record is removed from the store');
   });
 
   test('destroyRecord removes a record from the store', async function (assert) {
@@ -202,7 +202,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     assert.ok(user, 'record exists initially');
 
-    user.unloadRecord();
+    store.unloadRecord(user);
 
     const fetchedRecord = store.peekRecord('user', '1');
     assert.strictEqual(fetchedRecord, null, 'record is removed from the store after unloadRecord');
@@ -239,13 +239,8 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
     assert.ok(editableRecord, 'editable record exists');
-    assert.strictEqual(typeof editableRecord.unloadRecord, 'function', 'unloadRecord is a function on editable record');
 
-    try {
-      editableRecord.unloadRecord();
-    } catch (error) {
-      assert.step(`Error: ${error.message}`);
-    }
+    store.unloadRecord(editableRecord);
 
     const fetchedImmutableRecord = store.peekRecord('user', '1');
     assert.strictEqual(
