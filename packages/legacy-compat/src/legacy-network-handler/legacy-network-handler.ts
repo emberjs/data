@@ -480,7 +480,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
 
   const recordArray =
     options._recordArray ||
-    store.recordArrayManager.createArray({
+    store.recordArrayManager.getCollection({
       type,
       query,
     });

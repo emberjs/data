@@ -366,6 +366,11 @@ export interface Signal {
   shouldReset: boolean;
 
   /**
+   * The reason this signal is dirty
+   */
+  reason: string | null;
+
+  /**
    * The framework specific "signal" e.g. glimmer "tracked"
    * or starbeam "cell" to consume/invalidate when appropriate.
    *
@@ -419,6 +424,7 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
   const _signal: Signal = {
     key,
     tag: tagForProperty(obj, key),
+    reason: null,
 
     t: false,
     shouldReset: false,

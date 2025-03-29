@@ -15,7 +15,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
@@ -569,16 +569,19 @@ export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   manager: RecordArrayManager;
   query: ImmutableRequestInfo | Record<string, unknown> | null;
   isLoaded: boolean;
+  identifier: StableDocumentIdentifier | null;
 };
 
 export class Collection<T = unknown> extends IdentifierArray<T> {
   query: ImmutableRequestInfo | Record<string, unknown> | null = null;
   declare _manager: RecordArrayManager;
+  declare readonly identifier: StableDocumentIdentifier | null;
 
   constructor(options: CollectionCreateOptions) {
     super(options as IdentifierArrayCreateOptions);
     this.query = options.query || null;
     this.isLoaded = options.isLoaded || false;
+    this.identifier = options.identifier;
   }
 
   _update(): Promise<Collection<T>> {

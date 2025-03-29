@@ -76,7 +76,7 @@ module('integration/record_array_manager', function (hooks) {
 
     const all = store.peekAll('person');
     const query = {};
-    const adapterPopulated = manager.createArray({ type: 'person', query });
+    const adapterPopulated = manager.getCollection({ type: 'person', query });
     const identifier = recordIdentifierFor(person);
 
     assert.false(all.isDestroyed, 'initial: LiveArray is not destroyed');
@@ -115,7 +115,7 @@ module('integration/record_array_manager', function (hooks) {
 
     const query = {};
 
-    const adapterPopulated = manager.createArray({ type: 'car', query });
+    const adapterPopulated = manager.getCollection({ type: 'car', query });
 
     adapterPopulated.destroy();
     await settled();

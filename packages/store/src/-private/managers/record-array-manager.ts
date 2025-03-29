@@ -2,9 +2,10 @@
   @module @ember-data/store
 */
 import { addTransactionCB } from '@ember-data/tracking/-private';
+import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -18,7 +19,7 @@ import {
   SOURCE,
 } from '../record-arrays/identifier-array';
 import type { Store } from '../store-service';
-import type { CacheOperation, UnsubscribeToken } from './notification-manager';
+import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager';
 
 const FAKE_ARR = getOrSetGlobal('FAKE_ARR', {});
 const SLICE_BATCH_SIZE = 1200;
@@ -89,6 +90,7 @@ export class RecordArrayManager {
   declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
   declare _staged: Map<string, ChangeSet>;
   declare _subscription: UnsubscribeToken;
+  declare _documentSubscription: UnsubscribeToken;
   declare _keyedArrays: Map<string, Collection>;
   declare _visibilitySet: Map<StableRecordIdentifier, boolean>;
 
@@ -106,6 +108,16 @@ export class RecordArrayManager {
     this._visibilitySet = new Map();
 
     this._subscription = this.store.notifications.subscribe(
+      'document',
+      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+        if (type === 'updated' && this._keyedArrays.has(identifier.lid)) {
+          const array = this._keyedArrays.get(identifier.lid)!;
+          this.dirtyArray(array, 0, true);
+        }
+      }
+    );
+
+    this._subscription = this.store.notifications.subscribe(
       'resource',
       (identifier: StableRecordIdentifier, type: CacheOperation) => {
         if (type === 'added') {
@@ -121,15 +133,35 @@ export class RecordArrayManager {
     );
   }
 
-  _syncArray(array: IdentifierArray) {
+  _syncArray(array: IdentifierArray | Collection) {
     const pending = this._pending.get(array);
+    const isRequestArray = 'identifier' in array && array.identifier !== null;
 
-    if (!pending || this.isDestroying || this.isDestroyed) {
+    if ((!isRequestArray && !pending) || this.isDestroying || this.isDestroyed) {
       return;
     }
 
-    sync(array, pending, this._set.get(array)!);
-    this._pending.delete(array);
+    // first flush any staged changes
+    if (pending) {
+      sync(array, pending, this._set.get(array)!);
+      this._pending.delete(array);
+    }
+
+    // then pull new state if required
+    if (isRequestArray) {
+      const tag = array[ARRAY_SIGNAL];
+
+      if (tag.reason === 'cache-sync') {
+        tag.reason = null;
+        const doc = this.store.cache.peek(array.identifier);
+        assert(`Expected to find a document for ${array.identifier.lid} but found none`, doc);
+        const data = !('data' in doc) || !Array.isArray(doc.data) ? [] : doc.data;
+        // TODO technically we should destroy here if
+        // !('data' in doc) || !Array.isArray(doc.data)
+        // is true.
+        this.populateManagedArray(array, data, null);
+      }
+    }
   }
 
   mutate(mutation: LocalRelationshipOperation): void {
@@ -173,14 +205,20 @@ export class RecordArrayManager {
     return array;
   }
 
-  createArray(config: {
+  getCollection(config: {
     type?: string;
     query?: ImmutableRequestInfo | Record<string, unknown>;
     identifiers?: StableRecordIdentifier[];
     doc?: CollectionResourceDocument;
+    identifier?: StableDocumentIdentifier | null;
   }): Collection {
+    if (config.identifier && this._keyedArrays.has(config.identifier.lid)) {
+      return this._keyedArrays.get(config.identifier.lid)!;
+    }
+
     const options: CollectionCreateOptions = {
       type: config.type,
+      identifier: config.identifier || null,
       links: config.doc?.links || null,
       meta: config.doc?.meta || null,
       query: config.query || null,
@@ -193,6 +231,11 @@ export class RecordArrayManager {
     const array = new Collection(options);
     this._managed.add(array);
     this._set.set(array, new Set(options.identifiers || []));
+
+    if (config.identifier) {
+      this._keyedArrays.set(config.identifier.lid, array);
+    }
+
     if (config.identifiers) {
       associate(this._identifiers, array, config.identifiers);
     }
@@ -200,11 +243,14 @@ export class RecordArrayManager {
     return array;
   }
 
-  dirtyArray(array: IdentifierArray, delta: number): void {
+  dirtyArray(array: IdentifierArray, delta: number, shouldSyncFromCache: boolean): void {
     if (array === FAKE_ARR) {
       return;
     }
     const tag = array[ARRAY_SIGNAL];
+    if (shouldSyncFromCache) {
+      tag.reason = 'cache-sync';
+    }
     if (!tag.shouldReset) {
       tag.shouldReset = true;
       addTransactionCB(array[NOTIFY]);
@@ -301,7 +347,7 @@ export class RecordArrayManager {
         } else {
           changes.set(identifier, 'add');
 
-          this.dirtyArray(array, changes.size);
+          this.dirtyArray(array, changes.size, false);
         }
       });
     }
@@ -317,7 +363,7 @@ export class RecordArrayManager {
         } else {
           changes.set(identifier, 'del');
 
-          this.dirtyArray(array, changes.size);
+          this.dirtyArray(array, changes.size, false);
         }
       });
     }

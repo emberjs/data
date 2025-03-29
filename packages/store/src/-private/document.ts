@@ -274,24 +274,12 @@ defineSubscription(ReactiveDocument.prototype, 'data', {
     const data = 'data' in doc ? (doc.data as T | undefined) : undefined;
 
     if (Array.isArray(data)) {
-      const { recordArrayManager } = this._store;
-      const managed = identifier ? recordArrayManager._keyedArrays.get(identifier.lid) : undefined;
-
-      if (managed) {
-        // FIXME dont pass doc if no localState
-        // FIXME array should manage its own recalc
-        recordArrayManager.populateManagedArray(managed, data, null);
-        return managed as T;
-      }
-
-      const recordArray = recordArrayManager.createArray({
+      return this._store.recordArrayManager.getCollection({
         type: identifier ? identifier.lid : _localCache!.request.url,
         identifiers: data,
         doc: identifier ? undefined : (doc as CollectionResourceDataDocument),
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      identifier && recordArrayManager._keyedArrays.set(identifier.lid, recordArray);
-      return recordArray as T;
+        identifier: identifier ?? null,
+      }) as T;
     } else if (data) {
       return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
     } else {
