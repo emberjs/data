@@ -3,6 +3,7 @@
  */
 import { defineSubscription, notifySignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo, RequestInfo } from '@warp-drive/core-types/request';
 import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
@@ -293,7 +294,7 @@ defineSubscription(ReactiveDocument.prototype, 'data', {
       recordArrayManager._keyedArrays.set(identifier.lid, recordArray);
       return recordArray as T;
     } else if (data) {
-      return this._store.peekRecord(identifier) as T;
+      return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
     } else {
       return data;
     }
