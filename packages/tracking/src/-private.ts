@@ -367,6 +367,8 @@ export interface Signal {
 
   /**
    * The reason this signal is dirty
+   *
+   * @internal
    */
   reason: string | null;
 
