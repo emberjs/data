@@ -320,7 +320,7 @@ module('Integration | Graph | Edges', function (hooks) {
 
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           record: identifier,
           field: 'bestFriends',
           value: identifier4,
@@ -415,7 +415,7 @@ module('Integration | Graph | Edges', function (hooks) {
 
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           record: identifier,
           field: 'bestFriends',
           value: identifier4,
