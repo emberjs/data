@@ -9,8 +9,8 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId } from '@ember-data/store/-private';
-import { compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
+import { compat, notifySignal } from '@ember-data/tracking';
+import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -35,7 +35,7 @@ import {
   unloadRecord,
 } from './model-methods';
 import notifyChanges from './notify-changes';
-import RecordState, { notifySignal, tagged } from './record-state';
+import RecordState from './record-state';
 import type BelongsToReference from './references/belongs-to';
 import type HasManyReference from './references/has-many';
 import type {

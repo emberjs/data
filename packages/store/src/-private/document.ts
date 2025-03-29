@@ -1,12 +1,16 @@
 /**
  * @module @ember-data/store
  */
-import { defineSignal } from '@ember-data/tracking/-private';
+import { defineSubscription, notifySignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
+import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { RequestInfo } from '@warp-drive/core-types/request';
+import type { ImmutableRequestInfo, RequestInfo } from '@warp-drive/core-types/request';
+import type { CollectionResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
+import type { Mutable } from '@warp-drive/core-types/utils';
 
+import type { DocumentCacheOperation } from './managers/notification-manager';
 import type { Store } from './store-service';
 
 function urlFromLink(link: Link): string {
@@ -24,9 +28,9 @@ function urlFromLink(link: Link): string {
  * determined by the record instance itself.
  *
  * @public
- * @class Document
+ * @class ReactiveDocument
  */
-export class Document<T> {
+export class ReactiveDocument<T> {
   /**
    * The links object for this document, if any
    *
@@ -42,7 +46,7 @@ export class Document<T> {
    * @type {object|undefined} - a links object
    * @public
    */
-  declare links?: PaginationLinks;
+  declare readonly links?: PaginationLinks;
   /**
    * The primary data for this document, if any.
    *
@@ -56,7 +60,7 @@ export class Document<T> {
    * @public
    * @type {object|Array<object>|null|undefined} - a data object
    */
-  declare data?: T;
+  declare readonly data?: T;
 
   /**
    * The errors returned by the API for this request, if any
@@ -65,7 +69,7 @@ export class Document<T> {
    * @public
    * @type {object|undefined} - an errors object
    */
-  declare errors?: object[];
+  declare readonly errors?: object[];
 
   /**
    * The meta object for this document, if any
@@ -74,7 +78,7 @@ export class Document<T> {
    * @public
    * @type {object|undefined} - a meta object
    */
-  declare meta?: Meta;
+  declare readonly meta?: Meta;
 
   /**
    * The identifier associated with this document, if any
@@ -83,18 +87,50 @@ export class Document<T> {
    * @public
    * @type {StableDocumentIdentifier|null}
    */
-  declare identifier: StableDocumentIdentifier | null;
+  declare readonly identifier: StableDocumentIdentifier | null;
 
-  #store: Store;
-  constructor(store: Store, identifier: StableDocumentIdentifier | null) {
-    this.#store = store;
+  declare protected readonly _store: Store;
+  declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
+
+  constructor(
+    store: Store,
+    identifier: StableDocumentIdentifier | null,
+    localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
+  ) {
+    this._store = store;
+    this._localCache = localCache;
     this.identifier = identifier;
+
+    // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
+    // in a destroy method
+    if (identifier) {
+      store.notifications.subscribe(
+        identifier,
+        (_identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+          switch (type) {
+            case 'updated':
+              // FIXME in the case of a collection we need to notify it's length
+              // and have it recalc
+              notifySignal(this, 'data');
+              notifySignal(this, 'links');
+              notifySignal(this, 'meta');
+              notifySignal(this, 'errors');
+              break;
+            case 'added':
+            case 'removed':
+            case 'invalidated':
+            case 'state':
+              break;
+          }
+        }
+      );
+    }
   }
 
   async #request(
     link: keyof PaginationLinks,
-    options: Partial<RequestInfo<T, Document<T>>>
-  ): Promise<Document<T> | null> {
+    options: Partial<RequestInfo<T, ReactiveDocument<T>>>
+  ): Promise<ReactiveDocument<T> | null> {
     const href = this.links?.[link];
     if (!href) {
       return null;
@@ -102,7 +138,7 @@ export class Document<T> {
 
     options.method = options.method || 'GET';
     Object.assign(options, { url: urlFromLink(href) });
-    const response = await this.#store.request<Document<T>>(options);
+    const response = await this._store.request<ReactiveDocument<T>>(options);
 
     return response.content;
   }
@@ -117,11 +153,11 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document>
    */
-  fetch(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T>> {
+  fetch(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T>> {
     assert(`No self or related link`, this.links?.related || this.links?.self);
     options.cacheOptions = options.cacheOptions || {};
     options.cacheOptions.key = this.identifier?.lid;
-    return this.#request(this.links.related ? 'related' : 'self', options) as Promise<Document<T>>;
+    return this.#request(this.links.related ? 'related' : 'self', options) as Promise<ReactiveDocument<T>>;
   }
 
   /**
@@ -134,7 +170,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  next(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
+  next(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
     return this.#request('next', options);
   }
 
@@ -148,7 +184,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  prev(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
+  prev(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
     return this.#request('prev', options);
   }
 
@@ -162,7 +198,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  first(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
+  first(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
     return this.#request('first', options);
   }
 
@@ -176,7 +212,7 @@ export class Document<T> {
    * @param {object} options
    * @return Promise<Document | null>
    */
-  last(options: Partial<RequestInfo<T, Document<T>>> = {}): Promise<Document<T> | null> {
+  last(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
     return this.#request('last', options);
   }
 
@@ -194,7 +230,7 @@ export class Document<T> {
    * @return
    */
   toJSON(): object {
-    const data: Partial<Document<T>> = {};
+    const data: Mutable<Partial<ReactiveDocument<T>>> = {};
     data.identifier = this.identifier;
     if (this.data !== undefined) {
       data.data = this.data;
@@ -212,7 +248,66 @@ export class Document<T> {
   }
 }
 
-defineSignal(Document.prototype, 'data');
-defineSignal(Document.prototype, 'links');
-defineSignal(Document.prototype, 'errors');
-defineSignal(Document.prototype, 'meta');
+defineSubscription(ReactiveDocument.prototype, 'errors', {
+  get<T>(this: ReactiveDocument<T>): object[] | undefined {
+    const { identifier } = this;
+
+    if (!identifier) {
+      const { document } = this._localCache!;
+      if ('errors' in document) {
+        return document.errors;
+      }
+      return;
+    }
+
+    const doc = this._store.cache.peek(identifier);
+    assert(`No cache data was found for the document '${identifier.lid}'`, doc);
+    return 'errors' in doc ? doc.errors : undefined;
+  },
+});
+defineSubscription(ReactiveDocument.prototype, 'data', {
+  get<T>(this: ReactiveDocument<T>) {
+    const { identifier, _localCache } = this;
+
+    const doc = identifier ? this._store.cache.peek(identifier) : _localCache!.document;
+    assert(`No cache data was found for the document '${identifier?.lid ?? '<uncached document>'}'`, doc);
+    const data = 'data' in doc ? (doc.data as T | undefined) : undefined;
+
+    if (Array.isArray(data)) {
+      return this._store.recordArrayManager.getCollection({
+        type: identifier ? identifier.lid : _localCache!.request.url,
+        identifiers: data,
+        doc: identifier ? undefined : (doc as CollectionResourceDataDocument),
+        identifier: identifier ?? null,
+      }) as T;
+    } else if (data) {
+      return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
+    } else {
+      return data;
+    }
+  },
+});
+defineSubscription(ReactiveDocument.prototype, 'links', {
+  get<T>(this: ReactiveDocument<T>) {
+    const { identifier } = this;
+
+    if (!identifier) {
+      return this._localCache!.document.links;
+    }
+    const data = this._store.cache.peek(identifier);
+    assert(`No cache data was found for the document '${identifier.lid}'`, data);
+    return data.links;
+  },
+});
+defineSubscription(ReactiveDocument.prototype, 'meta', {
+  get<T>(this: ReactiveDocument<T>): Meta | undefined {
+    const { identifier } = this;
+
+    if (!identifier) {
+      return this._localCache!.document.meta;
+    }
+    const data = this._store.cache.peek(identifier);
+    assert(`No cache data was found for the document '${identifier.lid}'`, data);
+    return data.meta;
+  },
+});

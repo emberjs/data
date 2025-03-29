@@ -48,18 +48,6 @@ export function isMutation(
   return Boolean(request.op && MUTATION_OPS.has(request.op));
 }
 
-export function copyDocumentProperties(target: { links?: unknown; meta?: unknown; errors?: unknown }, source: object) {
-  if ('links' in source) {
-    target.links = source.links;
-  }
-  if ('meta' in source) {
-    target.meta = source.meta;
-  }
-  if ('errors' in source) {
-    target.errors = source.errors;
-  }
-}
-
 export function isCacheAffecting<T>(document: StructuredDataDocument<T>): boolean {
   if (!isMutation(document.request)) {
     return true;

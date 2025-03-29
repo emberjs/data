@@ -35,7 +35,7 @@ module('integration/record-arrays/collection', function (hooks) {
     this.owner.register('adapter:application', ApplicationAdapter);
 
     const store = this.owner.lookup('service:store');
-    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const recordArray = store.recordArrayManager.getCollection({ type: 'person', query: null });
 
     const payload = {
       data: [
@@ -76,7 +76,7 @@ module('integration/record-arrays/collection', function (hooks) {
 
   test('stores the metadata off the payload', async function (assert) {
     const store = this.owner.lookup('service:store');
-    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const recordArray = store.recordArrayManager.getCollection({ type: 'person', query: null });
 
     const payload = {
       data: [
@@ -115,7 +115,7 @@ module('integration/record-arrays/collection', function (hooks) {
 
   test('stores the links off the payload', async function (assert) {
     const store = this.owner.lookup('service:store');
-    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const recordArray = store.recordArrayManager.getCollection({ type: 'person', query: null });
 
     const payload = {
       data: [
@@ -154,7 +154,7 @@ module('integration/record-arrays/collection', function (hooks) {
 
   test('recordArray.splice() throws error', async function (assert) {
     const store = this.owner.lookup('service:store');
-    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const recordArray = store.recordArrayManager.getCollection({ type: 'person', query: null });
 
     await settled();
 
@@ -169,7 +169,7 @@ module('integration/record-arrays/collection', function (hooks) {
 
   test('recordArray mutation throws error', async function (assert) {
     const store = this.owner.lookup('service:store');
-    const recordArray = store.recordArrayManager.createArray({ type: 'person', query: null });
+    const recordArray = store.recordArrayManager.getCollection({ type: 'person', query: null });
 
     await settled();
 
