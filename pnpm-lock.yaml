@@ -90,8 +90,8 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       bun-types:
-        specifier: ^1.2.6
-        version: 1.2.6
+        specifier: ^1.2.7
+        version: 1.2.7
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -578,8 +578,8 @@ importers:
         specifier: workspace:*
         version: file:config(4e3b48c32d1d20d752e0b183ae13dd29)
       bun-types:
-        specifier: ^1.2.6
-        version: 1.2.6
+        specifier: ^1.2.7
+        version: 1.2.7
       typescript:
         specifier: ^5.8.2
         version: 5.8.2
@@ -762,8 +762,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.6
-        version: 1.2.6
+        specifier: ^1.2.7
+        version: 1.2.7
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.26.10)
@@ -1379,8 +1379,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.2.6
-        version: 1.2.6
+        specifier: 1.2.7
+        version: 1.2.7
 
   packages/schema-record:
     dependencies:
@@ -2501,8 +2501,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.6
-        version: 1.2.6
+        specifier: ^1.2.7
+        version: 1.2.7
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -3486,8 +3486,8 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       bun-types:
-        specifier: ^1.2.6
-        version: 1.2.6
+        specifier: ^1.2.7
+        version: 1.2.7
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.26.10)
@@ -7328,6 +7328,9 @@ packages:
 
   bun-types@1.2.6:
     resolution: {integrity: sha512-FbCKyr5KDiPULUzN/nm5oqQs9nXCHD8dVc64BArxJadCvbNzAI6lUWGh9fSJZWeDIRD38ikceBU8Kj/Uh+53oQ==}
+
+  bun-types@1.2.7:
+    resolution: {integrity: sha512-P4hHhk7kjF99acXqKvltyuMQ2kf/rzIw3ylEDpCxDS9Xa0X0Yp/gJu/vDCucmWpiur5qJ0lwB2bWzOXa2GlHqA==}
 
   bytes@1.0.0:
     resolution: {integrity: sha512-/x68VkHLeTl3/Ll8IvxdwzhrT+IyKc52e/oyHhA2RwqPqswSnjVbSddfPRwAsJtbilMAPSRWwAlpxdYsSWOTKQ==}
@@ -19046,6 +19049,11 @@ snapshots:
       ieee754: 1.2.1
 
   bun-types@1.2.6:
+    dependencies:
+      '@types/node': 20.17.27
+      '@types/ws': 8.5.14
+
+  bun-types@1.2.7:
     dependencies:
       '@types/node': 20.17.27
       '@types/ws': 8.5.14
