@@ -42,7 +42,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.6",
+    "@types/bun": "^1.2.8",
     "@types/jscodeshift": "0.12.0",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.23.0",
