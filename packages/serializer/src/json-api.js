@@ -191,9 +191,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    if (DEBUG) {
-      assert(this.warnMessageForUndefinedType(), resourceHash.type);
-    }
+    assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
     const type = this.modelNameFromPayloadKey(resourceHash.type);
 
@@ -206,7 +204,6 @@ const JSONAPISerializer = JSONSerializer.extend({
       return null;
     }
 
-    const modelClass = this.store.modelFor(type);
     const serializer = this.store.serializerFor(type);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
