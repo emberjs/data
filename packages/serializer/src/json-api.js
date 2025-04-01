@@ -191,14 +191,18 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
-    assert(this.warnMessageForUndefinedType(), resourceHash.type);
+    if (DEBUG) {
+      assert(this.warnMessageForUndefinedType(), resourceHash.type);
+    }
 
     const type = this.modelNameFromPayloadKey(resourceHash.type);
 
     if (!this.store.schema.hasResource({ type })) {
-      warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
-        id: 'ds.serializer.model-for-type-missing',
-      });
+      if (DEBUG) {
+        warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
+          id: 'ds.serializer.model-for-type-missing',
+        });
+      }
       return null;
     }
 
