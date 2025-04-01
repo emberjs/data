@@ -63,6 +63,7 @@ module.exports = async function (defaults) {
     compatWith: isEnabled(process.env.EMBER_DATA_FULL_COMPAT) ? '99.0' : null,
     deprecations: {
       DISABLE_6X_DEPRECATIONS: false,
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false,
     },
     debug: {
       // LOG_GRAPH: true,

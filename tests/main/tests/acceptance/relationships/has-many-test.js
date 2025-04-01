@@ -2,7 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { setComponentTemplate } from '@ember/component';
 import { action } from '@ember/object';
 import { sort } from '@ember/object/computed';
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 import { click, find, findAll, render, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 
@@ -19,6 +19,8 @@ import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { deprecatedTest } from '@ember-data/unpublished-test-infra/test-support/deprecated-test';
 import { DEPRECATE_ARRAY_LIKE } from '@warp-drive/build-config/deprecations';
+
+const service = s.service ?? s.inject;
 
 class Person extends Model {
   @attr()

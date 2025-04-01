@@ -1,0 +1,28 @@
+{
+  "name": "@warp-drive/internal-docs-viewer",
+  "version": "5.4.0-alpha.142",
+  "description": "API Docs Viewer for the WarpDrive Project Monorepo | Unpublished",
+  "private": true,
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "bin": {
+    "preview-api-docs": "./src/preview-docs.ts",
+    "rebuild-api-docs": "./src/rebuild-docs.ts"
+  },
+  "dependencies": {
+    "@types/bun": "^1.2.6",
+    "typescript": "^5.8.2",
+    "chalk": "5.4.1",
+    "debug": "4.4.0",
+    "@pnpm/find-workspace-dir": "1000.1.0",
+    "@types/debug": "4.1.12"
+  },
+  "engines": {
+    "node": ">= 18.20.7"
+  },
+  "volta": {
+    "extends": "../package.json"
+  }
+}

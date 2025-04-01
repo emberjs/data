@@ -76,7 +76,7 @@ Lets imagine we are using [Ember Simple Auth](https://github.com/simplabs/ember-
 **app/services/auth-handler.js**
 
 ```ts
-import { inject as service } from '@ember/service';
+import { service } from '@ember/service';
 import type { NextFn, RequestContext } from '@ember-data/request';
 
 export default class AuthHandler {

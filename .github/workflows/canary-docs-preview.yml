@@ -1,0 +1,58 @@
+# This workflow is triggered on push to the main branch
+# It builds the documentation and deploys it to the canary environment
+name: Canary Docs Preview
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-canary-docs-preview
+  cancel-in-progress: true
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+jobs:
+  generate-preview-artifact:
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: ./.github/actions/setup
+        with:
+          github-token: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
+          restore-broccoli-cache: true
+          jobs: 4
+          parallel-build: true
+          install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Docs Dependencies
+        run: bun preview-api-docs
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        with:
+          path: docs-viewer/projects/ember-api-docs/dist
+
+  deploy:
+    needs: generate-preview-artifact
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

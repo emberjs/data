@@ -1,4 +1,4 @@
-import { inject as service } from '@ember/service';
+import * as s from '@ember/service';
 
 import { module, test } from 'qunit';
 
@@ -6,6 +6,8 @@ import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import RequestManager from '@ember-data/request';
+
+const service = s.service ?? s.inject;
 
 module('Integration | Store Extension', function (hooks) {
   setupTest(hooks);

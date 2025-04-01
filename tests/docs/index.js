@@ -48,11 +48,24 @@ QUnit.module('Docs coverage', function (hooks) {
   });
 
   QUnit.module('classes', function (hooks) {
+    const docsClasses = new Set(
+      Object.keys(docs.classes)
+        .map((className) => {
+          const def = docs.classes[className];
+          return className === def.module ? false : `(${def.access}) ${def.module ? `${def.module}` : ''} ${def.name}`;
+        })
+        .filter(Boolean)
+    );
+    const expectedClasses = new Set(expected.classes);
+
     Object.keys(docs.classes).forEach((className) => {
       const def = docs.classes[className];
+
+      // Module main declarations are included in the docs as classes
       if (className === def.module) {
         return;
       }
+
       test(`Class ${className} is documented correctly at ${linkItem(def)}`, function (assert) {
         assert.ok(docs.files[def.file], `${className} has a file`);
         assert.true(
@@ -64,6 +77,22 @@ QUnit.module('Docs coverage', function (hooks) {
           assert.true(isNonEmptyString(def.module), `${className} must be assigned a module.`);
         }
       });
+    });
+
+    test('No missing classes', function (assert) {
+      const missing = setDifference(expectedClasses, docsClasses);
+      assert.emptySet(
+        missing,
+        'If you intentionally removed a public API class, please udpate tests/docs/expected.js. Otherwise, documentation is missing, incorrectly formatted, or in a directory that is not watched by yuidoc. All files containing documentation must have a yuidoc class declaration.'
+      );
+    });
+
+    test('No extraneous classes', function (assert) {
+      const missing = setDifference(docsClasses, expectedClasses);
+      assert.emptySet(
+        missing,
+        'If you intentionally removed a public API class, please udpate tests/docs/expected.js. Otherwise, documentation is missing, incorrectly formatted, or in a directory that is not watched by yuidoc. All files containing documentation must have a yuidoc class declaration.'
+      );
     });
   });
 
