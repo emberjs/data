@@ -69,11 +69,9 @@ module.exports = async function (defaults) {
       // LOG_IDENTIFIERS: true,
       // LOG_NOTIFICATIONS: true,
       // LOG_INSTANCE_CACHE: true,
-      // LOG_MUTATIONS: true,
-      // LOG_PAYLOADS: true,
+      // LOG_CACHE: true,
       // LOG_REQUESTS: true,
       // LOG_REQUEST_STATUS: true,
-      // LOG_OPERATIONS: true,
     },
   });
 

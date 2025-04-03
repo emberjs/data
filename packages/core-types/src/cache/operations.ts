@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier';
+import type { StableDocumentIdentifier, StableExistingRecordIdentifier, StableRecordIdentifier } from '../identifier';
 
 export interface Op {
   op: string;
@@ -22,30 +22,29 @@ export interface MergeOperation extends Op {
 
 export interface RemoveOperation extends Op {
   op: 'remove';
-  record: StableRecordIdentifier | StableDocumentIdentifier;
-}
-
-export interface AddToResourceRelationshipOperation extends Op {
-  op: 'add';
-  record: StableRecordIdentifier;
-  field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
-  index?: number;
+  record: StableExistingRecordIdentifier | StableDocumentIdentifier;
 }
 
 export interface AddToDocumentOperation extends Op {
   op: 'add';
   record: StableDocumentIdentifier;
   field: 'data' | 'included';
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  index?: number;
+}
+export interface AddToResourceRelationshipOperation extends Op {
+  op: 'add';
+  record: StableExistingRecordIdentifier;
+  field: string;
+  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
   index?: number;
 }
 
 export interface RemoveFromResourceRelationshipOperation extends Op {
   op: 'remove';
-  record: StableRecordIdentifier;
+  record: StableExistingRecordIdentifier;
   field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
   index?: number;
 }
 
@@ -53,7 +52,7 @@ export interface RemoveFromDocumentOperation extends Op {
   op: 'remove';
   record: StableDocumentIdentifier;
   field: 'data' | 'included';
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
   index?: number;
 }
 

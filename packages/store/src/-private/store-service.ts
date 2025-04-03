@@ -11,7 +11,6 @@ import type { Future } from '@ember-data/request';
 import {
   __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS,
   LOG_METRIC_COUNTS,
-  LOG_PAYLOADS,
   LOG_REQUESTS,
 } from '@warp-drive/build-config/debugging';
 import {
@@ -2374,16 +2373,6 @@ export class Store extends BaseClass {
   ): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
-    }
-    if (LOG_PAYLOADS) {
-      try {
-        const data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
-        // eslint-disable-next-line no-console
-        console.log('EmberData | Payload - push', data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log('EmberData | Payload - push', jsonApiDoc);
-      }
     }
     if (asyncFlush) {
       this._enableAsyncFlush = true;
