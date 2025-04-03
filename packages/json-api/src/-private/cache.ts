@@ -7,7 +7,7 @@ import type Store from '@ember-data/store';
 import { isStableIdentifier, logGroup } from '@ember-data/store/-private';
 import { isDocumentIdentifier } from '@ember-data/store/-private/caches/identifier-cache';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -229,7 +229,7 @@ export default class JSONAPICache implements Cache {
       validateDocumentFields(this._capabilities.schema, jsonApiDoc);
     }
 
-    if (LOG_REQUESTS) {
+    if (LOG_CACHE) {
       const Counts = new Map();
       let totalCount = 0;
       if (included) {
@@ -408,14 +408,22 @@ export default class JSONAPICache implements Cache {
 
     assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
 
-    if (LOG_OPERATIONS) {
+    if (LOG_CACHE) {
+      logGroup(
+        'cache',
+        'patch',
+        isRecord ? (op.record as StableRecordIdentifier).type : '<@document>',
+        op.record.lid,
+        op.op,
+        'field' in op ? op.field : op.op === 'mergeIdentifiers' ? op.value.lid : ''
+      );
       try {
         const _data = JSON.parse(JSON.stringify(op)) as object;
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - patch ${op.op}`, _data);
+        console.log(_data);
       } catch {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - patch ${op.op}`, op);
+        console.log(op);
       }
     }
 
@@ -430,10 +438,65 @@ export default class JSONAPICache implements Cache {
         break;
       }
       case 'add': {
+        assert(`Expected a field in the add operation`, 'field' in op);
         if (isRecord) {
           this.__graph.update(op as AddToResourceRelationshipOperation, true);
         } else {
-          // FIXME add to document
+          const doc = this.__documents.get(op.record.lid);
+          assert(`Expected to have a cached document on which to perform the add operation`, doc);
+          const { content } = doc;
+          assert(`Expected to have content on the document`, content);
+
+          assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+          if (op.field === 'data') {
+            assert(`Expected to have a data property on the document`, 'data' in content);
+
+            // if data is not an array, we set the data property directly
+            if (!Array.isArray(content.data)) {
+              assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+              (content as SingleResourceDataDocument).data = op.value;
+            } else {
+              assert(`Expected to have a non-null operation value`, op.value);
+
+              if (Array.isArray(op.value)) {
+                if (op.index !== undefined) {
+                  content.data.splice(op.index, 0, ...op.value);
+                } else {
+                  content.data.push(...op.value);
+                }
+              } else {
+                if (op.index !== undefined) {
+                  content.data.splice(op.index, 0, op.value);
+                } else {
+                  content.data.push(op.value);
+                }
+              }
+            }
+
+            // notify
+            this._capabilities.notifyChange(op.record as StableDocumentIdentifier, 'updated', null);
+          } else {
+            asResourceDataDoc(content);
+            content.included = content.included || [];
+
+            assert(`Expected to have a non-null operation value`, op.value);
+            if (Array.isArray(op.value)) {
+              if (op.index !== undefined) {
+                content.included.splice(op.index, 0, ...op.value);
+              } else {
+                content.included.push(...op.value);
+              }
+            } else {
+              if (op.index !== undefined) {
+                content.included.splice(op.index, 0, op.value);
+              } else {
+                content.included.push(op.value);
+              }
+            }
+
+            // we don't notify in the included case because this is not reactively
+            // exposed. We should possibly consider doing so though for subscribers
+          }
         }
         break;
       }
@@ -456,6 +519,11 @@ export default class JSONAPICache implements Cache {
       default:
         assert(`Unhandled cache.patch operation ${(op as unknown as Op).op}`);
     }
+
+    if (LOG_CACHE) {
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
   }
 
   /**
@@ -467,7 +535,7 @@ export default class JSONAPICache implements Cache {
    * @public
    */
   mutate(mutation: LocalRelationshipOperation): void {
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       logGroup('cache', 'mutate', mutation.record.type, mutation.record.lid, mutation.field, mutation.op);
       try {
         const _data = JSON.parse(JSON.stringify(mutation)) as object;
@@ -480,7 +548,7 @@ export default class JSONAPICache implements Cache {
     }
     this.__graph.update(mutation, false);
 
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       // eslint-disable-next-line no-console
       console.groupEnd();
     }
@@ -676,7 +744,7 @@ export default class JSONAPICache implements Cache {
     const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, this._capabilities, identifier) || !recordIsLoaded(peeked);
     const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
 
-    if (LOG_OPERATIONS) {
+    if (LOG_CACHE) {
       logGroup(
         'cache',
         'upsert',
@@ -737,7 +805,7 @@ export default class JSONAPICache implements Cache {
       notifyAttributes(this._capabilities, identifier, changedKeys);
     }
 
-    if (LOG_OPERATIONS) {
+    if (LOG_CACHE) {
       // eslint-disable-next-line no-console
       console.groupEnd();
     }
@@ -868,7 +936,7 @@ export default class JSONAPICache implements Cache {
    * @param createArgs
    */
   clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, Value>): Record<string, unknown> {
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       try {
         const _data = options ? (JSON.parse(JSON.stringify(options)) as object) : options;
         // eslint-disable-next-line no-console
@@ -1017,6 +1085,17 @@ export default class JSONAPICache implements Cache {
     const payload = result.content;
     const operation = result.request.op;
     const data = payload && payload.data;
+
+    if (LOG_CACHE) {
+      try {
+        const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Payload - ${operation}`, payloadCopy);
+      } catch {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Payload - ${operation}`, payload);
+      }
+    }
 
     if (!data) {
       assert(
@@ -2077,6 +2156,8 @@ function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<st
   }
   return hasAppliedPatch;
 }
+
+function asResourceDataDoc(doc: unknown): asserts doc is ResourceDataDocument {}
 
 function putOne(
   cache: JSONAPICache,

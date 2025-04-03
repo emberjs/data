@@ -1,5 +1,20 @@
 import type { StableRecordIdentifier } from '../identifier';
-import type { AddToResourceRelationshipOperation, RemoveFromResourceRelationshipOperation } from './operations';
+
+export interface AddToResourceRelationshipOperation {
+  op: 'add';
+  record: StableRecordIdentifier;
+  field: string;
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
+}
+
+export interface RemoveFromResourceRelationshipOperation {
+  op: 'remove';
+  record: StableRecordIdentifier;
+  field: string;
+  value: StableRecordIdentifier | StableRecordIdentifier[];
+  index?: number;
+}
 
 export interface ReplaceRelatedRecordMutation {
   op: 'replaceRelatedRecord';

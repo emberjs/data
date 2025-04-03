@@ -11,9 +11,7 @@
  * ```ts
  * setConfig(__dirname, app, {
  *   debug: {
- *     LOG_PAYLOADS: false, // data store received to update cache with
- *     LOG_OPERATIONS: false, // updates to cache remote state
- *     LOG_MUTATIONS: false, // updates to cache local state
+ *     LOG_CACHE: false, // data store received to update cache with
  *     LOG_NOTIFICATIONS: false,
  *     LOG_REQUESTS: false,
  *     LOG_REQUEST_STATUS: false,
@@ -30,28 +28,14 @@
  * @public
  */
 /**
- * log payloads received by the store
- * via `push` or returned from a delete/update/create
- * operation.
+ * log cache updates for both local
+ * and remote state.
  *
- * @property {boolean} LOG_PAYLOADS
+ * @property {boolean} LOG_CACHE
  * @public
  */
-export const LOG_PAYLOADS: boolean = false;
-/**
- * log remote-state updates to the cache
- *
- * @property {boolean} LOG_OPERATIONS
- * @public
- */
-export const LOG_OPERATIONS: boolean = false;
-/**
- * log local-state updates to the cache
- *
- * @property {boolean} LOG_MUTATIONS
- * @public
- */
-export const LOG_MUTATIONS: boolean = false;
+export const LOG_CACHE: boolean = false;
+
 /**
  * log notifications received by the NotificationManager
  *
