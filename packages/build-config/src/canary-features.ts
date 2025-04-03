@@ -89,6 +89,13 @@
 export const SAMPLE_FEATURE_FLAG: boolean | null = null;
 
 /**
+ * This upcoming feature adds a validation step to payloads received
+ * by the JSONAPICache implementation.
+ *
+ * When a request completes and the result is given to the cache via
+ * `cache.put`, the cache will validate the payload against registered
+ * schemas as well as the JSON:API spec.
+ *
  * @property JSON_API_CACHE_VALIDATION_ERRORS
  * @since 5.4
  * @public

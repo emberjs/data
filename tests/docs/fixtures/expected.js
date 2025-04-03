@@ -801,5 +801,7 @@ module.exports = {
     '(public) @warp-drive/core-types <Type> ResourceField#options',
     '(public) @warp-drive/core-types <Type> SchemaArrayField#options',
     '(public) @warp-drive/core-types <Type> SchemaObjectField#options',
+    '(public) @ember-data/store <Interface> SchemaService#resourceTypes',
+    '(public) @warp-drive/build-config CanaryFeatures#JSON_API_CACHE_VALIDATION_ERRORS',
   ],
 };

@@ -365,6 +365,10 @@ export interface SchemaService {
 
   /**
    * Returns all known resource types
+   *
+   * @method resourceTypes
+   * @public
+   * @return {string[]}
    */
   resourceTypes(): Readonly<string[]>;
 }
