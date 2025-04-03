@@ -4899,7 +4899,7 @@ packages:
 
   '@ember-data/active-record@file:packages/active-record':
     resolution: {directory: packages/active-record, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/request-utils': workspace:*
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -4907,7 +4907,7 @@ packages:
 
   '@ember-data/adapter@file:packages/adapter':
     resolution: {directory: packages/adapter, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4917,12 +4917,12 @@ packages:
 
   '@ember-data/codemods@file:packages/codemods':
     resolution: {directory: packages/codemods, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     hasBin: true
 
   '@ember-data/debug@file:packages/debug':
     resolution: {directory: packages/debug, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/model': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4932,7 +4932,7 @@ packages:
 
   '@ember-data/graph@file:packages/graph':
     resolution: {directory: packages/graph, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/store': workspace:*
       '@warp-drive/core-types': workspace:*
@@ -4940,7 +4940,7 @@ packages:
 
   '@ember-data/json-api@file:packages/json-api':
     resolution: {directory: packages/json-api, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -4949,7 +4949,7 @@ packages:
 
   '@ember-data/legacy-compat@file:packages/legacy-compat':
     resolution: {directory: packages/legacy-compat, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/json-api': workspace:*
@@ -4967,7 +4967,7 @@ packages:
 
   '@ember-data/model@file:packages/model':
     resolution: {directory: packages/model, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/graph': workspace:*
       '@ember-data/json-api': workspace:*
@@ -4985,7 +4985,7 @@ packages:
 
   '@ember-data/request-utils@file:packages/request-utils':
     resolution: {directory: packages/request-utils, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember/string': ^3.1.1 || ^4.0.0
       '@warp-drive/core-types': workspace:*
@@ -4999,13 +4999,13 @@ packages:
 
   '@ember-data/request@file:packages/request':
     resolution: {directory: packages/request, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@warp-drive/core-types': workspace:*
 
   '@ember-data/rest@file:packages/rest':
     resolution: {directory: packages/rest, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/request-utils': workspace:*
       '@ember-data/store': ^4.12.0 || ^5.0.0
@@ -5016,7 +5016,7 @@ packages:
 
   '@ember-data/serializer@file:packages/serializer':
     resolution: {directory: packages/serializer, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/legacy-compat': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -5026,7 +5026,7 @@ packages:
 
   '@ember-data/store@file:packages/store':
     resolution: {directory: packages/store, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -5036,14 +5036,14 @@ packages:
 
   '@ember-data/tracking@file:packages/tracking':
     resolution: {directory: packages/tracking, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@warp-drive/core-types': workspace:*
       ember-source: 3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0
 
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra':
     resolution: {directory: packages/unpublished-test-infra, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/store': workspace:*
       '@ember/test-helpers': 3.3.0 || ^4.0.4 || ^5.1.0
@@ -6490,15 +6490,15 @@ packages:
 
   '@warp-drive/build-config@file:packages/build-config':
     resolution: {directory: packages/build-config, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
 
   '@warp-drive/core-types@file:packages/core-types':
     resolution: {directory: packages/core-types, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
 
   '@warp-drive/diagnostic@file:packages/diagnostic':
     resolution: {directory: packages/diagnostic, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember/test-helpers': 5.2.0
       ember-cli-test-loader: '>= 3.1.0'
@@ -6513,7 +6513,7 @@ packages:
 
   '@warp-drive/ember@file:packages/ember':
     resolution: {directory: packages/ember, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -6528,7 +6528,7 @@ packages:
 
   '@warp-drive/experiments@file:packages/experiments':
     resolution: {directory: packages/experiments, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/request': workspace:*
       '@ember-data/request-utils': workspace:*
@@ -6541,7 +6541,7 @@ packages:
 
   '@warp-drive/holodeck@file:packages/holodeck':
     resolution: {directory: packages/holodeck, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     hasBin: true
     peerDependencies:
       '@ember-data/request': workspace:*
@@ -6549,21 +6549,21 @@ packages:
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
 
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     resolution: {directory: docs-viewer, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     hasBin: true
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     resolution: {directory: internal-tooling, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     hasBin: true
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember-data/model': workspace:*
       '@ember-data/request': workspace:*
@@ -7340,9 +7340,6 @@ packages:
 
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
-
-  bun-types@1.2.6:
-    resolution: {integrity: sha512-FbCKyr5KDiPULUzN/nm5oqQs9nXCHD8dVc64BArxJadCvbNzAI6lUWGh9fSJZWeDIRD38ikceBU8Kj/Uh+53oQ==}
 
   bun-types@1.2.7:
     resolution: {integrity: sha512-P4hHhk7kjF99acXqKvltyuMQ2kf/rzIw3ylEDpCxDS9Xa0X0Yp/gJu/vDCucmWpiur5qJ0lwB2bWzOXa2GlHqA==}
@@ -8371,7 +8368,7 @@ packages:
 
   ember-data@file:packages/-ember-data:
     resolution: {directory: packages/-ember-data, type: directory}
-    engines: {node: '>= 18.20.7'}
+    engines: {node: '>= 18.20.8'}
     peerDependencies:
       '@ember/test-helpers': ^3.3.0 || ^4.0.4 || ^5.1.0
       '@ember/test-waiters': ^3.1.0 || ^4.0.0
@@ -19087,11 +19084,6 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-
-  bun-types@1.2.6:
-    dependencies:
-      '@types/node': 20.17.27
-      '@types/ws': 8.5.14
 
   bun-types@1.2.7:
     dependencies:
