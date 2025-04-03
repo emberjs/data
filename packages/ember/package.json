@@ -84,7 +84,7 @@
     "babel-plugin-ember-template-compilation": "^2.4.1",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~6.3.0",
-    "rollup": "^4.37.0",
+    "rollup": "^4.38.0",
     "typescript": "^5.8.2",
     "vite": "^5.4.15",
     "ember-provide-consume-context": "^0.7.0"
