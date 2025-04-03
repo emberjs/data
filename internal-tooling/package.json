@@ -27,7 +27,7 @@
     "@pnpm/logger": "1000.0.0"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../package.json"

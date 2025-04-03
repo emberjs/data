@@ -29,7 +29,7 @@
     "vite-plugin-dts": "^4.5.3"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../package.json"
