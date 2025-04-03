@@ -100,4 +100,4 @@ export const SAMPLE_FEATURE_FLAG: boolean | null = null;
  * @since 5.4
  * @public
  */
-export const JSON_API_CACHE_VALIDATION_ERRORS: boolean | null = null;
+export const JSON_API_CACHE_VALIDATION_ERRORS: boolean | null = false;
