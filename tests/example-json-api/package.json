@@ -67,7 +67,7 @@
     "ember-source": "~6.3.0",
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^4.0.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "glob": "^11.0.1",
     "loader.js": "^4.7.0",
     "morgan": "^1.10.0",
