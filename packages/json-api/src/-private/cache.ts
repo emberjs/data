@@ -52,6 +52,8 @@ import type {
 } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { validateDocumentFields } from './validate-document-fields';
+import { validateDocument } from './validator';
+import { isErrorDocument, isMetaDocument } from './validator/utils';
 
 type IdentifierCache = Store['identifierCache'];
 type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
@@ -202,10 +204,10 @@ export default class JSONAPICache implements Cache {
   put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
-    assert(
-      `Expected a JSON:API Document as the content provided to the cache, received ${typeof doc.content}`,
-      doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
-    );
+    if (DEBUG) {
+      validateDocument(this._capabilities, doc);
+    }
+
     if (isErrorDocument(doc)) {
       return this._putDocument(doc, undefined, undefined);
     } else if (isMetaDocument(doc)) {
@@ -2153,24 +2155,6 @@ function _allRelatedIdentifiers(
   }
 
   return array;
-}
-
-function isMetaDocument(
-  doc: StructuredDocument<ResourceDocument>
-): doc is StructuredDataDocument<ResourceMetaDocument> {
-  return (
-    !(doc instanceof Error) &&
-    doc.content &&
-    !('data' in doc.content) &&
-    !('included' in doc.content) &&
-    'meta' in doc.content
-  );
-}
-
-function isErrorDocument(
-  doc: StructuredDocument<ResourceDocument>
-): doc is StructuredErrorDocument<ResourceErrorDocument> {
-  return doc instanceof Error;
 }
 
 function fromBaseDocument(doc: StructuredDocument<ResourceDocument>): Partial<ResourceDocument> {
