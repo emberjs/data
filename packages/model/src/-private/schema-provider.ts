@@ -53,7 +53,7 @@ export class ModelSchemaProvider implements SchemaService {
     this._typeMisses = new Set();
   }
 
-  resourceTypes(): string[] {
+  resourceTypes(): Readonly<string[]> {
     return Array.from(this._schemas.keys());
   }
 

@@ -46,7 +46,7 @@ export class TestSchema implements SchemaService {
     this._assert?.step('TestSchema:hasTrait');
     return this._traits.has(type);
   }
-  resourceTypes(): string[] {
+  resourceTypes(): Readonly<string[]> {
     this._assert?.step('TestSchema:resourceTypes');
     return [...this._schemas.keys()];
   }

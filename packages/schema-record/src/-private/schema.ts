@@ -213,7 +213,7 @@ export class SchemaService implements SchemaServiceInterface {
     this._derivations = new Map();
   }
 
-  resourceTypes(): string[] {
+  resourceTypes(): Readonly<string[]> {
     return Array.from(this._schemas.keys());
   }
 

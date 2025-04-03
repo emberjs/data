@@ -40,7 +40,7 @@ export class TestSchema implements SchemaService {
     this._hashFns = new Map();
     this._derivations = new Map();
   }
-  resourceTypes(): string[] {
+  resourceTypes(): Readonly<string[]> {
     return Array.from(this._schemas.keys());
   }
   hasTrait(type: string): boolean {

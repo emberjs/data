@@ -199,7 +199,7 @@ export class DelegatingSchemaService implements SchemaService {
     this._secondary = buildSchema(store);
   }
 
-  resourceTypes(): string[] {
+  resourceTypes(): Readonly<string[]> {
     return Array.from(new Set(this._preferred.resourceTypes().concat(this._secondary.resourceTypes())));
   }
 
