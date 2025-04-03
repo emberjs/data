@@ -122,9 +122,12 @@ module('Cache | Validation Errors', function (hooks) {
         response: new Response(),
       });
       assert.ok(false, 'we should error when the document has invalid keys');
-    } catch (e) {
-      console.log(e);
+    } catch (e: unknown) {
       assert.true(e instanceof Error, 'We throw an error when the document has invalid keys');
+      assert.true(
+        (e as Error).message.includes('warnings found in the {JSON:API} document returned by'),
+        'We throw an error when the document has invalid keys'
+      );
     }
   });
 });

@@ -5,7 +5,6 @@ import jsonToAst from 'json-to-ast';
 
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
-import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type {
   StructuredDataDocument,
@@ -308,16 +307,14 @@ export class Reporter {
 
     const contextStr = `${counts.error} errors and ${counts.warning} warnings found in the {JSON:API} document returned by ${this.contextDocument.request?.method} ${this.contextDocument.request?.url}`;
     const errorString = contextStr + `\n\n` + errorLines.join('\n');
-    if (JSON_API_CACHE_VALIDATION_ERRORS) {
-      // eslint-disable-next-line no-console, @typescript-eslint/no-unused-expressions
-      colorize ? console.log(errorString, ...colors) : console.log(errorString);
 
+    // eslint-disable-next-line no-console, @typescript-eslint/no-unused-expressions
+    colorize ? console.log(errorString, ...colors) : console.log(errorString);
+
+    if (JSON_API_CACHE_VALIDATION_ERRORS) {
       if (counts.error > 0) {
         throw new Error(contextStr);
       }
-    } else if (LOG_PAYLOADS) {
-      // eslint-disable-next-line no-console, @typescript-eslint/no-unused-expressions
-      colorize ? console.log(errorString, ...colors) : console.log(errorString);
     }
   }
 }

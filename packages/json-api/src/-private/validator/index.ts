@@ -1,5 +1,7 @@
 import type { StructuredDataDocument, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
+import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ResourceDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 
@@ -13,6 +15,15 @@ export function validateDocument(capabilities: CacheCapabilitiesManager, doc: St
     `Expected a JSON:API Document as the content provided to the cache, received ${typeof doc.content}`,
     doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
   );
+
+  // if the feature is not active and the payloads are not being logged
+  // we don't need to validate the payloads
+  if (!JSON_API_CACHE_VALIDATION_ERRORS) {
+    if (!LOG_PAYLOADS) {
+      return;
+    }
+  }
+
   const reporter = new Reporter(capabilities, doc);
 
   if (isErrorDocument(doc)) {
