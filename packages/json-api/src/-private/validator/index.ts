@@ -1,9 +1,9 @@
-import type { StructuredDataDocument, StructuredDocument, StructuredErrorDocument } from '@ember-data/request';
+import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
 import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ResourceDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
+import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 
 import { validateTopLevelDocumentMembers } from './1.1/7.1_top-level-document-members';
 import { validateDocumentResources } from './1.1/7.2_resource-objects';
@@ -24,24 +24,23 @@ export function validateDocument(capabilities: CacheCapabilitiesManager, doc: St
     }
   }
 
-  const reporter = new Reporter(capabilities, doc);
-
   if (isErrorDocument(doc)) {
-    return validateErrorDocument(reporter, doc);
+    return; // return validateErrorDocument(reporter, doc);
   } else if (isMetaDocument(doc)) {
-    return validateMetaDocument(reporter, doc);
+    return; // return validateMetaDocument(reporter, doc);
   } else if (isPushedDocument(doc)) {
-    return validatePushedDocument(reporter, doc);
+    return; // return validatePushedDocument(reporter, doc);
   }
 
+  const reporter = new Reporter(capabilities, doc);
   return validateResourceDocument(reporter, doc as StructuredDataDocument<ResourceDocument>);
 }
 
-function validateErrorDocument(reporter: Reporter, doc: StructuredErrorDocument) {}
+// function validateErrorDocument(reporter: Reporter, doc: StructuredErrorDocument) {}
 
-function validateMetaDocument(reporter: Reporter, doc: StructuredDataDocument<ResourceMetaDocument>) {}
+// function validateMetaDocument(reporter: Reporter, doc: StructuredDataDocument<ResourceMetaDocument>) {}
 
-function validatePushedDocument(reporter: Reporter, doc: StructuredDataDocument<ResourceDocument>) {}
+// function validatePushedDocument(reporter: Reporter, doc: StructuredDataDocument<ResourceDocument>) {}
 
 function validateResourceDocument(reporter: Reporter, doc: StructuredDataDocument<ResourceDocument>) {
   validateTopLevelDocumentMembers(reporter, doc.content);
