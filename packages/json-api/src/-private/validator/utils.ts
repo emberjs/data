@@ -361,7 +361,7 @@ export function isErrorDocument(
 }
 
 export function isPushedDocument(doc: unknown): doc is { content: ResourceDataDocument } {
-  return false;
+  return !!doc && typeof doc === 'object' && 'content' in doc && !('request' in doc) && !('response' in doc);
 }
 
 export function logPotentialMatches(matches: FuseResult<string>[], kind: string): string {
