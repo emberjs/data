@@ -54,6 +54,9 @@ class TestStore extends Store {
 
   createSchemaService(): SchemaService {
     const schemaService: SchemaService = {
+      resourceTypes() {
+        return [];
+      },
       registerDerivation() {
         throw new Error('Method not implemented.');
       },
