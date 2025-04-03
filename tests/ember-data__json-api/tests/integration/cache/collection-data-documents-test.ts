@@ -22,7 +22,16 @@ type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
 class TestStore extends Store {
   createSchemaService() {
-    return new TestSchema();
+    const schema = new TestSchema();
+    schema.registerResource({
+      type: 'user',
+      identity: { kind: '@id', name: 'id' },
+      fields: [
+        { name: 'name', kind: 'field' },
+        { name: 'username', kind: 'field' },
+      ],
+    });
+    return schema;
   }
 
   override createCache(wrapper: CacheCapabilitiesManager) {

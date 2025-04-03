@@ -53,6 +53,10 @@ export class ModelSchemaProvider implements SchemaService {
     this._typeMisses = new Set();
   }
 
+  resourceTypes(): Readonly<string[]> {
+    return Array.from(this._schemas.keys());
+  }
+
   hasTrait(type: string): boolean {
     assert(`hasTrait is not available with @ember-data/model's SchemaService`);
     return false;
