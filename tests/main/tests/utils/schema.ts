@@ -46,6 +46,10 @@ export class TestSchema implements SchemaService {
     this._assert?.step('TestSchema:hasTrait');
     return this._traits.has(type);
   }
+  resourceTypes(): string[] {
+    this._assert?.step('TestSchema:resourceTypes');
+    return [...this._schemas.keys()];
+  }
   resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
     this._assert?.step('TestSchema:resourceHasTrait');
     return this._schemas.get(resource.type)!.traits.has(trait);

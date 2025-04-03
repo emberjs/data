@@ -212,6 +212,11 @@ export class SchemaService implements SchemaServiceInterface {
     this._hashFns = new Map();
     this._derivations = new Map();
   }
+
+  resourceTypes(): string[] {
+    return Array.from(this._schemas.keys());
+  }
+
   hasTrait(type: string): boolean {
     return this._traits.has(type);
   }

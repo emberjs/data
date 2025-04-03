@@ -19,7 +19,7 @@ export function validateTopLevelDocumentMembers(reporter: Reporter, doc: Resourc
   for (const key of keys) {
     if (!VALID_TOP_LEVEL_MEMBERS.includes(key)) {
       if (key.includes(':')) {
-        // TODO enable folks to add validation for their own extensions
+        // TODO @runspired expose the API to enable folks to add validation for their own extensions
         const extensionName = key.split(':')[0];
 
         if (reporter.hasExtension(extensionName)) {

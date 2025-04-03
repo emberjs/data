@@ -50,13 +50,16 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "json-to-ast": "2.1.0",
+    "fuse.js": "7.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
+    "@types/json-to-ast": "^2.1.4",
     "@ember-data/graph": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",

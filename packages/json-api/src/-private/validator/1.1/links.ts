@@ -5,7 +5,7 @@ import type {
   SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { inspectType, isSimpleObject, type Reporter } from '../utils';
+import { inspectType, isSimpleObject, type PathLike, type Reporter } from '../utils';
 
 const VALID_COLLECTION_LINKS = ['self', 'related', 'first', 'last', 'prev', 'next'];
 const VALID_RESOURCE_RELATIONSHIP_LINKS = ['self', 'related'];
@@ -34,7 +34,7 @@ export function validateLinks(
   reporter: Reporter,
   doc: ResourceDocument | ResourceObject | SingleResourceRelationship | CollectionResourceRelationship,
   type: 'collection-document' | 'resource-document' | 'resource' | 'resource-relationship' | 'collection-relationship',
-  path: string[] = ['links']
+  path: PathLike = ['links']
 ) {
   if (!('links' in doc)) {
     return;

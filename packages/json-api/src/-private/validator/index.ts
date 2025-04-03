@@ -45,24 +45,22 @@ function validateResourceDocument(reporter: Reporter, doc: StructuredDataDocumen
   // validateMeta on document
   // validateMeta on resource
   // validateMeta on resource relationships
-  // validateMeta on links
-  // validate links objects more deeply
   // validate no-meta on resource identifiers
-  //
-  // fuzzy-search missing/unexpected resource-types
   //
   // ---------------------------------
   // super-strict-mode
   //
-  // validate full-linkage requirement
+  // TODO @runspired - validate that all referenced resource identifiers are present in the document (full linkage)
+  // TODO @runspired - validate that all included resources have a path back to `data` (full linkage)
   //
   // ---------------------------------
-  // nice-to-have
+  // nice-to-haves
   //
-  // validate includes
-  // validate sparse fieldsets
-  // validate sort ?
-  // validate pagination profile ?
+  // TODO @runspired - validate links objects more thoroughly for spec props we don't use
+  // TODO @runspired - validate request includes are in fact included
+  // TODO @runspired - validate request fields are in fact present
+  // TODO @runspired - MAYBE validate request sort is in fact sorted? (useful for catching Mocking bugs)
+  // TODO @runspired - MAYBE validate request pagination is in fact paginated? (useful for catching Mocking bugs)
 
-  // PRINT ERRORS AND WARNINGS gated by a LOGGING flag (for now)
+  reporter.report();
 }

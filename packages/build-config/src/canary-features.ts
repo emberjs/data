@@ -87,3 +87,10 @@
  * @public
 */
 export const SAMPLE_FEATURE_FLAG: boolean | null = null;
+
+/**
+ * @property JSON_API_CACHE_VALIDATION_ERRORS
+ * @since 5.4
+ * @public
+ */
+export const JSON_API_CACHE_VALIDATION_ERRORS: boolean | null = null;
