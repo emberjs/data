@@ -3462,17 +3462,17 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(@babel/core@7.26.10)
       '@embroider/compat':
-        specifier: 4.0.0-alpha.14
-        version: 4.0.0-alpha.14(435bd85f2d22c5e0d9331794de9d6a90)
+        specifier: 4.0.0-alpha.15
+        version: 4.0.0-alpha.15(4501e3394457464cdc49ac77b3ce8e35)
       '@embroider/config-meta-loader':
         specifier: 1.0.0-alpha.3
         version: 1.0.0-alpha.3
       '@embroider/core':
-        specifier: 4.0.0-alpha.9
-        version: 4.0.0-alpha.9
+        specifier: 4.0.0-alpha.10
+        version: 4.0.0-alpha.10
       '@embroider/vite':
-        specifier: 1.0.0-alpha.11
-        version: 1.0.0-alpha.11(6a76aa517947b7019acfebb409264514)
+        specifier: 1.0.0-alpha.12
+        version: 1.0.0-alpha.12(4cf746b8c2ba7bfdea376b3a0d121110)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -5109,11 +5109,11 @@ packages:
     peerDependencies:
       '@embroider/core': ^3.5.5
 
-  '@embroider/compat@4.0.0-alpha.14':
-    resolution: {integrity: sha512-q/EcDOEfF5Id8JvtewDEPYVZrZE4//AEM6z1xuYuR52hm9VAsdGRzIjN0Z5J+9uJDkW2NMiGQq//TBqKQZVl9Q==}
+  '@embroider/compat@4.0.0-alpha.15':
+    resolution: {integrity: sha512-749j41KF0rlbPBbFihHBUv4oMekNyXitQr/5eFxO2tScxsvAa7Tiyf2OH3NgRYWrzg0kDTk2PbO8FnoCVCM5fw==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
-      '@embroider/core': ^4.0.0-alpha.9
+      '@embroider/core': ^4.0.0-alpha.10
 
   '@embroider/compat@4.0.1-unstable.f9c81e9':
     resolution: {integrity: sha512-D6Uf96Xc/w2cJSomBAcwWmXKWGpylUVhudMQnBIKAg9ZOoVpZ03YcaeEJQMkrqvz72hcCJL9jjbC6f1GrjG7yg==}
@@ -5133,8 +5133,8 @@ packages:
     resolution: {integrity: sha512-qIOPN/Njfw+JwanP67qGPhdVwO9mQW2EEzLK/hl/evC/nkdn4KIH+yCZrtXdJCtfS0AV1ImjHQduqbEIcg9/Ww==}
     engines: {node: 12.* || 14.* || >= 16}
 
-  '@embroider/core@4.0.0-alpha.9':
-    resolution: {integrity: sha512-oACaXex70kFlewIV+B3BCLEnUIffaRJoWaJlv7UHku61vd8Yj5xPcEpUdNAtde+TVI7VoyV/ucL43/cmGWIVOQ==}
+  '@embroider/core@4.0.0-alpha.10':
+    resolution: {integrity: sha512-4dGc1K0J1qIuWm2MizBuj7TMhyUzokQQLuTX60Z0cHhdMy9PyjwxOBLZBBAZz4swgXj5YYHF+006Yf5v0uTv6w==}
     engines: {node: 12.* || 14.* || >= 16}
 
   '@embroider/core@4.0.1-unstable.f9c81e9':
@@ -5157,8 +5157,8 @@ packages:
       '@glint/template':
         optional: true
 
-  '@embroider/macros@1.17.0-alpha.7':
-    resolution: {integrity: sha512-ggpBRjGRjmDTbm0AZkmPhAf7jc5c1Ru3fVLm5TJYfNn0ABgNdp6QVtFA3fYqbDnzziPwCgZ1BkdES+VxmK2zDw==}
+  '@embroider/macros@1.17.0-alpha.8':
+    resolution: {integrity: sha512-gOXNAuGSHylGMXMgMZdt8ckSMPbSQp8oXGAQF5usbRHYflFIJly3OV9sfwj2fUbzhZowq8pPlM3AYCbzxXoQlA==}
     engines: {node: 12.* || 14.* || >= 16}
     peerDependencies:
       '@glint/template': 1.5.2
@@ -5201,10 +5201,10 @@ packages:
     resolution: {integrity: sha512-NGNmgSY6rtQPSVnVaCxBU5eV5roVvesmpKhVzo4mxuyOKTSuZtiEHAh8EqNsQ6RKfm42JIkhDz1O6Z9VAkTyhQ==}
     engines: {node: 12.* || 14.* || >= 16}
 
-  '@embroider/vite@1.0.0-alpha.11':
-    resolution: {integrity: sha512-b/gx159Ryf1hOmuRZqpfRG3L2kHL5fwwv6UG+JXY8L4mC7UV8PG/wOaNFOFRNMgCcVSM1JyysD0bE/htSj6rxw==}
+  '@embroider/vite@1.0.0-alpha.12':
+    resolution: {integrity: sha512-lXG7LSXdsA7Ix0+2rOPRq1kwxgyt22IqLx8DMdnPn6m90Ql+K5AYBlbQJZlkFS7wFOK6lPzlls1wNP7nVOKKfA==}
     peerDependencies:
-      '@embroider/core': ^4.0.0-alpha.9
+      '@embroider/core': ^4.0.0-alpha.10
       vite: '>= 5.2.0'
 
   '@embroider/vite@1.0.1-unstable.f9c81e9':
@@ -15479,7 +15479,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@embroider/compat@4.0.0-alpha.14(435bd85f2d22c5e0d9331794de9d6a90)':
+  '@embroider/compat@4.0.0-alpha.15(4501e3394457464cdc49ac77b3ce8e35)':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/core': 7.26.10
@@ -15490,8 +15490,8 @@ snapshots:
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
       '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0
-      '@embroider/core': 4.0.0-alpha.9
-      '@embroider/macros': 1.17.0-alpha.7(@babel/core@7.26.10)
+      '@embroider/core': 4.0.0-alpha.10
+      '@embroider/macros': 1.17.0-alpha.8(@babel/core@7.26.10)
       '@types/babel__code-frame': 7.0.6
       assert-never: 1.4.0
       babel-import-util: 3.0.1
@@ -15669,12 +15669,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@embroider/core@4.0.0-alpha.9':
+  '@embroider/core@4.0.0-alpha.10':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/parser': 7.27.0
       '@babel/traverse': 7.27.0
-      '@embroider/macros': 1.17.0-alpha.7(@babel/core@7.26.10)
+      '@embroider/macros': 1.17.0-alpha.8(@babel/core@7.26.10)
       '@embroider/reverse-exports': 0.1.1-alpha.2
       '@embroider/shared-internals': 3.0.0-alpha.5
       assert-never: 1.4.0
@@ -15776,7 +15776,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@embroider/macros@1.17.0-alpha.7(@babel/core@7.26.10)':
+  '@embroider/macros@1.17.0-alpha.8(@babel/core@7.26.10)':
     dependencies:
       '@embroider/shared-internals': 3.0.0-alpha.5
       assert-never: 1.4.0
@@ -15892,11 +15892,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@embroider/vite@1.0.0-alpha.11(6a76aa517947b7019acfebb409264514)':
+  '@embroider/vite@1.0.0-alpha.12(4cf746b8c2ba7bfdea376b3a0d121110)':
     dependencies:
       '@babel/core': 7.26.10
-      '@embroider/core': 4.0.0-alpha.9
-      '@embroider/macros': 1.17.0-alpha.7(@babel/core@7.26.10)
+      '@embroider/core': 4.0.0-alpha.10
+      '@embroider/macros': 1.17.0-alpha.8(@babel/core@7.26.10)
       '@embroider/reverse-exports': 0.1.1-alpha.2
       '@rollup/pluginutils': 5.1.4
       assert-never: 1.4.0
