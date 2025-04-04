@@ -343,6 +343,7 @@ const app = new EmberApp(defaults, {
       id: 'ember-data:deprecate-store-extends-ember-object',
       until: '6.0',
       for: 'ember-data',
+      url: 'https://deprecations.emberjs.com/id/ember-data-deprecate-store-extends-ember-object',
       since: {
         available: '4.13',
         enabled: '5.4',
