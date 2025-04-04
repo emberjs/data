@@ -1,15 +1,15 @@
 import type { StableRecordIdentifier } from '../identifier';
 
-export interface AddToRelatedRecordsMutation {
-  op: 'addToRelatedRecords';
+export interface AddToResourceRelationshipOperation {
+  op: 'add';
   record: StableRecordIdentifier;
   field: string;
   value: StableRecordIdentifier | StableRecordIdentifier[];
   index?: number;
 }
 
-export interface RemoveFromRelatedRecordsMutation {
-  op: 'removeFromRelatedRecords';
+export interface RemoveFromResourceRelationshipOperation {
+  op: 'remove';
   record: StableRecordIdentifier;
   field: string;
   value: StableRecordIdentifier | StableRecordIdentifier[];
@@ -67,6 +67,6 @@ export interface SortRelatedRecordsMutation {
 export type Mutation =
   | ReplaceRelatedRecordsMutation
   | ReplaceRelatedRecordMutation
-  | RemoveFromRelatedRecordsMutation
-  | AddToRelatedRecordsMutation
+  | RemoveFromResourceRelationshipOperation
+  | AddToResourceRelationshipOperation
   | SortRelatedRecordsMutation;

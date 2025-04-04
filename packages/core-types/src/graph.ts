@@ -1,3 +1,11 @@
+import type {
+  AddToResourceRelationshipOperation as AddResourceMutation,
+  RemoveFromResourceRelationshipOperation as RemoveResourceMutation,
+} from './cache/mutations';
+import type {
+  AddToResourceRelationshipOperation as AddResourceOperation,
+  RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
+} from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw';
@@ -35,22 +43,6 @@ export interface UnknownOperation {
   field: string;
 }
 
-export interface AddToRelatedRecordsOperation {
-  op: 'addToRelatedRecords';
-  record: StableRecordIdentifier;
-  field: string; // "relationship" propertyName
-  value: StableRecordIdentifier | StableRecordIdentifier[]; // related record
-  index?: number; // the index to insert at
-}
-
-export interface RemoveFromRelatedRecordsOperation {
-  op: 'removeFromRelatedRecords';
-  record: StableRecordIdentifier;
-  field: string; // "relationship" propertyName
-  value: StableRecordIdentifier | StableRecordIdentifier[]; // related record
-  index?: number; // optional the index at which we're expected to start the removal
-}
-
 export interface ReplaceRelatedRecordOperation {
   op: 'replaceRelatedRecord';
   record: StableRecordIdentifier;
@@ -80,12 +72,14 @@ export type RemoteRelationshipOperation =
   | UpdateRelationshipOperation
   | ReplaceRelatedRecordOperation
   | ReplaceRelatedRecordsOperation
+  | RemoveResourceOperation
+  | AddResourceOperation
   | DeleteRecordOperation
   | SortRelatedRecords;
 
 export type LocalRelationshipOperation =
   | ReplaceRelatedRecordsOperation
   | ReplaceRelatedRecordOperation
-  | RemoveFromRelatedRecordsOperation
-  | AddToRelatedRecordsOperation
+  | AddResourceMutation
+  | RemoveResourceMutation
   | SortRelatedRecords;

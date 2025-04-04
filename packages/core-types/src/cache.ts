@@ -86,9 +86,6 @@ export interface Cache {
    * Update the "remote" or "canonical" (persisted) state of the Cache
    * by merging new information into the existing state.
    *
-   * Note: currently the only valid resource operation is a MergeOperation
-   * which occurs when a collision of identifiers is detected.
-   *
    * @method patch
    * @public
    * @param {Operation} op the operation to perform
