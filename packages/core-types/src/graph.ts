@@ -1,4 +1,11 @@
-import type { AddToResourceRelationshipOperation, RemoveFromResourceRelationshipOperation } from './cache/operations';
+import type {
+  AddToResourceRelationshipOperation as AddResourceMutation,
+  RemoveFromResourceRelationshipOperation as RemoveResourceMutation,
+} from './cache/mutations';
+import type {
+  AddToResourceRelationshipOperation as AddResourceOperation,
+  RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
+} from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw';
@@ -65,14 +72,14 @@ export type RemoteRelationshipOperation =
   | UpdateRelationshipOperation
   | ReplaceRelatedRecordOperation
   | ReplaceRelatedRecordsOperation
-  | RemoveFromResourceRelationshipOperation
-  | AddToResourceRelationshipOperation
+  | RemoveResourceOperation
+  | AddResourceOperation
   | DeleteRecordOperation
   | SortRelatedRecords;
 
 export type LocalRelationshipOperation =
   | ReplaceRelatedRecordsOperation
   | ReplaceRelatedRecordOperation
-  | RemoveFromResourceRelationshipOperation
-  | AddToResourceRelationshipOperation
+  | AddResourceMutation
+  | RemoveResourceMutation
   | SortRelatedRecords;
