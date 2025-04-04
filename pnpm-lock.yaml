@@ -3609,8 +3609,8 @@ importers:
         specifier: 4.0.1-unstable.f9c81e9
         version: 4.0.1-unstable.f9c81e9(236599c916a4532d29f433c602f3423e)
       '@embroider/config-meta-loader':
-        specifier: 1.0.1-unstable.9f1e74e
-        version: 1.0.1-unstable.9f1e74e
+        specifier: 1.0.1-unstable.f9c81e9
+        version: 1.0.1-unstable.f9c81e9
       '@embroider/core':
         specifier: 4.0.1-unstable.f9c81e9
         version: 4.0.1-unstable.f9c81e9
@@ -5125,8 +5125,8 @@ packages:
     resolution: {integrity: sha512-sr0vervRVdxbs39vi2K70XbRnFxXji1FSomw9pMRTzyXj+CL3dEQjxO4dGyhl0J48764aJ6QF1ACaRJR4GCEcQ==}
     engines: {node: 12.* || 14.* || >= 16}
 
-  '@embroider/config-meta-loader@1.0.1-unstable.9f1e74e':
-    resolution: {integrity: sha512-c2DgPfBVfyazlfLEMfYkPhiS1haZUXkvBM1UEWlfvfK9gRkElgxJyr7Oa2qkitafyDpO5LUal3Bj8gkHALvqzA==}
+  '@embroider/config-meta-loader@1.0.1-unstable.f9c81e9':
+    resolution: {integrity: sha512-KZuhgIskQwegD9my9QXFm/FBTih4qdALdJI37G7KSgaZZHmzGEp/2yxUWRyGlu2D+5I1LjtzXYI3S0RZMSva4A==}
     engines: {node: 12.* || 14.* || >= 16}
 
   '@embroider/core@3.5.5':
@@ -15677,7 +15677,7 @@ snapshots:
 
   '@embroider/config-meta-loader@1.0.0-alpha.3': {}
 
-  '@embroider/config-meta-loader@1.0.1-unstable.9f1e74e': {}
+  '@embroider/config-meta-loader@1.0.1-unstable.f9c81e9': {}
 
   '@embroider/core@3.5.5':
     dependencies:
