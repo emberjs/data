@@ -109,7 +109,7 @@
     "tracked-built-ins": "^4.0.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.29.0",
-    "vite": "^6.2.4",
+    "vite": "^6.2.5",
     "webpack": "^5.98.0"
   },
   "engines": {
