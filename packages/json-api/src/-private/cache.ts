@@ -14,9 +14,11 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type {
+  AddToDocumentOperation,
   AddToResourceRelationshipOperation,
   Op,
   Operation,
+  RemoveFromDocumentOperation,
   RemoveFromResourceRelationshipOperation,
 } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -440,8 +442,10 @@ export default class JSONAPICache implements Cache {
       case 'add': {
         assert(`Expected a field in the add operation`, 'field' in op);
         if (isRecord) {
-          this.__graph.update(op as AddToResourceRelationshipOperation, true);
+          asOp<AddToResourceRelationshipOperation>(op);
+          this.__graph.push(op);
         } else {
+          asOp<AddToDocumentOperation>(op);
           const doc = this.__documents.get(op.record.lid);
           assert(`Expected to have a cached document on which to perform the add operation`, doc);
           const { content } = doc;
@@ -449,49 +453,63 @@ export default class JSONAPICache implements Cache {
 
           assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
           if (op.field === 'data') {
+            let shouldNotify = false;
             assert(`Expected to have a data property on the document`, 'data' in content);
+            asDoc<ResourceDataDocument>(content);
 
             // if data is not an array, we set the data property directly
             if (!Array.isArray(content.data)) {
               assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
-              (content as SingleResourceDataDocument).data = op.value;
+              shouldNotify = content.data !== op.value;
+              if (shouldNotify) content.data = op.value;
+              assert(
+                `The value '${op.value.lid}' cannot be added from the data of document '${op.record.lid}' as it is already the current value '${content.data ? content.data.lid : '<null>'}'`,
+                shouldNotify
+              );
             } else {
               assert(`Expected to have a non-null operation value`, op.value);
 
               if (Array.isArray(op.value)) {
                 if (op.index !== undefined) {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
                   content.data.splice(op.index, 0, ...op.value);
                 } else {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
                   content.data.push(...op.value);
                 }
               } else {
                 if (op.index !== undefined) {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
                   content.data.splice(op.index, 0, op.value);
                 } else {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
                   content.data.push(op.value);
                 }
               }
             }
 
             // notify
-            this._capabilities.notifyChange(op.record as StableDocumentIdentifier, 'updated', null);
+            if (shouldNotify) this._capabilities.notifyChange(op.record, 'updated', null);
           } else {
-            asResourceDataDoc(content);
+            asDoc<ResourceDataDocument>(content);
             content.included = content.included || [];
 
             assert(`Expected to have a non-null operation value`, op.value);
             if (Array.isArray(op.value)) {
-              if (op.index !== undefined) {
-                content.included.splice(op.index, 0, ...op.value);
-              } else {
-                content.included.push(...op.value);
-              }
+              // included is not allowed to have duplicates, so we do a dirty check here
+              assert(
+                `included should not contain duplicate members`,
+                new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+              );
+              content.included = content.included.concat(op.value);
             } else {
-              if (op.index !== undefined) {
-                content.included.splice(op.index, 0, op.value);
-              } else {
-                content.included.push(op.value);
-              }
+              // included is not allowed to have duplicates, so we do a dirty check here
+              assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
+              content.included.push(op.value);
             }
 
             // we don't notify in the included case because this is not reactively
@@ -501,17 +519,80 @@ export default class JSONAPICache implements Cache {
         break;
       }
       case 'remove': {
-        if ('field' in op) {
-          if (isRecord) {
-            this.__graph.update(op as RemoveFromResourceRelationshipOperation, true);
-          } else {
-            // FIXME remove from document
-          }
+        assert(`Expected a field in the add operation`, 'field' in op);
+        if (isRecord) {
+          this.__graph.push(op as RemoveFromResourceRelationshipOperation);
         } else {
-          if (isRecord) {
-            // FIXME remove record entirely
+          asOp<RemoveFromDocumentOperation>(op);
+          const doc = this.__documents.get(op.record.lid);
+          assert(`Expected to have a cached document on which to perform the remove operation`, doc);
+          const { content } = doc;
+          assert(`Expected to have content on the document`, content);
+
+          assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+          if (op.field === 'data') {
+            let shouldNotify = false;
+            assert(`Expected to have a data property on the document`, 'data' in content);
+            asDoc<ResourceDataDocument>(content);
+
+            // if data is not an array, we set the data property directly
+            if (!Array.isArray(content.data)) {
+              assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+              shouldNotify = content.data === op.value;
+              // we only remove the value if it was our existing value
+              if (shouldNotify) content.data = op.value;
+              assert(
+                `The value '${op.value.lid}' cannot be removed from the data of document '${op.record.lid}' as it is not the current value '${content.data ? content.data.lid : '<null>'}'`,
+                shouldNotify
+              );
+            } else {
+              assert(`Expected to have a non-null operation value`, op.value);
+
+              if (Array.isArray(op.value)) {
+                if (op.index !== undefined) {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
+                  content.data.splice(op.index, 0, ...op.value);
+                } else {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
+                  content.data.push(...op.value);
+                }
+              } else {
+                if (op.index !== undefined) {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
+                  content.data.splice(op.index, 0, op.value);
+                } else {
+                  // for collections, because we allow duplicates we are always changed.
+                  shouldNotify = true;
+                  content.data.push(op.value);
+                }
+              }
+            }
+
+            // notify
+            if (shouldNotify) this._capabilities.notifyChange(op.record, 'updated', null);
           } else {
-            // FIXME remove document entirely
+            asDoc<ResourceDataDocument>(content);
+            content.included = content.included || [];
+
+            assert(`Expected to have a non-null operation value`, op.value);
+            if (Array.isArray(op.value)) {
+              // included is not allowed to have duplicates, so we do a dirty check here
+              assert(
+                `included should not contain duplicate members`,
+                new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+              );
+              content.included = content.included.concat(op.value);
+            } else {
+              // included is not allowed to have duplicates, so we do a dirty check here
+              assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
+              content.included.push(op.value);
+            }
+
+            // we don't notify in the included case because this is not reactively
+            // exposed. We should possibly consider doing so though for subscribers
           }
         }
         break;
@@ -2157,7 +2238,8 @@ function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<st
   return hasAppliedPatch;
 }
 
-function asResourceDataDoc(doc: unknown): asserts doc is ResourceDataDocument {}
+function asDoc<T extends ResourceDocument>(doc: unknown): asserts doc is T {}
+function asOp<T extends Op>(doc: unknown): asserts doc is T {}
 
 function putOne(
   cache: JSONAPICache,
