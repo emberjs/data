@@ -38,7 +38,7 @@
     "ignore": "^7.0.3",
     "jscodeshift": "^17.3.0",
     "strip-ansi": "^7.1.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "winston": "^3.17.0"
   },
   "devDependencies": {

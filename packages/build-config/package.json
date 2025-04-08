@@ -56,7 +56,7 @@
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-typescript": "^7.27.0",
     "@babel/core": "^7.26.10",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "bun-types": "^1.2.8",
     "vite": "^5.4.15"
   },

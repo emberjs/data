@@ -107,7 +107,7 @@
     "qunit": "^2.22.0",
     "qunit-dom": "^3.4.0",
     "tracked-built-ins": "^4.0.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.0",
     "vite": "^6.2.5",
     "webpack": "^5.98.0"
