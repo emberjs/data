@@ -69,7 +69,7 @@
     "qunit": "^2.20.1",
     "qunit-dom": "^3.4.0",
     "testem": "^3.12.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">= 18.20.8"

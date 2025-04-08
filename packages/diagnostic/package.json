@@ -106,7 +106,7 @@
     "ember-source": "~6.3.0",
     "@glimmer/component": "^2.0.0",
     "ember-cli-test-loader": "^3.1.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },
   "engines": {

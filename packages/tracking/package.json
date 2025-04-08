@@ -74,7 +74,7 @@
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },
   "ember": {
