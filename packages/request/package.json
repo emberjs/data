@@ -40,10 +40,10 @@
     }
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:*"
+    "@warp-drive/core-types": "workspace:*",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
@@ -55,6 +55,7 @@
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
+    "@ember/test-waiters": "^4.1.0",
     "ember-source": "~6.3.0",
     "vite": "^5.4.15"
   },
