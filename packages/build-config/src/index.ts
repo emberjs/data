@@ -120,9 +120,11 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
 
   // legacy support called prior to user setConfig
   if (isLegacySupport && hasDeprecatedConfig) {
-    console.warn(
-      `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
-    );
+    // We don't want to print this just yet because we are going to re-arrange packages
+    // and this would be come an import from @warp-drive/core. Better to not deprecate twice.
+    // console.warn(
+    //   `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
+    // );
   }
 
   // included hooks run during class initialization of the EmberApp instance

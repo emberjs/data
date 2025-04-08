@@ -42,6 +42,7 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@ember-data/store": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
@@ -50,7 +51,6 @@
     "@ember-data/tracking": "workspace:*"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
@@ -79,6 +79,7 @@
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@ember/test-helpers": "5.2.0",
+    "@ember/test-waiters": "^4.1.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.4.1",
