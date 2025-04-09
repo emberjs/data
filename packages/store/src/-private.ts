@@ -9,7 +9,7 @@ export { recordIdentifierFor } from './-private/caches/instance-cache';
 export { CacheHandler, type StoreRequestContext } from './-private/cache-handler/handler';
 export { type CachePolicy } from './-private/cache-handler/types';
 
-export { isStableIdentifier } from './-private/caches/identifier-cache';
+export { isStableIdentifier, isDocumentIdentifier } from './-private/caches/identifier-cache';
 
 export { constructResource } from './-private/utils/construct-resource';
 
