@@ -1,6 +1,7 @@
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { RemoveFromRelatedRecordsOperation } from '@warp-drive/core-types/graph';
+import type { RemoveFromResourceRelationshipMutation } from '@warp-drive/core-types/cache/mutations';
+import type { RemoveFromResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 
 import { _removeLocal } from '../-diff';
 import { isHasMany, notifyChange } from '../-utils';
@@ -8,7 +9,11 @@ import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
 import { removeFromInverse } from './replace-related-records';
 
-export default function removeFromRelatedRecords(graph: Graph, op: RemoveFromRelatedRecordsOperation, isRemote: false) {
+export default function removeFromRelatedRecords(
+  graph: Graph,
+  op: RemoveFromResourceRelationshipOperation | RemoveFromResourceRelationshipMutation,
+  isRemote: false
+) {
   assert(
     `Graph does not yet support updating the remote state of a relationship via the ${op.op} operation`,
     !isRemote

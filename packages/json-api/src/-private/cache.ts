@@ -749,81 +749,17 @@ export default class JSONAPICache implements Cache {
     data: ExistingResourceObject,
     calculateChanges?: boolean
   ): void | string[] {
-    let changedKeys: Set<string> | undefined;
-    const peeked = this.__safePeek(identifier, false);
-    const existed = !!peeked;
-    const cached = peeked || this._createCache(identifier);
-
-    const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, this._capabilities, identifier) || !recordIsLoaded(peeked);
-    const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
-
-    if (LOG_CACHE) {
-      logGroup(
-        'cache',
-        'upsert',
-        identifier.type,
-        identifier.lid,
-        existed ? 'merged' : 'inserted',
-        calculateChanges ? 'has-subscription' : ''
-      );
-      try {
-        const _data = JSON.parse(JSON.stringify(data)) as object;
-
-        // eslint-disable-next-line no-console
-        console.log(_data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log(data);
-      }
+    upgradeCapabilities(this._capabilities);
+    const store = this._capabilities._store;
+    if (!store._cbs) {
+      let result: void | string[] = undefined;
+      store._run(() => {
+        result = cacheUpsert(this, identifier, data, calculateChanges);
+      });
+      return result;
     }
 
-    if (cached.isNew) {
-      cached.isNew = false;
-      this._capabilities.notifyChange(identifier, 'identity', null);
-      this._capabilities.notifyChange(identifier, 'state', null);
-    }
-
-    const fields = this._capabilities.schema.fields(identifier);
-
-    // if no cache entry existed, no record exists / property has been accessed
-    // and thus we do not need to notify changes to any properties.
-    if (calculateChanges && existed && data.attributes) {
-      changedKeys = calculateChangedKeys(cached, data.attributes, fields);
-    }
-
-    cached.remoteAttrs = Object.assign(
-      cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
-      data.attributes
-    );
-
-    if (cached.localAttrs) {
-      if (patchLocalAttributes(cached, changedKeys)) {
-        this._capabilities.notifyChange(identifier, 'state', null);
-      }
-    }
-
-    if (!isUpdate) {
-      this._capabilities.notifyChange(identifier, 'added', null);
-    }
-
-    if (data.id) {
-      cached.id = data.id;
-    }
-
-    if (data.relationships) {
-      setupRelationships(this.__graph, fields, identifier, data);
-    }
-
-    if (changedKeys?.size) {
-      notifyAttributes(this._capabilities, identifier, changedKeys);
-    }
-
-    if (LOG_CACHE) {
-      // eslint-disable-next-line no-console
-      console.groupEnd();
-    }
-
-    return changedKeys?.size ? Array.from(changedKeys) : undefined;
+    return cacheUpsert(this, identifier, data, calculateChanges);
   }
 
   // Cache Forking Support
@@ -2475,4 +2411,87 @@ function copyLinksAndMeta(target: { links?: unknown; meta?: unknown }, source: o
   if ('meta' in source) {
     target.meta = source.meta;
   }
+}
+
+function cacheUpsert(
+  cache: JSONAPICache,
+  identifier: StableRecordIdentifier,
+  data: ExistingResourceObject,
+  calculateChanges?: boolean
+) {
+  let changedKeys: Set<string> | undefined;
+  const peeked = cache.__safePeek(identifier, false);
+  const existed = !!peeked;
+  const cached = peeked || cache._createCache(identifier);
+
+  const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, cache._capabilities, identifier) || !recordIsLoaded(peeked);
+  const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
+
+  if (LOG_CACHE) {
+    logGroup(
+      'cache',
+      'upsert',
+      identifier.type,
+      identifier.lid,
+      existed ? 'merged' : 'inserted',
+      calculateChanges ? 'has-subscription' : ''
+    );
+    try {
+      const _data = JSON.parse(JSON.stringify(data)) as object;
+
+      // eslint-disable-next-line no-console
+      console.log(_data);
+    } catch {
+      // eslint-disable-next-line no-console
+      console.log(data);
+    }
+  }
+
+  if (cached.isNew) {
+    cached.isNew = false;
+    cache._capabilities.notifyChange(identifier, 'identity', null);
+    cache._capabilities.notifyChange(identifier, 'state', null);
+  }
+
+  const fields = cache._capabilities.schema.fields(identifier);
+
+  // if no cache entry existed, no record exists / property has been accessed
+  // and thus we do not need to notify changes to any properties.
+  if (calculateChanges && existed && data.attributes) {
+    changedKeys = calculateChangedKeys(cached, data.attributes, fields);
+  }
+
+  cached.remoteAttrs = Object.assign(
+    cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
+    data.attributes
+  );
+
+  if (cached.localAttrs) {
+    if (patchLocalAttributes(cached, changedKeys)) {
+      cache._capabilities.notifyChange(identifier, 'state', null);
+    }
+  }
+
+  if (!isUpdate) {
+    cache._capabilities.notifyChange(identifier, 'added', null);
+  }
+
+  if (data.id) {
+    cached.id = data.id;
+  }
+
+  if (data.relationships) {
+    setupRelationships(cache.__graph, fields, identifier, data);
+  }
+
+  if (changedKeys?.size) {
+    notifyAttributes(cache._capabilities, identifier, changedKeys);
+  }
+
+  if (LOG_CACHE) {
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
+
+  return changedKeys?.size ? Array.from(changedKeys) : undefined;
 }

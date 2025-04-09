@@ -425,7 +425,12 @@ export class Graph {
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
-      getStore(this.store)._schedule('coalesce', () => this._flushRemoteQueue());
+      const store = getStore(this.store);
+      if (!store._cbs) {
+        store._run(() => this._flushRemoteQueue());
+      } else {
+        store._schedule('coalesce', () => this._flushRemoteQueue());
+      }
     }
   }
 

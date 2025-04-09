@@ -1,6 +1,6 @@
 import type {
-  AddToResourceRelationshipOperation as AddResourceMutation,
-  RemoveFromResourceRelationshipOperation as RemoveResourceMutation,
+  AddToResourceRelationshipMutation as AddResourceMutation,
+  RemoveFromResourceRelationshipMutation as RemoveResourceMutation,
 } from './cache/mutations';
 import type {
   AddToResourceRelationshipOperation as AddResourceOperation,

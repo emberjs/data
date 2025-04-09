@@ -1,6 +1,7 @@
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { AddToRelatedRecordsOperation } from '@warp-drive/core-types/graph';
+import type { AddToResourceRelationshipMutation } from '@warp-drive/core-types/cache/mutations';
+import type { AddToResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 
 import { _addLocal } from '../-diff';
 import { isHasMany, notifyChange } from '../-utils';
@@ -8,7 +9,11 @@ import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
 import { addToInverse } from './replace-related-records';
 
-export default function addToRelatedRecords(graph: Graph, op: AddToRelatedRecordsOperation, isRemote: false) {
+export default function addToRelatedRecords(
+  graph: Graph,
+  op: AddToResourceRelationshipOperation | AddToResourceRelationshipMutation,
+  isRemote: false
+) {
   assert(
     `Graph does not yet support updating the remote state of a relationship via the ${op.op} operation`,
     !isRemote

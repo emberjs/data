@@ -2282,6 +2282,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      '@warp-drive/schema-record':
+        specifier: workspace:*
+        version: file:packages/schema-record(024b0f285640a155b166c6bf5eb24a63)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
