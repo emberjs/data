@@ -1,7 +1,10 @@
 import Cache from '@ember-data/json-api';
+import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceDataDocument } from '@warp-drive/core-types/spec/document';
+import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { instantiateRecord, registerDerivations, teardownRecord, withDefaults } from '@warp-drive/schema-record';
@@ -12,8 +15,16 @@ interface User {
   id: string;
   name: string;
   username: string;
+  bestFriend: User | null;
   friends: User[];
+  pets: Pet[];
   [Type]: 'user';
+}
+
+interface Pet {
+  id: string;
+  name: string;
+  owner: User;
 }
 
 class TestStore extends Store {
@@ -26,10 +37,36 @@ class TestStore extends Store {
           { name: 'name', kind: 'field' },
           { name: 'username', kind: 'field' },
           {
+            name: 'bestFriend',
+            kind: 'belongsTo',
+            type: 'user',
+            options: { inverse: 'bestFriend', async: false, linksMode: true },
+          },
+          {
             name: 'friends',
             kind: 'hasMany',
             type: 'user',
             options: { inverse: 'friends', async: false, linksMode: true },
+          },
+          {
+            name: 'pets',
+            kind: 'hasMany',
+            type: 'pet',
+            options: { inverse: 'owner', async: false, linksMode: true },
+          },
+        ],
+      })
+    );
+    schema.registerResource(
+      withDefaults({
+        type: 'pet',
+        fields: [
+          { name: 'name', kind: 'field' },
+          {
+            name: 'owner',
+            kind: 'belongsTo',
+            type: 'user',
+            options: { inverse: 'pets', async: false, linksMode: true },
           },
         ],
       })
@@ -51,6 +88,38 @@ class TestStore extends Store {
   }
 }
 
+function setupRecord<T extends string>(
+  store: Store,
+  record: ExistingResourceObject<T>
+): StableExistingRecordIdentifier<T>;
+function setupRecord(store: Store, record: ExistingResourceObject): StableExistingRecordIdentifier {
+  const identifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+  store.cache.patch({
+    op: 'add',
+    record: identifier,
+    value: record,
+  });
+
+  return identifier;
+}
+
+function setupDocument(store: Store, url: string, doc: ResourceDataDocument<ExistingResourceObject>) {
+  const requestDoc = {
+    request: {
+      url,
+      method: 'GET',
+    } satisfies ImmutableRequestInfo,
+    content: doc,
+    response: new Response(null),
+  };
+  const identifier = store.identifierCache.getOrCreateDocumentIdentifier(requestDoc.request);
+  store.cache.put(requestDoc);
+  if (identifier === null) {
+    throw new Error(`Document identifier should not be null for the test`);
+  }
+  return identifier;
+}
+
 module('Integration | <JSONAPICache>.patch', function () {
   test('We can add a resource to the cache', function (assert) {
     const store = new TestStore();
@@ -66,7 +135,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       value: user,
     });
 
@@ -90,7 +159,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       value: user,
     });
 
@@ -101,7 +170,7 @@ module('Integration | <JSONAPICache>.patch', function () {
 
     cache.patch({
       op: 'remove',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
     });
 
     const removedRecord = store.peekRecord(identifier);
@@ -111,7 +180,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   test('We can update a resource in the cache', function (assert) {
     const store = new TestStore();
     const cache = store.cache;
-    const user = {
+    const identifier = setupRecord(store, {
       id: '1',
       type: 'user',
       attributes: {
@@ -123,14 +192,8 @@ module('Integration | <JSONAPICache>.patch', function () {
           data: [],
         },
       },
-    };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
-    cache.patch({
-      op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
-      value: user,
     });
-    const user2 = {
+    const identifier2 = setupRecord(store, {
       id: '2',
       type: 'user',
       attributes: {
@@ -141,12 +204,6 @@ module('Integration | <JSONAPICache>.patch', function () {
           data: [],
         },
       },
-    };
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
-    cache.patch({
-      op: 'add',
-      record: identifier2 as StableExistingRecordIdentifier,
-      value: user2,
     });
 
     const record = store.peekRecord<User>(identifier);
@@ -161,7 +218,7 @@ module('Integration | <JSONAPICache>.patch', function () {
 
     cache.patch({
       op: 'update',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       value: {
         id: '1',
         type: 'user',
@@ -203,7 +260,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       value: user,
     });
 
@@ -214,7 +271,7 @@ module('Integration | <JSONAPICache>.patch', function () {
 
     cache.patch({
       op: 'update',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       field: 'name',
       value: 'Jane Doe',
     });
@@ -243,7 +300,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       value: user,
     });
     const user2 = {
@@ -261,7 +318,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
     cache.patch({
       op: 'add',
-      record: identifier2 as StableExistingRecordIdentifier,
+      record: identifier2,
       value: user2,
     });
 
@@ -277,7 +334,7 @@ module('Integration | <JSONAPICache>.patch', function () {
 
     cache.patch({
       op: 'update',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       field: 'friends',
       value: {
         data: [
@@ -293,14 +350,112 @@ module('Integration | <JSONAPICache>.patch', function () {
     assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
   });
 
-  test('We can add to a resource relationship in the cache', function (assert) {});
+  test('We can add to a resource relationship in the cache', function (assert) {
+    const store = new TestStore();
+    const cache = store.cache;
+    const identifier = setupRecord(store, {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'John Doe',
+        username: 'johndoe',
+      },
+      relationships: {
+        bestFriend: {
+          data: null,
+        },
+      },
+    });
+    const identifier2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        bestFriend: {
+          data: null,
+        },
+      },
+    });
 
-  test('We can remove from a resource relationship in the cache', function (assert) {});
+    const record = store.peekRecord<User>(identifier);
+    assert.equal(record?.name, 'John Doe', 'The name is correct');
+    assert.equal(record?.username, 'johndoe', 'The username is correct');
+    assert.equal(record?.id, '1', 'The id is correct');
+    assert.equal(record?.bestFriend, null, 'The bestFriend is empty');
+    const record2 = store.peekRecord<User>(identifier2);
+    assert.equal(record2?.name, 'Chris', 'The name is correct');
+    assert.equal(record2?.id, '2', 'The id is correct');
+    assert.equal(record2?.bestFriend, null, 'The inverse bestFriend is empty');
+
+    cache.patch({
+      op: 'add',
+      record: identifier,
+      field: 'bestFriend',
+      value: identifier2,
+    });
+
+    assert.equal(record?.bestFriend, record2, 'The bestFriend is set');
+    assert.equal(record2?.bestFriend, record, 'The inverse bestFriend is set');
+  });
+
+  test('We can remove from a resource relationship in the cache', function (assert) {
+    const store = new TestStore();
+    const cache = store.cache;
+    const identifier = setupRecord(store, {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'John Doe',
+        username: 'johndoe',
+      },
+      relationships: {
+        bestFriend: {
+          data: { id: '2', type: 'user' },
+        },
+      },
+    });
+    const identifier2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        bestFriend: {
+          data: { id: '1', type: 'user' },
+        },
+      },
+    });
+
+    const record = store.peekRecord<User>(identifier);
+    assert.equal(record?.name, 'John Doe', 'The name is correct');
+    assert.equal(record?.username, 'johndoe', 'The username is correct');
+    assert.equal(record?.id, '1', 'The id is correct');
+
+    const record2 = store.peekRecord<User>(identifier2);
+    assert.equal(record2?.name, 'Chris', 'The name is correct');
+    assert.equal(record2?.id, '2', 'The id is correct');
+
+    assert.equal(record?.bestFriend, record2, 'The bestFriend is set');
+    assert.equal(record2?.bestFriend, record, 'The inverse bestFriend is set');
+
+    cache.patch({
+      op: 'remove',
+      record: identifier,
+      field: 'bestFriend',
+      value: identifier2,
+    });
+
+    assert.equal(record?.bestFriend, null, 'The bestFriend is empty');
+    assert.equal(record2?.bestFriend, null, 'The inverse bestFriend is empty');
+  });
 
   test('We can add to a collection relationship in the cache', function (assert) {
     const store = new TestStore();
     const cache = store.cache;
-    const user = {
+    const identifier = setupRecord(store, {
       id: '1',
       type: 'user',
       attributes: {
@@ -312,14 +467,8 @@ module('Integration | <JSONAPICache>.patch', function () {
           data: [],
         },
       },
-    };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
-    cache.patch({
-      op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
-      value: user,
     });
-    const user2 = {
+    const identifier2 = setupRecord(store, {
       id: '2',
       type: 'user',
       attributes: {
@@ -330,12 +479,6 @@ module('Integration | <JSONAPICache>.patch', function () {
           data: [],
         },
       },
-    };
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
-    cache.patch({
-      op: 'add',
-      record: identifier2 as StableExistingRecordIdentifier,
-      value: user2,
     });
 
     const record = store.peekRecord<User>(identifier);
@@ -350,22 +493,388 @@ module('Integration | <JSONAPICache>.patch', function () {
 
     cache.patch({
       op: 'add',
-      record: identifier as StableExistingRecordIdentifier,
+      record: identifier,
       field: 'friends',
-      value: identifier2 as StableExistingRecordIdentifier,
+      value: identifier2,
     });
 
     assert.equal(record?.friends?.length, 1, 'The friends collection has an entry');
     assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
   });
 
-  test('We can remove from a collection relationship in the cache', function (assert) {});
+  test('We can remove from a collection relationship in the cache', function (assert) {
+    const store = new TestStore();
+    const cache = store.cache;
+    const identifier = setupRecord(store, {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'John Doe',
+        username: 'johndoe',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '2',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
 
-  test('We can add to a collection relationship in the cache with an index', function (assert) {});
+    const record = store.peekRecord<User>(identifier);
+    assert.equal(record?.name, 'John Doe', 'The name is correct');
+    assert.equal(record?.username, 'johndoe', 'The username is correct');
+    assert.equal(record?.id, '1', 'The id is correct');
+    assert.equal(record?.friends?.length, 1, 'The friends collection is not empty');
+    const record2 = store.peekRecord<User>(identifier2);
+    assert.equal(record2?.name, 'Chris', 'The name is correct');
+    assert.equal(record2?.id, '2', 'The id is correct');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection is not empty');
 
-  test('We can remove from a collection relationship in the cache with an index', function (assert) {});
+    cache.patch({
+      op: 'remove',
+      record: identifier,
+      field: 'friends',
+      value: identifier2,
+    });
 
-  test('We can add to data on a single resource document in the cache', function (assert) {});
+    assert.equal(record?.friends?.length, 0, 'The friends collection has no entry');
+    assert.equal(record2?.friends?.length, 0, 'The inverse friends collection has no entry');
+  });
+
+  test('We can add to a collection relationship in the cache with an index', function (assert) {
+    const store = new TestStore();
+    const cache = store.cache;
+    const identifier = setupRecord(store, {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'John Doe',
+        username: 'johndoe',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '2',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier3 = setupRecord(store, {
+      id: '3',
+      type: 'user',
+      attributes: {
+        name: 'Wes',
+      },
+      relationships: {
+        friends: {
+          data: [],
+        },
+      },
+    });
+    const identifier4 = setupRecord(store, {
+      id: '4',
+      type: 'user',
+      attributes: {
+        name: 'Rey',
+      },
+      relationships: {
+        friends: {
+          data: [],
+        },
+      },
+    });
+    const identifier5 = setupRecord(store, {
+      id: '5',
+      type: 'user',
+      attributes: {
+        name: 'Shen',
+      },
+      relationships: {
+        friends: {
+          data: [],
+        },
+      },
+    });
+
+    const record = store.peekRecord<User>(identifier);
+    const record2 = store.peekRecord<User>(identifier2);
+    const record3 = store.peekRecord<User>(identifier3);
+    const record4 = store.peekRecord<User>(identifier4);
+    const record5 = store.peekRecord<User>(identifier5);
+    assert.equal(record?.friends?.length, 1, 'The friends collection is not empty');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(record3?.friends?.length, 0, 'The friends collection is empty');
+    assert.equal(record4?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(record5?.friends?.length, 0, 'The inverse friends collection is empty');
+
+    cache.patch({
+      op: 'add',
+      record: identifier,
+      field: 'friends',
+      value: identifier3,
+      index: 0,
+    });
+
+    assert.equal(record?.friends?.length, 2, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 1, 'The friends collection has an entry');
+    assert.equal(record4?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(record5?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '3,2',
+      'The friends collection is in the right order'
+    );
+
+    cache.patch({
+      op: 'add',
+      record: identifier,
+      field: 'friends',
+      value: [identifier4, identifier5],
+      index: 1,
+    });
+
+    assert.equal(record?.friends?.length, 4, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record4?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(record5?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '3,4,5,2',
+      'The friends collection is in the right order'
+    );
+  });
+
+  test('We can remove from a collection relationship in the cache with an index', function (assert) {
+    const store = new TestStore();
+    const cache = store.cache;
+    const identifier = setupRecord(store, {
+      id: '1',
+      type: 'user',
+      attributes: {
+        name: 'John Doe',
+        username: 'johndoe',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '3',
+              type: 'user',
+            },
+            {
+              id: '4',
+              type: 'user',
+            },
+            {
+              id: '5',
+              type: 'user',
+            },
+            {
+              id: '2',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Chris',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier3 = setupRecord(store, {
+      id: '3',
+      type: 'user',
+      attributes: {
+        name: 'Wes',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier4 = setupRecord(store, {
+      id: '4',
+      type: 'user',
+      attributes: {
+        name: 'Rey',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier5 = setupRecord(store, {
+      id: '5',
+      type: 'user',
+      attributes: {
+        name: 'Shen',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+
+    const record = store.peekRecord<User>(identifier);
+    const record2 = store.peekRecord<User>(identifier2);
+    const record3 = store.peekRecord<User>(identifier3);
+    const record4 = store.peekRecord<User>(identifier4);
+    const record5 = store.peekRecord<User>(identifier5);
+
+    assert.equal(record?.friends?.length, 4, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record4?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(record5?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '3,4,5,2',
+      'The friends collection is in the right order'
+    );
+
+    cache.patch({
+      op: 'remove',
+      record: identifier,
+      field: 'friends',
+      value: [identifier4, identifier5],
+      index: 1,
+    });
+
+    assert.equal(record?.friends?.length, 2, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 1, 'The friends collection has an entry');
+    assert.equal(record4?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(record5?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '3,2',
+      'The friends collection is in the right order'
+    );
+
+    cache.patch({
+      op: 'remove',
+      record: identifier,
+      field: 'friends',
+      value: identifier3,
+      index: 0,
+    });
+
+    assert.equal(record?.friends?.length, 1, 'The friends collection is not empty');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(record3?.friends?.length, 0, 'The friends collection is empty');
+    assert.equal(record4?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(record5?.friends?.length, 0, 'The inverse friends collection is empty');
+  });
+
+  test('We can add to data on a single resource document in the cache', function (assert) {
+    const store = new TestStore();
+    const documentIdentifier = setupDocument(store, '/api/v1/users', {
+      data: [
+        {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris',
+          },
+          relationships: {
+            pets: {
+              data: [],
+            },
+          },
+        },
+      ],
+      included: [],
+    });
+
+    const user2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Wesley',
+      },
+      relationships: {
+        pets: {
+          data: [],
+        },
+      },
+    });
+
+    // FIXME need a way to create the reactive document easily
+  });
 
   test('We can remove from data on a single resource document in the cache', function (assert) {});
 

@@ -178,7 +178,7 @@ export class DOMReporter implements Reporter {
           .map((d) => {
             const checkText = `\t${d.passed ? '✅' : '❌'} – ${d.message}`;
             if (isDebug) {
-              return `${checkText}\n${diffResult(d)}`;
+              return d.passed ? checkText : `${checkText}\n${diffResult(d, 2)}`;
             }
           })
           .join('\n');
@@ -409,7 +409,23 @@ function indentLines(str: string, indent = 2) {
     .join('\n');
 }
 
+function isPrimitive(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === true ||
+    value === false ||
+    typeof value === 'number' ||
+    typeof value === 'string' ||
+    typeof value === 'bigint' ||
+    typeof value === 'symbol'
+  );
+}
+
 function diffResult(report: DiagnosticReport, indent?: number) {
+  if (isPrimitive(report.expected) && isPrimitive(report.actual)) {
+    return indentLines(`Expected: ${String(report.expected)}\nActual: ${String(report.actual)}`, 2);
+  }
   const actualText = JSON.stringify(report.actual, null, 2);
   const expectedText = JSON.stringify(report.expected, null, 2);
 

@@ -23,7 +23,7 @@ setupGlobalHooks((hooks) => {
 configure();
 
 start({
-  tryCatch: false,
+  tryCatch: true,
   debug: IS_CI ? false : true,
   groupLogs: false,
   instrument: true,
