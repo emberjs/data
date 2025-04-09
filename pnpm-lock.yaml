@@ -195,8 +195,8 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0(eslint@9.24.0)
       eslint-plugin-n:
-        specifier: ^17.16.2
-        version: 17.16.2(eslint@9.24.0)
+        specifier: ^17.17.0
+        version: 17.17.0(eslint@9.24.0)
       eslint-plugin-qunit:
         specifier: ^8.1.2
         version: 8.1.2(eslint@9.24.0)
@@ -3711,8 +3711,8 @@ importers:
         specifier: ^12.5.0
         version: 12.5.0(cb8fbab425ce45c882d86e30c198ccb1)
       eslint-plugin-n:
-        specifier: ^17.16.2
-        version: 17.16.2(eslint@9.24.0)
+        specifier: ^17.17.0
+        version: 17.17.0(eslint@9.24.0)
       eslint-plugin-prettier:
         specifier: ^5.2.6
         version: 5.2.6(20c2ffc79941c58884be6c313002ebe2)
@@ -5511,6 +5511,12 @@ packages:
 
   '@eslint-community/eslint-utils@4.4.1':
     resolution: {integrity: sha512-s3O3waFUrMV8P/XaF/+ZTp1X9XBZW1a4B97ZnjQF2KYWaFD2A8KyFBsrsfSjEmjn3RGWAIuvlneuZm3CUK3jbA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
+
+  '@eslint-community/eslint-utils@4.5.1':
+    resolution: {integrity: sha512-soEIOALTfTK6EjmKMMoLugwaP0rzkad90iIWd1hMO9ARkSAyjfMfkRRhLvD5qH7vvM0Cg72pieUfR6yh6XxC4w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
@@ -8752,8 +8758,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-n@17.16.2:
-    resolution: {integrity: sha512-iQM5Oj+9o0KaeLoObJC/uxNGpktZCkYiTTBo8PkRWq3HwNcRxwpvSDFjBhQ5+HLJzBTy+CLDC5+bw0Z5GyhlOQ==}
+  eslint-plugin-n@17.17.0:
+    resolution: {integrity: sha512-2VvPK7Mo73z1rDFb6pTvkH6kFibAmnTubFq5l83vePxu0WiY1s0LOtj2WHb6Sa40R3w4mnh8GFYbHBQyMlotKw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: '>=8.23.0'
@@ -16174,6 +16180,11 @@ snapshots:
       eslint: 9.24.0
       eslint-visitor-keys: 3.4.3
 
+  '@eslint-community/eslint-utils@4.5.1(eslint@9.24.0)':
+    dependencies:
+      eslint: 9.24.0
+      eslint-visitor-keys: 3.4.3
+
   '@eslint-community/regexpp@4.12.1': {}
 
   '@eslint/config-array@0.20.0':
@@ -17774,7 +17785,7 @@ snapshots:
       eslint-config-prettier: 10.1.1(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(670b266f8b5c33dbe067f538a9a1cb72)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
-      eslint-plugin-n: 17.16.2(eslint@9.24.0)
+      eslint-plugin-n: 17.17.0(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
       glob: 11.0.1
@@ -17818,7 +17829,7 @@ snapshots:
       eslint-config-prettier: 10.1.1(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(670b266f8b5c33dbe067f538a9a1cb72)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
-      eslint-plugin-n: 17.16.2(eslint@9.24.0)
+      eslint-plugin-n: 17.17.0(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
       glob: 11.0.1
@@ -17862,7 +17873,7 @@ snapshots:
       eslint-config-prettier: 10.1.1(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(670b266f8b5c33dbe067f538a9a1cb72)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
-      eslint-plugin-n: 17.16.2(eslint@9.24.0)
+      eslint-plugin-n: 17.17.0(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
       glob: 11.0.1
@@ -17906,7 +17917,7 @@ snapshots:
       eslint-config-prettier: 10.1.1(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(670b266f8b5c33dbe067f538a9a1cb72)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
-      eslint-plugin-n: 17.16.2(eslint@9.24.0)
+      eslint-plugin-n: 17.17.0(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
       glob: 11.0.1
@@ -21324,7 +21335,7 @@ snapshots:
 
   eslint-plugin-es-x@7.8.0(eslint@9.24.0):
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.1(eslint@9.24.0)
+      '@eslint-community/eslint-utils': 4.5.1(eslint@9.24.0)
       '@eslint-community/regexpp': 4.12.1
       eslint: 9.24.0
       eslint-compat-utils: 0.5.1(eslint@9.24.0)
@@ -21365,9 +21376,9 @@ snapshots:
       globals: 13.24.0
       rambda: 7.5.0
 
-  eslint-plugin-n@17.16.2(eslint@9.24.0):
+  eslint-plugin-n@17.17.0(eslint@9.24.0):
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.1(eslint@9.24.0)
+      '@eslint-community/eslint-utils': 4.5.1(eslint@9.24.0)
       enhanced-resolve: 5.18.1
       eslint: 9.24.0
       eslint-plugin-es-x: 7.8.0(eslint@9.24.0)
