@@ -552,9 +552,6 @@ importers:
       babel-import-util:
         specifier: ^2.1.1
         version: 2.1.1
-      broccoli-funnel:
-        specifier: ^3.0.8
-        version: 3.0.8
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -17617,7 +17614,6 @@ snapshots:
       '@embroider/addon-shim': 1.9.0
       '@embroider/macros': 1.16.12(6b9ab74b27cee7278587f29987a61ec9)
       babel-import-util: 2.1.1
-      broccoli-funnel: 3.0.8
       semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'
@@ -17629,7 +17625,6 @@ snapshots:
       '@embroider/addon-shim': 1.9.0
       '@embroider/macros': 1.16.12(@babel/core@7.26.10)
       babel-import-util: 2.1.1
-      broccoli-funnel: 3.0.8
       semver: 7.7.1
     transitivePeerDependencies:
       - '@babel/core'

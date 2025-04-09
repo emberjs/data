@@ -5,6 +5,7 @@ import type {
 import type {
   AddToResourceRelationshipOperation as AddResourceOperation,
   RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
+  UpdateResourceRelationshipOperation,
 } from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
 import type { StableRecordIdentifier } from './identifier';
@@ -69,6 +70,7 @@ export interface ReplaceRelatedRecordsOperation {
 }
 
 export type RemoteRelationshipOperation =
+  | UpdateResourceRelationshipOperation
   | UpdateRelationshipOperation
   | ReplaceRelatedRecordOperation
   | ReplaceRelatedRecordsOperation

@@ -1,4 +1,7 @@
 import type { StableDocumentIdentifier, StableExistingRecordIdentifier, StableRecordIdentifier } from '../identifier';
+import type { Value } from '../json/raw';
+import type { ExistingResourceObject } from '../spec/json-api-raw';
+import type { Relationship } from './relationship';
 
 export interface Op {
   op: string;
@@ -20,9 +23,40 @@ export interface MergeOperation extends Op {
   value: StableRecordIdentifier;
 }
 
-export interface RemoveOperation extends Op {
+export interface RemoveDocumentOperation extends Op {
   op: 'remove';
-  record: StableExistingRecordIdentifier | StableDocumentIdentifier;
+  record: StableDocumentIdentifier;
+}
+
+export interface RemoveResourceOperation extends Op {
+  op: 'remove';
+  record: StableExistingRecordIdentifier;
+}
+
+export interface AddResourceOperation extends Op {
+  op: 'add';
+  record: StableExistingRecordIdentifier;
+  value: ExistingResourceObject;
+}
+
+export interface UpdateResourceOperation extends Op {
+  op: 'update';
+  record: StableExistingRecordIdentifier;
+  value: ExistingResourceObject;
+}
+
+export interface UpdateResourceFieldOperation extends Op {
+  op: 'update';
+  record: StableExistingRecordIdentifier;
+  field: string;
+  value: Value;
+}
+
+export interface UpdateResourceRelationshipOperation extends Op {
+  op: 'update';
+  record: StableExistingRecordIdentifier;
+  field: string;
+  value: Relationship<StableExistingRecordIdentifier>;
 }
 
 export interface AddToDocumentOperation extends Op {
@@ -62,7 +96,11 @@ export interface RemoveFromDocumentOperation extends Op {
 // added in the future.
 export type Operation =
   | MergeOperation
-  | RemoveOperation
+  | RemoveResourceOperation
+  | RemoveDocumentOperation
+  | AddResourceOperation
+  | UpdateResourceOperation
+  | UpdateResourceFieldOperation
   | AddToResourceRelationshipOperation
   | RemoveFromResourceRelationshipOperation
   | AddToDocumentOperation

@@ -14,12 +14,18 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type {
+  AddResourceOperation,
   AddToDocumentOperation,
   AddToResourceRelationshipOperation,
   Op,
   Operation,
+  RemoveDocumentOperation,
   RemoveFromDocumentOperation,
   RemoveFromResourceRelationshipOperation,
+  RemoveResourceOperation,
+  UpdateResourceFieldOperation,
+  UpdateResourceOperation,
+  UpdateResourceRelationshipOperation,
 } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -439,160 +445,87 @@ export default class JSONAPICache implements Cache {
         this.__graph.update(op, true);
         break;
       }
-      case 'add': {
-        assert(`Expected a field in the add operation`, 'field' in op);
+      case 'update': {
         if (isRecord) {
-          asOp<AddToResourceRelationshipOperation>(op);
-          this.__graph.push(op);
-        } else {
-          asOp<AddToDocumentOperation>(op);
-          const doc = this.__documents.get(op.record.lid);
-          assert(`Expected to have a cached document on which to perform the add operation`, doc);
-          const { content } = doc;
-          assert(`Expected to have content on the document`, content);
-
-          assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
-          if (op.field === 'data') {
-            let shouldNotify = false;
-            assert(`Expected to have a data property on the document`, 'data' in content);
-            asDoc<ResourceDataDocument>(content);
-
-            // if data is not an array, we set the data property directly
-            if (!Array.isArray(content.data)) {
-              assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
-              shouldNotify = content.data !== op.value;
-              if (shouldNotify) content.data = op.value;
-              assert(
-                `The value '${op.value.lid}' cannot be added from the data of document '${op.record.lid}' as it is already the current value '${content.data ? content.data.lid : '<null>'}'`,
-                shouldNotify
-              );
+          if ('field' in op) {
+            const field = this._capabilities.schema.fields(op.record).get(op.field);
+            assert(`Expected ${op.field} to be a field on ${op.record.type}`, field);
+            if (isRelationship(field)) {
+              asOp<UpdateResourceRelationshipOperation>(op);
+              this.__graph.push(op);
             } else {
-              assert(`Expected to have a non-null operation value`, op.value);
-
-              if (Array.isArray(op.value)) {
-                if (op.index !== undefined) {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.splice(op.index, 0, ...op.value);
-                } else {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.push(...op.value);
-                }
-              } else {
-                if (op.index !== undefined) {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.splice(op.index, 0, op.value);
-                } else {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.push(op.value);
-                }
-              }
+              asOp<UpdateResourceFieldOperation>(op);
+              this.upsert(
+                op.record,
+                {
+                  type: op.record.type,
+                  id: op.record.id,
+                  attributes: {
+                    [op.field]: op.value,
+                  },
+                },
+                this._capabilities.hasRecord(op.record)
+              );
             }
-
-            // notify
-            if (shouldNotify) this._capabilities.notifyChange(op.record, 'updated', null);
           } else {
-            asDoc<ResourceDataDocument>(content);
-            content.included = content.included || [];
-
-            assert(`Expected to have a non-null operation value`, op.value);
-            if (Array.isArray(op.value)) {
-              // included is not allowed to have duplicates, so we do a dirty check here
-              assert(
-                `included should not contain duplicate members`,
-                new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
-              );
-              content.included = content.included.concat(op.value);
-            } else {
-              // included is not allowed to have duplicates, so we do a dirty check here
-              assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
-              content.included.push(op.value);
-            }
-
-            // we don't notify in the included case because this is not reactively
-            // exposed. We should possibly consider doing so though for subscribers
+            asOp<UpdateResourceOperation>(op);
+            this.upsert(op.record, op.value, this._capabilities.hasRecord(op.record));
           }
+        } else {
+          assert(`Update operations on documents is not supported`, false);
+        }
+        break;
+      }
+      case 'add': {
+        if (isRecord) {
+          if ('field' in op) {
+            asOp<AddToResourceRelationshipOperation>(op);
+            this.__graph.push(op);
+          } else {
+            asOp<AddResourceOperation>(op);
+            this.upsert(op.record, op.value, this._capabilities.hasRecord(op.record));
+          }
+        } else {
+          assert(`Expected a field in the add operation`, 'field' in op);
+          asOp<AddToDocumentOperation>(op);
+          addResourceToDocument(this, op);
         }
         break;
       }
       case 'remove': {
-        assert(`Expected a field in the add operation`, 'field' in op);
         if (isRecord) {
-          this.__graph.push(op as RemoveFromResourceRelationshipOperation);
-        } else {
-          asOp<RemoveFromDocumentOperation>(op);
-          const doc = this.__documents.get(op.record.lid);
-          assert(`Expected to have a cached document on which to perform the remove operation`, doc);
-          const { content } = doc;
-          assert(`Expected to have content on the document`, content);
-
-          assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
-          if (op.field === 'data') {
-            let shouldNotify = false;
-            assert(`Expected to have a data property on the document`, 'data' in content);
-            asDoc<ResourceDataDocument>(content);
-
-            // if data is not an array, we set the data property directly
-            if (!Array.isArray(content.data)) {
-              assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
-              shouldNotify = content.data === op.value;
-              // we only remove the value if it was our existing value
-              if (shouldNotify) content.data = op.value;
-              assert(
-                `The value '${op.value.lid}' cannot be removed from the data of document '${op.record.lid}' as it is not the current value '${content.data ? content.data.lid : '<null>'}'`,
-                shouldNotify
-              );
-            } else {
-              assert(`Expected to have a non-null operation value`, op.value);
-
-              if (Array.isArray(op.value)) {
-                if (op.index !== undefined) {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.splice(op.index, 0, ...op.value);
-                } else {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.push(...op.value);
-                }
-              } else {
-                if (op.index !== undefined) {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.splice(op.index, 0, op.value);
-                } else {
-                  // for collections, because we allow duplicates we are always changed.
-                  shouldNotify = true;
-                  content.data.push(op.value);
-                }
-              }
-            }
-
-            // notify
-            if (shouldNotify) this._capabilities.notifyChange(op.record, 'updated', null);
+          if ('field' in op) {
+            asOp<RemoveFromResourceRelationshipOperation>(op);
+            this.__graph.push(op);
           } else {
-            asDoc<ResourceDataDocument>(content);
-            content.included = content.included || [];
-
-            assert(`Expected to have a non-null operation value`, op.value);
-            if (Array.isArray(op.value)) {
-              // included is not allowed to have duplicates, so we do a dirty check here
-              assert(
-                `included should not contain duplicate members`,
-                new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
-              );
-              content.included = content.included.concat(op.value);
+            asOp<RemoveResourceOperation>(op);
+            const cached = this.__safePeek(op.record, false);
+            if (cached) {
+              cached.isDeleted = true;
+              cached.isDeletionCommitted = true;
+              this.unloadRecord(op.record);
             } else {
-              // included is not allowed to have duplicates, so we do a dirty check here
-              assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
-              content.included.push(op.value);
+              peekGraph(this._capabilities)?.push({
+                op: 'deleteRecord',
+                record: op.record,
+                isNew: false,
+              });
             }
+          }
+        } else {
+          if ('field' in op) {
+            assert(`Expected a field in the remove operation`, 'field' in op);
 
-            // we don't notify in the included case because this is not reactively
-            // exposed. We should possibly consider doing so though for subscribers
+            asOp<RemoveFromDocumentOperation>(op);
+            removeResourceFromDocument(this, op);
+          } else {
+            asOp<RemoveDocumentOperation>(op);
+            // TODO @runspired teardown associated state ... notify subscribers etc.
+            // This likely means that the instance cache needs to handle
+            // holding onto reactive documents instead of the CacheHandler
+            // and use a subscription to remove them.
+            // this.__documents.delete(op.record.lid);
+            assert(`Removing documents from the cache is not yet supported`, false);
           }
         }
         break;
@@ -1351,11 +1284,11 @@ export default class JSONAPICache implements Cache {
     let removed = false;
     const cached = this.__peek(identifier, false);
 
-    if (cached.isNew) {
+    if (cached.isNew || cached.isDeletionCommitted) {
       peekGraph(storeWrapper)?.push({
         op: 'deleteRecord',
         record: identifier,
-        isNew: true,
+        isNew: cached.isNew,
       });
     } else {
       peekGraph(storeWrapper)?.unload(identifier);
@@ -1982,6 +1915,154 @@ export default class JSONAPICache implements Cache {
       resource
     );
     return resource;
+  }
+}
+
+function addResourceToDocument(cache: JSONAPICache, op: AddToDocumentOperation): void {
+  assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+
+  const doc = cache.__documents.get(op.record.lid);
+  assert(`Expected to have a cached document on which to perform the add operation`, doc);
+  assert(`Expected to have content on the document`, doc.content);
+  const { content } = doc;
+
+  if (op.field === 'data') {
+    let shouldNotify = false;
+    assert(`Expected to have a data property on the document`, 'data' in content);
+    asDoc<ResourceDataDocument>(content);
+
+    // if data is not an array, we set the data property directly
+    if (!Array.isArray(content.data)) {
+      assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+      shouldNotify = content.data !== op.value;
+      if (shouldNotify) content.data = op.value;
+      assert(
+        `The value '${op.value.lid}' cannot be added from the data of document '${op.record.lid}' as it is already the current value '${content.data ? content.data.lid : '<null>'}'`,
+        shouldNotify
+      );
+    } else {
+      assert(`Expected to have a non-null operation value`, op.value);
+
+      if (Array.isArray(op.value)) {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, ...op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(...op.value);
+        }
+      } else {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(op.value);
+        }
+      }
+    }
+
+    // notify
+    if (shouldNotify) cache._capabilities.notifyChange(op.record, 'updated', null);
+    return;
+  }
+
+  asDoc<ResourceDataDocument>(content);
+  content.included = content.included || [];
+
+  assert(`Expected to have a non-null operation value`, op.value);
+  if (Array.isArray(op.value)) {
+    // included is not allowed to have duplicates, so we do a dirty check here
+    assert(
+      `included should not contain duplicate members`,
+      new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+    );
+    content.included = content.included.concat(op.value);
+  } else {
+    // included is not allowed to have duplicates, so we do a dirty check here
+    assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
+    content.included.push(op.value);
+  }
+
+  // we don't notify in the included case because this is not reactively
+  // exposed. We should possibly consider doing so though for subscribers
+}
+
+function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentOperation): void {
+  assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+
+  const doc = cache.__documents.get(op.record.lid);
+  assert(`Expected to have a cached document on which to perform the remove operation`, doc);
+  assert(`Expected to have content on the document`, doc.content);
+  const { content } = doc;
+
+  if (op.field === 'data') {
+    let shouldNotify = false;
+    assert(`Expected to have a data property on the document`, 'data' in content);
+    asDoc<ResourceDataDocument>(content);
+
+    // if data is not an array, we set the data property directly
+    if (!Array.isArray(content.data)) {
+      assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+      shouldNotify = content.data === op.value;
+      // we only remove the value if it was our existing value
+      if (shouldNotify) content.data = op.value;
+      assert(
+        `The value '${op.value.lid}' cannot be removed from the data of document '${op.record.lid}' as it is not the current value '${content.data ? content.data.lid : '<null>'}'`,
+        shouldNotify
+      );
+    } else {
+      assert(`Expected to have a non-null operation value`, op.value);
+
+      if (Array.isArray(op.value)) {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, ...op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(...op.value);
+        }
+      } else {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(op.value);
+        }
+      }
+    }
+
+    // notify
+    if (shouldNotify) cache._capabilities.notifyChange(op.record, 'updated', null);
+  } else {
+    asDoc<ResourceDataDocument>(content);
+    content.included = content.included || [];
+
+    assert(`Expected to have a non-null operation value`, op.value);
+    if (Array.isArray(op.value)) {
+      // included is not allowed to have duplicates, so we do a dirty check here
+      assert(
+        `included should not contain duplicate members`,
+        new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+      );
+      content.included = content.included.concat(op.value);
+    } else {
+      // included is not allowed to have duplicates, so we do a dirty check here
+      assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
+      content.included.push(op.value);
+    }
+
+    // we don't notify in the included case because this is not reactively
+    // exposed. We should possibly consider doing so though for subscribers
   }
 }
 

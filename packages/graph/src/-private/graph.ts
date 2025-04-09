@@ -455,6 +455,7 @@ export class Graph {
         }
         break;
       }
+      case 'update':
       case 'updateRelationship':
         assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
         if (DEBUG) {

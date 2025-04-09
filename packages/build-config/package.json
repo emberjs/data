@@ -46,7 +46,6 @@
     "@embroider/macros": "^1.16.12",
     "@embroider/addon-shim": "^1.9.0",
     "babel-import-util": "^2.1.1",
-    "broccoli-funnel": "^3.0.8",
     "semver": "^7.7.1"
   },
   "devDependencies": {
