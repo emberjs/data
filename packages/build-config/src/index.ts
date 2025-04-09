@@ -103,10 +103,19 @@ function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
 }
 
 export function setConfig(macros: object, config: WarpDriveConfig): void;
-export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void {
-  const macros = arguments.length === 2 ? arguments[0] : recastMacrosConfig(_MacrosConfig.for(context, appRoot));
-  const isLegacySupport = (config as unknown as { ___legacy_support?: boolean }).___legacy_support;
-  const hasDeprecatedConfig = isLegacySupport && Object.keys(config).length > 1;
+export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void;
+export function setConfig(context: object, appRootOrConfig: string | WarpDriveConfig, config?: WarpDriveConfig): void {
+  const isEmberClassicUsage = arguments.length === 3;
+  const macros: object = isEmberClassicUsage 
+    ? recastMacrosConfig(_MacrosConfig.for(context, appRootOrConfig)) 
+    : context;
+
+  const userConfig: WarpDriveConfig = isEmberClassicUsage
+    ? config 
+    : appRootOrConfig;
+
+  const isLegacySupport = (userConfig as unknown as { ___legacy_support?: boolean }).___legacy_support;
+  const hasDeprecatedConfig = isLegacySupport && Object.keys(userConfig).length > 1;
   const hasInitiatedConfig = macros.globalConfig['WarpDrive'];
 
   // setConfig called by user prior to legacy support called
@@ -137,21 +146,21 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   //   );
   // }
 
-  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, config.debug);
+  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, userConfig.debug);
 
   const env = getEnv();
-  const DEPRECATIONS = getDeprecations(config.compatWith || null, config.deprecations);
+  const DEPRECATIONS = getDeprecations(userConfig.compatWith || null, userConfig.deprecations);
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
-    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : true;
+    typeof userConfig.includeDataAdapterInProduction === 'boolean' ? userConfig.includeDataAdapterInProduction : true;
   const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : true;
 
   const finalizedConfig: InternalWarpDriveConfig = {
     debug: debugOptions,
-    polyfillUUID: config.polyfillUUID ?? false,
+    polyfillUUID: userConfig.polyfillUUID ?? false,
     includeDataAdapter,
-    compatWith: config.compatWith ?? null,
+    compatWith: userConfig.compatWith ?? null,
     deprecations: DEPRECATIONS,
     features: FEATURES,
     activeLogging: createLoggingConfig(env, debugOptions),
