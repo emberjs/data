@@ -7,7 +7,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
-import { _addLocal, _removeLocal, _removeRemote, diffCollection } from '../-diff';
+import { _add, _removeLocal, _removeRemote, diffCollection } from '../-diff';
 import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
 import type { CollectionEdge } from '../edges/collection';
@@ -407,7 +407,7 @@ export function addToInverse(
         relationship.localState = [];
       }
 
-      if (_addLocal(graph, identifier, relationship, value, null)) {
+      if (_add(graph, identifier, relationship, value, null, isRemote)) {
         notifyChange(graph, relationship);
       }
     }

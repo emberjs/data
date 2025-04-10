@@ -4,7 +4,7 @@ import type { RemoveFromResourceRelationshipMutation } from '@warp-drive/core-ty
 import type { RemoveFromResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
-import { _removeLocal } from '../-diff';
+import { _remove } from '../-diff';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
@@ -41,33 +41,28 @@ export default function removeFromRelatedRecords(
     `You can only '${op.op}' on a hasMany relationship. ${record.type}.${op.field} is a ${relationship.definition.kind}`,
     isHasMany(relationship)
   );
-  // TODO we should potentially thread the index information through here
-  // when available as it may make it faster to remove from the local state
-  // when trying to patch more efficiently without blowing away the entire
-  // local state array
+
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
-      removeRelatedRecord(graph, relationship, record, value[i], isRemote);
+      removeRelatedRecord(graph, record, relationship, value[i], op.index ?? null, isRemote);
     }
   } else {
-    removeRelatedRecord(graph, relationship, record, value, isRemote);
+    removeRelatedRecord(graph, record, relationship, value, op.index ?? null, isRemote);
   }
+
   notifyChange(graph, relationship);
 }
 
 function removeRelatedRecord(
   graph: Graph,
-  relationship: CollectionEdge,
   record: StableRecordIdentifier,
+  relationship: CollectionEdge,
   value: StableRecordIdentifier,
+  index: number | null,
   isRemote: boolean
 ) {
   assert(`expected an identifier to remove from the collection relationship`, value);
-  if (!isRemote) {
-    if (_removeLocal(relationship, value)) {
-      removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
-    }
-  } else {
-    // FIXME
+  if (_remove(graph, record, relationship, value, index, isRemote)) {
+    removeFromInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
 }

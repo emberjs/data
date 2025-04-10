@@ -4,7 +4,7 @@ import type { AddToResourceRelationshipMutation } from '@warp-drive/core-types/c
 import type { AddToResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
-import { _addLocal } from '../-diff';
+import { _add } from '../-diff';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
 import type { CollectionEdge } from '../edges/collection';
 import type { Graph } from '../graph';
@@ -51,10 +51,10 @@ export default function addToRelatedRecords(
 
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
-      addRelatedRecord(graph, relationship, record, value[i], index !== undefined ? index + i : index, isRemote);
+      addRelatedRecord(graph, relationship, record, value[i], index !== undefined ? index + i : null, isRemote);
     }
   } else {
-    addRelatedRecord(graph, relationship, record, value, index, isRemote);
+    addRelatedRecord(graph, relationship, record, value, index ?? null, isRemote);
   }
 
   notifyChange(graph, relationship);
@@ -65,16 +65,12 @@ function addRelatedRecord(
   relationship: CollectionEdge,
   record: StableRecordIdentifier,
   value: StableRecordIdentifier,
-  index: number | undefined,
+  index: number | null,
   isRemote: boolean
 ) {
   assert(`expected an identifier to add to the collection relationship`, value);
 
-  if (!isRemote) {
-    if (_addLocal(graph, record, relationship, value, index ?? null)) {
-      addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
-    }
-  } else {
-    // FIXME
+  if (_add(graph, record, relationship, value, index, isRemote)) {
+    addToInverse(graph, value, relationship.definition.inverseKey, record, isRemote);
   }
 }

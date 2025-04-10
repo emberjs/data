@@ -806,7 +806,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       },
     });
     const identifier4 = setupRecord(store, {
-      id: '3',
+      id: '4',
       type: 'user',
       attributes: {
         name: 'Shen',
@@ -822,11 +822,11 @@ module('Integration | <JSONAPICache>.patch', function () {
     assert.equal(record?.name, 'John Doe', 'The name is correct');
     assert.equal(record?.username, 'johndoe', 'The username is correct');
     assert.equal(record?.id, '1', 'The id is correct');
-    assert.equal(record?.friends?.length, 0, 'The friends collection is empty');
+    assert.equal(record?.friends?.length, 1, 'The friends collection starts with an entry');
     const record2 = store.peekRecord<User>(identifier2);
     assert.equal(record2?.name, 'Chris', 'The name is correct');
     assert.equal(record2?.id, '2', 'The id is correct');
-    assert.equal(record2?.friends?.length, 0, 'The inverse friends collection is empty');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection starts with an entry');
     const record3 = store.peekRecord<User>(identifier3);
     assert.equal(record3?.name, 'Wes', 'The name is correct');
     assert.equal(record3?.id, '3', 'The id is correct');
@@ -835,7 +835,6 @@ module('Integration | <JSONAPICache>.patch', function () {
     assert.equal(record4?.name, 'Shen', 'The name is correct');
     assert.equal(record4?.id, '4', 'The id is correct');
     assert.equal(record4?.friends?.length, 0, 'The inverse friends collection is empty');
-    assert.equal(record?.friends?.length, 0, 'The friends collection is empty');
 
     cache.patch({
       op: 'add',
@@ -873,6 +872,14 @@ module('Integration | <JSONAPICache>.patch', function () {
               id: '2',
               type: 'user',
             },
+            {
+              id: '3',
+              type: 'user',
+            },
+            {
+              id: '4',
+              type: 'user',
+            },
           ],
         },
       },
@@ -894,26 +901,72 @@ module('Integration | <JSONAPICache>.patch', function () {
         },
       },
     });
+    const identifier3 = setupRecord(store, {
+      id: '3',
+      type: 'user',
+      attributes: {
+        name: 'Wes',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
+    const identifier4 = setupRecord(store, {
+      id: '4',
+      type: 'user',
+      attributes: {
+        name: 'Rey',
+      },
+      relationships: {
+        friends: {
+          data: [
+            {
+              id: '1',
+              type: 'user',
+            },
+          ],
+        },
+      },
+    });
 
     const record = store.peekRecord<User>(identifier);
-    assert.equal(record?.name, 'John Doe', 'The name is correct');
-    assert.equal(record?.username, 'johndoe', 'The username is correct');
-    assert.equal(record?.id, '1', 'The id is correct');
-    assert.equal(record?.friends?.length, 1, 'The friends collection is not empty');
     const record2 = store.peekRecord<User>(identifier2);
-    assert.equal(record2?.name, 'Chris', 'The name is correct');
-    assert.equal(record2?.id, '2', 'The id is correct');
-    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection is not empty');
+    const record3 = store.peekRecord<User>(identifier3);
+    const record4 = store.peekRecord<User>(identifier4);
+
+    assert.equal(record?.friends?.length, 3, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record4?.friends?.length, 1, 'The inverse friends collection is not empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '2,3,4',
+      'The friends collection is in the right order'
+    );
 
     cache.patch({
       op: 'remove',
       record: identifier,
       field: 'friends',
-      value: identifier2,
+      value: identifier3,
     });
 
-    assert.equal(record?.friends?.length, 0, 'The friends collection has no entry');
-    assert.equal(record2?.friends?.length, 0, 'The inverse friends collection has no entry');
+    assert.equal(record?.friends?.length, 2, 'The friends collection has an entry');
+    assert.equal(record2?.friends?.length, 1, 'The inverse friends collection has an entry');
+    assert.equal(record3?.friends?.length, 0, 'The friends collection has an entry');
+    assert.equal(record4?.friends?.length, 1, 'The inverse friends collection is empty');
+    assert.equal(
+      record?.friends?.map((friend) => friend.id).join(','),
+      '2,4',
+      'The friends collection is in the right order'
+    );
   });
 
   test('We can remove multiple from a collection relationship in the cache', function (assert) {
@@ -1151,7 +1204,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       op: 'remove',
       record: identifier,
       field: 'friends',
-      value: [identifier4],
+      value: identifier4,
       index: 1,
     });
 
