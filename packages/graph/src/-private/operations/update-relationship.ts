@@ -3,6 +3,7 @@ import { warn } from '@ember/debug';
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
   ExistingResourceIdentifierObject,
@@ -19,7 +20,10 @@ type IdentifierCache = Store['identifierCache'];
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
     state and blowing away any local changes (excepting new records).
 */
-export default function updateRelationshipOperation(graph: Graph, op: UpdateRelationshipOperation) {
+export default function updateRelationshipOperation(
+  graph: Graph,
+  op: UpdateRelationshipOperation | UpdateResourceRelationshipOperation
+) {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const { definition, state, identifier } = relationship;

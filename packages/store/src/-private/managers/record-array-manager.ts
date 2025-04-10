@@ -323,6 +323,10 @@ export class RecordArrayManager {
   ) {
     this._pending.delete(array);
     const source = array[SOURCE];
+    assert(
+      `The new state of the collection should not be using the same array reference as the original state.`,
+      source !== identifiers
+    );
     const old = source.slice();
     source.length = 0;
     fastPush(source, identifiers);

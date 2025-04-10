@@ -90,5 +90,13 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "keywords": [
+    "ember-addon"
+  ],
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
   }
 }

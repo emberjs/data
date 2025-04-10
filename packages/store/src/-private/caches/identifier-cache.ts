@@ -18,11 +18,16 @@ import {
   type IdentifierBucket,
   type RecordIdentifier,
   type StableDocumentIdentifier,
+  type StableExistingRecordIdentifier,
   type StableIdentifier,
   type StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
-import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type {
+  ExistingResourceIdentifierObject,
+  ExistingResourceObject,
+  ResourceIdentifierObject,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 import type {
   ForgetMethod,
@@ -38,6 +43,12 @@ import installPolyfill from '../utils/uuid-polyfill';
 import { hasId, hasLid, hasType } from './resource-utils';
 
 type ResourceData = unknown;
+
+type TypeFromIdentifier<T> = T extends { type: infer U } ? U : string;
+
+type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
+  ? StableExistingRecordIdentifier<TypeFromIdentifier<T>>
+  : StableRecordIdentifier;
 
 const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
 
@@ -409,8 +420,8 @@ export class IdentifierCache {
     @return {StableRecordIdentifier}
     @public
   */
-  getOrCreateRecordIdentifier(resource: unknown): StableRecordIdentifier {
-    return this._getRecordIdentifier(resource, 1);
+  getOrCreateRecordIdentifier<T>(resource: T): NarrowIdentifierIfPossible<T> {
+    return this._getRecordIdentifier(resource as unknown, 1) as NarrowIdentifierIfPossible<T>;
   }
 
   /**

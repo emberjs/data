@@ -1,7 +1,7 @@
 import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
-import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
+import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
 
@@ -19,7 +19,7 @@ export function validateDocument(capabilities: CacheCapabilitiesManager, doc: St
   // if the feature is not active and the payloads are not being logged
   // we don't need to validate the payloads
   if (!JSON_API_CACHE_VALIDATION_ERRORS) {
-    if (!LOG_PAYLOADS) {
+    if (!LOG_CACHE) {
       return;
     }
   }
@@ -51,11 +51,10 @@ function validateResourceDocument(reporter: Reporter, doc: StructuredDataDocumen
   );
   validateDocumentResources(reporter, doc.content);
 
-  // FIXME
-  // validateMeta on document
-  // validateMeta on resource
-  // validateMeta on resource relationships
-  // validate no-meta on resource identifiers
+  // TODO @runspired - validateMeta on document
+  // TODO @runspired - validateMeta on resource
+  // TODO @runspired - validateMeta on resource relationships
+  // TODO @runspired - validate no-meta on resource identifiers
   //
   // ---------------------------------
   // super-strict-mode

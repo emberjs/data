@@ -5,7 +5,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
@@ -17,6 +17,7 @@ import type {
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import { log, logGroup } from '../debug/utils';
+import { ReactiveDocument } from '../document';
 import RecordReference from '../legacy-model-support/record-reference';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager';
 import type { CacheManager } from '../managers/cache-manager';
@@ -105,6 +106,10 @@ export function storeFor(record: OpaqueRecordInstance): Store | undefined {
 type Caches = {
   record: Map<StableRecordIdentifier, OpaqueRecordInstance>;
   reference: WeakMap<StableRecordIdentifier, RecordReference>;
+  document: Map<
+    StableDocumentIdentifier,
+    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
+  >;
 };
 
 export class InstanceCache {
@@ -113,13 +118,15 @@ export class InstanceCache {
   declare _storeWrapper: CacheCapabilitiesManager;
 
   declare __cacheManager: CacheManager;
-  __instances: Caches = {
-    record: new Map<StableRecordIdentifier, OpaqueRecordInstance>(),
-    reference: new WeakMap<StableRecordIdentifier, RecordReference>(),
-  };
+  declare __instances: Caches;
 
   constructor(store: Store) {
     this.store = store;
+    this.__instances = {
+      record: new Map(),
+      reference: new WeakMap(),
+      document: new Map(),
+    };
 
     this._storeWrapper = new CacheCapabilitiesManager(this.store);
 
@@ -186,6 +193,15 @@ export class InstanceCache {
   }
   peek(identifier: StableRecordIdentifier): Cache | OpaqueRecordInstance | undefined {
     return this.__instances.record.get(identifier);
+  }
+
+  getDocument<T>(identifier: StableDocumentIdentifier): ReactiveDocument<T> {
+    let doc = this.__instances.document.get(identifier);
+    if (!doc) {
+      doc = new ReactiveDocument<T>(this.store, identifier, null);
+      this.__instances.document.set(identifier, doc);
+    }
+    return doc as ReactiveDocument<T>;
   }
 
   getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): OpaqueRecordInstance {
