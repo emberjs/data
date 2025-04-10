@@ -59,9 +59,10 @@ export type PACKAGEJSON = {
   scripts?: Record<string, string>;
   files?: string[];
   exports?: ExportConfig;
+  keywords?: string[];
   typesVersions?: { [tsVersion: string]: { [relativeImportPath: string]: string[] } };
   'ember-addon'?: {
-    main?: 'addon-main.js';
+    main?: 'addon-main.js' | 'addon-main.cjs';
     type?: 'addon';
     version?: 1 | 2;
   };
