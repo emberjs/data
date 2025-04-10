@@ -438,6 +438,28 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
   statsHeader.appendChild(document.createElement('th')).innerText = 'Skipped';
   statsHeader.appendChild(document.createElement('th')).innerText = 'Todo';
   statsHeader.appendChild(document.createElement('th')).innerText = 'Total';
+
+  const clipboardButton = document.createElement('th');
+  statsHeader.appendChild(clipboardButton).innerText = '📋';
+
+  clipboardButton.addEventListener('click', async () => {
+    const tableText = [
+      '',
+      `### Testing Status`,
+      '',
+      `| Passing | Failing | Broken | Under Construction | Skipped | Todo | Total |`,
+      `| ------- | ------- | ------ | ------------------ | ------- | ---- | ----- |`,
+      `| ${STATS_CELLS.passing.innerText} | ${STATS_CELLS.failing.innerText} | ${STATS_CELLS.broken.innerText} | ${STATS_CELLS.underConstruction.innerText} | ${STATS_CELLS.skipped.innerText} | ${STATS_CELLS.todo.innerText} | ${STATS_CELLS.total.innerText} |`,
+      '',
+    ].join('\n');
+    const statusText = Array.from(results.keys())
+      .map((test) => {
+        return `- ${iconForTestStatus(test)} ${test.name}`;
+      })
+      .join('\n');
+    await navigator.clipboard.writeText(`${tableText}\n${statusText}\n`);
+  });
+
   statsTable.appendChild(statsOverview);
   const statsBody = document.createElement('tbody');
   statsTable.appendChild(statsBody);
@@ -452,6 +474,7 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
     todo: statsRow.appendChild(document.createElement('td')),
     total: statsRow.appendChild(document.createElement('td')),
   };
+  statsRow.appendChild(document.createElement('td'));
 
   const updateStats = () => {
     const passed = suiteReport.passed - suiteReport.skipped - suiteReport.todo;
