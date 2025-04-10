@@ -73,7 +73,7 @@
     "@glint/environment-ember-template-imports": "1.5.2",
     "@glint/template": "1.5.2",
     "decorator-transforms": "^2.3.0",
-    "@embroider/addon-dev": "^7.1.3",
+    "@embroider/addon-dev": "^8.0.1",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
