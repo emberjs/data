@@ -1834,7 +1834,7 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
       assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
       shouldNotify = content.data === op.value;
       // we only remove the value if it was our existing value
-      if (shouldNotify) content.data = op.value;
+      if (shouldNotify) content.data = null;
       assert(
         `The value '${op.value.lid}' cannot be removed from the data of document '${op.record.lid}' as it is not the current value '${content.data ? content.data.lid : '<null>'}'`,
         shouldNotify
@@ -1854,13 +1854,33 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
         }
       } else {
         if (op.index !== undefined) {
+          // in production we want to recover gracefully
+          // so we fallback to first-index-of
+          const index =
+            op.index < content.data.length && content.data[op.index] === op.value
+              ? op.index
+              : content.data.indexOf(op.value);
+
+          assert(
+            `Mismatched Index: Expected index '${op.index}' to contain the value '${op.value.lid}' but that value is at index '${index}'`,
+            op.index < content.data.length && content.data[op.index] === op.value
+          );
+
+          if (index !== -1) {
+            // we remove the first occurrence of the value
+            shouldNotify = true;
+            content.data.splice(index, 1);
+          }
           // for collections, because we allow duplicates we are always changed.
           shouldNotify = true;
           content.data.splice(op.index, 0, op.value);
         } else {
-          // for collections, because we allow duplicates we are always changed.
-          shouldNotify = true;
-          content.data.push(op.value);
+          // we remove the first occurrence of the value
+          const index = content.data.indexOf(op.value);
+          if (index !== -1) {
+            shouldNotify = true;
+            content.data.splice(index, 1);
+          }
         }
       }
     }

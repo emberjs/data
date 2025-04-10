@@ -855,7 +855,6 @@ module('Integration | <JSONAPICache>.patch', function () {
     const store = new TestStore();
     const documentIdentifier = setupDocument(store, '/api/v1/user/1', {
       data: null,
-      included: [],
     });
     const userIdentifier = setupRecord(store, {
       id: '2',
@@ -877,7 +876,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     );
     assert.equal(
       asDoc<SingleResourceDataDocument>(cacheDocument).included?.length,
-      0,
+      undefined,
       'The document has no included resources in the cache'
     );
 
@@ -896,12 +895,59 @@ module('Integration | <JSONAPICache>.patch', function () {
     );
     assert.equal(
       asDoc<SingleResourceDataDocument>(cacheDocument).included?.length,
-      0,
+      undefined,
       'The document has no included resources in the cache'
     );
   });
 
-  test('We can remove from data on a single resource document in the cache', function (assert) {});
+  test('We can remove from data on a single resource document in the cache', function (assert) {
+    const store = new TestStore();
+    const documentIdentifier = setupDocument(store, '/api/v1/user/1', {
+      data: {
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: 'Wesley',
+        },
+      },
+      included: [],
+    });
+    const userIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+      id: '2',
+      type: 'user',
+    } as const);
+    const user = store.peekRecord<User>(userIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
+    const cacheDocument = store.cache.peek(documentIdentifier);
+
+    assert.equal(user?.name, 'Wesley', 'The name is correct');
+    assert.equal(reactiveDocument.data, user, 'The document has the resource');
+    assert.equal(
+      asDoc<SingleResourceDataDocument>(cacheDocument).data,
+      userIdentifier,
+      'The document has the resource in the cache'
+    );
+    assert.equal(
+      asDoc<SingleResourceDataDocument>(cacheDocument).included?.length,
+      0,
+      'The document has no included resources in the cache'
+    );
+
+    store.cache.patch({
+      op: 'remove',
+      record: documentIdentifier,
+      field: 'data',
+      value: userIdentifier,
+    });
+
+    assert.equal(reactiveDocument.data, null, 'The reactive document has no resource');
+    assert.equal(asDoc<SingleResourceDataDocument>(cacheDocument).data, null, 'The cache document has no resource');
+    assert.equal(
+      asDoc<SingleResourceDataDocument>(cacheDocument).included?.length,
+      0,
+      'The document has no included resources in the cache'
+    );
+  });
 
   test('We can add to data on a collection resource document in the cache', function (assert) {
     const store = new TestStore();
@@ -969,6 +1015,8 @@ module('Integration | <JSONAPICache>.patch', function () {
       0,
       'The document has no included resources in the cache'
     );
+    assert.equal(reactiveDocument.data?.[0]?.id, '1', 'The document has the right resource');
+    assert.equal(reactiveDocument.data?.[1]?.id, '2', 'The document has the right resource');
   });
 
   test('We can remove from data on a collection resource document in the cache', function (assert) {
@@ -1041,7 +1089,76 @@ module('Integration | <JSONAPICache>.patch', function () {
     assert.equal(reactiveDocument.data?.[0]?.id, '1', 'The document has the right resource');
   });
 
-  test('We can add to data on a collection resource document in the cache with an index', function (assert) {});
+  test('We can add to data on a collection resource document in the cache with an index', function (assert) {
+    const store = new TestStore();
+    const documentIdentifier = setupDocument(store, '/api/v1/users', {
+      data: [
+        {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris',
+          },
+          relationships: {
+            pets: {
+              data: [],
+            },
+          },
+        },
+      ],
+      included: [],
+    });
+
+    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
+
+    const cacheDocument = store.cache.peek(documentIdentifier);
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      1,
+      'The document has one resource in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      0,
+      'The document has no included resources in the cache'
+    );
+
+    const user2 = setupRecord(store, {
+      id: '2',
+      type: 'user',
+      attributes: {
+        name: 'Wesley',
+      },
+      relationships: {
+        pets: {
+          data: [],
+        },
+      },
+    });
+
+    store.cache.patch({
+      op: 'add',
+      record: documentIdentifier,
+      field: 'data',
+      value: user2,
+      index: 0,
+    });
+
+    assert.equal(reactiveDocument.data?.length, 2, 'The document has two resources');
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      2,
+      'The document has two resources in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      0,
+      'The document has no included resources in the cache'
+    );
+    assert.equal(reactiveDocument.data?.[0]?.id, '2', 'The document has the right resource');
+    assert.equal(reactiveDocument.data?.[1]?.id, '1', 'The document has the right resource');
+  });
 
   test('We can remove from data on a collection resource document in the cache with an index', function (assert) {});
 
