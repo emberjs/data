@@ -95,9 +95,13 @@ type InternalWarpDriveConfig = {
 
 type MacrosWithGlobalConfig = Omit<MacrosConfig, 'globalConfig'> & { globalConfig: Record<string, unknown> };
 
-function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
+function recastMacrosConfig(macros: object, isEmberClassicUsage: boolean): MacrosWithGlobalConfig {
   if (!('globalConfig' in macros)) {
-    throw new Error('Expected MacrosConfig to have a globalConfig property');
+    if (isEmberClassicUsage) {
+      throw new Error('Expected MacrosConfig to have a globalConfig property');
+    }
+    // @ts-expect-error - gotta set this up ourselves
+    macros.globalConfig = {};
   }
   return macros as MacrosWithGlobalConfig;
 }
@@ -106,13 +110,12 @@ export function setConfig(macros: object, config: WarpDriveConfig): void;
 export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void;
 export function setConfig(context: object, appRootOrConfig: string | WarpDriveConfig, config?: WarpDriveConfig): void {
   const isEmberClassicUsage = arguments.length === 3;
-  const macros: object = isEmberClassicUsage 
-    ? recastMacrosConfig(_MacrosConfig.for(context, appRootOrConfig)) 
-    : context;
+  const macros = recastMacrosConfig(
+    isEmberClassicUsage ? _MacrosConfig.for(context, appRootOrConfig as string) : context,
+    isEmberClassicUsage
+  );
 
-  const userConfig: WarpDriveConfig = isEmberClassicUsage
-    ? config 
-    : appRootOrConfig;
+  const userConfig = isEmberClassicUsage ? config! : (appRootOrConfig as WarpDriveConfig);
 
   const isLegacySupport = (userConfig as unknown as { ___legacy_support?: boolean }).___legacy_support;
   const hasDeprecatedConfig = isLegacySupport && Object.keys(userConfig).length > 1;
