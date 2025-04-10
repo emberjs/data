@@ -34,10 +34,7 @@ export default function (babel) {
             binding.referencePaths.forEach((p) => {
               let negateStatement = false;
               let node = p;
-              if (!isCanary) {
-                p.replaceWith(t.boolean(state.opts.flags[name]));
-                return;
-              }
+
               if (parentIsUnary(p)) {
                 negateStatement = true;
                 node = p.parentPath;
