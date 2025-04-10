@@ -1841,29 +1841,19 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
       );
     } else {
       assert(`Expected to have a non-null operation value`, op.value);
+      const toRemove = Array.isArray(op.value) ? op.value : [op.value];
 
-      if (Array.isArray(op.value)) {
-        if (op.index !== undefined) {
-          // for collections, because we allow duplicates we are always changed.
-          shouldNotify = true;
-          content.data.splice(op.index, 0, ...op.value);
-        } else {
-          // for collections, because we allow duplicates we are always changed.
-          shouldNotify = true;
-          content.data.push(...op.value);
-        }
-      } else {
+      for (let i = 0; i < toRemove.length; i++) {
+        const value = toRemove[i];
         if (op.index !== undefined) {
           // in production we want to recover gracefully
           // so we fallback to first-index-of
-          const index =
-            op.index < content.data.length && content.data[op.index] === op.value
-              ? op.index
-              : content.data.indexOf(op.value);
+          const index: number =
+            op.index < content.data.length && content.data[op.index] === value ? op.index : content.data.indexOf(value);
 
           assert(
-            `Mismatched Index: Expected index '${op.index}' to contain the value '${op.value.lid}' but that value is at index '${index}'`,
-            op.index < content.data.length && content.data[op.index] === op.value
+            `Mismatched Index: Expected index '${op.index}' to contain the value '${value.lid}' but that value is at index '${index}'`,
+            op.index < content.data.length && content.data[op.index] === value
           );
 
           if (index !== -1) {
@@ -1871,12 +1861,9 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
             shouldNotify = true;
             content.data.splice(index, 1);
           }
-          // for collections, because we allow duplicates we are always changed.
-          shouldNotify = true;
-          content.data.splice(op.index, 0, op.value);
         } else {
           // we remove the first occurrence of the value
-          const index = content.data.indexOf(op.value);
+          const index = content.data.indexOf(value);
           if (index !== -1) {
             shouldNotify = true;
             content.data.splice(index, 1);
