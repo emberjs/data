@@ -84,7 +84,7 @@
     "globals": "^16.0.0",
     "loader.js": "^4.7.0",
     "prettier": "^3.5.3",
-    "prettier-plugin-ember-template-tag": "^2.0.4",
+    "prettier-plugin-ember-template-tag": "^2.0.5",
     "qunit": "^2.22.0",
     "qunit-dom": "^3.4.0",
     "tracked-built-ins": "^4.0.0",
