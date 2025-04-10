@@ -401,141 +401,30 @@ export default class JSONAPICache implements Cache {
    * Update the "remote" or "canonical" (persisted) state of the Cache
    * by merging new information into the existing state.
    *
-   * Note: currently the only valid resource operation is a MergeOperation
-   * which occurs when a collision of identifiers is detected.
-   *
    * @method patch
    * @public
-   * @param {Operation} op the operation to perform
+   * @param {Operation|Operation[]} op the operation or list of operations to perform
    * @return {void}
    */
-  patch(op: Operation): void {
-    const isRecord = isStableIdentifier(op.record);
-    const isDocument = !isRecord && isDocumentIdentifier(op.record);
+  patch(op: Operation | Operation[]): void {
+    if (Array.isArray(op)) {
+      if (LOG_CACHE) {
+        logGroup('cache', 'patch', '<BATCH>', String(op.length) + ' operations', '', '');
+      }
 
-    assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
+      upgradeCapabilities(this._capabilities);
+      this._capabilities._store._join(() => {
+        for (const operation of op) {
+          patchCache(this, operation);
+        }
+      });
 
-    if (LOG_CACHE) {
-      logGroup(
-        'cache',
-        'patch',
-        isRecord ? (op.record as StableRecordIdentifier).type : '<@document>',
-        op.record.lid,
-        op.op,
-        'field' in op ? op.field : op.op === 'mergeIdentifiers' ? op.value.lid : ''
-      );
-      try {
-        const _data = JSON.parse(JSON.stringify(op)) as object;
+      if (LOG_CACHE) {
         // eslint-disable-next-line no-console
-        console.log(_data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log(op);
+        console.groupEnd();
       }
-    }
-
-    switch (op.op) {
-      case 'mergeIdentifiers': {
-        const cache = this.__cache.get(op.record);
-        if (cache) {
-          this.__cache.set(op.value, cache);
-          this.__cache.delete(op.record);
-        }
-        this.__graph.update(op, true);
-        break;
-      }
-      case 'update': {
-        if (isRecord) {
-          if ('field' in op) {
-            const field = this._capabilities.schema.fields(op.record).get(op.field);
-            assert(`Expected ${op.field} to be a field on ${op.record.type}`, field);
-            if (isRelationship(field)) {
-              asOp<UpdateResourceRelationshipOperation>(op);
-              this.__graph.push(op);
-            } else {
-              asOp<UpdateResourceFieldOperation>(op);
-              this.upsert(
-                op.record,
-                {
-                  type: op.record.type,
-                  id: op.record.id,
-                  attributes: {
-                    [op.field]: op.value,
-                  },
-                },
-                this._capabilities.hasRecord(op.record)
-              );
-            }
-          } else {
-            asOp<UpdateResourceOperation>(op);
-            this.upsert(op.record, op.value, this._capabilities.hasRecord(op.record));
-          }
-        } else {
-          assert(`Update operations on documents is not supported`, false);
-        }
-        break;
-      }
-      case 'add': {
-        if (isRecord) {
-          if ('field' in op) {
-            asOp<AddToResourceRelationshipOperation>(op);
-            this.__graph.push(op);
-          } else {
-            asOp<AddResourceOperation>(op);
-            this.upsert(op.record, op.value, this._capabilities.hasRecord(op.record));
-          }
-        } else {
-          assert(`Expected a field in the add operation`, 'field' in op);
-          asOp<AddToDocumentOperation>(op);
-          addResourceToDocument(this, op);
-        }
-        break;
-      }
-      case 'remove': {
-        if (isRecord) {
-          if ('field' in op) {
-            asOp<RemoveFromResourceRelationshipOperation>(op);
-            this.__graph.push(op);
-          } else {
-            asOp<RemoveResourceOperation>(op);
-            const cached = this.__safePeek(op.record, false);
-            if (cached) {
-              cached.isDeleted = true;
-              cached.isDeletionCommitted = true;
-              this.unloadRecord(op.record);
-            } else {
-              peekGraph(this._capabilities)?.push({
-                op: 'deleteRecord',
-                record: op.record,
-                isNew: false,
-              });
-            }
-          }
-        } else {
-          if ('field' in op) {
-            assert(`Expected a field in the remove operation`, 'field' in op);
-
-            asOp<RemoveFromDocumentOperation>(op);
-            removeResourceFromDocument(this, op);
-          } else {
-            asOp<RemoveDocumentOperation>(op);
-            // TODO @runspired teardown associated state ... notify subscribers etc.
-            // This likely means that the instance cache needs to handle
-            // holding onto reactive documents instead of the CacheHandler
-            // and use a subscription to remove them.
-            // this.__documents.delete(op.record.lid);
-            assert(`Removing documents from the cache is not yet supported`, false);
-          }
-        }
-        break;
-      }
-      default:
-        assert(`Unhandled cache.patch operation ${(op as unknown as Op).op}`);
-    }
-
-    if (LOG_CACHE) {
-      // eslint-disable-next-line no-console
-      console.groupEnd();
+    } else {
+      patchCache(this, op);
     }
   }
 
@@ -2494,4 +2383,134 @@ function cacheUpsert(
   }
 
   return changedKeys?.size ? Array.from(changedKeys) : undefined;
+}
+
+function patchCache(Cache: JSONAPICache, op: Operation): void {
+  const isRecord = isStableIdentifier(op.record);
+  const isDocument = !isRecord && isDocumentIdentifier(op.record);
+
+  assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
+
+  if (LOG_CACHE) {
+    logGroup(
+      'cache',
+      'patch',
+      isRecord ? (op.record as StableRecordIdentifier).type : '<@document>',
+      op.record.lid,
+      op.op,
+      'field' in op ? op.field : op.op === 'mergeIdentifiers' ? op.value.lid : ''
+    );
+    try {
+      const _data = JSON.parse(JSON.stringify(op)) as object;
+      // eslint-disable-next-line no-console
+      console.log(_data);
+    } catch {
+      // eslint-disable-next-line no-console
+      console.log(op);
+    }
+  }
+
+  switch (op.op) {
+    case 'mergeIdentifiers': {
+      const cache = Cache.__cache.get(op.record);
+      if (cache) {
+        Cache.__cache.set(op.value, cache);
+        Cache.__cache.delete(op.record);
+      }
+      Cache.__graph.update(op, true);
+      break;
+    }
+    case 'update': {
+      if (isRecord) {
+        if ('field' in op) {
+          const field = Cache._capabilities.schema.fields(op.record).get(op.field);
+          assert(`Expected ${op.field} to be a field on ${op.record.type}`, field);
+          if (isRelationship(field)) {
+            asOp<UpdateResourceRelationshipOperation>(op);
+            Cache.__graph.push(op);
+          } else {
+            asOp<UpdateResourceFieldOperation>(op);
+            Cache.upsert(
+              op.record,
+              {
+                type: op.record.type,
+                id: op.record.id,
+                attributes: {
+                  [op.field]: op.value,
+                },
+              },
+              Cache._capabilities.hasRecord(op.record)
+            );
+          }
+        } else {
+          asOp<UpdateResourceOperation>(op);
+          Cache.upsert(op.record, op.value, Cache._capabilities.hasRecord(op.record));
+        }
+      } else {
+        assert(`Update operations on documents is not supported`, false);
+      }
+      break;
+    }
+    case 'add': {
+      if (isRecord) {
+        if ('field' in op) {
+          asOp<AddToResourceRelationshipOperation>(op);
+          Cache.__graph.push(op);
+        } else {
+          asOp<AddResourceOperation>(op);
+          Cache.upsert(op.record, op.value, Cache._capabilities.hasRecord(op.record));
+        }
+      } else {
+        assert(`Expected a field in the add operation`, 'field' in op);
+        asOp<AddToDocumentOperation>(op);
+        addResourceToDocument(Cache, op);
+      }
+      break;
+    }
+    case 'remove': {
+      if (isRecord) {
+        if ('field' in op) {
+          asOp<RemoveFromResourceRelationshipOperation>(op);
+          Cache.__graph.push(op);
+        } else {
+          asOp<RemoveResourceOperation>(op);
+          const cached = Cache.__safePeek(op.record, false);
+          if (cached) {
+            cached.isDeleted = true;
+            cached.isDeletionCommitted = true;
+            Cache.unloadRecord(op.record);
+          } else {
+            peekGraph(Cache._capabilities)?.push({
+              op: 'deleteRecord',
+              record: op.record,
+              isNew: false,
+            });
+          }
+        }
+      } else {
+        if ('field' in op) {
+          assert(`Expected a field in the remove operation`, 'field' in op);
+
+          asOp<RemoveFromDocumentOperation>(op);
+          removeResourceFromDocument(Cache, op);
+        } else {
+          asOp<RemoveDocumentOperation>(op);
+          // TODO @runspired teardown associated state ... notify subscribers etc.
+          // This likely means that the instance cache needs to handle
+          // holding onto reactive documents instead of the CacheHandler
+          // and use a subscription to remove them.
+          // Cache.__documents.delete(op.record.lid);
+          assert(`Removing documents from the cache is not yet supported`, false);
+        }
+      }
+      break;
+    }
+    default:
+      assert(`Unhandled cache.patch operation ${(op as unknown as Op).op}`);
+  }
+
+  if (LOG_CACHE) {
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
 }

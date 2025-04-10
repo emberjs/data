@@ -656,10 +656,6 @@ export class Store extends BaseClass {
   declare _graph?: Graph;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
-  declare _documentCache: Map<
-    StableDocumentIdentifier,
-    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
-  >;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
@@ -712,7 +708,6 @@ export class Store extends BaseClass {
     // private
     this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
-    this._documentCache = new Map();
 
     this.isDestroying = false;
     this.isDestroyed = false;

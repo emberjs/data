@@ -185,12 +185,7 @@ function maybeUpdateUiObjects<T>(
   }
 
   if (identifier) {
-    let doc = store._documentCache.get(identifier);
-    if (!doc) {
-      doc = new ReactiveDocument<T>(store, identifier, null);
-      store._documentCache.set(identifier, doc);
-    }
-    return doc as ReactiveDocument<T>;
+    return store._instanceCache.getDocument<T>(identifier);
   }
 
   // if we don't have an identifier, we give the document

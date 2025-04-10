@@ -51,11 +51,10 @@ function validateResourceDocument(reporter: Reporter, doc: StructuredDataDocumen
   );
   validateDocumentResources(reporter, doc.content);
 
-  // FIXME
-  // validateMeta on document
-  // validateMeta on resource
-  // validateMeta on resource relationships
-  // validate no-meta on resource identifiers
+  // TODO @runspired - validateMeta on document
+  // TODO @runspired - validateMeta on resource
+  // TODO @runspired - validateMeta on resource relationships
+  // TODO @runspired - validate no-meta on resource identifiers
   //
   // ---------------------------------
   // super-strict-mode

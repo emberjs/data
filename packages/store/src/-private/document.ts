@@ -276,7 +276,7 @@ defineSubscription(ReactiveDocument.prototype, 'data', {
     if (Array.isArray(data)) {
       return this._store.recordArrayManager.getCollection({
         type: identifier ? identifier.lid : _localCache!.request.url,
-        identifiers: data,
+        identifiers: data.slice(),
         doc: identifier ? undefined : (doc as CollectionResourceDataDocument),
         identifier: identifier ?? null,
       }) as T;
