@@ -1,6 +1,6 @@
 {
   "name": "main-test-app",
-  "version": "5.4.0-alpha.158",
+  "version": "5.4.0-beta.19",
   "private": true,
   "description": "A data layer for your Ember applications.",
   "repository": {
