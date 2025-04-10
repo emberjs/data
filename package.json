@@ -73,13 +73,13 @@
     "node": ">= 18.20.8",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "10.7.0"
+    "pnpm": "10.8.0"
   },
   "volta": {
     "node": "22.3.0",
-    "pnpm": "10.7.0"
+    "pnpm": "10.8.0"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.0",
   "changelog": {
     "labels": {
       ":label: breaking": ":boom: Breaking Change",
