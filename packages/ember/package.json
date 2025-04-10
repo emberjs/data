@@ -51,7 +51,7 @@
     "@ember-data/tracking": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.17.1",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependenciesMeta": {
@@ -73,7 +73,7 @@
     "@glint/environment-ember-template-imports": "1.5.2",
     "@glint/template": "1.5.2",
     "decorator-transforms": "^2.3.0",
-    "@embroider/addon-dev": "^7.1.3",
+    "@embroider/addon-dev": "^7.1.4",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",

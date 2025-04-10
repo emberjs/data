@@ -41,7 +41,7 @@
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.0",
-    "@embroider/addon-shim": "^1.9.0",
+    "@embroider/addon-shim": "^1.10.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
