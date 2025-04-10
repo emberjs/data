@@ -21,11 +21,7 @@ import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import { getRuntimeConfig, setLogging } from '@warp-drive/core-types/runtime';
@@ -55,7 +51,6 @@ import {
   resourceIsFullyDeleted,
   storeFor,
 } from './caches/instance-cache';
-import type { ReactiveDocument } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';

@@ -1892,17 +1892,20 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
     content.included = content.included || [];
 
     assert(`Expected to have a non-null operation value`, op.value);
-    if (Array.isArray(op.value)) {
-      // included is not allowed to have duplicates, so we do a dirty check here
+    const toRemove = Array.isArray(op.value) ? op.value : [op.value];
+    for (const identifier of toRemove) {
       assert(
-        `included should not contain duplicate members`,
-        new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+        `attempted to remove a value from included that was not present in the included array`,
+        content.included.includes(identifier)
       );
-      content.included = content.included.concat(op.value);
-    } else {
-      // included is not allowed to have duplicates, so we do a dirty check here
-      assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
-      content.included.push(op.value);
+      const index = content.included.indexOf(identifier);
+      assert(
+        `The value '${identifier.lid}' cannot be removed from the included of document '${op.record.lid}' as it is not present`,
+        index !== -1
+      );
+      if (index !== -1) {
+        content.included.splice(index, 1);
+      }
     }
 
     // we don't notify in the included case because this is not reactively

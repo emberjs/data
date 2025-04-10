@@ -88,10 +88,10 @@ export interface Cache {
    *
    * @method patch
    * @public
-   * @param {Operation} op the operation to perform
+   * @param {Operation | Operation[]} op the operation(s) to perform
    * @return {void}
    */
-  patch(op: Operation): void;
+  patch(op: Operation | Operation[]): void;
 
   /**
    * Update the "local" or "current" (unpersisted) state of the Cache

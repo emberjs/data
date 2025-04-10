@@ -2,6 +2,7 @@ import Cache from '@ember-data/json-api';
 import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
@@ -10,7 +11,7 @@ import type {
 } from '@warp-drive/core-types/spec/document';
 import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { module, skip, test, todo } from '@warp-drive/diagnostic';
+import { module, test, todo } from '@warp-drive/diagnostic';
 import { instantiateRecord, registerDerivations, teardownRecord, withDefaults } from '@warp-drive/schema-record';
 
 import { TestSchema } from '../../utils/schema';
@@ -97,12 +98,12 @@ function setupRecord<T extends string>(
   record: ExistingResourceObject<T>
 ): StableExistingRecordIdentifier<T>;
 function setupRecord(store: Store, record: ExistingResourceObject): StableExistingRecordIdentifier {
-  const identifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+  const identifier = store.identifierCache.getOrCreateRecordIdentifier(record) as StableExistingRecordIdentifier;
   store.cache.patch({
     op: 'add',
     record: identifier,
     value: record,
-  });
+  } satisfies AddResourceOperation);
 
   return identifier;
 }
@@ -147,7 +148,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user) as StableExistingRecordIdentifier;
     cache.patch({
       op: 'add',
       record: identifier,
@@ -179,8 +180,8 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'chris',
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user) as StableExistingRecordIdentifier;
+    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2) as StableExistingRecordIdentifier;
 
     cache.patch([
       {
@@ -216,7 +217,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user) as StableExistingRecordIdentifier;
     cache.patch({
       op: 'add',
       record: identifier,
@@ -317,7 +318,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user) as StableExistingRecordIdentifier;
     cache.patch({
       op: 'add',
       record: identifier,
@@ -357,7 +358,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         },
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user) as StableExistingRecordIdentifier;
     cache.patch({
       op: 'add',
       record: identifier,
@@ -375,7 +376,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         },
       },
     };
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
+    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2) as StableExistingRecordIdentifier;
     cache.patch({
       op: 'add',
       record: identifier2,
@@ -921,7 +922,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       },
     });
     const user = store.peekRecord<User>(userIdentifier);
-    const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument<User | null>(documentIdentifier);
     const cacheDocument = store.cache.peek(documentIdentifier);
 
     assert.equal(user?.name, 'Wesley', 'The name is correct');
@@ -972,7 +973,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const userIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       id: '2',
       type: 'user',
-    } as const);
+    } as const) as StableExistingRecordIdentifier;
     const user = store.peekRecord<User>(userIdentifier);
     const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1489,7 +1490,152 @@ module('Integration | <JSONAPICache>.patch', function () {
     );
   });
 
-  test('We can remove from included on a resource document in the cache', function (assert) {});
+  test('We can remove from included on a resource document in the cache', function (assert) {
+    const store = new TestStore();
+    const documentIdentifier = setupDocument(store, '/api/v1/users', {
+      data: [
+        {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris',
+          },
+          relationships: {
+            pets: {
+              data: [],
+            },
+          },
+        },
+      ],
+      included: [
+        {
+          id: '1',
+          type: 'pet',
+          attributes: {
+            name: 'Rey',
+          },
+        },
+        {
+          id: '2',
+          type: 'pet',
+          attributes: {
+            name: 'Shen',
+          },
+        },
+      ],
+    });
 
-  test('We can remove multiple from included on a resource document in the cache', function (assert) {});
+    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
+
+    const cacheDocument = store.cache.peek(documentIdentifier);
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      1,
+      'The document has one resource in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      2,
+      'The document has two included resources in the cache'
+    );
+
+    const pet1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
+    const pet2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
+
+    store.cache.patch({
+      op: 'remove',
+      record: documentIdentifier,
+      field: 'included',
+      value: [pet1],
+    });
+
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      1,
+      'The document has one resource in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      1,
+      'The document has one included resources in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.[0],
+      pet2,
+      'The document has the right included resource'
+    );
+  });
+
+  test('We can remove multiple from included on a resource document in the cache', function (assert) {
+    const store = new TestStore();
+    const documentIdentifier = setupDocument(store, '/api/v1/users', {
+      data: [
+        {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris',
+          },
+          relationships: {
+            pets: {
+              data: [],
+            },
+          },
+        },
+      ],
+      included: [
+        {
+          id: '1',
+          type: 'pet',
+          attributes: {
+            name: 'Rey',
+          },
+        },
+        {
+          id: '2',
+          type: 'pet',
+          attributes: {
+            name: 'Shen',
+          },
+        },
+      ],
+    });
+
+    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
+
+    const cacheDocument = store.cache.peek(documentIdentifier);
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      1,
+      'The document has one resource in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      2,
+      'The document has two included resources in the cache'
+    );
+
+    const pet1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
+    const pet2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
+
+    store.cache.patch({
+      op: 'remove',
+      record: documentIdentifier,
+      field: 'included',
+      value: [pet1, pet2],
+    });
+
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).data?.length,
+      1,
+      'The document has one resource in the cache'
+    );
+    assert.equal(
+      asDoc<CollectionResourceDataDocument>(cacheDocument).included?.length,
+      0,
+      'The document has no included resources in the cache'
+    );
+  });
 });
