@@ -8,6 +8,7 @@ type SuiteLayout = {
   resultsList: HTMLElement;
   results: Map<TestReport, HTMLElement[] | null>;
   cleanup: (() => void)[];
+  updateStats: () => void;
 };
 
 export class DOMReporter implements Reporter {
@@ -158,69 +159,82 @@ export class DOMReporter implements Reporter {
       elements = [tr];
       fragment.appendChild(tr);
       tr.classList.add(classForTestStatus(test));
-      makeRow(tr, [
+      const checksTr = document.createElement('tr');
+
+      makeRow(tr, checksTr, [
         i + '.',
         `${iconForTestStatus(test)} ${labelForTestStatus(test)}`,
         durationForTest(test),
         `${test.module.name} > `,
         `${test.name} (${test.result.diagnostics.length})`,
-        getURL(test.id),
+        [getURL(test.id), getURL(test.module.id, 'module')],
       ]);
 
-      if (test.result.failed) {
-        const checksTr = document.createElement('tr');
-        fragment.appendChild(checksTr);
-        const td = document.createElement('td');
-        td.colSpan = 6;
-        checksTr.appendChild(td);
-        const pre = document.createElement('pre');
-        pre.textContent = test.result.diagnostics
-          .map((d) => {
-            const checkText = `\t${d.passed ? '✅' : '❌'} – ${d.message}`;
-            if (isDebug) {
-              return d.passed ? checkText : `${checkText}\n${diffResult(d, 2)}`;
-            }
-          })
-          .join('\n');
-        td.appendChild(pre);
+      checksTr.classList.add('diagnostic-checks');
+      fragment.appendChild(checksTr);
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      checksTr.appendChild(td);
+      const pre = document.createElement('pre');
+      pre.textContent = test.result.diagnostics
+        .map((d) => {
+          const checkText = `\t${d.passed ? '✅' : '❌'} – ${d.message}`;
+          if (isDebug) {
+            return d.passed ? checkText : `${checkText}\n${diffResult(d, 2)}`;
+          }
+        })
+        .join('\n');
+      td.appendChild(pre);
 
-        elements.push(checksTr);
-      }
+      elements.push(checksTr);
 
       this.suite.results.set(test, elements);
     });
     this.suite.resultsList.appendChild(fragment);
+    this.suite.updateStats();
   }
 }
 
-function makeRow(tr: HTMLTableRowElement, cells: string[]) {
+function makeRow(tr: HTMLTableRowElement, checksTr: HTMLTableRowElement, cells: Array<string | [string, string]>) {
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i];
     const td = document.createElement('td');
     if (i === 3) {
       const strong = document.createElement('strong');
-      const text = document.createTextNode(cell);
+      const text = document.createTextNode(cell as string);
       strong.appendChild(text);
       td.appendChild(strong);
       i++;
-      const text2 = document.createTextNode(cells[i]);
+      const text2 = document.createTextNode(cells[i] as string);
       td.appendChild(text2);
+      td.addEventListener('click', () => {
+        checksTr.classList.toggle('expanded');
+      });
     } else if (i === 5) {
+      const [testUrl, moduleUrl] = cell as [string, string];
+      const a2 = document.createElement('a');
+      a2.href = moduleUrl;
+      a2.appendChild(document.createTextNode('module'));
+      td.appendChild(a2);
+      td.appendChild(document.createTextNode(' | '));
       const a = document.createElement('a');
-      a.href = cell;
+      a.href = testUrl;
       a.appendChild(document.createTextNode('rerun'));
       td.appendChild(a);
     } else {
-      const text = document.createTextNode(cell);
+      const text = document.createTextNode(cell as string);
       td.appendChild(text);
+      td.addEventListener('click', () => {
+        checksTr.classList.toggle('expanded');
+      });
     }
     tr.appendChild(td);
   }
 }
 
-function getURL(id: string) {
+function getURL(id: string, type: 'test' | 'module' = 'test') {
   const currentURL = new URL(window.location.href);
-  currentURL.searchParams.set('t', id);
+  currentURL.searchParams.set(type === 'test' ? 't' : 'm', id);
   return currentURL.href;
 }
 
@@ -231,46 +245,80 @@ function durationForTest(test: TestReport) {
   return `${(test.end.startTime - test.start.startTime).toLocaleString('en-US')}ms`;
 }
 
-function labelForTestStatus(test: TestReport) {
-  if (test.skipped) {
-    return 'Skip';
-  }
-  if (test.todo && test.result.passed) {
-    return 'Todo';
-  }
-  if (test.result.passed) {
-    return 'Pass';
-  }
-  return 'Fail';
-}
-
-function iconForTestStatus(test: TestReport) {
-  if (test.skipped) {
-    return '⚠️';
-  }
-  if (test.todo && test.result.passed) {
-    return '🛠️';
-  }
-  if (test.result.passed) {
-    return '✅' + '';
-  }
-  return '💥';
-}
-
-function classForTestStatus(test: TestReport) {
+function statusForTest(test: TestReport) {
   if (test.skipped) {
     return 'skipped';
   }
+
   if (test.todo && test.result.passed) {
     return 'todo';
   }
+
   if (test.result.passed) {
     return 'passed';
   }
+
+  if (test.result.diagnostics.at(-1)?.message.startsWith('Unexpected Test Failure:')) {
+    return 'broken';
+  }
+
+  if (test.result.diagnostics.at(0)?.message === 'Expected at least one assertion, but none were run') {
+    return 'underConstruction';
+  }
+
+  if (test.todo) {
+    return 'underConstruction';
+  }
+
   return 'failed';
 }
 
+function labelForTestStatus(test: TestReport) {
+  const status = statusForTest(test);
+
+  switch (status) {
+    case 'skipped':
+      return 'Skip';
+    case 'todo':
+      return 'Todo';
+    case 'passed':
+      return 'Pass';
+    case 'failed':
+      return 'Fail';
+    case 'broken':
+      return 'Broken';
+    case 'underConstruction':
+      return 'Under Construction';
+  }
+}
+
+function iconForTestStatus(test: TestReport) {
+  const status = statusForTest(test);
+
+  switch (status) {
+    case 'skipped':
+      return '⚠️';
+    case 'todo':
+      return '🛠️';
+    case 'passed':
+      return '✅';
+    case 'failed':
+      return '❌';
+    case 'broken':
+      return '💥';
+    case 'underConstruction':
+      return '🚧';
+    default:
+      return '❓❓❓❓';
+  }
+}
+
+function classForTestStatus(test: TestReport) {
+  return statusForTest(test);
+}
+
 function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): SuiteLayout {
+  const results = new Map<TestReport, HTMLElement[] | null>();
   const cleanup: (() => void)[] = [];
 
   // ==== Create the Header Section
@@ -374,6 +422,56 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
   report.id = 'warp-drive__diagnostic-report';
   element.appendChild(report);
 
+  // ---- Create the Stats Section
+  const stats = document.createElement('div');
+  stats.id = 'warp-drive__diagnostic-stats';
+  report.appendChild(stats);
+  const statsTable = document.createElement('table');
+  stats.appendChild(statsTable);
+  const statsOverview = document.createElement('thead');
+  const statsHeader = document.createElement('tr');
+  statsOverview.appendChild(statsHeader);
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Passing';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Failing';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Broken';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Under Construction';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Skipped';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Todo';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Total';
+  statsTable.appendChild(statsOverview);
+  const statsBody = document.createElement('tbody');
+  statsTable.appendChild(statsBody);
+  const statsRow = document.createElement('tr');
+  statsBody.appendChild(statsRow);
+  const STATS_CELLS = {
+    passing: statsRow.appendChild(document.createElement('td')),
+    failing: statsRow.appendChild(document.createElement('td')),
+    broken: statsRow.appendChild(document.createElement('td')),
+    underConstruction: statsRow.appendChild(document.createElement('td')),
+    skipped: statsRow.appendChild(document.createElement('td')),
+    todo: statsRow.appendChild(document.createElement('td')),
+    total: statsRow.appendChild(document.createElement('td')),
+  };
+
+  const updateStats = () => {
+    const passed = suiteReport.passed - suiteReport.skipped - suiteReport.todo;
+    const tests = Array.from(results.keys());
+    const broken = tests.filter((test) => statusForTest(test) === 'broken').length;
+    const underConstruction = tests.filter((test) => statusForTest(test) === 'underConstruction').length;
+    const failed = suiteReport.failed - broken - underConstruction;
+    const total = suiteReport.passed + suiteReport.failed;
+
+    STATS_CELLS.passing.innerText = `✅ ${passed}`;
+    STATS_CELLS.failing.innerText = `❌ ${failed}`;
+    STATS_CELLS.broken.innerText = `💥 ${broken}`;
+    STATS_CELLS.underConstruction.innerText = `🚧 ${underConstruction}`;
+    STATS_CELLS.skipped.innerText = `⚠️ ${suiteReport.skipped}`;
+    STATS_CELLS.todo.innerText = `🛠️ ${suiteReport.todo}`;
+    STATS_CELLS.total.innerText = `${total}`;
+  };
+
+  updateStats();
+
   const current = document.createElement('div');
   current.classList.add('current-diagnostic');
   element.appendChild(current);
@@ -385,9 +483,7 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
   resultsList.classList.add('diagnostic-results');
   resultsTable.appendChild(resultsList);
 
-  const results = new Map<TestReport, HTMLElement[] | null>();
-
-  return { cleanup, report, current, resultsList, results };
+  return { cleanup, report, current, resultsList, results, updateStats };
 }
 
 function el(tag: 'button', name: string): HTMLButtonElement;
