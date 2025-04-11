@@ -38,7 +38,8 @@ export async function executePublish(args: string[]) {
   const packages = await gatherPackages(strategy.config);
 
   // get packages present in the git tag version
-  const fromVersion = config.full.get('from') as SEMVER_VERSION | undefined;
+  // if no version is specified, we will use the current branch
+  const fromVersion = config.specified.get('from') as SEMVER_VERSION | undefined;
   const fromTag = `v${fromVersion}` as GIT_TAG;
   const baseVersionPackages = fromVersion ? await getAllPackagesForGitTag(fromTag) : packages;
 
