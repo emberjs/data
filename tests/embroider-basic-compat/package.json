@@ -35,7 +35,7 @@
     "@embroider/webpack": "^4.1.0",
     "ember-auto-import": "2.10.0",
     "ember-data": "workspace:*",
-    "webpack": "^5.99.1",
+    "webpack": "^5.99.3",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@ember-data/request": "workspace:*",
