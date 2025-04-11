@@ -2,15 +2,22 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import type { CollectionEdge } from '@ember-data/graph/-private';
+import { graphFor } from '@ember-data/graph/-private';
+import Model, { attr, belongsTo, type HasMany, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import { Type } from '@warp-drive/core-types/symbols';
 
 class App extends Model {
+  declare [Type]: 'app';
+
   @attr declare name: string;
 
   @hasMany('config', { async: false, inverse: 'app' }) declare configs: Config[];
+
+  @hasMany('page', { async: false, inverse: 'app' }) declare pages: HasMany<Page>;
 
   @belongsTo('cluster', { async: false, inverse: 'apps' }) declare cluster: Cluster;
 }
@@ -27,6 +34,12 @@ class Config extends Model {
   @belongsTo('app', { async: false, inverse: 'configs' }) declare app: App | null;
 }
 
+class Page extends Model {
+  @attr declare name: string;
+
+  @belongsTo('app', { async: false, inverse: 'configs' }) declare app: App | null;
+}
+
 module('Integration | Relationships | Rollback', function (hooks) {
   setupTest(hooks);
 
@@ -36,9 +49,10 @@ module('Integration | Relationships | Rollback', function (hooks) {
     owner.register('model:app', App);
     owner.register('model:cluster', Cluster);
     owner.register('model:config', Config);
+    owner.register('model:page', Page);
 
     // setup some initial state:
-    // 1 app with 3 configs and a cluster
+    // 1 app with 3 configs, a cluster and no pages (e.g. no permission for the pages field)
     // 1 config with no app
     // 2 apps with no configs and the same cluster
     const store = owner.lookup('service:store') as Store;
@@ -159,6 +173,27 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
+
+      const graph = graphFor(store);
+      // (relationships that are not in the graph are not looped over by changedRelationships)
+      const appRelationships = graph.identifiers.get(appIdentifier);
+      assert.propEqual(
+        appRelationships?.['pages'],
+        undefined,
+        'pages was never accessed and therefore does not exist on the graph'
+      );
+
+      /**
+       * Pages was accessed (but has no remote state)
+       */
+      const app = store.peekRecord<App>('app', '1');
+      const hasManyPages = graph?.get(appIdentifier, 'pages') as CollectionEdge;
+      assert.false(hasManyPages.accessed, 'The `pages` property was not accessed');
+      assert.propEqual(app?.pages, [], '(accessing `pages`) app.pages is empty');
+      assert.strictEqual(hasManyPages.localState, null, 'localState of `pages` is null');
+      assert.propEqual(hasManyPages.remoteState, [], 'remoteState of `pages` is []');
+      assert.true((graph?.get(appIdentifier, 'pages') as CollectionEdge).accessed, 'The `pages` property was accessed');
+      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
     });
     test('it returns true when a hasMany has state added', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
@@ -240,7 +275,31 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
-      const changed = store.cache.rollbackRelationships(appIdentifier);
+      let changed = store.cache.rollbackRelationships(appIdentifier);
+      assert.arrayStrictEquals(changed, [], 'no changes have occurred');
+      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
+
+      const graph = graphFor(store);
+      // (relationships that are not in the graph are not looped over by changedRelationships)
+      const appRelationships = graph.identifiers.get(appIdentifier);
+      assert.propEqual(
+        appRelationships?.['pages'],
+        undefined,
+        'pages was never accessed and therefore does not exist on the graph'
+      );
+
+      /**
+       * Pages was accessed (but has no remote state)
+       */
+      const app = store.peekRecord<App>('app', '1');
+      const hasManyPages = graph?.get(appIdentifier, 'pages') as CollectionEdge;
+      assert.false(hasManyPages.accessed, 'The `pages` property was not accessed');
+      assert.propEqual(app?.pages, [], '(accessing `pages`) app.pages is empty');
+      assert.strictEqual(hasManyPages.localState, null, 'localState of `pages` is null');
+      assert.propEqual(hasManyPages.remoteState, [], 'remoteState of `pages` is []');
+      assert.true((graph?.get(appIdentifier, 'pages') as CollectionEdge).accessed, 'The `pages` property was accessed');
+      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
+      changed = store.cache.rollbackRelationships(appIdentifier);
       assert.arrayStrictEquals(changed, [], 'no changes have occurred');
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'hasMany is clean');
     });
@@ -491,7 +550,30 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
-      const changed = store.cache.changedRelationships(appIdentifier);
+      let changed = store.cache.changedRelationships(appIdentifier);
+      assert.strictEqual(changed.size, 0, 'no changes have occurred');
+
+      const graph = graphFor(store);
+      // (relationships that are not in the graph are not looped over by changedRelationships)
+      const appRelationships = graph.identifiers.get(appIdentifier);
+      assert.propEqual(
+        appRelationships?.['pages'],
+        undefined,
+        'pages was never accessed and therefore does not exist on the graph'
+      );
+
+      /**
+       * Pages was accessed (but has no remote state)
+       */
+      const app = store.peekRecord<App>('app', '1');
+      const hasManyPages = graph?.get(appIdentifier, 'pages') as CollectionEdge;
+      assert.false(hasManyPages.accessed, 'The `pages` property was not accessed');
+      assert.propEqual(app?.pages, [], '(accessing `pages`) app.pages is empty');
+      assert.strictEqual(hasManyPages.localState, null, 'localState of `pages` is null');
+      assert.propEqual(hasManyPages.remoteState, [], 'remoteState of `pages` is []');
+      assert.true((graph?.get(appIdentifier, 'pages') as CollectionEdge).accessed, 'The `pages` property was accessed');
+      assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
+      changed = store.cache.changedRelationships(appIdentifier);
       assert.strictEqual(changed.size, 0, 'no changes have occurred');
     });
 

@@ -42,6 +42,14 @@ pre {
   text-wrap: auto;
 }
 
+tr.diagnostic-checks {
+  display: none;
+}
+
+tr.diagnostic-checks.expanded {
+  display: table-row;
+}
+
 #warp-drive__diagnostic {
   box-sizing: border-box;
   color: var(--font-color);

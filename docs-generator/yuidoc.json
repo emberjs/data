@@ -4,7 +4,7 @@
   "url": "https://github.com/emberjs/data",
   "options": {
     "enabledEnvironments": [],
-    "extension": ".js,.ts",
+    "extension": ".js,.ts,.gts,.gjs",
     "preprocessor": "./yui-docs-preprocessor.js",
     "excludeTags": ["internal", "feature", "typedoc", "see", "link", "inheritdoc"],
     "paths": [
@@ -23,7 +23,9 @@
       "../packages/graph/src",
       "../packages/legacy-compat/src",
       "../packages/tracking/src",
-      "../packages/request/src"
+      "../packages/request/src",
+      "../packages/schema-record/src",
+      "../packages/ember/src"
     ],
     "exclude": "vendor",
     "outdir": "../packages/-ember-data/dist/docs"

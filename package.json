@@ -1,6 +1,6 @@
 {
   "name": "root",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -34,52 +34,52 @@
     "test:vite": "pnpm run -r ---workspace-concurrency=-1 --if-present test:vite"
   },
   "devDependencies": {
-    "@warp-drive/internal-tooling": "workspace:*",
-    "@warp-drive/internal-docs-viewer": "workspace:*",
-    "@babel/core": "^7.26.9",
-    "@glimmer/component": "^1.1.2",
+    "@babel/core": "^7.26.10",
+    "@glimmer/component": "^2.0.0",
     "@glint/core": "1.5.2",
     "@glint/environment-ember-loose": "1.5.2",
     "@glint/environment-ember-template-imports": "1.5.2",
     "@glint/template": "1.5.2",
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
+    "@warp-drive/internal-docs-viewer": "workspace:*",
+    "@warp-drive/internal-tooling": "workspace:*",
     "badge-maker": "4.1.0",
-    "bun-types": "^1.2.4",
+    "bun-types": "^1.2.8",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^6.0.1",
     "comment-json": "^4.2.5",
     "common-tags": "^1.8.2",
     "debug": "^4.4.0",
-    "ember-source": "~5.12.0",
-    "execa": "^9.4.1",
+    "ember-source": "~6.3.0",
+    "execa": "^9.5.2",
     "git-repo-version": "^1.0.2",
     "globby": "^14.1.0",
     "lerna-changelog": "^2.2.0",
-    "prettier": "^3.5.2",
-    "prettier-plugin-ember-template-tag": "^2.0.4",
+    "prettier": "^3.5.3",
+    "prettier-plugin-ember-template-tag": "^2.0.5",
     "rimraf": "^6.0.1",
     "semver": "^7.7.1",
     "silent-error": "^1.1.1",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "url": "^0.11.4",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
   },
   "dependencies": {
-    "turbo": "^1.13.4"
+    "turbo": "^2.5.0"
   },
   "engines": {
-    "node": ">= 18.20.7",
+    "node": ">= 18.20.8",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "10.5.2"
+    "pnpm": "10.8.0"
   },
   "volta": {
     "node": "22.3.0",
-    "pnpm": "10.5.2"
+    "pnpm": "10.8.0"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.8.0",
   "changelog": {
     "labels": {
       ":label: breaking": ":boom: Breaking Change",
@@ -154,7 +154,7 @@
       "ember-auto-import": "^2.10.0",
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
-      "@glimmer/validator": "^0.94.6",
+      "@glimmer/validator": "^0.94.8",
       "@glint/core": "1.5.2",
       "@glint/environment-ember-loose": "1.5.2",
       "@glint/environment-ember-template-imports": "1.5.2",
@@ -162,7 +162,7 @@
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
-      "webpack": "5.98.0",
+      "webpack": "5.99.1",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0"
@@ -177,13 +177,16 @@
         "typescript"
       ]
     },
-    "allowNonAppliedPatches": true,
+    "allowUnusedPatches": true,
     "patchedDependencies": {
       "qunit@2.19.4": "patches/qunit@2.19.4.patch",
       "testem@3.11.0": "patches/testem@3.11.0.patch",
       "@ember/test-helpers@3.3.0": "patches/@ember__test-helpers@3.3.0.patch",
       "@ember/test-helpers@4.0.4": "patches/@ember__test-helpers@4.0.4.patch",
-      "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch"
+      "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
+      "@ember/test-helpers@5.2.0": "patches/@ember__test-helpers@5.2.0.patch",
+      "ember-source@4.4.5": "patches/ember-source@4.4.5.patch",
+      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch"
     }
   }
 }

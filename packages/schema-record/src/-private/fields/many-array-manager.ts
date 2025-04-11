@@ -43,8 +43,14 @@ export class ManyArrayManager {
     }
 
     const currentState = array[SOURCE];
-    currentState.length = 0;
-    fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+
+    // unlike in the normal RecordArray case, we don't need to divorce the reference
+    // because we don't need to worry about associate/disassociate since the graph
+    // takes care of that for us
+    if (currentState !== rawValue.data) {
+      currentState.length = 0;
+      fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+    }
   }
 
   reloadHasMany<T>(key: string, options?: FindHasManyOptions): Promise<ManyArray<T>> {

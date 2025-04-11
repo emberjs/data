@@ -1,3 +1,6 @@
+/**
+ * @module @warp-drive/schema-record
+ */
 import { deprecate } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
@@ -66,6 +69,13 @@ _constructor[Type] = '@constructor';
 /**
  * Utility for constructing a ResourceSchema with the recommended fields
  * for the Polaris experience.
+ *
+ * @method withDefaults
+ * @for @warp-drive/schema-record
+ * @static
+ * @public
+ * @param schema
+ * @return {ResourceSchema}
  */
 export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
   schema.identity = schema.identity || DefaultIdentityField;
@@ -78,6 +88,30 @@ export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): R
   return schema as ResourceSchema;
 }
 
+/**
+ * A derivation that computes its value from the
+ * record's identity.
+ *
+ * It can be used via a derived field definition like:
+ *
+ * ```ts
+ * {
+ *   kind: 'derived',
+ *   name: 'id',
+ *   type: '@identity',
+ *   options: { key: 'id' }
+ * }
+ * ```
+ *
+ * Valid keys are `'id'`, `'lid'`, `'type'`, and `'^'`.
+ *
+ * `^` returns the entire identifier object.
+ *
+ * @method fromIdentity
+ * @for @warp-drive/schema-record
+ * @static
+ * @public
+ */
 export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
 export function fromIdentity(record: SchemaRecord, options: { key: 'id' }, key: string): string | null;
 export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): StableRecordIdentifier;
@@ -98,6 +132,15 @@ export function fromIdentity(
 }
 fromIdentity[Type] = '@identity';
 
+/**
+ * Registers the default derivations for the SchemaRecord
+ *
+ * @method registerDerivations
+ * @for @warp-drive/schema-record
+ * @static
+ * @public
+ * @param {SchemaService} schema
+ */
 export function registerDerivations(schema: SchemaServiceInterface) {
   schema.registerDerivation(fromIdentity);
   schema.registerDerivation(_constructor);
@@ -122,9 +165,7 @@ export type Transformation<T extends Value = Value, PT = unknown> = {
  * Wraps a derivation in a new function with Derivation signature but that looks
  * up the value in the cache before recomputing.
  *
- * @param record
- * @param options
- * @param prop
+ * @internal
  */
 function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
   derivation: Derivation<R, T, FM>
@@ -150,6 +191,13 @@ export interface SchemaService {
   attributesDefinitionFor(identifier: { type: string }): InternalSchema['attributes'];
   relationshipsDefinitionFor(identifier: { type: string }): InternalSchema['relationships'];
 }
+
+/**
+ * A SchemaService designed to work with dynamically registered schemas.
+ *
+ * @class SchemaService
+ * @public
+ */
 export class SchemaService implements SchemaServiceInterface {
   declare _schemas: Map<string, InternalSchema>;
   declare _transforms: Map<string, Transformation>;
@@ -164,6 +212,11 @@ export class SchemaService implements SchemaServiceInterface {
     this._hashFns = new Map();
     this._derivations = new Map();
   }
+
+  resourceTypes(): Readonly<string[]> {
+    return Array.from(this._schemas.keys());
+  }
+
   hasTrait(type: string): boolean {
     return this._traits.has(type);
   }

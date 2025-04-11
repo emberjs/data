@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
 import type { ModelSchema } from '@ember-data/store/types';
-import { LOG_PAYLOADS } from '@warp-drive/build-config/debugging';
+import { LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -189,16 +189,6 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 
   return fetchManagerPromise
     .then((payload) => {
-      if (LOG_PAYLOADS) {
-        try {
-          const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
-          // eslint-disable-next-line no-console
-          console.log(`EmberData | Payload - ${operation}`, payloadCopy);
-        } catch {
-          // eslint-disable-next-line no-console
-          console.log(`EmberData | Payload - ${operation}`, payload);
-        }
-      }
       let result: SingleResourceDataDocument;
       store._join(() => {
         // @ts-expect-error we don't have access to a response in legacy
@@ -442,7 +432,7 @@ function _findAll<T>(
     store._push(payload, isAsyncFlush);
     snapshotArray._recordArray.isUpdating = false;
 
-    if (LOG_PAYLOADS) {
+    if (LOG_REQUESTS) {
       // eslint-disable-next-line no-console
       console.log(`request: findAll<${type}> background reload complete`);
     }
@@ -480,7 +470,7 @@ function query<T>(context: StoreRequestContext): Promise<T> {
 
   const recordArray =
     options._recordArray ||
-    store.recordArrayManager.createArray({
+    store.recordArrayManager.getCollection({
       type,
       query,
     });

@@ -6,6 +6,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -31,7 +32,10 @@ export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: 
   mainCache[key2] = value;
 }
 
-export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelationshipOperation) {
+export function assertValidRelationshipPayload(
+  graph: Graph,
+  op: UpdateRelationshipOperation | UpdateResourceRelationshipOperation
+) {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const payload = op.value;

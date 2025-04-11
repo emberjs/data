@@ -89,12 +89,12 @@ runs:
         repo-token: ${{ inputs.repo-token }}
 
     - name: Set Up Homebrew
-      if: ${{ inputs.with-cert }}
+      if: ${{ inputs.with-cert == 'true' }}
       id: set-up-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
     - name: 'Setup SSL Cert Infra'
-      if: ${{ inputs.with-cert }}
+      if: ${{ inputs.with-cert == 'true' }}
       shell: bash
       run: |
         sudo apt-get -y update
@@ -129,7 +129,7 @@ runs:
         ADTL_ARGS: ${{ inputs.adtl-install-args }}
 
     - name: 'Generate SSL Cert'
-      if: ${{ inputs.with-cert }}
+      if: ${{ inputs.with-cert == 'true' }}
       shell: bash
       # Generates the cert if needed, using our local copy of @warp-drive/holodeck
       run: |

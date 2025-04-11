@@ -425,7 +425,12 @@ export class Graph {
     }
     if (!this._willSyncRemote) {
       this._willSyncRemote = true;
-      getStore(this.store)._schedule('coalesce', () => this._flushRemoteQueue());
+      const store = getStore(this.store);
+      if (!store._cbs) {
+        store._run(() => this._flushRemoteQueue());
+      } else {
+        store._schedule('coalesce', () => this._flushRemoteQueue());
+      }
     }
   }
 
@@ -455,6 +460,7 @@ export class Graph {
         }
         break;
       }
+      case 'update':
       case 'updateRelationship':
         assert(`Can only perform the operation updateRelationship on remote state`, isRemote);
         if (DEBUG) {
@@ -487,14 +493,10 @@ export class Graph {
       case 'replaceRelatedRecord':
         /*#__NOINLINE__*/ replaceRelatedRecord(this, op, isRemote);
         break;
-      case 'addToRelatedRecords':
-        // we will lift this restriction once the cache is allowed to make remote updates directly
-        assert(`Can only perform the operation addToRelatedRecords on local state`, !isRemote);
+      case 'add':
         /*#__NOINLINE__*/ addToRelatedRecords(this, op, isRemote);
         break;
-      case 'removeFromRelatedRecords':
-        // we will lift this restriction once the cache is allowed to make remote updates directly
-        assert(`Can only perform the operation removeFromRelatedRecords on local state`, !isRemote);
+      case 'remove':
         /*#__NOINLINE__*/ removeFromRelatedRecords(this, op, isRemote);
         break;
       case 'replaceRelatedRecords':
@@ -807,7 +809,11 @@ function isReordered(relationship: CollectionEdge): boolean {
   }
 
   const { remoteState, localState, additions, removals } = relationship;
-  assert(`Expected localSate`, localState);
+
+  if (localState === null) {
+    // the relationship has never been accessed, so it hasn't been reordered either
+    return false;
+  }
 
   for (let i = 0, j = 0; i < remoteState.length; i++) {
     const member = remoteState[i];

@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/json-api",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "description": "Provides a JSON:API document and resource cache implementation for EmberData",
   "keywords": [
     "ember-addon"
@@ -49,34 +49,37 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.11",
-    "@warp-drive/build-config": "workspace:*"
+    "@embroider/macros": "^1.16.12",
+    "@warp-drive/build-config": "workspace:*",
+    "json-to-ast": "2.1.0",
+    "fuse.js": "7.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.26.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/json-to-ast": "^2.1.4",
     "@ember-data/graph": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~5.12.0",
-    "expect-type": "^1.2.0",
-    "vite": "^5.4.14"
+    "ember-source": "~6.3.0",
+    "expect-type": "^1.2.1",
+    "vite": "^5.4.15"
   },
   "ember": {
     "edition": "octane"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.8.0"
 }

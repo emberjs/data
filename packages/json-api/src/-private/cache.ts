@@ -4,15 +4,28 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import { isStableIdentifier, logGroup } from '@ember-data/store/-private';
+import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import { LOG_MUTATIONS, LOG_OPERATIONS, LOG_REQUESTS } from '@warp-drive/build-config/debugging';
+import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
-import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
+import type {
+  AddResourceOperation,
+  AddToDocumentOperation,
+  AddToResourceRelationshipOperation,
+  Op,
+  Operation,
+  RemoveDocumentOperation,
+  RemoveFromDocumentOperation,
+  RemoveFromResourceRelationshipOperation,
+  RemoveResourceOperation,
+  UpdateResourceFieldOperation,
+  UpdateResourceOperation,
+  UpdateResourceRelationshipOperation,
+} from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
@@ -52,6 +65,8 @@ import type {
 } from '@warp-drive/core-types/spec/json-api-raw';
 
 import { validateDocumentFields } from './validate-document-fields';
+import { validateDocument } from './validator';
+import { isErrorDocument, isMetaDocument } from './validator/utils';
 
 type IdentifierCache = Store['identifierCache'];
 type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
@@ -202,10 +217,10 @@ export default class JSONAPICache implements Cache {
   put<T extends ResourceErrorDocument>(doc: StructuredErrorDocument<T>): ResourceErrorDocument;
   put<T extends ResourceMetaDocument>(doc: StructuredDataDocument<T>): ResourceMetaDocument;
   put(doc: StructuredDocument<ResourceDocument>): ResourceDocument {
-    assert(
-      `Expected a JSON:API Document as the content provided to the cache, received ${typeof doc.content}`,
-      doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)
-    );
+    if (DEBUG) {
+      validateDocument(this._capabilities, doc);
+    }
+
     if (isErrorDocument(doc)) {
       return this._putDocument(doc, undefined, undefined);
     } else if (isMetaDocument(doc)) {
@@ -221,7 +236,7 @@ export default class JSONAPICache implements Cache {
       validateDocumentFields(this._capabilities.schema, jsonApiDoc);
     }
 
-    if (LOG_REQUESTS) {
+    if (LOG_CACHE) {
       const Counts = new Map();
       let totalCount = 0;
       if (included) {
@@ -386,32 +401,30 @@ export default class JSONAPICache implements Cache {
    * Update the "remote" or "canonical" (persisted) state of the Cache
    * by merging new information into the existing state.
    *
-   * Note: currently the only valid resource operation is a MergeOperation
-   * which occurs when a collision of identifiers is detected.
-   *
    * @method patch
    * @public
-   * @param {Operation} op the operation to perform
+   * @param {Operation|Operation[]} op the operation or list of operations to perform
    * @return {void}
    */
-  patch(op: MergeOperation): void {
-    if (LOG_OPERATIONS) {
-      try {
-        const _data = JSON.parse(JSON.stringify(op)) as object;
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - patch ${op.op}`, _data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log(`EmberData | Operation - patch ${op.op}`, op);
+  patch(op: Operation | Operation[]): void {
+    if (Array.isArray(op)) {
+      if (LOG_CACHE) {
+        logGroup('cache', 'patch', '<BATCH>', String(op.length) + ' operations', '', '');
       }
-    }
-    if (op.op === 'mergeIdentifiers') {
-      const cache = this.__cache.get(op.record);
-      if (cache) {
-        this.__cache.set(op.value, cache);
-        this.__cache.delete(op.record);
+
+      upgradeCapabilities(this._capabilities);
+      this._capabilities._store._join(() => {
+        for (const operation of op) {
+          patchCache(this, operation);
+        }
+      });
+
+      if (LOG_CACHE) {
+        // eslint-disable-next-line no-console
+        console.groupEnd();
       }
-      this.__graph.update(op, true);
+    } else {
+      patchCache(this, op);
     }
   }
 
@@ -424,7 +437,7 @@ export default class JSONAPICache implements Cache {
    * @public
    */
   mutate(mutation: LocalRelationshipOperation): void {
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       logGroup('cache', 'mutate', mutation.record.type, mutation.record.lid, mutation.field, mutation.op);
       try {
         const _data = JSON.parse(JSON.stringify(mutation)) as object;
@@ -437,7 +450,7 @@ export default class JSONAPICache implements Cache {
     }
     this.__graph.update(mutation, false);
 
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       // eslint-disable-next-line no-console
       console.groupEnd();
     }
@@ -625,81 +638,17 @@ export default class JSONAPICache implements Cache {
     data: ExistingResourceObject,
     calculateChanges?: boolean
   ): void | string[] {
-    let changedKeys: Set<string> | undefined;
-    const peeked = this.__safePeek(identifier, false);
-    const existed = !!peeked;
-    const cached = peeked || this._createCache(identifier);
-
-    const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, this._capabilities, identifier) || !recordIsLoaded(peeked);
-    const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
-
-    if (LOG_OPERATIONS) {
-      logGroup(
-        'cache',
-        'upsert',
-        identifier.type,
-        identifier.lid,
-        existed ? 'merged' : 'inserted',
-        calculateChanges ? 'has-subscription' : ''
-      );
-      try {
-        const _data = JSON.parse(JSON.stringify(data)) as object;
-
-        // eslint-disable-next-line no-console
-        console.log(_data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log(data);
-      }
+    upgradeCapabilities(this._capabilities);
+    const store = this._capabilities._store;
+    if (!store._cbs) {
+      let result: void | string[] = undefined;
+      store._run(() => {
+        result = cacheUpsert(this, identifier, data, calculateChanges);
+      });
+      return result;
     }
 
-    if (cached.isNew) {
-      cached.isNew = false;
-      this._capabilities.notifyChange(identifier, 'identity', null);
-      this._capabilities.notifyChange(identifier, 'state', null);
-    }
-
-    const fields = this._capabilities.schema.fields(identifier);
-
-    // if no cache entry existed, no record exists / property has been accessed
-    // and thus we do not need to notify changes to any properties.
-    if (calculateChanges && existed && data.attributes) {
-      changedKeys = calculateChangedKeys(cached, data.attributes, fields);
-    }
-
-    cached.remoteAttrs = Object.assign(
-      cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
-      data.attributes
-    );
-
-    if (cached.localAttrs) {
-      if (patchLocalAttributes(cached, changedKeys)) {
-        this._capabilities.notifyChange(identifier, 'state', null);
-      }
-    }
-
-    if (!isUpdate) {
-      this._capabilities.notifyChange(identifier, 'added', null);
-    }
-
-    if (data.id) {
-      cached.id = data.id;
-    }
-
-    if (data.relationships) {
-      setupRelationships(this.__graph, fields, identifier, data);
-    }
-
-    if (changedKeys?.size) {
-      notifyAttributes(this._capabilities, identifier, changedKeys);
-    }
-
-    if (LOG_OPERATIONS) {
-      // eslint-disable-next-line no-console
-      console.groupEnd();
-    }
-
-    return changedKeys?.size ? Array.from(changedKeys) : undefined;
+    return cacheUpsert(this, identifier, data, calculateChanges);
   }
 
   // Cache Forking Support
@@ -825,7 +774,7 @@ export default class JSONAPICache implements Cache {
    * @param createArgs
    */
   clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, Value>): Record<string, unknown> {
-    if (LOG_MUTATIONS) {
+    if (LOG_CACHE) {
       try {
         const _data = options ? (JSON.parse(JSON.stringify(options)) as object) : options;
         // eslint-disable-next-line no-console
@@ -974,6 +923,17 @@ export default class JSONAPICache implements Cache {
     const payload = result.content;
     const operation = result.request.op;
     const data = payload && payload.data;
+
+    if (LOG_CACHE) {
+      try {
+        const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Payload - ${operation}`, payloadCopy);
+      } catch {
+        // eslint-disable-next-line no-console
+        console.log(`EmberData | Payload - ${operation}`, payload);
+      }
+    }
 
     if (!data) {
       assert(
@@ -1148,11 +1108,11 @@ export default class JSONAPICache implements Cache {
     let removed = false;
     const cached = this.__peek(identifier, false);
 
-    if (cached.isNew) {
+    if (cached.isNew || cached.isDeletionCommitted) {
       peekGraph(storeWrapper)?.push({
         op: 'deleteRecord',
         record: identifier,
-        isNew: true,
+        isNew: cached.isNew,
       });
     } else {
       peekGraph(storeWrapper)?.unload(identifier);
@@ -1782,6 +1742,164 @@ export default class JSONAPICache implements Cache {
   }
 }
 
+function addResourceToDocument(cache: JSONAPICache, op: AddToDocumentOperation): void {
+  assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+
+  const doc = cache.__documents.get(op.record.lid);
+  assert(`Expected to have a cached document on which to perform the add operation`, doc);
+  assert(`Expected to have content on the document`, doc.content);
+  const { content } = doc;
+
+  if (op.field === 'data') {
+    let shouldNotify = false;
+    assert(`Expected to have a data property on the document`, 'data' in content);
+    asDoc<ResourceDataDocument>(content);
+
+    // if data is not an array, we set the data property directly
+    if (!Array.isArray(content.data)) {
+      assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+      shouldNotify = content.data !== op.value;
+      if (shouldNotify) content.data = op.value;
+      assert(
+        `The value '${op.value.lid}' cannot be added from the data of document '${op.record.lid}' as it is already the current value '${content.data ? content.data.lid : '<null>'}'`,
+        shouldNotify
+      );
+    } else {
+      assert(`Expected to have a non-null operation value`, op.value);
+
+      if (Array.isArray(op.value)) {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, ...op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(...op.value);
+        }
+      } else {
+        if (op.index !== undefined) {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.splice(op.index, 0, op.value);
+        } else {
+          // for collections, because we allow duplicates we are always changed.
+          shouldNotify = true;
+          content.data.push(op.value);
+        }
+      }
+    }
+
+    // notify
+    if (shouldNotify) cache._capabilities.notifyChange(op.record, 'updated', null);
+    return;
+  }
+
+  asDoc<ResourceDataDocument>(content);
+  content.included = content.included || [];
+
+  assert(`Expected to have a non-null operation value`, op.value);
+  if (Array.isArray(op.value)) {
+    // included is not allowed to have duplicates, so we do a dirty check here
+    assert(
+      `included should not contain duplicate members`,
+      new Set([...content.included, ...op.value]).size === content.included.length + op.value.length
+    );
+    content.included = content.included.concat(op.value);
+  } else {
+    // included is not allowed to have duplicates, so we do a dirty check here
+    assert(`included should not contain duplicate members`, content.included.includes(op.value) === false);
+    content.included.push(op.value);
+  }
+
+  // we don't notify in the included case because this is not reactively
+  // exposed. We should possibly consider doing so though for subscribers
+}
+
+function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentOperation): void {
+  assert(`Expected field to be either 'data' or 'included'`, op.field === 'data' || op.field === 'included');
+
+  const doc = cache.__documents.get(op.record.lid);
+  assert(`Expected to have a cached document on which to perform the remove operation`, doc);
+  assert(`Expected to have content on the document`, doc.content);
+  const { content } = doc;
+
+  if (op.field === 'data') {
+    let shouldNotify = false;
+    assert(`Expected to have a data property on the document`, 'data' in content);
+    asDoc<ResourceDataDocument>(content);
+
+    // if data is not an array, we set the data property directly
+    if (!Array.isArray(content.data)) {
+      assert(`Expected to have a single record as the operation value`, op.value && !Array.isArray(op.value));
+      shouldNotify = content.data === op.value;
+      // we only remove the value if it was our existing value
+      if (shouldNotify) content.data = null;
+      assert(
+        `The value '${op.value.lid}' cannot be removed from the data of document '${op.record.lid}' as it is not the current value '${content.data ? content.data.lid : '<null>'}'`,
+        shouldNotify
+      );
+    } else {
+      assert(`Expected to have a non-null operation value`, op.value);
+      const toRemove = Array.isArray(op.value) ? op.value : [op.value];
+
+      for (let i = 0; i < toRemove.length; i++) {
+        const value = toRemove[i];
+        if (op.index !== undefined) {
+          // in production we want to recover gracefully
+          // so we fallback to first-index-of
+          const index: number =
+            op.index < content.data.length && content.data[op.index] === value ? op.index : content.data.indexOf(value);
+
+          assert(
+            `Mismatched Index: Expected index '${op.index}' to contain the value '${value.lid}' but that value is at index '${index}'`,
+            op.index < content.data.length && content.data[op.index] === value
+          );
+
+          if (index !== -1) {
+            // we remove the first occurrence of the value
+            shouldNotify = true;
+            content.data.splice(index, 1);
+          }
+        } else {
+          // we remove the first occurrence of the value
+          const index = content.data.indexOf(value);
+          if (index !== -1) {
+            shouldNotify = true;
+            content.data.splice(index, 1);
+          }
+        }
+      }
+    }
+
+    // notify
+    if (shouldNotify) cache._capabilities.notifyChange(op.record, 'updated', null);
+  } else {
+    asDoc<ResourceDataDocument>(content);
+    content.included = content.included || [];
+
+    assert(`Expected to have a non-null operation value`, op.value);
+    const toRemove = Array.isArray(op.value) ? op.value : [op.value];
+    for (const identifier of toRemove) {
+      assert(
+        `attempted to remove a value from included that was not present in the included array`,
+        content.included.includes(identifier)
+      );
+      const index = content.included.indexOf(identifier);
+      assert(
+        `The value '${identifier.lid}' cannot be removed from the included of document '${op.record.lid}' as it is not present`,
+        index !== -1
+      );
+      if (index !== -1) {
+        content.included.splice(index, 1);
+      }
+    }
+
+    // we don't notify in the included case because this is not reactively
+    // exposed. We should possibly consider doing so though for subscribers
+  }
+}
+
 function areAllModelsUnloaded(wrapper: CacheCapabilitiesManager, identifiers: StableRecordIdentifier[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     const identifier = identifiers[i];
@@ -2035,6 +2153,9 @@ function patchLocalAttributes(cached: CachedResource, changedRemoteKeys?: Set<st
   return hasAppliedPatch;
 }
 
+function asDoc<T extends ResourceDocument>(doc: unknown): asserts doc is T {}
+function asOp<T extends Op>(doc: unknown): asserts doc is T {}
+
 function putOne(
   cache: JSONAPICache,
   identifiers: IdentifierCache,
@@ -2155,24 +2276,6 @@ function _allRelatedIdentifiers(
   return array;
 }
 
-function isMetaDocument(
-  doc: StructuredDocument<ResourceDocument>
-): doc is StructuredDataDocument<ResourceMetaDocument> {
-  return (
-    !(doc instanceof Error) &&
-    doc.content &&
-    !('data' in doc.content) &&
-    !('included' in doc.content) &&
-    'meta' in doc.content
-  );
-}
-
-function isErrorDocument(
-  doc: StructuredDocument<ResourceDocument>
-): doc is StructuredErrorDocument<ResourceErrorDocument> {
-  return doc instanceof Error;
-}
-
 function fromBaseDocument(doc: StructuredDocument<ResourceDocument>): Partial<ResourceDocument> {
   const resourceDocument = {} as Partial<ResourceDocument>;
   const jsonApiDoc = doc.content;
@@ -2206,5 +2309,218 @@ function copyLinksAndMeta(target: { links?: unknown; meta?: unknown }, source: o
   }
   if ('meta' in source) {
     target.meta = source.meta;
+  }
+}
+
+function cacheUpsert(
+  cache: JSONAPICache,
+  identifier: StableRecordIdentifier,
+  data: ExistingResourceObject,
+  calculateChanges?: boolean
+) {
+  let changedKeys: Set<string> | undefined;
+  const peeked = cache.__safePeek(identifier, false);
+  const existed = !!peeked;
+  const cached = peeked || cache._createCache(identifier);
+
+  const isLoading = /*#__NOINLINE__*/ _isLoading(peeked, cache._capabilities, identifier) || !recordIsLoaded(peeked);
+  const isUpdate = /*#__NOINLINE__*/ !_isEmpty(peeked) && !isLoading;
+
+  if (LOG_CACHE) {
+    logGroup(
+      'cache',
+      'upsert',
+      identifier.type,
+      identifier.lid,
+      existed ? 'merged' : 'inserted',
+      calculateChanges ? 'has-subscription' : ''
+    );
+    try {
+      const _data = JSON.parse(JSON.stringify(data)) as object;
+
+      // eslint-disable-next-line no-console
+      console.log(_data);
+    } catch {
+      // eslint-disable-next-line no-console
+      console.log(data);
+    }
+  }
+
+  if (cached.isNew) {
+    cached.isNew = false;
+    cache._capabilities.notifyChange(identifier, 'identity', null);
+    cache._capabilities.notifyChange(identifier, 'state', null);
+  }
+
+  const fields = cache._capabilities.schema.fields(identifier);
+
+  // if no cache entry existed, no record exists / property has been accessed
+  // and thus we do not need to notify changes to any properties.
+  if (calculateChanges && existed && data.attributes) {
+    changedKeys = calculateChangedKeys(cached, data.attributes, fields);
+  }
+
+  cached.remoteAttrs = Object.assign(
+    cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
+    data.attributes
+  );
+
+  if (cached.localAttrs) {
+    if (patchLocalAttributes(cached, changedKeys)) {
+      cache._capabilities.notifyChange(identifier, 'state', null);
+    }
+  }
+
+  if (!isUpdate) {
+    cache._capabilities.notifyChange(identifier, 'added', null);
+  }
+
+  if (data.id) {
+    cached.id = data.id;
+  }
+
+  if (data.relationships) {
+    setupRelationships(cache.__graph, fields, identifier, data);
+  }
+
+  if (changedKeys?.size) {
+    notifyAttributes(cache._capabilities, identifier, changedKeys);
+  }
+
+  if (LOG_CACHE) {
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
+
+  return changedKeys?.size ? Array.from(changedKeys) : undefined;
+}
+
+function patchCache(Cache: JSONAPICache, op: Operation): void {
+  const isRecord = isStableIdentifier(op.record);
+  const isDocument = !isRecord && isDocumentIdentifier(op.record);
+
+  assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
+
+  if (LOG_CACHE) {
+    logGroup(
+      'cache',
+      'patch',
+      isRecord ? (op.record as StableRecordIdentifier).type : '<@document>',
+      op.record.lid,
+      op.op,
+      'field' in op ? op.field : op.op === 'mergeIdentifiers' ? op.value.lid : ''
+    );
+    try {
+      const _data = JSON.parse(JSON.stringify(op)) as object;
+      // eslint-disable-next-line no-console
+      console.log(_data);
+    } catch {
+      // eslint-disable-next-line no-console
+      console.log(op);
+    }
+  }
+
+  switch (op.op) {
+    case 'mergeIdentifiers': {
+      const cache = Cache.__cache.get(op.record);
+      if (cache) {
+        Cache.__cache.set(op.value, cache);
+        Cache.__cache.delete(op.record);
+      }
+      Cache.__graph.update(op, true);
+      break;
+    }
+    case 'update': {
+      if (isRecord) {
+        if ('field' in op) {
+          const field = Cache._capabilities.schema.fields(op.record).get(op.field);
+          assert(`Expected ${op.field} to be a field on ${op.record.type}`, field);
+          if (isRelationship(field)) {
+            asOp<UpdateResourceRelationshipOperation>(op);
+            Cache.__graph.push(op);
+          } else {
+            asOp<UpdateResourceFieldOperation>(op);
+            Cache.upsert(
+              op.record,
+              {
+                type: op.record.type,
+                id: op.record.id,
+                attributes: {
+                  [op.field]: op.value,
+                },
+              },
+              Cache._capabilities.hasRecord(op.record)
+            );
+          }
+        } else {
+          asOp<UpdateResourceOperation>(op);
+          Cache.upsert(op.record, op.value, Cache._capabilities.hasRecord(op.record));
+        }
+      } else {
+        assert(`Update operations on documents is not supported`, false);
+      }
+      break;
+    }
+    case 'add': {
+      if (isRecord) {
+        if ('field' in op) {
+          asOp<AddToResourceRelationshipOperation>(op);
+          Cache.__graph.push(op);
+        } else {
+          asOp<AddResourceOperation>(op);
+          Cache.upsert(op.record, op.value, Cache._capabilities.hasRecord(op.record));
+        }
+      } else {
+        assert(`Expected a field in the add operation`, 'field' in op);
+        asOp<AddToDocumentOperation>(op);
+        addResourceToDocument(Cache, op);
+      }
+      break;
+    }
+    case 'remove': {
+      if (isRecord) {
+        if ('field' in op) {
+          asOp<RemoveFromResourceRelationshipOperation>(op);
+          Cache.__graph.push(op);
+        } else {
+          asOp<RemoveResourceOperation>(op);
+          const cached = Cache.__safePeek(op.record, false);
+          if (cached) {
+            cached.isDeleted = true;
+            cached.isDeletionCommitted = true;
+            Cache.unloadRecord(op.record);
+          } else {
+            peekGraph(Cache._capabilities)?.push({
+              op: 'deleteRecord',
+              record: op.record,
+              isNew: false,
+            });
+          }
+        }
+      } else {
+        if ('field' in op) {
+          assert(`Expected a field in the remove operation`, 'field' in op);
+
+          asOp<RemoveFromDocumentOperation>(op);
+          removeResourceFromDocument(Cache, op);
+        } else {
+          asOp<RemoveDocumentOperation>(op);
+          // TODO @runspired teardown associated state ... notify subscribers etc.
+          // This likely means that the instance cache needs to handle
+          // holding onto reactive documents instead of the CacheHandler
+          // and use a subscription to remove them.
+          // Cache.__documents.delete(op.record.lid);
+          assert(`Removing documents from the cache is not yet supported`, false);
+        }
+      }
+      break;
+    }
+    default:
+      assert(`Unhandled cache.patch operation ${(op as unknown as Op).op}`);
+  }
+
+  if (LOG_CACHE) {
+    // eslint-disable-next-line no-console
+    console.groupEnd();
   }
 }

@@ -99,8 +99,32 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
   log(`Cloning ${chalk.green(details.repoPath)} to ${chalk.green(relativePath)}`);
   const proc = Bun.spawn(['git', 'clone', details.gitUrl, relativePath, '--depth=1'], {
     cwd: docsViewerRoot,
+    stdin: 'inherit',
+    stdout: 'pipe',
+    stderr: 'pipe',
   });
-  await proc.exited;
+  const exitCode = await proc.exited;
+
+  // if the clone fails for publicKey we try https
+  if (exitCode !== 0) {
+    const reason = await new Response(proc.stderr).text();
+
+    if (reason.includes('publickey')) {
+      log(`Cloning ${chalk.green(details.repoPath)} to ${chalk.green(relativePath)} using https`);
+      const proc2 = Bun.spawn(['git', 'clone', details.httpsUrl, relativePath, '--depth=1'], {
+        cwd: docsViewerRoot,
+      });
+      await proc2.exited;
+    } else {
+      console.log({
+        reason,
+        exitCode,
+        stdout: await new Response(proc.stdout).text(),
+      });
+
+      throw new Error(reason);
+    }
+  }
 }
 
 async function main() {
@@ -147,12 +171,22 @@ async function main() {
   // start the docs viewer
   ////////////////////////
   //
-  const proc2 = Bun.spawn(['pnpm', 'start'], {
-    cwd: path.join(projectRoot, 'ember-api-docs'),
-    env: process.env,
-    stdio: ['inherit', 'inherit', 'inherit'],
-  });
-  await proc2.exited;
+  if (process.env.CI) {
+    log('CI environment detected, skipping docs viewer start, building instead');
+    const proc2 = Bun.spawn(['pnpm', 'build'], {
+      cwd: path.join(projectRoot, 'ember-api-docs'),
+      env: process.env,
+      stdio: ['inherit', 'inherit', 'inherit'],
+    });
+    await proc2.exited;
+  } else {
+    const proc2 = Bun.spawn(['pnpm', 'start'], {
+      cwd: path.join(projectRoot, 'ember-api-docs'),
+      env: process.env,
+      stdio: ['inherit', 'inherit', 'inherit'],
+    });
+    await proc2.exited;
+  }
 }
 
 main();

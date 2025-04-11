@@ -1,6 +1,6 @@
 {
   "name": "warp-drive",
-  "version": "0.1.0-alpha.73",
+  "version": "0.1.0-alpha.81",
   "private": false,
   "description": "WarpDrive is the data framework for ambitious web applications",
   "keywords": [
@@ -47,7 +47,7 @@
   "type": "module",
   "peerDependencies": {},
   "dependencies": {
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@manypkg/get-packages": "^2.2.2",
     "@warp-drive/build-config": "workspace:*",
     "semver": "^7.7.1",
@@ -56,18 +56,18 @@
     "comment-json": "^4.2.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/plugin-transform-typescript": "^7.26.8",
-    "@babel/preset-typescript": "^7.26.0",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/preset-typescript": "^7.27.0",
     "@warp-drive/internal-config": "workspace:*",
-    "typescript": "^5.8.2",
-    "vite": "^5.4.14"
+    "typescript": "^5.8.3",
+    "vite": "^5.4.15"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.8.0"
 }

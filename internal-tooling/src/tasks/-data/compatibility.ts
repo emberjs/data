@@ -1,0 +1,123 @@
+interface CompatibilityVersion {
+  name: string;
+  channel: string;
+  isActive: boolean;
+  isSpecialRelease: boolean;
+  lockstep: string[];
+  supported: string[];
+  tested: string[];
+  range: string[];
+  footnote: string | null;
+}
+export const Compatibility = [
+  {
+    name: 'Canary',
+    channel: 'canary',
+    isActive: true,
+    isSpecialRelease: false,
+    lockstep: ['6.4'],
+    supported: ['4.8', '4.12', '5.*', '6.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
+    footnote: null,
+  },
+  {
+    name: 'Beta',
+    channel: 'beta',
+    isActive: true,
+    isSpecialRelease: false,
+    lockstep: ['6.4'],
+    supported: ['4.8', '4.12', '5.*', '6.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
+    footnote: null,
+  },
+  {
+    name: 'Latest (Stable)',
+    channel: 'latest',
+    isActive: true,
+    isSpecialRelease: false,
+    lockstep: ['>= 5.3', '6.0', '6.1', '6.2', '6.3'],
+    supported: ['4.8', '4.12', '5.*', '6.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
+    footnote: null,
+  },
+  {
+    name: 'LTS',
+    channel: 'lts',
+    isActive: true,
+    isSpecialRelease: false,
+    lockstep: ['>= 5.3', '6.0', '6.1', '6.2', '6.3'],
+    supported: ['4.8', '4.12', '5.*', '6.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
+    footnote: null,
+  },
+  {
+    name: 'V4 Special Release<br>(vite support)',
+    channel: 'v4-canary',
+    isActive: true,
+    isSpecialRelease: true,
+    lockstep: ['6.3'],
+    supported: ['4.*', '5.*', '6.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.4', '5.8', '5.12', '6.3'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*', '>= 6.*'],
+    footnote: '1',
+  },
+  {
+    name: 'Prior LTS',
+    channel: 'lts-4-12',
+    isActive: false,
+    isSpecialRelease: false,
+    lockstep: ['4.12.3'],
+    supported: ['4.*', '5.*'],
+    tested: ['3.28', '4.4', '4.8', '4.12', '5.0'],
+    range: ['3.28.12', '>= 4.*', '>= 5.*'],
+    footnote: null,
+  },
+  {
+    name: 'Prior LTS',
+    channel: 'lts-4-8',
+    isActive: false,
+    isSpecialRelease: false,
+    lockstep: ['4.8.6'],
+    supported: ['4.*'],
+    tested: ['3.28', '4.4', '4.8'],
+    range: ['3.28.12', '>= 4.*'],
+    footnote: null,
+  },
+  {
+    name: 'ModelFragments',
+    channel: 'release-4-6',
+    isActive: false,
+    isSpecialRelease: true,
+    lockstep: ['4.6.0'],
+    supported: ['3.28', '4.*'],
+    tested: ['3.28', '4.4', '4.5', '4.6'],
+    range: ['3.28.12', '>= 4.*'],
+    footnote: '2',
+  },
+  {
+    name: 'Prior LTS',
+    channel: 'lts-4-4',
+    isActive: false,
+    isSpecialRelease: true,
+    lockstep: ['4.4.5'],
+    supported: ['3.28', '4.*'],
+    tested: ['3.28', '4.4'],
+    range: ['3.28.12', '>= 4.*'],
+    footnote: '2',
+  },
+  {
+    name: 'Prior LTS',
+    channel: 'lts-3-28',
+    isActive: false,
+    isSpecialRelease: true,
+    lockstep: ['3.28.12'],
+    supported: ['3.*', '4.*'],
+    tested: ['3.20', '3.24', '3.28'],
+    range: ['>= 3.*', '>= 4.*'],
+    footnote: '3',
+  },
+] satisfies CompatibilityVersion[];

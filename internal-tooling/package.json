@@ -11,12 +11,13 @@
     "sync-logos": "src/sync-logos.ts",
     "sync-license": "src/sync-license.ts",
     "sync-references": "src/sync-references.ts",
+    "sync-readme-tables": "src/sync-readme-tables.ts",
     "sync-scripts": "src/sync-scripts.ts",
     "sync-all": "src/sync-all.ts"
   },
   "dependencies": {
-    "@types/bun": "^1.2.4",
-    "typescript": "^5.8.2",
+    "@types/bun": "^1.2.8",
+    "typescript": "^5.8.3",
     "chalk": "5.4.1",
     "debug": "4.4.0",
     "@types/debug": "4.1.12",
@@ -26,7 +27,7 @@
     "@pnpm/logger": "1000.0.0"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../package.json"

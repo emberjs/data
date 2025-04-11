@@ -72,23 +72,30 @@ jobs:
   #       run: pnpm install --no-lockfile
   #     - name: Basic Tests
   #       run: pnpm test
-  node-version-test:
-    name: Use Node.js ${{ matrix.node-version }}
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x]
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - uses: ./.github/actions/setup
-        with:
-          node-version: ${{ matrix.node-version }}
-          restore-broccoli-cache: true
-          install: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Basic Tests
-        run: pnpm test
+
+  ###
+  # These Tests No Longer Work Because We Use node-version-file to set node version
+  # We could re-enable them by re-architecting the setup a little but it's not worth it
+  # because we will soon no-longer have an engines requirement at all in published artifacts.
+  # and engines doesnt matter for what we publish today already.
+  ###
+  # node-version-test:
+  #   name: Use Node.js ${{ matrix.node-version }}
+  #   timeout-minutes: 10
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [16.x, 18.x]
+  #   steps:
+  #     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+  #     - uses: ./.github/actions/setup
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         restore-broccoli-cache: true
+  #         install: true
+  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Basic Tests
+  #       run: pnpm test
 
   smoke-tests:
     name: Smoke ${{ matrix.scenario.name }} w/ ${{ matrix.packageManager }}

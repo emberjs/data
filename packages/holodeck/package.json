@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/holodeck",
   "description": "⚡️ Simple, Fast HTTP Mocking for Tests",
-  "version": "0.0.0-alpha.136",
+  "version": "0.0.0-alpha.144",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -12,7 +12,7 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "keywords": [
     "http-mock"
@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "hono": "^4.7.2",
-    "@hono/node-server": "^1.13.8"
+    "hono": "^4.7.5",
+    "@hono/node-server": "^1.14.0"
   },
   "type": "module",
   "files": [
@@ -51,15 +51,15 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.26.0",
-    "@babel/runtime": "^7.26.9",
+    "@babel/preset-typescript": "^7.27.0",
+    "@babel/runtime": "^7.27.0",
     "@ember-data/request": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "vite": "^5.4.14"
+    "vite": "^5.4.15"
   },
   "exports": {
     ".": {

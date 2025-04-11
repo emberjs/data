@@ -15,7 +15,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
@@ -95,6 +95,7 @@ export type IdentifierArrayCreateOptions<T = unknown> = {
   manager: MinimumManager;
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
+  identifier?: StableDocumentIdentifier | null;
 };
 
 interface PrivateState {
@@ -185,6 +186,7 @@ export class IdentifierArray<T = unknown> {
   isDestroying = false;
   isDestroyed = false;
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
+  readonly identifier: StableDocumentIdentifier | null;
 
   [IS_COLLECTION] = true;
   declare [ARRAY_SIGNAL]: Signal;
@@ -230,6 +232,7 @@ export class IdentifierArray<T = unknown> {
     this.modelName = options.type;
     this.store = options.store;
     this._manager = options.manager;
+    this.identifier = options.identifier || null;
     this[SOURCE] = options.identifiers;
     this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const store = options.store;

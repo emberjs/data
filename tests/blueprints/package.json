@@ -1,6 +1,6 @@
 {
   "name": "blueprint-tests",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -15,7 +15,7 @@
     "test:blueprints": "mocha tests"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
+    "@babel/core": "^7.26.10",
     "@ember-data/adapter": "workspace:*",
     "@ember-data/debug": "workspace:*",
     "@ember-data/graph": "workspace:*",
@@ -29,24 +29,24 @@
     "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
-    "@ember/test-helpers": "5.1.0",
-    "@ember/test-waiters": "^3.1.0",
-    "@glimmer/component": "^1.1.2",
+    "@ember/test-helpers": "5.2.0",
+    "@ember/test-waiters": "^4.1.0",
+    "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-cli": "~6.2.2",
+    "ember-cli": "~6.3.1",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
-    "ember-source": "~5.12.0",
+    "ember-source": "~6.3.0",
     "mocha": "^11.1.0",
     "silent-error": "^1.1.1"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.8.0",
   "dependencies": {}
 }

@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "description": "The lightweight reactive data library for JavaScript applications",
   "keywords": [
     "ember-addon"
@@ -79,7 +79,7 @@
     "@ember-data/store": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*"
   },
@@ -101,24 +101,24 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.26.0",
-    "@ember/test-waiters": "^3.1.0",
-    "@glimmer/component": "^1.1.2",
+    "@babel/preset-typescript": "^7.27.0",
+    "@ember/test-waiters": "^4.1.0",
+    "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "2.19.10",
-    "@ember/test-helpers": "5.1.0",
+    "@ember/test-helpers": "5.2.0",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~5.12.0",
-    "eslint": "^9.21.0",
-    "vite": "^5.4.14",
-    "typescript": "^5.8.2",
+    "ember-source": "~6.3.0",
+    "eslint": "^9.24.0",
+    "vite": "^5.4.15",
+    "typescript": "^5.8.3",
     "qunit": "^2.18.0"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "ember": {
     "edition": "octane"
@@ -126,5 +126,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.8.0"
 }

@@ -42,6 +42,8 @@
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
+      "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
+      "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
@@ -94,6 +96,9 @@
     },
     {
       "path": "../../packages/core-types"
+    },
+    {
+      "path": "../../packages/schema-record"
     },
     {
       "path": "../../packages/diagnostic"

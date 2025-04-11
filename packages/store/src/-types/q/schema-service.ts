@@ -362,4 +362,13 @@ export interface SchemaService {
    * @return {RelationshipsSchema}
    */
   relationshipsDefinitionFor?(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
+
+  /**
+   * Returns all known resource types
+   *
+   * @method resourceTypes
+   * @public
+   * @return {string[]}
+   */
+  resourceTypes(): Readonly<string[]>;
 }

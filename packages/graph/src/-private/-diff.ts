@@ -425,7 +425,100 @@ export function computeLocalState(storage: CollectionEdge): StableRecordIdentifi
   return state;
 }
 
-export function _addLocal(
+/**
+ * A function which attempts to add a value to the local state of a collection
+ * relationship, and returns true if the value was added, or false if it was
+ * already present.
+ *
+ * It will not generate a notification, will not update the relationships to dirty,
+ * and will not update the inverse relationships, making it suitable for use as
+ * an internal util to perform the just the addition to a specific side of a
+ * relationship.
+ *
+ * @internal
+ */
+export function _add(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  relationship: CollectionEdge,
+  value: StableRecordIdentifier,
+  index: number | null,
+  isRemote: boolean
+) {
+  return !isRemote
+    ? _addLocal(graph, record, relationship, value, index)
+    : _addRemote(graph, record, relationship, value, index);
+}
+
+function _addRemote(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  relationship: CollectionEdge,
+  value: StableRecordIdentifier,
+  index: number | null
+) {
+  assert(`expected an identifier to add to the collection relationship`, value);
+  const { remoteMembers, additions, removals, remoteState } = relationship;
+
+  assert(`Cannot add a resource that is already present`, !remoteMembers.has(value));
+  if (remoteMembers.has(value)) {
+    return false;
+  }
+
+  // add to the remote state
+  remoteMembers.add(value);
+  assert(
+    `Cannot insert at an index that is not in bounds`,
+    index === null || (index >= 0 && index < remoteState.length)
+  );
+  const hasValidIndex = index !== null && index >= 0 && index < remoteState.length;
+  if (hasValidIndex) {
+    remoteState.splice(index, 0, value);
+  } else {
+    remoteState.push(value);
+  }
+
+  // remove from additions if present
+  if (additions?.has(value)) {
+    additions.delete(value);
+
+    // nothing more to do this was our state already
+    return false;
+  }
+
+  assert(
+    `Remote state indicated addition of a resource that was present only as a local mutation`,
+    !removals?.has(value)
+  );
+
+  // if the relationship already needs to recalc, we don't bother
+  // attempting to patch the localState
+  if (relationship.isDirty) {
+    return true;
+  }
+
+  // if we have existing localState
+  // we attempt to patch it without blowing it away
+  // as this is more efficient than recomputing
+  // it allows us to preserve local ordering
+  // to a small extent. Local ordering should not
+  // be relied upon as any remote change could blow it away
+  if (relationship.localState) {
+    if (!hasValidIndex) {
+      relationship.localState.push(value);
+    } else if (index === 0) {
+      relationship.localState.unshift(value);
+    } else if (!removals?.size) {
+      relationship.localState.splice(index, 0, value);
+    } else {
+      relationship.isDirty = true;
+    }
+  }
+
+  return true;
+}
+
+function _addLocal(
   graph: Graph,
   record: StableRecordIdentifier,
   relationship: CollectionEdge,
@@ -479,6 +572,17 @@ export function _addLocal(
   }
 
   return true;
+}
+
+export function _remove(
+  graph: Graph,
+  record: StableRecordIdentifier,
+  relationship: CollectionEdge,
+  value: StableRecordIdentifier,
+  index: number | null,
+  isRemote: boolean
+): boolean {
+  return !isRemote ? _removeLocal(relationship, value) : _removeRemote(relationship, value);
 }
 
 export function _removeLocal(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {

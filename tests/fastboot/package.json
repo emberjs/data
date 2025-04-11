@@ -1,6 +1,6 @@
 {
   "name": "fastboot-test-app",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "private": true,
   "description": "Small description for fastboot-test-app goes here",
   "repository": {
@@ -23,13 +23,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/runtime": "^7.26.9",
+    "@babel/core": "^7.26.10",
+    "@babel/runtime": "^7.27.0",
     "@ember/optional-features": "^2.2.0",
     "@ember/string": "^4.0.1",
-    "@ember/test-helpers": "5.1.0",
-    "@ember/test-waiters": "^3.1.0",
-    "@glimmer/component": "^1.1.2",
+    "@ember/test-helpers": "5.2.0",
+    "@ember/test-waiters": "^4.1.0",
+    "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember-data/request": "workspace:*",
@@ -52,19 +52,18 @@
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-version-checker": "^5.1.2",
-    "ember-cli": "~6.2.2",
+    "ember-cli": "~6.3.1",
     "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "8.0.2",
-    "ember-resolver": "^11.0.1",
-    "ember-simple-tree": "^0.8.4",
-    "ember-source": "~5.12.0",
+    "ember-resolver": "^13.1.0",
+    "ember-source": "~6.3.0",
     "loader.js": "^4.7.0",
-    "qunit-dom": "^3.1.1",
+    "qunit-dom": "^3.4.0",
     "qunit": "^2.20.1",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "testem": "^3.12.0",
-    "webpack": "^5.98.0"
+    "webpack": "^5.99.1"
   },
   "engines": {
     "node": ">= 22"
@@ -78,5 +77,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.8.0"
 }

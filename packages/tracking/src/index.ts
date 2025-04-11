@@ -2,11 +2,7 @@ import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 
 import { assert } from '@warp-drive/build-config/macros';
 
-export { transact, memoTransact, untracked } from './-private';
-
-// temporary so we can remove the glimmer and ember imports elsewhere
-// eslint-disable-next-line no-restricted-imports
-export { dependentKeyCompat as compat } from '@ember/object/compat';
+export { transact, memoTransact, untracked, compat, notifySignal } from './-private';
 
 export function cached<T extends object, K extends keyof T & string>(
   target: T,

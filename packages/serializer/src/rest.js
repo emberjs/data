@@ -278,9 +278,11 @@ const RESTSerializer = JSONSerializer.extend({
 
       const type = this.modelNameFromPayloadKey(modelName);
       if (!store.schema.hasResource({ type })) {
-        warn(this.warnMessageNoModelForKey(modelName, type), false, {
-          id: 'ds.serializer.model-for-key-missing',
-        });
+        if (DEBUG) {
+          warn(this.warnMessageNoModelForKey(modelName, type), false, {
+            id: 'ds.serializer.model-for-key-missing',
+          });
+        }
         continue;
       }
 
@@ -401,9 +403,11 @@ const RESTSerializer = JSONSerializer.extend({
     for (const prop in payload) {
       const type = this.modelNameFromPayloadKey(prop);
       if (!store.schema.hasResource({ type })) {
-        warn(this.warnMessageNoModelForKey(prop, type), false, {
-          id: 'ds.serializer.model-for-key-missing',
-        });
+        if (DEBUG) {
+          warn(this.warnMessageNoModelForKey(prop, type), false, {
+            id: 'ds.serializer.model-for-key-missing',
+          });
+        }
         continue;
       }
       const ModelSchema = store.modelFor(type);

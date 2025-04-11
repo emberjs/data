@@ -1,9 +1,6 @@
 import Route from '@ember/routing/route';
 import * as s from '@ember/service';
 
-// @ts-expect-error untyped
-import { buildTree } from 'ember-simple-tree/utils/tree';
-
 import { query } from '@ember-data/json-api/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 
@@ -19,18 +16,15 @@ export default class IndexRoute extends Route {
     request?: { host: string };
   };
 
-  override async model() {
+  async model() {
     const host = this.fastboot.isFastBoot ? (this.fastboot.request?.host ?? '/') : window.location.host;
     setBuildURLConfig({ host: `http://${host}`, namespace: 'api' });
     const queryInit = query<Person>('person', {}, { resourcePath: 'people.json' });
 
     const {
-      content: { data: people },
+      content: { data },
     } = await this.store.request(queryInit);
 
-    const tree = buildTree(people.map((person) => person.toNode()));
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return tree;
+    return data;
   }
 }

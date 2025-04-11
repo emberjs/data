@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "description": "The core of EmberData. Provides the Store service which coordinates the cache with the network and presentation layers.",
   "keywords": [
     "ember-addon"
@@ -38,7 +38,7 @@
     "start": "vite"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.11",
+    "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependencies": {
@@ -49,29 +49,29 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.26.0",
+    "@babel/preset-typescript": "^7.27.0",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/tracking": "workspace:*",
-    "@glimmer/component": "^1.1.2",
+    "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "decorator-transforms": "^2.3.0",
-    "ember-source": "~5.12.0",
-    "expect-type": "^1.2.0",
-    "typescript": "^5.8.2",
-    "vite": "^5.4.14"
+    "ember-source": "~6.3.0",
+    "expect-type": "^1.2.1",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.15"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.8.0",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",

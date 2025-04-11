@@ -30,6 +30,9 @@ type FakeRecord = { [key: string]: unknown; destroy: () => void };
 class BaseTestStore extends Store {
   createSchemaService(): SchemaService {
     const schemaService: SchemaService = {
+      resourceTypes() {
+        return [];
+      },
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },

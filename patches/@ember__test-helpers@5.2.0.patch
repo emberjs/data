@@ -1,0 +1,101 @@
+diff --git a/declarations/index.d.ts b/declarations/index.d.ts
+index 954e71657c36d820ea4127322d5d1ad051499549..2a5c042b386f8efdb7cedbafffa560b307f89e6c 100644
+--- a/declarations/index.d.ts
++++ b/declarations/index.d.ts
+@@ -6,7 +6,7 @@ export type { BaseContext, DeprecationFailure, TestContext, Warning, SetupContex
+ export { default as setupContext, getContext, setContext, unsetContext, pauseTest, resumeTest, getDeprecations, getDeprecationsDuringCallback, getWarnings, getWarningsDuringCallback, } from './setup-context.ts';
+ export { default as teardownContext } from './teardown-context.ts';
+ export type { TeardownContextOptions } from './teardown-context.ts';
+-export { default as setupRenderingContext, render, clearRender, } from './setup-rendering-context.ts';
++export { default as setupRenderingContext, render, clearRender, hasCalledSetupRenderingContext } from './setup-rendering-context.ts';
+ export type { RenderingTestContext } from './setup-rendering-context.ts';
+ export { default as rerender } from './rerender.ts';
+ export { default as setupApplicationContext, visit, currentRouteName, currentURL, } from './setup-application-context.ts';
+diff --git a/declarations/setup-rendering-context.d.ts b/declarations/setup-rendering-context.d.ts
+index 933ae9046751ce93e5a65e484df1d28961157fd2..fee2b551eaa714717a813bf3d14e3b5971e423d1 100644
+--- a/declarations/setup-rendering-context.d.ts
++++ b/declarations/setup-rendering-context.d.ts
+@@ -1,6 +1,6 @@
+ import { type BaseContext, type TestContext } from './setup-context.ts';
+ import type { Owner } from './build-owner.ts';
+-declare const hasCalledSetupRenderingContext: unique symbol;
++export declare const hasCalledSetupRenderingContext: unique symbol;
+ export interface RenderingTestContext extends TestContext {
+     element: Element | Document;
+     [hasCalledSetupRenderingContext]?: true;
+diff --git a/dist/build-owner.js b/dist/build-owner.js
+index b19c6aa9c1b03b3c858b403164169d6c65205a21..4152a03a24b93f19e17f596d0439673b1aa33d64 100644
+--- a/dist/build-owner.js
++++ b/dist/build-owner.js
+@@ -20,13 +20,17 @@ import buildRegistry from './-internal/build-registry.js';
+   @param {Ember.Resolver} [resolver] the resolver to use to back a "mock owner"
+   @returns {Promise<Ember.ApplicationInstance>} a promise resolving to the generated "owner"
+ */
+-function buildOwner(application, resolver) {
++function buildOwner(application, resolver, options) {
+   if (application) {
+     // @ts-ignore: this type is correct and will check against Ember 4.12 or 5.1
+     // or later. However, the first round of preview types in Ember 4.8 does not
+     // include the `visit` API (it was missing for many years!) and therefore
+     // there is no way to make this assignable accross all supported versions.
+-    return application.boot().then(app => app.buildInstance().boot());
++    const appBoot = application.boot();
++    return appBoot.then(app => {
++      const instance = app.buildInstance(options);
++      return instance.boot(options);
++    });
+   }
+   if (!resolver) {
+     throw new Error('You must set up the ember-test-helpers environment with either `setResolver` or `setApplication` before running any tests.');
+diff --git a/dist/index.js b/dist/index.js
+index ad40ab758807297c5648ee8929a2927549b51eb7..c0eb6cedbe8b973ce0fff5f5b5e788d398572741 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -3,7 +3,7 @@ export { getApplication, setApplication } from './application.js';
+ export { default as hasEmberVersion } from './has-ember-version.js';
+ export { j as currentRouteName, k as currentURL, g as getContext, c as getDeprecations, d as getDeprecationsDuringCallback, m as getSettledState, e as getWarnings, f as getWarningsDuringCallback, l as isSettled, p as pauseTest, o as resetOnerror, r as resumeTest, b as setContext, s as settled, h as setupApplicationContext, a as setupContext, n as setupOnerror, u as unsetContext, v as visit } from './setup-context-BhTAHoKA.js';
+ export { default as teardownContext } from './teardown-context.js';
+-export { clearRender, render, default as setupRenderingContext } from './setup-rendering-context.js';
++export { clearRender, render, default as setupRenderingContext, hasCalledSetupRenderingContext } from './setup-rendering-context.js';
+ export { default as rerender } from './rerender.js';
+ export { default as waitUntil } from './wait-until.js';
+ export { default as validateErrorHandler } from './validate-error-handler.js';
+diff --git a/dist/setup-context-BhTAHoKA.js b/dist/setup-context-BhTAHoKA.js
+index e3850da9c776c56ec55e710eee82d4b1b6f7c697..2cd23c22c95a1f7c42bf1b4904d8c25e4a3bb39e 100644
+--- a/dist/setup-context-BhTAHoKA.js
++++ b/dist/setup-context-BhTAHoKA.js
+@@ -791,7 +791,8 @@ function setupContext(base, options = {}) {
+     return;
+   }).then(() => {
+     const {
+-      resolver
++      resolver,
++      rootElement
+     } = options;
+
+     // This handles precedence, specifying a specific option of
+@@ -801,9 +802,9 @@ function setupContext(base, options = {}) {
+     // At some later time this can be extended to support specifying a custom
+     // engine or application...
+     if (resolver) {
+-      return buildOwner(null, resolver);
++      return buildOwner(null, resolver, { rootElement });
+     }
+-    return buildOwner(getApplication(), getResolver());
++    return buildOwner(getApplication(), getResolver(), { rootElement });
+   }).then(owner => {
+     Object.defineProperty(context, 'owner', {
+       configurable: true,
+diff --git a/dist/setup-rendering-context.js b/dist/setup-rendering-context.js
+index 3116d599d5118097987bf4441030e9ef7052bcf5..e0b827e0aad76ae8d509f3208347175ecba0d71a 100644
+--- a/dist/setup-rendering-context.js
++++ b/dist/setup-rendering-context.js
+@@ -17,7 +17,7 @@ const EMPTY_TEMPLATE = precompileTemplate("", {
+ const INVOKE_PROVIDED_COMPONENT = precompileTemplate("<this.ProvidedComponent />", {
+   strictMode: false
+ });
+-const hasCalledSetupRenderingContext = Symbol();
++export const hasCalledSetupRenderingContext = Symbol('hasCalledSetupRenderingContext');
+ //  Isolates the notion of transforming a TextContext into a RenderingTestContext.
+ // eslint-disable-next-line require-jsdoc
+ function prepare(context) {

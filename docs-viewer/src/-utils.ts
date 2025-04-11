@@ -76,12 +76,15 @@ export function repoDetails(gitUrl: string) {
     installPathFromRoot,
     location,
     relativePath: path.relative(__dirname, path.join(docsViewerRoot, installPathFromRoot)),
+    httpsUrl: `https://github.com/${repoPath}.git`,
   };
 }
 
 export async function installDeps(packageManager: 'pnpm' | 'npm' | 'yarn', details: ReturnType<typeof repoDetails>) {
   const proc = Bun.spawn(
-    [packageManager, 'install', packageManager === 'pnpm' ? '--ignore-workspace' : ''].filter(Boolean),
+    [packageManager, 'install', packageManager === 'pnpm' ? '--ignore-workspace' : '', '--no-frozen-lockfile'].filter(
+      Boolean
+    ),
     {
       cwd: details.location,
       env: process.env,
@@ -124,6 +127,27 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
 
     // run install to pickup the lockfile change
     await installDeps('pnpm', details);
+
+    if (packageJson.name === 'ember-api-docs') {
+      const buildFile = fs.readFileSync(path.join(details.location, 'ember-cli-build.js'), 'utf8');
+      // deactivate prember
+      const newFile = buildFile.replace('prember: {', '__prember: {');
+      fs.writeFileSync(path.join(details.location, 'ember-cli-build.js'), newFile);
+
+      if (process.env.CI) {
+        // in CI we need to change the routing setup to prepare for deployment to github pages
+        const routerFile = fs.readFileSync(path.join(details.location, 'config/environment.js'), 'utf8');
+        let newFile = routerFile.replace("rootURL: '/'", "rootURL: '/data/'");
+        newFile = newFile.replace("locationType: 'auto'", "locationType: 'hash'");
+        newFile = newFile.replace("routerRootURL: '/'", "routerRootURL: '/data/'");
+        fs.writeFileSync(path.join(details.location, 'config/environment.js'), newFile);
+
+        // teach the adapter to use the correct base url
+        const adapterFile = fs.readFileSync(path.join(details.location, 'app/adapters/application.js'), 'utf8');
+        const newAdapterFile = adapterFile.replace('url = `/${url}.json`;', 'url = `/data/${url}.json`;');
+        fs.writeFileSync(path.join(details.location, 'app/adapters/application.js'), newAdapterFile);
+      }
+    }
 
     const proc = Bun.spawn(['git', 'commit', '-am', '"ensure volta works as expected"'], {
       cwd: details.location,

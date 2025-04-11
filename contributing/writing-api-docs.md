@@ -8,6 +8,9 @@ it becomes best to know the underlying parser is YUIDoc.
 While API Documentation lives with the source-code, the code itself plays no-part in the documentation
 that is generated: everything is compiled from comments alone.
 
+The below guide will walk through best practices for writing doc comments, important
+nuances and syntaxes to know, as well as how to test and preview the doc comments.
+
 <br>
 
 ---

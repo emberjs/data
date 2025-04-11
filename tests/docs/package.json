@@ -1,6 +1,6 @@
 {
   "name": "docs-tests",
-  "version": "5.4.0-alpha.150",
+  "version": "5.4.0-alpha.158",
   "private": true,
   "description": "Provides tests for blueprints",
   "repository": {
@@ -19,11 +19,11 @@
     "qunit": "^2.20.1"
   },
   "engines": {
-    "node": ">= 18.20.7"
+    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.8.0",
   "dependencies": {}
 }

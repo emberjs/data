@@ -1,43 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "labels": [":dependabot:", ":label: dependencies"],
   "packageRules": [
-    {
-      "matchPackagePatterns": [
-        "@types",
-        "eslint-config-prettier",
-        "eslint",
-        "glint",
-        "lint",
-        "prettier",
-        "stylelint",
-        "typescript"
-      ],
-      "groupName": "code-quality"
-    },
-    {
-      "matchPackageNames": [
-        "webpack",
-        "npm-run-all",
-        "ember-cli",
-        "ember-cli-dotenv",
-        "ember-auto-import",
-        "broccoli-asset-rev",
-        "broccoli-debug",
-        "broccoli-funnel",
-        "broccoli-merge-trees",
-        "ember-cli-build-notifications",
-        "ember-cli-content-security-policy",
-        "ember-cli-dependency-checker",
-        "ember-cli-inject-live-reload",
-        "emner-cli-inline-content",
-        "ember-cli-sri",
-        "ember-css-modules"
-      ],
-      "matchPackagePatterns": ["@embroider", "postcss"],
-      "groupName": "build-tools"
-    },
     {
       "matchPackageNames": [
         "ember-source",
@@ -47,37 +12,19 @@
         "ember-cached-decorator",
         "ember-modifier",
         "ember-page-title",
-        "tracked-built-ins"
+        "tracked-built-ins",
+        "/glimmer/",
+        "/polyfill/"
       ],
-      "matchPackagePatterns": ["glimmer", "polyfill"],
       "groupName": "ember-core"
     },
     {
-      "matchPackageNames": ["ember-cli-babel", "ember-cli-htmlbars", "@embroider/macros", "ember-cli-terser"],
-      "matchPackagePatterns": ["babel", "postcss"],
-      "groupName": "asset-compilation"
+      "matchPackageNames": ["/@types\/ember/"],
+      "groupName": "legacy-ember-types"
     },
     {
-      "matchPackageNames": [
-        "chai",
-        "qunit-dom",
-        "sinon",
-        "ember-exam",
-        "testem",
-        "ember-cli-mirage",
-        "ember-qunit",
-        "qunit",
-        "ember-cli-deprecation-workflow",
-        "ember-a11y-testing",
-        "@ember/test-helpers",
-        "@ember/test-waiters"
-      ],
-      "matchPackagePatterns": ["percy", "quality", "test"],
-      "groupName": "testing"
-    },
-    {
-      "matchPackageNames": ["ember-promise-helpers"],
-      "groupName": "data-utils"
+      "matchPackageNames": ["/qunit/"],
+      "groupName": "qunit"
     },
     {
       "matchManagers": ["github-actions"],
@@ -85,7 +32,7 @@
     }
   ],
   "npm": {
-    "stabilityDays": 3
+    "minimumReleaseAge": "3 days"
   },
   "rangeStrategy": "bump",
   "prHourlyLimit": 10,
@@ -95,5 +42,5 @@
     "assignees": ["@runspired"],
     "enabled": true
   },
-  "ignorePaths": ["node_modules/**", "**/node_modules/**", "tests/smoke-tests/**"]
+  "ignorePaths": ["node_modules/**", "**/node_modules/**"]
 }
