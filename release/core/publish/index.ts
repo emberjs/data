@@ -1,5 +1,5 @@
 import { publish_flags_config } from '../../utils/flags-config';
-import { parseRawFlags } from '../../utils/parse-args';
+import { parseRawFlags, printConfig } from '../../utils/parse-args';
 import { GIT_TAG, getAllPackagesForGitTag, getGitState } from '../../utils/git';
 import { printHelpDocs } from '../../help/docs';
 import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
@@ -23,6 +23,8 @@ export async function executePublish(args: string[]) {
   if (config.full.get('help')) {
     return printHelpDocs(args);
   }
+
+  printConfig(config);
 
   const dryRun = config.full.get('dry_run') as boolean;
 
