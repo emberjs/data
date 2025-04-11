@@ -95,17 +95,30 @@ type InternalWarpDriveConfig = {
 
 type MacrosWithGlobalConfig = Omit<MacrosConfig, 'globalConfig'> & { globalConfig: Record<string, unknown> };
 
-function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
+function recastMacrosConfig(macros: object, isEmberClassicUsage: boolean): MacrosWithGlobalConfig {
   if (!('globalConfig' in macros)) {
-    throw new Error('Expected MacrosConfig to have a globalConfig property');
+    if (isEmberClassicUsage) {
+      throw new Error('Expected MacrosConfig to have a globalConfig property');
+    }
+    // @ts-expect-error - gotta set this up ourselves
+    macros.globalConfig = {};
   }
   return macros as MacrosWithGlobalConfig;
 }
 
-export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void {
-  const macros = recastMacrosConfig(_MacrosConfig.for(context, appRoot));
-  const isLegacySupport = (config as unknown as { ___legacy_support?: boolean }).___legacy_support;
-  const hasDeprecatedConfig = isLegacySupport && Object.keys(config).length > 1;
+export function setConfig(macros: object, config: WarpDriveConfig): void;
+export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void;
+export function setConfig(context: object, appRootOrConfig: string | WarpDriveConfig, config?: WarpDriveConfig): void {
+  const isEmberClassicUsage = arguments.length === 3;
+  const macros = recastMacrosConfig(
+    isEmberClassicUsage ? _MacrosConfig.for(context, appRootOrConfig as string) : context,
+    isEmberClassicUsage
+  );
+
+  const userConfig = isEmberClassicUsage ? config! : (appRootOrConfig as WarpDriveConfig);
+
+  const isLegacySupport = (userConfig as unknown as { ___legacy_support?: boolean }).___legacy_support;
+  const hasDeprecatedConfig = isLegacySupport && Object.keys(userConfig).length > 1;
   const hasInitiatedConfig = macros.globalConfig['WarpDrive'];
 
   // setConfig called by user prior to legacy support called
@@ -136,21 +149,21 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   //   );
   // }
 
-  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, config.debug);
+  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, userConfig.debug);
 
   const env = getEnv();
-  const DEPRECATIONS = getDeprecations(config.compatWith || null, config.deprecations);
+  const DEPRECATIONS = getDeprecations(userConfig.compatWith || null, userConfig.deprecations);
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
-    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : true;
+    typeof userConfig.includeDataAdapterInProduction === 'boolean' ? userConfig.includeDataAdapterInProduction : true;
   const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : true;
 
   const finalizedConfig: InternalWarpDriveConfig = {
     debug: debugOptions,
-    polyfillUUID: config.polyfillUUID ?? false,
+    polyfillUUID: userConfig.polyfillUUID ?? false,
     includeDataAdapter,
-    compatWith: config.compatWith ?? null,
+    compatWith: userConfig.compatWith ?? null,
     deprecations: DEPRECATIONS,
     features: FEATURES,
     activeLogging: createLoggingConfig(env, debugOptions),
