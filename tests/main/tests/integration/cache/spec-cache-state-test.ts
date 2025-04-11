@@ -17,11 +17,7 @@ import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -51,27 +47,27 @@ class Person extends Model {
 
 class TestCache implements Cache {
   _storeWrapper: CacheCapabilitiesManager;
-  _identifier: StableRecordIdentifier;
+  _identifier: ResourceCacheKey;
 
-  constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheCapabilitiesManager, identifier: ResourceCacheKey) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
 
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  changedRelationships(identifier: ResourceCacheKey): Map<string, RelationshipDiff> {
     throw new Error('Method not implemented.');
   }
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+  hasChangedRelationships(identifier: ResourceCacheKey): boolean {
     throw new Error('Method not implemented.');
   }
-  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+  rollbackRelationships(identifier: ResourceCacheKey): string[] {
     throw new Error('Method not implemented.');
   }
 
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
-  _data: Map<StableRecordIdentifier, object> = new Map();
+  _data: Map<ResourceCacheKey, object> = new Map();
   put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
   put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
   put<T extends ResourceMetaDocument | ResourceErrorDocument>(
@@ -83,7 +79,7 @@ class TestCache implements Cache {
         const data = doc.content.data.map((resource) => {
           const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
             resource
-          ) as StableExistingRecordIdentifier;
+          ) as ExistingResourceCacheKey;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
@@ -91,7 +87,7 @@ class TestCache implements Cache {
       } else {
         const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
           doc.content.data
-        ) as StableExistingRecordIdentifier;
+        ) as ExistingResourceCacheKey;
         this.upsert(identifier, doc.content.data!, this._storeWrapper.hasRecord(identifier));
         return { data: identifier } as SingleResourceDataDocument;
       }
@@ -101,17 +97,17 @@ class TestCache implements Cache {
     throw new Error('Not Implemented');
   }
 
-  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+  peek(identifier: ResourceCacheKey): ResourceBlob | null;
+  peek(identifier: RequestCacheKey): ResourceDocument | null;
+  peek(identifier: RequestCacheKey | ResourceCacheKey): ResourceBlob | ResourceDocument | null {
     throw new Error(`Not Implemented`);
   }
-  peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState<T = unknown>(identifier: ResourceCacheKey<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState(identifier: RequestCacheKey): ResourceDocument | null;
   peekRemoteState<T = unknown>(identifier: unknown): T | ResourceDocument | null {
     throw new Error(`Not Implemented`);
   }
-  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+  peekRequest<T>(identifier: RequestCacheKey): StructuredDocument<T> | null {
     throw new Error(`Not Implemented`);
   }
   fork(): Promise<Cache> {
@@ -130,11 +126,7 @@ class TestCache implements Cache {
     throw new Error('Not Implemented');
   }
 
-  upsert(
-    identifier: StableRecordIdentifier,
-    data: ExistingResourceObject,
-    calculateChanges?: boolean
-  ): void | string[] {
+  upsert(identifier: ResourceCacheKey, data: ExistingResourceObject, calculateChanges?: boolean): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added', null);
     }
@@ -150,78 +142,70 @@ class TestCache implements Cache {
   _errors?: ApiError[];
   _isNew = false;
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
+  clientDidCreate(identifier: ResourceCacheKey, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
     this._storeWrapper.notifyChange(identifier, 'added', null);
     return {};
   }
-  willCommit(identifier: StableRecordIdentifier): void {}
-  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
-    return { data: identifier as StableExistingRecordIdentifier };
+  willCommit(identifier: ResourceCacheKey): void {}
+  didCommit(identifier: ResourceCacheKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+    return { data: identifier as ExistingResourceCacheKey };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: ResourceCacheKey, errors?: ApiError[]): void {
     this._errors = errors;
   }
-  unloadRecord(identifier: StableRecordIdentifier): void {}
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): string {
+  unloadRecord(identifier: ResourceCacheKey): void {}
+  getAttr(identifier: ResourceCacheKey, propertyName: string): string {
     return '';
   }
-  getRemoteAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined {
+  getRemoteAttr(identifier: ResourceCacheKey, field: string | string[]): Value | undefined {
     return '';
   }
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+  setAttr(identifier: ResourceCacheKey, propertyName: string, value: unknown): void {
     throw new Error('Method not implemented.');
   }
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+  changedAttrs(identifier: ResourceCacheKey): ChangedAttributesHash {
     return {};
   }
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+  hasChangedAttrs(identifier: ResourceCacheKey): boolean {
     return false;
   }
-  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+  rollbackAttrs(identifier: ResourceCacheKey): string[] {
     throw new Error('Method not implemented.');
   }
-  getRelationship(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRelationship(identifier: ResourceCacheKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
   getRemoteRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number
-  ): void {
+  addToHasMany(identifier: ResourceCacheKey, propertyName: string, value: ResourceCacheKey[], idx?: number): void {
     throw new Error('Method not implemented.');
   }
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+  removeFromHasMany(identifier: ResourceCacheKey, propertyName: string, value: ResourceCacheKey[]): void {
     throw new Error('Method not implemented.');
   }
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(identifier: ResourceCacheKey, isDeleted: boolean): void {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): ApiError[] {
+  getErrors(identifier: ResourceCacheKey): ApiError[] {
     return this._errors || [];
   }
-  isEmpty(identifier: StableRecordIdentifier): boolean {
+  isEmpty(identifier: ResourceCacheKey): boolean {
     return false;
   }
-  isNew(identifier: StableRecordIdentifier): boolean {
+  isNew(identifier: ResourceCacheKey): boolean {
     return this._isNew;
   }
-  isDeleted(identifier: StableRecordIdentifier): boolean {
+  isDeleted(identifier: ResourceCacheKey): boolean {
     return false;
   }
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+  isDeletionCommitted(identifier: ResourceCacheKey): boolean {
     return false;
   }
 }
@@ -343,7 +327,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     const { owner } = this;
 
     class LifecycleCache extends TestCache {
-      constructor(sw: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
+      constructor(sw: CacheCapabilitiesManager, identifier: ResourceCacheKey) {
         super(sw, identifier);
         storeWrapper = sw;
       }
@@ -364,7 +348,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      override setIsDeleted(identifier: StableRecordIdentifier, value: boolean): void {
+      override setIsDeleted(identifier: ResourceCacheKey, value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }

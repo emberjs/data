@@ -3,7 +3,7 @@ import type Store from '@ember-data/store';
 import type { StoreRequestContext } from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -35,7 +35,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     const { store } = context.request;
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+    const identifier = store.identifierCache.getRequestCacheKey(context.request);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
     if (identifier && !peeked) {
@@ -65,7 +65,7 @@ export const CacheHandler: CacheHandlerType = {
 };
 
 function completeRequest<T>(
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestCacheKey | null,
   store: Store,
   context: StoreRequestContext,
   next: NextFn<T>
@@ -106,7 +106,7 @@ function maybeUpdateObjects<T>(store: Store, document: ResourceDataDocument | nu
 
 function maybeUpdatePersistedCache(
   store: Store,
-  document: StructuredDocument<ResourceDocument<ExistingRecordIdentifier>> | null,
+  document: StructuredDocument<ResourceDocument> | null,
   resourceDocument?: ResourceDataDocument
 ) {
   const worker = (store as unknown as { _worker: DataWorker })._worker;
@@ -149,7 +149,7 @@ function updateCacheForSuccess<T>(
     response = store.cache.put(document) as ResourceDataDocument;
 
     if (response.lid) {
-      const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+      const identifier = store.identifierCache.getRequestCacheKey(request);
       const full = store.cache.peekRequest(identifier!);
       maybeUpdatePersistedCache(store, full);
     }
@@ -160,7 +160,7 @@ function updateCacheForSuccess<T>(
 function handleFetchSuccess<T>(
   store: Store,
   request: StoreRequestContext['request'],
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestCacheKey | null,
   document: StructuredDataDocument<T>
 ): T {
   let response: ResourceDataDocument;
@@ -196,7 +196,7 @@ function updateCacheForError<T>(
 
     store.cache.commitWasRejected(record, errors);
   } else {
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+    const identifier = store.identifierCache.getRequestCacheKey(request);
     if (identifier) {
       maybeUpdatePersistedCache(store, error as StructuredErrorDocument<ResourceErrorDocument>);
     }
@@ -207,7 +207,7 @@ function updateCacheForError<T>(
 function handleFetchError<T>(
   store: Store,
   request: StoreRequestContext['request'],
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestCacheKey | null,
   error: StructuredErrorDocument<T>
 ): never {
   if (request.signal?.aborted) {
@@ -234,7 +234,7 @@ function handleFetchError<T>(
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestCacheKey | null
 ): Promise<T> {
   const { request } = context;
   const { store } = context.request;

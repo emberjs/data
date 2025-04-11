@@ -8,7 +8,7 @@ import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-pri
 import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import { STRUCTURED } from '@warp-drive/core-types/request';
 import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
@@ -87,8 +87,8 @@ function isNonEnumerableProp(prop: string | number | symbol) {
 const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
 export class SchemaRecord {
   declare [RecordStore]: Store;
-  declare [Identifier]: StableRecordIdentifier;
-  declare [Parent]: StableRecordIdentifier;
+  declare [Identifier]: ResourceCacheKey;
+  declare [Parent]: ResourceCacheKey;
   declare [EmbeddedType]: string | null;
   declare [EmbeddedPath]: string[] | null;
   declare [Editable]: boolean;
@@ -99,7 +99,7 @@ export class SchemaRecord {
 
   constructor(
     store: Store,
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     Mode: { [Editable]: boolean; [Legacy]: boolean },
     isEmbedded = false,
     embeddedType: string | null = null,
@@ -611,7 +611,7 @@ export class SchemaRecord {
     // what signal do we need for embedded record?
     this.___notifications = store.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
+      (_: ResourceCacheKey, type: NotificationType, key?: string | string[]) => {
         switch (type) {
           case 'identity': {
             if (isEmbedded || !identityField) return; // base paths never apply to embedded records

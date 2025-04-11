@@ -21,7 +21,7 @@ import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import { getRuntimeConfig, setLogging } from '@warp-drive/core-types/runtime';
@@ -351,7 +351,7 @@ export interface Store {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   instantiateRecord<T>(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     createRecordArgs: { [key: string]: unknown }
   ): OpaqueRecordInstance;
 
@@ -631,12 +631,12 @@ export class Store extends BaseClass {
    * ```ts
    * store.lifetimes = {
    *   // make the request and ignore the current cache state
-   *   isHardExpired(identifier: StableDocumentIdentifier): boolean {
+   *   isHardExpired(identifier: RequestCacheKey): boolean {
    *     return false;
    *   }
    *
    *   // make the request in the background if true, return cache state
-   *   isSoftExpired(identifier: StableDocumentIdentifier): boolean {
+   *   isSoftExpired(identifier: RequestCacheKey): boolean {
    *     return false;
    *   }
    * }
@@ -858,7 +858,7 @@ export class Store extends BaseClass {
       store: Store;
       disableTestWaiter?: boolean;
       [EnableHydration]: boolean;
-      records?: StableRecordIdentifier[];
+      records?: ResourceCacheKey[];
     } = {
       store: this,
       [EnableHydration]: requestConfig[EnableHydration] ?? true,
@@ -1600,7 +1600,7 @@ export class Store extends BaseClass {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: ResourceCacheKey = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     return this._instanceCache.getReference(identifier);
   }
@@ -2355,12 +2355,12 @@ export class Store extends BaseClass {
     @method _push
     @private
     @param {Object} jsonApiDoc
-    @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
+    @return {ResourceCacheKey|Array<ResourceCacheKey>|null} identifiers for the primary records that had data loaded
   */
   _push(
     jsonApiDoc: JsonApiDocument,
     asyncFlush?: boolean
-  ): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
+  ): ExistingResourceCacheKey | ExistingResourceCacheKey[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2562,7 +2562,7 @@ function isMaybeIdentifier(
 
 function normalizeProperties(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   properties?: { [key: string]: unknown }
 ): { [key: string]: unknown } | undefined {
   // assert here
@@ -2622,8 +2622,8 @@ function assertRecordsPassedToHasMany(records: OpaqueRecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
-  return records.map((record) => extractIdentifierFromRecord(record)) as StableRecordIdentifier[];
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): ResourceCacheKey[] {
+  return records.map((record) => extractIdentifierFromRecord(record)) as ResourceCacheKey[];
 }
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };

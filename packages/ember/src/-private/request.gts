@@ -12,7 +12,7 @@ import type { Future, StructuredErrorDocument } from '@ember-data/request';
 import type { StoreRequestInput } from '@ember-data/store';
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier.js';
 import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
 import { and, Throw } from './await.gts';
@@ -617,7 +617,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       this._subscribedTo = requestId;
       this._subscription = this.store.notifications.subscribe(
         requestId,
-        (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
+        (_id: RequestCacheKey, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
           // ignore subscription events that occur while our own component's request
           // is ocurring
           if (this.isUpdating) {

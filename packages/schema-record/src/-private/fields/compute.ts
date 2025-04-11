@@ -4,7 +4,7 @@ import type { StoreRequestInput } from '@ember-data/store';
 import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
@@ -73,7 +73,7 @@ export function computeField(
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: GenericField,
   prop: string | string[],
   editable: boolean
@@ -91,7 +91,7 @@ export function computeArray(
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: ArrayField | SchemaArrayField,
   path: string[],
   editable: boolean,
@@ -142,7 +142,7 @@ export function computeObject(
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: ObjectField,
   path: string[],
   editable: boolean,
@@ -179,7 +179,7 @@ export function computeSchemaObject(
   store: Store,
   cache: Cache,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: SchemaObjectField,
   path: string[],
   legacy: boolean,
@@ -218,19 +218,14 @@ export function computeSchemaObject(
   return schemaObject;
 }
 
-export function computeAttribute(
-  cache: Cache,
-  identifier: StableRecordIdentifier,
-  prop: string,
-  editable: boolean
-): unknown {
+export function computeAttribute(cache: Cache, identifier: ResourceCacheKey, prop: string, editable: boolean): unknown {
   return editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
 }
 
 export function computeDerivation(
   schema: SchemaService,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: DerivedField,
   prop: string
 ): unknown {
@@ -253,7 +248,7 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
     store: Store,
     cache: Cache,
     parent: SchemaRecord,
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     field: FieldSchema,
     name: string,
     editable: boolean
@@ -321,7 +316,7 @@ export function computeResource<T extends SchemaRecord>(
   store: Store,
   cache: Cache,
   parent: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: FieldSchema,
   prop: string,
   editable: boolean
@@ -338,7 +333,7 @@ export function computeHasMany(
   schema: SchemaService,
   cache: Cache,
   record: SchemaRecord,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   field: LegacyHasManyField,
   path: string[],
   editable: boolean,
@@ -367,7 +362,7 @@ export function computeHasMany(
       type: field.type,
       identifier,
       cache,
-      identifiers: rawValue.data as StableRecordIdentifier[],
+      identifiers: rawValue.data as ResourceCacheKey[],
       key: field.name,
       meta: rawValue.meta || null,
       links: rawValue.links || null,

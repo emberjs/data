@@ -11,7 +11,7 @@ import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
@@ -33,7 +33,7 @@ class BaseTestStore extends Store {
       resourceTypes() {
         return [];
       },
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+      fields(identifier: ResourceCacheKey | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
       hasResource() {
@@ -42,10 +42,10 @@ class BaseTestStore extends Store {
       hasTrait: function (type: string): boolean {
         throw new Error('Function not implemented.');
       },
-      resourceHasTrait: function (resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+      resourceHasTrait: function (resource: ResourceCacheKey | { type: string }, trait: string): boolean {
         throw new Error('Function not implemented.');
       },
-      resource: function (resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+      resource: function (resource: ResourceCacheKey | { type: string }): ResourceSchema {
         throw new Error('Function not implemented.');
       },
       registerResources: function (schemas: ResourceSchema[]): void {
@@ -81,14 +81,14 @@ class BaseTestStore extends Store {
     return new JSONAPICache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceCacheKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+      (_: ResourceCacheKey, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
           record[key] = this.cache.getAttr(identifier, key);
         }
@@ -253,18 +253,18 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        identifier: StableDocumentIdentifier | null,
+        identifier: RequestCacheKey | null,
         store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
       }
-      isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      isHardExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
         assert.step(`isHardExpired: ${result}`);
         return result;
       }
-      isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      isSoftExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isSoftExpired(identifier, store);
         assert.step(`isSoftExpired: ${result}`);
         return result;
@@ -336,7 +336,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: ResourceCacheKey; [Type]: 'test' }>('test', {});
 
     await store.request({
       url: '/test',
@@ -420,18 +420,18 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        identifier: StableDocumentIdentifier | null,
+        identifier: RequestCacheKey | null,
         store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
       }
-      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isHardExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
         assert.step(`isHardExpired: ${result}`);
         return result;
       }
-      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isSoftExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isSoftExpired(identifier, store);
         assert.step(`isSoftExpired: ${result}`);
         if (result) {
@@ -580,18 +580,18 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        identifier: StableDocumentIdentifier | null,
+        identifier: RequestCacheKey | null,
         store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
       }
-      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isHardExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
         assert.step(`isHardExpired: ${result}`);
         return result;
       }
-      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isSoftExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isSoftExpired(identifier, store);
         assert.step(`isSoftExpired: ${result}`);
         if (result) {
@@ -668,7 +668,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
     // issue an out of band createRecord request with a record identifier
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: ResourceCacheKey; [Type]: 'test' }>('test', {});
     await store.requestManager.request({
       store,
       url: '/test',
@@ -741,18 +741,18 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
       override didRequest(
         request: ImmutableRequestInfo,
         response: Response | ResponseInfo | null,
-        identifier: StableDocumentIdentifier | null,
+        identifier: RequestCacheKey | null,
         store: Store
       ): void {
         assert.step('didRequest');
         super.didRequest(request, response, identifier, store);
       }
-      override isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isHardExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isHardExpired(identifier, store);
         assert.step(`isHardExpired: ${result}`);
         return result;
       }
-      override isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+      override isSoftExpired(identifier: RequestCacheKey, store: Store): boolean {
         const result = super.isSoftExpired(identifier, store);
         assert.step(`isSoftExpired: ${result}`);
         if (result) {

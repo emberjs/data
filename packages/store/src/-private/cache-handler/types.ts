@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
 
 import type { Store } from '../store-service';
@@ -30,11 +30,11 @@ export interface CachePolicy {
    *
    * @method isHardExpired
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestCacheKey} identifier
    * @param {Store} store
    * @return {boolean} true if the request is considered hard expired
    */
-  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
+  isHardExpired(identifier: RequestCacheKey, store: Store): boolean;
   /**
    * Invoked if `isHardExpired` is false to determine if the request
    * should be update behind the scenes if cache data is already available.
@@ -46,11 +46,11 @@ export interface CachePolicy {
    *
    * @method isSoftExpired
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestCacheKey} identifier
    * @param {Store} store
    * @return {boolean} true if the request is considered soft expired
    */
-  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
+  isSoftExpired(identifier: RequestCacheKey, store: Store): boolean;
 
   /**
    * Invoked when a request will be sent to the configured request handlers.
@@ -61,11 +61,11 @@ export interface CachePolicy {
    * @method willRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request
-   * @param {StableDocumentIdentifier | null} identifier
+   * @param {RequestCacheKey | null} identifier
    * @param {Store} store
    * @return {void}
    */
-  willRequest?(request: ImmutableRequestInfo, identifier: StableDocumentIdentifier | null, store: Store): void;
+  willRequest?(request: ImmutableRequestInfo, identifier: RequestCacheKey | null, store: Store): void;
 
   /**
    * Invoked when a request has been fulfilled from the configured request handlers.
@@ -100,14 +100,14 @@ export interface CachePolicy {
    * @public
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response
-   * @param {StableDocumentIdentifier | null} identifier
+   * @param {RequestCacheKey | null} identifier
    * @param {Store} store
    * @return {void}
    */
   didRequest?(
     request: ImmutableRequestInfo,
     response: Response | ResponseInfo | null,
-    identifier: StableDocumentIdentifier | null,
+    identifier: RequestCacheKey | null,
     store: Store
   ): void;
 }

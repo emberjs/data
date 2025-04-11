@@ -3,7 +3,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 
 export function getRelationshipStateForRecord(record: { store: Store }, propertyName: string): GraphEdge {
   const identifier = recordIdentifierFor(record);
@@ -23,7 +23,7 @@ export function hasRelationshipForRecord(
 
 export function implicitRelationshipsFor(
   storeWrapper: CacheCapabilitiesManager,
-  identifier: StableRecordIdentifier
+  identifier: ResourceCacheKey
 ): { [key: string]: ImplicitEdge } {
   const rels = graphFor(storeWrapper).identifiers.get(identifier);
   if (!rels) {

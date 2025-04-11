@@ -16,7 +16,7 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
@@ -45,11 +45,7 @@ export default class Store extends BaseStore {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(
-    this: ModelStore,
-    identifier: StableRecordIdentifier,
-    createRecordArgs: Record<string, unknown>
-  ): Model {
+  instantiateRecord(this: ModelStore, identifier: ResourceCacheKey, createRecordArgs: Record<string, unknown>): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 

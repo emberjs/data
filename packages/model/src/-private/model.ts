@@ -13,7 +13,7 @@ import { compat, notifySignal } from '@ember-data/tracking';
 import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache, ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core-types/schema/fields';
 import { RecordStore } from '@warp-drive/core-types/symbols';
@@ -50,10 +50,10 @@ export type ModelCreateArgs = {
   _createProps: Record<string, unknown>;
   // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
   _secretInit: {
-    identifier: StableRecordIdentifier;
+    identifier: ResourceCacheKey;
     cache: Cache;
     store: Store;
-    cb: (record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store) => void;
+    cb: (record: Model, cache: Cache, identifier: ResourceCacheKey, store: Store) => void;
   };
 };
 
@@ -169,7 +169,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     const notifications = store.notifications;
     this.___private_notifications = notifications.subscribe(
       identity,
-      (identifier: StableRecordIdentifier, type: NotificationType, field?: string): void => {
+      (identifier: ResourceCacheKey, type: NotificationType, field?: string): void => {
         notifyChanges(identifier, type, field, this, store);
       }
     );

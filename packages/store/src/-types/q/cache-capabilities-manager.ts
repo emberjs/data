@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 
 import type { IdentifierCache } from '../../-private/caches/identifier-cache';
 import type { NotificationType } from '../../-private/managers/notification-manager';
@@ -65,11 +65,11 @@ export type CacheCapabilitiesManager = {
    * This operation can only be done for records whose `id` is `null`.
    *
    * @method setRecordId
-   * @param {StableRecordIdentifier} identifier;
+   * @param {ResourceCacheKey} identifier;
    * @param {string} id;
    * @public
    */
-  setRecordId(identifier: StableRecordIdentifier, id: string): void;
+  setRecordId(identifier: ResourceCacheKey, id: string): void;
 
   /**
    * Signal to the store that the specified record may be considered fully
@@ -78,10 +78,10 @@ export type CacheCapabilitiesManager = {
    * point to it either.
    *
    * @method disconnectRecord
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @public
    */
-  disconnectRecord(identifier: StableRecordIdentifier): void;
+  disconnectRecord(identifier: ResourceCacheKey): void;
 
   /**
    * Use this method to determine if the Store has an instantiated record associated
@@ -92,7 +92,7 @@ export type CacheCapabilitiesManager = {
    * @return {boolean}
    * @public
    */
-  hasRecord(identifier: StableRecordIdentifier): boolean;
+  hasRecord(identifier: ResourceCacheKey): boolean;
 
   /**
    * Notify subscribers of the NotificationManager that cache state has changed.
@@ -103,16 +103,16 @@ export type CacheCapabilitiesManager = {
    * No other namespaces currently expect the `key` argument.
    *
    * @method notifyChange
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @param {'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state'} namespace
    * @param {string|undefined} key
    * @public
    */
-  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed', key: null): void;
-  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key: string | null): void;
+  notifyChange(identifier: ResourceCacheKey, namespace: 'added' | 'removed', key: null): void;
+  notifyChange(identifier: RequestCacheKey, namespace: 'added' | 'updated' | 'removed', key: null): void;
+  notifyChange(identifier: ResourceCacheKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceCacheKey | RequestCacheKey,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void;

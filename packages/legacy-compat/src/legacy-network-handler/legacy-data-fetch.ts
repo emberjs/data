@@ -2,7 +2,7 @@ import type Store from '@ember-data/store';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -14,7 +14,7 @@ import { normalizeResponseHelper } from './serializer-response';
 export function _findHasMany(
   adapter: MinimumAdapterInterface,
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
@@ -63,7 +63,7 @@ export function _findHasMany(
 
 export function _findBelongsTo(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions

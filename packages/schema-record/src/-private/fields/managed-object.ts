@@ -1,7 +1,7 @@
 import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 // import { STRUCTURED } from '@warp-drive/core-types/request';
@@ -33,7 +33,7 @@ export interface ManagedObject {
 
 export class ManagedObject {
   declare [SOURCE]: object;
-  declare [Parent]: StableRecordIdentifier;
+  declare [Parent]: ResourceCacheKey;
   declare [EmbeddedPath]: string[];
   declare [OBJECT_SIGNAL]: Signal;
   declare [Editable]: boolean;
@@ -44,7 +44,7 @@ export class ManagedObject {
     cache: Cache,
     field: ObjectField | SchemaObjectField,
     data: object,
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     path: string[],
     owner: SchemaRecord,
     editable: boolean,

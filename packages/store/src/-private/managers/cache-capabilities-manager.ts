@@ -1,11 +1,11 @@
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager';
 import type { SchemaService } from '../../-types/q/schema-service';
 import type { IdentifierCache } from '../caches/identifier-cache';
-import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
+import { isRequestCacheKey, isResourceCacheKey } from '../caches/identifier-cache';
 import type { Store } from '../store-service';
 import type { NotificationType } from './notification-manager';
 
@@ -18,7 +18,7 @@ export interface CacheCapabilitiesManager {
 }
 export class CacheCapabilitiesManager implements StoreWrapper {
   declare _willNotify: boolean;
-  declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
+  declare _pendingNotifies: Map<ResourceCacheKey, Set<string>>;
   declare _store: Store;
 
   constructor(_store: Store) {
@@ -31,7 +31,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.identifierCache;
   }
 
-  _scheduleNotification(identifier: StableRecordIdentifier, key: string) {
+  _scheduleNotification(identifier: ResourceCacheKey, key: string) {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
@@ -72,19 +72,19 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     });
   }
 
-  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed', key: null): void;
-  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key: string | null): void;
+  notifyChange(identifier: ResourceCacheKey, namespace: 'added' | 'removed', key: null): void;
+  notifyChange(identifier: RequestCacheKey, namespace: 'added' | 'updated' | 'removed', key: null): void;
+  notifyChange(identifier: ResourceCacheKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceCacheKey | RequestCacheKey,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier) || isDocumentIdentifier(identifier));
+    assert(`Expected a stable identifier`, isResourceCacheKey(identifier) || isRequestCacheKey(identifier));
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
-      this._scheduleNotification(identifier as StableRecordIdentifier, key);
+      this._scheduleNotification(identifier as ResourceCacheKey, key);
       return;
     }
 
@@ -96,17 +96,17 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.schema;
   }
 
-  setRecordId(identifier: StableRecordIdentifier, id: string) {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+  setRecordId(identifier: ResourceCacheKey, id: string) {
+    assert(`Expected a stable identifier`, isResourceCacheKey(identifier));
     this._store._instanceCache.setRecordId(identifier, id);
   }
 
-  hasRecord(identifier: StableRecordIdentifier): boolean {
+  hasRecord(identifier: ResourceCacheKey): boolean {
     return Boolean(this._store._instanceCache.peek(identifier));
   }
 
-  disconnectRecord(identifier: StableRecordIdentifier): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+  disconnectRecord(identifier: ResourceCacheKey): void {
+    assert(`Expected a stable identifier`, isResourceCacheKey(identifier));
     this._store._instanceCache.disconnect(identifier);
     this._pendingNotifies.delete(identifier);
   }

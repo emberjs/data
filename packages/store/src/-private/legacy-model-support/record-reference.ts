@@ -1,6 +1,6 @@
 import { defineSignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types/identifier';
 /**
   @module @ember-data/store
 */
@@ -25,16 +25,16 @@ export default class RecordReference {
   declare store: Store;
   // unsubscribe token given to us by the notification manager
   ___token!: object;
-  ___identifier: StableRecordIdentifier;
+  ___identifier: ResourceCacheKey;
 
   declare _ref: number;
 
-  constructor(store: Store, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: ResourceCacheKey) {
     this.store = store;
     this.___identifier = identifier;
     this.___token = store.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+      (_: ResourceCacheKey, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
           this._ref++;
         }
@@ -92,7 +92,7 @@ export default class RecordReference {
     @public
      @return {String} The identifier of the record.
   */
-  identifier(): StableRecordIdentifier {
+  identifier(): ResourceCacheKey {
     return this.___identifier;
   }
 

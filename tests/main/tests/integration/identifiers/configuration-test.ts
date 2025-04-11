@@ -17,7 +17,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { IdentifierBucket, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
@@ -159,11 +159,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-const
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
-      data: ResourceData | unknown,
-      bucket: IdentifierBucket
-    ) {
+    function updateMethod(identifier: ResourceCacheKey, data: ResourceData | unknown, bucket: IdentifierBucket) {
       switch (bucket) {
         case 'record':
           updateMethodCalls++;
@@ -224,11 +220,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     // eslint-disable-next-line prefer-const, @typescript-eslint/no-explicit-any
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
-      data: ResourceData | unknown,
-      bucket: IdentifierBucket
-    ) {
+    function updateMethod(identifier: ResourceCacheKey, data: ResourceData | unknown, bucket: IdentifierBucket) {
       switch (bucket) {
         case 'record':
           updateMethodCalls++;
@@ -294,11 +286,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     // eslint-disable-next-line prefer-const, @typescript-eslint/no-explicit-any
     let updateCallback: (...args: any[]) => void;
 
-    function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
-      data: ResourceData | unknown,
-      bucket: IdentifierBucket
-    ) {
+    function updateMethod(identifier: ResourceCacheKey, data: ResourceData | unknown, bucket: IdentifierBucket) {
       switch (bucket) {
         case 'record':
           updateMethodCalls++;
@@ -546,7 +534,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
   test(`The forget method is called when a record unload results in full removal`, async function (assert) {
     let forgetMethodCalls = 0;
-    const expectedIdentifiers: StableRecordIdentifier[] = [];
+    const expectedIdentifiers: ResourceCacheKey[] = [];
 
     class Container extends Model {
       @belongsTo('retainer', { async: false, inverse: 'container' })

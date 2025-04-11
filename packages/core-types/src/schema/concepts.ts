@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '../identifier';
+import type { ResourceCacheKey } from '../identifier';
 import type { ObjectValue, Value } from '../json/raw';
 import type { OpaqueRecordInstance } from '../record';
 import type { Type } from '../symbols';
@@ -6,7 +6,7 @@ import type { Type } from '../symbols';
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: ObjectValue | null, record: OpaqueRecordInstance): T;
   hydrate(value: T | undefined, options: ObjectValue | null, record: OpaqueRecordInstance): PT;
-  defaultValue?(options: ObjectValue | null, identifier: StableRecordIdentifier): T;
+  defaultValue?(options: ObjectValue | null, identifier: ResourceCacheKey): T;
   [Type]: string;
 };
 

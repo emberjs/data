@@ -5,7 +5,7 @@ import { addTransactionCB } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -73,7 +73,7 @@ export function fastPush<T>(target: T[], source: T[]) {
   target.push.apply(target, source.slice(startLength));
 }
 
-type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
+type ChangeSet = Map<ResourceCacheKey, 'add' | 'del'>;
 
 /**
   @class RecordArrayManager
@@ -83,16 +83,16 @@ export class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
-  declare _set: Map<IdentifierArray, Set<StableRecordIdentifier>>;
+  declare _set: Map<IdentifierArray, Set<ResourceCacheKey>>;
   declare _live: Map<string, IdentifierArray>;
   declare _managed: Set<IdentifierArray>;
   declare _pending: Map<IdentifierArray, ChangeSet>;
-  declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
+  declare _identifiers: Map<ResourceCacheKey, Set<Collection>>;
   declare _staged: Map<string, ChangeSet>;
   declare _subscription: UnsubscribeToken;
   declare _documentSubscription: UnsubscribeToken;
   declare _keyedArrays: Map<string, Collection>;
-  declare _visibilitySet: Map<StableRecordIdentifier, boolean>;
+  declare _visibilitySet: Map<ResourceCacheKey, boolean>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -109,7 +109,7 @@ export class RecordArrayManager {
 
     this._subscription = this.store.notifications.subscribe(
       'document',
-      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+      (identifier: RequestCacheKey, type: DocumentCacheOperation) => {
         if (type === 'updated' && this._keyedArrays.has(identifier.lid)) {
           const array = this._keyedArrays.get(identifier.lid)!;
           this.dirtyArray(array, 0, true);
@@ -119,7 +119,7 @@ export class RecordArrayManager {
 
     this._subscription = this.store.notifications.subscribe(
       'resource',
-      (identifier: StableRecordIdentifier, type: CacheOperation) => {
+      (identifier: ResourceCacheKey, type: CacheOperation) => {
         if (type === 'added') {
           this._visibilitySet.set(identifier, true);
           this.identifierAdded(identifier);
@@ -179,7 +179,7 @@ export class RecordArrayManager {
   */
   liveArrayFor(type: string): IdentifierArray {
     let array = this._live.get(type);
-    const identifiers: StableRecordIdentifier[] = [];
+    const identifiers: ResourceCacheKey[] = [];
     const staged = this._staged.get(type);
     if (staged) {
       staged.forEach((value, key) => {
@@ -208,9 +208,9 @@ export class RecordArrayManager {
   getCollection(config: {
     type?: string;
     query?: ImmutableRequestInfo | Record<string, unknown>;
-    identifiers?: StableRecordIdentifier[];
+    identifiers?: ResourceCacheKey[];
     doc?: CollectionResourceDocument;
-    identifier?: StableDocumentIdentifier | null;
+    identifier?: RequestCacheKey | null;
   }): Collection {
     if (config.identifier && this._keyedArrays.has(config.identifier.lid)) {
       return this._keyedArrays.get(config.identifier.lid)!;
@@ -260,7 +260,7 @@ export class RecordArrayManager {
   }
 
   _getPendingFor(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
     includeManaged: boolean,
     isRemove?: boolean
   ): Map<IdentifierArray, ChangeSet> | void {
@@ -316,11 +316,7 @@ export class RecordArrayManager {
     return pending;
   }
 
-  populateManagedArray(
-    array: Collection,
-    identifiers: StableRecordIdentifier[],
-    payload: CollectionResourceDocument | null
-  ) {
+  populateManagedArray(array: Collection, identifiers: ResourceCacheKey[], payload: CollectionResourceDocument | null) {
     this._pending.delete(array);
     const source = array[SOURCE];
     assert(
@@ -341,7 +337,7 @@ export class RecordArrayManager {
     associate(this._identifiers, array, identifiers);
   }
 
-  identifierAdded(identifier: StableRecordIdentifier): void {
+  identifierAdded(identifier: ResourceCacheKey): void {
     const changeSets = this._getPendingFor(identifier, false);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -357,7 +353,7 @@ export class RecordArrayManager {
     }
   }
 
-  identifierRemoved(identifier: StableRecordIdentifier): void {
+  identifierRemoved(identifier: ResourceCacheKey): void {
     const changeSets = this._getPendingFor(identifier, true, true);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -373,7 +369,7 @@ export class RecordArrayManager {
     }
   }
 
-  identifierChanged(identifier: StableRecordIdentifier): void {
+  identifierChanged(identifier: ResourceCacheKey): void {
     const newState = this.store._instanceCache.recordIsLoaded(identifier, true);
 
     // if the change matches the most recent direct added/removed
@@ -409,9 +405,9 @@ export class RecordArrayManager {
 }
 
 function associate(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  ArraysCache: Map<ResourceCacheKey, Set<Collection>>,
   array: Collection,
-  identifiers: StableRecordIdentifier[]
+  identifiers: ResourceCacheKey[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
     const identifier = identifiers[i];
@@ -425,9 +421,9 @@ function associate(
 }
 
 function disassociate(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  ArraysCache: Map<ResourceCacheKey, Set<Collection>>,
   array: Collection,
-  identifiers: StableRecordIdentifier[]
+  identifiers: ResourceCacheKey[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
     disassociateIdentifier(ArraysCache, array, identifiers[i]);
@@ -435,9 +431,9 @@ function disassociate(
 }
 
 export function disassociateIdentifier(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
+  ArraysCache: Map<ResourceCacheKey, Set<Collection>>,
   array: Collection,
-  identifier: StableRecordIdentifier
+  identifier: ResourceCacheKey
 ) {
   const cache = ArraysCache.get(identifier);
   if (cache) {
@@ -445,14 +441,10 @@ export function disassociateIdentifier(
   }
 }
 
-function sync(
-  array: IdentifierArray,
-  changes: Map<StableRecordIdentifier, 'add' | 'del'>,
-  arraySet: Set<StableRecordIdentifier>
-) {
+function sync(array: IdentifierArray, changes: Map<ResourceCacheKey, 'add' | 'del'>, arraySet: Set<ResourceCacheKey>) {
   const state = array[SOURCE];
-  const adds: StableRecordIdentifier[] = [];
-  const removes: StableRecordIdentifier[] = [];
+  const adds: ResourceCacheKey[] = [];
+  const removes: ResourceCacheKey[] = [];
   changes.forEach((value, key) => {
     if (value === 'add') {
       // likely we want to keep a Set along-side
@@ -498,8 +490,6 @@ function sync(
   }
 }
 
-function isCollection(
-  array: IdentifierArray | Collection
-): array is Collection & { identifier: StableDocumentIdentifier } {
+function isCollection(array: IdentifierArray | Collection): array is Collection & { identifier: RequestCacheKey } {
   return array.identifier !== null;
 }

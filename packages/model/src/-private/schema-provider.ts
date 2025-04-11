@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { RecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RecordIdentifier, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
@@ -61,7 +61,7 @@ export class ModelSchemaProvider implements SchemaService {
     assert(`hasTrait is not available with @ember-data/model's SchemaService`);
     return false;
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceCacheKey | { type: string }, trait: string): boolean {
     assert(`resourceHasTrait is not available with @ember-data/model's SchemaService`);
     return false;
   }
@@ -74,7 +74,7 @@ export class ModelSchemaProvider implements SchemaService {
   hashFn(field: HashField | { type: string }): HashFn {
     assert(`hashFn is not available with @ember-data/model's SchemaService`);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceCacheKey | { type: string }): ResourceSchema | ObjectSchema {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {

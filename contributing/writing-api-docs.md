@@ -257,7 +257,7 @@ imported from `@ember-data/store` would be done like the below
  * @static
  * @for @ember-data/store
  * @param {Object} record a record instance previously obstained from the store.
- * @return {StableRecordIdentifier}
+ * @return {ResourceCacheKey}
  */
 ```
 

@@ -7,7 +7,7 @@ import {
 import { pluralize } from '@ember-data/request-utils/string';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type {
   ConstrainedRequestOptions,
@@ -19,7 +19,7 @@ import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/doc
 
 import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions } from './-utils';
 
-function isExisting(identifier: StableRecordIdentifier): identifier is StableExistingRecordIdentifier {
+function isExisting(identifier: ResourceCacheKey): identifier is ExistingResourceCacheKey {
   return 'id' in identifier && identifier.id !== null && 'type' in identifier && identifier.type !== null;
 }
 

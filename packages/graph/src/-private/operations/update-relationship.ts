@@ -2,7 +2,7 @@ import { warn } from '@ember/debug';
 
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
@@ -177,11 +177,11 @@ function isStaleTransaction(relationshipTransactionId: number, graphTransactionI
 }
 
 export function upgradeIdentifiers(
-  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | StableRecordIdentifier)[],
+  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | ResourceCacheKey)[],
   cache: IdentifierCache
-): StableRecordIdentifier[] {
+): ResourceCacheKey[] {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = cache.upgradeIdentifier(arr[i]);
   }
-  return arr as StableRecordIdentifier[];
+  return arr as ResourceCacheKey[];
 }

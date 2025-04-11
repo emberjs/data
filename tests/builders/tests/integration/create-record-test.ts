@@ -10,7 +10,7 @@ import { setBuildURLConfig } from '@ember-data/request-utils';
 import DataStore, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -33,10 +33,7 @@ class TestStore extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(
-    identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }
-  ): unknown {
+  override instantiateRecord(identifier: ResourceCacheKey, createRecordArgs: { [key: string]: unknown }): unknown {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
@@ -69,18 +66,18 @@ module('Integration - createRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: StableRecordIdentifier): void {
+      override willCommit(identifier: ResourceCacheKey): void {
         assert.step(`willCommit ${identifier.lid}`);
         return super.willCommit(identifier);
       }
       override didCommit(
-        committedIdentifier: StableRecordIdentifier,
+        committedIdentifier: ResourceCacheKey,
         result: StructuredDataDocument<SingleResourceDocument>
       ): SingleResourceDataDocument {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+      override commitWasRejected(identifier: ResourceCacheKey, errors?: ApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }
@@ -150,18 +147,18 @@ module('Integration - createRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: StableRecordIdentifier): void {
+      override willCommit(identifier: ResourceCacheKey): void {
         assert.step(`willCommit ${identifier.lid}`);
         return super.willCommit(identifier);
       }
       override didCommit(
-        committedIdentifier: StableRecordIdentifier,
+        committedIdentifier: ResourceCacheKey,
         result: StructuredDataDocument<SingleResourceDocument>
       ): SingleResourceDataDocument {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+      override commitWasRejected(identifier: ResourceCacheKey, errors?: ApiError[]): void {
         assert.step(`commitWasRejected ${identifier.lid}`);
         return super.commitWasRejected(identifier, errors);
       }

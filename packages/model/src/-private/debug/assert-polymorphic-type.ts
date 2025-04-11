@@ -2,7 +2,7 @@ import type { UpgradedMeta } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -17,18 +17,18 @@ import type { StableRecordIdentifier } from '@warp-drive/core-types';
   `record.relationshipFor(key)`.
 */
 let assertPolymorphicType: (
-  parentIdentifier: StableRecordIdentifier,
+  parentIdentifier: ResourceCacheKey,
   parentDefinition: UpgradedMeta,
-  addedIdentifier: StableRecordIdentifier,
+  addedIdentifier: ResourceCacheKey,
   store: Store
 ) => void;
 
 if (DEBUG) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   assertPolymorphicType = function assertPolymorphicType(
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceCacheKey,
     parentDefinition: UpgradedMeta,
-    addedIdentifier: StableRecordIdentifier,
+    addedIdentifier: ResourceCacheKey,
     store: Store
   ) {
     if (parentDefinition.inverseIsImplicit) {

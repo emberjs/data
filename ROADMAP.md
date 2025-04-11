@@ -159,8 +159,8 @@ We would rename the types/classes/properties/methods of much of the library as w
 on the RequestOptions interface to improve coherence. Roughly the high level shift is:
 
 - Identifier => CacheKey
-- StableRecordIdentifier => ResourceCacheKey
-- StableDocumentIdentifier => DocumentCacheKey
+- ResourceCacheKey => ResourceCacheKey
+- RequestCacheKey => DocumentCacheKey
 - IdentifierCache => KeyService
 - RecordArray => UIArray
 - Record/Model => UIRecord

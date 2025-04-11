@@ -1,6 +1,6 @@
 import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { isResourceSchema } from '@warp-drive/core-types/schema/fields';
 
 import { SchemaRecord } from './record';
@@ -9,7 +9,7 @@ import { Destroy, Editable, Legacy } from './symbols';
 
 export function instantiateRecord(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   createArgs?: Record<string, unknown>
 ): SchemaRecord {
   const schema = store.schema as unknown as SchemaService;

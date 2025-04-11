@@ -8,7 +8,7 @@ import type { ModelSchema } from '@ember-data/store/types';
 import { LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
@@ -90,7 +90,7 @@ export const LegacyNetworkHandler: Handler = {
 function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, records: identifiers } = context.request;
   const { options, record, links, useLink, field } = data as {
-    record: StableRecordIdentifier;
+    record: ResourceCacheKey;
     options: Record<string, unknown>;
     links?: Links;
     useLink: boolean;
@@ -101,7 +101,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
 
   // short circuit if we are already loading
   const pendingRequest =
-    identifier && store._fetchManager.getPendingFetch(identifier as StableExistingRecordIdentifier, options);
+    identifier && store._fetchManager.getPendingFetch(identifier as ExistingResourceCacheKey, options);
   if (pendingRequest) {
     return pendingRequest as Promise<T>;
   }
@@ -124,7 +124,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
 function findHasMany<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, records: identifiers } = context.request;
   const { options, record, links, useLink, field } = data as {
-    record: StableRecordIdentifier;
+    record: ResourceCacheKey;
     options: Record<string, unknown>;
     links?: PaginationLinks | Links;
     useLink: boolean;
@@ -158,7 +158,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
 
   // identifiers case
   assert(`Expected an array of identifiers to fetch`, Array.isArray(identifiers));
-  const fetches = new Array<globalThis.Promise<StableRecordIdentifier>>(identifiers.length);
+  const fetches = new Array<globalThis.Promise<ResourceCacheKey>>(identifiers.length);
   const manager = store._fetchManager;
 
   for (let i = 0; i < identifiers.length; i++) {
@@ -175,7 +175,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
 
 function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, op: operation } = context.request;
-  const { options, record: identifier } = data as { record: StableRecordIdentifier; options: Record<string, unknown> };
+  const { options, record: identifier } = data as { record: ResourceCacheKey; options: Record<string, unknown> };
 
   upgradeStore(store);
 
@@ -217,7 +217,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 
 function adapterDidInvalidate(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   error: Error & { errors?: ApiError[]; isAdapterError?: true; code?: string }
 ) {
   upgradeStore(store);
@@ -291,11 +291,11 @@ function errorsHashToArray(errors: Record<string, string | string[]>): ApiError[
 function findRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   const { record: identifier, options } = data as {
-    record: StableExistingRecordIdentifier;
+    record: ExistingResourceCacheKey;
     options: { reload?: boolean; backgroundReload?: boolean };
   };
   upgradeStore(store);
-  let promise: Promise<StableRecordIdentifier>;
+  let promise: Promise<ResourceCacheKey>;
 
   // if not loaded start loading
   if (!store._instanceCache.recordIsLoaded(identifier)) {
@@ -353,11 +353,11 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
       }
 
       // Return the cached record
-      promise = Promise.resolve(identifier) as Promise<StableRecordIdentifier>;
+      promise = Promise.resolve(identifier) as Promise<ResourceCacheKey>;
     }
   }
 
-  return promise.then((i: StableRecordIdentifier) => store.peekRecord(i)) as Promise<T>;
+  return promise.then((i: ResourceCacheKey) => store.peekRecord(i)) as Promise<T>;
 }
 
 function findAll<T>(context: StoreRequestContext): Promise<T> {
@@ -543,7 +543,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
 
     assertSingleResourceDocument(payload);
 
-    const identifier = store._push(payload, true) as StableRecordIdentifier;
+    const identifier = store._push(payload, true) as ResourceCacheKey;
     return identifier ? store.peekRecord(identifier) : null;
   }) as Promise<T>;
 }

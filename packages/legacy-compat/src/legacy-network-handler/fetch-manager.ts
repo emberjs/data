@@ -16,7 +16,7 @@ import type { FindRecordOptions, ModelSchema } from '@ember-data/store/types';
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -40,20 +40,20 @@ export const SaveOp = getOrSetGlobal('SaveOp', Symbol('SaveOp'));
 export type FetchMutationOptions = FindRecordOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
-  identifier: StableExistingRecordIdentifier;
+  identifier: ExistingResourceCacheKey;
   queryRequest: Request;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   options: FindRecordOptions;
   trace?: unknown;
-  promise: Promise<StableExistingRecordIdentifier>;
+  promise: Promise<ExistingResourceCacheKey>;
 }
 
 interface PendingSaveItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   snapshot: Snapshot;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceCacheKey;
   options: FetchMutationOptions;
   queryRequest: Request;
 }
@@ -62,7 +62,7 @@ export class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
-  declare _pendingFetch: Map<string, Map<StableExistingRecordIdentifier, PendingFetchItem[]>>;
+  declare _pendingFetch: Map<string, Map<ExistingResourceCacheKey, PendingFetchItem[]>>;
   declare _store: Store;
 
   constructor(store: Store) {
@@ -73,9 +73,9 @@ export class FetchManager {
     this.isDestroyed = false;
   }
 
-  createSnapshot<T>(identifier: StableRecordIdentifier<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
-  createSnapshot(identifier: StableRecordIdentifier, options?: FindRecordOptions): Snapshot;
-  createSnapshot(identifier: StableRecordIdentifier, options: FindRecordOptions = {}): Snapshot {
+  createSnapshot<T>(identifier: ResourceCacheKey<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
+  createSnapshot(identifier: ResourceCacheKey, options?: FindRecordOptions): Snapshot;
+  createSnapshot(identifier: ResourceCacheKey, options: FindRecordOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this._store);
   }
 
@@ -87,10 +87,7 @@ export class FetchManager {
 
     @internal
   */
-  scheduleSave(
-    identifier: StableRecordIdentifier,
-    options: FetchMutationOptions
-  ): Promise<null | SingleResourceDocument> {
+  scheduleSave(identifier: ResourceCacheKey, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
     const resolver = createDeferred<SingleResourceDocument | null>();
     const query: SaveRecordMutation = {
       op: 'saveRecord',
@@ -118,10 +115,10 @@ export class FetchManager {
   }
 
   scheduleFetch(
-    identifier: StableExistingRecordIdentifier,
+    identifier: ExistingResourceCacheKey,
     options: FindRecordOptions,
     request: ImmutableRequestInfo
-  ): Promise<StableExistingRecordIdentifier> {
+  ): Promise<ExistingResourceCacheKey> {
     const query: FindRecordQuery = {
       op: 'findRecord',
       recordIdentifier: identifier,
@@ -229,7 +226,7 @@ export class FetchManager {
     return promise;
   }
 
-  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindRecordOptions) {
+  getPendingFetch(identifier: ExistingResourceCacheKey, options: FindRecordOptions) {
     const pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
@@ -252,15 +249,15 @@ export class FetchManager {
   }
 
   fetchDataIfNeededForIdentifier(
-    identifier: StableExistingRecordIdentifier,
+    identifier: ExistingResourceCacheKey,
     options: FindRecordOptions = {},
     request: ImmutableRequestInfo
-  ): Promise<StableExistingRecordIdentifier> {
+  ): Promise<ExistingResourceCacheKey> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);
     const isLoading = _isLoading(this._store._instanceCache, identifier);
 
-    let promise: Promise<StableExistingRecordIdentifier>;
+    let promise: Promise<ExistingResourceCacheKey>;
     if (isEmpty) {
       assertIdentifierHasId(identifier);
 
@@ -285,7 +282,7 @@ export class FetchManager {
   }
 }
 
-function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isEmpty(instanceCache: InstanceCache, identifier: ResourceCacheKey): boolean {
   const cache = instanceCache.cache;
   if (!cache) {
     return true;
@@ -297,7 +294,7 @@ function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifi
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isLoading(cache: InstanceCache, identifier: ResourceCacheKey): boolean {
   const req = cache.store.getRequestStateService();
   // const fulfilled = req.getLastRequestForRecord(identifier);
   const isLoaded = cache.recordIsLoaded(identifier);
@@ -551,7 +548,7 @@ function _processCoalescedGroup(
 
 function _flushPendingFetchForType(
   store: Store,
-  pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
+  pendingFetchMap: Map<ExistingResourceCacheKey, PendingFetchItem[]>,
   modelName: string
 ) {
   upgradeStore(store);

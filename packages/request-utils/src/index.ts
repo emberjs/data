@@ -1,10 +1,10 @@
 import { deprecate } from '@ember/debug';
 
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
 import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
 
@@ -13,30 +13,30 @@ type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
 export interface NotificationCallback {
-  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
-  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+  (identifier: ResourceCacheKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: ResourceCacheKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  // (identifier: ResourceCacheKey, notificationType: NotificationType, key?: string): void;
 }
 
 interface ResourceOperationCallback {
   // resource updates
-  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+  (identifier: ResourceCacheKey, notificationType: CacheOperation): void;
 }
 
 interface DocumentOperationCallback {
   // document updates
-  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+  (identifier: RequestCacheKey, notificationType: DocumentCacheOperation): void;
 }
 
 type NotificationManager = {
-  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: ResourceCacheKey, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | RequestCacheKey, callback: DocumentOperationCallback): UnsubscribeToken;
 
-  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
-  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+  notify(identifier: ResourceCacheKey, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: ResourceCacheKey, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: ResourceCacheKey, value: CacheOperation): boolean;
+  notify(identifier: RequestCacheKey, value: DocumentCacheOperation): boolean;
 };
 
 type Store = {
@@ -731,14 +731,11 @@ export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: n
  */
 export class CachePolicy {
   declare config: PolicyConfig;
-  declare _stores: WeakMap<
-    Store,
-    { invalidated: Set<StableDocumentIdentifier>; types: Map<string, Set<StableDocumentIdentifier>> }
-  >;
+  declare _stores: WeakMap<Store, { invalidated: Set<RequestCacheKey>; types: Map<string, Set<RequestCacheKey>> }>;
 
   _getStore(store: Store): {
-    invalidated: Set<StableDocumentIdentifier>;
-    types: Map<string, Set<StableDocumentIdentifier>>;
+    invalidated: Set<RequestCacheKey>;
+    types: Map<string, Set<RequestCacheKey>>;
   } {
     let set = this._stores.get(store);
     if (!set) {
@@ -784,10 +781,10 @@ export class CachePolicy {
    *
    * @method invalidateRequest
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestCacheKey} identifier
    * @param {Store} store
    */
-  invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
+  invalidateRequest(identifier: RequestCacheKey, store: Store): void {
     this._getStore(store).invalidated.add(identifier);
   }
 
@@ -840,13 +837,13 @@ export class CachePolicy {
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response
    * @param {Store} store
-   * @param {StableDocumentIdentifier | null} identifier
+   * @param {RequestCacheKey | null} identifier
    * @return {void}
    */
   didRequest(
     request: ImmutableRequestInfo,
     response: Response | ResponseInfo | null,
-    identifier: StableDocumentIdentifier | null,
+    identifier: RequestCacheKey | null,
     store: Store
   ): void {
     // if this is a successful createRecord request, invalidate the cacheKey for the type
@@ -893,11 +890,11 @@ export class CachePolicy {
    *
    * @method isHardExpired
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestCacheKey} identifier
    * @param {Store} store
    * @return {boolean} true if the request is considered hard expired
    */
-  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+  isHardExpired(identifier: RequestCacheKey, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
     const storeCache = this._getStore(store);
     if (storeCache.invalidated.has(identifier)) {
@@ -920,11 +917,11 @@ export class CachePolicy {
    *
    * @method isSoftExpired
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestCacheKey} identifier
    * @param {Store} store
    * @return {boolean} true if the request is considered soft expired
    */
-  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+  isSoftExpired(identifier: RequestCacheKey, store: Store): boolean {
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
     return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);

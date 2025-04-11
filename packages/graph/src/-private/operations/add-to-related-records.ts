@@ -1,5 +1,5 @@
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { AddToResourceRelationshipMutation } from '@warp-drive/core-types/cache/mutations';
 import type { AddToResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
@@ -26,7 +26,7 @@ export default function addToRelatedRecords(
         op: 'replaceRelatedRecord',
         record,
         field: op.field,
-        value: value as StableRecordIdentifier,
+        value: value as ResourceCacheKey,
       };
       return replaceRelatedRecord(graph, newOp, isRemote);
     }
@@ -63,8 +63,8 @@ export default function addToRelatedRecords(
 function addRelatedRecord(
   graph: Graph,
   relationship: CollectionEdge,
-  record: StableRecordIdentifier,
-  value: StableRecordIdentifier,
+  record: ResourceCacheKey,
+  value: ResourceCacheKey,
   index: number | null,
   isRemote: boolean
 ) {

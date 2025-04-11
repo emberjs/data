@@ -3,7 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ExistingResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 import { module, test } from '@warp-drive/diagnostic';
 
@@ -210,7 +210,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
 
     assert.deepEqual(responseDocument.data, [identifier], 'data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4, last: 4 }, 'meta is correct');
@@ -281,12 +281,12 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = new TestStore();
-    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const documentIdentifier = store.identifierCache.getRequestCacheKey({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
 
     let isUpdating = false;
-    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+    store.notifications.subscribe('document', (identifier: RequestCacheKey, type: DocumentCacheOperation) => {
       if (isUpdating) {
         assert.equal(type, 'updated', 'We were notified of an update');
         assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
@@ -296,18 +296,15 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       }
     });
 
-    store.notifications.subscribe(
-      documentIdentifier,
-      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
-        if (isUpdating) {
-          assert.equal(type, 'updated', 'We were notified of an update');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        } else {
-          assert.equal(type, 'added', 'We were notified of an add');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        }
+    store.notifications.subscribe(documentIdentifier, (identifier: RequestCacheKey, type: DocumentCacheOperation) => {
+      if (isUpdating) {
+        assert.equal(type, 'updated', 'We were notified of an update');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.equal(type, 'added', 'We were notified of an add');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
       }
-    );
+    });
 
     store._run(() => {
       const responseDocument = store.cache.put(

@@ -2,7 +2,7 @@
   @module @ember-data/store
 */
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
@@ -91,10 +91,10 @@ export interface SchemaService {
    *
    * @method hasResource
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {ResourceCacheKey|{ type: string }} resource
    * @return {boolean}
    */
-  hasResource(resource: { type: string } | StableRecordIdentifier): boolean;
+  hasResource(resource: { type: string } | ResourceCacheKey): boolean;
 
   /**
    * Queries whether the SchemaService recognizes `type` as a resource trait
@@ -111,11 +111,11 @@ export interface SchemaService {
    *
    * @method resourceHasTrait
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {ResourceCacheKey|{ type: string }} resource
    * @param {string} trait
    * @return {boolean}
    */
-  resourceHasTrait(resource: { type: string } | StableRecordIdentifier, trait: string): boolean;
+  resourceHasTrait(resource: { type: string } | ResourceCacheKey, trait: string): boolean;
 
   /**
    * Queries for the fields of a given resource type or resource identity.
@@ -124,10 +124,10 @@ export interface SchemaService {
    *
    * @method fields
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {ResourceCacheKey|{ type: string }} resource
    * @return {Map<string, FieldSchema>}
    */
-  fields(resource: { type: string } | StableRecordIdentifier): Map<string, FieldSchema>;
+  fields(resource: { type: string } | ResourceCacheKey): Map<string, FieldSchema>;
 
   /**
    * Returns the transformation registered with the name provided
@@ -167,10 +167,10 @@ export interface SchemaService {
    *
    * @method resource
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {ResourceCacheKey|{ type: string }} resource
    * @return {ResourceSchema}
    */
-  resource(resource: { type: string } | StableRecordIdentifier): Schema;
+  resource(resource: { type: string } | ResourceCacheKey): Schema;
 
   /**
    * Enables registration of multiple ResourceSchemas at once.

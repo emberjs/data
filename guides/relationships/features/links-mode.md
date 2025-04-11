@@ -82,13 +82,13 @@ interface FetchRelationshipRequest {
   store: Store;
   url: string; // the related link
   method: 'GET';
-  records: StableRecordIdentifier[]; // the current membership of the relationship
+  records: ResourceCacheKey[]; // the current membership of the relationship
   data: {
     field: LegacyBelongsToField | LegacyHasManyField;
     links: Links;
     meta: Meta;
     options: unknown; // any options passed to `reload` or `load`
-    record: StableRecordIdentifier; // the parent record
+    record: ResourceCacheKey; // the parent record
   };
 
   // tells the store to not automatically convert the response into something reactive

@@ -4,7 +4,7 @@ import type {
   ResourceIdentifierObject,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
-import { isStableIdentifier } from '../caches/identifier-cache';
+import { isResourceCacheKey } from '../caches/identifier-cache';
 import { coerceId } from './coerce-id';
 import { isNonEmptyString } from './is-non-empty-string';
 
@@ -28,7 +28,7 @@ export function constructResource(
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {
   if (typeof type === 'object' && type !== null) {
     const resource = type;
-    if (isStableIdentifier(resource)) {
+    if (isResourceCacheKey(resource)) {
       return resource;
     }
     if ('id' in resource) {

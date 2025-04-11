@@ -4,7 +4,7 @@
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
 import type { InstanceCache } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { SkipCache } from '@warp-drive/core-types/request';
@@ -13,20 +13,20 @@ import type { RequestSignature } from '@warp-drive/core-types/symbols';
 type SaveRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
-    record: StableRecordIdentifier<T>;
+    record: ResourceCacheKey<T>;
     options: SaveRecordBuilderOptions;
   };
-  records: [StableRecordIdentifier<T>];
+  records: [ResourceCacheKey<T>];
   [RequestSignature]?: RT;
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
 
-function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
+function _resourceIsFullDeleted(identifier: ResourceCacheKey, cache: Cache): boolean {
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: ResourceCacheKey): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }

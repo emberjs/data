@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -16,17 +16,17 @@ import { createState } from '../-state';
  */
 export interface ResourceEdge {
   definition: UpgradedMeta;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceCacheKey;
   state: RelationshipState;
-  localState: StableRecordIdentifier | null;
-  remoteState: StableRecordIdentifier | null;
+  localState: ResourceCacheKey | null;
+  remoteState: ResourceCacheKey | null;
   meta: Meta | null;
   links: Links | PaginationLinks | null;
   transactionRef: number;
   accessed: boolean;
 }
 
-export function createResourceEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): ResourceEdge {
+export function createResourceEdge(definition: UpgradedMeta, identifier: ResourceCacheKey): ResourceEdge {
   return {
     definition,
     identifier,
@@ -42,7 +42,7 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
 
 export function legacyGetResourceRelationshipData(source: ResourceEdge, getRemoteState: boolean): ResourceRelationship {
   source.accessed = true;
-  let data: StableRecordIdentifier | null | undefined;
+  let data: ResourceCacheKey | null | undefined;
   const payload: ResourceRelationship = {};
   if (getRemoteState && source.remoteState) {
     data = source.remoteState;

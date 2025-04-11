@@ -5,4 +5,4 @@
  * @module @warp-drive/core-types
  * @main @warp-drive/core-types
  */
-export type { StableRecordIdentifier } from './identifier';
+export type { ResourceCacheKey } from './identifier';

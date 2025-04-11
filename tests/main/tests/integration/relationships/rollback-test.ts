@@ -7,7 +7,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo, type HasMany, hasMany } from '@ember-data/model';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 
 class App extends Model {
@@ -580,7 +580,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
     test('it returns the correct entries when a hasMany has state added', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      function identifier(type: string, id: string): StableRecordIdentifier {
+      function identifier(type: string, id: string): ResourceCacheKey {
         return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
       }
 
@@ -618,7 +618,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
     test('it returns the correct entries when a hasMany has state removed', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      function identifier(type: string, id: string): StableRecordIdentifier {
+      function identifier(type: string, id: string): ResourceCacheKey {
         return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
       }
 
@@ -656,7 +656,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
     test('it returns the correct entries when a hasMany has state re-ordered', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      function identifier(type: string, id: string): StableRecordIdentifier {
+      function identifier(type: string, id: string): ResourceCacheKey {
         return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
       }
 
@@ -709,7 +709,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
     test('it returns empty when a belongsTo has no change', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
 
-      function identifier(type: string, id: string): StableRecordIdentifier {
+      function identifier(type: string, id: string): ResourceCacheKey {
         return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
       }
 

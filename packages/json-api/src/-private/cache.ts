@@ -4,7 +4,7 @@
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
-import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@ember-data/store/-private';
+import { isRequestCacheKey, isResourceCacheKey, logGroup } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
@@ -28,11 +28,7 @@ import type {
 } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type {
   ImmutableRequestInfo,
@@ -156,8 +152,8 @@ export default class JSONAPICache implements Cache {
    */
   declare version: '2';
   declare _capabilities: CacheCapabilitiesManager;
-  declare __cache: Map<StableRecordIdentifier, CachedResource>;
-  declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
+  declare __cache: Map<ResourceCacheKey, CachedResource>;
+  declare __destroyedCache: Map<ResourceCacheKey, CachedResource>;
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
   declare __graph: Graph;
 
@@ -295,7 +291,7 @@ export default class JSONAPICache implements Cache {
 
     if (Array.isArray(jsonApiDoc.data)) {
       length = jsonApiDoc.data.length;
-      const identifiers: StableExistingRecordIdentifier[] = [];
+      const identifiers: ExistingResourceCacheKey[] = [];
 
       for (i = 0; i < length; i++) {
         identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
@@ -303,7 +299,7 @@ export default class JSONAPICache implements Cache {
       return this._putDocument(
         doc as StructuredDataDocument<CollectionResourceDocument>,
         identifiers,
-        included as StableExistingRecordIdentifier[]
+        included as ExistingResourceCacheKey[]
       );
     }
 
@@ -311,7 +307,7 @@ export default class JSONAPICache implements Cache {
       return this._putDocument(
         doc as StructuredDataDocument<SingleResourceDocument>,
         null,
-        included as StableExistingRecordIdentifier[]
+        included as ExistingResourceCacheKey[]
       );
     }
 
@@ -319,7 +315,7 @@ export default class JSONAPICache implements Cache {
     return this._putDocument(
       doc as StructuredDataDocument<SingleResourceDocument>,
       identifier,
-      included as StableExistingRecordIdentifier[]
+      included as ExistingResourceCacheKey[]
     );
   }
 
@@ -335,18 +331,18 @@ export default class JSONAPICache implements Cache {
   ): ResourceMetaDocument;
   _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
-    data: StableExistingRecordIdentifier | null,
-    included: StableExistingRecordIdentifier[] | undefined
+    data: ExistingResourceCacheKey | null,
+    included: ExistingResourceCacheKey[] | undefined
   ): SingleResourceDataDocument;
   _putDocument<T extends CollectionResourceDocument>(
     doc: StructuredDataDocument<T>,
-    data: StableExistingRecordIdentifier[],
-    included: StableExistingRecordIdentifier[] | undefined
+    data: ExistingResourceCacheKey[],
+    included: ExistingResourceCacheKey[] | undefined
   ): CollectionResourceDataDocument;
   _putDocument<T extends ResourceDocument>(
     doc: StructuredDocument<T>,
-    data: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null | undefined,
-    included: StableExistingRecordIdentifier[] | undefined
+    data: ExistingResourceCacheKey[] | ExistingResourceCacheKey | null | undefined,
+    included: ExistingResourceCacheKey[] | undefined
   ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
     const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument =
@@ -363,7 +359,7 @@ export default class JSONAPICache implements Cache {
     }
 
     const request = doc.request as ImmutableRequestInfo | undefined;
-    const identifier = request ? this._capabilities.identifierCache.getOrCreateDocumentIdentifier(request) : null;
+    const identifier = request ? this._capabilities.identifierCache.getRequestCacheKey(request) : null;
 
     if (identifier) {
       resourceDocument.lid = identifier.lid;
@@ -377,12 +373,12 @@ export default class JSONAPICache implements Cache {
     }
 
     if (doc.request?.op === 'findHasMany') {
-      const parentIdentifier = doc.request.options?.identifier as StableRecordIdentifier | undefined;
+      const parentIdentifier = doc.request.options?.identifier as ResourceCacheKey | undefined;
       const parentField = doc.request.options?.field as LegacyHasManyField | undefined;
       assert(`Expected a hasMany field`, parentField?.kind === 'hasMany');
       assert(
         `Expected a parent identifier for a findHasMany request`,
-        parentIdentifier && isStableIdentifier(parentIdentifier)
+        parentIdentifier && isResourceCacheKey(parentIdentifier)
       );
       if (parentField && parentIdentifier) {
         this.__graph.push({
@@ -485,13 +481,13 @@ export default class JSONAPICache implements Cache {
    *
    * @method peek
    * @public
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceCacheKey | RequestCacheKey} identifier
    * @return {ResourceDocument | ResourceObject | null} the known resource data
    */
-  peek(identifier: StableRecordIdentifier): ResourceObject | null;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceObject | ResourceDocument | null {
-    if ('type' in identifier) {
+  peek(identifier: ResourceCacheKey): ResourceObject | null;
+  peek(identifier: RequestCacheKey): ResourceDocument | null;
+  peek(identifier: RequestCacheKey | ResourceCacheKey): ResourceObject | ResourceDocument | null {
+    if (isResourceCacheKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {
@@ -548,12 +544,10 @@ export default class JSONAPICache implements Cache {
     return null;
   }
 
-  peekRemoteState(identifier: StableRecordIdentifier): ResourceObject | null;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peekRemoteState(
-    identifier: StableDocumentIdentifier | StableRecordIdentifier
-  ): ResourceObject | ResourceDocument | null {
-    if ('type' in identifier) {
+  peekRemoteState(identifier: ResourceCacheKey): ResourceObject | null;
+  peekRemoteState(identifier: RequestCacheKey): ResourceDocument | null;
+  peekRemoteState(identifier: RequestCacheKey | ResourceCacheKey): ResourceObject | ResourceDocument | null {
+    if (isResourceCacheKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {
@@ -615,11 +609,11 @@ export default class JSONAPICache implements Cache {
    * whereas `peek` will return just the `content`.
    *
    * @method peekRequest
-   * @param {StableDocumentIdentifier}
+   * @param {RequestCacheKey}
    * @return {StructuredDocument<ResourceDocument> | null}
    * @public
    */
-  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+  peekRequest(identifier: RequestCacheKey): StructuredDocument<ResourceDocument> | null {
     return this.__documents.get(identifier.lid) || null;
   }
 
@@ -633,11 +627,7 @@ export default class JSONAPICache implements Cache {
    * @param hasRecord
    * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(
-    identifier: StableRecordIdentifier,
-    data: ExistingResourceObject,
-    calculateChanges?: boolean
-  ): void | string[] {
+  upsert(identifier: ResourceCacheKey, data: ExistingResourceObject, calculateChanges?: boolean): void | string[] {
     upgradeCapabilities(this._capabilities);
     const store = this._capabilities._store;
     if (!store._cbs) {
@@ -709,7 +699,7 @@ export default class JSONAPICache implements Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: StableRecordIdentifier | StableDocumentIdentifier;
+   *  identifier: ResourceCacheKey | RequestCacheKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }
@@ -773,7 +763,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, Value>): Record<string, unknown> {
+  clientDidCreate(identifier: ResourceCacheKey, options?: Record<string, Value>): Record<string, unknown> {
     if (LOG_CACHE) {
       try {
         const _data = options ? (JSON.parse(JSON.stringify(options)) as object) : options;
@@ -816,7 +806,7 @@ export default class JSONAPICache implements Cache {
               op: 'replaceRelatedRecord',
               field: name,
               record: identifier,
-              value: propertyValue as StableRecordIdentifier | null,
+              value: propertyValue as ResourceCacheKey | null,
             });
             relationship = graph.get(identifier, name) as ResourceEdge;
             relationship.state.hasReceivedData = true;
@@ -827,7 +817,7 @@ export default class JSONAPICache implements Cache {
               op: 'replaceRelatedRecords',
               field: name,
               record: identifier,
-              value: propertyValue as unknown as StableRecordIdentifier[],
+              value: propertyValue as unknown as ResourceCacheKey[],
             });
             relationship = graph.get(identifier, name) as CollectionEdge;
             relationship.state.hasReceivedData = true;
@@ -853,7 +843,7 @@ export default class JSONAPICache implements Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier): void {
+  willCommit(identifier: ResourceCacheKey): void {
     const cached = this.__peek(identifier, false);
 
     /*
@@ -917,7 +907,7 @@ export default class JSONAPICache implements Cache {
    * @param data
    */
   didCommit(
-    committedIdentifier: StableRecordIdentifier,
+    committedIdentifier: ResourceCacheKey,
     result: StructuredDataDocument<SingleResourceDocument>
   ): SingleResourceDataDocument {
     const payload = result.content;
@@ -944,7 +934,7 @@ export default class JSONAPICache implements Cache {
 
     const { identifierCache } = this._capabilities;
     const existingId = committedIdentifier.id;
-    const identifier: StableRecordIdentifier =
+    const identifier: ResourceCacheKey =
       operation !== 'deleteRecord' && data
         ? identifierCache.updateRecordIdentifier(committedIdentifier, data)
         : committedIdentifier;
@@ -1048,7 +1038,7 @@ export default class JSONAPICache implements Cache {
     }
 
     return {
-      data: identifier as StableExistingRecordIdentifier,
+      data: identifier as ExistingResourceCacheKey,
     };
   }
 
@@ -1061,7 +1051,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: ResourceCacheKey, errors?: ApiError[]): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       const keys = Object.keys(cached.inflightAttrs);
@@ -1092,7 +1082,7 @@ export default class JSONAPICache implements Cache {
    * @public
    * @param identifier
    */
-  unloadRecord(identifier: StableRecordIdentifier): void {
+  unloadRecord(identifier: ResourceCacheKey): void {
     const storeWrapper = this._capabilities;
     // TODO this is necessary because
     // we maintain memebership inside InstanceCache
@@ -1175,7 +1165,7 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, attr: string | string[]): Value | undefined {
+  getAttr(identifier: ResourceCacheKey, attr: string | string[]): Value | undefined {
     const isSimplePath = !Array.isArray(attr) || attr.length === 1;
     if (Array.isArray(attr) && attr.length === 1) {
       attr = attr[0];
@@ -1240,7 +1230,7 @@ export default class JSONAPICache implements Cache {
     return current;
   }
 
-  getRemoteAttr(identifier: StableRecordIdentifier, attr: string | string[]): Value | undefined {
+  getRemoteAttr(identifier: ResourceCacheKey, attr: string | string[]): Value | undefined {
     const isSimplePath = !Array.isArray(attr) || attr.length === 1;
     if (Array.isArray(attr) && attr.length === 1) {
       attr = attr[0];
@@ -1310,7 +1300,7 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, attr: string | string[], value: Value): void {
+  setAttr(identifier: ResourceCacheKey, attr: string | string[], value: Value): void {
     // this assert works to ensure we have a non-empty string and/or a non-empty array
     assert('setAttr must receive at least one attribute path', attr.length > 0);
     const isSimplePath = !Array.isArray(attr) || attr.length === 1;
@@ -1428,7 +1418,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {ChangedAttributesHash} { <field>: [<old>, <new>] }
    */
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+  changedAttrs(identifier: ResourceCacheKey): ChangedAttributesHash {
     const cached = this.__peek(identifier, false);
     assert(
       `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
@@ -1453,7 +1443,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {boolean}
    */
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+  hasChangedAttrs(identifier: ResourceCacheKey): boolean {
     const cached = this.__peek(identifier, true);
     assert(
       `Cannot retrieve changed attributes for identifier ${String(identifier)} as it is not present in the cache`,
@@ -1482,7 +1472,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {string[]} the names of fields that were restored
    */
-  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+  rollbackAttrs(identifier: ResourceCacheKey): string[] {
     const cached = this.__peek(identifier, false);
     let dirtyKeys: string[] | undefined;
     cached.isDeleted = false;
@@ -1526,25 +1516,25 @@ export default class JSONAPICache implements Cache {
      * type RelationshipDiff =
     | {
         kind: 'collection';
-        remoteState: StableRecordIdentifier[];
-        additions: Set<StableRecordIdentifier>;
-        removals: Set<StableRecordIdentifier>;
-        localState: StableRecordIdentifier[];
+        remoteState: ResourceCacheKey[];
+        additions: Set<ResourceCacheKey>;
+        removals: Set<ResourceCacheKey>;
+        localState: ResourceCacheKey[];
         reordered: boolean;
       }
     | {
         kind: 'resource';
-        remoteState: StableRecordIdentifier | null;
-        localState: StableRecordIdentifier | null;
+        remoteState: ResourceCacheKey | null;
+        localState: ResourceCacheKey | null;
       };
       ```
      *
      * @method changedRelationships
      * @public
-     * @param {StableRecordIdentifier} identifier
+     * @param {ResourceCacheKey} identifier
      * @return {Map<string, RelationshipDiff>}
      */
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  changedRelationships(identifier: ResourceCacheKey): Map<string, RelationshipDiff> {
     return this.__graph.getChanged(identifier);
   }
 
@@ -1553,10 +1543,10 @@ export default class JSONAPICache implements Cache {
    *
    * @method hasChangedRelationships
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @return {boolean}
    */
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+  hasChangedRelationships(identifier: ResourceCacheKey): boolean {
     return this.__graph.hasChanged(identifier);
   }
 
@@ -1569,10 +1559,10 @@ export default class JSONAPICache implements Cache {
    *
    * @method rollbackRelationships
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @return {string[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+  rollbackRelationships(identifier: ResourceCacheKey): string[] {
     upgradeCapabilities(this._capabilities);
     let result!: string[];
     this._capabilities._store._join(() => {
@@ -1590,14 +1580,11 @@ export default class JSONAPICache implements Cache {
    * @param field
    * @return resource relationship object
    */
-  getRelationship(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship {
+  getRelationship(identifier: ResourceCacheKey, field: string): ResourceRelationship | CollectionRelationship {
     return this.__graph.getData(identifier, field);
   }
 
-  getRemoteRelationship(
-    identifier: StableRecordIdentifier,
-    field: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRemoteRelationship(identifier: ResourceCacheKey, field: string): ResourceRelationship | CollectionRelationship {
     return this.__graph.getRemoteData(identifier, field);
   }
 
@@ -1615,7 +1602,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param isDeleted {boolean}
    */
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(identifier: ResourceCacheKey, isDeleted: boolean): void {
     const cached = this.__peek(identifier, false);
     cached.isDeleted = isDeleted;
     // > Note: Graph removal for isNew handled by unloadRecord
@@ -1630,7 +1617,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {JsonApiError[]}
    */
-  getErrors(identifier: StableRecordIdentifier): ApiError[] {
+  getErrors(identifier: ResourceCacheKey): ApiError[] {
     return this.__peek(identifier, true).errors || [];
   }
 
@@ -1642,7 +1629,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {boolean}
    */
-  isEmpty(identifier: StableRecordIdentifier): boolean {
+  isEmpty(identifier: ResourceCacheKey): boolean {
     const cached = this.__safePeek(identifier, true);
     return cached ? cached.remoteAttrs === null && cached.inflightAttrs === null && cached.localAttrs === null : true;
   }
@@ -1656,7 +1643,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {boolean}
    */
-  isNew(identifier: StableRecordIdentifier): boolean {
+  isNew(identifier: ResourceCacheKey): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isNew || false;
   }
@@ -1670,7 +1657,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {boolean}
    */
-  isDeleted(identifier: StableRecordIdentifier): boolean {
+  isDeleted(identifier: ResourceCacheKey): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isDeleted || false;
   }
@@ -1684,7 +1671,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @return {boolean}
    */
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+  isDeletionCommitted(identifier: ResourceCacheKey): boolean {
     // TODO can we assert here?
     return this.__safePeek(identifier, true)?.isDeletionCommitted || false;
   }
@@ -1694,10 +1681,10 @@ export default class JSONAPICache implements Cache {
    *
    * @method _createCache
    * @internal
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @return {CachedResource}
    */
-  _createCache(identifier: StableRecordIdentifier): CachedResource {
+  _createCache(identifier: ResourceCacheKey): CachedResource {
     assert(`Expected no resource data to yet exist in the cache`, !this.__cache.has(identifier));
     const cache = makeCache();
     this.__cache.set(identifier, cache);
@@ -1709,12 +1696,12 @@ export default class JSONAPICache implements Cache {
    * without asserting if the resource data is missing.
    *
    * @method __safePeek
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @param {Boolean} allowDestroyed
    * @internal
    * @return {CachedResource | undefined}
    */
-  __safePeek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource | undefined {
+  __safePeek(identifier: ResourceCacheKey, allowDestroyed: boolean): CachedResource | undefined {
     let resource = this.__cache.get(identifier);
     if (!resource && allowDestroyed) {
       resource = this.__destroyedCache.get(identifier);
@@ -1727,12 +1714,12 @@ export default class JSONAPICache implements Cache {
    * Asserts if the resource data is missing.
    *
    * @method __Peek
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @param {Boolean} allowDestroyed
    * @internal
    * @return {CachedResource}
    */
-  __peek(identifier: StableRecordIdentifier, allowDestroyed: boolean): CachedResource {
+  __peek(identifier: ResourceCacheKey, allowDestroyed: boolean): CachedResource {
     const resource = this.__safePeek(identifier, allowDestroyed);
     assert(
       `Expected Cache to have a resource entry for the identifier ${String(identifier)} but none was found`,
@@ -1900,7 +1887,7 @@ function removeResourceFromDocument(cache: JSONAPICache, op: RemoveFromDocumentO
   }
 }
 
-function areAllModelsUnloaded(wrapper: CacheCapabilitiesManager, identifiers: StableRecordIdentifier[]): boolean {
+function areAllModelsUnloaded(wrapper: CacheCapabilitiesManager, identifiers: ResourceCacheKey[]): boolean {
   for (let i = 0; i < identifiers.length; ++i) {
     const identifier = identifiers[i];
     if (wrapper.hasRecord(identifier)) {
@@ -1910,7 +1897,7 @@ function areAllModelsUnloaded(wrapper: CacheCapabilitiesManager, identifiers: St
   return true;
 }
 
-function getLocalState(rel: CollectionEdge | ResourceEdge): StableRecordIdentifier[] {
+function getLocalState(rel: CollectionEdge | ResourceEdge): ResourceCacheKey[] {
   if (isBelongsTo(rel)) {
     return rel.localState ? [rel.localState] : [];
   }
@@ -1935,7 +1922,7 @@ function hasLegacyDefaultValueFn(options: object | undefined): options is { defa
 
 function getDefaultValue(
   schema: FieldSchema | undefined,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   store: Store
 ): Value | undefined {
   assert(`AliasFields should not be directly accessed from the cache`, schema?.kind !== 'alias');
@@ -1975,11 +1962,7 @@ function getDefaultValue(
   }
 }
 
-function notifyAttributes(
-  storeWrapper: CacheCapabilitiesManager,
-  identifier: StableRecordIdentifier,
-  keys?: Set<string>
-) {
+function notifyAttributes(storeWrapper: CacheCapabilitiesManager, identifier: ResourceCacheKey, keys?: Set<string>) {
   if (!keys) {
     storeWrapper.notifyChange(identifier, 'attributes', null);
     return;
@@ -2074,7 +2057,7 @@ function recordIsLoaded(cached: CachedResource | undefined, filterDeleted = fals
 function _isLoading(
   peeked: CachedResource | undefined,
   capabilities: CacheCapabilitiesManager,
-  identifier: StableRecordIdentifier
+  identifier: ResourceCacheKey
 ): boolean {
   upgradeCapabilities(capabilities);
   // TODO refactor things such that the cache is not required to know
@@ -2093,7 +2076,7 @@ function _isLoading(
 function setupRelationships(
   graph: Graph,
   fields: ReturnType<Store['schema']['fields']>,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   data: ExistingResourceObject
 ) {
   for (const name in data.relationships!) {
@@ -2160,7 +2143,7 @@ function putOne(
   cache: JSONAPICache,
   identifiers: IdentifierCache,
   resource: ExistingResourceObject
-): StableExistingRecordIdentifier {
+): ExistingResourceCacheKey {
   assert(
     `You must include an 'id' for the resource data ${resource.type}`,
     resource.id !== null && resource.id !== undefined && resource.id !== ''
@@ -2169,7 +2152,7 @@ function putOne(
     `Missing Resource Type: received resource data with a type '${resource.type}' but no schema could be found with that name.`,
     cache._capabilities.schema.hasResource(resource)
   );
-  let identifier: StableRecordIdentifier | undefined = identifiers.peekRecordIdentifier(resource);
+  let identifier: ResourceCacheKey | undefined = identifiers.peekRecordIdentifier(resource);
 
   if (identifier) {
     identifier = identifiers.updateRecordIdentifier(identifier, resource);
@@ -2178,17 +2161,14 @@ function putOne(
   }
   cache.upsert(identifier, resource, cache._capabilities.hasRecord(identifier));
   // even if the identifier was not "existing" before, it is now
-  return identifier as StableExistingRecordIdentifier;
+  return identifier as ExistingResourceCacheKey;
 }
 
 /*
     Iterates over the set of internal models reachable from `this` across exactly one
     relationship.
   */
-function _directlyRelatedIdentifiersIterable(
-  storeWrapper: CacheCapabilitiesManager,
-  originating: StableRecordIdentifier
-) {
+function _directlyRelatedIdentifiersIterable(storeWrapper: CacheCapabilitiesManager, originating: ResourceCacheKey) {
   const graph = peekGraph(storeWrapper);
   const initializedRelationships = graph?.identifiers.get(originating);
 
@@ -2208,7 +2188,7 @@ function _directlyRelatedIdentifiersIterable(
   let j = 0;
   let k = 0;
 
-  const findNext = (): StableRecordIdentifier | undefined => {
+  const findNext = (): ResourceCacheKey | undefined => {
     while (i < initializedRelationshipsArr.length) {
       while (j < 2) {
         const relatedIdentifiers =
@@ -2231,7 +2211,7 @@ function _directlyRelatedIdentifiersIterable(
   return {
     iterator() {
       return {
-        next: (): { value: StableRecordIdentifier | undefined; done: boolean } => {
+        next: (): { value: ResourceCacheKey | undefined; done: boolean } => {
           const value = findNext();
           return { value, done: value === undefined };
         },
@@ -2252,10 +2232,10 @@ function _directlyRelatedIdentifiersIterable(
     */
 function _allRelatedIdentifiers(
   storeWrapper: CacheCapabilitiesManager,
-  originating: StableRecordIdentifier
-): StableRecordIdentifier[] {
-  const array: StableRecordIdentifier[] = [];
-  const queue: StableRecordIdentifier[] = [];
+  originating: ResourceCacheKey
+): ResourceCacheKey[] {
+  const array: ResourceCacheKey[] = [];
+  const queue: ResourceCacheKey[] = [];
   const seen = new Set();
   queue.push(originating);
   while (queue.length > 0) {
@@ -2314,7 +2294,7 @@ function copyLinksAndMeta(target: { links?: unknown; meta?: unknown }, source: o
 
 function cacheUpsert(
   cache: JSONAPICache,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   data: ExistingResourceObject,
   calculateChanges?: boolean
 ) {
@@ -2396,8 +2376,8 @@ function cacheUpsert(
 }
 
 function patchCache(Cache: JSONAPICache, op: Operation): void {
-  const isRecord = isStableIdentifier(op.record);
-  const isDocument = !isRecord && isDocumentIdentifier(op.record);
+  const isRecord = isResourceCacheKey(op.record);
+  const isDocument = !isRecord && isRequestCacheKey(op.record);
 
   assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
 
@@ -2405,7 +2385,7 @@ function patchCache(Cache: JSONAPICache, op: Operation): void {
     logGroup(
       'cache',
       'patch',
-      isRecord ? (op.record as StableRecordIdentifier).type : '<@document>',
+      isRecord ? (op.record as ResourceCacheKey).type : '<@document>',
       op.record.lid,
       op.op,
       'field' in op ? op.field : op.op === 'mergeIdentifiers' ? op.value.lid : ''

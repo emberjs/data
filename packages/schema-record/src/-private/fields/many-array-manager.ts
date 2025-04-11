@@ -2,7 +2,7 @@ import type Store from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { fastPush, SOURCE } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -23,7 +23,7 @@ export class ManyArrayManager {
   declare record: SchemaRecord;
   declare store: Store;
   declare cache: Cache;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: ResourceCacheKey;
 
   constructor(record: SchemaRecord) {
     this.record = record;
@@ -49,7 +49,7 @@ export class ManyArrayManager {
     // takes care of that for us
     if (currentState !== rawValue.data) {
       currentState.length = 0;
-      fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+      fastPush(currentState, rawValue.data as ResourceCacheKey[]);
     }
   }
 
@@ -66,7 +66,7 @@ export class ManyArrayManager {
       url: getRelatedLink(rawValue),
       op: 'findHasMany',
       method: 'GET' as const,
-      records: rawValue.data as StableRecordIdentifier[],
+      records: rawValue.data as ResourceCacheKey[],
       cacheOptions,
       options: {
         field,

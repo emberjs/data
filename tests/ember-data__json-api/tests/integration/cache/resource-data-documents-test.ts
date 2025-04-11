@@ -3,11 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation, NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -35,14 +31,14 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceCacheKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+      (_: ResourceCacheKey, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
           record[key] = this.cache.getAttr(identifier, key);
         }
@@ -82,7 +78,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
   });
@@ -101,7 +97,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
 
@@ -142,7 +138,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
 
@@ -177,12 +173,12 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = new TestStore();
-    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const documentIdentifier = store.identifierCache.getRequestCacheKey({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
 
     let isUpdating = false;
-    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+    store.notifications.subscribe('document', (identifier: RequestCacheKey, type: DocumentCacheOperation) => {
       if (isUpdating) {
         assert.equal(type, 'updated', 'We were notified of an update');
         assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
@@ -192,18 +188,15 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       }
     });
 
-    store.notifications.subscribe(
-      documentIdentifier,
-      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
-        if (isUpdating) {
-          assert.equal(type, 'updated', 'We were notified of an update');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        } else {
-          assert.equal(type, 'added', 'We were notified of an add');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        }
+    store.notifications.subscribe(documentIdentifier, (identifier: RequestCacheKey, type: DocumentCacheOperation) => {
+      if (isUpdating) {
+        assert.equal(type, 'updated', 'We were notified of an update');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.equal(type, 'added', 'We were notified of an add');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
       }
-    );
+    });
 
     store._run(() => {
       const responseDocument = store.cache.put(

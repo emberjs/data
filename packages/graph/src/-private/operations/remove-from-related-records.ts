@@ -1,5 +1,5 @@
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { RemoveFromResourceRelationshipMutation } from '@warp-drive/core-types/cache/mutations';
 import type { RemoveFromResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
@@ -31,7 +31,7 @@ export default function removeFromRelatedRecords(
       return replaceRelatedRecord(graph, newOp, isRemote);
     }
     assert(
-      `Expected '${(value as StableRecordIdentifier)?.lid}' (the value to remove) to be the same as the remote state '${relationship.remoteState?.lid ?? '<null>'}'`,
+      `Expected '${(value as ResourceCacheKey)?.lid}' (the value to remove) to be the same as the remote state '${relationship.remoteState?.lid ?? '<null>'}'`,
       value === relationship.remoteState
     );
     return;
@@ -55,9 +55,9 @@ export default function removeFromRelatedRecords(
 
 function removeRelatedRecord(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceCacheKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceCacheKey,
   index: number | null,
   isRemote: boolean
 ) {

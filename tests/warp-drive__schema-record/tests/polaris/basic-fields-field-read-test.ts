@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
 import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
@@ -91,7 +91,7 @@ module('Reads | basic fields', function (hooks) {
         }
         return Number(value);
       },
-      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: ResourceCacheKey): string {
         const v = 0;
         return v.toFixed(_options?.precision ?? 3);
       },

@@ -2,7 +2,7 @@
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 
 import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type UpgradedMeta } from '../-edge-definition';
 
@@ -19,9 +19,9 @@ import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type Upgr
   `record.relationshipFor(key)`.
 */
 let assertPolymorphicType: (
-  parentIdentifier: StableRecordIdentifier,
+  parentIdentifier: ResourceCacheKey,
   parentDefinition: UpgradedMeta,
-  addedIdentifier: StableRecordIdentifier,
+  addedIdentifier: ResourceCacheKey,
   store: CacheCapabilitiesManager
 ) => void;
 let assertInheritedSchema: (definition: UpgradedMeta, type: string) => void;
@@ -205,9 +205,9 @@ if (DEBUG) {
   };
 
   assertPolymorphicType = function assertPolymorphicType(
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceCacheKey,
     parentDefinition: UpgradedMeta,
-    addedIdentifier: StableRecordIdentifier,
+    addedIdentifier: ResourceCacheKey,
     store: CacheCapabilitiesManager
   ) {
     if (parentDefinition.inverseIsImplicit) {
