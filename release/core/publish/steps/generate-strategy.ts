@@ -115,7 +115,7 @@ export async function applyStrategy(
       // this is because any version bump could conflict with the version in the canary channel.
       // so for instance, if we have canary of an alpha project at 0.0.1-alpha.5,
       // any downversion bump would result in 0.0.1
-      // but if we were to downversion the primary version from say 5.4.0-alpha.1 to both 5.3.1 and 5.2.1,
+      // but if we were to downversion the primary version from say 5.4.1-alpha.1 to both 5.3.1 and 5.2.1,
       // then we would have a conflict as both would try to publish the alpha version at 0.0.1
       if (rule.stage === 'alpha' || rule.stage === 'beta') {
         applied_strategy.private = true; // always mark as private to avoid a new publish
