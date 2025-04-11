@@ -1,6 +1,6 @@
 {
   "name": "warp-drive__schema-record",
-  "version": "5.4.0-alpha.159",
+  "version": "5.4.0-beta.20",
   "description": "Provides tests for @warp-drive/schema-record",
   "private": true,
   "keywords": [],
