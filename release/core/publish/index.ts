@@ -39,9 +39,9 @@ export async function executePublish(args: string[]) {
 
   // get packages present in the git tag version
   // if no version is specified, we will use the current branch
-  const fromVersion = config.specified.get('from') as SEMVER_VERSION | undefined;
+  const fromVersion = config.full.get('from') as SEMVER_VERSION | undefined;
   const fromTag = `v${fromVersion}` as GIT_TAG;
-  const baseVersionPackages = fromVersion ? await getAllPackagesForGitTag(fromTag) : packages;
+  const baseVersionPackages = config.specified.get('from') ? await getAllPackagesForGitTag(fromTag) : packages;
 
   // get applied strategy
   const applied = await applyStrategy(config.full, strategy, baseVersionPackages, packages);
