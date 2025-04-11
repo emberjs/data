@@ -1,5 +1,5 @@
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, CacheV2, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type { Mutation } from '@warp-drive/core-types/cache/mutations';
@@ -18,7 +18,7 @@ import type { ApiError } from '@warp-drive/core-types/spec/error';
  * @class PersistedCache
  * @internal
  */
-export class PersistedCache implements Cache {
+export class PersistedCache implements CacheV2 {
   declare _cache: Cache;
   declare _db: IDBDatabase;
   declare version: '2';
@@ -545,12 +545,8 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @return resource relationship object
    */
-  getRelationship(
-    identifier: StableRecordIdentifier,
-    field: string,
-    isCollection?: boolean
-  ): ResourceRelationship | CollectionRelationship {
-    return this._cache.getRelationship(identifier, field, isCollection);
+  getRelationship(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship {
+    return this._cache.getRelationship(identifier, field);
   }
 
   /**
