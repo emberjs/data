@@ -338,6 +338,6 @@ export function printConfig(config: {
   }
 
   console.log(`\nConfiguration:\n`);
-  console.log(JSON.stringify(JSON, null, 2));
+  console.log(JSON.stringify(json, null, 2));
   console.log(`\n`);
 }
