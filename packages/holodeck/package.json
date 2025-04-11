@@ -80,5 +80,6 @@
       "types": "./unstable-preview-types/mock.d.ts",
       "default": "./dist/mock.js"
     }
-  }
+  },
+  "private": true
 }
