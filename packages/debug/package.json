@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/debug",
-  "version": "5.5.0-alpha.12",
+  "version": "5.5.0-alpha.13",
   "description": "Provides support for the ember-inspector for apps built with Ember and EmberData",
   "keywords": [
     "ember-addon"
