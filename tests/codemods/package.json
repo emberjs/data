@@ -1,7 +1,7 @@
 {
   "name": "codemods-tests",
   "private": true,
-  "version": "5.4.1-beta.0",
+  "version": "5.4.1",
   "description": "Codemods for EmberData paradigms",
   "keywords": [],
   "repository": {
