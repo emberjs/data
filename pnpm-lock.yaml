@@ -1003,8 +1003,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.14.0
-        version: 1.14.0(hono@4.7.6)
+        specifier: ^1.14.1
+        version: 1.14.1(hono@4.7.6)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -5722,8 +5722,8 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@hono/node-server@1.14.0':
-    resolution: {integrity: sha512-YUCxJwgHRKSqjrdTk9e4VMGKN27MK5r4+MGPyZTgKH+IYbK+KtYbHeOcPGJ91KGGD6RIQiz2dAHxvjauNhOS8g==}
+  '@hono/node-server@1.14.1':
+    resolution: {integrity: sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -16489,7 +16489,7 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.14.0(hono@4.7.6)':
+  '@hono/node-server@1.14.1(hono@4.7.6)':
     dependencies:
       hono: 4.7.6
 
@@ -17744,7 +17744,7 @@ snapshots:
   '@warp-drive/holodeck@file:packages/holodeck(2512a32e8b0d95cd49b7ddd0bab86275)':
     dependencies:
       '@ember-data/request': file:packages/request(dd9be7e7e88b25e309856ff6e0a8c90d)
-      '@hono/node-server': 1.14.0(hono@4.7.6)
+      '@hono/node-server': 1.14.1(hono@4.7.6)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.10)
       chalk: 5.4.1
       hono: 4.7.6
@@ -17752,7 +17752,7 @@ snapshots:
   '@warp-drive/holodeck@file:packages/holodeck(50787cdd3314abb44d598f29619a3bcb)':
     dependencies:
       '@ember-data/request': file:packages/request(cf9ff2a698b78c0a36c4a22cb9e0368a)
-      '@hono/node-server': 1.14.0(hono@4.7.6)
+      '@hono/node-server': 1.14.1(hono@4.7.6)
       '@warp-drive/core-types': file:packages/core-types(6b9ab74b27cee7278587f29987a61ec9)
       chalk: 5.4.1
       hono: 4.7.6
