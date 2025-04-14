@@ -186,8 +186,8 @@ importers:
         specifier: ^9.24.0
         version: 9.24.0
       eslint-config-prettier:
-        specifier: ^10.1.1
-        version: 10.1.1(eslint@9.24.0)
+        specifier: ^10.1.2
+        version: 10.1.2(eslint@9.24.0)
       eslint-plugin-import:
         specifier: ^2.31.0
         version: 2.31.0(6da29f448c074f02cfd47cbd5616e530)
@@ -3705,8 +3705,8 @@ importers:
         specifier: ^9.24.0
         version: 9.24.0
       eslint-config-prettier:
-        specifier: ^10.1.1
-        version: 10.1.1(eslint@9.24.0)
+        specifier: ^10.1.2
+        version: 10.1.2(eslint@9.24.0)
       eslint-plugin-ember:
         specifier: ^12.5.0
         version: 12.5.0(04672af363e0a43f6ccf7909ff9f7260)
@@ -3715,7 +3715,7 @@ importers:
         version: 17.16.2(eslint@9.24.0)
       eslint-plugin-prettier:
         specifier: ^5.2.6
-        version: 5.2.6(20c2ffc79941c58884be6c313002ebe2)
+        version: 5.2.6(6fcbbee1fe32845c70b81b816887a1d9)
       eslint-plugin-qunit:
         specifier: ^8.1.2
         version: 8.1.2(eslint@9.24.0)
@@ -8687,8 +8687,8 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  eslint-config-prettier@10.1.1:
-    resolution: {integrity: sha512-4EQQr6wXwS+ZJSzaR5ZCrYgLxqvUjdXctaEtBqHcbkW944B1NQyO4qpdHQbXBONfwxXdkAY81HH4+LUfrg+zPw==}
+  eslint-config-prettier@10.1.2:
+    resolution: {integrity: sha512-Epgp/EofAUeEpIdZkW60MHKvPyru1ruQJxPL+WIycnaPApuseK0Zpkrh/FwL9oIpQvIhJwV7ptOy0DWUjTlCiA==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -17769,7 +17769,7 @@ snapshots:
       '@typescript-eslint/parser': 8.29.1(eslint@9.24.0)(typescript@5.8.3)
       ember-eslint-parser: 0.5.9(04672af363e0a43f6ccf7909ff9f7260)
       eslint: 9.24.0
-      eslint-config-prettier: 10.1.1(eslint@9.24.0)
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(6da29f448c074f02cfd47cbd5616e530)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
@@ -17813,7 +17813,7 @@ snapshots:
       '@typescript-eslint/parser': 8.29.1(eslint@9.24.0)(typescript@5.8.3)
       ember-eslint-parser: 0.5.9(04672af363e0a43f6ccf7909ff9f7260)
       eslint: 9.24.0
-      eslint-config-prettier: 10.1.1(eslint@9.24.0)
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(6da29f448c074f02cfd47cbd5616e530)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
@@ -17857,7 +17857,7 @@ snapshots:
       '@typescript-eslint/parser': 8.29.1(eslint@9.24.0)(typescript@5.8.3)
       ember-eslint-parser: 0.5.9(04672af363e0a43f6ccf7909ff9f7260)
       eslint: 9.24.0
-      eslint-config-prettier: 10.1.1(eslint@9.24.0)
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(6da29f448c074f02cfd47cbd5616e530)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
@@ -17901,7 +17901,7 @@ snapshots:
       '@typescript-eslint/parser': 8.29.1(eslint@9.24.0)(typescript@5.8.3)
       ember-eslint-parser: 0.5.9(04672af363e0a43f6ccf7909ff9f7260)
       eslint: 9.24.0
-      eslint-config-prettier: 10.1.1(eslint@9.24.0)
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
       eslint-plugin-import: 2.31.0(6da29f448c074f02cfd47cbd5616e530)
       eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
@@ -21275,7 +21275,7 @@ snapshots:
       eslint: 9.24.0
       semver: 7.7.1
 
-  eslint-config-prettier@10.1.1(eslint@9.24.0):
+  eslint-config-prettier@10.1.2(eslint@9.24.0):
     dependencies:
       eslint: 9.24.0
 
@@ -21372,14 +21372,14 @@ snapshots:
       minimatch: 9.0.5
       semver: 7.7.1
 
-  eslint-plugin-prettier@5.2.6(20c2ffc79941c58884be6c313002ebe2):
+  eslint-plugin-prettier@5.2.6(6fcbbee1fe32845c70b81b816887a1d9):
     dependencies:
       eslint: 9.24.0
       prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
       synckit: 0.11.3
     optionalDependencies:
-      eslint-config-prettier: 10.1.1(eslint@9.24.0)
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
 
   eslint-plugin-qunit@8.1.2(eslint@9.24.0):
     dependencies:
