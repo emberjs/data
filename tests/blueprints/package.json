@@ -29,7 +29,7 @@
     "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
-    "@ember/test-helpers": "5.2.0",
+    "@ember/test-helpers": "5.2.1",
     "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",

@@ -41,7 +41,7 @@
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/string": "^4.0.1",
-    "@ember/test-helpers": "5.2.0",
+    "@ember/test-helpers": "5.2.1",
     "@ember/test-waiters": "^4.1.0",
     "@embroider/compat": "4.0.1-unstable.f9c81e9",
     "@embroider/config-meta-loader": "1.0.1-unstable.f9c81e9",
