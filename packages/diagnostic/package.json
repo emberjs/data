@@ -123,5 +123,6 @@
   },
   "ember": {
     "edition": "octane"
-  }
+  },
+  "private": true
 }
