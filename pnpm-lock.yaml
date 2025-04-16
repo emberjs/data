@@ -3696,7 +3696,7 @@ importers:
         specifier: ~6.3.0
         version: 6.3.0(@glimmer/component@2.0.0)
       ember-template-lint:
-        specifier: ^7.0.6
+        specifier: ^7.0.7
         version: 7.0.7(@babel/core@7.26.10)
       ember-welcome-page:
         specifier: ^7.0.2
