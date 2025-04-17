@@ -1,4 +1,4 @@
-import { setOwner } from '@ember/owner';
+import { setOwner } from '@ember/application';
 import { service } from '@ember/service';
 import type { TestContext } from '@ember/test-helpers';
 

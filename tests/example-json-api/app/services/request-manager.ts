@@ -13,9 +13,8 @@ const TestHandler: Handler = {
   },
 };
 
-export default class Requests extends RequestManager {
-  constructor(args?: Record<string | symbol, unknown>) {
-    super(args);
-    this.use([LegacyNetworkHandler, TestHandler, Fetch]);
-  }
-}
+export default {
+  create() {
+    return new RequestManager().use([LegacyNetworkHandler, TestHandler, Fetch]);
+  },
+};
