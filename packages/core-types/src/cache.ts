@@ -324,7 +324,7 @@ export interface Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: RequestContext): void;
+  willCommit(identifier: StableRecordIdentifier | StableRecordIdentifier[], context: RequestContext): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -336,7 +336,10 @@ export interface Cache {
    * @param data - a document in the cache format containing any updated data
    * @return {SingleResourceDataDocument}
    */
-  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument;
+  didCommit(
+    identifier: StableRecordIdentifier | StableRecordIdentifier[],
+    result: StructuredDataDocument<unknown>
+  ): SingleResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -347,7 +350,7 @@ export interface Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void;
+  commitWasRejected(identifier: StableRecordIdentifier | StableRecordIdentifier[], errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource

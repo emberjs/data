@@ -204,9 +204,10 @@ function updateCacheForSuccess<T>(
 ) {
   let response: ResourceDataDocument | null = null;
   if (isMutation(request)) {
-    const record = request.data?.record || request.records?.[0];
-    if (record) {
-      response = store.cache.didCommit(record, document) as ResourceDataDocument;
+    const records = request.cacheOptions?.records ?? request.records;
+    const record = request.data?.record;
+    if (records?.length || record) {
+      response = store.cache.didCommit(records || record, document) as ResourceDataDocument;
 
       // a mutation combined with a 204 has no cache impact when no known records were involved
       // a createRecord with a 201 with an empty response and no known records should similarly

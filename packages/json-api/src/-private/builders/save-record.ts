@@ -7,14 +7,14 @@ import {
 import { pluralize } from '@ember-data/request-utils/string';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
   UpdateRequestOptions,
-} from '@warp-drive/core-types/request';
+} from '@warp-drive/core-types/builders';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions } from './-utils';
@@ -99,10 +99,9 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
     method: 'DELETE',
     headers,
     op: 'deleteRecord',
-    data: {
-      record: identifier,
+    cacheOptions: {
+      records: [identifier],
     },
-    records: [identifier],
   };
 }
 
@@ -171,10 +170,10 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
     method: 'POST',
     headers,
     op: 'createRecord',
-    data: {
-      record: identifier,
+    cacheOptions: {
+      types: [identifier.type],
+      records: [identifier],
     },
-    records: [identifier],
   };
 }
 
@@ -256,10 +255,9 @@ export function updateRecord(
     method: options.patch ? 'PATCH' : 'PUT',
     headers,
     op: 'updateRecord',
-    data: {
-      record: identifier,
+    cacheOptions: {
+      records: [identifier],
     },
-    records: [identifier],
   };
 }
 
