@@ -37,7 +37,7 @@
     "@types/jscodeshift": "0.12.0",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.24.0",
-    "qunit": "^2.20.1",
+    "qunit": "^2.24.1",
     "tsx": "^4.19.3"
   },
   "engines": {
