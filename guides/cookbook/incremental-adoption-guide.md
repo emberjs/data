@@ -16,11 +16,8 @@ Here is how you do it:
 ```js
 // eslint-disable-next-line ember/use-ember-data-rfc-395-imports
 import Store from 'ember-data/store';
-import { service } from '@ember/service';
 
-export default class MyStore extends Store {
-  @service requestManager;
-}
+export default class AppStore extends Store {}
 
 ```
 
@@ -30,15 +27,19 @@ Notice we still want to import the `Store` class from `ember-data/store` package
 
 > Note: Because we are extending `ember-data/store`, it is still v1 addon, so things might not work for you if you are using typescript. We recommend to have `store.js` file for now.
 
-## Step 3: Add `RequestManager` service to your application
+## Step 3: Add `RequestManager` to your application
 
-Now let's create our very own `RequestManager` service. It is a service that is responsible for sending requests to the server. It is a composable class, which means you can add your own request handlers to it.
+Now let's configure a `RequestManager` for our store. The RequestManager is responsible for sending requests to the server. It fulfills requests using a chain-of-responsibility pipeline, which means you can add your own request handlers to it.
 
-First you need to install [`@ember-data/request`](https://github.com/emberjs/data/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/emberjs/data/tree/main/packages/legacy-compat) packages. First contains the `RequestManager` service and a few request handlers, second has `LegacyNetworkHandler` that gonna handle all old-style `this.store.*` calls.
+First you need to install [`@ember-data/request`](https://github.com/emberjs/data/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/emberjs/data/tree/main/packages/legacy-compat) packages. The first contains the `RequestManager` service and a few request handlers, while the second has `LegacyNetworkHandler` that will handle all old-style `this.store.*` calls.
 
 Here is how your own `RequestManager` service may look like:
 
 ```ts
+// eslint-disable-next-line ember/use-ember-data-rfc-395-imports
+import Store from 'ember-data/store';
+
+import { CacheHandler } from '@ember-data/store';
 import { LegacyNetworkHandler } from '@ember-data/legacy-compat';
 import type { Handler, NextFn, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
@@ -54,12 +55,12 @@ const TestHandler: Handler = {
   },
 };
 
-export default class Requests extends RequestManager {
-  constructor(args?: Record<string | symbol, unknown>) {
-    super(args);
-    this.use([LegacyNetworkHandler, TestHandler, Fetch]);
-  }
+export default class AppStore extends Store {
+  requestManager = new RequestManager()
+    .use([LegacyNetworkHandler, TestHandler, Fetch])
+    .useCache(CacheHandler);
 }
+
 ```
 
 Let's go over the code above:
@@ -70,7 +71,7 @@ Let's go over the code above:
 
 3. Lastly `Fetch`. It is a handler that sends requests to the server using the `fetch` API. It expects responses to be JSON and when in use it should be the last handler you put in the chain. After finishing each request it will convert the response into json and pass it back to the handlers chain in reverse order as the request context's response. So `TestHandler` will receive `response` property first, and so on if we would have any.
 
-> NOTE: Your `RequestManager` service should be exactly `app/services/request-manager.[js|ts]` file. It is a convention that Ember uses to find the service.
+The CacheHandler is a special handler that enables requests to fulfill from and update the cache associated to this store.
 
 You can read more about request manager in the [request manager guide](../requests/index.md).
 

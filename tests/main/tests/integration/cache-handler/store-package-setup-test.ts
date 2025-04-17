@@ -41,13 +41,11 @@ type UserRecord = {
   [Type]: 'user';
 };
 
-class RequestManagerService extends RequestManager {
-  constructor() {
-    super(...arguments);
-    this.use([LegacyNetworkHandler, Fetch]);
-    this.useCache(CacheHandler);
-  }
-}
+const RequestManagerService = {
+  create() {
+    return new RequestManager().use([LegacyNetworkHandler, Fetch]).useCache(CacheHandler);
+  },
+};
 
 class TestStore extends Store {
   @service('request') declare requestManager: RequestManager;
