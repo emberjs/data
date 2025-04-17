@@ -124,11 +124,11 @@ import RequestManager from '@ember-data/request';
 import { CacheHandler } from '@ember-data/store';
 import Fetch from '@ember-data/request/fetch';
 
-export default class extends RequestManager {
-  constructor(createArgs) {
-    super(createArgs);
-    this.use([Fetch]);
-    this.useCache(CacheHandler);
+export default {
+  create() {
+    return new RequestManager()
+      .use([Fetch])
+      .useCache(CacheHandler);
   }
 }
 ```

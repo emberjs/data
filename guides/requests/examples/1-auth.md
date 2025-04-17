@@ -49,20 +49,15 @@ const AuthHandler: Handler = {
 }
 ```
 
-This handler would need to be added to request manager service configuration:
+This handler would need to be added to the request manager configuration:
 
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import AuthHandler from './auth-handler.js';
 
-export default class extends RequestManager {
-  constructor(args?: Record<string | symbol, unknown>) {
-    super(args);
-
-    this.use([AuthHandler, Fetch]);
-  }
-}
+const manager = new RequestManager()
+  .use([AuthHandler, Fetch]);
 ```
 
 This way every request that was made using this request manager will have `Authorization` header added to it.
@@ -104,17 +99,16 @@ To use this handler we need to register it in our request manager service, but a
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import { getOwner, setOwner } from '@ember/application';
+import { setOwner } from '@ember/owner';
 import AuthHandler from './auth-handler';
 
-export default class extends RequestManager {
-  constructor(args?: Record<string | symbol, unknown>) {
-    super(args);
-
+export default {
+  create(owner) {
     const authHandler = new AuthHandler();
-    setOwner(authHandler, getOwner(this));
+    setOwner(authHandler, owner);
 
-    this.use([authHandler, Fetch]);
+    return new RequestManager()
+      .use([authHandler, Fetch]);
   }
 }
 ```
@@ -168,20 +162,15 @@ const AuthHandler: Handler = {
 }
 ```
 
-This handler would need to be added to request manager service configuration:
+This handler would need to be added to request manager configuration:
 
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import AuthHandler from './auth-handler';
 
-export default class extends RequestManager {
-  constructor(args?: Record<string | symbol, unknown>) {
-    super(args);
-
-    this.use([AuthHandler, Fetch]);
-  }
-}
+const manager = new RequestManager()
+  .use([AuthHandler, Fetch]);
 ```
 
 This way every request that was made using this request manager will have `X-CSRF-Token` header added to it when needed.

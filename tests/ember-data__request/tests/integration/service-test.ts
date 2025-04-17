@@ -1,4 +1,5 @@
-import { getOwner } from '@ember/application';
+import { getOwner, setOwner } from '@ember/application';
+import type Owner from '@ember/owner';
 import * as s from '@ember/service';
 import type { TestContext } from '@ember/test-helpers';
 
@@ -25,6 +26,29 @@ module('RequestManager | Ember Service Setup', function (hooks) {
       @service cache;
     }
     this.owner.register('service:request', CustomManager);
+    class Cache extends Service {}
+    this.owner.register('service:cache', Cache);
+    const manager = this.owner.lookup('service:request') as unknown as CustomManager;
+    assert.ok(manager instanceof RequestManager, 'We instantiated');
+    assert.ok(manager instanceof CustomManager, 'We instantiated');
+    assert.ok(manager.cache instanceof Cache, 'We can utilize injections');
+    assert.equal(getOwner(manager), this.owner, 'The manager correctly sets owner');
+  });
+
+  test('We can use injections when registering the RequestManager as a service (create)', function (this: TestContext, assert) {
+    class CustomManager extends RequestManager {
+      @service cache;
+    }
+
+    const ManagerService = {
+      create(owner: Owner) {
+        const manager = new CustomManager();
+        setOwner(manager, owner);
+
+        return manager;
+      },
+    };
+    this.owner.register('service:request', ManagerService);
     class Cache extends Service {}
     this.owner.register('service:cache', Cache);
     const manager = this.owner.lookup('service:request') as unknown as CustomManager;

@@ -353,26 +353,6 @@ In the case of the `Future` being returned, `Stream` proxying is automatic and i
 
 ---
 
-### Using as a Service
-
-Most applications will desire to have a single `RequestManager` instance, which can be achieved using module-state patterns for singletons, or for [Ember](https://emberjs.com) applications by exporting the manager as a [service](https://guides.emberjs.com/release/services/).
-
-*services/request.ts*
-```ts
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import Auth from 'ember-simple-auth/ember-data-handler';
-
-export default class extends RequestManager {
-  constructor(createArgs) {
-    super(createArgs);
-    this.use([Auth, Fetch]);
-  }
-}
-```
-
----
-
 #### Using with `@ember-data/store`
 
 To have a request service unique to a Store:
@@ -386,6 +366,28 @@ class extends Store {
   requestManager = new RequestManager()
     .use([Fetch])
     .useCache(CacheHandler);
+}
+```
+
+---
+
+### Using as a Service
+
+Some applications will desire to have a single `RequestManager` instance, which can be achieved using module-state patterns for singletons, or for [Ember](https://emberjs.com) applications by exporting the manager as a [service](https://guides.emberjs.com/release/services/).
+
+*services/request.ts*
+```ts
+import { CacheHandler } from '@ember-data/store';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import Auth from 'ember-simple-auth/ember-data-handler';
+
+export default {
+  create() {
+    return new RequestManager()
+      .use([Auth, Fetch])
+      .use(CacheHandler);
+  }
 }
 ```
 
