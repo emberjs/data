@@ -332,9 +332,11 @@ export class RecordArrayManager {
     fastPush(source, identifiers);
     this._set.set(array, new Set(identifiers));
 
-    notifyArray(array);
-    array.meta = payload?.meta || null;
-    array.links = payload?.links || null;
+    if (!isCollection(array)) {
+      notifyArray(array);
+      array.meta = payload?.meta || null;
+      array.links = payload?.links || null;
+    }
     array.isLoaded = true;
 
     disassociate(this._identifiers, array, old);
