@@ -1,6 +1,16 @@
-| | |
-| -- | -- |
-| [← Introduction](./1-overview.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Key Data Structures →](./3-data.md) |
+<table>
+  <tr>
+    <td align="center" width="300">
+
+[← Overview](./2-overview.md)</td>
+   <td align="center" width="300">
+   
+[❖ Table of Contents](./0-index.md)</td>
+   <td align="center" width="300">
+
+[Key Data Structures →](./4-data.md)</td>
+  </tr>
+</table>
 
 ## Requests
 
@@ -140,6 +150,22 @@ A handler may be any object with a `request` method. This allows both stateful a
 
 <br>
 
-| | |
-| -- | -- |
-| [← Introduction](./1-overview.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Key Data Structures →](./3-data.md) |
+<br>
+
+---
+
+<br>
+
+<table>
+  <tr>
+    <td align="center" width="300">
+
+[← Overview](./2-overview.md)</td>
+   <td align="center" width="300">
+   
+[❖ Table of Contents](./0-index.md)</td>
+   <td align="center" width="300">
+
+[Key Data Structures →](./4-data.md)</td>
+  </tr>
+</table>
