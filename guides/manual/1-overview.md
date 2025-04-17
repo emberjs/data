@@ -1,9 +1,7 @@
 <table>
   <tr>
+    <td align="center" width="300"></td>
     <td align="center" width="300">
-
-[← Why](./1-why.md)</td>
-   <td align="center" width="300">
    
 [❖ Table of Contents](./0-index.md)</td>
    <td align="center" width="300">
@@ -16,7 +14,7 @@
 
 The capabilities WarpDrive provides will simplify even the most complex parts of your app's state management.
 
-Its innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
+Its innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/docs/svelte/what-are-runes), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
 [Preact](https://preactjs.com/guide/v10/signals/) or [Lit](https://lit.dev/docs/data/signals/).
 
 ```hbs
@@ -77,10 +75,8 @@ WarpDrive has been designed as a series of interfaces following the single-respo
 
 <table>
   <tr>
+    <td align="center" width="300"></td>
     <td align="center" width="300">
-
-[← Why](./1-why.md)</td>
-   <td align="center" width="300">
    
 [❖ Table of Contents](./0-index.md)</td>
    <td align="center" width="300">
