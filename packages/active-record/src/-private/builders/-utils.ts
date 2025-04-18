@@ -1,5 +1,6 @@
 import type { UrlOptions } from '@ember-data/request-utils';
-import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core-types/request';
+import type { ConstrainedRequestOptions } from '@warp-drive/core-types/builders';
+import type { CacheOptions } from '@warp-drive/core-types/request';
 
 export function copyForwardUrlOptions(urlOptions: UrlOptions, options: ConstrainedRequestOptions): void {
   if ('host' in options) {
@@ -14,12 +15,15 @@ export function copyForwardUrlOptions(urlOptions: UrlOptions, options: Constrain
 }
 
 export function extractCacheOptions(options: ConstrainedRequestOptions): CacheOptions {
-  const cacheOptions: CacheOptions = {};
+  const cacheOptions: CacheOptions = {
+    raw: false,
+  };
   if ('reload' in options) {
     cacheOptions.reload = options.reload;
   }
   if ('backgroundReload' in options) {
     cacheOptions.backgroundReload = options.backgroundReload;
   }
+
   return cacheOptions;
 }

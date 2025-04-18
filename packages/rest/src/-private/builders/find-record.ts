@@ -3,12 +3,12 @@
  */
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
 import { camelize, pluralize } from '@ember-data/request-utils/string';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type {
   FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@warp-drive/core-types/request';
+} from '@warp-drive/core-types/builders';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
@@ -96,6 +96,7 @@ export function findRecord<T>(
     typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
   const options: FindRecordOptions = (typeof arg1 === 'string' ? arg3 : (arg2 as FindRecordOptions)) || {};
   const cacheOptions = extractCacheOptions(options);
+  cacheOptions.records = [identifier];
   const urlOptions: FindRecordUrlOptions = {
     identifier,
     op: 'findRecord',
@@ -116,6 +117,5 @@ export function findRecord<T>(
     headers,
     cacheOptions,
     op: 'findRecord',
-    records: [identifier],
   };
 }
