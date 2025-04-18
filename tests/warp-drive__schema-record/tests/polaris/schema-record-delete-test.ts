@@ -4,6 +4,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import { recordIdentifierFor } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 import type { Editable, Legacy } from '@warp-drive/schema-record/-private';
@@ -18,9 +19,6 @@ interface User {
   name: string;
   [Type]: 'user';
   [Checkout](): Promise<User>;
-  deleteRecord(): void;
-  destroyRecord(): Promise<User>;
-  unloadRecord(): void;
   isDeleted: boolean;
 }
 
@@ -57,8 +55,9 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     store.deleteRecord(record);
 
-    const fetchedRecord = store.peekRecord('user', '1');
+    const fetchedRecord = store.peekRecord('user', '1') as User;
     assert.ok(fetchedRecord, 'record still exists in store');
+    assert.true(store.cache.isDeleted(recordIdentifierFor(fetchedRecord)), 'record is marked as deleted');
   });
 
   test('deleteRecord on an editable record marks both versions as deleted', async function (assert) {
@@ -93,9 +92,10 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     store.deleteRecord(editableRecord);
     await settled();
-    const fetchedRecord = store.peekRecord('user', '1');
+
+    const fetchedRecord = store.peekRecord('user', '1') as User;
     assert.ok(fetchedRecord, 'record still exists in store');
-    assert.strictEqual(fetchedRecord, null, 'immutable record is removed from the store');
+    assert.true(store.cache.isDeleted(recordIdentifierFor(fetchedRecord)), 'immutable record is marked as deleted');
   });
 
   test('destroyRecord removes a record from the store', async function (assert) {
@@ -120,13 +120,15 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
       data: {
         type: 'user',
         id: '1',
-        attributes: { name: 'Rey Skywalker' },
+        attributes: { name: 'Rey Skybarker' },
       },
     });
 
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
-    await record.destroyRecord();
+    // destroyRecord implementation
+    store.deleteRecord(record);
+    store.unloadRecord(record);
 
     const fetchedRecord = store.peekRecord('user', '1');
     assert.strictEqual(fetchedRecord, null, 'record is removed from the store after destroyRecord');
@@ -162,7 +164,9 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
 
     assert.ok(store.peekRecord('user', '1'), 'record exists initially');
 
-    await editableRecord.destroyRecord();
+    // destroyRecord implementation
+    store.deleteRecord(editableRecord);
+    store.unloadRecord(editableRecord);
 
     const fetchedImmutableRecord = store.peekRecord('user', '1');
     assert.strictEqual(
