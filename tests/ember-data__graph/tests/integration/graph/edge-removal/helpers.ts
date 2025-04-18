@@ -1,7 +1,7 @@
 // Remove this disable once @belongsTo is typed
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 
@@ -67,8 +67,8 @@ interface ExpectedTestOutcomes {
 interface TestState {
   chris: UserRecord;
   john: UserRecord;
-  chrisIdentifier: StableRecordIdentifier;
-  johnIdentifier: StableRecordIdentifier;
+  chrisIdentifier: ResourceCacheKey;
+  johnIdentifier: ResourceCacheKey;
   chrisInverseKey: string;
   johnInverseKey: string;
 }
@@ -106,7 +106,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   }
   owner.register('model:user', User);
 
-  let chris: UserRecord, john: UserRecord, johnIdentifier: StableRecordIdentifier;
+  let chris: UserRecord, john: UserRecord, johnIdentifier: ResourceCacheKey;
   if (!config.useCreate) {
     const data: CollectionResourceDocument<'user'> = {
       data: [

@@ -13,11 +13,7 @@ import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
 import type { HashFn } from '@warp-drive/core-types/schema/concepts';
@@ -36,7 +32,7 @@ type FakeRecord = { [key: string]: unknown; destroy: () => void };
 type UserRecord = {
   id: string;
   name: string;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceCacheKey;
   destroy: () => void;
   [Type]: 'user';
 };
@@ -78,7 +74,7 @@ class TestStore extends Store {
       derivation() {
         throw new Error('Method not implemented.');
       },
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+      fields(identifier: ResourceCacheKey | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
       hasTrait() {
@@ -105,14 +101,14 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceCacheKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
     const token = this.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+      (_: ResourceCacheKey, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
           record[key] = this.cache.getAttr(identifier, key);
         }
@@ -760,7 +756,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const identifier = store.identifierCache.getOrCreateRecordIdentifier({
         type: 'user',
         id: '1',
-      }) as StableExistingRecordIdentifier;
+      }) as ExistingResourceCacheKey;
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
@@ -816,13 +812,13 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
+        store.identifierCache.getRequestCacheKey({ url: '/assets/users/1.json' })!
       ) as unknown as StructuredDataDocument<ResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
         type: 'user',
         id: '2',
-      }) as StableExistingRecordIdentifier;
+      }) as ExistingResourceCacheKey;
 
       assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
       assert.strictEqual(updatedUserDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');
@@ -1370,7 +1366,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!
+        store.identifierCache.getRequestCacheKey({ url: '/assets/users/list.json' })!
       ) as unknown as StructuredDataDocument<CollectionResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
       const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
@@ -1601,7 +1597,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         Fetch,
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
+      const docIdentifier = store.identifierCache.getRequestCacheKey({ url: '/assets/users/2.json' })!;
 
       try {
         await store.request<CollectionRecordArray>({
@@ -1643,7 +1639,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
 
-      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
+      function getErrorPayload(lid?: string | RequestCacheKey) {
         if (lid) {
           if (typeof lid === 'string') {
             return {
@@ -1699,7 +1695,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const docIdentifier = store.identifierCache.getRequestCacheKey({
         url: '/assets/users/2.json?include=author',
       })!;
 
@@ -1751,7 +1747,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
 
-      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
+      function getErrorPayload(lid?: string | RequestCacheKey) {
         if (lid) {
           if (typeof lid === 'string') {
             return {
@@ -1817,7 +1813,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const docIdentifier = store.identifierCache.getRequestCacheKey({
         url: '/assets/users/2.json?include=author',
       })!;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
@@ -1917,7 +1913,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const documentIdentifier = store.identifierCache.getRequestCacheKey({
         url: '/assets/users/list.json',
       })!;
 
@@ -1973,7 +1969,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
       const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const documentIdentifier = store.identifierCache.getRequestCacheKey({
         url: '/assets/users/list.json',
       })!;
 

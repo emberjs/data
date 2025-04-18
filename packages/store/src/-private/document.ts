@@ -3,8 +3,8 @@
  */
 import { defineSubscription, notifySignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo, RequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
@@ -85,16 +85,16 @@ export class ReactiveDocument<T> {
    *
    * @property identifier
    * @public
-   * @type {StableDocumentIdentifier|null}
+   * @type {RequestCacheKey|null}
    */
-  declare readonly identifier: StableDocumentIdentifier | null;
+  declare readonly identifier: RequestCacheKey | null;
 
   declare protected readonly _store: Store;
   declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
 
   constructor(
     store: Store,
-    identifier: StableDocumentIdentifier | null,
+    identifier: RequestCacheKey | null,
     localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
   ) {
     this._store = store;
@@ -104,26 +104,23 @@ export class ReactiveDocument<T> {
     // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
     // in a destroy method
     if (identifier) {
-      store.notifications.subscribe(
-        identifier,
-        (_identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
-          switch (type) {
-            case 'updated':
-              // FIXME in the case of a collection we need to notify it's length
-              // and have it recalc
-              notifySignal(this, 'data');
-              notifySignal(this, 'links');
-              notifySignal(this, 'meta');
-              notifySignal(this, 'errors');
-              break;
-            case 'added':
-            case 'removed':
-            case 'invalidated':
-            case 'state':
-              break;
-          }
+      store.notifications.subscribe(identifier, (_identifier: RequestCacheKey, type: DocumentCacheOperation) => {
+        switch (type) {
+          case 'updated':
+            // FIXME in the case of a collection we need to notify it's length
+            // and have it recalc
+            notifySignal(this, 'data');
+            notifySignal(this, 'links');
+            notifySignal(this, 'meta');
+            notifySignal(this, 'errors');
+            break;
+          case 'added':
+          case 'removed':
+          case 'invalidated':
+          case 'state':
+            break;
         }
-      );
+      });
     }
   }
 
@@ -281,7 +278,7 @@ defineSubscription(ReactiveDocument.prototype, 'data', {
         identifier: identifier ?? null,
       }) as T;
     } else if (data) {
-      return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
+      return this._store.peekRecord(data as unknown as ResourceCacheKey) as T;
     } else {
       return data;
     }

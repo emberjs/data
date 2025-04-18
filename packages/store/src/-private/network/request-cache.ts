@@ -4,7 +4,7 @@
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types/identifier';
 
 import type { FindRecordOptions } from '../../-types/q/store';
 import type { Store } from '../store-service';
@@ -16,7 +16,7 @@ const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as Reque
 export interface Operation {
   op: string;
   options: FindRecordOptions | undefined;
-  recordIdentifier: StableRecordIdentifier;
+  recordIdentifier: ResourceCacheKey;
 }
 
 export interface FindRecordQuery extends Operation {
@@ -47,7 +47,7 @@ export interface Response {
 }
 
 interface InternalRequest extends RequestState {
-  [Touching]: StableRecordIdentifier[];
+  [Touching]: ResourceCacheKey[];
   [RequestPromise]?: Promise<unknown>;
 }
 
@@ -66,9 +66,9 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
  * @public
  */
 export class RequestStateService {
-  _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();
+  _pending: Map<ResourceCacheKey, InternalRequest[]> = new Map();
+  _done: Map<ResourceCacheKey, InternalRequest[]> = new Map();
+  _subscriptions: Map<ResourceCacheKey, RequestSubscription[]> = new Map();
   _toFlush: InternalRequest[] = [];
   _store: Store;
 
@@ -76,7 +76,7 @@ export class RequestStateService {
     this._store = store;
   }
 
-  _clearEntries(identifier: StableRecordIdentifier) {
+  _clearEntries(identifier: ResourceCacheKey) {
     this._done.delete(identifier);
   }
 
@@ -151,7 +151,7 @@ export class RequestStateService {
   }
 
   _flushRequest(req: InternalRequest): void {
-    req[Touching].forEach((identifier: StableRecordIdentifier) => {
+    req[Touching].forEach((identifier: ResourceCacheKey) => {
       const subscriptions = this._subscriptions.get(identifier);
       if (subscriptions) {
         subscriptions.forEach((callback) => callback(req));
@@ -159,7 +159,7 @@ export class RequestStateService {
     });
   }
 
-  _dequeue(identifier: StableRecordIdentifier, request: InternalRequest) {
+  _dequeue(identifier: ResourceCacheKey, request: InternalRequest) {
     const pending = this._pending.get(identifier)!;
     this._pending.set(
       identifier,
@@ -217,10 +217,10 @@ export class RequestStateService {
    *
    * @method subscribeForRecord
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @param {(state: RequestState) => void} callback
    */
-  subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription) {
+  subscribeForRecord(identifier: ResourceCacheKey, callback: RequestSubscription) {
     let subscriptions = this._subscriptions.get(identifier);
     if (!subscriptions) {
       subscriptions = [];
@@ -234,10 +234,10 @@ export class RequestStateService {
    *
    * @method getPendingRequestsForRecord
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @return {RequestState[]} an array of request states for any pending requests for the given identifier
    */
-  getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestState[] {
+  getPendingRequestsForRecord(identifier: ResourceCacheKey): RequestState[] {
     return this._pending.get(identifier) || EMPTY_ARR;
   }
 
@@ -246,10 +246,10 @@ export class RequestStateService {
    *
    * @method getLastRequestForRecord
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceCacheKey} identifier
    * @return {RequestState | null} the state of the most recent request for the given identifier
    */
-  getLastRequestForRecord(identifier: StableRecordIdentifier): RequestState | null {
+  getLastRequestForRecord(identifier: ResourceCacheKey): RequestState | null {
     const requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];

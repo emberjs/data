@@ -1,5 +1,5 @@
 import { getOrSetGlobal, getOrSetUniversal } from './-private';
-import type { StableRecordIdentifier } from './identifier';
+import type { ResourceCacheKey } from './identifier';
 import type { QueryParamsSerializationOptions } from './params';
 import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
 import type { ResourceIdentifierObject } from './spec/json-api-raw';
@@ -119,7 +119,7 @@ export type DeleteRequestOptions<T = unknown, RT = unknown> = {
   op: 'deleteRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceCacheKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -127,7 +127,7 @@ export type DeleteRequestOptions<T = unknown, RT = unknown> = {
 
 type ImmutableRequest<T> = Readonly<T> & {
   readonly headers: ImmutableHeaders;
-  readonly records: [StableRecordIdentifier];
+  readonly records: [ResourceCacheKey];
 };
 
 export type UpdateRequestOptions<T = unknown, RT = unknown> = {
@@ -137,7 +137,7 @@ export type UpdateRequestOptions<T = unknown, RT = unknown> = {
   op: 'updateRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceCacheKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -150,7 +150,7 @@ export type CreateRequestOptions<T = unknown, RT = unknown> = {
   op: 'createRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceCacheKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -299,7 +299,7 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
    *
    * @typedoc
    */
-  records?: StableRecordIdentifier[];
+  records?: ResourceCacheKey[];
 
   disableTestWaiter?: boolean;
   /**

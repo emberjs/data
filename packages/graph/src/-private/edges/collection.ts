@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -9,19 +9,19 @@ import { createState } from '../-state';
 
 export interface CollectionEdge {
   definition: UpgradedMeta;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceCacheKey;
   state: RelationshipState;
 
-  remoteMembers: Set<StableRecordIdentifier>;
-  remoteState: StableRecordIdentifier[];
+  remoteMembers: Set<ResourceCacheKey>;
+  remoteState: ResourceCacheKey[];
 
-  additions: Set<StableRecordIdentifier> | null;
-  removals: Set<StableRecordIdentifier> | null;
+  additions: Set<ResourceCacheKey> | null;
+  removals: Set<ResourceCacheKey> | null;
 
   meta: Meta | null;
   links: Links | PaginationLinks | null;
 
-  localState: StableRecordIdentifier[] | null;
+  localState: ResourceCacheKey[] | null;
   /**
    * Whether the localState for this edge is out-of-sync
    * with the remoteState.
@@ -42,12 +42,12 @@ export interface CollectionEdge {
   accessed: boolean;
 
   _diff?: {
-    add: Set<StableRecordIdentifier>;
-    del: Set<StableRecordIdentifier>;
+    add: Set<ResourceCacheKey>;
+    del: Set<ResourceCacheKey>;
   };
 }
 
-export function createCollectionEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): CollectionEdge {
+export function createCollectionEdge(definition: UpgradedMeta, identifier: ResourceCacheKey): CollectionEdge {
   return {
     definition,
     identifier,

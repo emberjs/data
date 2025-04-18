@@ -1,9 +1,9 @@
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey } from '@warp-drive/core-types/identifier';
 
-export function assertIdentifierHasId(identifier: unknown): asserts identifier is StableExistingRecordIdentifier {
+export function assertIdentifierHasId(identifier: unknown): asserts identifier is ExistingResourceCacheKey {
   assert(
     `Attempted to schedule a fetch for a record without an id.`,
-    identifier && (identifier as StableExistingRecordIdentifier).id !== null
+    identifier && (identifier as ExistingResourceCacheKey).id !== null
   );
 }

@@ -5,7 +5,7 @@ import { peekCache } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
@@ -77,7 +77,7 @@ export function assertValidRelationshipPayload(
   }
 }
 
-export function isNew(identifier: StableRecordIdentifier): boolean {
+export function isNew(identifier: ResourceCacheKey): boolean {
   if (!identifier.id) {
     return true;
   }
@@ -97,7 +97,7 @@ export function isHasMany(relationship: GraphEdge): relationship is CollectionEd
   return relationship.definition.kind === 'hasMany';
 }
 
-export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: StableRecordIdentifier) => void): void {
+export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: ResourceCacheKey) => void): void {
   if (isBelongsTo(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
@@ -133,7 +133,7 @@ export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: Stable
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
   relationship: GraphEdge,
-  value: StableRecordIdentifier,
+  value: ResourceCacheKey,
   silenceNotifications?: boolean
 ): void {
   if (isBelongsTo(relationship)) {
@@ -203,7 +203,7 @@ export function notifyChange(graph: Graph, relationship: CollectionEdge | Resour
 
 export function assertRelationshipData(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   data: ResourceIdentifierObject,
   meta: UpgradedMeta
 ) {

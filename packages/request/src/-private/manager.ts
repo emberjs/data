@@ -429,7 +429,7 @@ import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { peekUniversalTransient, setUniversalTransient } from '@warp-drive/core-types/-private';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
 import { assertValidRequest } from './debug';
@@ -525,7 +525,7 @@ export class RequestManager {
    * @internal
    */
   declare _pending: Map<number, Promise<unknown>>;
-  declare _deduped: Map<StableDocumentIdentifier, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
+  declare _deduped: Map<RequestCacheKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);

@@ -1,7 +1,7 @@
 import type Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type {
   CollectionField,
   FieldSchema,
@@ -374,7 +374,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 
 export function upgradeDefinition(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   propertyName: string,
   isImplicit = false
 ): EdgeDefinition | null {
@@ -586,7 +586,7 @@ export function upgradeDefinition(
   return info;
 }
 
-function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
+function inverseForRelationship(store: Store, identifier: ResourceCacheKey | { type: string }, key: string) {
   const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;

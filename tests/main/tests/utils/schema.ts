@@ -1,6 +1,6 @@
 import type { SchemaService } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import {
@@ -50,7 +50,7 @@ export class TestSchema implements SchemaService {
     this._assert?.step('TestSchema:resourceTypes');
     return [...this._schemas.keys()];
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceCacheKey | { type: string }, trait: string): boolean {
     this._assert?.step('TestSchema:resourceHasTrait');
     return this._schemas.get(resource.type)!.traits.has(trait);
   }
@@ -105,7 +105,7 @@ export class TestSchema implements SchemaService {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceCacheKey | { type: string }): ResourceSchema | ObjectSchema {
     this._assert?.step('TestSchema:resource');
     assert(`No resource registered with name ${resource.type}`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;

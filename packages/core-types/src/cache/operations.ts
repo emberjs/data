@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, StableExistingRecordIdentifier, StableRecordIdentifier } from '../identifier';
+import type { RequestCacheKey, ExistingResourceCacheKey, ResourceCacheKey } from '../identifier';
 import type { Value } from '../json/raw';
 import type { ExistingResourceObject } from '../spec/json-api-raw';
 import type { Relationship } from './relationship';
@@ -18,75 +18,75 @@ export interface Op {
 export interface MergeOperation extends Op {
   op: 'mergeIdentifiers';
   // existing
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   // new
-  value: StableRecordIdentifier;
+  value: ResourceCacheKey;
 }
 
 export interface RemoveDocumentOperation extends Op {
   op: 'remove';
-  record: StableDocumentIdentifier;
+  record: RequestCacheKey;
 }
 
 export interface RemoveResourceOperation extends Op {
   op: 'remove';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
 }
 
 export interface AddResourceOperation extends Op {
   op: 'add';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   value: ExistingResourceObject;
 }
 
 export interface UpdateResourceOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   value: ExistingResourceObject;
 }
 
 export interface UpdateResourceFieldOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   field: string;
   value: Value;
 }
 
 export interface UpdateResourceRelationshipOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   field: string;
-  value: Relationship<StableExistingRecordIdentifier>;
+  value: Relationship<ExistingResourceCacheKey>;
 }
 
 export interface AddToDocumentOperation extends Op {
   op: 'add';
-  record: StableDocumentIdentifier;
+  record: RequestCacheKey;
   field: 'data' | 'included';
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: ExistingResourceCacheKey | ExistingResourceCacheKey[];
   index?: number;
 }
 export interface AddToResourceRelationshipOperation extends Op {
   op: 'add';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   field: string;
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: ExistingResourceCacheKey | ExistingResourceCacheKey[];
   index?: number;
 }
 
 export interface RemoveFromResourceRelationshipOperation extends Op {
   op: 'remove';
-  record: StableExistingRecordIdentifier;
+  record: ExistingResourceCacheKey;
   field: string;
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: ExistingResourceCacheKey | ExistingResourceCacheKey[];
   index?: number;
 }
 
 export interface RemoveFromDocumentOperation extends Op {
   op: 'remove';
-  record: StableDocumentIdentifier;
+  record: RequestCacheKey;
   field: 'data' | 'included';
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: ExistingResourceCacheKey | ExistingResourceCacheKey[];
   index?: number;
 }
 

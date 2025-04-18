@@ -3,7 +3,7 @@ import { recordIdentifierFor } from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance } from '@warp-drive/core-types/record';
@@ -186,8 +186,8 @@ export function registerDerivations(schema: SchemaService) {
 }
 
 export interface DelegatingSchemaService {
-  attributesDefinitionFor?(resource: StableRecordIdentifier | { type: string }): AttributesSchema;
-  relationshipsDefinitionFor?(resource: StableRecordIdentifier | { type: string }): RelationshipsSchema;
+  attributesDefinitionFor?(resource: ResourceCacheKey | { type: string }): AttributesSchema;
+  relationshipsDefinitionFor?(resource: ResourceCacheKey | { type: string }): RelationshipsSchema;
   doesTypeExist?(type: string): boolean;
 }
 export class DelegatingSchemaService implements SchemaService {
@@ -203,7 +203,7 @@ export class DelegatingSchemaService implements SchemaService {
     return Array.from(new Set(this._preferred.resourceTypes().concat(this._secondary.resourceTypes())));
   }
 
-  hasResource(resource: StableRecordIdentifier | { type: string }): boolean {
+  hasResource(resource: ResourceCacheKey | { type: string }): boolean {
     return this._preferred.hasResource(resource) || this._secondary.hasResource(resource);
   }
   hasTrait(type: string): boolean {
@@ -212,13 +212,13 @@ export class DelegatingSchemaService implements SchemaService {
     }
     return this._secondary.hasTrait(type);
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceCacheKey | { type: string }, trait: string): boolean {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.resourceHasTrait(resource, trait);
     }
     return this._secondary.resourceHasTrait(resource, trait);
   }
-  fields(resource: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(resource: ResourceCacheKey | { type: string }): Map<string, FieldSchema> {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.fields(resource);
     }
@@ -233,7 +233,7 @@ export class DelegatingSchemaService implements SchemaService {
   derivation(field: DerivedField | { type: string }): Derivation {
     return this._preferred.derivation(field);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceCacheKey | { type: string }): ResourceSchema | ObjectSchema {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.resource(resource);
     }
@@ -257,9 +257,7 @@ export class DelegatingSchemaService implements SchemaService {
 }
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
-  DelegatingSchemaService.prototype.attributesDefinitionFor = function (
-    resource: StableRecordIdentifier | { type: string }
-  ) {
+  DelegatingSchemaService.prototype.attributesDefinitionFor = function (resource: ResourceCacheKey | { type: string }) {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.attributesDefinitionFor!(resource);
     }
@@ -267,7 +265,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     return this._secondary.attributesDefinitionFor!(resource);
   };
   DelegatingSchemaService.prototype.relationshipsDefinitionFor = function (
-    resource: StableRecordIdentifier | { type: string }
+    resource: ResourceCacheKey | { type: string }
   ) {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.relationshipsDefinitionFor!(resource);

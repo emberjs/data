@@ -9,7 +9,7 @@ import {
   withDefaults as withLegacy,
 } from '@ember-data/model/migration-support';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
 
@@ -97,7 +97,7 @@ module('Legacy | Reads | basic fields', function (hooks) {
         assert.ok(false, 'unexpected hydrate');
         throw new Error('unexpected hydrate');
       },
-      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: ResourceCacheKey): string {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },

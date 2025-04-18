@@ -3,7 +3,7 @@ import RequestManager from '@ember-data/request';
 import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { module, test } from '@warp-drive/diagnostic';
 import { WorkerFetch } from '@warp-drive/experiments/worker-fetch';
 import { MockServerHandler } from '@warp-drive/holodeck';
@@ -69,7 +69,7 @@ module('Unit | DataWorker | Serialization & Persistence', function (_hooks) {
         return schema;
       }
 
-      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
+      instantiateRecord(identifier: ResourceCacheKey, createRecordArgs: { [key: string]: unknown }): unknown {
         return instantiateRecord(this, identifier, createRecordArgs);
       }
 

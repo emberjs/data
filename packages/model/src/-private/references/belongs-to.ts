@@ -4,8 +4,8 @@ import type { NotificationType } from '@ember-data/store';
 import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
+import type { ExistingResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   LinkObject,
@@ -93,7 +93,7 @@ export default class BelongsToReference<
 
   // unsubscribe tokens given to us by the notification manager
   declare ___token: object;
-  declare ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  declare ___identifier: ResourceCacheKey<TypeFromInstanceOrString<T>>;
   declare ___relatedToken: object | null;
 
   declare _ref: number;
@@ -101,7 +101,7 @@ export default class BelongsToReference<
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
+    parentIdentifier: ResourceCacheKey<TypeFromInstanceOrString<T>>,
     belongsToRelationship: ResourceEdge,
     key: K
   ) {
@@ -115,7 +115,7 @@ export default class BelongsToReference<
 
     this.___token = store.notifications.subscribe(
       parentIdentifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+      (_: ResourceCacheKey, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
           this._ref++;
         }
@@ -140,12 +140,12 @@ export default class BelongsToReference<
    * The identifier of the record that this reference refers to.
    * `null` if no related record is known.
    *
-   * @property {StableRecordIdentifier | null} identifier
+   * @property {ResourceCacheKey | null} identifier
    * @public
    */
   @cached
   @compat
-  get identifier(): StableRecordIdentifier<TypeFromInstanceOrString<Related>> | null {
+  get identifier(): ResourceCacheKey<TypeFromInstanceOrString<Related>> | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
@@ -156,14 +156,14 @@ export default class BelongsToReference<
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
       this.___relatedToken = this.store.notifications.subscribe(
         identifier,
-        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        (_: ResourceCacheKey, bucket: NotificationType, notifiedKey?: string) => {
           if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
             this._ref++;
           }
         }
       );
 
-      return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
+      return identifier as ResourceCacheKey<TypeFromInstanceOrString<Related>>;
     }
 
     return null;
@@ -330,7 +330,7 @@ export default class BelongsToReference<
     this._ref; // subscribe
     const cache = this.store.cache;
     return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship<
-      StableRecordIdentifier<TypeFromInstance<Related>>
+      ResourceCacheKey<TypeFromInstance<Related>>
     >;
   }
 
@@ -481,9 +481,9 @@ export default class BelongsToReference<
     const { store } = this;
     const isResourceData = doc.data && isMaybeResource(doc.data);
     const added = isResourceData
-      ? (store._push(doc, true) as StableExistingRecordIdentifier)
+      ? (store._push(doc, true) as ExistingResourceCacheKey)
       : doc.data
-        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
+        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as ExistingResourceCacheKey)
         : null;
     const { identifier } = this.belongsToRelationship;
 
@@ -635,9 +635,7 @@ export default class BelongsToReference<
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   async load(options?: Record<string, unknown>): Promise<Related | null> {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceCacheKey, LegacySupport>).get(this.___identifier)!;
     const fetchSyncRel =
       !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
@@ -698,9 +696,7 @@ export default class BelongsToReference<
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options?: Record<string, unknown>) {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceCacheKey, LegacySupport>).get(this.___identifier)!;
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }

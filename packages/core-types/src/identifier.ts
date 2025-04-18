@@ -33,9 +33,19 @@ export interface NewRecordIdentifier<T extends string = string> extends Identifi
   type: T;
 }
 
-export type StableDocumentIdentifier = {
+/**
+ * Represents a CacheKey for a Request.
+ *
+ * This CacheKey is used both to identify the originating request
+ * and the content returned in the response.
+ *
+ * @typedoc
+ */
+export interface RequestCacheKey {
   lid: string;
-};
+  type: '@document';
+  [CACHE_OWNER]: number | undefined;
+}
 
 /**
  * An Identifier specific to a record which may or may not
@@ -55,12 +65,16 @@ export type RecordIdentifier<T extends string = string> = ExistingRecordIdentifi
  *
  * @internal
  */
-export interface StableIdentifier extends Identifier {
+interface ResourceCacheKeyBase<T extends string = string> extends Identifier {
+  type: T;
+  [CACHE_OWNER]: number | undefined;
   [DEBUG_IDENTIFIER_BUCKET]?: string;
+  [DEBUG_CLIENT_ORIGINATED]?: boolean;
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**
- * Used when a StableRecordIdentifier was not created locally as part
+ * Used when a ResourceCacheKey was not created locally as part
  * of a call to store.createRecord
  *
  * Distinguishing between this Identifier and one for a client created
@@ -69,31 +83,23 @@ export interface StableIdentifier extends Identifier {
  *
  * @internal
  */
-export interface StableExistingRecordIdentifier<T extends string = string> extends StableIdentifier {
+export interface ExistingResourceCacheKey<T extends string = string> extends ResourceCacheKeyBase<T> {
   id: string;
-  type: T;
-  [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  [CACHE_OWNER]: number | undefined;
-  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**
- * Used when a StableRecordIdentifier was created locally
+ * Used when a ResourceCacheKey was created locally
  * (by a call to store.createRecord).
  *
- * It is possible in rare circumstances to have a StableRecordIdentifier
+ * It is possible in rare circumstances to have a ResourceCacheKey
  * that is not for a new record but does not have an ID. This would
  * happen if a user intentionally created one for use with a secondary-index
  * prior to the record having been fully loaded.
  *
  * @internal
  */
-export interface StableNewRecordIdentifier<T extends string = string> extends StableIdentifier {
+export interface NewResourceCacheKey<T extends string = string> extends ResourceCacheKeyBase<T> {
   id: string | null;
-  type: T;
-  [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  [CACHE_OWNER]: number | undefined;
-  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**
@@ -103,7 +109,7 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
  * Every record instance has a unique identifier, and identifiers may refer
  * to data that has never been loaded (for instance, in an async relationship).
  *
- * @class StableRecordIdentifier
+ * @class ResourceCacheKey
  * @public
  */
 
@@ -126,6 +132,4 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
  * @property {string | null} id
  * @public
  */
-export type StableRecordIdentifier<T extends string = string> =
-  | StableExistingRecordIdentifier<T>
-  | StableNewRecordIdentifier<T>;
+export type ResourceCacheKey<T extends string = string> = ExistingResourceCacheKey<T> | NewResourceCacheKey<T>;

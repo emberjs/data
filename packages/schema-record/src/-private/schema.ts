@@ -10,7 +10,7 @@ import type { Signal } from '@ember-data/tracking/-private';
 import { Signals } from '@ember-data/tracking/-private';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn } from '@warp-drive/core-types/schema/concepts';
@@ -114,13 +114,13 @@ export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): R
  */
 export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
 export function fromIdentity(record: SchemaRecord, options: { key: 'id' }, key: string): string | null;
-export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): StableRecordIdentifier;
+export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): ResourceCacheKey;
 export function fromIdentity(record: SchemaRecord, options: null, key: string): asserts options;
 export function fromIdentity(
   record: SchemaRecord,
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
   key: string
-): StableRecordIdentifier | string | null {
+): ResourceCacheKey | string | null {
   const identifier = record[Identifier];
   assert(`Cannot compute @identity for a record without an identifier`, identifier);
   assert(
@@ -157,7 +157,7 @@ interface InternalSchema {
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
   hydrate(value: T | undefined, options: Record<string, unknown> | null, record: SchemaRecord): PT;
-  defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
+  defaultValue?(options: Record<string, unknown> | null, identifier: ResourceCacheKey): T;
   [Type]: string;
 };
 
@@ -220,7 +220,7 @@ export class SchemaService implements SchemaServiceInterface {
   hasTrait(type: string): boolean {
     return this._traits.has(type);
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceCacheKey | { type: string }, trait: string): boolean {
     return this._schemas.get(resource.type)!.traits.has(trait);
   }
   transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
@@ -274,7 +274,7 @@ export class SchemaService implements SchemaServiceInterface {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceCacheKey | { type: string }): ResourceSchema | ObjectSchema {
     assert(`No resource registered with name '${resource.type}'`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }

@@ -1,5 +1,5 @@
 import type Store from '@ember-data/store';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
   ImmutableDeleteRequestOptions,
@@ -20,7 +20,7 @@ export function calcShouldFetch(
   store: Store,
   request: ImmutableRequestInfo,
   hasCachedValue: boolean,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestCacheKey | null
 ): boolean {
   const { cacheOptions } = request;
   return (

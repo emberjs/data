@@ -14,13 +14,12 @@ import {
   DEBUG_CLIENT_ORIGINATED,
   DEBUG_IDENTIFIER_BUCKET,
   DEBUG_STALE_CACHE_OWNER,
+  type ExistingResourceCacheKey,
   type Identifier,
   type IdentifierBucket,
   type RecordIdentifier,
-  type StableDocumentIdentifier,
-  type StableExistingRecordIdentifier,
-  type StableIdentifier,
-  type StableRecordIdentifier,
+  type RequestCacheKey,
+  type ResourceCacheKey,
 } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type {
@@ -47,17 +46,19 @@ type ResourceData = unknown;
 type TypeFromIdentifier<T> = T extends { type: infer U } ? U : string;
 
 type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
-  ? StableExistingRecordIdentifier<TypeFromIdentifier<T>>
-  : StableRecordIdentifier;
+  ? ExistingResourceCacheKey<TypeFromIdentifier<T>>
+  : ResourceCacheKey;
 
-const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
-
-export function isStableIdentifier(identifier: unknown): identifier is StableRecordIdentifier {
-  return (identifier as StableRecordIdentifier)[CACHE_OWNER] !== undefined;
+export function isResourceCacheKey(identifier: unknown): identifier is ResourceCacheKey {
+  return (
+    (identifier as ResourceCacheKey).type !== '@document' && (identifier as ResourceCacheKey)[CACHE_OWNER] !== undefined
+  );
 }
 
-export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
-  return DOCUMENTS.has(identifier);
+export function isRequestCacheKey(identifier: unknown): identifier is RequestCacheKey {
+  return (
+    (identifier as RequestCacheKey).type === '@document' && (identifier as RequestCacheKey)[CACHE_OWNER] !== undefined
+  );
 }
 
 const isFastBoot = typeof FastBoot !== 'undefined';
@@ -88,22 +89,22 @@ interface KeyOptions {
 }
 type TypeMap = { [key: string]: KeyOptions };
 
-// type IdentifierTypeLookup = { all: Set<StableRecordIdentifier>; id: Map<string, StableRecordIdentifier> };
+// type IdentifierTypeLookup = { all: Set<ResourceCacheKey>; id: Map<string, ResourceCacheKey> };
 // type IdentifiersByType = Map<string, IdentifierTypeLookup>;
-type IdentifierMap = Map<string, StableRecordIdentifier>;
+type IdentifierMap = Map<string, ResourceCacheKey>;
 
 type StableCache = {
   resources: IdentifierMap;
-  documents: Map<string, StableDocumentIdentifier>;
+  documents: Map<string, RequestCacheKey>;
   resourcesByType: TypeMap;
   polymorphicLidBackMap: Map<string, string[]>;
 };
 
 export type MergeMethod = (
-  targetIdentifier: StableRecordIdentifier,
-  matchedIdentifier: StableRecordIdentifier,
+  targetIdentifier: ResourceCacheKey,
+  matchedIdentifier: ResourceCacheKey,
   resourceData: unknown
-) => StableRecordIdentifier;
+) => ResourceCacheKey;
 
 export function setIdentifierGenerationMethod(method: GenerationMethod | null): void {
   setTransient('configuredGenerationMethod', method);
@@ -136,7 +137,7 @@ const NEW_IDENTIFIERS: TypeIdMap = new Map();
 // TODO @runspired maybe needs peekTransient ?
 let IDENTIFIER_CACHE_ID = 0;
 
-function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentifier, id: string): void {
+function updateTypeIdMapping(typeMap: TypeIdMap, identifier: ResourceCacheKey, id: string): void {
   let idMap = typeMap.get(identifier.type);
   if (!idMap) {
     idMap = new Map();
@@ -145,22 +146,16 @@ function updateTypeIdMapping(typeMap: TypeIdMap, identifier: StableRecordIdentif
   idMap.set(id, identifier.lid);
 }
 
-function defaultUpdateMethod(identifier: StableRecordIdentifier, data: unknown, bucket: 'record'): void;
-function defaultUpdateMethod(identifier: StableIdentifier, newData: unknown, bucket: never): void;
-function defaultUpdateMethod(
-  identifier: StableIdentifier | StableRecordIdentifier,
-  data: unknown,
-  bucket: 'record'
-): void {
+function defaultUpdateMethod(identifier: ResourceCacheKey, data: unknown, bucket: 'record'): void {
   if (bucket === 'record') {
-    assert(`Expected identifier to be a StableRecordIdentifier`, isStableIdentifier(identifier));
+    assert(`Expected identifier to be a ResourceCacheKey`, isResourceCacheKey(identifier));
     if (!identifier.id && hasId(data)) {
       updateTypeIdMapping(NEW_IDENTIFIERS, identifier, data.id);
     }
   }
 }
 
-function defaultKeyInfoMethod(resource: unknown, known: StableRecordIdentifier | null): KeyInfo {
+function defaultKeyInfoMethod(resource: unknown, known: ResourceCacheKey | null): KeyInfo {
   // TODO RFC something to make this configurable
   const id = hasId(resource) ? coerceId(resource.id) : null;
   const type = hasType(resource) ? normalizeModelName(resource.type) : known ? known.type : null;
@@ -205,17 +200,13 @@ function defaultGenerationMethod(
 }
 
 function defaultEmptyCallback(...args: unknown[]): void {}
-function defaultMergeMethod(
-  a: StableRecordIdentifier,
-  _b: StableRecordIdentifier,
-  _c: unknown
-): StableRecordIdentifier {
+function defaultMergeMethod(a: ResourceCacheKey, _b: ResourceCacheKey, _c: unknown): ResourceCacheKey {
   return a;
 }
 
-let DEBUG_MAP: WeakMap<StableRecordIdentifier, StableRecordIdentifier>;
+let DEBUG_MAP: WeakMap<ResourceCacheKey, ResourceCacheKey>;
 if (DEBUG) {
-  DEBUG_MAP = getOrSetGlobal('DEBUG_MAP', new WeakMap<StableRecordIdentifier, StableRecordIdentifier>());
+  DEBUG_MAP = getOrSetGlobal('DEBUG_MAP', new WeakMap<ResourceCacheKey, ResourceCacheKey>());
 }
 
 /**
@@ -254,9 +245,9 @@ export class IdentifierCache {
     this._id = IDENTIFIER_CACHE_ID++;
 
     this._cache = {
-      resources: new Map<string, StableRecordIdentifier>(),
+      resources: new Map<string, ResourceCacheKey>(),
       resourcesByType: Object.create(null) as TypeMap,
-      documents: new Map<string, StableDocumentIdentifier>(),
+      documents: new Map<string, RequestCacheKey>(),
       polymorphicLidBackMap: new Map<string, string[]>(),
     };
   }
@@ -274,7 +265,7 @@ export class IdentifierCache {
     this._merge = method || defaultMergeMethod;
   }
 
-  upgradeIdentifier(resource: { type: string; id: string | null; lid?: string }): StableRecordIdentifier {
+  upgradeIdentifier(resource: { type: string; id: string | null; lid?: string }): ResourceCacheKey {
     return this._getRecordIdentifier(resource, 2);
   }
 
@@ -285,16 +276,16 @@ export class IdentifierCache {
   _getRecordIdentifier(
     resource: { type: string; id: string | null; lid?: string },
     shouldGenerate: 2
-  ): StableRecordIdentifier;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 1): StableRecordIdentifier;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 0): StableRecordIdentifier | undefined;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): StableRecordIdentifier | undefined {
+  ): ResourceCacheKey;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 1): ResourceCacheKey;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0): ResourceCacheKey | undefined;
+  _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): ResourceCacheKey | undefined {
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
     }
     // short circuit if we're already the stable version
-    if (isStableIdentifier(resource)) {
+    if (isResourceCacheKey(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
         if (!this._cache.resources.has(resource.lid) || this._cache.resources.get(resource.lid) !== resource) {
@@ -317,7 +308,7 @@ export class IdentifierCache {
       console.log(`Identifiers: ${lid ? 'no ' : ''}lid ${lid ? lid + ' ' : ''}determined for resource`, resource);
     }
 
-    let identifier: StableRecordIdentifier | null = /*#__NOINLINE__*/ getIdentifierFromLid(this._cache, lid, resource);
+    let identifier: ResourceCacheKey | null = /*#__NOINLINE__*/ getIdentifierFromLid(this._cache, lid, resource);
     if (identifier !== null) {
       if (LOG_IDENTIFIERS) {
         // eslint-disable-next-line no-console
@@ -336,15 +327,15 @@ export class IdentifierCache {
 
     // if we still don't have an identifier, time to generate one
     if (shouldGenerate === 2) {
-      (resource as StableRecordIdentifier).lid = lid;
-      (resource as StableRecordIdentifier)[CACHE_OWNER] = this._id;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as StableRecordIdentifier, 'record', false);
+      (resource as ResourceCacheKey).lid = lid;
+      (resource as ResourceCacheKey)[CACHE_OWNER] = this._id;
+      identifier = /*#__NOINLINE__*/ makeResourceCacheKey(resource as ResourceCacheKey, 'record', false);
     } else {
       // we lie a bit here as a memory optimization
-      const keyInfo = this._keyInfoForResource(resource, null) as StableRecordIdentifier;
+      const keyInfo = this._keyInfoForResource(resource, null) as ResourceCacheKey;
       keyInfo.lid = lid;
       keyInfo[CACHE_OWNER] = this._id;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
+      identifier = /*#__NOINLINE__*/ makeResourceCacheKey(keyInfo, 'record', false);
     }
 
     addResourceToCache(this._cache, identifier);
@@ -364,23 +355,23 @@ export class IdentifierCache {
    *
    * @method peekRecordIdentifier
    * @param resource
-   * @return {StableRecordIdentifier | undefined}
+   * @return {ResourceCacheKey | undefined}
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
+  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): ResourceCacheKey | undefined {
     return this._getRecordIdentifier(resource, 0);
   }
 
   /**
-    Returns the DocumentIdentifier for the given Request, creates one if it does not yet exist.
+    Returns the RequestCacheKey for the given Request, creates one if it does not yet exist.
     Returns `null` if the request does not have a `cacheKey` or `url`.
 
-    @method getOrCreateDocumentIdentifier
+    @method getRequestCacheKey
     @param request
-    @return {StableDocumentIdentifier | null}
+    @return {RequestCacheKey | null}
     @public
   */
-  getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
+  getRequestCacheKey(request: ImmutableRequestInfo): RequestCacheKey | null {
     let cacheKey: string | null | undefined = request.cacheOptions?.key;
 
     if (!cacheKey) {
@@ -394,11 +385,12 @@ export class IdentifierCache {
     let identifier = this._cache.documents.get(cacheKey);
 
     if (identifier === undefined) {
-      identifier = { lid: cacheKey };
+      // once we enable removing requests from the cache we will
+      // need to add a similar proxy and forget capability
+      identifier = { lid: cacheKey, type: '@document', [CACHE_OWNER]: this._id };
       if (DEBUG) {
         Object.freeze(identifier);
       }
-      DOCUMENTS.add(identifier);
       this._cache.documents.set(cacheKey, identifier);
     }
 
@@ -417,7 +409,7 @@ export class IdentifierCache {
 
     @method getOrCreateRecordIdentifier
     @param resource
-    @return {StableRecordIdentifier}
+    @return {ResourceCacheKey}
     @public
   */
   getOrCreateRecordIdentifier<T>(resource: T): NarrowIdentifierIfPossible<T> {
@@ -434,12 +426,12 @@ export class IdentifierCache {
 
    @method createIdentifierForNewRecord
    @param data
-   @return {StableRecordIdentifier}
+   @return {ResourceCacheKey}
    @public
   */
-  createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
+  createIdentifierForNewRecord(data: { type: string; id?: string | null }): ResourceCacheKey {
     const newLid = this._generate(data, 'record');
-    const identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+    const identifier = /*#__NOINLINE__*/ makeResourceCacheKey(
       { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
       'record',
       true
@@ -481,10 +473,10 @@ export class IdentifierCache {
     @method updateRecordIdentifier
     @param identifierObject
     @param data
-    @return {StableRecordIdentifier}
+    @return {ResourceCacheKey}
     @public
   */
-  updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): StableRecordIdentifier {
+  updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): ResourceCacheKey {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     const keyInfo = this._keyInfoForResource(data, identifier);
@@ -558,10 +550,10 @@ export class IdentifierCache {
    */
   _mergeRecordIdentifiers(
     keyInfo: KeyInfo,
-    identifier: StableRecordIdentifier,
-    existingIdentifier: StableRecordIdentifier,
+    identifier: ResourceCacheKey,
+    existingIdentifier: ResourceCacheKey,
     data: unknown
-  ): StableRecordIdentifier {
+  ): ResourceCacheKey {
     assert(`Expected keyInfo to contain an id`, hasId(keyInfo));
     // delegate determining which identifier to keep to the configured MergeMethod
     const kept = this._merge(identifier, existingIdentifier, data);
@@ -641,14 +633,11 @@ export class IdentifierCache {
 
   destroy() {
     NEW_IDENTIFIERS.clear();
-    this._cache.documents.forEach((identifier) => {
-      DOCUMENTS.delete(identifier);
-    });
     this._reset();
   }
 }
 
-function makeStableRecordIdentifier(
+function makeResourceCacheKey(
   recordIdentifier: {
     type: string;
     id: string | null;
@@ -657,7 +646,7 @@ function makeStableRecordIdentifier(
   },
   bucket: IdentifierBucket,
   clientOriginated: boolean
-): StableRecordIdentifier {
+): ResourceCacheKey {
   if (DEBUG) {
     // we enforce immutability in dev
     //  but preserve our ability to do controlled updates to the reference
@@ -667,7 +656,7 @@ function makeStableRecordIdentifier(
       get id() {
         return recordIdentifier.id;
       },
-    } as StableRecordIdentifier;
+    } as ResourceCacheKey;
     const proto = {
       get [CACHE_OWNER](): number | undefined {
         return recordIdentifier[CACHE_OWNER];
@@ -676,10 +665,10 @@ function makeStableRecordIdentifier(
         recordIdentifier[CACHE_OWNER] = value;
       },
       get [DEBUG_STALE_CACHE_OWNER](): number | undefined {
-        return (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER];
+        return (recordIdentifier as ResourceCacheKey)[DEBUG_STALE_CACHE_OWNER];
       },
       set [DEBUG_STALE_CACHE_OWNER](value: number | undefined) {
-        (recordIdentifier as StableRecordIdentifier)[DEBUG_STALE_CACHE_OWNER] = value;
+        (recordIdentifier as ResourceCacheKey)[DEBUG_STALE_CACHE_OWNER] = value;
       },
       get [DEBUG_CLIENT_ORIGINATED]() {
         return clientOriginated;
@@ -712,7 +701,7 @@ function makeStableRecordIdentifier(
 }
 
 function performRecordIdentifierUpdate(
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   keyInfo: KeyInfo,
   data: unknown,
   updateFn: UpdateMethod
@@ -767,9 +756,9 @@ function performRecordIdentifierUpdate(
 function detectMerge(
   cache: StableCache,
   keyInfo: KeyInfo,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   data: unknown
-): StableRecordIdentifier | false {
+): ResourceCacheKey | false {
   const newId = keyInfo.id;
   const { id, type, lid } = identifier;
   const typeSet = cache.resourcesByType[identifier.type];
@@ -802,7 +791,7 @@ function detectMerge(
   return false;
 }
 
-function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown): StableRecordIdentifier | null {
+function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown): ResourceCacheKey | null {
   const identifier = cache.resources.get(lid);
   if (LOG_IDENTIFIERS) {
     // eslint-disable-next-line no-console
@@ -811,7 +800,7 @@ function getIdentifierFromLid(cache: StableCache, lid: string, resource: unknown
   return identifier || null;
 }
 
-function addResourceToCache(cache: StableCache, identifier: StableRecordIdentifier): void {
+function addResourceToCache(cache: StableCache, identifier: ResourceCacheKey): void {
   cache.resources.set(identifier.lid, identifier);
   let typeSet = cache.resourcesByType[identifier.type];
 

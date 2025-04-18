@@ -3,7 +3,7 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
 import { isBelongsTo, isNew, notifyChange } from '../-utils';
@@ -22,7 +22,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   }
   const { definition, state } = relationship;
   const prop = isRemote ? 'remoteState' : 'localState';
-  const existingState: StableRecordIdentifier | null = relationship[prop];
+  const existingState: ResourceCacheKey | null = relationship[prop];
 
   /*
     case 1:1

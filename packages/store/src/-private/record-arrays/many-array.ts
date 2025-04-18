@@ -7,7 +7,7 @@ import type { Signal } from '@ember-data/tracking/-private';
 import { addToTransaction } from '@ember-data/tracking/-private';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type {
   OpaqueRecordInstance,
@@ -18,7 +18,7 @@ import type {
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { BaseFinderOptions, ModelSchema } from '../../types';
-import { isStableIdentifier } from '../caches/identifier-cache';
+import { isResourceCacheKey } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { CreateRecordProperties, Store } from '../store-service';
 import type { MinimumManager } from './identifier-array';
@@ -28,13 +28,13 @@ import type { NativeProxy } from './native-proxy-type-fix';
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
 
 export interface ManyArrayCreateArgs<T> {
-  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  identifiers: ResourceCacheKey<TypeFromInstanceOrString<T>>[];
   type: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
   manager: MinimumManager;
 
-  identifier: StableRecordIdentifier;
+  identifier: ResourceCacheKey;
   cache: Cache;
   meta: Record<string, unknown> | null;
   links: Links | PaginationLinks | null;
@@ -150,7 +150,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
      @public
      */
   declare links: Links | PaginationLinks | null;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: ResourceCacheKey;
   declare cache: Cache;
   declare _manager: MinimumManager;
   declare store: Store;
@@ -168,8 +168,8 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   }
 
   [MUTATE](
-    target: StableRecordIdentifier[],
-    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
+    target: ResourceCacheKey[],
+    receiver: typeof NativeProxy<ResourceCacheKey[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
@@ -181,7 +181,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
         return true;
       }
       case 'replace cell': {
-        const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
+        const [index, prior, value] = args as [number, ResourceCacheKey, ResourceCacheKey];
         target[index] = value;
         mutateReplaceRelatedRecord(this, { value, prior, index }, _SIGNAL);
         return true;
@@ -459,7 +459,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
 }
 RelatedCollection.prototype.isAsync = false;
 RelatedCollection.prototype.isPolymorphic = false;
-RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
+RelatedCollection.prototype.identifier = null as unknown as ResourceCacheKey;
 RelatedCollection.prototype.cache = null as unknown as Cache;
 RelatedCollection.prototype._inverseIsAsync = false;
 RelatedCollection.prototype.key = '';
@@ -481,7 +481,7 @@ function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxy
   );
 }
 
-function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): ResourceCacheKey[] {
   return records.map(extractIdentifierFromRecord);
 }
 
@@ -492,8 +492,8 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 
 function assertNoDuplicates<T>(
   collection: RelatedCollection<T>,
-  target: StableRecordIdentifier[],
-  callback: (currentState: StableRecordIdentifier[]) => void,
+  target: ResourceCacheKey[],
+  callback: (currentState: ResourceCacheKey[]) => void,
   reason: string
 ) {
   const state = target.slice();
@@ -509,7 +509,7 @@ function assertNoDuplicates<T>(
         }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
           new Set(duplicates)
         )
-          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .map((r) => (isResourceCacheKey(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`,
         false,
@@ -530,7 +530,7 @@ function assertNoDuplicates<T>(
         }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
           new Set(duplicates)
         )
-          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .map((r) => (isResourceCacheKey(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`
       );
@@ -540,7 +540,7 @@ function assertNoDuplicates<T>(
 
 function mutateAddToRelatedRecords<T>(
   collection: RelatedCollection<T>,
-  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  operationInfo: { value: ResourceCacheKey | ResourceCacheKey[]; index?: number },
   _SIGNAL: Signal
 ) {
   mutate(
@@ -557,7 +557,7 @@ function mutateAddToRelatedRecords<T>(
 
 function mutateRemoveFromRelatedRecords<T>(
   collection: RelatedCollection<T>,
-  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  operationInfo: { value: ResourceCacheKey | ResourceCacheKey[]; index?: number },
   _SIGNAL: Signal
 ) {
   mutate(
@@ -575,8 +575,8 @@ function mutateRemoveFromRelatedRecords<T>(
 function mutateReplaceRelatedRecord<T>(
   collection: RelatedCollection<T>,
   operationInfo: {
-    value: StableRecordIdentifier;
-    prior: StableRecordIdentifier;
+    value: ResourceCacheKey;
+    prior: ResourceCacheKey;
     index: number;
   },
   _SIGNAL: Signal
@@ -593,11 +593,7 @@ function mutateReplaceRelatedRecord<T>(
   );
 }
 
-function mutateReplaceRelatedRecords<T>(
-  collection: RelatedCollection<T>,
-  value: StableRecordIdentifier[],
-  _SIGNAL: Signal
-) {
+function mutateReplaceRelatedRecords<T>(collection: RelatedCollection<T>, value: ResourceCacheKey[], _SIGNAL: Signal) {
   mutate(
     collection,
     {
@@ -610,11 +606,7 @@ function mutateReplaceRelatedRecords<T>(
   );
 }
 
-function mutateSortRelatedRecords<T>(
-  collection: RelatedCollection<T>,
-  value: StableRecordIdentifier[],
-  _SIGNAL: Signal
-) {
+function mutateSortRelatedRecords<T>(collection: RelatedCollection<T>, value: ResourceCacheKey[], _SIGNAL: Signal) {
   mutate(
     collection,
     {

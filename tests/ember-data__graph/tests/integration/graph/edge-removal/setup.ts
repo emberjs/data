@@ -3,7 +3,7 @@ import { graphFor } from '@ember-data/graph/-private';
 import type Model from '@ember-data/model';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Type } from '@warp-drive/core-types/symbols';
 import type { Hooks } from '@warp-drive/diagnostic/-types';
@@ -22,7 +22,7 @@ class AbstractMap {
     this.isImplicit = isImplicit;
   }
 
-  has(identifier: StableRecordIdentifier) {
+  has(identifier: ResourceCacheKey) {
     const graph = graphFor(this.store);
     return graph.identifiers.has(identifier);
   }
@@ -30,7 +30,7 @@ class AbstractMap {
 
 class AbstractGraph {
   public identifiers: AbstractMap;
-  public implicit: { has(identifier: StableRecordIdentifier): boolean };
+  public implicit: { has(identifier: ResourceCacheKey): boolean };
   declare private store: Store;
 
   constructor(store: Store) {
@@ -43,11 +43,11 @@ class AbstractGraph {
     };
   }
 
-  get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
+  get(identifier: ResourceCacheKey, propertyName: string): GraphEdge {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
-  getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitEdge> {
+  getImplicit(identifier: ResourceCacheKey): Record<string, ImplicitEdge> {
     const rels = graphFor(this.store).identifiers.get(identifier);
     const implicits = Object.create(null) as Record<string, ImplicitEdge>;
     if (rels) {
@@ -86,11 +86,11 @@ export function stateOf(
   graph: Graph,
   rel: GraphEdge
 ): {
-  remote: StableRecordIdentifier[];
-  local: StableRecordIdentifier[];
+  remote: ResourceCacheKey[];
+  local: ResourceCacheKey[];
 } {
-  let local: StableRecordIdentifier[];
-  let remote: StableRecordIdentifier[];
+  let local: ResourceCacheKey[];
+  let remote: ResourceCacheKey[];
 
   if (isBelongsTo(rel)) {
     // we cast these to array form to make the tests more legible
@@ -102,8 +102,8 @@ export function stateOf(
     local = data.data || [];
     remote = rel.remoteState;
   } else {
-    local = setToArray<StableRecordIdentifier>(rel.localMembers);
-    remote = setToArray<StableRecordIdentifier>(rel.remoteMembers);
+    local = setToArray<ResourceCacheKey>(rel.localMembers);
+    remote = setToArray<ResourceCacheKey>(rel.remoteMembers);
   }
   return {
     local,

@@ -7,7 +7,7 @@ import { cached, compat } from '@ember-data/tracking';
 import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -96,15 +96,15 @@ export default class HasManyReference<
 
   // unsubscribe tokens given to us by the notification manager
   ___token!: object;
-  ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
-  ___relatedTokenMap!: Map<StableRecordIdentifier, object>;
+  ___identifier: ResourceCacheKey<TypeFromInstanceOrString<T>>;
+  ___relatedTokenMap!: Map<ResourceCacheKey, object>;
 
   declare _ref: number;
 
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
+    parentIdentifier: ResourceCacheKey<TypeFromInstanceOrString<T>>,
     hasManyRelationship: CollectionEdge,
     key: K
   ) {
@@ -117,7 +117,7 @@ export default class HasManyReference<
     this.___identifier = parentIdentifier;
     this.___token = store.notifications.subscribe(
       parentIdentifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+      (_: ResourceCacheKey, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
           this._ref++;
         }
@@ -143,12 +143,12 @@ export default class HasManyReference<
   /**
    * An array of identifiers for the records that this reference refers to.
    *
-   * @property {StableRecordIdentifier[]} identifiers
+   * @property {ResourceCacheKey[]} identifiers
    * @public
    */
   @cached
   @compat
-  get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
+  get identifiers(): ResourceCacheKey<TypeFromInstanceOrString<Related>>[] {
     ensureRefCanSubscribe(this);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref;
@@ -168,7 +168,7 @@ export default class HasManyReference<
         } else {
           token = this.store.notifications.subscribe(
             identifier,
-            (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+            (_: ResourceCacheKey, bucket: NotificationType, notifiedKey?: string) => {
               if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
                 this._ref++;
               }
@@ -177,7 +177,7 @@ export default class HasManyReference<
         }
         this.___relatedTokenMap.set(identifier, token);
 
-        return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
+        return identifier as ResourceCacheKey<TypeFromInstanceOrString<Related>>;
       });
     }
 
@@ -511,7 +511,7 @@ export default class HasManyReference<
     const identifiers = !Array.isArray(dataDoc.data)
       ? []
       : isResourceData
-        ? (store._push(dataDoc, true) as StableRecordIdentifier[])
+        ? (store._push(dataDoc, true) as ResourceCacheKey[])
         : dataDoc.data.map((i) => store.identifierCache.getOrCreateRecordIdentifier(i));
     const { identifier } = this.hasManyRelationship;
 
@@ -601,9 +601,7 @@ export default class HasManyReference<
    @return {ManyArray}
    */
   value(): ManyArray<Related> | null {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceCacheKey, LegacySupport>).get(this.___identifier)!;
 
     if (!ensureRefCanSubscribe(this)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -679,9 +677,7 @@ export default class HasManyReference<
    this has-many relationship.
    */
   async load(options?: BaseFinderOptions): Promise<ManyArray<Related>> {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceCacheKey, LegacySupport>).get(this.___identifier)!;
     const fetchSyncRel =
       !this.hasManyRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
@@ -742,9 +738,7 @@ export default class HasManyReference<
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
   reload(options?: BaseFinderOptions): Promise<ManyArray<Related>> {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceCacheKey, LegacySupport>).get(this.___identifier)!;
     return support.reloadHasMany(this.key, options) as Promise<ManyArray<Related>>;
   }
 }

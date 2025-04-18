@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableCreateRequestOptions,
   ImmutableDeleteRequestOptions,
@@ -17,7 +17,7 @@ export function calcShouldFetch(
   store: Store,
   request: ImmutableRequestInfo,
   hasCachedValue: boolean,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestCacheKey | null
 ): boolean {
   const { cacheOptions } = request;
   return (
@@ -32,7 +32,7 @@ export function calcShouldBackgroundFetch(
   store: Store,
   request: ImmutableRequestInfo,
   willFetch: boolean,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestCacheKey | null
 ): boolean {
   const { cacheOptions } = request;
   return (
@@ -94,8 +94,8 @@ export function isErrorDocument(
 }
 
 export function getPriority(
-  identifier: StableDocumentIdentifier | null,
-  deduped: Map<StableDocumentIdentifier, { priority: { blocking: boolean } }>,
+  identifier: RequestCacheKey | null,
+  deduped: Map<RequestCacheKey, { priority: { blocking: boolean } }>,
   priority: { blocking: boolean }
 ) {
   if (identifier) {

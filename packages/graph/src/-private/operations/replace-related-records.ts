@@ -4,7 +4,7 @@ import { DEBUG_RELATIONSHIP_NOTIFICATIONS, LOG_METRIC_COUNTS } from '@warp-drive
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { ReplaceRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
 import { _add, _removeLocal, _removeRemote, diffCollection } from '../-diff';
@@ -98,7 +98,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     count(`replaceRelatedRecordsLocal ${'type' in record ? record.type : '<document>'} ${op.field}`);
   }
 
-  const onAdd = (identifier: StableRecordIdentifier) => {
+  const onAdd = (identifier: ResourceCacheKey) => {
     // Since we are diffing against the remote state, we check
     // if our previous local state did not contain this identifier
     const removalsHas = removals?.has(identifier);
@@ -120,7 +120,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     }
   };
 
-  const onRemove = (identifier: StableRecordIdentifier) => {
+  const onRemove = (identifier: ResourceCacheKey) => {
     // Since we are diffing against the remote state, we check
     // if our previous local state had contained this identifier
     const additionsHas = additions?.has(identifier);
@@ -275,8 +275,8 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       (diff.changed || wasDirty)
     ) {
       const deprecationInfo: {
-        removals: StableRecordIdentifier[];
-        additions: StableRecordIdentifier[];
+        removals: ResourceCacheKey[];
+        additions: ResourceCacheKey[];
         triggered: boolean;
       } = {
         removals: [],
@@ -345,9 +345,9 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
 export function addToInverse(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   key: string,
-  value: StableRecordIdentifier,
+  value: ResourceCacheKey,
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);
@@ -427,9 +427,9 @@ export function addToInverse(
 
 export function notifyInverseOfPotentialMaterialization(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   key: string,
-  value: StableRecordIdentifier,
+  value: ResourceCacheKey,
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);
@@ -440,9 +440,9 @@ export function notifyInverseOfPotentialMaterialization(
 
 export function removeFromInverse(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   key: string,
-  value: StableRecordIdentifier,
+  value: ResourceCacheKey,
   isRemote: boolean
 ) {
   const relationship = graph.get(identifier, key);

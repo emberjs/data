@@ -4,7 +4,7 @@
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type { ManagedRequestPriority } from '@ember-data/request/-private/types';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey } from '@warp-drive/core-types/identifier';
 import type {
   ImmutableRequestInfo,
   RequestContext,
@@ -88,7 +88,7 @@ export interface StoreRequestContext extends RequestContext {
  */
 export const CacheHandler: CacheHandlerType = {
   request<T>(
-    context: StoreRequestContext & { setIdentifier(identifier: StableDocumentIdentifier): void },
+    context: StoreRequestContext & { setIdentifier(identifier: RequestCacheKey): void },
     next: NextFn<T>
   ): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
@@ -97,7 +97,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     const { store } = context.request;
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+    const identifier = store.identifierCache.getRequestCacheKey(context.request);
 
     if (identifier) {
       context.setIdentifier(identifier);
@@ -164,7 +164,7 @@ export const CacheHandler: CacheHandlerType = {
 
 type HydrationOptions = {
   shouldHydrate?: boolean;
-  identifier: StableDocumentIdentifier | null;
+  identifier: RequestCacheKey | null;
 };
 
 type UpdateOptions = HydrationOptions & {
@@ -313,7 +313,7 @@ function handleFetchError<T>(
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestCacheKey | null,
   priority: { blocking: boolean }
 ): Promise<T> {
   const { store } = context.request;

@@ -1,7 +1,7 @@
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '../identifier';
 
 export interface Change {
-  identifier: StableRecordIdentifier | StableDocumentIdentifier;
+  identifier: ResourceCacheKey | RequestCacheKey;
   op: 'upsert' | 'remove';
   patch?: unknown;
 }

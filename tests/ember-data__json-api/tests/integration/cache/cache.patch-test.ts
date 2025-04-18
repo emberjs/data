@@ -3,7 +3,7 @@ import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -84,7 +84,7 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs: Record<string, unknown>) {
+  instantiateRecord(identifier: ResourceCacheKey, createArgs: Record<string, unknown>) {
     return instantiateRecord(this, identifier, createArgs);
   }
 
@@ -93,11 +93,8 @@ class TestStore extends Store {
   }
 }
 
-function setupRecord<T extends string>(
-  store: Store,
-  record: ExistingResourceObject<T>
-): StableExistingRecordIdentifier<T>;
-function setupRecord(store: Store, record: ExistingResourceObject): StableExistingRecordIdentifier {
+function setupRecord<T extends string>(store: Store, record: ExistingResourceObject<T>): ExistingResourceCacheKey<T>;
+function setupRecord(store: Store, record: ExistingResourceObject): ExistingResourceCacheKey {
   const identifier = store.identifierCache.getOrCreateRecordIdentifier(record);
   store.cache.patch({
     op: 'add',
@@ -117,7 +114,7 @@ function setupDocument(store: Store, url: string, doc: ResourceDataDocument<Exis
     content: doc,
     response: new Response(null),
   };
-  const identifier = store.identifierCache.getOrCreateDocumentIdentifier(requestDoc.request);
+  const identifier = store.identifierCache.getRequestCacheKey(requestDoc.request);
   store.cache.put(requestDoc);
   if (identifier === null) {
     throw new Error(`Document identifier should not be null for the test`);
@@ -1423,7 +1420,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const userIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
       id: '2',
       type: 'user',
-    } as const) as StableExistingRecordIdentifier;
+    } as const) as ExistingResourceCacheKey;
     const user = store.peekRecord<User>(userIdentifier);
     const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
     const cacheDocument = store.cache.peek(documentIdentifier);

@@ -8,7 +8,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types/identifier';
 
 import { TestSchema } from '../../utils/schema';
 
@@ -67,9 +67,9 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   test('notification manager', function (assert) {
     assert.expect(7);
     let notificationCount = 0;
-    let identifier: StableRecordIdentifier;
+    let identifier: ResourceCacheKey;
     class CreationStore extends CustomStore {
-      instantiateRecord(id: StableRecordIdentifier, createRecordArgs): object {
+      instantiateRecord(id: ResourceCacheKey, createRecordArgs): object {
         identifier = id;
         this.notifications.subscribe(identifier, (passedId, key) => {
           notificationCount++;
@@ -106,7 +106,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     assert.expect(5);
     let returnValue: unknown;
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      instantiateRecord(identifier: ResourceCacheKey, createRecordArgs) {
         assert.strictEqual(identifier.type, 'person', 'Identifier type passed in correctly');
         assert.deepEqual(createRecordArgs, { name: 'chris', otherProp: 'unk' }, 'createRecordArg passed in');
         returnValue = {};
@@ -284,7 +284,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
   });
 
   test('store.deleteRecord', async function (assert) {
-    let ident: StableRecordIdentifier;
+    let ident: ResourceCacheKey;
     assert.expect(10);
     this.owner.register(
       'adapter:application',
@@ -298,7 +298,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
     );
     const subscribedValues: string[] = [];
     class CreationStore extends CustomStore {
-      instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs) {
+      instantiateRecord(identifier: ResourceCacheKey, createRecordArgs) {
         ident = identifier;
         assert.false(this.cache.isDeleted(identifier), 'we are not deleted when we start');
         this.notifications.subscribe(identifier, (passedId, key: string) => {

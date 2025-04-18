@@ -29,6 +29,5 @@ pnpm add @warp-drive/experiments
 ## Current Experiments
 
 - [DataWorker](./src/data-worker/README.md)
-- [DocumentStorage](./src/document-storage/README.md)
+- [DocumentStorage (persisted cache)](./src/document-storage/README.md)
 - [ImageWorker](./src/image-worker/README.md)
-- [PersistedCache](./src/persisted-cache/README.md)

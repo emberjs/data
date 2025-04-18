@@ -1,43 +1,43 @@
-import type { StableRecordIdentifier } from '../identifier';
+import type { ResourceCacheKey } from '../identifier';
 
 export interface AddToResourceRelationshipMutation {
   op: 'add';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: ResourceCacheKey | ResourceCacheKey[];
   index?: number;
 }
 
 export interface RemoveFromResourceRelationshipMutation {
   op: 'remove';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: ResourceCacheKey | ResourceCacheKey[];
   index?: number;
 }
 
 export interface ReplaceRelatedRecordMutation {
   op: 'replaceRelatedRecord';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
   // never null if field is a collection
-  value: StableRecordIdentifier | null;
+  value: ResourceCacheKey | null;
   // if field is a collection,
   //  the value we are swapping with
-  prior?: StableRecordIdentifier;
+  prior?: ResourceCacheKey;
   index?: number;
 }
 
 export interface ReplaceRelatedRecordsMutation {
   op: 'replaceRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
   // the records to add. If no prior/index
   //  specified all existing should be removed
-  value: StableRecordIdentifier[];
+  value: ResourceCacheKey[];
   // if this is a "splice" the
   //  records we expect to be removed
-  prior?: StableRecordIdentifier[];
+  prior?: ResourceCacheKey[];
   // if this is a "splice" the
   //   index to start from
   index?: number;
@@ -45,9 +45,9 @@ export interface ReplaceRelatedRecordsMutation {
 
 export interface SortRelatedRecordsMutation {
   op: 'sortRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier[];
+  value: ResourceCacheKey[];
 }
 // A Mutation is an action that updates
 // the local state of the Cache in some

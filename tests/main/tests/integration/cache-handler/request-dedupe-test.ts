@@ -5,7 +5,7 @@ import type { Handler, RequestContext } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { Type } from '@warp-drive/core-types/symbols';
 import {
@@ -40,7 +40,7 @@ class TestStore extends Store {
     return schema;
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
+  instantiateRecord(identifier: ResourceCacheKey, createRecordArgs: { [key: string]: unknown }): unknown {
     return instantiateRecord(this, identifier, createRecordArgs);
   }
 

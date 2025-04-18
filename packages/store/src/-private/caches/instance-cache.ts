@@ -5,7 +5,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
@@ -39,20 +39,20 @@ function isDestroyable(record: OpaqueRecordInstance): record is Destroyable {
   @module @ember-data/store
 */
 
-const RecordCache = getOrSetGlobal('RecordCache', new Map<OpaqueRecordInstance, StableRecordIdentifier>());
+const RecordCache = getOrSetGlobal('RecordCache', new Map<OpaqueRecordInstance, ResourceCacheKey>());
 
-export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecordIdentifier | undefined {
+export function peekRecordIdentifier(record: OpaqueRecordInstance): ResourceCacheKey | undefined {
   return RecordCache.get(record);
 }
 
 /**
-  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/StableRecordIdentifier)
+  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/ResourceCacheKey)
   assigned to the given record instance.
   ```js
   import { recordIdentifierFor } from "@ember-data/store";
   // ... gain access to a record, for instance with peekRecord or findRecord
   const record = store.peekRecord("user", "1");
-  // get the identifier for the record (see docs for StableRecordIdentifier)
+  // get the identifier for the record (see docs for ResourceCacheKey)
   const identifier = recordIdentifierFor(record);
   // access the identifier's properties.
   const { id, type, lid } = identifier;
@@ -62,18 +62,16 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecord
   @static
   @for @ember-data/store
   @param {Object} record a record instance previously obstained from the store.
-  @return {StableRecordIdentifier}
+  @return {ResourceCacheKey}
  */
-export function recordIdentifierFor<T extends TypedRecordInstance>(
-  record: T
-): StableRecordIdentifier<TypeFromInstance<T>>;
-export function recordIdentifierFor(record: OpaqueRecordInstance): StableRecordIdentifier;
-export function recordIdentifierFor<T>(record: T): StableRecordIdentifier<TypeFromInstanceOrString<T>> {
+export function recordIdentifierFor<T extends TypedRecordInstance>(record: T): ResourceCacheKey<TypeFromInstance<T>>;
+export function recordIdentifierFor(record: OpaqueRecordInstance): ResourceCacheKey;
+export function recordIdentifierFor<T>(record: T): ResourceCacheKey<TypeFromInstanceOrString<T>> {
   assert(`${String(record)} is not a record instantiated by @ember-data/store`, RecordCache.has(record));
-  return RecordCache.get(record)! as StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  return RecordCache.get(record)! as ResourceCacheKey<TypeFromInstanceOrString<T>>;
 }
 
-export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: StableRecordIdentifier): void {
+export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: ResourceCacheKey): void {
   if (DEBUG) {
     if (RecordCache.has(record) && RecordCache.get(record) !== identifier) {
       throw new Error(`${String(record)} was already assigned an identifier`);
@@ -104,12 +102,9 @@ export function storeFor(record: OpaqueRecordInstance): Store | undefined {
 }
 
 type Caches = {
-  record: Map<StableRecordIdentifier, OpaqueRecordInstance>;
-  reference: WeakMap<StableRecordIdentifier, RecordReference>;
-  document: Map<
-    StableDocumentIdentifier,
-    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
-  >;
+  record: Map<ResourceCacheKey, OpaqueRecordInstance>;
+  reference: WeakMap<ResourceCacheKey, RecordReference>;
+  document: Map<RequestCacheKey, ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>>;
 };
 
 export class InstanceCache {
@@ -131,7 +126,7 @@ export class InstanceCache {
     this._storeWrapper = new CacheCapabilitiesManager(this.store);
 
     store.identifierCache.__configureMerge(
-      (identifier: StableRecordIdentifier, matchedIdentifier: StableRecordIdentifier, resourceData: unknown) => {
+      (identifier: ResourceCacheKey, matchedIdentifier: ResourceCacheKey, resourceData: unknown) => {
         let keptIdentifier = identifier;
         if (identifier.id !== matchedIdentifier.id) {
           // @ts-expect-error TODO this needs to be fixed
@@ -191,11 +186,11 @@ export class InstanceCache {
       }
     );
   }
-  peek(identifier: StableRecordIdentifier): Cache | OpaqueRecordInstance | undefined {
+  peek(identifier: ResourceCacheKey): Cache | OpaqueRecordInstance | undefined {
     return this.__instances.record.get(identifier);
   }
 
-  getDocument<T>(identifier: StableDocumentIdentifier): ReactiveDocument<T> {
+  getDocument<T>(identifier: RequestCacheKey): ReactiveDocument<T> {
     let doc = this.__instances.document.get(identifier);
     if (!doc) {
       doc = new ReactiveDocument<T>(this.store, identifier, null);
@@ -204,7 +199,7 @@ export class InstanceCache {
     return doc as ReactiveDocument<T>;
   }
 
-  getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): OpaqueRecordInstance {
+  getRecord(identifier: ResourceCacheKey, properties?: CreateRecordProperties): OpaqueRecordInstance {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
@@ -234,7 +229,7 @@ export class InstanceCache {
     return record;
   }
 
-  getReference(identifier: StableRecordIdentifier) {
+  getReference(identifier: ResourceCacheKey) {
     const cache = this.__instances.reference;
     let reference = cache.get(identifier);
 
@@ -245,7 +240,7 @@ export class InstanceCache {
     return reference;
   }
 
-  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted = false) {
+  recordIsLoaded(identifier: ResourceCacheKey, filterDeleted = false) {
     const cache = this.cache;
     if (!cache) {
       return false;
@@ -267,7 +262,7 @@ export class InstanceCache {
     return filterDeleted && cache.isDeletionCommitted(identifier) ? false : !isEmpty;
   }
 
-  disconnect(identifier: StableRecordIdentifier) {
+  disconnect(identifier: ResourceCacheKey) {
     const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
@@ -284,7 +279,7 @@ export class InstanceCache {
     }
   }
 
-  unloadRecord(identifier: StableRecordIdentifier) {
+  unloadRecord(identifier: ResourceCacheKey) {
     if (DEBUG) {
       const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
       if (
@@ -362,7 +357,7 @@ export class InstanceCache {
   }
 
   // TODO this should move into something coordinating operations
-  setRecordId(identifier: StableRecordIdentifier, id: string) {
+  setRecordId(identifier: ResourceCacheKey, id: string) {
     const { type, lid } = identifier;
     const oldId = identifier.id;
 
@@ -411,11 +406,11 @@ export class InstanceCache {
   }
 }
 
-function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
+function _resourceIsFullDeleted(identifier: ResourceCacheKey, cache: Cache): boolean {
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: ResourceCacheKey): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }
@@ -432,7 +427,7 @@ export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier:
     models.
   */
 type PreloadRelationshipValue = OpaqueRecordInstance | string;
-export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
+export function preloadData(store: Store, identifier: ResourceCacheKey, preload: Record<string, Value>) {
   const jsonPayload: Partial<ExistingResourceObject> = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.schema;

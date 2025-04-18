@@ -8,7 +8,7 @@ import type Store from '@ember-data/store';
 import type { FindRecordOptions } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
@@ -39,7 +39,7 @@ export class Snapshot<R = unknown> {
   declare _hasManyIds: Record<string, RecordId[]>;
   declare _changedAttributes: ChangedAttributesHash;
 
-  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
+  declare identifier: ResourceCacheKey<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
   declare modelName: R extends TypedRecordInstance ? TypeFromInstance<R> : string;
   declare id: string | null;
   declare include?: string | string[];
@@ -56,7 +56,7 @@ export class Snapshot<R = unknown> {
    */
   constructor(
     options: FindRecordOptions,
-    identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
+    identifier: ResourceCacheKey<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
     store: Store
   ) {
     this._store = store;
@@ -75,7 +75,7 @@ export class Snapshot<R = unknown> {
 
       @property identifier
       @public
-      @type {StableRecordIdentifier}
+      @type {ResourceCacheKey}
     */
     this.identifier = identifier;
 

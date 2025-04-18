@@ -2,7 +2,7 @@
  * @module @ember-data/json-api/request
  */
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Relationship } from '@warp-drive/core-types/cache/relationship';
 import type { Value } from '@warp-drive/core-types/json/raw';
@@ -33,14 +33,14 @@ export type JsonApiResourcePatch =
  * @public
  * @for @ember-data/json-api/request
  * @param {Cache} cache}
- * @param {StableRecordIdentifier} identifier
+ * @param {ResourceCacheKey} identifier
  * @return {object} An object with a `data` property containing the serialized resource patch
  */
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: ResourceObject };
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: ResourceObject[] };
+export function serializeResources(cache: Cache, identifiers: ResourceCacheKey): { data: ResourceObject };
+export function serializeResources(cache: Cache, identifiers: ResourceCacheKey[]): { data: ResourceObject[] };
 export function serializeResources(
   cache: Cache,
-  identifiers: StableRecordIdentifier | StableRecordIdentifier[]
+  identifiers: ResourceCacheKey | ResourceCacheKey[]
 ): { data: ResourceObject | ResourceObject[] } {
   return {
     data: Array.isArray(identifiers)
@@ -78,7 +78,7 @@ function fixRelData(
   return null;
 }
 
-function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): ResourceObject {
+function _serializeResource(cache: Cache, identifier: ResourceCacheKey): ResourceObject {
   const { id, lid, type } = identifier;
   // peek gives us everything we want, but since its referentially the same data
   // as is in the cache we clone it to avoid any accidental mutations
@@ -129,12 +129,12 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): R
  * @public
  * @for @ember-data/json-api/request
  * @param {Cache} cache}
- * @param {StableRecordIdentifier} identifier
+ * @param {ResourceCacheKey} identifier
  * @return {object} An object with a `data` property containing the serialized resource patch
  */
 export function serializePatch(
   cache: Cache,
-  identifier: StableRecordIdentifier
+  identifier: ResourceCacheKey
   // options: { include?: string[] } = {}
 ): { data: JsonApiResourcePatch } {
   const { id, lid, type } = identifier;

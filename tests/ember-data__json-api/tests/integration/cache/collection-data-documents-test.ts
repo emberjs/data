@@ -3,7 +3,7 @@ import type { StructuredDataDocument } from '@ember-data/request';
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ExistingResourceCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
@@ -38,14 +38,14 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceCacheKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as ResourceObject).attributes);
 
     const token = this.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
+      (_: ResourceCacheKey, kind: NotificationType, key?: string) => {
         if (kind === 'attributes' && key) {
           record[key] = this.cache.getAttr(identifier, key);
         }
@@ -101,11 +101,11 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const identifier = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
     const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
       type: 'user',
       id: '2',
-    }) as StableExistingRecordIdentifier;
+    }) as ExistingResourceCacheKey;
     assert.equal(identifier.id, '1', 'We were given the correct data back');
     assert.equal(identifier2.id, '2', 'We were given the correct data back');
 

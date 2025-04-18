@@ -1,4 +1,4 @@
-import type { StableExistingRecordIdentifier } from '../identifier';
+import type { ExistingResourceCacheKey } from '../identifier';
 import type { ApiError } from './error';
 import type { Links, Meta, PaginationLinks } from './json-api-raw';
 
@@ -9,7 +9,7 @@ export interface ResourceMetaDocument {
   links?: Links | PaginationLinks;
 }
 
-export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier, R = StableExistingRecordIdentifier> {
+export interface SingleResourceDataDocument<T = ExistingResourceCacheKey, R = ExistingResourceCacheKey> {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
@@ -18,7 +18,7 @@ export interface SingleResourceDataDocument<T = StableExistingRecordIdentifier, 
   included?: R[];
 }
 
-export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifier> {
+export interface CollectionResourceDataDocument<T = ExistingResourceCacheKey> {
   // the url or cache-key associated with the structured document
   lid?: string;
   links?: Links | PaginationLinks;
@@ -27,7 +27,7 @@ export interface CollectionResourceDataDocument<T = StableExistingRecordIdentifi
   included?: T[];
 }
 
-export type ResourceDataDocument<T = StableExistingRecordIdentifier> =
+export type ResourceDataDocument<T = ExistingResourceCacheKey> =
   | SingleResourceDataDocument<T>
   | CollectionResourceDataDocument<T>;
 
@@ -39,7 +39,7 @@ export interface ResourceErrorDocument {
   errors: ApiError[];
 }
 
-export type ResourceDocument<T = StableExistingRecordIdentifier> =
+export type ResourceDocument<T = ExistingResourceCacheKey> =
   | ResourceMetaDocument
   | SingleResourceDataDocument<T>
   | CollectionResourceDataDocument<T>

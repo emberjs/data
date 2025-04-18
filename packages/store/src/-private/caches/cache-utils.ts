@@ -1,7 +1,7 @@
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceCacheKey } from '@warp-drive/core-types/identifier';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 
@@ -12,10 +12,10 @@ import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 
 export const CacheForIdentifierCache = getOrSetGlobal(
   'CacheForIdentifierCache',
-  new Map<StableRecordIdentifier | OpaqueRecordInstance, Cache>()
+  new Map<ResourceCacheKey | OpaqueRecordInstance, Cache>()
 );
 
-export function setCacheFor(identifier: StableRecordIdentifier | OpaqueRecordInstance, cache: Cache): void {
+export function setCacheFor(identifier: ResourceCacheKey | OpaqueRecordInstance, cache: Cache): void {
   assert(
     `Illegal set of identifier`,
     !CacheForIdentifierCache.has(identifier) || CacheForIdentifierCache.get(identifier) === cache
@@ -23,15 +23,15 @@ export function setCacheFor(identifier: StableRecordIdentifier | OpaqueRecordIns
   CacheForIdentifierCache.set(identifier, cache);
 }
 
-export function removeRecordDataFor(identifier: StableRecordIdentifier | OpaqueRecordInstance): void {
+export function removeRecordDataFor(identifier: ResourceCacheKey | OpaqueRecordInstance): void {
   CacheForIdentifierCache.delete(identifier);
 }
 
-export function peekCache(instance: StableRecordIdentifier): Cache | null;
+export function peekCache(instance: ResourceCacheKey): Cache | null;
 export function peekCache(instance: OpaqueRecordInstance): Cache;
-export function peekCache(instance: StableRecordIdentifier | OpaqueRecordInstance): Cache | null {
-  if (CacheForIdentifierCache.has(instance as StableRecordIdentifier)) {
-    return CacheForIdentifierCache.get(instance as StableRecordIdentifier) as Cache;
+export function peekCache(instance: ResourceCacheKey | OpaqueRecordInstance): Cache | null {
+  if (CacheForIdentifierCache.has(instance as ResourceCacheKey)) {
+    return CacheForIdentifierCache.get(instance as ResourceCacheKey) as Cache;
   }
 
   return null;

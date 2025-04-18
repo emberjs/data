@@ -2,7 +2,7 @@ import type { Graph, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor } from '@ember-data/graph/-private';
 import Model, { attr, belongsTo } from '@ember-data/model';
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -32,7 +32,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -106,7 +106,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -194,7 +194,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -274,7 +274,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -368,7 +368,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -442,7 +442,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -530,7 +530,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -610,7 +610,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -704,7 +704,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -778,7 +778,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -866,7 +866,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -946,7 +946,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
-      function permutation(order: StableRecordIdentifier[], unloadTogether: boolean) {
+      function permutation(order: ResourceCacheKey[], unloadTogether: boolean) {
         store._join(() => {
           graph.push({
             op: 'updateRelationship',

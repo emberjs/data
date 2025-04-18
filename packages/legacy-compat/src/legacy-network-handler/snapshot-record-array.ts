@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import { SOURCE } from '@ember-data/store/-private';
 import type { FindAllOptions, ModelSchema } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 
 import { upgradeStore } from '../-private';
 import type { Snapshot } from './snapshot';
@@ -173,7 +173,7 @@ export class SnapshotRecordArray {
     upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
-    this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>
+    this._snapshots = this._recordArray[SOURCE].map((identifier: ResourceCacheKey) =>
       _fetchManager.createSnapshot(identifier)
     );
 

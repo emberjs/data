@@ -15,14 +15,14 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestCacheKey, ResourceCacheKey } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import type { BaseFinderOptions } from '../../types';
-import { isStableIdentifier } from '../caches/identifier-cache';
+import { isResourceCacheKey } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
 import type { Store } from '../store-service';
@@ -88,24 +88,24 @@ function convertToInt(prop: KeyType): number | null {
 type ProxiedMethod = (...args: unknown[]) => unknown;
 
 export type IdentifierArrayCreateOptions<T = unknown> = {
-  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  identifiers: ResourceCacheKey<TypeFromInstanceOrString<T>>[];
   type?: TypeFromInstanceOrString<T>;
   store: Store;
   allowMutation: boolean;
   manager: MinimumManager;
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
-  identifier?: StableDocumentIdentifier | null;
+  identifier?: RequestCacheKey | null;
 };
 
 interface PrivateState {
   links: Links | PaginationLinks | null;
   meta: Record<string, unknown> | null;
 }
-type ForEachCB<T> = (record: T, index: number, context: typeof NativeProxy<StableRecordIdentifier[], T[]>) => void;
+type ForEachCB<T> = (record: T, index: number, context: typeof NativeProxy<ResourceCacheKey[], T[]>) => void;
 function safeForEach<T>(
-  instance: typeof NativeProxy<StableRecordIdentifier[], T[]>,
-  arr: StableRecordIdentifier[],
+  instance: typeof NativeProxy<ResourceCacheKey[], T[]>,
+  arr: ResourceCacheKey[],
   store: Store,
   callback: ForEachCB<T>,
   target: unknown
@@ -158,8 +158,8 @@ export type MinimumManager = {
 */
 export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   [MUTATE]?(
-    target: StableRecordIdentifier[],
-    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
+    target: ResourceCacheKey[],
+    receiver: typeof NativeProxy<ResourceCacheKey[], T[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: Signal
@@ -186,11 +186,11 @@ export class IdentifierArray<T = unknown> {
   isDestroying = false;
   isDestroyed = false;
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
-  readonly identifier: StableDocumentIdentifier | null;
+  declare identifier: ResourceCacheKey | RequestCacheKey | null;
 
   [IS_COLLECTION] = true;
   declare [ARRAY_SIGNAL]: Signal;
-  [SOURCE]: StableRecordIdentifier[];
+  [SOURCE]: ResourceCacheKey[];
   [NOTIFY]() {
     notifyArray(this);
   }
@@ -248,9 +248,9 @@ export class IdentifierArray<T = unknown> {
     // we track all mutations within the call
     // and forward them as one
 
-    const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
-      get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
-        target: StableRecordIdentifier[],
+    const proxy = new NativeProxy<ResourceCacheKey[], T[]>(this[SOURCE], {
+      get<R extends typeof NativeProxy<ResourceCacheKey[], T[]>>(
+        target: ResourceCacheKey[],
         prop: keyof R,
         receiver: R
       ): unknown {
@@ -353,15 +353,15 @@ export class IdentifierArray<T = unknown> {
           return subscribe(_SIGNAL), outcome;
         }
 
-        return target[prop as keyof StableRecordIdentifier[]];
+        return target[prop as keyof ResourceCacheKey[]];
       },
 
       // FIXME: Should this get a generic like get above?
       set(
-        target: StableRecordIdentifier[],
+        target: ResourceCacheKey[],
         prop: KeyType,
         value: unknown,
-        receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>
+        receiver: typeof NativeProxy<ResourceCacheKey[], T[]>
       ): boolean {
         if (prop === 'length') {
           if (!transaction && value === 0) {
@@ -395,7 +395,7 @@ export class IdentifierArray<T = unknown> {
         if (index === null || index > target.length) {
           if (index !== null && transaction) {
             const identifier = recordIdentifierFor(value);
-            assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
+            assert(`Cannot set index ${index} past the end of the array.`, isResourceCacheKey(identifier));
             target[index] = identifier;
             return true;
           } else if (isSelfProp(self, prop)) {
@@ -411,9 +411,9 @@ export class IdentifierArray<T = unknown> {
           return false;
         }
 
-        const original: StableRecordIdentifier | undefined = target[index];
+        const original: ResourceCacheKey | undefined = target[index];
         const newIdentifier = extractIdentifierFromRecord(value);
-        assert(`Expected a record`, isStableIdentifier(newIdentifier));
+        assert(`Expected a record`, isResourceCacheKey(newIdentifier));
         // We generate "transactions" whenever a setter method on the array
         // is called and might bulk update multiple array cells. Fundamentally,
         // all array operations decompose into individual cell replacements.
@@ -439,7 +439,7 @@ export class IdentifierArray<T = unknown> {
         return true;
       },
 
-      deleteProperty(target: StableRecordIdentifier[], prop: string | symbol): boolean {
+      deleteProperty(target: ResourceCacheKey[], prop: string | symbol): boolean {
         assert(`Deleting keys on managed arrays is disallowed`, transaction);
         if (!transaction) {
           return false;

@@ -2,7 +2,7 @@ import { getOwner, setOwner } from '@ember/application';
 
 import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceCacheKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
@@ -14,7 +14,7 @@ function recast(context: Store): asserts context is ModelStore {}
 
 export function instantiateRecord(
   this: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceCacheKey,
   createRecordArgs: { [key: string]: unknown }
 ): Model {
   const type = identifier.type;
@@ -75,7 +75,7 @@ export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>)
   assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
 }
 
-function secretInit(record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
+function secretInit(record: Model, cache: Cache, identifier: ResourceCacheKey, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
   setCacheFor(record, cache);

@@ -8,15 +8,15 @@ import type {
   UpdateResourceRelationshipOperation,
 } from './cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
-import type { StableRecordIdentifier } from './identifier';
+import type { ResourceCacheKey } from './identifier';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw';
 
 export interface Graph {
-  identifiers: Map<StableRecordIdentifier, unknown>;
+  identifiers: Map<ResourceCacheKey, unknown>;
 
-  getData(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship;
+  getData(identifier: ResourceCacheKey, field: string): ResourceRelationship | CollectionRelationship;
 
-  remove(identifier: StableRecordIdentifier): void;
+  remove(identifier: ResourceCacheKey): void;
   registerPolymorphicType(abstract: string, concrete: string): void;
   destroy(): void;
 }
@@ -27,45 +27,45 @@ export interface Operation {
 
 export interface UpdateRelationshipOperation {
   op: 'updateRelationship';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
   value: SingleResourceRelationship | CollectionResourceRelationship;
 }
 
 export interface DeleteRecordOperation {
   op: 'deleteRecord';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   isNew: boolean;
 }
 
 export interface UnknownOperation {
   op: 'never';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
 }
 
 export interface ReplaceRelatedRecordOperation {
   op: 'replaceRelatedRecord';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier | null; // never null if field is a collection
-  prior?: StableRecordIdentifier; // if field is a collection, the value we are swapping with
+  value: ResourceCacheKey | null; // never null if field is a collection
+  prior?: ResourceCacheKey; // if field is a collection, the value we are swapping with
   index?: number; // if field is a collection, the index at which we are replacing a value
 }
 
 export interface SortRelatedRecords {
   op: 'sortRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier[];
+  value: ResourceCacheKey[];
 }
 
 export interface ReplaceRelatedRecordsOperation {
   op: 'replaceRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceCacheKey;
   field: string;
-  value: StableRecordIdentifier[]; // the records to add. If no prior/index specified all existing should be removed
-  prior?: StableRecordIdentifier[]; // if this is a "splice" the records we expect to be removed
+  value: ResourceCacheKey[]; // the records to add. If no prior/index specified all existing should be removed
+  prior?: ResourceCacheKey[]; // if this is a "splice" the records we expect to be removed
   index?: number; // if this is a "splice" the index to start from
 }
 
