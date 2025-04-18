@@ -16,9 +16,9 @@ WarpDrive is the data framework for building ambitious applications.
 
 What do we mean by ambitious? WarpDrive is ideal for applications looking to be best-in-class: whether that's a small todo app, e-commerce, a social app, or an enterprise b2b software solution.
 
-The capabilities WarpDrive provides are designed to seamlessly handle and simplify the hardest parts of state management when building an app, helping you focus on creating the features and user experiences that drive value.
+WarpDrive seamlessly handles and simplifies the hardest parts of state management when building an app, helping you focus on creating the features and user experiences that drive value.
 
-Its innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/docs/svelte/what-are-runes), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
+Our innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/docs/svelte/what-are-runes), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
 [Preact](https://preactjs.com/guide/v10/signals/) or [Lit](https://lit.dev/docs/data/signals/).
 
 ```hbs
@@ -52,7 +52,7 @@ export default <template>
 </template>
 ```
 
-Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state - but requests using WarpDrive utilize an [advanced relational cache](./5-caching.md) that simplifies these problems, solving them when it can and providing intelligent escape valves for when it can't so that no matter what you can quickly get the data you need in the right state.
+**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. WarpDrive provides an [advanced relational cache](./5-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
 WarpDrive's reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and [transformation](./concepts/transformation.md) is controlled by a simple JSON [ResourceSchema](./concepts/schemas.md).
 
@@ -110,11 +110,11 @@ The [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/ca
 
 ```ts
 import Store from '@ember-data/store';
-import { AppCache } from './my-cache';
+import { CustomCache } from './my-custom-cache';
 
 class AppStore extends Store {
   createCache(capabilities) {
-    return new AppCache(capabilities);
+    return new CustomCache(capabilities);
   }
 }
 ```
