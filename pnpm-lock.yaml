@@ -1004,13 +1004,13 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.1
-        version: 1.14.1(hono@4.7.6)
+        version: 1.14.1(hono@4.7.7)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
       hono:
-        specifier: ^4.7.6
-        version: 4.7.6
+        specifier: ^4.7.7
+        version: 4.7.7
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -9575,8 +9575,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.7.6:
-    resolution: {integrity: sha512-564rVzELU+9BRqqx5k8sT2NFwGD3I3Vifdb6P7CmM6FiarOSY+fDC+6B+k9wcCb86ReoayteZP2ki0cRLN1jbw==}
+  hono@4.7.7:
+    resolution: {integrity: sha512-2PCpQRbN87Crty8/L/7akZN3UyZIAopSoRxCwRbJgUuV1+MHNFHzYFxZTg4v/03cXUm+jce/qa2VSBZpKBm3Qw==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
@@ -16489,9 +16489,9 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.14.1(hono@4.7.6)':
+  '@hono/node-server@1.14.1(hono@4.7.7)':
     dependencies:
-      hono: 4.7.6
+      hono: 4.7.7
 
   '@html-next/vertical-collection@4.0.2(@babel/core@7.26.10)':
     dependencies:
@@ -17744,18 +17744,18 @@ snapshots:
   '@warp-drive/holodeck@file:packages/holodeck(2512a32e8b0d95cd49b7ddd0bab86275)':
     dependencies:
       '@ember-data/request': file:packages/request(dd9be7e7e88b25e309856ff6e0a8c90d)
-      '@hono/node-server': 1.14.1(hono@4.7.6)
+      '@hono/node-server': 1.14.1(hono@4.7.7)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.26.10)
       chalk: 5.4.1
-      hono: 4.7.6
+      hono: 4.7.7
 
   '@warp-drive/holodeck@file:packages/holodeck(50787cdd3314abb44d598f29619a3bcb)':
     dependencies:
       '@ember-data/request': file:packages/request(cf9ff2a698b78c0a36c4a22cb9e0368a)
-      '@hono/node-server': 1.14.1(hono@4.7.6)
+      '@hono/node-server': 1.14.1(hono@4.7.7)
       '@warp-drive/core-types': file:packages/core-types(6b9ab74b27cee7278587f29987a61ec9)
       chalk: 5.4.1
-      hono: 4.7.6
+      hono: 4.7.7
 
   '@warp-drive/internal-config@file:config':
     dependencies:
@@ -22485,7 +22485,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.7.6: {}
+  hono@4.7.7: {}
 
   hosted-git-info@4.1.0:
     dependencies:
