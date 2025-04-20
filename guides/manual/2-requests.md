@@ -2,7 +2,7 @@
   <tr>
     <td align="center" width="300">
 
-[← Overview](./2-overview.md)</td>
+[← Overview](./1-overview.md)</td>
    <td align="center" width="300">
    
 [❖ Table of Contents](./0-index.md)</td>
@@ -12,16 +12,100 @@
   </tr>
 </table>
 
-## Requests
+## Making Requests
 
-Requests are how your application fetches data from a source or asks the source to update data to a new state.
+```ts
+const { content } = await store.request({
+  url: '/api/users'
+});
+```
 
-*Warp***Drive** uses the native interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which it layers features for fulfilling requests.
+Requests are how your application fetches or updates data stored remotely.
 
-Sources can be anything that has the ability for you to store and retrieve data: for example your API, the file system, or IndexedDB.
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made.
 
-Though the actual source and connection type do not matter, in a typical app requests are fulfilled by making [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) calls against server endpoints making up an API.
+**What does remote mean?**
 
+Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
+
+But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored someplace so that it can be found again at a later time.
+
+Common examples of persistent or remote data sources that aren't accessed via connecting to a server are the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md).
+
+**Do requests have to use fetch?**
+
+Requests do not need to use fetch! The native [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) interface provides a convenient, feature-rich way to describe the data you want to retrieve or update – but ultimately request handlers get to decide how that occurs.
+
+Request handlers can be used to connect to any data source via any mechanism. Besides fetch, this might be localStorage, [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket), [ServerEvents](https://developer.mozilla.org/en-US/docs/Web/API/EventSource), [MessageChannel](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel), or something else entirely!
+
+
+
+WarpDrive offers both a typed JS approach to making requests and a declarative component approach.
+
+```ts
+const result = await store.request({
+  url: '/api/users?search=Chris'
+})
+```
+
+```glimmer-ts
+const UsersSearch = {
+  url: '/api/users?search=Chris'
+});
+
+export default <template>
+  <Request @query={{UsersSearch}}>
+    <:content as |result|>
+      <ul>
+        {{#each result.data as |user|}}
+          <li>{{user.name}}</li>
+        {{/each}}
+      </ul>
+    </:content>
+  </Request>
+</template>
+```
+
+Every request three distinct parts
+
+- *the request* - the object we construct to describe what it is we want to do
+- *fulfillment* - how we go about making the request do the thing we need it to do
+- *the response* - the processed result once the request is complete
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <br>
 
 ### Fetch Example
@@ -160,7 +244,7 @@ A handler may be any object with a `request` method. This allows both stateful a
   <tr>
     <td align="center" width="300">
 
-[← Overview](./2-overview.md)</td>
+[← Overview](./1-overview.md)</td>
    <td align="center" width="300">
    
 [❖ Table of Contents](./0-index.md)</td>

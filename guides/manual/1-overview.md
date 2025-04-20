@@ -106,7 +106,37 @@ const NormalizeKeysHandler = {
 }
 ```
 
-The [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) itself is also pluggable if using a different cache format would work better for the demands of your API.
+WarpDrive offers both a JS and a Component based way of making requests and working with the result. Above we saw
+how to generate a request in component form. Here's how we can generate the same request using plain JavaScript.
+
+```ts
+
+// setup a store for the app
+import Store from '@ember-data/store';
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+class AppStore extends Store {
+  requestManager = new RequestManager().use([Fetch])
+}
+
+// -------<elsewhere>--------
+
+// make use of the store
+import { findRecord } from '@ember-data/json-api/request';
+
+const request = store.request(
+  findRecord('user', this.args.id)
+);
+
+const result = await request;
+```
+
+You may be thinking "what is store and where did that come from"? The [store]() helps us manage our data and
+caches requests. The store is something that you will configure for your application. Our component usage above
+is also using our application's store, a detail we will explore further in later sections.
+
+The [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) used by the store is customizable if using an app-specific cache format would work better for the demands of your API.
 
 ```ts
 import Store from '@ember-data/store';
@@ -119,7 +149,7 @@ class AppStore extends Store {
 }
 ```
 
-Realtime subscriptions are supported through an extensive list of [operations](./concepts/operations.md) for surgically updating cache state.
+Realtime subscriptions are supported through an extensive list of [operations](./concepts/operations.md) for surgically updating cache state, as well as by a comprehensive [notifications service]() which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
 
 ```ts
 store.cache.patch({
@@ -131,6 +161,9 @@ store.cache.patch({
 ```
 
 WarpDrive has been designed as a series of interfaces following the single-responsibility principle with well defined boundaries and configuration points. Because of this, nearly every aspect of the library is configurable, extensible, composable, replaceable or all of the above: meaning that if something doesn't meet your needs out-of-the-box, you can configure it to.
+
+The list of features doesn't end here. This guide will teach you the basics of everything you need to know, but if you find yourself needing more help or with a question you can't find the answer to, ask on [GitHub](https://github.com/emberjs/data/issues), in our [forum](https://discuss.emberjs.com/) or on [discord](https://discord.gg/zT3asNS).
+
 
 <br>
 
@@ -146,6 +179,6 @@ WarpDrive has been designed as a series of interfaces following the single-respo
 [❖ Table of Contents](./0-index.md)</td>
    <td align="center" width="300">
 
-[Making Requests →](./3-requests.md)</td>
+[Making Requests →](./2-requests.md)</td>
   </tr>
 </table>
