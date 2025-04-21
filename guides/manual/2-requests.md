@@ -14,15 +14,33 @@
 
 ## Making Requests
 
+Requests are how your application fetches or updates data stored remotely.
+
 ```ts
 const { content } = await store.request({
   url: '/api/users'
 });
 ```
 
-Requests are how your application fetches or updates data stored remotely.
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made. This ensures that if the platform supports it, WarpDrive exposes it. Platform APIs are never hidden away.
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made.
+```ts
+const { content } = await store.request({
+  url: '/api/users',
+  method: 'POST',
+  headers: new Headers({
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'token': sessionToken
+  }),
+  body: JSON.stringify({
+    filter: {
+      $in: { teams: ['1', '9', '42'] }
+    },
+    search: { name: 'chris' }
+  })
+});
+```
 
 **What does remote mean?**
 
