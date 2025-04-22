@@ -6,7 +6,7 @@
 [❖ Table of Contents](./0-index.md)</td>
    <td align="center" width="300">
 
-[Making Requests →](./3-requests.md)</td>
+[Making Requests →](./2-requests.md)</td>
   </tr>
 </table>
 

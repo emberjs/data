@@ -3,6 +3,7 @@
 ## Table Of Contents
 
 1) [Overview](./1-overview.md)
+2) [Making Requests](./2-requests.md)
 
 
 <!--
