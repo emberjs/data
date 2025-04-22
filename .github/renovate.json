@@ -23,6 +23,10 @@
       "groupName": "legacy-ember-types"
     },
     {
+      "matchPackageNames": ["bun-types", "@types/bun"],
+      "groupName": "bun"
+    },
+    {
       "matchPackageNames": ["/qunit/"],
       "groupName": "qunit"
     },
