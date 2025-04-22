@@ -16,7 +16,7 @@
     "sync-all": "src/sync-all.ts"
   },
   "dependencies": {
-    "@types/bun": "^1.2.9",
+    "@types/bun": "^1.2.10",
     "typescript": "^5.8.3",
     "chalk": "5.4.1",
     "debug": "4.4.0",
