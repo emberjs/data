@@ -22,7 +22,17 @@ const { content } = await store.request({
 });
 ```
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made. This ensures that if the platform supports it, WarpDrive exposes it. Platform APIs are never hidden away.
+### What does remote mean?
+
+Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
+
+But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored someplace so that it can be found again at a later time.
+
+Common examples of persistent or remote data sources that aren't accessed via connecting to a server are the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md).
+
+### Request Options
+
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made. This ensures that if the platform supports it, WarpDrive exposes it: platform APIs are never hidden away.
 
 ```ts
 const { content } = await store.request({
@@ -31,7 +41,6 @@ const { content } = await store.request({
   headers: new Headers({
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'token': sessionToken
   }),
   body: JSON.stringify({
     filter: {
@@ -42,15 +51,34 @@ const { content } = await store.request({
 });
 ```
 
-**What does remote mean?**
+Of course, writing requests could get repetitive. This is where [builders]() help out. Builders are simple functions that produce the json request object.
 
-Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
+```ts
+function queryUsers(query) {
+  return {
+    url: '/api/users',
+    method: 'POST',
+    headers: new Headers({
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    }),
+    body: JSON.stringify(query)
+  }
+}
 
-But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored someplace so that it can be found again at a later time.
+const { content } = await store.request(
+  queryUsers({
+    filter: {
+      $in: { teams: ['1', '9', '42'] }
+    },
+    search: { name: 'chris' }
+  })
+)
+```
 
-Common examples of persistent or remote data sources that aren't accessed via connecting to a server are the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md).
+Builders make it easy to quickly write shareable, reusable requests with [typed responses]() that mirror your application's capabilities.
 
-**Do requests have to use fetch?**
+### Do requests have to use fetch?
 
 Requests do not need to use fetch! The native [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) interface provides a convenient, feature-rich way to describe the data you want to retrieve or update – but ultimately request handlers get to decide how that occurs.
 
@@ -59,6 +87,44 @@ Request handlers can be used to connect to any data source via any mechanism. Be
 
 
 WarpDrive offers both a typed JS approach to making requests and a declarative component approach.
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ```ts
 const result = await store.request({
@@ -89,42 +155,6 @@ Every request three distinct parts
 - *the request* - the object we construct to describe what it is we want to do
 - *fulfillment* - how we go about making the request do the thing we need it to do
 - *the response* - the processed result once the request is complete
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 
 ### Fetch Example
 
