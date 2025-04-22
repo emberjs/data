@@ -231,8 +231,8 @@ importers:
         specifier: 1000.1.0
         version: 1000.1.0
       '@types/bun':
-        specifier: ^1.2.9
-        version: 1.2.9
+        specifier: ^1.2.10
+        version: 1.2.10
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -258,8 +258,8 @@ importers:
         specifier: 1000.0.0
         version: 1000.0.0
       '@types/bun':
-        specifier: ^1.2.9
-        version: 1.2.9
+        specifier: ^1.2.10
+        version: 1.2.10
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -609,8 +609,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@types/bun':
-        specifier: ^1.2.9
-        version: 1.2.9
+        specifier: ^1.2.10
+        version: 1.2.10
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -1927,8 +1927,8 @@ importers:
         specifier: workspace:*
         version: file:packages/codemods
       '@types/bun':
-        specifier: ^1.2.9
-        version: 1.2.9
+        specifier: ^1.2.10
+        version: 1.2.10
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -6275,8 +6275,8 @@ packages:
     resolution: {integrity: sha512-VfG0WydDHFr6MGj75U16bKxOnrl8uP9bXvq7VD+NuvnAq5/22cQDrf8o7BnzBJQt+Xm9jkPt1hh2EHVWluGYIA==}
     deprecated: This is a stub types definition. broccoli-plugin provides its own type definitions, so you do not need this installed.
 
-  '@types/bun@1.2.9':
-    resolution: {integrity: sha512-epShhLGQYc4Bv/aceHbmBhOz1XgUnuTZgcxjxk+WXwNyDXavv5QHD1QEFV0FwbTSQtNq6g4ZcV6y0vZakTjswg==}
+  '@types/bun@1.2.10':
+    resolution: {integrity: sha512-eilv6WFM3M0c9ztJt7/g80BDusK98z/FrFwseZgT4bXCq2vPhXD4z8R3oddmAn+R/Nmz9vBn4kweJKmGTZj+lg==}
 
   '@types/chai-as-promised@7.1.8':
     resolution: {integrity: sha512-ThlRVIJhr69FLlh6IctTXFkmhtP3NpMZ2QGq69StYLyKZFp/HOp1VdKZj7RvfNWYYcJ1xlbLGLLWj1UvP5u/Gw==}
@@ -17338,9 +17338,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@types/bun@1.2.9':
+  '@types/bun@1.2.10':
     dependencies:
-      bun-types: 1.2.9
+      bun-types: 1.2.10
 
   '@types/chai-as-promised@7.1.8':
     dependencies:
@@ -17939,7 +17939,7 @@ snapshots:
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     dependencies:
       '@pnpm/find-workspace-dir': 1000.1.0
-      '@types/bun': 1.2.9
+      '@types/bun': 1.2.10
       '@types/debug': 4.1.12
       chalk: 5.4.1
       debug: 4.4.0
@@ -17952,7 +17952,7 @@ snapshots:
       '@pnpm/find-workspace-dir': 1000.1.0
       '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1000.0.0)
       '@pnpm/logger': 1000.0.0
-      '@types/bun': 1.2.9
+      '@types/bun': 1.2.10
       '@types/debug': 4.1.12
       chalk: 5.4.1
       comment-json: 4.2.5
