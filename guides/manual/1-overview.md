@@ -132,11 +132,9 @@ const request = store.request(
 const result = await request;
 ```
 
-You may be thinking "what is store and where did that come from"? The [store]() helps us manage our data and
-caches requests. The store is something that you will configure for your application. Our component usage above
-is also using our application's store, a detail we will explore further in later sections.
+You may be thinking "what is store and where did that come from"? The [store]() helps us to manage our data and cache responses. The store is something that you will configure for your application. Our component usage above is also using our application's store, a detail we will explore further in later sections.
 
-The [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) used by the store is customizable if using an app-specific cache format would work better for the demands of your API.
+If using an app-specific cache format would work better for the demands of your API, the [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) the store should use is customizable:
 
 ```ts
 import Store from '@ember-data/store';
