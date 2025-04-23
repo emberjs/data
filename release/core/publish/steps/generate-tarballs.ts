@@ -231,6 +231,9 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
       }
+      if (line.includes('.gts')) {
+        lines[i] = line.replace(/\.gts/, '');
+      }
     }
 
     // fix re-exports
@@ -242,6 +245,9 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
         const importPath = line.match(/'([^']+)'/)![1];
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
+      }
+      if (line.includes('.gts')) {
+        lines[i] = line.replace(/\.gts/, '');
       }
     }
 
