@@ -38,6 +38,7 @@
     }
   },
   "files": [
+    "addon-main.cjs",
     "dist",
     "unstable-preview-types",
     "CHANGELOG.md",
