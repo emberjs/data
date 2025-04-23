@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000pt" height="500pt" version="1.1" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+ <rect width="100%" height="100%" fill="black"/>
+ <path
+   fill="magenta"
+   d="M100 250 l 50 50 l 50 -50 l -50 -50 Z"
+   fill-rule="evenodd"
+  />
+  <path
+   fill="lightgrey"
+   d="M350 250 l 50 50 l 50 -50 l -50 -50 Z"
+   fill-rule="evenodd"
+  />
+  <path
+   fill="lightgrey"
+   d="M550 250 l 50 50 l 50 -50 l -50 -50 Z"
+   fill-rule="evenodd"
+  />
+  <path
+   fill="lightgrey"
+   d="M750 250 l 50 50 l 50 -50 l -50 -50 Z"
+   fill-rule="evenodd"
+  />
+</svg>
