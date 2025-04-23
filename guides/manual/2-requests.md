@@ -88,6 +88,18 @@ Request handlers can be used to connect to any data source via any mechanism. Be
 
 WarpDrive offers both a typed JS approach to making requests and a declarative component approach.
 
+<p align="center">
+  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-early-resolution.gif" width="400">
+</p>
+
+<p align="center">
+  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-local-resolution.gif" width="400">
+</p>
+
+<p align="center">
+  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-cloud-resolution.gif" width="400">
+</p>
+
 
 <br>
 <br>

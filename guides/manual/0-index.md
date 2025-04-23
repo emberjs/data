@@ -1,5 +1,9 @@
 # The Manual
 
+<p align="center">
+  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-cloud-resolution.gif" width="400">
+</p>
+
 ## Table Of Contents
 
 1) [Overview](./1-overview.md)
