@@ -367,7 +367,9 @@ export function computeHasMany(
       type: field.type,
       identifier,
       cache,
-      identifiers: rawValue.data as StableRecordIdentifier[],
+      // we divorce the reference here because ManyArray mutates the target directly
+      // before sending the mutation op to the cache. We may be able to avoid this in the future
+      identifiers: rawValue.data?.slice() as StableRecordIdentifier[],
       key: field.name,
       meta: rawValue.meta || null,
       links: rawValue.links || null,
@@ -376,7 +378,7 @@ export function computeHasMany(
       // TODO: Grab the proper value
       _inverseIsAsync: false,
       // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
-      manager: new ManyArrayManager(record),
+      manager: new ManyArrayManager(record, editable),
       isLoaded: true,
       allowMutation: editable,
     });

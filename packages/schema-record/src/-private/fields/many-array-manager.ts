@@ -22,15 +22,18 @@ export class ManyArrayManager {
   declare record: SchemaRecord;
   declare store: Store;
   declare identifier: StableRecordIdentifier;
+  declare editable: boolean;
 
-  constructor(record: SchemaRecord) {
+  constructor(record: SchemaRecord, editable: boolean) {
     this.record = record;
     this.store = record[RecordStore];
     this.identifier = record[Identifier];
+    this.editable = editable;
   }
 
   _syncArray(array: ManyArray) {
-    const rawValue = this.store.cache.getRelationship(this.identifier, array.key) as CollectionRelationship;
+    const method = this.editable ? 'getRelationship' : 'getRemoteRelationship';
+    const rawValue = this.store.cache[method](this.identifier, array.key) as CollectionRelationship;
 
     if (rawValue.meta) {
       array.meta = rawValue.meta;
