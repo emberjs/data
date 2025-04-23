@@ -91,7 +91,7 @@ async function updateVersionsTable(file: BunFile) {
     }
   });
 
-  let tableStr = '\n| Package | Audience | V4-Canary | LTS-4-12 | LTS | Stable | Beta | Canary |';
+  let tableStr = '\n| Package | Audience | Canary | Beta | Stable | LTS | V4-Canary | LTS-4-12 |';
   tableStr += '\n| ------- | -------- | --------- | -------- | --- | ------ | ---- | ------ |';
 
   for (const [name, version] of publicPackages) {

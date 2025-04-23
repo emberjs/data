@@ -128,7 +128,7 @@ command `bun sync-readme-tables`.
 The table below is generated using the command `bun sync-readme-tables`.
 
 <!-- START-VERSIONS-TABLE-PLACEHOLDER -->
-| Package | Audience | V4-Canary | LTS-4-12 | LTS | Stable | Beta | Canary |
+| Package | Audience | Canary | Beta | Stable | LTS | V4-Canary | LTS-4-12 |
 | ------- | -------- | --------- | -------- | --- | ------ | ---- | ------ |
 | [warp-drive](./packages/-warp-drive/package.json#readme) | 🌌 | ![NPM Canary Version](https://img.shields.io/npm/v/warp-drive/canary?label&color=FFBF00) | ![NPM Beta Version](https://img.shields.io/npm/v/warp-drive/beta?label&color=ff00ff) | ![NPM Stable Version](https://img.shields.io/npm/v/warp-drive/latest?label&color=90EE90) | ![NPM LTS Version](https://img.shields.io/npm/v/warp-drive/lts?label&color=0096FF) | ![NPM V4 Canary Version](https://img.shields.io/npm/v/warp-drive/v4-canary?label&color=FFBF00) | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/warp-drive/lts-4-12?label&color=bbbbbb) |
 | [eslint-plugin-warp-drive](./packages/eslint-plugin-warp-drive/package.json#readme) | 🌌 | ![NPM Canary Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/canary?label&color=FFBF00) | ![NPM Beta Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/beta?label&color=ff00ff) | ![NPM Stable Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/latest?label&color=90EE90) | ![NPM LTS Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/lts?label&color=0096FF) | ![NPM V4 Canary Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/v4-canary?label&color=FFBF00) | ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/eslint-plugin-warp-drive/lts-4-12?label&color=bbbbbb) |
