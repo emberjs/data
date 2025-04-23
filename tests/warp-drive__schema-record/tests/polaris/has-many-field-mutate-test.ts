@@ -6,7 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
+import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 type User = {
   id: string | null;
@@ -14,12 +14,13 @@ type User = {
   name: string;
   friends: User[] | null;
   [Type]: 'user';
+  [Checkout]: () => Promise<User>;
 };
 
 module('Mutate | hasMany in linksMode', function (hooks) {
   setupTest(hooks);
 
-  test('we can mutate a sync hasMany in linksMode', function (this: TestContext, assert) {
+  test('we can mutate a sync hasMany in linksMode', async function (this: TestContext, assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
 
@@ -133,53 +134,55 @@ module('Mutate | hasMany in linksMode', function (hooks) {
       ],
     });
 
-    assert.strictEqual(record.id, '1', 'id is accessible');
-    assert.strictEqual(record.$type, 'user', '$type is accessible');
-    assert.strictEqual(record.name, 'Leo', 'name is accessible');
-    assert.true(record.friends instanceof Array, 'Friends is an instance of Array');
-    assert.true(Array.isArray(record.friends), 'Friends is an array');
-    assert.strictEqual(record.friends?.length, 2, 'friends has 2 items');
-    assert.strictEqual(record.friends?.[0].id, '2', 'friends[0].id is accessible');
-    assert.strictEqual(record.friends?.[0].$type, 'user', 'friends[0].user is accessible');
-    assert.strictEqual(record.friends?.[0].name, 'Benedikt', 'friends[0].name is accessible');
-    assert.strictEqual(record.friends?.[0].friends?.[0].id, record.id, 'friends is reciprocal');
+    // remote state should not show mutated state
+    const assertRemoteState = () => {
+      assert.strictEqual(record.friends?.length, 2, 'friends has 2 items');
+      assert.arrayStrictEquals(
+        record.friends?.map((friend) => friend.id),
+        ['2', '3'],
+        'friends are correct'
+      );
+    };
 
-    assert.arrayStrictEquals(
-      record.friends?.map((friend) => friend.id),
-      ['2', '3'],
-      'friends are correct'
-    );
+    assertRemoteState();
+    const editable = await record[Checkout]();
+
+    // we should have a separate ManyArray reference
+    assert.true(editable.friends !== record.friends, 'editable.friends is a different reference than record.friends');
 
     // Mutate the hasMany relationship
 
     // push a new record
-    record.friends?.push(record4);
-    assert.strictEqual(record.friends?.length, 3, 'friends has 3 items');
-    assert.strictEqual(record.friends?.[2].id, '3', 'friends[2].id is accessible');
+    editable.friends?.push(record4);
+    assert.strictEqual(editable.friends?.length, 3, 'friends has 3 items');
+    assert.strictEqual(editable.friends?.[2].id, '4', 'friends[2].id is accessible');
     assert.arrayStrictEquals(
-      record.friends?.map((friend) => friend.id),
+      editable.friends?.map((friend) => friend.id),
       ['2', '3', '4'],
       'friends are correct'
     );
+    assertRemoteState();
 
     // unshift a new record
-    record.friends?.unshift(record6);
-    assert.strictEqual(record.friends?.length, 4, 'friends has 4 items');
-    assert.strictEqual(record.friends?.[0].id, '6', 'friends[0].id is accessible');
+    editable.friends?.unshift(record6);
+    assert.strictEqual(editable.friends?.length, 4, 'friends has 4 items');
+    assert.strictEqual(editable.friends?.[0].id, '6', 'friends[0].id is accessible');
     assert.arrayStrictEquals(
-      record.friends?.map((friend) => friend.id),
+      editable.friends?.map((friend) => friend.id),
       ['6', '2', '3', '4'],
       'friends are correct'
     );
+    assertRemoteState();
 
     // splice in a new record
-    record.friends?.splice(1, 0, record5);
-    assert.strictEqual(record.friends?.length, 5, 'friends has 5 items');
-    assert.strictEqual(record.friends?.[1].id, '5', 'friends[1].id is accessible');
+    editable.friends?.splice(1, 0, record5);
+    assert.strictEqual(editable.friends?.length, 5, 'friends has 5 items');
+    assert.strictEqual(editable.friends?.[1].id, '5', 'friends[1].id is accessible');
     assert.arrayStrictEquals(
-      record.friends?.map((friend) => friend.id),
+      editable.friends?.map((friend) => friend.id),
       ['6', '5', '2', '3', '4'],
       'friends are correct'
     );
+    assertRemoteState();
   });
 });

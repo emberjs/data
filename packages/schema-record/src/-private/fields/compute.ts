@@ -378,7 +378,7 @@ export function computeHasMany(
       // TODO: Grab the proper value
       _inverseIsAsync: false,
       // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
-      manager: new ManyArrayManager(record),
+      manager: new ManyArrayManager(record, editable),
       isLoaded: true,
       allowMutation: editable,
     });
