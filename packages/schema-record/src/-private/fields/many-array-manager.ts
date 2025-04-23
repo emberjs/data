@@ -22,7 +22,6 @@ export interface FindHasManyOptions {
 export class ManyArrayManager {
   declare record: SchemaRecord;
   declare store: Store;
-  declare cache: Cache;
   declare identifier: StableRecordIdentifier;
 
   constructor(record: SchemaRecord) {
@@ -81,7 +80,7 @@ export class ManyArrayManager {
   }
 
   mutate(mutation: LocalRelationshipOperation): void {
-    this.cache.mutate(mutation);
+    this.store.cache.mutate(mutation);
   }
 }
 
