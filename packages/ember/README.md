@@ -324,7 +324,7 @@ import { Request } from '@warp-drive/ember';
 </template>
 ```
 
-When using the Await component, if no error block is provided and the request rejects,
+When using the Request component, if no error block is provided and the request rejects,
 the error will be thrown. Cancellation errors are not rethrown if no error block or
 cancellation block is present.
 
