@@ -3,7 +3,6 @@ import type { RelatedCollection as ManyArray } from '@ember-data/store/-private'
 import { fastPush, SOURCE } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { CacheOptions } from '@warp-drive/core-types/request';
