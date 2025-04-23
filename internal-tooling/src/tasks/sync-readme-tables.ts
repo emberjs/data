@@ -73,15 +73,18 @@ async function updateVersionsTable(file: BunFile) {
     publicPackages.set(version.name, Object.assign({ directory: '' }, version));
   }
 
+  const rootDir = await getMonorepoRoot();
+
   await walkPackages(async (info) => {
     const { pkg } = info;
     if (!pkg.private) {
+      const dir = path.relative(rootDir, info.pkgPath);
       if (!publicPackages.has(pkg.name)) {
         log(`\t\t❌ Package ${pkg.name} is not in the versions list`);
-        publicPackages.set(pkg.name, { name: pkg.name, audience: '🐹', directory: info.pkgPath });
+        publicPackages.set(pkg.name, { name: pkg.name, audience: '🐹', directory: dir });
       } else {
         const existing = publicPackages.get(pkg.name)!;
-        existing.directory = info.pkgPath;
+        existing.directory = dir;
       }
     } else {
       privatePackages.add(pkg.name);
@@ -109,7 +112,7 @@ async function updateVersionsTable(file: BunFile) {
     */
 
     let rowStr: string[] = [];
-    rowStr.push(`[${name}](./packages/${version.directory}#readme)`);
+    rowStr.push(`[${name}](./${version.directory}#readme)`);
     rowStr.push(version.audience);
     rowStr.push(`![NPM Canary Version](https://img.shields.io/npm/v/${name}/canary?label&color=FFBF00)`);
     rowStr.push(`![NPM Beta Version](https://img.shields.io/npm/v/${name}/beta?label&color=ff00ff)`);
