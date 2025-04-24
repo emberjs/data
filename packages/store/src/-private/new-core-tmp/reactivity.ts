@@ -1,0 +1,83 @@
+/**
+ * Requirements:
+ *
+ * Signal:
+ *
+ * - compat: a way of ensuring that a public getter can be consumed as a reactive property
+ *           when it has no reactive properties of its own. This is important for compatibility
+ *           with the "pull" based models of reactivity which define an explicit path upon which
+ *           to observe.
+ *         - needs to operate as both a decorator and a function operating on a descriptor
+ *
+ * - signal: a way of creating a reference that we can dirty when we desire to notify
+ *         - @signal: a way of creating an accessor on an object that subscribes to a signal on access
+ *                    and notifies the signal on set, or of upgrading a descriptor to be such an accessor
+ *         - defineSignal: a way of creating a signal on an object
+ *         - notifySignal: a way of notifying the underlying signal that it has been dirtied
+ *         - peekSignal: a way of inspecting the signal without notifying it
+ *
+ *
+ *  - gate: a memoized getter function that re-runs when on access if its signal is dirty
+ *         - @gate: a way of creating a gate on an object or upgrading a descriptor with a getter
+ *                  to be a gate
+ *         - defineGate: a way of creating a gate on an object
+ *         - notifySignal: a way of notifying the signal for a gate that it has been dirtied
+ *
+ * - memo:
+ *        - @memo: a way of creating a memoized getter on an object or upgrading a descriptor with a getter
+ *                 to be a memo
+ *        - defineMemo: a way of creating a memo on an object
+ *
+ * - signalStore: storage bucket for signals associated to an object
+ *        - withSignalStore: a way of pre-creating a signal store on an object
+ *
+ *
+ * @internal
+ */
+
+interface Signal {}
+
+// pull-based reactivity compatibility
+export function compat() {}
+
+// basic signals
+//   requires only createSignal/consumeSignal
+export function signal() {}
+export function defineSignal() {}
+
+// signal operations
+export function notifySignal() {}
+export function peekSignal() {}
+
+// create a signal if not exists, subscribe to the signal
+export function _entangleSignal() {}
+
+// create a signal if not exists and give it an initial value
+export function _getSignal() {}
+
+// create a raw signal (not stored anywhere)
+export function _createSignal() {}
+
+// advanced signals
+export function gate() {}
+export function defineGate() {}
+// potentially an aliased signal / a memoized signal with a subscription
+// that is auto-accessed ala ember computed
+
+// Signal.Computed equivalent
+// createCache / getValue / cached
+export function memoized() {}
+export function defineMemoized() {}
+
+// TO CULL
+// getValue / createCache => eliminate as such
+// transact / memoTransact => eliminate
+
+/*
+  The "pluggable" API
+*/
+export function createSignal() {}
+export function consumeSignal() {}
+export function dirtySignal() {}
+export function createComputed() {}
+export function getComputedValue() {}

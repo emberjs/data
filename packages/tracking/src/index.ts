@@ -2,7 +2,9 @@ import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 
 import { assert } from '@warp-drive/build-config/macros';
 
-export { transact, memoTransact, untracked, compat, notifySignal } from './-private';
+export { compat, notifySignal } from './-private';
+
+export { untrack as untracked } from '@glimmer/validator';
 
 export function cached<T extends object, K extends keyof T & string>(
   target: T,
@@ -33,6 +35,8 @@ export function cached<T extends object, K extends keyof T & string>(
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const getter = descriptor.get;
   descriptor.get = function () {
+    // TODO investigate this, seems odd we don't pass the key anywhere
+    // RecordState may have a bug here
     if (!caches.has(this)) caches.set(this, createCache(getter.bind(this)));
     return getValue<unknown>(caches.get(this) as Parameters<typeof getValue>[0]);
   };

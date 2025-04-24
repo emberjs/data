@@ -6,45 +6,9 @@ import { consumeTag, dirtyTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
-import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
-/**
- * This package provides primitives that allow powerful low-level
- * adjustments to change tracking notification behaviors.
- *
- * Typically you want to use these primitives when you want to divorce
- * property accesses on EmberData provided objects from the current
- * tracking context. Typically this sort of thing occurs when serializing
- * tracked data to send in a request: the data itself is often ancillary
- * to the thing which triggered the request in the first place and you
- * would not want to re-trigger the request for any update to the data.
- *
- * @module @ember-data/tracking
- * @main @ember-data/tracking
- */
-type OpaqueFn = (...args: unknown[]) => unknown;
 type Tag = { ref: null; t: boolean };
-type Transaction = {
-  cbs: Set<OpaqueFn>;
-  props: Set<Tag | Signal>;
-  sub: Set<Tag | Signal>;
-  parent: Transaction | null;
-};
-
-function createTransaction() {
-  const transaction: Transaction = {
-    cbs: new Set(),
-    props: new Set(),
-    sub: new Set(),
-    parent: null,
-  };
-  const TRANSACTION = peekTransient<Transaction>('TRANSACTION');
-
-  if (TRANSACTION) {
-    transaction.parent = TRANSACTION;
-  }
-  setTransient('TRANSACTION', transaction);
-}
 
 function maybeConsume(tag: ReturnType<typeof tagForProperty> | null): void {
   if (tag) {
@@ -70,11 +34,7 @@ function maybeDirty(tag: ReturnType<typeof tagForProperty> | null): void {
  * @param obj
  */
 export function subscribe(obj: Tag | Signal): void {
-  const TRANSACTION = peekTransient<Transaction | null>('TRANSACTION');
-
-  if (TRANSACTION) {
-    TRANSACTION.sub.add(obj);
-  } else if ('tag' in obj) {
+  if ('tag' in obj) {
     if (DEPRECATE_COMPUTED_CHAINS) {
       maybeConsume(obj['[]']);
       maybeConsume(obj['@length']);
@@ -86,7 +46,7 @@ export function subscribe(obj: Tag | Signal): void {
   }
 }
 
-function updateRef(obj: Tag | Signal): void {
+export function invalidateSignal(obj: Tag | Signal): void {
   if (DEBUG) {
     try {
       if ('tag' in obj) {
@@ -154,132 +114,6 @@ function updateRef(obj: Tag | Signal): void {
   }
 }
 
-function flushTransaction() {
-  const transaction = peekTransient<Transaction>('TRANSACTION')!;
-  setTransient('TRANSACTION', transaction.parent);
-  transaction.cbs.forEach((cb) => {
-    cb();
-  });
-  transaction.props.forEach((obj) => {
-    // mark this mutation as part of a transaction
-    obj.t = true;
-    updateRef(obj);
-  });
-  transaction.sub.forEach((obj) => {
-    if ('tag' in obj) {
-      if (DEPRECATE_COMPUTED_CHAINS) {
-        maybeConsume(obj['[]']);
-        maybeConsume(obj['@length']);
-      }
-      consumeTag(obj.tag);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      obj.ref;
-    }
-  });
-}
-async function untrack() {
-  const transaction = peekTransient<Transaction>('TRANSACTION')!;
-  setTransient('TRANSACTION', transaction.parent);
-
-  // defer writes
-  await Promise.resolve();
-  transaction.cbs.forEach((cb) => {
-    cb();
-  });
-  transaction.props.forEach((obj) => {
-    // mark this mutation as part of a transaction
-    obj.t = true;
-    updateRef(obj);
-  });
-}
-
-export function addToTransaction(obj: Tag | Signal): void {
-  const transaction = peekTransient<Transaction>('TRANSACTION');
-
-  if (transaction) {
-    transaction.props.add(obj);
-  } else {
-    updateRef(obj);
-  }
-}
-export function addTransactionCB(method: OpaqueFn): void {
-  const transaction = peekTransient<Transaction>('TRANSACTION');
-
-  if (transaction) {
-    transaction.cbs.add(method);
-  } else {
-    method();
-  }
-}
-
-/**
- * Run `method` without subscribing to any tracked properties
- * controlled by EmberData.
- *
- * This should rarely be used except by libraries that really
- * know what they are doing. It is most useful for wrapping
- * certain kinds of fetch/query logic from within a `Resource`
- * `hook` or other similar pattern.
- *
- * @function untracked
- * @public
- * @static
- * @for @ember-data/tracking
- * @param method
- * @return result of invoking method
- */
-export function untracked<T extends OpaqueFn>(method: T): ReturnType<T> {
-  createTransaction();
-  const ret = method();
-  void untrack();
-  return ret as ReturnType<T>;
-}
-
-/**
- * Run the method, subscribing to any tracked properties
- * managed by EmberData that were accessed or written during
- * the method's execution as per-normal but while allowing
- * interleaving of reads and writes.
- *
- * This is useful when for instance you want to perform
- * a mutation based on existing state that must be read first.
- *
- * @function transact
- * @public
- * @static
- * @for @ember-data/tracking
- * @param method
- * @return result of invoking method
- */
-export function transact<T extends OpaqueFn>(method: T): ReturnType<T> {
-  createTransaction();
-  const ret = method();
-  flushTransaction();
-  return ret as ReturnType<T>;
-}
-
-/**
- * A helpful utility for creating a new function that
- * always runs in a transaction. E.G. this "memoizes"
- * calling `transact(fn)`, currying args as necessary.
- *
- * @method memoTransact
- * @public
- * @static
- * @for @ember-data/tracking
- * @param method
- * @return a function that will invoke method in a transaction with any provided args and return its result
- */
-export function memoTransact<T extends OpaqueFn>(method: T): (...args: unknown[]) => ReturnType<T> {
-  return function (...args: unknown[]) {
-    createTransaction();
-    const ret = method(...args);
-    flushTransaction();
-    return ret as ReturnType<T>;
-  };
-}
-
 export const Signals = getOrSetGlobal('Signals', Symbol('Signals'));
 
 /**
@@ -331,7 +165,7 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
       }
       if (_signal.lastValue !== value) {
         _signal.lastValue = value;
-        addToTransaction(_signal);
+        invalidateSignal(_signal);
       }
     },
   });
@@ -352,12 +186,6 @@ export interface Signal {
    */
   key: string;
   _debug_base?: string;
-
-  /**
-   * Whether this signal is part of an active transaction.
-   * @internal
-   */
-  t: boolean;
 
   /**
    * Whether to "bust" the lastValue cache
@@ -428,7 +256,6 @@ export function createSignal<T extends object>(obj: T, key: string): Signal {
     tag: tagForProperty(obj, key),
     reason: null,
 
-    t: false,
     shouldReset: false,
     '[]': null,
     '@length': null,
@@ -533,6 +360,6 @@ export function notifySignal<T extends object, K extends keyof T & string>(obj: 
   const signal = peekSignal(obj, key);
   if (signal) {
     signal.shouldReset = true;
-    addToTransaction(signal);
+    invalidateSignal(signal);
   }
 }

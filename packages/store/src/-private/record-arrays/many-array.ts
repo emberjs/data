@@ -4,7 +4,7 @@
 import { deprecate } from '@ember/debug';
 
 import type { Signal } from '@ember-data/tracking/-private';
-import { addToTransaction } from '@ember-data/tracking/-private';
+import { invalidateSignal } from '@ember-data/tracking/-private';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -634,5 +634,5 @@ function mutate<T>(
 ) {
   assert(`Expected the manager for ManyArray to implement mutate`, typeof collection._manager.mutate === 'function');
   collection._manager.mutate(mutation);
-  addToTransaction(_SIGNAL);
+  invalidateSignal(_SIGNAL);
 }

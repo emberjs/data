@@ -1,6 +1,6 @@
 import type Store from '@ember-data/store';
 import type { Signal } from '@ember-data/tracking/-private';
-import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
+import { createSignal, invalidateSignal, subscribe } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -13,7 +13,7 @@ import type { SchemaService } from '../schema';
 import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
 
 export function notifyArray(arr: ManagedArray) {
-  addToTransaction(arr[ARRAY_SIGNAL]);
+  invalidateSignal(arr[ARRAY_SIGNAL]);
 }
 
 type KeyType = string | symbol | number;
@@ -167,7 +167,6 @@ export class ManagedArray {
 
         const index = convertToInt(prop);
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
-          _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
           const newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {

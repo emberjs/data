@@ -1,7 +1,7 @@
 /**
   @module @ember-data/store
 */
-import { addTransactionCB } from '@ember-data/tracking/-private';
+import { invalidateSignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -10,14 +10,7 @@ import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
-import {
-  ARRAY_SIGNAL,
-  Collection,
-  IdentifierArray,
-  NOTIFY,
-  notifyArray,
-  SOURCE,
-} from '../record-arrays/identifier-array';
+import { ARRAY_SIGNAL, Collection, IdentifierArray, notifyArray, SOURCE } from '../record-arrays/identifier-array';
 import type { Store } from '../store-service';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager';
 
@@ -253,9 +246,9 @@ export class RecordArrayManager {
     }
     if (!tag.shouldReset) {
       tag.shouldReset = true;
-      addTransactionCB(array[NOTIFY]);
-    } else if (delta > 0 && !tag.t) {
-      addTransactionCB(array[NOTIFY]);
+      notifyArray(array);
+    } else if (delta > 0) {
+      notifyArray(array);
     }
   }
 

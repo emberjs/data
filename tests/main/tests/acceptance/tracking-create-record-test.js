@@ -10,120 +10,12 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { cached, memoTransact, transact, untracked } from '@ember-data/tracking';
+import { cached, untracked } from '@ember-data/tracking';
 
 const service = s.service ?? s.inject;
 
 module('acceptance/tracking-transactions', function (hooks) {
   setupRenderingTest(hooks);
-
-  test('can read-write peekAll with transact', async function (assert) {
-    const { owner } = this;
-    class Widget extends Model {
-      @attr name;
-    }
-
-    class WidgetCreator extends Component {
-      @service store;
-
-      @cached
-      get widgets() {
-        return transact(() => {
-          const arr = this.store.peekAll('widget');
-          // create a length subscription
-          const records = arr.filter((r) => r.isNew);
-          if (records.length === 0) {
-            // invalidate length
-            const record = this.store.createRecord('widget', { name: 'Chris' });
-            records.push(record);
-          }
-          return records;
-        });
-      }
-    }
-
-    const layout = hbs`
-      <ul>
-        {{#each this.widgets as |widget|}}
-          <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>
-        {{/each}}
-      </ul>
-    `;
-
-    owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
-    const store = owner.lookup('service:store');
-
-    await render(hbs`
-      <WidgetCreator />
-    `);
-    await settled();
-
-    assert.dom('ul > li').exists({ count: 1 });
-    assert.dom('ul > li:nth-of-type(1)').containsText('Chris Is Valid');
-
-    store.createRecord('widget', { name: 'James' });
-
-    await settled();
-
-    assert.dom('ul > li').exists({ count: 2 });
-    assert.dom('ul > li:nth-of-type(2)').containsText('James Is Valid');
-  });
-
-  test('can read-write peekAll with memoTransact', async function (assert) {
-    const { owner } = this;
-    class Widget extends Model {
-      @attr name;
-    }
-
-    class WidgetCreator extends Component {
-      @service store;
-
-      getWidgets = memoTransact((name) => {
-        const arr = this.store.peekAll('widget');
-        // create a length subscription
-        const records = arr.filter((r) => r.isNew);
-        if (records.length === 0) {
-          // invalidate length
-          const record = this.store.createRecord('widget', { name });
-          records.push(record);
-        }
-        return records;
-      });
-
-      @cached
-      get widgets() {
-        return this.getWidgets('Chris');
-      }
-    }
-
-    const layout = hbs`
-      <ul>
-        {{#each this.widgets as |widget|}}
-          <li>{{widget.name}} {{if widget.isValid 'Is Valid' 'Is Invalid'}}</li>
-        {{/each}}
-      </ul>
-    `;
-
-    owner.register('model:widget', Widget);
-    owner.register('component:widget-creator', setComponentTemplate(layout, WidgetCreator));
-    const store = owner.lookup('service:store');
-
-    await render(hbs`
-      <WidgetCreator />
-    `);
-    await settled();
-
-    assert.dom('ul > li').exists({ count: 1 });
-    assert.dom('ul > li:nth-of-type(1)').containsText('Chris Is Valid');
-
-    // invalidate peekAll length
-    store.createRecord('widget', { name: 'James' });
-    await settled();
-
-    assert.dom('ul > li').exists({ count: 2 });
-    assert.dom('ul > li:nth-of-type(2)').containsText('James Is Valid');
-  });
 
   test('can query safely with untracked', async function (assert) {
     const { owner } = this;

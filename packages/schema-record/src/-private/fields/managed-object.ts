@@ -1,5 +1,5 @@
 import type { Signal } from '@ember-data/tracking/-private';
-import { addToTransaction, createSignal, subscribe } from '@ember-data/tracking/-private';
+import { createSignal, invalidateSignal, subscribe } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -12,7 +12,7 @@ import type { SchemaService } from '../schema';
 import { Editable, EmbeddedPath, Legacy, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
-  addToTransaction(obj[OBJECT_SIGNAL]);
+  invalidateSignal(obj[OBJECT_SIGNAL]);
 }
 
 type ObjectSymbol = typeof OBJECT_SIGNAL | typeof Parent | typeof SOURCE | typeof Editable | typeof EmbeddedPath;
@@ -108,7 +108,6 @@ export class ManagedObject {
         }
 
         if (_SIGNAL.shouldReset) {
-          _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
           let newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {

@@ -35,7 +35,6 @@ export const SOURCE = getOrSetGlobal('SOURCE', Symbol('#source'));
 export const MUTATE = getOrSetGlobal('MUTATE', Symbol('#update'));
 export const ARRAY_SIGNAL = getOrSetGlobal('ARRAY_SIGNAL', Symbol('#array-signal'));
 export const OBJECT_SIGNAL = getOrSetGlobal('OBJECT_SIGNAL', Symbol('#object-signal'));
-export const NOTIFY = getOrSetGlobal('NOTIFY', Symbol('#notify'));
 
 export const Destroy = getOrSetGlobal('Destroy', Symbol('Destroy'));
 export const Identifier = getOrSetGlobal('Identifier', Symbol('Identifier'));

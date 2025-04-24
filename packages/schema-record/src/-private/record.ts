@@ -5,7 +5,7 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
 import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
-import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
+import { entangleSignal, getSignal, invalidateSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -446,7 +446,7 @@ export class SchemaRecord {
             const signal = getSignal(receiver, prop as string, true);
             if (signal.lastValue !== value) {
               signal.lastValue = value;
-              addToTransaction(signal);
+              invalidateSignal(signal);
             }
             return true;
           }
@@ -619,7 +619,7 @@ export class SchemaRecord {
             if (identityField.name && identityField.kind === '@id') {
               const signal = signals.get('@identity');
               if (signal) {
-                addToTransaction(signal);
+                invalidateSignal(signal);
               }
             }
             break;
@@ -649,7 +649,7 @@ export class SchemaRecord {
                 // console.log(`Notification for ${key} on ${identifier.type}`, self);
                 const signal = signals.get(key);
                 if (signal) {
-                  addToTransaction(signal);
+                  invalidateSignal(signal);
                 }
                 const field = fields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
@@ -661,7 +661,7 @@ export class SchemaRecord {
                     );
                     const arrSignal = peeked[ARRAY_SIGNAL];
                     arrSignal.shouldReset = true;
-                    addToTransaction(arrSignal);
+                    invalidateSignal(arrSignal);
                   }
                 }
                 if (field?.kind === 'object') {
@@ -669,7 +669,7 @@ export class SchemaRecord {
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
                     objSignal.shouldReset = true;
-                    addToTransaction(objSignal);
+                    invalidateSignal(objSignal);
                   }
                 }
               }
@@ -689,7 +689,7 @@ export class SchemaRecord {
                   // console.log(`Notification for ${key} on ${identifier.type}`, self);
                   const signal = signals.get(key);
                   if (signal) {
-                    addToTransaction(signal);
+                    invalidateSignal(signal);
                   }
                   // FIXME
                 } else if (field.kind === 'resource') {
@@ -700,7 +700,7 @@ export class SchemaRecord {
                     if (peeked) {
                       // const arrSignal = peeked[ARRAY_SIGNAL];
                       // arrSignal.shouldReset = true;
-                      // addToTransaction(arrSignal);
+                      //invalidateSignal(arrSignal);
                       peeked.notify();
                     }
                     return;
@@ -728,7 +728,7 @@ export class SchemaRecord {
                     if (field.options.async) {
                       const signal = signals.get(key);
                       if (signal) {
-                        addToTransaction(signal);
+                        invalidateSignal(signal);
                       }
                     }
                   }

@@ -95,7 +95,6 @@ type GlobalKey =
   | 'MUTATE'
   | 'ARRAY_SIGNAL'
   | 'OBJECT_SIGNAL'
-  | 'NOTIFY'
   | 'Destroy'
   | 'Identifier'
   | 'Editable'

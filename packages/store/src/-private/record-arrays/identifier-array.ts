@@ -4,10 +4,10 @@
 import { compat } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import {
-  addToTransaction,
   createArrayTags,
   createSignal,
   defineSignal,
+  invalidateSignal,
   subscribe,
 } from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
@@ -68,11 +68,10 @@ function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<k
 export const ARRAY_SIGNAL = getOrSetGlobal('#signal', Symbol('#signal'));
 export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
 export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
-export const NOTIFY = getOrSetGlobal('#notify', Symbol('#notify'));
 const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
 
 export function notifyArray(arr: IdentifierArray) {
-  addToTransaction(arr[ARRAY_SIGNAL]);
+  invalidateSignal(arr[ARRAY_SIGNAL]);
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -191,9 +190,6 @@ export class IdentifierArray<T = unknown> {
   [IS_COLLECTION] = true;
   declare [ARRAY_SIGNAL]: Signal;
   [SOURCE]: StableRecordIdentifier[];
-  [NOTIFY]() {
-    notifyArray(this);
-  }
 
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
@@ -213,7 +209,7 @@ export class IdentifierArray<T = unknown> {
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
     this[SOURCE].length = 0;
-    this[NOTIFY]();
+    notifyArray(this);
     this.isDestroyed = !clear;
   }
 
@@ -257,7 +253,6 @@ export class IdentifierArray<T = unknown> {
         const index = convertToInt(prop);
         if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _SIGNAL.t = false;
           _SIGNAL.shouldReset = false;
         }
 
@@ -329,7 +324,7 @@ export class IdentifierArray<T = unknown> {
         }
 
         if (isSelfProp(self, prop)) {
-          if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
+          if (prop === ARRAY_SIGNAL || prop === SOURCE) {
             return self[prop];
           }
 
@@ -463,8 +458,6 @@ export class IdentifierArray<T = unknown> {
     }
 
     createArrayTags(proxy, _SIGNAL);
-
-    this[NOTIFY] = this[NOTIFY].bind(proxy);
 
     return proxy;
   }
