@@ -15,7 +15,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
 import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
-import { and, Throw } from './await.gts';
+import { and, not, Throw } from './await.gts';
 import type { RequestLoadingState, RequestState } from './request-state.ts';
 import { getRequestState } from './request-state.ts';
 
@@ -26,12 +26,12 @@ function notNull<T>(x: T | null) {
   return x;
 }
 
-const not = (x: unknown) => !x;
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
 const IdleBlockMissingError = new Error(
-  'No idle block provided for <Request> component, and no query or request was provided.'
+  'No <:idle> block provided for <Request /> component, and no @query or @request was provided.'
 );
+const ErrorBlockMissingError = new Error('The <Request /> component requires an <:error> block to be provided.');
 
 let consume = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
@@ -950,6 +950,9 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
       {{yield this.result this.contentFeatures to="content"}}
     {{else if (not this.reqState.isCancelled)}}
       <Throw @error={{(notNull this.reqState.error)}} />
+    {{/if}}
+    {{#if (not (has-block "error"))}}
+      <Throw @error={{ErrorBlockMissingError}} />
     {{/if}}
     {{yield this.reqState to="always"}}
   </template>

@@ -8,12 +8,15 @@ import type { Awaitable } from '@ember-data/request';
 
 import { getPromiseState } from './promise-state.ts';
 
+export const not = (x: unknown) => !x;
 export const and = (x: unknown, y: unknown) => Boolean(x && y);
 interface ThrowSignature<E = Error | string | object> {
   Args: {
     error: E;
   };
 }
+
+const ErrorBlockMissingError = new Error('The <Await /> component requires an <:error> block to be provided.');
 
 /**
  * The `<Throw />` component is used to throw an error in a template.
@@ -107,6 +110,9 @@ export class Await<T, E> extends Component<AwaitSignature<T, E>> {
       {{yield this.result to="success"}}
     {{else}}
       <Throw @error={{this.error}} />
+    {{/if}}
+    {{#if (not (has-block "error"))}}
+      <Throw @error={{ErrorBlockMissingError}} />
     {{/if}}
   </template>
 }
