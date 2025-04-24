@@ -1,7 +1,7 @@
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
-import type { RequestState, RequestStateService } from '@ember-data/store/-private';
+import type { RequestCacheRequestState, RequestStateService } from '@ember-data/store/-private';
 import { recordIdentifierFor } from '@ember-data/store/-private';
 import { cached, notifySignal } from '@ember-data/tracking';
 import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
@@ -75,8 +75,8 @@ export default class RecordState {
   declare fulfilledCount: number;
   declare rejectedCount: number;
   declare cache: Cache;
-  declare _errorRequests: RequestState[];
-  declare _lastError: RequestState | null;
+  declare _errorRequests: RequestCacheRequestState[];
+  declare _lastError: RequestCacheRequestState | null;
   declare handler: object;
 
   constructor(record: MinimalLegacyRecord) {
@@ -96,7 +96,7 @@ export default class RecordState {
     const requests = store.getRequestStateService();
     const notifications = store.notifications;
 
-    const handleRequest = (req: RequestState) => {
+    const handleRequest = (req: RequestCacheRequestState) => {
       if (req.type === 'mutation') {
         switch (req.state) {
           case 'pending':

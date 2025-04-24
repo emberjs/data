@@ -20,7 +20,7 @@ export type {
   FindRecordQuery,
   Request,
   SaveRecordMutation,
-  RequestState,
+  RequestCacheRequestState,
   RequestStateService,
 } from './-private/network/request-cache';
 
@@ -52,3 +52,9 @@ export type { StoreRequestInput } from './-private/cache-handler/handler';
 export { RelatedCollection } from './-private/record-arrays/many-array';
 
 export { log, logGroup } from './-private/debug/utils';
+export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state';
+export {
+  getRequestState,
+  type RequestLoadingState,
+  type RequestCacheRequestState as RequestState,
+} from './-private/new-core-tmp/request-state';
