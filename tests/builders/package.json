@@ -1,6 +1,6 @@
 {
   "name": "builders-test-app",
-  "version": "5.5.0-alpha.19",
+  "version": "5.5.0-alpha.20",
   "private": true,
   "description": "Provides tests for URL and Request Building Capabilities",
   "keywords": [],
