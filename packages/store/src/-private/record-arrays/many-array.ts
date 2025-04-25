@@ -3,8 +3,6 @@
 */
 import { deprecate } from '@ember/debug';
 
-import type { Signal } from '@ember-data/tracking/-private';
-import { invalidateSignal } from '@ember-data/tracking/-private';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -20,9 +18,10 @@ import type { Links, PaginationLinks } from '@warp-drive/core-types/spec/json-ap
 import type { BaseFinderOptions, ModelSchema } from '../../types';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
+import { ARRAY_SIGNAL, notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal';
 import type { CreateRecordProperties, Store } from '../store-service';
 import type { MinimumManager } from './identifier-array';
-import { ARRAY_SIGNAL, IdentifierArray, MUTATE, notifyArray, SOURCE } from './identifier-array';
+import { IdentifierArray, MUTATE, notifyArray, SOURCE } from './identifier-array';
 import type { NativeProxy } from './native-proxy-type-fix';
 
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
@@ -172,7 +171,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
-    _SIGNAL: Signal
+    _SIGNAL: WarpDriveSignal
   ): unknown {
     switch (prop) {
       case 'length 0': {
@@ -379,7 +378,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
 
   notify() {
     const signal = this[ARRAY_SIGNAL];
-    signal.shouldReset = true;
+    signal.isStale = true;
     notifyArray(this);
   }
 
@@ -541,7 +540,7 @@ function assertNoDuplicates<T>(
 function mutateAddToRelatedRecords<T>(
   collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   mutate(
     collection,
@@ -558,7 +557,7 @@ function mutateAddToRelatedRecords<T>(
 function mutateRemoveFromRelatedRecords<T>(
   collection: RelatedCollection<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   mutate(
     collection,
@@ -579,7 +578,7 @@ function mutateReplaceRelatedRecord<T>(
     prior: StableRecordIdentifier;
     index: number;
   },
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   mutate(
     collection,
@@ -596,7 +595,7 @@ function mutateReplaceRelatedRecord<T>(
 function mutateReplaceRelatedRecords<T>(
   collection: RelatedCollection<T>,
   value: StableRecordIdentifier[],
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   mutate(
     collection,
@@ -613,7 +612,7 @@ function mutateReplaceRelatedRecords<T>(
 function mutateSortRelatedRecords<T>(
   collection: RelatedCollection<T>,
   value: StableRecordIdentifier[],
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   mutate(
     collection,
@@ -630,9 +629,9 @@ function mutateSortRelatedRecords<T>(
 function mutate<T>(
   collection: RelatedCollection<T>,
   mutation: Parameters<Exclude<MinimumManager['mutate'], undefined>>[0],
-  _SIGNAL: Signal
+  _SIGNAL: WarpDriveSignal
 ) {
   assert(`Expected the manager for ManyArray to implement mutate`, typeof collection._manager.mutate === 'function');
   collection._manager.mutate(mutation);
-  invalidateSignal(_SIGNAL);
+  notifyInternalSignal(_SIGNAL);
 }

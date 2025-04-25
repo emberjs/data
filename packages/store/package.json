@@ -48,6 +48,11 @@
     "@ember-data/tracking": "workspace:*",
     "@warp-drive/core-types": "workspace:*"
   },
+  "peerDependenciesMeta": {
+    "@ember-data/tracking": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",

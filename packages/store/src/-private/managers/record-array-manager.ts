@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { invalidateSignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -9,8 +8,9 @@ import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-dri
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
+import { ARRAY_SIGNAL } from '../new-core-tmp/reactivity/internal';
 import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
-import { ARRAY_SIGNAL, Collection, IdentifierArray, notifyArray, SOURCE } from '../record-arrays/identifier-array';
+import { Collection, IdentifierArray, notifyArray, SOURCE } from '../record-arrays/identifier-array';
 import type { Store } from '../store-service';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager';
 
@@ -244,8 +244,8 @@ export class RecordArrayManager {
     if (shouldSyncFromCache) {
       tag.reason = 'cache-sync';
     }
-    if (!tag.shouldReset) {
-      tag.shouldReset = true;
+    if (!tag.isStale) {
+      tag.isStale = true;
       notifyArray(array);
     } else if (delta > 0) {
       notifyArray(array);

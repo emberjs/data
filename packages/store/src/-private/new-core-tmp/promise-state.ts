@@ -1,6 +1,7 @@
 import type { Awaitable } from '@ember-data/request';
 import { getPromiseResult, setPromiseResult } from '@ember-data/request';
-import { defineSignal } from '@ember-data/tracking/-private';
+
+import { defineSignal } from './reactivity/signal';
 
 const PromiseCache = new WeakMap<Awaitable, PromiseState>();
 

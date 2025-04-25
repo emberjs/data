@@ -1,15 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { compat } from '@ember-data/tracking';
-import type { Signal } from '@ember-data/tracking/-private';
-import {
-  createArrayTags,
-  createSignal,
-  defineSignal,
-  invalidateSignal,
-  subscribe,
-} from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -25,6 +16,15 @@ import type { BaseFinderOptions } from '../../types';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
+import { compat } from '../new-core-tmp/reactivity/configure';
+import type { WarpDriveSignal } from '../new-core-tmp/reactivity/internal';
+import {
+  ARRAY_SIGNAL,
+  consumeInternalSignal,
+  notifyInternalSignal,
+  withSignalStore,
+} from '../new-core-tmp/reactivity/internal';
+import { defineSignal, entangleSignal } from '../new-core-tmp/reactivity/signal';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
 
@@ -65,13 +65,12 @@ function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<k
   return prop in self;
 }
 
-export const ARRAY_SIGNAL = getOrSetGlobal('#signal', Symbol('#signal'));
 export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
 export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
 const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
 
 export function notifyArray(arr: IdentifierArray) {
-  invalidateSignal(arr[ARRAY_SIGNAL]);
+  notifyInternalSignal(arr[ARRAY_SIGNAL]);
 }
 
 function convertToInt(prop: KeyType): number | null {
@@ -161,7 +160,7 @@ export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
     receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
-    _SIGNAL: Signal
+    _SIGNAL: WarpDriveSignal
   ): unknown;
 }
 
@@ -188,7 +187,7 @@ export class IdentifierArray<T = unknown> {
   readonly identifier: StableDocumentIdentifier | null;
 
   [IS_COLLECTION] = true;
-  declare [ARRAY_SIGNAL]: Signal;
+  declare [ARRAY_SIGNAL]: WarpDriveSignal;
   [SOURCE]: StableRecordIdentifier[];
 
   declare links: Links | PaginationLinks | null;
@@ -230,10 +229,15 @@ export class IdentifierArray<T = unknown> {
     this._manager = options.manager;
     this.identifier = options.identifier || null;
     this[SOURCE] = options.identifiers;
-    this[ARRAY_SIGNAL] = createSignal(this, 'length');
+
+    // TODO this likely should be entangled on the proxy/receiver not this class
+    // FIXME before we entangled legacy array signals on the proxy too
+    const signals = withSignalStore(this);
+    entangleSignal(signals, this, 'length', undefined);
+    const _SIGNAL = entangleSignal(signals, this, ARRAY_SIGNAL, undefined);
+
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    const _SIGNAL = this[ARRAY_SIGNAL];
     const PrivateState: PrivateState = {
       links: options.links || null,
       meta: options.meta || null,
@@ -251,22 +255,22 @@ export class IdentifierArray<T = unknown> {
         receiver: R
       ): unknown {
         const index = convertToInt(prop);
-        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+        if (_SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _SIGNAL.shouldReset = false;
+          _SIGNAL.isStale = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            subscribe(_SIGNAL);
+            consumeInternalSignal(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return subscribe(_SIGNAL), PrivateState.meta;
-        if (prop === 'links') return subscribe(_SIGNAL), PrivateState.links;
-        if (prop === '[]') return subscribe(_SIGNAL), receiver;
+        if (prop === 'meta') return consumeInternalSignal(_SIGNAL), PrivateState.meta;
+        if (prop === 'links') return consumeInternalSignal(_SIGNAL), PrivateState.links;
+        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
@@ -274,7 +278,7 @@ export class IdentifierArray<T = unknown> {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 transaction = true;
                 const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB<T>, arguments[1]);
                 transaction = false;
@@ -282,7 +286,7 @@ export class IdentifierArray<T = unknown> {
               };
             } else {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -335,7 +339,7 @@ export class IdentifierArray<T = unknown> {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              subscribe(_SIGNAL);
+              consumeInternalSignal(_SIGNAL);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -345,7 +349,7 @@ export class IdentifierArray<T = unknown> {
             return fn;
           }
 
-          return subscribe(_SIGNAL), outcome;
+          return consumeInternalSignal(_SIGNAL), outcome;
         }
 
         return target[prop as keyof StableRecordIdentifier[]];
@@ -456,8 +460,6 @@ export class IdentifierArray<T = unknown> {
         },
       });
     }
-
-    createArrayTags(proxy, _SIGNAL);
 
     return proxy;
   }

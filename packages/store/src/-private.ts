@@ -36,7 +36,6 @@ export {
   notifyArray,
   SOURCE,
   MUTATE,
-  ARRAY_SIGNAL,
 } from './-private/record-arrays/identifier-array';
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager';
 
@@ -58,3 +57,28 @@ export {
   type RequestLoadingState,
   type RequestCacheRequestState as RequestState,
 } from './-private/new-core-tmp/request-state';
+
+export {
+  getMemoValue,
+  createMemo,
+  setupSignals,
+  type SignalHooks,
+  isArraySignal,
+  compat,
+} from './-private/new-core-tmp/reactivity/configure';
+export {
+  memoized,
+  gate,
+  entangleSignal,
+  defineSignal,
+  defineNonEnumerableSignal,
+} from './-private/new-core-tmp/reactivity/signal';
+export {
+  ARRAY_SIGNAL,
+  OBJECT_SIGNAL,
+  Signals,
+  type WarpDriveSignal,
+  withSignalStore,
+  notifyInternalSignal,
+  consumeInternalSignal,
+} from './-private/new-core-tmp/reactivity/internal';

@@ -10,7 +10,8 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { cached, untracked } from '@ember-data/tracking';
+import { memoized } from '@ember-data/store/-private';
+import { untracked } from '@ember-data/tracking';
 
 const service = s.service ?? s.inject;
 
@@ -56,7 +57,7 @@ module('acceptance/tracking-transactions', function (hooks) {
     class WidgetCreator extends Component {
       @service store;
 
-      @cached
+      @memoized
       get widgets() {
         return untracked(() => {
           const all = this.store.peekAll('widget').filter((r) => r.name === this.args.name);

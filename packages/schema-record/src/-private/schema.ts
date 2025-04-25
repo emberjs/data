@@ -4,8 +4,8 @@
 import { deprecate } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
+import { createMemo, getMemoValue } from '@ember-data/store/-private';
 import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
-import { createCache, getValue } from '@ember-data/tracking';
 import type { Signal } from '@ember-data/tracking/-private';
 import { Signals } from '@ember-data/tracking/-private';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
@@ -174,13 +174,13 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
     const signals = (record as { [Signals]: Map<string, Signal> })[Signals];
     let signal = signals.get(prop);
     if (!signal) {
-      signal = createCache(() => {
+      signal = createMemo(() => {
         return derivation(record, options, prop);
-      }) as unknown as Signal; // a total lie, for convenience of reusing the storage
+      }) as Signal; // a total lie, for convenience of reusing the storage
       signals.set(prop, signal);
     }
 
-    return getValue(signal as unknown as ReturnType<typeof createCache>) as T;
+    return getMemoValue(signal) as T;
   };
   memoizedDerivation[Type] = derivation[Type];
   return memoizedDerivation;

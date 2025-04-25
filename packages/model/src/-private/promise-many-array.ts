@@ -1,7 +1,6 @@
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
+import { compat, defineSignal } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
-import { compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 

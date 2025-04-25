@@ -1,8 +1,8 @@
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
-import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
+import { defineSignal, RelatedCollection as ManyArray } from '@ember-data/store/-private';
+import { getSignal, peekSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
@@ -303,9 +303,9 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
   }
 }
 
-defineSignal(ResourceRelationship.prototype, 'data');
-defineSignal(ResourceRelationship.prototype, 'links');
-defineSignal(ResourceRelationship.prototype, 'meta');
+defineSignal(ResourceRelationship.prototype, 'data', null);
+defineSignal(ResourceRelationship.prototype, 'links', null);
+defineSignal(ResourceRelationship.prototype, 'meta', null);
 
 function getHref(link?: Link | null): string | null {
   if (!link) {

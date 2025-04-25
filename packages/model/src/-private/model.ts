@@ -8,9 +8,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId } from '@ember-data/store/-private';
-import { compat, notifySignal } from '@ember-data/tracking';
-import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
+import { coerceId, compat, defineSignal, entangleSignal, gate, withSignalStore } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -498,7 +496,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
     @type {String}
   */
-  @tagged
+  @gate
   get id(): string | null {
     // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
@@ -538,7 +536,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   */
   // TODO we can probably make this a computeOnce
   // we likely do not need to notify the currentState root anymore
-  @tagged
+  @gate
   get currentState() {
     // descriptors are called with the wrong `this` context during mergeMixins
     // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
@@ -662,7 +660,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   // @ts-expect-error no return is necessary, but Ember's types are forcing it
   notifyPropertyChange(prop: string): this {
-    notifySignal(this, prop as keyof this & string);
+    const signals = withSignalStore(this);
+    entangleSignal(signals, this, prop, undefined);
     super.notifyPropertyChange(prop);
   }
 

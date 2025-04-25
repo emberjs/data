@@ -2,9 +2,8 @@ import type { CollectionEdge, Graph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
+import { defineNonEnumerableSignal, memoized } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -146,8 +145,7 @@ export default class HasManyReference<
    * @property {StableRecordIdentifier[]} identifiers
    * @public
    */
-  @cached
-  @compat
+  @memoized
   get identifiers(): StableRecordIdentifier<TypeFromInstanceOrString<Related>>[] {
     ensureRefCanSubscribe(this);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -748,7 +746,7 @@ export default class HasManyReference<
     return support.reloadHasMany(this.key, options) as Promise<ManyArray<Related>>;
   }
 }
-defineSignal(HasManyReference.prototype, '_ref', 0);
+defineNonEnumerableSignal(HasManyReference.prototype, '_ref', 0);
 
 export function isMaybeResource(object: ExistingResourceObject | ResourceIdentifier): object is ExistingResourceObject {
   const keys = Object.keys(object).filter((k) => k !== 'id' && k !== 'type' && k !== 'lid');

@@ -4,8 +4,14 @@ import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-metho
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
-import { entangleSignal, getSignal, invalidateSignal, type Signal, Signals } from '@ember-data/tracking/-private';
+import {
+  ARRAY_SIGNAL,
+  entangleSignal,
+  recordIdentifierFor,
+  setRecordIdentifier,
+  withSignalStore,
+} from '@ember-data/store/-private';
+import { getSignal, invalidateSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -31,18 +37,7 @@ import {
   peekManagedObject,
 } from './fields/compute';
 import type { SchemaService } from './schema';
-import {
-  ARRAY_SIGNAL,
-  Checkout,
-  Destroy,
-  Editable,
-  EmbeddedPath,
-  EmbeddedType,
-  Identifier,
-  Legacy,
-  OBJECT_SIGNAL,
-  Parent,
-} from './symbols';
+import { Checkout, Destroy, Editable, EmbeddedPath, EmbeddedType, Identifier, Legacy, Parent } from './symbols';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
@@ -128,8 +123,7 @@ export class SchemaRecord {
       ? schema.fields({ type: embeddedType as string })
       : schema.fields(identifier);
 
-    const signals: Map<string, Signal> = new Map();
-    this[Signals] = signals;
+    const signals = withSignalStore(this);
 
     const proxy = new Proxy(this, {
       ownKeys() {
@@ -231,7 +225,7 @@ export class SchemaRecord {
             let fn = BoundFns.get('toString');
             if (!fn) {
               fn = function () {
-                entangleSignal(signals, receiver, '@identity');
+                entangleSignal(signals, receiver, '@identity', null);
                 return `Record<${identifier.type}:${identifier.id} (${identifier.lid})>`;
               };
               BoundFns.set(prop, fn);
@@ -243,7 +237,7 @@ export class SchemaRecord {
             let fn = BoundFns.get('toHTML');
             if (!fn) {
               fn = function () {
-                entangleSignal(signals, receiver, '@identity');
+                entangleSignal(signals, receiver, '@identity', null);
                 return `<span>Record<${identifier.type}:${identifier.id} (${identifier.lid})></span>`;
               };
               BoundFns.set(prop, fn);
@@ -305,30 +299,31 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, receiver, '@identity');
+            entangleSignal(signals, receiver, '@identity', null);
             return identifier.id;
           case '@hash':
             // TODO pass actual cache value not {}
             return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
           case '@local': {
+            // FIXME the signal is the local storage, don't need the double entangle
             const lastValue = computeLocal(receiver, field, prop as string);
-            entangleSignal(signals, receiver, prop as string);
+            entangleSignal(signals, receiver, prop as string, null);
             return lastValue;
           }
           case 'field':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeAttribute(cache, identifier, prop as string, IS_EDITABLE);
           case 'resource':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
           case 'array':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeArray(
               store,
               schema,
@@ -341,10 +336,10 @@ export class SchemaRecord {
               Mode[Legacy]
             );
           case 'object':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             // run transform, then use that value as the object to manage
             return computeSchemaObject(
               store,
@@ -358,7 +353,7 @@ export class SchemaRecord {
             );
           case 'belongsTo':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name);
+              entangleSignal(signals, receiver, field.name, null);
               const rawValue = IS_EDITABLE
                 ? (cache.getRelationship(identifier, field.name) as SingleResourceRelationship)
                 : (cache.getRemoteRelationship(identifier, field.name) as SingleResourceRelationship);
@@ -373,11 +368,11 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name);
+              entangleSignal(signals, receiver, field.name, null);
 
               return computeHasMany(
                 store,
@@ -398,7 +393,7 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getHasMany(field.name);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
@@ -474,7 +469,7 @@ export class SchemaRecord {
                   ARRAY_SIGNAL in peeked
                 );
                 const arrSignal = peeked[ARRAY_SIGNAL];
-                arrSignal.shouldReset = true;
+                arrSignal.isStale = true;
               }
               if (!Array.isArray(value)) {
                 ManagedArrayMap.delete(target);
@@ -494,7 +489,7 @@ export class SchemaRecord {
                 ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.shouldReset = true;
+              arrSignal.isStale = true;
             }
             return true;
           }
@@ -511,7 +506,7 @@ export class SchemaRecord {
                 ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.shouldReset = true;
+              arrSignal.isStale = true;
             }
             if (!Array.isArray(value)) {
               ManagedArrayMap.delete(target);
@@ -532,7 +527,7 @@ export class SchemaRecord {
               const peeked = peekManagedObject(self, field);
               if (peeked) {
                 const objSignal = peeked[OBJECT_SIGNAL];
-                objSignal.shouldReset = true;
+                objSignal.isStale = true;
               }
               return true;
             }
@@ -544,7 +539,7 @@ export class SchemaRecord {
             const peeked = peekManagedObject(self, field);
             if (peeked) {
               const objSignal = peeked[OBJECT_SIGNAL];
-              objSignal.shouldReset = true;
+              objSignal.isStale = true;
             }
             return true;
           }
@@ -566,7 +561,7 @@ export class SchemaRecord {
             // const peeked = peekManagedObject(self, field);
             // if (peeked) {
             //   const objSignal = peeked[OBJECT_SIGNAL];
-            //   objSignal.shouldReset = true;
+            //   objSignal.isStale = true;
             // }
             return true;
           }
@@ -660,7 +655,7 @@ export class SchemaRecord {
                       ARRAY_SIGNAL in peeked
                     );
                     const arrSignal = peeked[ARRAY_SIGNAL];
-                    arrSignal.shouldReset = true;
+                    arrSignal.isStale = true;
                     invalidateSignal(arrSignal);
                   }
                 }
@@ -668,7 +663,7 @@ export class SchemaRecord {
                   const peeked = peekManagedObject(self, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
-                    objSignal.shouldReset = true;
+                    objSignal.isStale = true;
                     invalidateSignal(objSignal);
                   }
                 }
@@ -699,7 +694,7 @@ export class SchemaRecord {
                     const peeked = peekManagedArray(self, field) as ManyArray | undefined;
                     if (peeked) {
                       // const arrSignal = peeked[ARRAY_SIGNAL];
-                      // arrSignal.shouldReset = true;
+                      // arrSignal.isStale = true;
                       //invalidateSignal(arrSignal);
                       peeked.notify();
                     }

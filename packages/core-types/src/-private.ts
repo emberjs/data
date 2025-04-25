@@ -44,14 +44,15 @@ type GlobalKey =
   | 'NotFoundError'
   | 'ConflictError'
   | 'ServerError'
-  // @ember-data/tracking
+  // @ember-data/store/reactivity
+  | '#{}'
+  | '#[]'
   | 'Signals'
   // @ember-data/store LegacySupport
   | 'AvailableShims'
   // @ember-data/store RecordArrayManager
   | 'FAKE_ARR'
   // @ember-data/store IdentifierArray
-  | '#signal'
   | '#source'
   | '#update'
   | '#notify'
@@ -93,8 +94,6 @@ type GlobalKey =
   | 'Support'
   | 'SOURCE'
   | 'MUTATE'
-  | 'ARRAY_SIGNAL'
-  | 'OBJECT_SIGNAL'
   | 'Destroy'
   | 'Identifier'
   | 'Editable'

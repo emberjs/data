@@ -16,8 +16,8 @@
  *         - notifySignal: a way of notifying the underlying signal that it has been dirtied
  *         - peekSignal: a way of inspecting the signal without notifying it
  *
- *
  *  - gate: a memoized getter function that re-runs when on access if its signal is dirty
+ *          conceptually, a gate is a tightly coupled signal and memo
  *         - @gate: a way of creating a gate on an object or upgrading a descriptor with a getter
  *                  to be a gate
  *         - defineGate: a way of creating a gate on an object
@@ -34,50 +34,3 @@
  *
  * @internal
  */
-
-interface Signal {}
-
-// pull-based reactivity compatibility
-export function compat() {}
-
-// basic signals
-//   requires only createSignal/consumeSignal
-export function signal() {}
-export function defineSignal() {}
-
-// signal operations
-export function notifySignal() {}
-export function peekSignal() {}
-
-// create a signal if not exists, subscribe to the signal
-export function _entangleSignal() {}
-
-// create a signal if not exists and give it an initial value
-export function _getSignal() {}
-
-// create a raw signal (not stored anywhere)
-export function _createSignal() {}
-
-// advanced signals
-export function gate() {}
-export function defineGate() {}
-// potentially an aliased signal / a memoized signal with a subscription
-// that is auto-accessed ala ember computed
-
-// Signal.Computed equivalent
-// createCache / getValue / cached
-export function memoized() {}
-export function defineMemoized() {}
-
-// TO CULL
-// getValue / createCache => eliminate as such
-// transact / memoTransact => eliminate
-
-/*
-  The "pluggable" API
-*/
-export function createSignal() {}
-export function consumeSignal() {}
-export function dirtySignal() {}
-export function createComputed() {}
-export function getComputedValue() {}

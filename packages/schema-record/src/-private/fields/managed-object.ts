@@ -1,5 +1,10 @@
-import type { Signal } from '@ember-data/tracking/-private';
-import { createSignal, invalidateSignal, subscribe } from '@ember-data/tracking/-private';
+import {
+  consumeInternalSignal,
+  entangleSignal,
+  notifyInternalSignal,
+  type WarpDriveSignal,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -12,7 +17,7 @@ import type { SchemaService } from '../schema';
 import { Editable, EmbeddedPath, Legacy, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
-  invalidateSignal(obj[OBJECT_SIGNAL]);
+  notifyInternalSignal(obj[OBJECT_SIGNAL]);
 }
 
 type ObjectSymbol = typeof OBJECT_SIGNAL | typeof Parent | typeof SOURCE | typeof Editable | typeof EmbeddedPath;
@@ -27,7 +32,7 @@ export interface ManagedObject {
     receiver: typeof Proxy<unknown[]>,
     prop: string,
     args: unknown[],
-    _SIGNAL: Signal
+    _SIGNAL: WarpDriveSignal
   ): unknown;
 }
 
@@ -35,7 +40,7 @@ export class ManagedObject {
   declare [SOURCE]: object;
   declare [Parent]: StableRecordIdentifier;
   declare [EmbeddedPath]: string[];
-  declare [OBJECT_SIGNAL]: Signal;
+  declare [OBJECT_SIGNAL]: WarpDriveSignal;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
 
@@ -53,13 +58,13 @@ export class ManagedObject {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = { ...data };
-    this[OBJECT_SIGNAL] = createSignal(this, 'length');
+    const signals = withSignalStore(this);
+    const _SIGNAL = (this[OBJECT_SIGNAL] = entangleSignal(signals, this, OBJECT_SIGNAL, undefined));
     this[Editable] = editable;
     this[Legacy] = legacy;
     this[Parent] = identifier;
     this[EmbeddedPath] = path;
 
-    const _SIGNAL = this[OBJECT_SIGNAL];
     const proxy = new Proxy(this[SOURCE], {
       ownKeys() {
         return Object.keys(self[SOURCE]);
@@ -107,8 +112,8 @@ export class ManagedObject {
           };
         }
 
-        if (_SIGNAL.shouldReset) {
-          _SIGNAL.shouldReset = false;
+        if (_SIGNAL.isStale) {
+          _SIGNAL.isStale = false;
           let newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {
             if (field.type) {
@@ -120,7 +125,7 @@ export class ManagedObject {
         }
 
         if (prop in self[SOURCE]) {
-          subscribe(_SIGNAL);
+          consumeInternalSignal(_SIGNAL);
 
           return (self[SOURCE] as R)[prop];
         }
@@ -142,7 +147,7 @@ export class ManagedObject {
           cache.setAttr(identifier, path, val);
         }
 
-        _SIGNAL.shouldReset = true;
+        _SIGNAL.isStale = true;
         return true;
       },
     }) as ManagedObject;

@@ -1,6 +1,12 @@
 import type Store from '@ember-data/store';
-import type { Signal } from '@ember-data/tracking/-private';
-import { createSignal, invalidateSignal, subscribe } from '@ember-data/tracking/-private';
+import type { WarpDriveSignal } from '@ember-data/store/-private';
+import {
+  ARRAY_SIGNAL,
+  consumeInternalSignal,
+  entangleSignal,
+  notifyInternalSignal,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -10,10 +16,10 @@ import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-t
 
 import { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { ARRAY_SIGNAL, Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
+import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
 
 export function notifyArray(arr: ManagedArray) {
-  invalidateSignal(arr[ARRAY_SIGNAL]);
+  notifyInternalSignal(arr[ARRAY_SIGNAL]);
 }
 
 type KeyType = string | symbol | number;
@@ -102,7 +108,7 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
     receiver: typeof Proxy<unknown[]>,
     prop: string,
     args: unknown[],
-    _SIGNAL: Signal
+    _SIGNAL: WarpDriveSignal
   ): unknown;
 }
 
@@ -111,7 +117,7 @@ export class ManagedArray {
   declare identifier: StableRecordIdentifier;
   declare path: string[];
   declare owner: SchemaRecord;
-  declare [ARRAY_SIGNAL]: Signal;
+  declare [ARRAY_SIGNAL]: WarpDriveSignal;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
 
@@ -131,10 +137,13 @@ export class ManagedArray {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = data?.slice();
-    this[ARRAY_SIGNAL] = createSignal(this, 'length');
     const IS_EDITABLE = (this[Editable] = editable ?? false);
     this[Legacy] = legacy;
-    const _SIGNAL = this[ARRAY_SIGNAL];
+
+    // FIXME probably can get rid of the manual ARRAY_SIGNAL storage
+    // FIXME probably the storage should be on the proxy/receiver not this class
+    const signals = withSignalStore(this);
+    const _SIGNAL = (this[ARRAY_SIGNAL] = entangleSignal(signals, this, ARRAY_SIGNAL, undefined));
     const boundFns = new Map<KeyType, ProxiedMethod>();
     this.identifier = identifier;
     this.path = path;
@@ -166,8 +175,8 @@ export class ManagedArray {
         }
 
         const index = convertToInt(prop);
-        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
-          _SIGNAL.shouldReset = false;
+        if (_SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+          _SIGNAL.isStale = false;
           const newData = cache.getAttr(identifier, path);
           if (newData && newData !== self[SOURCE]) {
             self[SOURCE].length = 0;
@@ -208,7 +217,7 @@ export class ManagedArray {
 
           if (isSchemaArray) {
             if (!transaction) {
-              subscribe(_SIGNAL);
+              consumeInternalSignal(_SIGNAL);
             }
 
             if (val) {
@@ -251,7 +260,7 @@ export class ManagedArray {
           }
 
           if (!transaction) {
-            subscribe(_SIGNAL);
+            consumeInternalSignal(_SIGNAL);
           }
           if (field.type) {
             const transform = schema.transformation(field);
@@ -266,7 +275,7 @@ export class ManagedArray {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 transaction = true;
                 const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
@@ -274,7 +283,7 @@ export class ManagedArray {
               };
             } else {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -298,7 +307,7 @@ export class ManagedArray {
                   `Mutating this array via ${String(prop)} is not allowed because the record is not editable`
                 );
               }
-              subscribe(_SIGNAL);
+              consumeInternalSignal(_SIGNAL);
               transaction = true;
               const result = Reflect.apply(target[prop] as ProxiedMethod, receiver, arguments) as unknown;
               transaction = false;
@@ -334,7 +343,7 @@ export class ManagedArray {
         if (reflect) {
           if (!field.type) {
             cache.setAttr(identifier, path, self[SOURCE] as Value);
-            _SIGNAL.shouldReset = true;
+            _SIGNAL.isStale = true;
             return true;
           }
 
@@ -349,7 +358,7 @@ export class ManagedArray {
             );
           }
           cache.setAttr(identifier, path, rawValue as Value);
-          _SIGNAL.shouldReset = true;
+          _SIGNAL.isStale = true;
         }
         return reflect;
       },
