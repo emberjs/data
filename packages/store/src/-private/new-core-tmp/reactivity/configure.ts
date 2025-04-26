@@ -1,3 +1,8 @@
+import { deprecate } from '@ember/debug';
+
+import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
+
+import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 
 import { ARRAY_SIGNAL, type SignalRef } from './internal';
@@ -101,4 +106,57 @@ export function createMemo<T>(fn: () => T): unknown {
 export function getMemoValue(memo: unknown): unknown {
   assert(`Signal hooks not configured`, signalHooks !== null);
   return signalHooks.getMemoValue(memo);
+}
+
+if (DEPRECATE_TRACKING_PACKAGE) {
+  let hasEmberDataTracking = false;
+  if (macroCondition(dependencySatisfies('@ember-data/tracking', '*'))) {
+    hasEmberDataTracking = true;
+    // @ts-expect-error
+    const { buildSignalConfig } = importSync('@ember-data/tracking');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    setupSignals(buildSignalConfig);
+  }
+
+  const message = [
+    `Using WarpDrive with EmberJS requires configuring it to use Ember's reactivity system.`,
+    `Previously this was provided by installing the package '@ember-data/tracking', but this package is now deprecated.`,
+    ``,
+    `To resolve this deprecation, follow these steps:`,
+    hasEmberDataTracking
+      ? `- remove "@ember-data/tracking" and (if needed) "@ember-data-types/tracking" from your project in both your package.json and tsconfig.json`
+      : false,
+    `- add "@warp-drive/ember" to your project in both your package.json and tsconfig.json`,
+    '- add the following import to your app.js file:',
+    '',
+    '\t```',
+    `\timport '@warp-drive/ember/install';`,
+    '\t```',
+    ``,
+    '- mark this deprecation as resolved in your project by adding the following to your WarpDrive config in ember-cli-build.js:',
+    '',
+    '\t```',
+    '\tconst { setConfig } = await import("@warp-drive/build-config");',
+    '\tsetConfig(app, __dirname, {',
+    '\t  deprecations: {',
+    '\t    DEPRECATE_TRACKING_PACKAGE: false,',
+    '\t  },',
+    '\t});',
+    '\t```',
+    ``,
+    `For more information, see the Package Unification RFC: https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/`,
+  ]
+    .filter((l) => l !== false)
+    .join('\n');
+
+  deprecate(message, false, {
+    id: 'warp-drive.deprecate-tracking-package',
+    until: '6.0.0',
+    for: 'warp-drive',
+    since: {
+      enabled: '5.3.4',
+      available: '4.13',
+    },
+    url: 'https://deprecations.emberjs.com/id/warp-drive.deprecate-tracking-package',
+  });
 }

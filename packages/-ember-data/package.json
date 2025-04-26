@@ -81,6 +81,7 @@
     "@embroider/macros": "^1.16.12",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
     "@warp-drive/ember": "workspace:*"
   },
   "peerDependencies": {
