@@ -1,12 +1,6 @@
 import type Store from '@ember-data/store';
 import type { WarpDriveSignal } from '@ember-data/store/-private';
-import {
-  ARRAY_SIGNAL,
-  consumeInternalSignal,
-  entangleSignal,
-  notifyInternalSignal,
-  withSignalStore,
-} from '@ember-data/store/-private';
+import { ARRAY_SIGNAL, consumeInternalSignal, entangleSignal, withSignalStore } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -17,10 +11,6 @@ import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-t
 import { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
 import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
-
-export function notifyArray(arr: ManagedArray) {
-  notifyInternalSignal(arr[ARRAY_SIGNAL]);
-}
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([

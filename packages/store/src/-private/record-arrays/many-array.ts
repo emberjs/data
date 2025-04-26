@@ -21,7 +21,7 @@ import { recordIdentifierFor } from '../caches/instance-cache';
 import { ARRAY_SIGNAL, notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal';
 import type { CreateRecordProperties, Store } from '../store-service';
 import type { MinimumManager } from './identifier-array';
-import { IdentifierArray, MUTATE, notifyArray, SOURCE } from './identifier-array';
+import { IdentifierArray, MUTATE, SOURCE } from './identifier-array';
 import type { NativeProxy } from './native-proxy-type-fix';
 
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
@@ -377,9 +377,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   }
 
   notify() {
-    const signal = this[ARRAY_SIGNAL];
-    signal.isStale = true;
-    notifyArray(this);
+    notifyInternalSignal(this[ARRAY_SIGNAL]);
   }
 
   /**

@@ -33,7 +33,6 @@ export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix
 export {
   IdentifierArray as LiveArray,
   Collection as CollectionRecordArray,
-  notifyArray,
   SOURCE,
   MUTATE,
 } from './-private/record-arrays/identifier-array';

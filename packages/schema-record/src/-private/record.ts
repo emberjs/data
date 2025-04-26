@@ -7,6 +7,7 @@ import type { RelatedCollection as ManyArray } from '@ember-data/store/-private'
 import {
   ARRAY_SIGNAL,
   entangleSignal,
+  notifyInternalSignal,
   recordIdentifierFor,
   setRecordIdentifier,
   withSignalStore,
@@ -693,10 +694,7 @@ export class SchemaRecord {
                   if (field.options.linksMode) {
                     const peeked = peekManagedArray(self, field) as ManyArray | undefined;
                     if (peeked) {
-                      // const arrSignal = peeked[ARRAY_SIGNAL];
-                      // arrSignal.isStale = true;
-                      //invalidateSignal(arrSignal);
-                      peeked.notify();
+                      notifyInternalSignal(peeked[ARRAY_SIGNAL]);
                     }
                     return;
                   }
@@ -716,7 +714,7 @@ export class SchemaRecord {
                   }
 
                   if (manyArray) {
-                    manyArray.notify();
+                    notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
 
                     assert(`Expected options to exist on relationship meta`, field.options);
                     assert(`Expected async to exist on relationship meta options`, 'async' in field.options);

@@ -69,10 +69,6 @@ export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
 export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
 const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
 
-export function notifyArray(arr: IdentifierArray) {
-  notifyInternalSignal(arr[ARRAY_SIGNAL]);
-}
-
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
 
@@ -208,7 +204,7 @@ export class IdentifierArray<T = unknown> {
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
     this[SOURCE].length = 0;
-    notifyArray(this);
+    notifyInternalSignal(this[ARRAY_SIGNAL]);
     this.isDestroyed = !clear;
   }
 

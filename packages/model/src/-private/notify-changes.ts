@@ -2,6 +2,7 @@ import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
+import { ARRAY_SIGNAL, notifyInternalSignal } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
@@ -61,7 +62,7 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
     }
 
     if (manyArray) {
-      manyArray.notify();
+      notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
 
       //We need to notifyPropertyChange in the adding case because we need to make sure
       //we fetch the newly added record in case it is unloaded
