@@ -226,11 +226,18 @@ export function peekInternalSignal(
   return signals?.get(key);
 }
 
+export function expectInternalSignal(signals: SignalStore | undefined, key: string | symbol): WarpDriveSignal {
+  const signal = peekInternalSignal(signals, key);
+  assert(`Expected signal for ${String(key)}`, signal);
+  return signal;
+}
+
 export function consumeInternalSignal(signal: WarpDriveSignal) {
   consumeSignal(signal.signal);
 }
 
 export function notifyInternalSignal(signal: WarpDriveSignal) {
+  signal.isStale = true;
   notifySignal(signal.signal);
 }
 
