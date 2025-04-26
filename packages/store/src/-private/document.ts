@@ -9,9 +9,8 @@ import type { CollectionResourceDataDocument, ResourceDocument } from '@warp-dri
 import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Mutable } from '@warp-drive/core-types/utils';
 
-import { notifyInternalSignal, withSignalStore } from '../-private';
 import type { DocumentCacheOperation } from './managers/notification-manager';
-import { expectInternalSignal } from './new-core-tmp/reactivity/internal';
+import { expectInternalSignal, notifyInternalSignal, withSignalStore } from './new-core-tmp/reactivity/internal';
 import { defineGate } from './new-core-tmp/reactivity/signal';
 import type { Store } from './store-service';
 
