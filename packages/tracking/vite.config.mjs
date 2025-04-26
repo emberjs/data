@@ -6,7 +6,7 @@ export const externals = [
   '@glimmer/tracking/primitives/cache',
   '@ember/object/compat',
 ];
-export const entryPoints = ['src/index.ts', 'src/-private.ts'];
+export const entryPoints = ['src/index.ts'];
 
 export default createConfig(
   {

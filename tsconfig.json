@@ -24,6 +24,7 @@
     { "path": "./packages/schema-record" },
     { "path": "./packages/serializer" },
     { "path": "./packages/store" },
+    { "path": "./packages/tracking" },
     { "path": "./packages/unpublished-test-infra" },
     { "path": "./packages/experiments" }
   ]

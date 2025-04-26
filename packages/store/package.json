@@ -45,7 +45,13 @@
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
-    "@warp-drive/core-types": "workspace:*"
+    "@warp-drive/core-types": "workspace:*",
+    "@ember-data/tracking": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@ember-data/tracking": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -57,6 +63,7 @@
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
     "decorator-transforms": "^2.3.0",
     "ember-source": "~6.3.0",
     "expect-type": "^1.2.1",

@@ -13,14 +13,64 @@
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
-  "keywords": [],
+  "keywords": [
+    "ember-addon"
+  ],
   "volta": {
     "extends": "../../package.json"
   },
+  "dependencies": {
+    "@embroider/macros": "^1.16.12",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@warp-drive/core-types": "workspace:*"
+  },
   "files": [
+    "unstable-preview-types",
+    "addon-main.cjs",
+    "dist",
     "README.md",
     "LICENSE.md"
   ],
-  "scripts": {},
-  "devDependencies": {}
+  "exports": {
+    ".": {
+      "types": "./unstable-preview-types/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\"",
+    "start": "vite"
+  },
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2,
+    "externals": [
+      "@ember/-internals",
+      "@ember/-internals/metal",
+      "@glimmer/validator"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.27.0",
+    "@glimmer/component": "^2.0.0",
+    "@glimmer/validator": "^0.94.8",
+    "@warp-drive/core-types": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-source": "~6.3.0",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.15"
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

@@ -9,8 +9,11 @@ export const externals = [
   '@glimmer/component',
   '@ember/test-waiters',
   '@glimmer/tracking',
+  '@glimmer/validator',
+  '@ember/object/compat',
+  '@ember/-internals/metal',
 ];
-export const entryPoints = ['./src/index.ts'];
+export const entryPoints = ['./src/index.ts', './src/install.ts'];
 
 export default createConfig(
   {

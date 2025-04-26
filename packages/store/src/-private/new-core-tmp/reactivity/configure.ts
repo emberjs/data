@@ -21,6 +21,12 @@ export interface SignalHooks<T = SignalRef, M = MemoRef> {
   getMemoValue: (memo: M) => unknown;
 }
 
+export interface HooksOptions {
+  wellknown: {
+    Array: symbol | string;
+  };
+}
+
 let signalHooks: SignalHooks | null = null;
 
 /**
@@ -28,8 +34,13 @@ let signalHooks: SignalHooks | null = null;
  *
  * @internal
  */
-export function setupSignals<T>(hooks: SignalHooks<T>) {
+export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>) {
   assert(`Cannot override configured signal hooks`, signalHooks === null);
+  const hooks = buildConfig({
+    wellknown: {
+      Array: ARRAY_SIGNAL,
+    },
+  });
   signalHooks = hooks as SignalHooks;
 }
 

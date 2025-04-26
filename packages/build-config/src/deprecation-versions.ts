@@ -451,3 +451,42 @@ export const DEPRECATE_EMBER_INFLECTOR = '5.3';
  * @public
  */
 export const DISABLE_7X_DEPRECATIONS = '7.0';
+
+/**
+ * **id: warp-drive:deprecate-tracking-package**
+ *
+ * Deprecates the use of the @ember-data/tracking package which
+ * historically provided bindings into Ember's reactivity system.
+ *
+ * This package is no longer needed as the configuration is now
+ * provided by the @warp-drive/ember package.
+ *
+ * This deprecation can be resolved by removing the
+ * @ember-data/tracking package from your project and ensuring
+ * that your app.js file has the following import:
+ *
+ * ```js
+ * import '@warp-drive/ember/install';
+ * ```
+ *
+ * Once this import is present, you can remove the deprecation
+ * by setting the deprecation to `false` in your build config:
+ *
+ * ```js
+ * // inside of ember-cli-build.js
+ *
+ * const { setConfig } = await import('@warp-drive/build-config');
+ *
+ * setConfig(app, __dirname, {
+ *   deprecations: {
+ *     DEPRECATE_TRACKING_PACKAGE: false
+ *   }
+ * });
+ * ```
+ *
+ * @property DEPRECATE_TRACKING_PACKAGE
+ * @since 5.5
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_TRACKING_PACKAGE = '5.5';
