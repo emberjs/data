@@ -4,10 +4,9 @@
 import { deprecate } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
-import { createMemo, getMemoValue } from '@ember-data/store/-private';
+import type { WarpDriveSignal } from '@ember-data/store/-private';
+import { createMemo, getMemoValue, withSignalStore } from '@ember-data/store/-private';
 import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
-import type { Signal } from '@ember-data/tracking/-private';
-import { Signals } from '@ember-data/tracking/-private';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -171,12 +170,12 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
   derivation: Derivation<R, T, FM>
 ): Derivation<R, T, FM> {
   const memoizedDerivation = (record: R, options: FM, prop: string): T => {
-    const signals = (record as { [Signals]: Map<string, Signal> })[Signals];
+    const signals = withSignalStore(record);
     let signal = signals.get(prop);
     if (!signal) {
       signal = createMemo(() => {
         return derivation(record, options, prop);
-      }) as Signal; // a total lie, for convenience of reusing the storage
+      }) as WarpDriveSignal; // a total lie, for convenience of reusing the storage
       signals.set(prop, signal);
     }
 

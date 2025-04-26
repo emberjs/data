@@ -1,6 +1,6 @@
 import { tagForProperty } from '@ember/-internals/metal';
 import { dependentKeyCompat } from '@ember/object/compat';
-import { consumeTag, dirtyTag } from '@glimmer/validator';
+import { consumeTag, createCache, dirtyTag, getValue } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
@@ -48,5 +48,7 @@ export function buildSignalConfig(options: {
       }
     },
     compat: dependentKeyCompat,
+    createMemo: createCache,
+    getMemoValue: getValue,
   };
 }
