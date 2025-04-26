@@ -77,6 +77,7 @@ export {
   OBJECT_SIGNAL,
   Signals,
   type WarpDriveSignal,
+  peekInternalSignal,
   withSignalStore,
   notifyInternalSignal,
   consumeInternalSignal,

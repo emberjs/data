@@ -7,10 +7,10 @@ import {
   gate,
   memoized,
   notifyInternalSignal,
+  peekInternalSignal,
   recordIdentifierFor,
   withSignalStore,
 } from '@ember-data/store/-private';
-import { getOrCreateInternalSignal } from '@ember-data/store/-private/new-core-tmp/reactivity/internal';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -191,8 +191,10 @@ export default class RecordState {
 
   notify(key: keyof this & string) {
     const signals = withSignalStore(this);
-    const signal = getOrCreateInternalSignal(signals, this, key, null);
-    notifyInternalSignal(signal);
+    const signal = peekInternalSignal(signals, key);
+    if (signal) {
+      notifyInternalSignal(signal);
+    }
   }
 
   updateInvalidErrors(errors: Errors) {
