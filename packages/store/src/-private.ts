@@ -81,4 +81,5 @@ export {
   withSignalStore,
   notifyInternalSignal,
   consumeInternalSignal,
+  getOrCreateInternalSignal,
 } from './-private/new-core-tmp/reactivity/internal';

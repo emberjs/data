@@ -170,7 +170,7 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
   derivation: Derivation<R, T, FM>
 ): Derivation<R, T, FM> {
   const memoizedDerivation = (record: R, options: FM, prop: string): T => {
-    const signals = withSignalStore(record);
+    const signals = withSignalStore(record as object);
     let signal = signals.get(prop);
     if (!signal) {
       signal = createMemo(() => {

@@ -1,8 +1,13 @@
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
-import { defineSignal, RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { getSignal, peekSignal } from '@ember-data/tracking/-private';
+import {
+  consumeInternalSignal,
+  defineSignal,
+  getOrCreateInternalSignal,
+  RelatedCollection as ManyArray,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
@@ -40,14 +45,10 @@ export const ManagedObjectMap = getOrSetGlobal(
 );
 
 export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
-  let signal = peekSignal(record, prop);
-
-  if (!signal) {
-    signal = getSignal(record, prop, false);
-    signal.lastValue = field.options?.defaultValue ?? null;
-  }
-
-  return signal.lastValue;
+  const signals = withSignalStore(record);
+  const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
+  consumeInternalSignal(signal);
+  return signal.value;
 }
 
 export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManyArray | ManagedArray | undefined {

@@ -182,9 +182,9 @@ export class IdentifierArray<T = unknown> {
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
   readonly identifier: StableDocumentIdentifier | null;
 
-  [IS_COLLECTION] = true;
+  declare [IS_COLLECTION]: boolean;
   declare [ARRAY_SIGNAL]: WarpDriveSignal;
-  [SOURCE]: StableRecordIdentifier[];
+  declare [SOURCE]: StableRecordIdentifier[];
 
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
@@ -225,6 +225,7 @@ export class IdentifierArray<T = unknown> {
     this._manager = options.manager;
     this.identifier = options.identifier || null;
     this[SOURCE] = options.identifiers;
+    this[IS_COLLECTION] = true;
 
     // TODO this likely should be entangled on the proxy/receiver not this class
     // FIXME before we entangled legacy array signals on the proxy too
@@ -262,6 +263,10 @@ export class IdentifierArray<T = unknown> {
             consumeInternalSignal(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
+        }
+
+        if (prop === ARRAY_SIGNAL) {
+          return _SIGNAL;
         }
 
         if (prop === 'meta') return consumeInternalSignal(_SIGNAL), PrivateState.meta;
@@ -324,7 +329,7 @@ export class IdentifierArray<T = unknown> {
         }
 
         if (isSelfProp(self, prop)) {
-          if (prop === ARRAY_SIGNAL || prop === SOURCE) {
+          if (prop === SOURCE) {
             return self[prop];
           }
 

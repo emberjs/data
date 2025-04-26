@@ -2,6 +2,7 @@ import {
   consumeInternalSignal,
   entangleSignal,
   notifyInternalSignal,
+  OBJECT_SIGNAL,
   type WarpDriveSignal,
   withSignalStore,
 } from '@ember-data/store/-private';
@@ -14,7 +15,7 @@ import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/sche
 
 import type { SchemaRecord } from '../record';
 import type { SchemaService } from '../schema';
-import { Editable, EmbeddedPath, Legacy, MUTATE, OBJECT_SIGNAL, Parent, SOURCE } from '../symbols';
+import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
 
 export function notifyObject(obj: ManagedObject) {
   notifyInternalSignal(obj[OBJECT_SIGNAL]);

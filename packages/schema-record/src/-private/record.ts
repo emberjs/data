@@ -7,12 +7,13 @@ import type { RelatedCollection as ManyArray } from '@ember-data/store/-private'
 import {
   ARRAY_SIGNAL,
   entangleSignal,
+  getOrCreateInternalSignal,
   notifyInternalSignal,
+  OBJECT_SIGNAL,
   recordIdentifierFor,
   setRecordIdentifier,
   withSignalStore,
 } from '@ember-data/store/-private';
-import { getSignal, invalidateSignal, type Signal, Signals } from '@ember-data/tracking/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -47,18 +48,7 @@ const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model',
 
 export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
-const symbolList = [
-  Destroy,
-  RecordStore,
-  Identifier,
-  Editable,
-  Parent,
-  Checkout,
-  Legacy,
-  Signals,
-  EmbeddedPath,
-  EmbeddedType,
-];
+const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, EmbeddedPath, EmbeddedType];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -89,7 +79,6 @@ export class SchemaRecord {
   declare [EmbeddedPath]: string[] | null;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
-  declare [Signals]: Map<string, Signal>;
   declare [Symbol.toStringTag]: `SchemaRecord<${string}>`;
   declare ___notifications: object;
 
@@ -306,10 +295,7 @@ export class SchemaRecord {
             // TODO pass actual cache value not {}
             return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
           case '@local': {
-            // FIXME the signal is the local storage, don't need the double entangle
-            const lastValue = computeLocal(receiver, field, prop as string);
-            entangleSignal(signals, receiver, prop as string, null);
-            return lastValue;
+            return computeLocal(receiver, field, prop as string);
           }
           case 'field':
             entangleSignal(signals, receiver, field.name, null);
@@ -439,10 +425,15 @@ export class SchemaRecord {
             return true;
           }
           case '@local': {
-            const signal = getSignal(receiver, prop as string, true);
-            if (signal.lastValue !== value) {
-              signal.lastValue = value;
-              invalidateSignal(signal);
+            const signal = getOrCreateInternalSignal(
+              signals,
+              receiver,
+              prop as string | symbol,
+              field.options?.defaultValue ?? null
+            );
+            if (signal.value !== value) {
+              signal.value = value;
+              notifyInternalSignal(signal);
             }
             return true;
           }
@@ -615,7 +606,7 @@ export class SchemaRecord {
             if (identityField.name && identityField.kind === '@id') {
               const signal = signals.get('@identity');
               if (signal) {
-                invalidateSignal(signal);
+                notifyInternalSignal(signal);
               }
             }
             break;
@@ -645,7 +636,7 @@ export class SchemaRecord {
                 // console.log(`Notification for ${key} on ${identifier.type}`, self);
                 const signal = signals.get(key);
                 if (signal) {
-                  invalidateSignal(signal);
+                  notifyInternalSignal(signal);
                 }
                 const field = fields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
@@ -656,16 +647,14 @@ export class SchemaRecord {
                       ARRAY_SIGNAL in peeked
                     );
                     const arrSignal = peeked[ARRAY_SIGNAL];
-                    arrSignal.isStale = true;
-                    invalidateSignal(arrSignal);
+                    notifyInternalSignal(arrSignal);
                   }
                 }
                 if (field?.kind === 'object') {
                   const peeked = peekManagedObject(self, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
-                    objSignal.isStale = true;
-                    invalidateSignal(objSignal);
+                    notifyInternalSignal(objSignal);
                   }
                 }
               }
@@ -685,7 +674,7 @@ export class SchemaRecord {
                   // console.log(`Notification for ${key} on ${identifier.type}`, self);
                   const signal = signals.get(key);
                   if (signal) {
-                    invalidateSignal(signal);
+                    notifyInternalSignal(signal);
                   }
                   // FIXME
                 } else if (field.kind === 'resource') {
@@ -721,7 +710,7 @@ export class SchemaRecord {
                     if (field.options.async) {
                       const signal = signals.get(key);
                       if (signal) {
-                        invalidateSignal(signal);
+                        notifyInternalSignal(signal);
                       }
                     }
                   }
