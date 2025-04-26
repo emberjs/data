@@ -34,6 +34,7 @@
     "@ember-data/model": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",
     "@ember-data/graph": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
     "@ember-data/json-api": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
