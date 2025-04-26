@@ -2,8 +2,15 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import type { RequestCacheRequestState, RequestStateService } from '@ember-data/store/-private';
-import { defineSignal, gate, memoized, recordIdentifierFor } from '@ember-data/store/-private';
-import { notifySignal } from '@ember-data/tracking';
+import {
+  defineSignal,
+  gate,
+  memoized,
+  notifyInternalSignal,
+  recordIdentifierFor,
+  withSignalStore,
+} from '@ember-data/store/-private';
+import { getOrCreateInternalSignal } from '@ember-data/store/-private/new-core-tmp/reactivity/internal';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -183,7 +190,9 @@ export default class RecordState {
   }
 
   notify(key: keyof this & string) {
-    notifySignal(this, key);
+    const signals = withSignalStore(this);
+    const signal = getOrCreateInternalSignal(signals, this, key, null);
+    notifyInternalSignal(signal);
   }
 
   updateInvalidErrors(errors: Errors) {

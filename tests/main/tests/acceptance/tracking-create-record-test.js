@@ -3,6 +3,7 @@ import * as s from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
+import { untrack as untracked } from '@glimmer/validator';
 
 import { module, test } from 'qunit';
 
@@ -11,7 +12,6 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { memoized } from '@ember-data/store/-private';
-import { untracked } from '@ember-data/tracking';
 
 const service = s.service ?? s.inject;
 

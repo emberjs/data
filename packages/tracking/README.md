@@ -1,35 +1,19 @@
-<p align="center">
-  <img
-    class="project-logo"
-    src="./logos/ember-data-logo-dark.svg#gh-dark-mode-only"
-    alt="EmberData Store"
-    width="240px"
-    title="EmberData Store"
-    />
-  <img
-    class="project-logo"
-    src="./logos/ember-data-logo-light.svg#gh-light-mode-only"
-    alt="EmberData Store"
-    width="240px"
-    title="EmberData Store"
-    />
-</p>
+# ⚠️ Decommissioned ⚠️ 
 
-<p align="center">Tracking Primitives for controlling change notification of Tracked properties when working with EmberData</p>
+> [!WARNING]
+> This package is no longer providing any code as of release version 5.5
+> Posted on 4/25/2025
 
-## Installation
+This package is no longer part of the EmberData/WarpDrive experience.
 
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
+Previously it provided the reactivity integration for EmberData/WarpDrive to use Ember's reactivity
+system. Agnostic reactivity primitives are now provided by @ember-data/store (and thus @warp-drive/core)
+while ember specific configuration is provided by @warp-drive/ember.
 
+If using the `ember-data` package, you can remove any references to this package, no other changes needed.
+If using individual packages, ensure you have `@warp-drive/ember` installed and add the following line to
+your `app.ts` file.
+
+```ts
+import '@warp-drive/ember/install';
 ```
-pnpm add @ember-data/tracking
-```
-
-**Tagged Releases**
-
-- ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/tracking/canary?label=%40canary&color=FFBF00)
-- ![NPM Beta Version](https://img.shields.io/npm/v/%40ember-data/tracking/beta?label=%40beta&color=ff00ff)
-- ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/tracking/latest?label=%40latest&color=90EE90)
-- ![NPM LTS Version](https://img.shields.io/npm/v/%40ember-data/tracking/lts?label=%40lts&color=0096FF)
-- ![NPM LTS 4.12 Version](https://img.shields.io/npm/v/%40ember-data/tracking/lts-4-12?label=%40lts-4-12&color=bbbbbb)
-

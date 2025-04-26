@@ -71,7 +71,6 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",
     "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^2.0.0",

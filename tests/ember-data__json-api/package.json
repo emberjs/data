@@ -35,7 +35,6 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
     "@ember/optional-features": "^2.2.0",

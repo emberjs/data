@@ -1,5 +1,6 @@
 export interface Version {
   name: string;
+  deprecated?: true;
   audience: '🐹' | '🌌' | '🌌🐹';
 }
 export const Versions = [
@@ -69,7 +70,8 @@ export const Versions = [
   },
   {
     name: '@ember-data/tracking',
-    audience: '🌌🐹',
+    deprecated: true,
+    audience: '🐹',
   },
   {
     name: '@warp-drive/build-config',

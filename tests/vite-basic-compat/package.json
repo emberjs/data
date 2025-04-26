@@ -37,7 +37,6 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/string": "^4.0.1",

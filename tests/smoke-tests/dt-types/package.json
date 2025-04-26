@@ -31,7 +31,6 @@
     "@ember-data/rest": "file:./packages/ember-data-rest.tgz",
     "@ember-data/serializer": "file:./packages/ember-data-serializer.tgz",
     "@ember-data/store": "file:./packages/ember-data-store.tgz",
-    "@ember-data/tracking": "file:./packages/ember-data-tracking.tgz",
     "@warp-drive/build-config": "file:./packages/warp-drive-build-config.tgz",
     "@warp-drive/core-types": "file:./packages/warp-drive-core-types.tgz",
     "@types/ember": "^4.0.11",

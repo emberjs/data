@@ -48,7 +48,6 @@
     "@ember-data/model": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",

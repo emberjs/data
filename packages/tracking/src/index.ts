@@ -4,8 +4,6 @@ import { consumeTag, createCache, dirtyTag, getValue } from '@glimmer/validator'
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
-export { untrack as untracked } from '@glimmer/validator';
-
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
 

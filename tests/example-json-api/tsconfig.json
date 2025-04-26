@@ -37,8 +37,6 @@
       "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
       "@ember-data/store": ["../../packages/store/unstable-preview-types"],
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
@@ -81,9 +79,6 @@
     },
     {
       "path": "../../packages/store"
-    },
-    {
-      "path": "../../packages/tracking"
     },
     {
       "path": "../../packages/unpublished-test-infra"

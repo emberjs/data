@@ -45,8 +45,6 @@
       "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
       "@ember-data/serializer": ["../../packages/serializer/unstable-preview-types"],
       "@ember-data/serializer/*": ["../../packages/serializer/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
@@ -99,9 +97,6 @@
     },
     {
       "path": "../../packages/serializer"
-    },
-    {
-      "path": "../../packages/tracking"
     },
     {
       "path": "../../packages/core-types"

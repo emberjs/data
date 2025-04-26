@@ -21,8 +21,6 @@ type UniversalKey =
   | 'WarpDriveRuntimeConfig';
 
 type TransientKey =
-  // @ember-data/tracking
-  | 'TRANSACTION'
   // @ember-data/graph
   | 'transactionRef'
   // @ember-data/store

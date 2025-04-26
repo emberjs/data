@@ -47,7 +47,6 @@ module.exports = async function (defaults) {
       ['@ember-data/rest', null],
       ['@ember-data/serializer', null],
       ['@ember-data/store', null],
-      ['@ember-data/tracking', null],
       ['ember-data', null],
     ]),
   });
