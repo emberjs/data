@@ -1,16 +1,10 @@
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
-import { consumeSignal, createSignal, notifySignal } from './configure';
+import { ARRAY_SIGNAL, consumeSignal, createSignal, notifySignal, OBJECT_SIGNAL, type SignalRef } from './configure';
 
-/**
- * An Opaque type that represents a framework specific or TC39 signal.
- *
- * It may be an array of signals or a single signal.
- *
- * @internal
- */
-export type SignalRef = unknown;
+export type { SignalRef };
+export { ARRAY_SIGNAL, OBJECT_SIGNAL };
 /**
  * A WarpDriveSignal is a wrapper around a framework specific or TC39 signal
  * that enables us to store and manage the signal in a universal way.
@@ -148,8 +142,6 @@ export interface WarpDriveSignal {
  * @internal
  */
 export const Signals = getOrSetGlobal('Signals', Symbol('Signals'));
-export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
-export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
 export type SignalStore = Map<string | symbol, WarpDriveSignal>;
 
 /**

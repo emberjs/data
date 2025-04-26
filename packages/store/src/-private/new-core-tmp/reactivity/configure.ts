@@ -4,8 +4,19 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
+import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
-import { ARRAY_SIGNAL, type SignalRef } from './internal';
+export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
+export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
+
+/**
+ * An Opaque type that represents a framework specific or TC39 signal.
+ *
+ * It may be an array of signals or a single signal.
+ *
+ * @internal
+ */
+export type SignalRef = unknown;
 
 type MemoRef = unknown;
 /**
