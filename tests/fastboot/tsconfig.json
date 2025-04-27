@@ -44,7 +44,9 @@
       "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],
       "@ember-data/debug/*": ["../../packages/debug/unstable-preview-types/*"],
       "@ember-data/graph": ["../../packages/graph/unstable-preview-types"],
-      "@ember-data/graph/*": ["../../packages/graph/unstable-preview-types/*"]
+      "@ember-data/graph/*": ["../../packages/graph/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -93,6 +95,9 @@
     },
     {
       "path": "../../packages/graph"
+    },
+    {
+      "path": "../../packages/ember"
     }
   ]
 }

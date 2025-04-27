@@ -51,6 +51,8 @@
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"],
       "*": ["./types/*"]
     },
     "allowImportingTsExtensions": true,
@@ -94,6 +96,9 @@
     },
     {
       "path": "../../packages/model"
+    },
+    {
+      "path": "../../packages/ember"
     },
     {
       "path": "../../packages/request-utils"

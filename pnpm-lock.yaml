@@ -2708,6 +2708,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(454046bdd8e077fa970a7a4ff618e04d)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2853,6 +2856,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(3f00fb68128c1037e4582a8e3da0da9e)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3003,6 +3009,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(039d1d10a56405fe16014aaa7b3b23f5)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3578,6 +3587,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(039d1d10a56405fe16014aaa7b3b23f5)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config

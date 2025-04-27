@@ -11,7 +11,6 @@ import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { memoized } from '@ember-data/store/-private';
 
 const service = s.service ?? s.inject;
 
