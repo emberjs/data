@@ -8,7 +8,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId, compat, defineSignal, entangleSignal, gate, withSignalStore } from '@ember-data/store/-private';
+import { coerceId, defineSignal, entangleSignal, gate, memoized, withSignalStore } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -212,7 +212,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isEmpty(): boolean {
     return this.currentState.isEmpty;
   }
@@ -228,7 +228,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isLoading(): boolean {
     return this.currentState.isLoading;
   }
@@ -254,7 +254,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isLoaded(): boolean {
     return this.currentState.isLoaded;
   }
@@ -284,7 +284,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get hasDirtyAttributes(): boolean {
     return this.currentState.isDirty;
   }
@@ -312,7 +312,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isSaving(): boolean {
     return this.currentState.isSaving;
   }
@@ -355,7 +355,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isDeleted(): boolean {
     return this.currentState.isDeleted;
   }
@@ -382,7 +382,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isNew(): boolean {
     return this.currentState.isNew;
   }
@@ -398,7 +398,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isValid(): boolean {
     return this.currentState.isValid;
   }
@@ -424,7 +424,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {String}
     @readOnly
   */
-  @compat
+  @memoized
   get dirtyType(): 'created' | 'updated' | 'deleted' | '' {
     return this.currentState.dirtyType;
   }
@@ -449,7 +449,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isError(): boolean {
     return this.currentState.isError;
   }
@@ -627,7 +627,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
     @type {AdapterError}
   */
-  @compat
+  @memoized
   get adapterError() {
     return this.currentState.adapterError;
   }

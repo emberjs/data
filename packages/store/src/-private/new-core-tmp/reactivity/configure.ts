@@ -10,6 +10,37 @@ export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
 export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
 
 /**
+ * Requirements:
+ *
+ * Signal:
+ *
+ * - signal: a way of creating a reference that we can dirty when we desire to notify
+ *         - @signal: a way of creating an accessor on an object that subscribes to a signal on access
+ *                    and notifies the signal on set, or of upgrading a descriptor to be such an accessor
+ *         - defineSignal: a way of creating a signal on an object
+ *         - notifySignal: a way of notifying the underlying signal that it has been dirtied
+ *         - peekSignal: a way of inspecting the signal without notifying it
+ *
+ *  - gate: a memoized getter function that re-runs when on access if its signal is dirty
+ *          conceptually, a gate is a tightly coupled signal and memo
+ *         - @gate: a way of creating a gate on an object or upgrading a descriptor with a getter
+ *                  to be a gate
+ *         - defineGate: a way of creating a gate on an object
+ *         - notifySignal: a way of notifying the signal for a gate that it has been dirtied
+ *
+ * - memo:
+ *        - @memo: a way of creating a memoized getter on an object or upgrading a descriptor with a getter
+ *                 to be a memo
+ *        - defineMemo: a way of creating a memo on an object
+ *
+ * - signalStore: storage bucket for signals associated to an object
+ *        - withSignalStore: a way of pre-creating a signal store on an object
+ *
+ *
+ * @internal
+ */
+
+/**
  * An Opaque type that represents a framework specific or TC39 signal.
  *
  * It may be an array of signals or a single signal.
@@ -17,8 +48,6 @@ export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
  * @internal
  */
 export type SignalRef = unknown;
-
-type MemoRef = unknown;
 /**
  * The hooks which MUST be configured in order to use this library,
  * either for framework specfic signals or TC39 signals.
@@ -28,13 +57,11 @@ type MemoRef = unknown;
  * method, and consuming the correct one via the correct framework via
  * the `consumeSignal` and `notifySignal` methods.
  */
-export interface SignalHooks<T = SignalRef, M = MemoRef> {
+export interface SignalHooks<T = SignalRef> {
   createSignal: (obj: object, key: string | symbol) => T;
   consumeSignal: (signal: T) => void;
   notifySignal: (signal: T) => void;
-  compat?: (desc: PropertyDescriptor) => PropertyDescriptor;
-  createMemo: (fn: () => unknown) => M;
-  getMemoValue: (memo: M) => unknown;
+  createMemo: <F>(obj: object, key: string | symbol, fn: () => F) => () => F;
 }
 
 export interface HooksOptions {
@@ -90,33 +117,9 @@ export function notifySignal(signal: SignalRef) {
   return signalHooks.notifySignal(signal);
 }
 
-export function isArraySignal(key: string | symbol): boolean {
-  return key === ARRAY_SIGNAL;
-}
-
-export function compat(target: object, key: string | symbol, desc: PropertyDescriptor): PropertyDescriptor;
-export function compat(desc: PropertyDescriptor): PropertyDescriptor;
-export function compat(
-  target: object | PropertyDescriptor,
-  key?: string | symbol,
-  desc?: PropertyDescriptor
-): PropertyDescriptor {
+export function createMemo<T>(object: object, key: string | symbol, fn: () => T): () => T {
   assert(`Signal hooks not configured`, signalHooks !== null);
-  const actualDesc = arguments.length === 3 ? desc! : (target as PropertyDescriptor);
-  if (!signalHooks.compat) {
-    return actualDesc;
-  }
-  return signalHooks.compat(actualDesc);
-}
-
-export function createMemo<T>(fn: () => T): unknown {
-  assert(`Signal hooks not configured`, signalHooks !== null);
-  return signalHooks.createMemo(fn);
-}
-
-export function getMemoValue(memo: unknown): unknown {
-  assert(`Signal hooks not configured`, signalHooks !== null);
-  return signalHooks.getMemoValue(memo);
+  return signalHooks.createMemo(object, key, fn);
 }
 
 if (DEPRECATE_TRACKING_PACKAGE) {

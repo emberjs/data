@@ -57,14 +57,7 @@ export {
   type RequestCacheRequestState as RequestState,
 } from './-private/new-core-tmp/request-state';
 
-export {
-  getMemoValue,
-  createMemo,
-  setupSignals,
-  type SignalHooks,
-  isArraySignal,
-  compat,
-} from './-private/new-core-tmp/reactivity/configure';
+export { createMemo, type SignalHooks } from './-private/new-core-tmp/reactivity/configure';
 export {
   memoized,
   gate,

@@ -3364,16 +3364,16 @@ importers:
         version: 7.27.0
       '@ember-data/graph':
         specifier: workspace:*
-        version: file:packages/graph(a1670e960f653469a6e5cd309fdd011b)
+        version: file:packages/graph(bee028a717f0b8334f621f372082e51c)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(c012dbaa50943a60233de13f7afdb431)
+        version: file:packages/json-api(8a58711f0ce47e3459976b74dbeed820)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a0d739c6f69dd78cd94154b4fde77eb0)
+        version: file:packages/legacy-compat(2bdd98f66f81f7c21918bdf64cd84a33)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(0e9c4df00f24f1b1b29bf12495b92fc7)
+        version: file:packages/model(d9e7cb55f1b19ad5fac602ded0f1927a)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(dd9be7e7e88b25e309856ff6e0a8c90d)
@@ -3382,10 +3382,7 @@ importers:
         version: file:packages/request-utils(afb989cb1a1da16ca1e783f2ffc555f0)
       '@ember-data/store':
         specifier: workspace:*
-        version: file:packages/store(22f36de19f9593cdc921ab5f5b1c0aa4)
-      '@ember-data/tracking':
-        specifier: workspace:*
-        version: file:packages/tracking(afb989cb1a1da16ca1e783f2ffc555f0)
+        version: file:packages/store(06a0b92b26a885d16fa45ccd6dcc4700)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -3422,6 +3419,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(@babel/core@7.26.10)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(3f00fb68128c1037e4582a8e3da0da9e)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config(terser@5.39.0)

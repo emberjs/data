@@ -1,15 +1,13 @@
 import { SignalHooks } from '@ember-data/store/-private';
 import { tagForProperty } from '@ember/-internals/metal';
-import { dependentKeyCompat } from '@ember/object/compat';
-import { consumeTag, createCache, dirtyTag, getValue } from '@glimmer/validator';
+import { consumeTag, createCache, dirtyTag, getValue, track, updateTag, type UpdatableTag } from '@glimmer/validator';
+// import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { setupSignals } from '@ember-data/store/configure';
 
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
-const getMemoValue = getValue as unknown as (memo: unknown) => unknown;
-const compat = dependentKeyCompat as unknown as (desc: PropertyDescriptor) => PropertyDescriptor;
-import { setupSignals } from '@ember-data/store/-private';
 
 export function buildSignalConfig(options: {
   wellknown: {
@@ -49,9 +47,25 @@ export function buildSignalConfig(options: {
         emberDirtyTag(signal as Tag);
       }
     },
-    compat,
-    createMemo: createCache,
-    getMemoValue,
+    createMemo: <F>(object: object, key: string | symbol, fn: () => F): (() => F) => {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        const propertyTag = tagForProperty(object, key) as UpdatableTag;
+        const memo = createCache(fn);
+        let ret: F | undefined;
+        const wrappedFn = () => {
+          ret = getValue(memo) as F;
+        };
+        return () => {
+          let tag = track(wrappedFn);
+          updateTag(propertyTag, tag);
+          consumeTag(tag);
+          return ret!;
+        };
+      } else {
+        const memo = createCache(fn);
+        return () => getValue(memo) as F;
+      }
+    },
   } satisfies SignalHooks<Tag | [Tag, Tag, Tag]>;
 }
 

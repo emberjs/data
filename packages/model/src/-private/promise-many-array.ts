@@ -1,5 +1,5 @@
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { compat, defineSignal } from '@ember-data/store/-private';
+import { defineSignal, memoized } from '@ember-data/store/-private';
 import type { BaseFinderOptions } from '@ember-data/store/types';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
@@ -45,7 +45,7 @@ export class PromiseManyArray<T = unknown> {
    * @property length
    * @public
    */
-  @compat
+  @memoized
   get length(): number {
     // shouldn't be needed, but ends up being needed
     // for computed chains even in 4.x
@@ -167,7 +167,7 @@ export class PromiseManyArray<T = unknown> {
    * @property links
    * @public
    */
-  @compat
+  @memoized
   get links() {
     return this.content ? this.content.links : undefined;
   }
@@ -177,7 +177,7 @@ export class PromiseManyArray<T = unknown> {
    * @property meta
    * @public
    */
-  @compat
+  @memoized
   get meta() {
     return this.content ? this.content.meta : undefined;
   }
@@ -216,7 +216,7 @@ if (DEPRECATE_COMPUTED_CHAINS) {
       return this.content?.length && this.content;
     },
   };
-  compat(desc);
+  // compat(desc);
 
   // ember-source < 3.23 (e.g. 3.20 lts)
   // requires that the tag `'[]'` be notified

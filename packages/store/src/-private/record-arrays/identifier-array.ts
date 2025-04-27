@@ -16,7 +16,6 @@ import type { BaseFinderOptions } from '../../types';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
-import { compat } from '../new-core-tmp/reactivity/configure';
 import type { WarpDriveSignal } from '../new-core-tmp/reactivity/internal';
 import {
   ARRAY_SIGNAL,
@@ -208,15 +207,6 @@ export class IdentifierArray<T = unknown> {
     this.isDestroyed = !clear;
   }
 
-  // length must be on self for proxied methods to work properly
-  @compat
-  get length() {
-    return this[SOURCE].length;
-  }
-  set length(value) {
-    this[SOURCE].length = value;
-  }
-
   constructor(options: IdentifierArrayCreateOptions<T>) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -230,7 +220,6 @@ export class IdentifierArray<T = unknown> {
     // TODO this likely should be entangled on the proxy/receiver not this class
     // FIXME before we entangled legacy array signals on the proxy too
     const signals = withSignalStore(this);
-    entangleSignal(signals, this, 'length', undefined);
     const _SIGNAL = entangleSignal(signals, this, ARRAY_SIGNAL, undefined);
 
     const store = options.store;
@@ -559,7 +548,7 @@ const desc = {
     }
   },
 };
-compat(desc);
+// compat(desc);
 Object.defineProperty(IdentifierArray.prototype, '[]', desc);
 
 defineSignal(IdentifierArray.prototype, 'isUpdating', false);

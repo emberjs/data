@@ -131,12 +131,19 @@ export const DEPRECATE_NON_STRICT_ID = '5.3';
  * Support for these chains is currently guarded by the deprecation flag
  * listed here, enabling removal of the behavior if desired.
  *
+ * The instrumentation was added in 5.0 but the version number
+ * is set to 7.0 as we do not want to strip support without
+ * adding a deprecation message.
+ *
+ * Once we've added the deprecation message, we will
+ * update this version number to the proper version.
+ *
  * @property DEPRECATE_COMPUTED_CHAINS
  * @since 5.0
- * @until 6.0
+ * @until 8.0
  * @public
  */
-export const DEPRECATE_COMPUTED_CHAINS = '5.0';
+export const DEPRECATE_COMPUTED_CHAINS = '7.0';
 
 /**
  * **id: ember-data:deprecate-legacy-imports**

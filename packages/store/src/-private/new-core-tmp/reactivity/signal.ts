@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import { compat, createMemo, getMemoValue } from './configure';
+import { createMemo } from './configure';
 import type { Signals, SignalStore, WarpDriveSignal } from './internal';
 import {
   consumeInternalSignal,
@@ -104,13 +104,13 @@ export function memoized<T extends object, K extends keyof T & string>(
 
     let memoSignal = signals.get(key);
     if (!memoSignal) {
-      memoSignal = createMemo(getter.bind(this)) as WarpDriveSignal;
+      memoSignal = createMemo(this, key, getter.bind(this)) as unknown as WarpDriveSignal;
       signals.set(key, memoSignal);
     }
-    return getMemoValue(memoSignal);
+    return (memoSignal as unknown as () => unknown)();
   };
 
-  return compat(descriptor);
+  return descriptor;
 }
 
 export function gate<T extends object, K extends keyof T & string>(_target: T, key: K, desc: PropertyDescriptor) {
@@ -147,7 +147,7 @@ export function gate<T extends object, K extends keyof T & string>(_target: T, k
     // as its update is controlled externally.
   };
 
-  return compat(desc);
+  return desc;
 }
 
 export function defineGate<T extends object>(obj: T, key: string, desc: PropertyDescriptor) {
