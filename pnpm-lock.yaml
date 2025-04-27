@@ -1811,6 +1811,9 @@ importers:
       '@warp-drive/diagnostic':
         specifier: workspace:*
         version: file:packages/diagnostic(0769fea203e98132438ae0defbe77024)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(454046bdd8e077fa970a7a4ff618e04d)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config

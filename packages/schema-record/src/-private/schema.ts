@@ -173,7 +173,6 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
     const signals = withSignalStore(record as object);
     let signal = signals.get(prop);
     if (!signal) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       signal = createMemo(record as object, prop, () => {
         return derivation(record, options, prop);
       }) as unknown as WarpDriveSignal; // a total lie, for convenience of reusing the storage
