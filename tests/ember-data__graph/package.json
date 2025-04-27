@@ -48,6 +48,7 @@
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
     "ember-auto-import": "2.10.0",
     "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",

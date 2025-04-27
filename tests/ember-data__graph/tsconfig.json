@@ -44,7 +44,9 @@
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
-      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"]
+      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
     },
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
@@ -94,6 +96,9 @@
     },
     {
       "path": "../../packages/diagnostic"
+    },
+    {
+      "path": "../../packages/ember"
     }
   ]
 }
