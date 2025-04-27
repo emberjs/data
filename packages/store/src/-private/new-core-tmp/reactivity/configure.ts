@@ -4,7 +4,7 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
 
 export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
 export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
@@ -72,21 +72,19 @@ export interface HooksOptions {
   };
 }
 
-let signalHooks: SignalHooks | null = null;
-
 /**
  * The public API for configuring the signal hooks.
  *
  * @internal
  */
 export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>) {
-  assert(`Cannot override configured signal hooks`, signalHooks === null);
+  assert(`Cannot override configured signal hooks`, peekTransient('signalHooks') === null);
   const hooks = buildConfig({
     wellknown: {
       Array: ARRAY_SIGNAL,
     },
   });
-  signalHooks = hooks as SignalHooks;
+  setTransient('signalHooks', hooks);
 }
 
 /**
@@ -95,7 +93,8 @@ export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHo
  * @internal
  */
 export function createSignal(obj: object, key: string | symbol): SignalRef {
-  assert(`Signal hooks not configured`, signalHooks !== null);
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+  assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.createSignal(obj, key);
 }
 
@@ -105,7 +104,9 @@ export function createSignal(obj: object, key: string | symbol): SignalRef {
  * @internal
  */
 export function consumeSignal(signal: SignalRef) {
-  assert(`Signal hooks not configured`, signalHooks !== null);
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+
+  assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.consumeSignal(signal);
 }
 
@@ -115,12 +116,14 @@ export function consumeSignal(signal: SignalRef) {
  * @internal
  */
 export function notifySignal(signal: SignalRef) {
-  assert(`Signal hooks not configured`, signalHooks !== null);
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+  assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.notifySignal(signal);
 }
 
 export function createMemo<T>(object: object, key: string | symbol, fn: () => T): () => T {
-  assert(`Signal hooks not configured`, signalHooks !== null);
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+  assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.createMemo(object, key, fn);
 }
 

@@ -28,7 +28,8 @@ type TransientKey =
   | 'configuredUpdateMethod'
   | 'configuredForgetMethod'
   | 'configuredResetMethod'
-  | 'configuredKeyInfoMethod';
+  | 'configuredKeyInfoMethod'
+  | 'signalHooks';
 
 type GlobalKey =
   | `(transient) ${TransientKey}`

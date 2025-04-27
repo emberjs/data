@@ -24,6 +24,12 @@ export function validateDocument(capabilities: CacheCapabilitiesManager, doc: St
     }
   }
 
+  if (!LOG_CACHE) {
+    if (!JSON_API_CACHE_VALIDATION_ERRORS) {
+      return;
+    }
+  }
+
   if (isErrorDocument(doc)) {
     return; // return validateErrorDocument(reporter, doc);
   } else if (isMetaDocument(doc)) {
