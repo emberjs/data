@@ -65,7 +65,6 @@ on the other EmberData\/WarpDrive packages they require use of.
 - [@ember-data/request](../modules/@ember-data%2Frequest) provides managed `fetch`
 - [@ember-data/request-utils](../modules/@ember-data%2Frequest-utils) provides optional utilities for managing requests and string manipulation
 - [@ember-data/store](../modules/@ember-data%2Fstore) provides core functionality around coordinating caching and reactivity
-- [@ember-data/tracking](../modules/@ember-data%2Ftracking) enables integration with Ember's reactivity system
 - [@ember-data/json-api](../modules/@ember-data%2Fjson-api) provides a cache for data in the [{JSON:API}](https://jsonapi.org) format.
 - [@ember-data/debug](../modules/@ember-data%2Fdebug) provides (optional) debugging support for the `ember-inspector`.
 - [@warp-drive/build-config](../modules/@warp-drive%2Fbuild-config) provides a build plugin which ensures proper settings configuration for deprecations, optional features, development/testing support and debug logging.

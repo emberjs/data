@@ -36,8 +36,6 @@
       "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
       "@ember-data/store": ["../../packages/store/unstable-preview-types"],
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
@@ -49,7 +47,9 @@
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -89,9 +89,6 @@
       "path": "../../packages/store"
     },
     {
-      "path": "../../packages/tracking"
-    },
-    {
       "path": "../../packages/unpublished-test-infra"
     },
     {
@@ -108,6 +105,9 @@
     },
     {
       "path": "../../packages/build-config"
+    },
+    {
+      "path": "../../packages/ember"
     }
   ]
 }

@@ -1,8 +1,7 @@
 import type { Graph, ResourceEdge } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
-import { cached, compat } from '@ember-data/tracking';
-import { defineSignal } from '@ember-data/tracking/-private';
+import { defineNonEnumerableSignal, memoized } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
@@ -143,8 +142,7 @@ export default class BelongsToReference<
    * @property {StableRecordIdentifier | null} identifier
    * @public
    */
-  @cached
-  @compat
+  @memoized
   get identifier(): StableRecordIdentifier<TypeFromInstanceOrString<Related>> | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);
@@ -704,4 +702,4 @@ export default class BelongsToReference<
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }
-defineSignal(BelongsToReference.prototype, '_ref', 0);
+defineNonEnumerableSignal(BelongsToReference.prototype, '_ref', 0);

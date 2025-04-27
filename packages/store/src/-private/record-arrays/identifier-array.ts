@@ -1,15 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { compat } from '@ember-data/tracking';
-import type { Signal } from '@ember-data/tracking/-private';
-import {
-  addToTransaction,
-  createArrayTags,
-  createSignal,
-  defineSignal,
-  subscribe,
-} from '@ember-data/tracking/-private';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
@@ -25,6 +16,14 @@ import type { BaseFinderOptions } from '../../types';
 import { isStableIdentifier } from '../caches/identifier-cache';
 import { recordIdentifierFor } from '../caches/instance-cache';
 import type { RecordArrayManager } from '../managers/record-array-manager';
+import type { WarpDriveSignal } from '../new-core-tmp/reactivity/internal';
+import {
+  ARRAY_SIGNAL,
+  consumeInternalSignal,
+  notifyInternalSignal,
+  withSignalStore,
+} from '../new-core-tmp/reactivity/internal';
+import { defineSignal, entangleSignal } from '../new-core-tmp/reactivity/signal';
 import type { Store } from '../store-service';
 import { NativeProxy } from './native-proxy-type-fix';
 
@@ -65,15 +64,9 @@ function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<k
   return prop in self;
 }
 
-export const ARRAY_SIGNAL = getOrSetGlobal('#signal', Symbol('#signal'));
 export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
 export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
-export const NOTIFY = getOrSetGlobal('#notify', Symbol('#notify'));
 const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
-
-export function notifyArray(arr: IdentifierArray) {
-  addToTransaction(arr[ARRAY_SIGNAL]);
-}
 
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
@@ -162,7 +155,7 @@ export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
     receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
     prop: string,
     args: unknown[],
-    _SIGNAL: Signal
+    _SIGNAL: WarpDriveSignal
   ): unknown;
 }
 
@@ -188,12 +181,9 @@ export class IdentifierArray<T = unknown> {
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
   readonly identifier: StableDocumentIdentifier | null;
 
-  [IS_COLLECTION] = true;
-  declare [ARRAY_SIGNAL]: Signal;
-  [SOURCE]: StableRecordIdentifier[];
-  [NOTIFY]() {
-    notifyArray(this);
-  }
+  declare [IS_COLLECTION]: boolean;
+  declare [ARRAY_SIGNAL]: WarpDriveSignal;
+  declare [SOURCE]: StableRecordIdentifier[];
 
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
@@ -213,17 +203,8 @@ export class IdentifierArray<T = unknown> {
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
     this[SOURCE].length = 0;
-    this[NOTIFY]();
+    notifyInternalSignal(this[ARRAY_SIGNAL]);
     this.isDestroyed = !clear;
-  }
-
-  // length must be on self for proxied methods to work properly
-  @compat
-  get length() {
-    return this[SOURCE].length;
-  }
-  set length(value) {
-    this[SOURCE].length = value;
   }
 
   constructor(options: IdentifierArrayCreateOptions<T>) {
@@ -234,10 +215,13 @@ export class IdentifierArray<T = unknown> {
     this._manager = options.manager;
     this.identifier = options.identifier || null;
     this[SOURCE] = options.identifiers;
-    this[ARRAY_SIGNAL] = createSignal(this, 'length');
+    this[IS_COLLECTION] = true;
+
+    // we attach the signal storage to the class
+    // so that its easier to find debugging.
+    const signals = withSignalStore(this);
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    const _SIGNAL = this[ARRAY_SIGNAL];
     const PrivateState: PrivateState = {
       links: options.links || null,
       meta: options.meta || null,
@@ -247,6 +231,7 @@ export class IdentifierArray<T = unknown> {
     // when a mutation occurs
     // we track all mutations within the call
     // and forward them as one
+    let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
 
     const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
       get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
@@ -255,23 +240,30 @@ export class IdentifierArray<T = unknown> {
         receiver: R
       ): unknown {
         const index = convertToInt(prop);
-        if (_SIGNAL.shouldReset && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
+        if (_SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           options.manager._syncArray(receiver as unknown as IdentifierArray);
-          _SIGNAL.t = false;
-          _SIGNAL.shouldReset = false;
+          _SIGNAL.isStale = false;
         }
 
         if (index !== null) {
           const identifier = target[index];
           if (!transaction) {
-            subscribe(_SIGNAL);
+            consumeInternalSignal(_SIGNAL);
           }
           return identifier && store._instanceCache.getRecord(identifier);
         }
 
-        if (prop === 'meta') return subscribe(_SIGNAL), PrivateState.meta;
-        if (prop === 'links') return subscribe(_SIGNAL), PrivateState.links;
-        if (prop === '[]') return subscribe(_SIGNAL), receiver;
+        if (prop === ARRAY_SIGNAL) {
+          return _SIGNAL;
+        }
+
+        if (prop === 'length') {
+          return consumeInternalSignal(_SIGNAL), target.length;
+        }
+
+        if (prop === 'meta') return consumeInternalSignal(_SIGNAL), PrivateState.meta;
+        if (prop === 'links') return consumeInternalSignal(_SIGNAL), PrivateState.links;
+        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
 
         if (isArrayGetter(prop)) {
           let fn = boundFns.get(prop);
@@ -279,7 +271,7 @@ export class IdentifierArray<T = unknown> {
           if (fn === undefined) {
             if (prop === 'forEach') {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 transaction = true;
                 const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB<T>, arguments[1]);
                 transaction = false;
@@ -287,7 +279,7 @@ export class IdentifierArray<T = unknown> {
               };
             } else {
               fn = function () {
-                subscribe(_SIGNAL);
+                consumeInternalSignal(_SIGNAL);
                 // array functions must run through Reflect to work properly
                 // binding via other means will not work.
                 transaction = true;
@@ -329,7 +321,7 @@ export class IdentifierArray<T = unknown> {
         }
 
         if (isSelfProp(self, prop)) {
-          if (prop === NOTIFY || prop === ARRAY_SIGNAL || prop === SOURCE) {
+          if (prop === SOURCE) {
             return self[prop];
           }
 
@@ -340,7 +332,7 @@ export class IdentifierArray<T = unknown> {
 
           if (typeof outcome === 'function') {
             fn = function () {
-              subscribe(_SIGNAL);
+              consumeInternalSignal(_SIGNAL);
               // array functions must run through Reflect to work properly
               // binding via other means will not work.
               return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
@@ -350,7 +342,7 @@ export class IdentifierArray<T = unknown> {
             return fn;
           }
 
-          return subscribe(_SIGNAL), outcome;
+          return consumeInternalSignal(_SIGNAL), outcome;
         }
 
         return target[prop as keyof StableRecordIdentifier[]];
@@ -462,9 +454,9 @@ export class IdentifierArray<T = unknown> {
       });
     }
 
-    createArrayTags(proxy, _SIGNAL);
-
-    this[NOTIFY] = this[NOTIFY].bind(proxy);
+    // we entangle the signal on the returned proxy since that is
+    // the object that other code will be interfacing with.
+    _SIGNAL = entangleSignal(signals, proxy, ARRAY_SIGNAL, undefined);
 
     return proxy;
   }
@@ -563,7 +555,7 @@ const desc = {
     }
   },
 };
-compat(desc);
+// compat(desc);
 Object.defineProperty(IdentifierArray.prototype, '[]', desc);
 
 defineSignal(IdentifierArray.prototype, 'isUpdating', false);

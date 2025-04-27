@@ -1,8 +1,10 @@
+import { SignalHooks } from '@ember-data/store/-private';
 import { tagForProperty } from '@ember/-internals/metal';
-import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
+import { consumeTag, createCache, dirtyTag, getValue, track, updateTag, type UpdatableTag } from '@glimmer/validator';
 
 // import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { setupSignals } from '@ember-data/store/configure';
 
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
@@ -32,6 +34,7 @@ export function buildSignalConfig(options: {
           return;
         }
       }
+
       consumeTag(signal as Tag);
     },
     notifySignal(signal: Tag | [Tag, Tag, Tag]) {
@@ -43,7 +46,6 @@ export function buildSignalConfig(options: {
           return;
         }
       }
-
       emberDirtyTag(signal as Tag);
     },
     createMemo: <F>(object: object, key: string | symbol, fn: () => F): (() => F) => {
@@ -65,5 +67,7 @@ export function buildSignalConfig(options: {
         return () => getValue(memo) as F;
       }
     },
-  };
+  } satisfies SignalHooks<Tag | [Tag, Tag, Tag]>;
 }
+
+setupSignals(buildSignalConfig);

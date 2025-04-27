@@ -24,6 +24,7 @@ const AllowedImports = [
   '@ember/test-waiters',
   '@glimmer/component',
   '@glimmer/tracking',
+  '@glimmer/validator',
   'qunit',
 ];
 

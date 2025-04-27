@@ -29,9 +29,6 @@ import Model from '@ember-data/model';
 // @ts-expect-error
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Serializer from '@ember-data/serializer';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { createCache } from '@ember-data/tracking';
 
 // Most of this is to assure thet above imports don't get optimized away
 expectTypeOf<typeof DS>().not.toBeAny();
@@ -45,8 +42,6 @@ expectTypeOf<typeof RequestManager>().not.toBeAny();
 expectTypeOf<typeof BuildURLMixin>().not.toBeAny();
 // @ts-expect-error no DT Types
 expectTypeOf<typeof jsonapi>().not.toBeAny();
-// @ts-expect-error no DT Types
-expectTypeOf<typeof createCache>().not.toBeAny();
 // @ts-expect-error no DT Types
 expectTypeOf<typeof setBuildURLConfig>().not.toBeAny();
 // @ts-expect-error no DT Types

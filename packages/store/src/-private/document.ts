@@ -1,7 +1,6 @@
 /**
  * @module @ember-data/store
  */
-import { defineSubscription, notifySignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
@@ -11,6 +10,8 @@ import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/js
 import type { Mutable } from '@warp-drive/core-types/utils';
 
 import type { DocumentCacheOperation } from './managers/notification-manager';
+import { notifyInternalSignal, peekInternalSignal, withSignalStore } from './new-core-tmp/reactivity/internal';
+import { defineGate } from './new-core-tmp/reactivity/signal';
 import type { Store } from './store-service';
 
 function urlFromLink(link: Link): string {
@@ -100,6 +101,7 @@ export class ReactiveDocument<T> {
     this._store = store;
     this._localCache = localCache;
     this.identifier = identifier;
+    const signals = withSignalStore(this);
 
     // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
     // in a destroy method
@@ -111,10 +113,10 @@ export class ReactiveDocument<T> {
             case 'updated':
               // FIXME in the case of a collection we need to notify it's length
               // and have it recalc
-              notifySignal(this, 'data');
-              notifySignal(this, 'links');
-              notifySignal(this, 'meta');
-              notifySignal(this, 'errors');
+              notifyInternalSignal(peekInternalSignal(signals, 'data'));
+              notifyInternalSignal(peekInternalSignal(signals, 'links'));
+              notifyInternalSignal(peekInternalSignal(signals, 'meta'));
+              notifyInternalSignal(peekInternalSignal(signals, 'errors'));
               break;
             case 'added':
             case 'removed':
@@ -248,7 +250,7 @@ export class ReactiveDocument<T> {
   }
 }
 
-defineSubscription(ReactiveDocument.prototype, 'errors', {
+defineGate(ReactiveDocument.prototype, 'errors', {
   get<T>(this: ReactiveDocument<T>): object[] | undefined {
     const { identifier } = this;
 
@@ -265,7 +267,7 @@ defineSubscription(ReactiveDocument.prototype, 'errors', {
     return 'errors' in doc ? doc.errors : undefined;
   },
 });
-defineSubscription(ReactiveDocument.prototype, 'data', {
+defineGate(ReactiveDocument.prototype, 'data', {
   get<T>(this: ReactiveDocument<T>) {
     const { identifier, _localCache } = this;
 
@@ -287,7 +289,7 @@ defineSubscription(ReactiveDocument.prototype, 'data', {
     }
   },
 });
-defineSubscription(ReactiveDocument.prototype, 'links', {
+defineGate(ReactiveDocument.prototype, 'links', {
   get<T>(this: ReactiveDocument<T>) {
     const { identifier } = this;
 
@@ -299,7 +301,7 @@ defineSubscription(ReactiveDocument.prototype, 'links', {
     return data.links;
   },
 });
-defineSubscription(ReactiveDocument.prototype, 'meta', {
+defineGate(ReactiveDocument.prototype, 'meta', {
   get<T>(this: ReactiveDocument<T>): Meta | undefined {
     const { identifier } = this;
 

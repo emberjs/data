@@ -4,8 +4,17 @@ import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-metho
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { recordIdentifierFor, setRecordIdentifier } from '@ember-data/store/-private';
-import { addToTransaction, entangleSignal, getSignal, type Signal, Signals } from '@ember-data/tracking/-private';
+import {
+  ARRAY_SIGNAL,
+  entangleSignal,
+  getOrCreateInternalSignal,
+  notifyInternalSignal,
+  OBJECT_SIGNAL,
+  recordIdentifierFor,
+  setRecordIdentifier,
+  Signals,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -31,18 +40,7 @@ import {
   peekManagedObject,
 } from './fields/compute';
 import type { SchemaService } from './schema';
-import {
-  ARRAY_SIGNAL,
-  Checkout,
-  Destroy,
-  Editable,
-  EmbeddedPath,
-  EmbeddedType,
-  Identifier,
-  Legacy,
-  OBJECT_SIGNAL,
-  Parent,
-} from './symbols';
+import { Checkout, Destroy, Editable, EmbeddedPath, EmbeddedType, Identifier, Legacy, Parent } from './symbols';
 
 const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
 const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
@@ -51,18 +49,7 @@ const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model',
 
 export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
-const symbolList = [
-  Destroy,
-  RecordStore,
-  Identifier,
-  Editable,
-  Parent,
-  Checkout,
-  Legacy,
-  Signals,
-  EmbeddedPath,
-  EmbeddedType,
-];
+const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, EmbeddedPath, EmbeddedType];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -93,7 +80,6 @@ export class SchemaRecord {
   declare [EmbeddedPath]: string[] | null;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
-  declare [Signals]: Map<string, Signal>;
   declare [Symbol.toStringTag]: `SchemaRecord<${string}>`;
   declare ___notifications: object;
 
@@ -128,8 +114,7 @@ export class SchemaRecord {
       ? schema.fields({ type: embeddedType as string })
       : schema.fields(identifier);
 
-    const signals: Map<string, Signal> = new Map();
-    this[Signals] = signals;
+    const signals = withSignalStore(this);
 
     const proxy = new Proxy(this, {
       ownKeys() {
@@ -203,6 +188,9 @@ export class SchemaRecord {
         if (RecordSymbols.has(prop as RecordSymbol)) {
           return target[prop as keyof SchemaRecord];
         }
+        if (prop === Signals) {
+          return signals;
+        }
 
         // TODO make this a symbol
         if (prop === '___notifications') {
@@ -231,7 +219,7 @@ export class SchemaRecord {
             let fn = BoundFns.get('toString');
             if (!fn) {
               fn = function () {
-                entangleSignal(signals, receiver, '@identity');
+                entangleSignal(signals, receiver, '@identity', null);
                 return `Record<${identifier.type}:${identifier.id} (${identifier.lid})>`;
               };
               BoundFns.set(prop, fn);
@@ -243,7 +231,7 @@ export class SchemaRecord {
             let fn = BoundFns.get('toHTML');
             if (!fn) {
               fn = function () {
-                entangleSignal(signals, receiver, '@identity');
+                entangleSignal(signals, receiver, '@identity', null);
                 return `<span>Record<${identifier.type}:${identifier.id} (${identifier.lid})></span>`;
               };
               BoundFns.set(prop, fn);
@@ -305,30 +293,28 @@ export class SchemaRecord {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, receiver, '@identity');
+            entangleSignal(signals, receiver, '@identity', null);
             return identifier.id;
           case '@hash':
             // TODO pass actual cache value not {}
             return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
           case '@local': {
-            const lastValue = computeLocal(receiver, field, prop as string);
-            entangleSignal(signals, receiver, prop as string);
-            return lastValue;
+            return computeLocal(receiver, field, prop as string);
           }
           case 'field':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeAttribute(cache, identifier, prop as string, IS_EDITABLE);
           case 'resource':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
           case 'derived':
             return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
           case 'schema-array':
           case 'array':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeArray(
               store,
               schema,
@@ -341,10 +327,10 @@ export class SchemaRecord {
               Mode[Legacy]
             );
           case 'object':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             // run transform, then use that value as the object to manage
             return computeSchemaObject(
               store,
@@ -358,7 +344,7 @@ export class SchemaRecord {
             );
           case 'belongsTo':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name);
+              entangleSignal(signals, receiver, field.name, null);
               const rawValue = IS_EDITABLE
                 ? (cache.getRelationship(identifier, field.name) as SingleResourceRelationship)
                 : (cache.getRemoteRelationship(identifier, field.name) as SingleResourceRelationship);
@@ -373,11 +359,11 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
           case 'hasMany':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name);
+              entangleSignal(signals, receiver, field.name, null);
 
               return computeHasMany(
                 store,
@@ -398,7 +384,7 @@ export class SchemaRecord {
             }
             assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name);
+            entangleSignal(signals, receiver, field.name, null);
             return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getHasMany(field.name);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
@@ -443,10 +429,15 @@ export class SchemaRecord {
             return true;
           }
           case '@local': {
-            const signal = getSignal(receiver, prop as string, true);
-            if (signal.lastValue !== value) {
-              signal.lastValue = value;
-              addToTransaction(signal);
+            const signal = getOrCreateInternalSignal(
+              signals,
+              receiver,
+              prop as string | symbol,
+              field.options?.defaultValue ?? null
+            );
+            if (signal.value !== value) {
+              signal.value = value;
+              notifyInternalSignal(signal);
             }
             return true;
           }
@@ -474,7 +465,7 @@ export class SchemaRecord {
                   ARRAY_SIGNAL in peeked
                 );
                 const arrSignal = peeked[ARRAY_SIGNAL];
-                arrSignal.shouldReset = true;
+                arrSignal.isStale = true;
               }
               if (!Array.isArray(value)) {
                 ManagedArrayMap.delete(target);
@@ -494,7 +485,7 @@ export class SchemaRecord {
                 ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.shouldReset = true;
+              arrSignal.isStale = true;
             }
             return true;
           }
@@ -511,7 +502,7 @@ export class SchemaRecord {
                 ARRAY_SIGNAL in peeked
               );
               const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.shouldReset = true;
+              arrSignal.isStale = true;
             }
             if (!Array.isArray(value)) {
               ManagedArrayMap.delete(target);
@@ -532,7 +523,7 @@ export class SchemaRecord {
               const peeked = peekManagedObject(self, field);
               if (peeked) {
                 const objSignal = peeked[OBJECT_SIGNAL];
-                objSignal.shouldReset = true;
+                objSignal.isStale = true;
               }
               return true;
             }
@@ -544,7 +535,7 @@ export class SchemaRecord {
             const peeked = peekManagedObject(self, field);
             if (peeked) {
               const objSignal = peeked[OBJECT_SIGNAL];
-              objSignal.shouldReset = true;
+              objSignal.isStale = true;
             }
             return true;
           }
@@ -566,7 +557,7 @@ export class SchemaRecord {
             // const peeked = peekManagedObject(self, field);
             // if (peeked) {
             //   const objSignal = peeked[OBJECT_SIGNAL];
-            //   objSignal.shouldReset = true;
+            //   objSignal.isStale = true;
             // }
             return true;
           }
@@ -619,7 +610,7 @@ export class SchemaRecord {
             if (identityField.name && identityField.kind === '@id') {
               const signal = signals.get('@identity');
               if (signal) {
-                addToTransaction(signal);
+                notifyInternalSignal(signal);
               }
             }
             break;
@@ -649,7 +640,7 @@ export class SchemaRecord {
                 // console.log(`Notification for ${key} on ${identifier.type}`, self);
                 const signal = signals.get(key);
                 if (signal) {
-                  addToTransaction(signal);
+                  notifyInternalSignal(signal);
                 }
                 const field = fields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
@@ -660,16 +651,14 @@ export class SchemaRecord {
                       ARRAY_SIGNAL in peeked
                     );
                     const arrSignal = peeked[ARRAY_SIGNAL];
-                    arrSignal.shouldReset = true;
-                    addToTransaction(arrSignal);
+                    notifyInternalSignal(arrSignal);
                   }
                 }
                 if (field?.kind === 'object') {
                   const peeked = peekManagedObject(self, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
-                    objSignal.shouldReset = true;
-                    addToTransaction(objSignal);
+                    notifyInternalSignal(objSignal);
                   }
                 }
               }
@@ -689,7 +678,7 @@ export class SchemaRecord {
                   // console.log(`Notification for ${key} on ${identifier.type}`, self);
                   const signal = signals.get(key);
                   if (signal) {
-                    addToTransaction(signal);
+                    notifyInternalSignal(signal);
                   }
                   // FIXME
                 } else if (field.kind === 'resource') {
@@ -698,10 +687,7 @@ export class SchemaRecord {
                   if (field.options.linksMode) {
                     const peeked = peekManagedArray(self, field) as ManyArray | undefined;
                     if (peeked) {
-                      // const arrSignal = peeked[ARRAY_SIGNAL];
-                      // arrSignal.shouldReset = true;
-                      // addToTransaction(arrSignal);
-                      peeked.notify();
+                      notifyInternalSignal(peeked[ARRAY_SIGNAL]);
                     }
                     return;
                   }
@@ -721,14 +707,14 @@ export class SchemaRecord {
                   }
 
                   if (manyArray) {
-                    manyArray.notify();
+                    notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
 
                     assert(`Expected options to exist on relationship meta`, field.options);
                     assert(`Expected async to exist on relationship meta options`, 'async' in field.options);
                     if (field.options.async) {
                       const signal = signals.get(key);
                       if (signal) {
-                        addToTransaction(signal);
+                        notifyInternalSignal(signal);
                       }
                     }
                   }

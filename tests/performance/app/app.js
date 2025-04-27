@@ -1,6 +1,7 @@
 // uncomment this to install Map/Set instrumentation
 // prior to app boot
 // import './services/store';
+import '@warp-drive/ember/install';
 
 import Application from '@ember/application';
 

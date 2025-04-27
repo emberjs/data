@@ -47,8 +47,7 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
-    "ember-provide-consume-context": "^0.7.0",
-    "@ember-data/tracking": "workspace:*"
+    "ember-provide-consume-context": "^0.7.0"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
@@ -77,7 +76,6 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.0",
     "@warp-drive/core-types": "workspace:*",

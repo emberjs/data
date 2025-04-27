@@ -77,11 +77,12 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.12",
     "@warp-drive/core-types": "workspace:*",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@warp-drive/ember": "workspace:*"
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",

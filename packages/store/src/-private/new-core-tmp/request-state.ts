@@ -7,9 +7,9 @@ import type {
   StructuredErrorDocument,
 } from '@ember-data/request';
 import { getPromiseResult, setPromiseResult } from '@ember-data/request';
-import { defineSignal } from '@ember-data/tracking/-private';
 
 import type { PendingPromise, RejectedPromise, ResolvedPromise } from './promise-state';
+import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal';
 
 const RequestCache = new WeakMap<Future<unknown>, RequestCacheRequestState>();
 
@@ -225,17 +225,17 @@ export class RequestLoadingState {
     this._future.abort();
   };
 }
-defineSignal(RequestLoadingState.prototype, '_isPending', true);
-defineSignal(RequestLoadingState.prototype, '_isStarted', false);
-defineSignal(RequestLoadingState.prototype, '_isComplete', false);
-defineSignal(RequestLoadingState.prototype, '_isCancelled', false);
-defineSignal(RequestLoadingState.prototype, '_isErrored', false);
-defineSignal(RequestLoadingState.prototype, '_error', null);
-defineSignal(RequestLoadingState.prototype, '_sizeHint', 0);
-defineSignal(RequestLoadingState.prototype, '_bytesLoaded', 0);
-defineSignal(RequestLoadingState.prototype, '_startTime', 0);
-defineSignal(RequestLoadingState.prototype, '_endTime', 0);
-defineSignal(RequestLoadingState.prototype, '_lastPacketTime', 0);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_isPending', true);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_isStarted', false);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_isComplete', false);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_isCancelled', false);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_isErrored', false);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_error', null);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_sizeHint', 0);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_bytesLoaded', 0);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_startTime', 0);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_endTime', 0);
+defineNonEnumerableSignal(RequestLoadingState.prototype, '_lastPacketTime', 0);
 
 /**
  * The state of a request in the "pending"

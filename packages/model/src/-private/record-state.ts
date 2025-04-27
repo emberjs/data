@@ -2,9 +2,15 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { storeFor } from '@ember-data/store';
 import type { RequestCacheRequestState, RequestStateService } from '@ember-data/store/-private';
-import { recordIdentifierFor } from '@ember-data/store/-private';
-import { cached, notifySignal } from '@ember-data/tracking';
-import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
+import {
+  defineSignal,
+  gate,
+  memoized,
+  notifyInternalSignal,
+  peekInternalSignal,
+  recordIdentifierFor,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
@@ -184,7 +190,11 @@ export default class RecordState {
   }
 
   notify(key: keyof this & string) {
-    notifySignal(this, key);
+    const signals = withSignalStore(this);
+    const signal = peekInternalSignal(signals, key);
+    if (signal) {
+      notifyInternalSignal(signal);
+    }
   }
 
   updateInvalidErrors(errors: Errors) {
@@ -228,12 +238,12 @@ export default class RecordState {
 
   declare isSaving: boolean;
 
-  @tagged
+  @gate
   get isLoading() {
     return !this.isLoaded && this.pendingCount > 0 && this.fulfilledCount === 0;
   }
 
-  @tagged
+  @gate
   get isLoaded() {
     if (this.isNew) {
       return true;
@@ -241,7 +251,7 @@ export default class RecordState {
     return this.fulfilledCount > 0 || !this.isEmpty;
   }
 
-  @tagged
+  @gate
   get isSaved() {
     const rd = this.cache;
     if (this.isDeleted) {
@@ -254,7 +264,7 @@ export default class RecordState {
     return true;
   }
 
-  @tagged
+  @gate
   get isEmpty() {
     const rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
@@ -263,26 +273,26 @@ export default class RecordState {
     return !this.isNew && rd.isEmpty(this.identifier);
   }
 
-  @tagged
+  @gate
   get isNew() {
     const rd = this.cache;
     assert(`Expected Cache to implement isNew()`, typeof rd.isNew === 'function');
     return rd.isNew(this.identifier);
   }
 
-  @tagged
+  @gate
   get isDeleted() {
     const rd = this.cache;
     assert(`Expected Cache to implement isDeleted()`, typeof rd.isDeleted === 'function');
     return rd.isDeleted(this.identifier);
   }
 
-  @tagged
+  @gate
   get isValid() {
     return this.record.errors.length === 0;
   }
 
-  @tagged
+  @gate
   get isDirty() {
     const rd = this.cache;
     if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
@@ -291,7 +301,7 @@ export default class RecordState {
     return this.isDeleted || this.isNew || rd.hasChangedAttrs(this.identifier);
   }
 
-  @tagged
+  @gate
   get isError() {
     const errorReq = this._errorRequests[this._errorRequests.length - 1];
     if (!errorReq) {
@@ -301,7 +311,7 @@ export default class RecordState {
     }
   }
 
-  @tagged
+  @gate
   get adapterError() {
     const request = this._lastError;
     if (!request) {
@@ -310,12 +320,12 @@ export default class RecordState {
     return request.state === 'rejected' && request.response!.data;
   }
 
-  @cached
+  @memoized
   get isPreloaded() {
     return !this.isEmpty && this.isLoading;
   }
 
-  @cached
+  @memoized
   get stateName() {
     // we might be empty while loading so check this first
     if (this.isLoading) {
@@ -361,7 +371,7 @@ export default class RecordState {
     }
   }
 
-  @cached
+  @memoized
   get dirtyType() {
     // we might be empty while loading so check this first
     if (this.isLoading || this.isEmpty) {

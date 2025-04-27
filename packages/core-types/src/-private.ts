@@ -21,8 +21,6 @@ type UniversalKey =
   | 'WarpDriveRuntimeConfig';
 
 type TransientKey =
-  // @ember-data/tracking
-  | 'TRANSACTION'
   // @ember-data/graph
   | 'transactionRef'
   // @ember-data/store
@@ -30,7 +28,8 @@ type TransientKey =
   | 'configuredUpdateMethod'
   | 'configuredForgetMethod'
   | 'configuredResetMethod'
-  | 'configuredKeyInfoMethod';
+  | 'configuredKeyInfoMethod'
+  | 'signalHooks';
 
 type GlobalKey =
   | `(transient) ${TransientKey}`
@@ -44,14 +43,15 @@ type GlobalKey =
   | 'NotFoundError'
   | 'ConflictError'
   | 'ServerError'
-  // @ember-data/tracking
+  // @ember-data/store/reactivity
+  | '#{}'
+  | '#[]'
   | 'Signals'
   // @ember-data/store LegacySupport
   | 'AvailableShims'
   // @ember-data/store RecordArrayManager
   | 'FAKE_ARR'
   // @ember-data/store IdentifierArray
-  | '#signal'
   | '#source'
   | '#update'
   | '#notify'
@@ -93,9 +93,6 @@ type GlobalKey =
   | 'Support'
   | 'SOURCE'
   | 'MUTATE'
-  | 'ARRAY_SIGNAL'
-  | 'OBJECT_SIGNAL'
-  | 'NOTIFY'
   | 'Destroy'
   | 'Identifier'
   | 'Editable'

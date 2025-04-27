@@ -1,7 +1,8 @@
 {
   "name": "@ember-data/tracking",
-  "description": "Tracking Primitives for controlling change notification of Tracked properties when working with EmberData",
+  "description": "DEPRECATED - Use @warp-drive/ember",
   "version": "5.5.0-alpha.20",
+  "deprecated": "Use @warp-drive/ember",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -12,9 +13,6 @@
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "keywords": [
     "ember-addon"
   ],
@@ -34,17 +32,12 @@
     "addon-main.cjs",
     "dist",
     "README.md",
-    "LICENSE.md",
-    "logos"
+    "LICENSE.md"
   ],
   "exports": {
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./unstable-preview-types/*.d.ts",
-      "default": "./dist/*.js"
     }
   },
   "scripts": {
