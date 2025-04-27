@@ -78,7 +78,10 @@ export interface HooksOptions {
  * @internal
  */
 export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>) {
-  assert(`Cannot override configured signal hooks`, peekTransient('signalHooks') === null);
+  // We want to assert this but can't because too many package manager
+  // and bundler bugs exist that cause this to be called multiple times
+  // for what should be a single call.
+  // assert(`Cannot override configured signal hooks`, peekTransient('signalHooks') === null);
   const hooks = buildConfig({
     wellknown: {
       Array: ARRAY_SIGNAL,

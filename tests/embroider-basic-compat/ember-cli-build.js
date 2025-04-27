@@ -23,6 +23,8 @@ module.exports = async function (defaults) {
     compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
     deprecations: {
       DEPRECATE_CATCH_ALL: false,
+      DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false,
+      DEPRECATE_TRACKING_PACKAGE: false,
     },
   });
 
