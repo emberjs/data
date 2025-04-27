@@ -12,6 +12,7 @@ import {
   OBJECT_SIGNAL,
   recordIdentifierFor,
   setRecordIdentifier,
+  Signals,
   withSignalStore,
 } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
@@ -186,6 +187,9 @@ export class SchemaRecord {
       get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
         if (RecordSymbols.has(prop as RecordSymbol)) {
           return target[prop as keyof SchemaRecord];
+        }
+        if (prop === Signals) {
+          return signals;
         }
 
         // TODO make this a symbol
