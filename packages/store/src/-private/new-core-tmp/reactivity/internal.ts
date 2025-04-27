@@ -172,6 +172,8 @@ export function withSignalStore<T extends object>(obj: T) {
  *
  * Useful for pre-warming the shape of an object to ensure
  * a key-transition to add it is not required later.
+ *
+ * @internal
  */
 export function initializeSignalStore<T extends object>(obj: T): asserts obj is T & { [Signals]: SignalStore } {
   upgradeWithSignals(obj);
@@ -218,26 +220,13 @@ export function peekInternalSignal(
   return signals?.get(key);
 }
 
-export function expectInternalSignal(signals: SignalStore | undefined, key: string | symbol): WarpDriveSignal {
-  const signal = peekInternalSignal(signals, key);
-  assert(`Expected signal for ${String(key)}`, signal);
-  return signal;
-}
-
 export function consumeInternalSignal(signal: WarpDriveSignal) {
   consumeSignal(signal.signal);
 }
 
-export function notifyInternalSignal(signal: WarpDriveSignal) {
-  signal.isStale = true;
-  notifySignal(signal.signal);
+export function notifyInternalSignal(signal: WarpDriveSignal | undefined) {
+  if (signal) {
+    signal.isStale = true;
+    notifySignal(signal.signal);
+  }
 }
-
-// export function notifyInternalSignalByName(obj: object, key: string | symbol) {
-//   const signals = withSignalStore(obj);
-//   const signal = getOrCreateInternalSignal(signals, obj, key, undefined);
-//   if (signal) {
-//     notifyInternalSignal(signal);
-//   }
-//   return signal;
-// }

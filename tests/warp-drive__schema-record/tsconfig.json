@@ -47,7 +47,9 @@
       "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -88,6 +90,9 @@
     },
     {
       "path": "../../packages/request"
+    },
+    {
+      "path": "../../packages/ember"
     },
     {
       "path": "../../packages/request-utils"

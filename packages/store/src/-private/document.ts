@@ -10,7 +10,7 @@ import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/js
 import type { Mutable } from '@warp-drive/core-types/utils';
 
 import type { DocumentCacheOperation } from './managers/notification-manager';
-import { expectInternalSignal, notifyInternalSignal, withSignalStore } from './new-core-tmp/reactivity/internal';
+import { notifyInternalSignal, peekInternalSignal, withSignalStore } from './new-core-tmp/reactivity/internal';
 import { defineGate } from './new-core-tmp/reactivity/signal';
 import type { Store } from './store-service';
 
@@ -113,10 +113,10 @@ export class ReactiveDocument<T> {
             case 'updated':
               // FIXME in the case of a collection we need to notify it's length
               // and have it recalc
-              notifyInternalSignal(expectInternalSignal(signals, 'data'));
-              notifyInternalSignal(expectInternalSignal(signals, 'links'));
-              notifyInternalSignal(expectInternalSignal(signals, 'meta'));
-              notifyInternalSignal(expectInternalSignal(signals, 'errors'));
+              notifyInternalSignal(peekInternalSignal(signals, 'data'));
+              notifyInternalSignal(peekInternalSignal(signals, 'links'));
+              notifyInternalSignal(peekInternalSignal(signals, 'meta'));
+              notifyInternalSignal(peekInternalSignal(signals, 'errors'));
               break;
             case 'added':
             case 'removed':

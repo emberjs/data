@@ -15,6 +15,8 @@ import {
  * Creates a signal for the key/object pairing and subscribes to the signal.
  *
  * Use when you need to ensure a signal exists and is subscribed to.
+ *
+ * @internal
  */
 export function entangleSignal<T extends object>(
   signals: SignalStore,
@@ -58,6 +60,8 @@ function createSignalDescriptor(key: string | symbol, intialValue: unknown) {
  *
  * The signal will be lazily created when accessed and scoped to the
  * instance of the object.
+ *
+ * @internal
  */
 export function defineSignal<T extends object>(obj: T, key: string, v?: unknown) {
   Object.defineProperty(obj, key, createSignalDescriptor(key, v));
@@ -65,6 +69,8 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
 
 /**
  * Define a non-enumerable signal property.
+ *
+ * @internal
  */
 export function defineNonEnumerableSignal<T extends object>(obj: T, key: string, v?: unknown) {
   const desc = createSignalDescriptor(key, v);

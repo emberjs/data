@@ -2,7 +2,7 @@ import { setComponentTemplate } from '@ember/component';
 import * as s from '@ember/service';
 import { render, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
+import { cached, tracked } from '@glimmer/tracking';
 import { untrack as untracked } from '@glimmer/validator';
 
 import { module, test } from 'qunit';
@@ -57,11 +57,12 @@ module('acceptance/tracking-transactions', function (hooks) {
     class WidgetCreator extends Component {
       @service store;
 
-      @memoized
+      @cached
       get widgets() {
+        const { name } = this.args;
         return untracked(() => {
-          const all = this.store.peekAll('widget').filter((r) => r.name === this.args.name);
-          const widgetPromise = this.store.query('widget', { name: this.args.name });
+          const all = this.store.peekAll('widget').filter((r) => r.name === name);
+          const widgetPromise = this.store.query('widget', { name });
           const future = new Future(widgetPromise, all);
           return future;
         });

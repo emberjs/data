@@ -56,6 +56,8 @@ export type SignalRef = unknown;
  * this abstraction by returning multiple signals from the `createSignal`
  * method, and consuming the correct one via the correct framework via
  * the `consumeSignal` and `notifySignal` methods.
+ *
+ * @typedoc
  */
 export interface SignalHooks<T = SignalRef> {
   createSignal: (obj: object, key: string | symbol) => T;

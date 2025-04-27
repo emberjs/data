@@ -4061,6 +4061,9 @@ importers:
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(6b9ab74b27cee7278587f29987a61ec9)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:packages/ember(04a497e80563c31d5eb828b49a3c3cb1)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config(@glint/template@1.5.2)

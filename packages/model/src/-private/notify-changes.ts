@@ -2,7 +2,7 @@ import { cacheFor } from '@ember/object/internals';
 
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
-import { ARRAY_SIGNAL, notifyInternalSignal } from '@ember-data/store/-private';
+import { ARRAY_SIGNAL, notifyInternalSignal, peekInternalSignal, withSignalStore } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core-types/schema/fields';
@@ -42,7 +42,7 @@ export default function notifyChanges(
       break;
 
     case 'identity':
-      record.notifyPropertyChange('id');
+      notifyInternalSignal(peekInternalSignal(withSignalStore(record), 'id'));
       break;
   }
 }

@@ -715,6 +715,7 @@ module.exports = {
     '(public) @warp-drive/build-config CurrentDeprecations#DEPRECATE_NON_UNIQUE_PAYLOADS',
     '(public) @warp-drive/build-config CurrentDeprecations#DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE',
     '(public) @warp-drive/build-config CurrentDeprecations#DEPRECATE_STORE_EXTENDS_EMBER_OBJECT',
+    '(public) @warp-drive/build-config CurrentDeprecations#DEPRECATE_TRACKING_PACKAGE',
     '(public) @warp-drive/build-config CurrentDeprecations#DISABLE_7X_DEPRECATIONS',
     '(public) @warp-drive/build-config CurrentDeprecations#ENABLE_LEGACY_SCHEMA_SERVICE',
     '(public) @warp-drive/build-config DebugLogging#DEBUG_RELATIONSHIP_NOTIFICATIONS',
