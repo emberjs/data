@@ -185,12 +185,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     // to simply not notify, for this reason the store does not itself
     // notify individual changes once the delete has been signaled,
     // this decision is left to model instances.
-
-    this.eachRelationship((name, meta) => {
-      if (meta.kind === 'belongsTo') {
-        this.notifyPropertyChange(name);
-      }
-    });
     LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
     LEGACY_SUPPORT.delete(this as unknown as MinimalLegacyRecord);
     LEGACY_SUPPORT.delete(identifier);
