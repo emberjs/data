@@ -132,21 +132,23 @@ export function gate<T extends object, K extends keyof T & string>(_target: T, k
     consumeInternalSignal(signal);
     return signal.value;
   };
-  desc.set = function (this: T, v: unknown) {
-    const signals = withSignalStore(this);
-    let signal = peekInternalSignal(signals, key);
-    if (!signal) {
-      // we can't use `v` as initialValue here because setters don't
-      // return the value and the final value may be different
-      // than what the setter was called with.
-      signal = createInternalSignal(signals, this, key, undefined);
-      signal.isStale = true;
-    }
-    setter.call(this, v);
-    // when a gate is set, we do not notify the signal
-    // as its update is controlled externally.
-  };
 
+  if (setter) {
+    desc.set = function (this: T, v: unknown) {
+      const signals = withSignalStore(this);
+      let signal = peekInternalSignal(signals, key);
+      if (!signal) {
+        // we can't use `v` as initialValue here because setters don't
+        // return the value and the final value may be different
+        // than what the setter was called with.
+        signal = createInternalSignal(signals, this, key, undefined);
+        signal.isStale = true;
+      }
+      setter.call(this, v);
+      // when a gate is set, we do not notify the signal
+      // as its update is controlled externally.
+    };
+  }
   return desc;
 }
 

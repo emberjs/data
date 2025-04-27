@@ -56,6 +56,19 @@ export class PromiseManyArray<T = unknown> {
     return this.content ? this.content.length : 0;
   }
 
+  // this will error if someone tries to call
+  // A(identifierArray) since it is not configurable
+  // which is preferrable to the `meta` override we used
+  // before which required importing all of Ember
+  @memoized
+  get '[]'() {
+    // ember-source < 3.23 (e.g. 3.20 lts)
+    // requires that the tag `'[]'` be notified
+    // on the ArrayProxy in order for `{{#each}}`
+    // to recompute. We entangle content.
+    return this.content?.length && this.content;
+  }
+
   /**
    * Iterate the proxied content. Called by the glimmer iterator in #each
    * We do not guarantee that forEach will always be available. This
@@ -203,28 +216,6 @@ defineSignal(PromiseManyArray.prototype, 'isPending', false);
 defineSignal(PromiseManyArray.prototype, 'isRejected', false);
 defineSignal(PromiseManyArray.prototype, 'isFulfilled', false);
 defineSignal(PromiseManyArray.prototype, 'isSettled', false);
-
-// this will error if someone tries to call
-// A(identifierArray) since it is not configurable
-// which is preferrable to the `meta` override we used
-// before which required importing all of Ember
-if (DEPRECATE_COMPUTED_CHAINS) {
-  const desc = {
-    enumerable: true,
-    configurable: false,
-    get: function (this: PromiseManyArray) {
-      return this.content?.length && this.content;
-    },
-  };
-  // compat(desc);
-
-  // ember-source < 3.23 (e.g. 3.20 lts)
-  // requires that the tag `'[]'` be notified
-  // on the ArrayProxy in order for `{{#each}}`
-  // to recompute. We entangle the '[]' tag from content
-
-  Object.defineProperty(PromiseManyArray.prototype, '[]', desc);
-}
 
 function tapPromise<T>(proxy: PromiseManyArray<T>, promise: Promise<ManyArray<T>>) {
   proxy.isPending = true;

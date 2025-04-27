@@ -17,7 +17,8 @@ export async function render(template: object) {
   await renderTemplate(template);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const owner = QUnit.config.current.testEnvironment.owner as Owner;
-  const pending = (owner.lookup('service:store') as Store)._getAllPending();
+  const store = owner.lookup('service:store') as Store;
+  const pending = store._getAllPending();
 
   // this should only be necessary in production tests
   // where @ember/test-waiters is deactivated :()

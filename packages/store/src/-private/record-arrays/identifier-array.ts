@@ -217,11 +217,9 @@ export class IdentifierArray<T = unknown> {
     this[SOURCE] = options.identifiers;
     this[IS_COLLECTION] = true;
 
-    // TODO this likely should be entangled on the proxy/receiver not this class
-    // FIXME before we entangled legacy array signals on the proxy too
+    // we attach the signal storage to the class
+    // so that its easier to find debugging.
     const signals = withSignalStore(this);
-    const _SIGNAL = entangleSignal(signals, this, ARRAY_SIGNAL, undefined);
-
     const store = options.store;
     const boundFns = new Map<KeyType, ProxiedMethod>();
     const PrivateState: PrivateState = {
@@ -233,6 +231,7 @@ export class IdentifierArray<T = unknown> {
     // when a mutation occurs
     // we track all mutations within the call
     // and forward them as one
+    let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
 
     const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
       get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
@@ -256,6 +255,10 @@ export class IdentifierArray<T = unknown> {
 
         if (prop === ARRAY_SIGNAL) {
           return _SIGNAL;
+        }
+
+        if (prop === 'length') {
+          return consumeInternalSignal(_SIGNAL), target.length;
         }
 
         if (prop === 'meta') return consumeInternalSignal(_SIGNAL), PrivateState.meta;
@@ -450,6 +453,10 @@ export class IdentifierArray<T = unknown> {
         },
       });
     }
+
+    // we entangle the signal on the returned proxy since that is
+    // the object that other code will be interfacing with.
+    _SIGNAL = entangleSignal(signals, proxy, ARRAY_SIGNAL, undefined);
 
     return proxy;
   }

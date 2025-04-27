@@ -1,7 +1,7 @@
 import { tagForProperty } from '@ember/-internals/metal';
-import { consumeTag, createCache, dirtyTag, getValue, track, updateTag, type UpdatableTag } from '@glimmer/validator';
-// import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
+import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
 
+// import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
 type Tag = ReturnType<typeof tagForProperty>;
@@ -29,10 +29,10 @@ export function buildSignalConfig(options: {
           consumeTag(signal[0]);
           consumeTag(signal[1]);
           consumeTag(signal[2]);
+          return;
         }
-      } else {
-        consumeTag(signal as Tag);
       }
+      consumeTag(signal as Tag);
     },
     notifySignal(signal: Tag | [Tag, Tag, Tag]) {
       if (DEPRECATE_COMPUTED_CHAINS) {
@@ -40,10 +40,11 @@ export function buildSignalConfig(options: {
           emberDirtyTag(signal[0]);
           emberDirtyTag(signal[1]);
           emberDirtyTag(signal[2]);
+          return;
         }
-      } else {
-        emberDirtyTag(signal as Tag);
       }
+
+      emberDirtyTag(signal as Tag);
     },
     createMemo: <F>(object: object, key: string | symbol, fn: () => F): (() => F) => {
       if (DEPRECATE_COMPUTED_CHAINS) {
@@ -54,7 +55,7 @@ export function buildSignalConfig(options: {
           ret = getValue(memo) as F;
         };
         return () => {
-          let tag = track(wrappedFn);
+          const tag = track(wrappedFn);
           updateTag(propertyTag, tag);
           consumeTag(tag);
           return ret!;
