@@ -23,6 +23,7 @@ module.exports = {
     '@ember-data/serializer/json-api',
     '@ember-data/serializer/rest',
     '@ember-data/store',
+    '@ember-data/store/configure',
     '@warp-drive/build-config',
     '@warp-drive/core-types',
     '@warp-drive/ember',
@@ -123,6 +124,7 @@ module.exports = {
     '(public) @warp-drive/schema-record SchemaService',
   ],
   classitems: [
+    '(public) @ember-data/store/configure @ember-data/store/configure#setupSignals',
     '(public) @warp-drive/core-types <Type> LegacyResourceSchema#fields',
     '(public) @warp-drive/core-types <Type> LegacyResourceSchema#identity',
     '(public) @warp-drive/core-types <Type> LegacyResourceSchema#legacy',
