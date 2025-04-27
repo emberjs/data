@@ -1,5 +1,3 @@
-import '@warp-drive/ember/install';
-
 import Application from '@ember/application';
 
 import loadInitializers from 'ember-load-initializers';

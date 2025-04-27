@@ -1,3 +1,5 @@
+import '@warp-drive/ember/install';
+
 // disable the normalization cache as we no longer normalize, the cache has become a bottle neck.
 // import { Registry } from '@ember/-internals/container';
 import Application from '@ember/application';

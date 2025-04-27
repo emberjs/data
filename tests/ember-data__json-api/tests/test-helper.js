@@ -1,3 +1,5 @@
+import '@warp-drive/ember/install';
+
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import { IS_CI } from '@warp-drive/build-config/env';
 import { setupGlobalHooks } from '@warp-drive/diagnostic';
