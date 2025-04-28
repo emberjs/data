@@ -94,7 +94,7 @@ export class RecordArrayManager {
     this._set = new Map();
     this._visibilitySet = new Map();
 
-    this._subscription = this.store.notifications.subscribe(
+    this._documentSubscription = this.store.notifications.subscribe(
       'document',
       (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
         if (type === 'updated' && this._keyedArrays.has(identifier.lid)) {
@@ -104,6 +104,10 @@ export class RecordArrayManager {
       }
     );
 
+    this._subscribeToResourceChanges();
+  }
+
+  private _subscribeToResourceChanges() {
     this._subscription = this.store.notifications.subscribe(
       'resource',
       (identifier: StableRecordIdentifier, type: CacheOperation) => {
@@ -386,13 +390,26 @@ export class RecordArrayManager {
     }
   }
 
+  pause(): void {
+    this.store.notifications.unsubscribe(this._subscription);
+  }
+  resume(): void {
+    this._subscribeToResourceChanges();
+  }
+
   clear(isClear = true): void {
-    this._live.forEach((array) => array.destroy(isClear));
-    this._managed.forEach((array) => array.destroy(isClear));
+    for (const array of this._live.values()) {
+      array.destroy(isClear);
+    }
+    for (const array of this._managed.values()) {
+      array.destroy(isClear);
+    }
     this._managed.clear();
     this._identifiers.clear();
     this._pending.clear();
-    this._set.forEach((set) => set.clear());
+    for (const set of this._set.values()) {
+      set.clear();
+    }
     this._visibilitySet.clear();
   }
 
@@ -402,6 +419,7 @@ export class RecordArrayManager {
     this._live.clear();
     this.isDestroyed = true;
     this.store.notifications.unsubscribe(this._subscription);
+    this.store.notifications.unsubscribe(this._documentSubscription);
   }
 }
 

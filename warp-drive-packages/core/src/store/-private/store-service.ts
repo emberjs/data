@@ -1288,6 +1288,8 @@ export class Store extends BaseClass {
     );
 
     this._join(() => {
+      this._enableAsyncFlush = true;
+      this.recordArrayManager.pause();
       if (type === undefined) {
         // destroy the graph before unloadAll
         // since then we avoid churning relationships
@@ -1299,6 +1301,9 @@ export class Store extends BaseClass {
       } else {
         this._instanceCache.clear(normalizeModelName(type));
       }
+      this._enableAsyncFlush = null;
+      this.notifications._flush();
+      this.recordArrayManager.resume();
     });
   }
 

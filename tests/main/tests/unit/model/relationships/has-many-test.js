@@ -2839,7 +2839,7 @@ module('unit/model/relationships - hasMany', function (hooks) {
     const store = this.owner.lookup('service:store');
     const tag = store.createRecord('tag');
     tag.hasMany('people').hasManyRelationship;
-    const support = LEGACY_SUPPORT.get(tag);
+    const support = LEGACY_SUPPORT.get(recordIdentifierFor(tag));
     const sync = support._syncArray;
     support._syncArray = function () {
       peopleDidChange++;

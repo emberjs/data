@@ -531,8 +531,8 @@ module('async belongs-to rendering tests', function (hooks) {
 
       const relationship = sedona.belongsTo('parent').belongsToRelationship;
       const { state, definition } = relationship;
-      const RelationshipPromiseCache = LEGACY_SUPPORT.get(sedona)._relationshipPromisesCache;
-      const RelationshipProxyCache = LEGACY_SUPPORT.get(sedona)._relationshipProxyCache;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(recordIdentifierFor(sedona))._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(recordIdentifierFor(sedona))._relationshipProxyCache;
 
       assert.true(definition.isAsync, 'The relationship is async');
       assert.false(state.isEmpty, 'The relationship is not empty');

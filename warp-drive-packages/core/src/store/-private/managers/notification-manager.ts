@@ -148,6 +148,7 @@ export default class NotificationManager {
     identifier: StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
+    assert(`Expected not to be destroyed`, !this.isDestroyed);
     assert(
       `Expected to receive a stable Identifier to subscribe to`,
       identifier === 'resource' ||
@@ -196,6 +197,7 @@ export default class NotificationManager {
     value: NotificationType | CacheOperation | DocumentCacheOperation,
     key?: string
   ): boolean {
+    assert(`Expected not to be destroyed`, !this.isDestroyed);
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
@@ -213,9 +215,8 @@ export default class NotificationManager {
       return false;
     }
 
-    const hasSubscribers = Boolean(this._cache.get(identifier)?.length);
-
-    if (isCacheOperationValue(value) || hasSubscribers) {
+    const _hasSubscribers = hasSubscribers(this._cache, identifier, value);
+    if (_hasSubscribers) {
       let buffer = this._buffered.get(identifier);
       if (!buffer) {
         buffer = [];
@@ -254,7 +255,7 @@ export default class NotificationManager {
       }
     }
 
-    return hasSubscribers;
+    return _hasSubscribers;
   }
 
   /** @internal */
@@ -285,12 +286,12 @@ export default class NotificationManager {
     const buffered = this._buffered;
     if (buffered.size) {
       this._buffered = new Map();
-      buffered.forEach((states, identifier) => {
-        states.forEach((args) => {
+      for (const [identifier, states] of buffered) {
+        for (const [value, key] of states) {
           // @ts-expect-error
-          this._flushNotification(identifier, args[0], args[1]);
-        });
-      });
+          this._flushNotification(identifier, value, key);
+        }
+      }
     }
 
     this._hasFlush = false;
@@ -356,4 +357,22 @@ export default class NotificationManager {
     this.isDestroyed = true;
     this._cache.clear();
   }
+}
+
+function hasSubscribers(
+  cache: NotificationManager['_cache'],
+  identifier: StableDocumentIdentifier | StableRecordIdentifier,
+  value: NotificationType | CacheOperation | DocumentCacheOperation
+): boolean {
+  const hasSubscriber = Boolean(cache.get(identifier)?.length);
+
+  if (!isCacheOperationValue(value)) {
+    return hasSubscriber;
+  }
+
+  const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+    ResourceOperationCallback | DocumentOperationCallback
+  >;
+  const hasTypeSubscriber = Boolean(callbackMap?.length);
+  return hasSubscriber || hasTypeSubscriber;
 }
