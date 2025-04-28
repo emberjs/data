@@ -179,12 +179,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     this.___recordState?.destroy();
     const store = storeFor(this)!;
     store.notifications.unsubscribe(this.___private_notifications);
-    // Legacy behavior is to notify the relationships on destroy
-    // such that they "clear". It's uncertain this behavior would
-    // be good for a new model paradigm, likely cheaper and safer
-    // to simply not notify, for this reason the store does not itself
-    // notify individual changes once the delete has been signaled,
-    // this decision is left to model instances.
+
     LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
     LEGACY_SUPPORT.delete(this as unknown as MinimalLegacyRecord);
     LEGACY_SUPPORT.delete(identifier);
