@@ -2,14 +2,13 @@
  * @module @ember-data/store
  */
 
-import { _backburner } from '@ember/runloop';
-
 import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache';
 import { log } from '../debug/utils';
+import { willSyncFlushWatchers } from '../new-core-tmp/reactivity/configure';
 import type { Store } from '../store-service';
 
 export type UnsubscribeToken = object;
@@ -21,11 +20,6 @@ function isCacheOperationValue(value: NotificationType | DocumentCacheOperation)
   return (
     value === 'added' || value === 'state' || value === 'updated' || value === 'removed' || value === 'invalidated'
   );
-}
-
-function runLoopIsFlushing(): boolean {
-  //@ts-expect-error
-  return !!_backburner.currentInstance && _backburner._autorun !== true;
 }
 
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | CacheOperation;
@@ -277,12 +271,12 @@ export default class NotificationManager {
     const asyncFlush = this.store._enableAsyncFlush;
 
     if (this._hasFlush) {
-      if (asyncFlush !== false && !runLoopIsFlushing()) {
+      if (asyncFlush !== false && !willSyncFlushWatchers()) {
         return false;
       }
     }
 
-    if (asyncFlush && !runLoopIsFlushing()) {
+    if (asyncFlush && !willSyncFlushWatchers()) {
       this._hasFlush = true;
       return false;
     }

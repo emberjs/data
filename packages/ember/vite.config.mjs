@@ -12,6 +12,7 @@ export const externals = [
   '@glimmer/validator',
   '@ember/object/compat',
   '@ember/-internals/metal',
+  '@ember/runloop',
 ];
 export const entryPoints = ['./src/index.ts', './src/install.ts'];
 

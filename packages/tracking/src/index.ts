@@ -1,4 +1,5 @@
 import { tagForProperty } from '@ember/-internals/metal';
+import { _backburner } from '@ember/runloop';
 import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
 
 // import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
@@ -64,6 +65,10 @@ export function buildSignalConfig(options: {
         const memo = createCache(fn);
         return () => getValue(memo) as F;
       }
+    },
+    willSyncFlushWatchers: () => {
+      //@ts-expect-error
+      return !!_backburner.currentInstance && _backburner._autorun !== true;
     },
   };
 }
