@@ -85,7 +85,8 @@ module('Store.createRecord() coverage', function (hooks) {
 
     pet.unloadRecord();
     await settled();
-    assert.strictEqual(pet.owner, null, 'Shen no longer has an owner');
+
+    assert.strictEqual(pet.owner, chris, 'We leave shen behind disconnected');
     // check that the relationship has been dissolved
     pets = chris.pets.slice().map((pet) => pet.name);
     assert.deepEqual(pets, [], 'Chris no longer has any pets');

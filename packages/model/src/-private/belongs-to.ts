@@ -94,6 +94,10 @@ function _belongsTo<T, Async extends boolean>(
       return support.getBelongsTo(key);
     },
     set<R extends MinimalLegacyRecord>(this: R, key: string, value: unknown) {
+      assert(`Cannot set belongsTo relationship ${key} on a destroyed record`, !this.isDestroying && !this.isDestroyed);
+      if (this.isDestroying || this.isDestroyed) {
+        return null;
+      }
       const support = lookupLegacySupport(this);
       if (DEBUG) {
         if (['currentState'].includes(key)) {
