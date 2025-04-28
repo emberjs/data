@@ -2,6 +2,7 @@ import { SignalHooks } from '@ember-data/store/-private';
 import { tagForProperty } from '@ember/-internals/metal';
 import { consumeTag, createCache, dirtyTag, getValue, track, updateTag, type UpdatableTag } from '@glimmer/validator';
 
+import { _backburner } from '@ember/runloop';
 // import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { setupSignals } from '@ember-data/store/configure';
@@ -66,6 +67,10 @@ export function buildSignalConfig(options: {
         const memo = createCache(fn);
         return () => getValue(memo) as F;
       }
+    },
+    willSyncFlushWatchers: () => {
+      //@ts-expect-error
+      return !!_backburner.currentInstance && _backburner._autorun !== true;
     },
   } satisfies SignalHooks<Tag | [Tag, Tag, Tag]>;
 }

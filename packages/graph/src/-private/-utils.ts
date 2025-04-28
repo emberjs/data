@@ -1,4 +1,4 @@
-import { inspect, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
@@ -75,6 +75,32 @@ export function assertValidRelationshipPayload(
       }
     }
   }
+}
+
+function inspect(value: unknown) {
+  const type = typeof value;
+  if (value === null) {
+    return 'null';
+  }
+  if (type !== 'object') {
+    return type;
+  }
+  if (Array.isArray(value)) {
+    return 'Array';
+  }
+  if (value instanceof Date) {
+    return 'Date';
+  }
+  if (value instanceof RegExp) {
+    return 'RegExp';
+  }
+  if (value instanceof Map) {
+    return 'Map';
+  }
+  if (value instanceof Set) {
+    return 'Set';
+  }
+  return 'object';
 }
 
 export function isNew(identifier: StableRecordIdentifier): boolean {

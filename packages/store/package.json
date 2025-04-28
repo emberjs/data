@@ -51,6 +51,9 @@
   "peerDependenciesMeta": {
     "@ember-data/tracking": {
       "optional": true
+    },
+    "ember-source": {
+      "optional": true
     }
   },
   "devDependencies": {

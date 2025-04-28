@@ -5,6 +5,7 @@ export const externals = [
   '@ember/-internals/metal',
   '@glimmer/tracking/primitives/cache',
   '@ember/object/compat',
+  '@ember/runloop',
 ];
 export const entryPoints = ['src/index.ts'];
 

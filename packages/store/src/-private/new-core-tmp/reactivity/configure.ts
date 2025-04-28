@@ -64,6 +64,7 @@ export interface SignalHooks<T = SignalRef> {
   consumeSignal: (signal: T) => void;
   notifySignal: (signal: T) => void;
   createMemo: <F>(obj: object, key: string | symbol, fn: () => F) => () => F;
+  willSyncFlushWatchers: () => boolean;
 }
 
 export interface HooksOptions {
@@ -128,6 +129,12 @@ export function createMemo<T>(object: object, key: string | symbol, fn: () => T)
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
   assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.createMemo(object, key, fn);
+}
+
+export function willSyncFlushWatchers(): boolean {
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+  assert(`Signal hooks not configured`, signalHooks);
+  return signalHooks.willSyncFlushWatchers();
 }
 
 if (DEPRECATE_TRACKING_PACKAGE) {
