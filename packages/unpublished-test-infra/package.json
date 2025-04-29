@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
@@ -79,12 +79,11 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15",
     "qunit": "^2.20.1",
     "testem": "^3.12.0"
@@ -103,5 +102,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.1"
 }

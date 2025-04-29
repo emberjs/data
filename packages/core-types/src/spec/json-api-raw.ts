@@ -121,12 +121,12 @@ export type ResourceRelationshipsObject<T = ExistingResourceIdentifierObject | N
  * Contains the data for an existing resource in JSON:API format
  * @internal
  */
-export type ExistingResourceObject<T extends string = string> = ExistingResourceIdentifierObject<T> & {
+export interface ExistingResourceObject<T extends string = string> extends ExistingResourceIdentifierObject<T> {
   meta?: Meta;
   attributes?: ObjectValue;
   relationships?: ResourceRelationshipsObject<ExistingResourceIdentifierObject>;
   links?: Links;
-};
+}
 
 export type NewResourceObject<T extends string = string> = NewResourceIdentifierObject<T> & {
   meta?: Meta;

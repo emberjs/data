@@ -6,8 +6,10 @@ import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import {
+  ARRAY_SIGNAL,
   fastPush,
   isStableIdentifier,
+  notifyInternalSignal,
   peekCache,
   recordIdentifierFor,
   RelatedCollection as ManyArray,
@@ -707,7 +709,7 @@ function handleCompletedRelationshipRequest(
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    (value as ManyArray).notify();
+    notifyInternalSignal((value as ManyArray)[ARRAY_SIGNAL]);
   }
 
   if (error) {

@@ -213,7 +213,7 @@ module('Graph | Order Preservation', function (hooks) {
       // add a new config '4' without an index
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           field: 'configs',
           record: appIdentifier,
           value: identifier('config', '4'),
@@ -235,7 +235,7 @@ module('Graph | Order Preservation', function (hooks) {
       // add a new config '5' with an index
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           field: 'configs',
           record: appIdentifier,
           value: identifier('config', '5'),
@@ -307,7 +307,7 @@ module('Graph | Order Preservation', function (hooks) {
       // add a group '4' to app '1'
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           field: 'groups',
           record: appIdentifier,
           value: identifier('group', '4'),
@@ -348,7 +348,7 @@ module('Graph | Order Preservation', function (hooks) {
       // remove config '2'
       store._join(() => {
         graph.update({
-          op: 'removeFromRelatedRecords',
+          op: 'remove',
           field: 'configs',
           record: appIdentifier,
           value: identifier('config', '2'),
@@ -370,7 +370,7 @@ module('Graph | Order Preservation', function (hooks) {
       // add config '2' back to the end
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           field: 'configs',
           record: appIdentifier,
           value: identifier('config', '2'),
@@ -391,7 +391,7 @@ module('Graph | Order Preservation', function (hooks) {
       // remove config '3' with an index
       store._join(() => {
         graph.update({
-          op: 'removeFromRelatedRecords',
+          op: 'remove',
           field: 'configs',
           record: appIdentifier,
           value: identifier('config', '3'),
@@ -474,7 +474,7 @@ module('Graph | Order Preservation', function (hooks) {
       // add a group '4' to app '1'
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           field: 'groups',
           record: appIdentifier,
           value: identifier('group', '4'),
@@ -567,7 +567,7 @@ module('Graph | Order Preservation', function (hooks) {
       // now, remove group 3 from app 1
       store._join(() => {
         graph.update({
-          op: 'removeFromRelatedRecords',
+          op: 'remove',
           field: 'groups',
           record: appIdentifier,
           value: groupIdentifier,

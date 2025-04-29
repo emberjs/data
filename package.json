@@ -1,6 +1,6 @@
 {
   "name": "root",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -44,7 +44,7 @@
     "@warp-drive/internal-docs-viewer": "workspace:*",
     "@warp-drive/internal-tooling": "workspace:*",
     "badge-maker": "4.1.0",
-    "bun-types": "^1.2.8",
+    "bun-types": "^1.2.10",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
     "command-line-args": "^6.0.1",
@@ -57,29 +57,29 @@
     "globby": "^14.1.0",
     "lerna-changelog": "^2.2.0",
     "prettier": "^3.5.3",
-    "prettier-plugin-ember-template-tag": "^2.0.4",
+    "prettier-plugin-ember-template-tag": "^2.0.5",
     "rimraf": "^6.0.1",
     "semver": "^7.7.1",
     "silent-error": "^1.1.1",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "url": "^0.11.4",
     "yuidocjs": "^0.10.2",
     "zlib": "1.0.5"
   },
   "dependencies": {
-    "turbo": "^2.4.4"
+    "turbo": "^2.5.0"
   },
   "engines": {
     "node": ">= 18.20.8",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "10.7.0"
+    "pnpm": "10.8.1"
   },
   "volta": {
     "node": "22.3.0",
-    "pnpm": "10.7.0"
+    "pnpm": "10.8.1"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "changelog": {
     "labels": {
       ":label: breaking": ":boom: Breaking Change",
@@ -162,7 +162,7 @@
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
-      "webpack": "5.98.0",
+      "webpack": "5.99.5",
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0"

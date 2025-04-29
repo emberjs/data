@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
@@ -35,10 +35,10 @@
     "@ember-data/legacy-compat": "workspace:*",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
     "@embroider/compat": "4.0.0-alpha.15",
     "@embroider/config-meta-loader": "1.0.0-alpha.3",
     "@embroider/core": "4.0.0-alpha.10",
@@ -47,10 +47,10 @@
     "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-ember-template-compilation": "^2.4.1",
-    "bun-types": "^1.2.8",
+    "bun-types": "^1.2.10",
     "decorator-transforms": "^2.3.0",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.3.0",
+    "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-load-initializers": "^3.0.1",
@@ -63,6 +63,9 @@
     "vite-plugin-compression2": "^1.3.3",
     "zlib": "1.0.5"
   },
+  "sideEffects": [
+    "@warp-drive/ember/install"
+  ],
   "ember": {
     "edition": "octane"
   },
@@ -72,7 +75,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "ember-addon": {
     "type": "app",
     "version": 2

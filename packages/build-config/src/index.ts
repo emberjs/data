@@ -102,10 +102,18 @@ function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
   return macros as MacrosWithGlobalConfig;
 }
 
-export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void {
-  const macros = recastMacrosConfig(_MacrosConfig.for(context, appRoot));
-  const isLegacySupport = (config as unknown as { ___legacy_support?: boolean }).___legacy_support;
-  const hasDeprecatedConfig = isLegacySupport && Object.keys(config).length > 1;
+export function setConfig(macros: object, config: WarpDriveConfig): void;
+export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void;
+export function setConfig(context: object, appRootOrConfig: string | WarpDriveConfig, config?: WarpDriveConfig): void {
+  const isEmberClassicUsage = arguments.length === 3;
+  const macros = recastMacrosConfig(
+    isEmberClassicUsage ? _MacrosConfig.for(context, appRootOrConfig as string) : context
+  );
+
+  const userConfig = isEmberClassicUsage ? config! : (appRootOrConfig as WarpDriveConfig);
+
+  const isLegacySupport = (userConfig as unknown as { ___legacy_support?: boolean }).___legacy_support;
+  const hasDeprecatedConfig = isLegacySupport && Object.keys(userConfig).length > 1;
   const hasInitiatedConfig = macros.globalConfig['WarpDrive'];
 
   // setConfig called by user prior to legacy support called
@@ -120,9 +128,11 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
 
   // legacy support called prior to user setConfig
   if (isLegacySupport && hasDeprecatedConfig) {
-    console.warn(
-      `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
-    );
+    // We don't want to print this just yet because we are going to re-arrange packages
+    // and this would be come an import from @warp-drive/core. Better to not deprecate twice.
+    // console.warn(
+    //   `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
+    // );
   }
 
   // included hooks run during class initialization of the EmberApp instance
@@ -134,21 +144,21 @@ export function setConfig(context: object, appRoot: string, config: WarpDriveCon
   //   );
   // }
 
-  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, config.debug);
+  const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, userConfig.debug);
 
   const env = getEnv();
-  const DEPRECATIONS = getDeprecations(config.compatWith || null, config.deprecations);
+  const DEPRECATIONS = getDeprecations(userConfig.compatWith || null, userConfig.deprecations);
   const FEATURES = getFeatures(env.PRODUCTION);
 
   const includeDataAdapterInProduction =
-    typeof config.includeDataAdapterInProduction === 'boolean' ? config.includeDataAdapterInProduction : true;
+    typeof userConfig.includeDataAdapterInProduction === 'boolean' ? userConfig.includeDataAdapterInProduction : true;
   const includeDataAdapter = env.PRODUCTION ? includeDataAdapterInProduction : true;
 
   const finalizedConfig: InternalWarpDriveConfig = {
     debug: debugOptions,
-    polyfillUUID: config.polyfillUUID ?? false,
+    polyfillUUID: userConfig.polyfillUUID ?? false,
     includeDataAdapter,
-    compatWith: config.compatWith ?? null,
+    compatWith: userConfig.compatWith ?? null,
     deprecations: DEPRECATIONS,
     features: FEATURES,
     activeLogging: createLoggingConfig(env, debugOptions),

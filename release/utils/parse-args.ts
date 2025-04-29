@@ -321,3 +321,23 @@ export async function parseRawFlags(
     full: full_flags,
   };
 }
+
+export function printConfig(config: {
+  specified: Map<string, string | number | boolean | null>;
+  full: Map<string, string | number | boolean | null>;
+}): void {
+  const json = {
+    specified: {} as Record<string, string | number | boolean | null>,
+    full: {} as Record<string, string | number | boolean | null>,
+  };
+  for (const [key, value] of config.specified) {
+    json.specified[key] = value;
+  }
+  for (const [key, value] of config.full) {
+    json.full[key] = value;
+  }
+
+  console.log(`\nConfiguration:\n`);
+  console.log(JSON.stringify(json, null, 2));
+  console.log(`\n`);
+}

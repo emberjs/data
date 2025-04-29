@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/internal-tooling",
-  "version": "5.4.0-alpha.142",
+  "version": "5.4.1-alpha.142",
   "description": "Internal Tooling for the WarpDrive Project Monorepo | Unpublished",
   "private": true,
   "type": "module",
@@ -16,8 +16,8 @@
     "sync-all": "src/sync-all.ts"
   },
   "dependencies": {
-    "@types/bun": "^1.2.8",
-    "typescript": "^5.8.2",
+    "@types/bun": "^1.2.10",
+    "typescript": "^5.8.3",
     "chalk": "5.4.1",
     "debug": "4.4.0",
     "@types/debug": "4.1.12",

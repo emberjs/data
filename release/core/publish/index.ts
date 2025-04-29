@@ -1,5 +1,5 @@
 import { publish_flags_config } from '../../utils/flags-config';
-import { parseRawFlags } from '../../utils/parse-args';
+import { parseRawFlags, printConfig } from '../../utils/parse-args';
 import { GIT_TAG, getAllPackagesForGitTag, getGitState } from '../../utils/git';
 import { printHelpDocs } from '../../help/docs';
 import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
@@ -24,6 +24,8 @@ export async function executePublish(args: string[]) {
     return printHelpDocs(args);
   }
 
+  printConfig(config);
+
   const dryRun = config.full.get('dry_run') as boolean;
 
   // get git info
@@ -36,9 +38,10 @@ export async function executePublish(args: string[]) {
   const packages = await gatherPackages(strategy.config);
 
   // get packages present in the git tag version
+  // if no version is specified, we will use the current branch
   const fromVersion = config.full.get('from') as SEMVER_VERSION | undefined;
   const fromTag = `v${fromVersion}` as GIT_TAG;
-  const baseVersionPackages = fromVersion ? await getAllPackagesForGitTag(fromTag) : packages;
+  const baseVersionPackages = config.specified.get('from') ? await getAllPackagesForGitTag(fromTag) : packages;
 
   // get applied strategy
   const applied = await applyStrategy(config.full, strategy, baseVersionPackages, packages);

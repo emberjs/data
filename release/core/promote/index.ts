@@ -79,9 +79,9 @@ export async function updateTags(
   }
 
   const dryRun = config.get('dry_run') as boolean;
-
+  let error: Error | null = null;
   for (const [pkgName, version] of packages) {
-    token = await updateDistTag(pkgName, version, distTag, dryRun, token);
+    [token, error] = await updateDistTag(pkgName, version, distTag, dryRun, token);
     console.log(chalk.green(`\t✅ ${colorName(pkgName)} ${chalk.green(version)} => ${chalk.magenta(distTag)}`));
   }
 
@@ -108,7 +108,7 @@ export async function updateDistTag(
   distTag: string,
   dryRun: boolean,
   otp?: string
-): Promise<string | undefined> {
+): Promise<[string | undefined, Error | null]> {
   let cmd = `npm dist-tag add ${pkg}@${version} ${distTag}`;
 
   if (otp) {
@@ -122,16 +122,15 @@ export async function updateDistTag(
   try {
     await exec({ cmd, condense: true });
   } catch (e) {
-    if (!otp || !(e instanceof Error)) {
-      throw e;
+    const error = !(e instanceof Error) ? new Error(e as string) : e;
+    if (otp) {
+      if (error.message.includes('E401') || error.message.includes('EOTP')) {
+        otp = await getOTPToken(distTag, true);
+        return updateDistTag(pkg, version, distTag, dryRun, otp);
+      }
     }
-    if (e.message.includes('E401') || e.message.includes('EOTP')) {
-      otp = await getOTPToken(distTag, true);
-      return updateDistTag(pkg, version, distTag, dryRun, otp);
-    } else {
-      throw e;
-    }
+    return [otp, error];
   }
 
-  return otp;
+  return [otp, null];
 }

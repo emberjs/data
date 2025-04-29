@@ -11,7 +11,6 @@ import type { Future } from '@ember-data/request';
 import {
   __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS,
   LOG_METRIC_COUNTS,
-  LOG_PAYLOADS,
   LOG_REQUESTS,
 } from '@warp-drive/build-config/debugging';
 import {
@@ -22,11 +21,7 @@ import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { Graph } from '@warp-drive/core-types/graph';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import { EnableHydration, SkipCache } from '@warp-drive/core-types/request';
 import { getRuntimeConfig, setLogging } from '@warp-drive/core-types/runtime';
@@ -56,7 +51,6 @@ import {
   resourceIsFullyDeleted,
   storeFor,
 } from './caches/instance-cache';
-import type { ReactiveDocument } from './document';
 import type RecordReference from './legacy-model-support/record-reference';
 import { getShimClass } from './legacy-model-support/shim-model-class';
 import { CacheManager } from './managers/cache-manager';
@@ -343,6 +337,7 @@ const app = new EmberApp(defaults, {
       id: 'ember-data:deprecate-store-extends-ember-object',
       until: '6.0',
       for: 'ember-data',
+      url: 'https://deprecations.emberjs.com/id/ember-data-deprecate-store-extends-ember-object',
       since: {
         available: '4.13',
         enabled: '5.4',
@@ -656,10 +651,6 @@ export class Store extends BaseClass {
   declare _graph?: Graph;
   declare _requestCache: RequestStateService;
   declare _instanceCache: InstanceCache;
-  declare _documentCache: Map<
-    StableDocumentIdentifier,
-    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
-  >;
 
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   declare _forceShim: boolean;
@@ -712,7 +703,6 @@ export class Store extends BaseClass {
     // private
     this._requestCache = new RequestStateService(this);
     this._instanceCache = new InstanceCache(this);
-    this._documentCache = new Map();
 
     this.isDestroying = false;
     this.isDestroyed = false;
@@ -2373,16 +2363,6 @@ export class Store extends BaseClass {
   ): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
-    }
-    if (LOG_PAYLOADS) {
-      try {
-        const data: unknown = JSON.parse(JSON.stringify(jsonApiDoc)) as unknown;
-        // eslint-disable-next-line no-console
-        console.log('EmberData | Payload - push', data);
-      } catch {
-        // eslint-disable-next-line no-console
-        console.log('EmberData | Payload - push', jsonApiDoc);
-      }
     }
     if (asyncFlush) {
       this._enableAsyncFlush = true;

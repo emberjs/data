@@ -42,6 +42,7 @@ Documentation
 - [RequestState](#requeststate)
   - [getRequestState](#getrequeststate)
   - [\<Request />](#request-)
+- [Using with `.hbs`](#using-hbs)
 
 ---
 
@@ -529,6 +530,32 @@ import { Request } from '@warp-drive/ember';
 
 If a matching request is refreshed or reloaded by any other component, the `Request` component will react accordingly.
 
+## Using .hbs
+
+The components and utils this library exports are intended for use with `
+Glimmer Flavored JavaScript (`gjs`). To use them in handlebars files, your
+app should re-export them. For instance:
+
+*app/components/await.ts*
+```ts
+export { Await as default } from '@warp-drive/ember';
+```
+
+```hbs
+<Await @promise={{this.getTheData}}></Await>
+```
+
+This approach allows renaming them to avoid conflicts just by using a different
+filename if desired:
+
+*app/components/warp-drive-await.ts*
+```ts
+export { Await as default } from '@warp-drive/ember';
+```
+
+```hbs
+<WarpDriveAwait @promise={{this.getTheData}}></WarpDriveAwait>
+```
 
 ---
 

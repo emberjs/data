@@ -1,4 +1,4 @@
-import { inspect, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
 import type { Store } from '@ember-data/store/-private';
 import { peekCache } from '@ember-data/store/-private';
@@ -6,6 +6,7 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
 import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -31,7 +32,10 @@ export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: 
   mainCache[key2] = value;
 }
 
-export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelationshipOperation) {
+export function assertValidRelationshipPayload(
+  graph: Graph,
+  op: UpdateRelationshipOperation | UpdateResourceRelationshipOperation
+) {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const payload = op.value;
@@ -71,6 +75,32 @@ export function assertValidRelationshipPayload(graph: Graph, op: UpdateRelations
       }
     }
   }
+}
+
+function inspect(value: unknown) {
+  const type = typeof value;
+  if (value === null) {
+    return 'null';
+  }
+  if (type !== 'object') {
+    return type;
+  }
+  if (Array.isArray(value)) {
+    return 'Array';
+  }
+  if (value instanceof Date) {
+    return 'Date';
+  }
+  if (value instanceof RegExp) {
+    return 'RegExp';
+  }
+  if (value instanceof Map) {
+    return 'Map';
+  }
+  if (value instanceof Set) {
+    return 'Set';
+  }
+  return 'object';
 }
 
 export function isNew(identifier: StableRecordIdentifier): boolean {

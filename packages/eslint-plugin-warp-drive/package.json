@@ -2,7 +2,7 @@
   "name": "eslint-plugin-warp-drive",
   "description": "ESLint rules for Applications using WarpDrive or EmberData",
   "main": "./src/index.js",
-  "version": "0.0.2-alpha.140",
+  "version": "0.0.2-alpha.157",
   "private": false,
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@babel/plugin-proposal-decorators": "7.25.9",
     "@babel/core": "^7.26.10",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "mocha": "^11.1.0"
   },
   "files": [

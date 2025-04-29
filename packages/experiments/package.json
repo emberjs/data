@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/experiments",
   "description": "Experimental features for EmberData/WarpDrive",
-  "version": "0.1.0-alpha.155",
+  "version": "0.2.2-alpha.11",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -38,6 +38,7 @@
     }
   },
   "files": [
+    "addon-main.cjs",
     "dist",
     "unstable-preview-types",
     "CHANGELOG.md",
@@ -76,13 +77,12 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },
   "engines": {
@@ -90,5 +90,13 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "keywords": [
+    "ember-addon"
+  ],
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
   }
 }

@@ -1,8 +1,13 @@
 import type { Future } from '@ember-data/request';
 import type Store from '@ember-data/store';
 import type { StoreRequestInput } from '@ember-data/store';
-import { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { defineSignal, getSignal, peekSignal } from '@ember-data/tracking/-private';
+import {
+  consumeInternalSignal,
+  defineSignal,
+  getOrCreateInternalSignal,
+  RelatedCollection as ManyArray,
+  withSignalStore,
+} from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
@@ -40,14 +45,10 @@ export const ManagedObjectMap = getOrSetGlobal(
 );
 
 export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
-  let signal = peekSignal(record, prop);
-
-  if (!signal) {
-    signal = getSignal(record, prop, false);
-    signal.lastValue = field.options?.defaultValue ?? null;
-  }
-
-  return signal.lastValue;
+  const signals = withSignalStore(record);
+  const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
+  consumeInternalSignal(signal);
+  return signal.value;
 }
 
 export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManyArray | ManagedArray | undefined {
@@ -303,9 +304,9 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
   }
 }
 
-defineSignal(ResourceRelationship.prototype, 'data');
-defineSignal(ResourceRelationship.prototype, 'links');
-defineSignal(ResourceRelationship.prototype, 'meta');
+defineSignal(ResourceRelationship.prototype, 'data', null);
+defineSignal(ResourceRelationship.prototype, 'links', null);
+defineSignal(ResourceRelationship.prototype, 'meta', null);
 
 function getHref(link?: Link | null): string | null {
   if (!link) {
@@ -367,7 +368,9 @@ export function computeHasMany(
       type: field.type,
       identifier,
       cache,
-      identifiers: rawValue.data as StableRecordIdentifier[],
+      // we divorce the reference here because ManyArray mutates the target directly
+      // before sending the mutation op to the cache. We may be able to avoid this in the future
+      identifiers: rawValue.data?.slice() as StableRecordIdentifier[],
       key: field.name,
       meta: rawValue.meta || null,
       links: rawValue.links || null,
@@ -376,7 +379,7 @@ export function computeHasMany(
       // TODO: Grab the proper value
       _inverseIsAsync: false,
       // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
-      manager: new ManyArrayManager(record),
+      manager: new ManyArrayManager(record, editable),
       isLoaded: true,
       allowMutation: editable,
     });

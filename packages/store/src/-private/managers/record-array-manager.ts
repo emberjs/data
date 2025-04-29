@@ -1,7 +1,6 @@
 /**
   @module @ember-data/store
 */
-import { addTransactionCB } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
@@ -9,15 +8,9 @@ import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-dri
 import type { ImmutableRequestInfo } from '@warp-drive/core-types/request';
 import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
+import { ARRAY_SIGNAL, notifyInternalSignal } from '../new-core-tmp/reactivity/internal';
 import type { CollectionCreateOptions } from '../record-arrays/identifier-array';
-import {
-  ARRAY_SIGNAL,
-  Collection,
-  IdentifierArray,
-  NOTIFY,
-  notifyArray,
-  SOURCE,
-} from '../record-arrays/identifier-array';
+import { Collection, IdentifierArray, SOURCE } from '../record-arrays/identifier-array';
 import type { Store } from '../store-service';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager';
 
@@ -149,10 +142,11 @@ export class RecordArrayManager {
 
     // then pull new state if required
     if (isRequestArray) {
-      const tag = array[ARRAY_SIGNAL];
+      const signal = array[ARRAY_SIGNAL];
 
-      if (tag.reason === 'cache-sync') {
-        tag.reason = null;
+      // we only need to rebuild the array from cache if a full sync is required
+      // due to notification that the cache has changed
+      if (signal.value === 'cache-sync') {
         const doc = this.store.cache.peek(array.identifier);
         assert(`Expected to find a document for ${array.identifier.lid} but found none`, doc);
         const data = !('data' in doc) || !Array.isArray(doc.data) ? [] : doc.data;
@@ -247,15 +241,13 @@ export class RecordArrayManager {
     if (array === FAKE_ARR) {
       return;
     }
-    const tag = array[ARRAY_SIGNAL];
-    if (shouldSyncFromCache) {
-      tag.reason = 'cache-sync';
-    }
-    if (!tag.shouldReset) {
-      tag.shouldReset = true;
-      addTransactionCB(array[NOTIFY]);
-    } else if (delta > 0 && !tag.t) {
-      addTransactionCB(array[NOTIFY]);
+    const signal = array[ARRAY_SIGNAL];
+    if (!signal.isStale || delta > 0) {
+      notifyInternalSignal(signal);
+
+      // when the cache has updated for our array, we need to
+      // do a full rebuild of the array
+      signal.value = shouldSyncFromCache ? 'cache-sync' : 'patch';
     }
   }
 
@@ -323,14 +315,20 @@ export class RecordArrayManager {
   ) {
     this._pending.delete(array);
     const source = array[SOURCE];
+    assert(
+      `The new state of the collection should not be using the same array reference as the original state.`,
+      source !== identifiers
+    );
     const old = source.slice();
     source.length = 0;
     fastPush(source, identifiers);
     this._set.set(array, new Set(identifiers));
 
-    notifyArray(array);
-    array.meta = payload?.meta || null;
-    array.links = payload?.links || null;
+    if (!isCollection(array)) {
+      notifyInternalSignal(array[ARRAY_SIGNAL]);
+      array.meta = payload?.meta || null;
+      array.links = payload?.links || null;
+    }
     array.isLoaded = true;
 
     disassociate(this._identifiers, array, old);

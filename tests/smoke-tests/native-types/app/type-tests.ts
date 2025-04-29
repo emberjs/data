@@ -16,7 +16,6 @@ import { adapterFor } from '@ember-data/legacy-compat';
 import Model from '@ember-data/model';
 import { setBuildURLConfig } from '@ember-data/request-utils';
 import Serializer from '@ember-data/serializer';
-import { createCache } from '@ember-data/tracking';
 import { Type } from '@warp-drive/core-types/symbols';
 
 expectTypeOf<typeof Type>().not.toBeAny();
@@ -33,6 +32,5 @@ expectTypeOf<typeof Serializer>().not.toBeAny();
 expectTypeOf<typeof RequestManager>().not.toBeAny();
 expectTypeOf<typeof BuildURLMixin>().not.toBeAny();
 expectTypeOf<typeof jsonapi>().not.toBeAny();
-expectTypeOf<typeof createCache>().not.toBeAny();
 expectTypeOf<typeof setBuildURLConfig>().not.toBeAny();
 expectTypeOf<typeof adapterFor>().not.toBeAny();

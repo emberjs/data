@@ -131,12 +131,19 @@ export const DEPRECATE_NON_STRICT_ID = '5.3';
  * Support for these chains is currently guarded by the deprecation flag
  * listed here, enabling removal of the behavior if desired.
  *
+ * The instrumentation was added in 5.0 but the version number
+ * is set to 7.0 as we do not want to strip support without
+ * adding a deprecation message.
+ *
+ * Once we've added the deprecation message, we will
+ * update this version number to the proper version.
+ *
  * @property DEPRECATE_COMPUTED_CHAINS
  * @since 5.0
- * @until 6.0
+ * @until 8.0
  * @public
  */
-export const DEPRECATE_COMPUTED_CHAINS = '5.0';
+export const DEPRECATE_COMPUTED_CHAINS = '7.0';
 
 /**
  * **id: ember-data:deprecate-legacy-imports**
@@ -451,3 +458,42 @@ export const DEPRECATE_EMBER_INFLECTOR = '5.3';
  * @public
  */
 export const DISABLE_7X_DEPRECATIONS = '7.0';
+
+/**
+ * **id: warp-drive:deprecate-tracking-package**
+ *
+ * Deprecates the use of the @ember-data/tracking package which
+ * historically provided bindings into Ember's reactivity system.
+ *
+ * This package is no longer needed as the configuration is now
+ * provided by the @warp-drive/ember package.
+ *
+ * This deprecation can be resolved by removing the
+ * @ember-data/tracking package from your project and ensuring
+ * that your app.js file has the following import:
+ *
+ * ```js
+ * import '@warp-drive/ember/install';
+ * ```
+ *
+ * Once this import is present, you can remove the deprecation
+ * by setting the deprecation to `false` in your build config:
+ *
+ * ```js
+ * // inside of ember-cli-build.js
+ *
+ * const { setConfig } = await import('@warp-drive/build-config');
+ *
+ * setConfig(app, __dirname, {
+ *   deprecations: {
+ *     DEPRECATE_TRACKING_PACKAGE: false
+ *   }
+ * });
+ * ```
+ *
+ * @property DEPRECATE_TRACKING_PACKAGE
+ * @since 5.5
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_TRACKING_PACKAGE = '5.5';

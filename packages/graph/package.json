@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/graph",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "description": "Provides a normalized graph for managing relationships between resources",
   "keywords": [
     "ember-addon"
@@ -38,7 +38,6 @@
     }
   },
   "peerDependencies": {
-    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/store": "workspace:*",
     "@warp-drive/core-types": "workspace:*"
   },
@@ -54,12 +53,11 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },
   "engines": {
@@ -68,7 +66,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",

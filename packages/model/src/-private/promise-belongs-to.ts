@@ -3,7 +3,7 @@ import type PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import type ObjectProxy from '@ember/object/proxy';
 
 import type Store from '@ember-data/store';
-import { cached } from '@ember-data/tracking';
+import { memoized } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 
@@ -50,7 +50,7 @@ const Extended: PromiseObjectType<OpaqueRecordInstance> =
 class PromiseBelongsTo<T = unknown> extends Extended<T> {
   declare _belongsToState: BelongsToProxyMeta<T>;
 
-  @cached
+  @memoized
   get id(): string | null {
     const { key, legacySupport } = this._belongsToState;
     const ref = legacySupport.referenceFor('belongsTo', key);

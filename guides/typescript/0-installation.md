@@ -73,7 +73,6 @@ Generally that means the following packages are needed, though you may need fewe
 | [@ember-data/request-utils](https://github.com/emberjs/data/blob/main/packages/request-utils/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/request-utils/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/request-utils/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/request-utils/v4-canary?label=&color=90EE90) |
 | [@ember-data/serializer](https://github.com/emberjs/data/blob/main/packages/serializer/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/serializer/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/serializer/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/serializer/v4-canary?label=&color=90EE90) |
 | [@ember-data/store](https://github.com/emberjs/data/blob/main/packages/store/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/store/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/store/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/store/v4-canary?label=&color=90EE90) |
-| [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | ![NPM Stable Version](https://img.shields.io/npm/v/%40ember-data/tracking/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data/tracking/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40ember-data/tracking/v4-canary?label=&color=90EE90) |
 | [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | ![NPM Latest Version](https://img.shields.io/npm/v/%40warp-drive/core-types/latest?label=&color=90EE90) | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive/core-types/canary?label=&color=90EE90) | ![NPM V4 Version](https://img.shields.io/npm/v/%40warp-drive/core-types/v4-canary?label=&color=90EE90) |
 
 Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
@@ -83,7 +82,7 @@ PACKAGES=("@types/ember" "@types/ember-data" "@types/ember-data__adapter" "@type
 
 for pkg in "${PACKAGES[@]}"; do pnpm remove "$pkg"; done
 
-pnpm install ember-data@latest @ember-data/adapter@latest @ember-data/graph@latest @ember-data/json-api@latest @ember-data/legacy-compat@latest @ember-data/model@latest @ember-data/request@latest @ember-data/request-utils@latest @ember-data/serializer@latest @ember-data/store@latest @ember-data/tracking@latest @warp-drive/core-types@latest
+pnpm install ember-data@latest @ember-data/adapter@latest @ember-data/graph@latest @ember-data/json-api@latest @ember-data/legacy-compat@latest @ember-data/model@latest @ember-data/request@latest @ember-data/request-utils@latest @ember-data/serializer@latest @ember-data/store@latest @warp-drive/core-types@latest
 ```
 
 Here's an example change to package.json which drops all use of types from `@types/` for both Ember and EmberData and adds the appropriate canary packages.
@@ -115,17 +114,16 @@ Here's an example change to package.json which drops all use of types from `@typ
 -    "@types/ember__test": "4.0.6",
 -    "@types/ember__utils": "4.0.7",
 -    "ember-data": "~5.3.3",
-+    "ember-data": "5.4.0-alpha.64",
-+    "@ember-data/store": "5.4.0-alpha.64",
-+    "@ember-data/adapter": "5.4.0-alpha.64",
-+    "@ember-data/graph": "5.4.0-alpha.64",
-+    "@ember-data/json-api": "5.4.0-alpha.64",
-+    "@ember-data/legacy-compat": "5.4.0-alpha.64",
-+    "@ember-data/request": "5.4.0-alpha.64",
-+    "@ember-data/request-utils": "5.4.0-alpha.64",
-+    "@ember-data/serializer": "5.4.0-alpha.64",
-+    "@ember-data/model": "5.4.0-alpha.64",
-+    "@ember-data/tracking": "5.4.0-alpha.64",
++    "ember-data": "5.4.1-alpha.64",
++    "@ember-data/store": "5.4.1-alpha.64",
++    "@ember-data/adapter": "5.4.1-alpha.64",
++    "@ember-data/graph": "5.4.1-alpha.64",
++    "@ember-data/json-api": "5.4.1-alpha.64",
++    "@ember-data/legacy-compat": "5.4.1-alpha.64",
++    "@ember-data/request": "5.4.1-alpha.64",
++    "@ember-data/request-utils": "5.4.1-alpha.64",
++    "@ember-data/serializer": "5.4.1-alpha.64",
++    "@ember-data/model": "5.4.1-alpha.64",
 +    "@warp-drive/core-types": "0.0.0-alpha.50",
 ```
 
@@ -165,13 +163,12 @@ These types-only packages have the same version number as the version they were 
 | [@ember-data/request-utils](https://github.com/emberjs/data/blob/main/packages/request-utils/README.md) | @ember-data-types/request-utils | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/request-utils/canary?label=&color=90EE90) |
 | [@ember-data/serializer](https://github.com/emberjs/data/blob/main/packages/serializer/README.md) | @ember-data-types/serializer | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/serializer/canary?label=&color=90EE90) |
 | [@ember-data/store](https://github.com/emberjs/data/blob/main/packages/store/README.md) | @ember-data-types/store | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/store/canary?label=&color=90EE90) |
-| [@ember-data/tracking](https://github.com/emberjs/data/blob/main/packages/tracking/README.md) | @ember-data-types/tracking | ![NPM Canary Version](https://img.shields.io/npm/v/%40ember-data-types/tracking/canary?label=&color=90EE90) |
 | [@warp-drive/core-types](https://github.com/emberjs/data/blob/main/packages/core-types/README.md) | @warp-drive-types/core-types | ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive-types/core-types/canary?label=&color=90EE90) |
 
 Here's a single install command for pnpm. Swap pnpm for yarn or npm as needed.
 
 ```
-pnpm install ember-data-types@canary @ember-data-types/adapter@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @ember-data-types/request@canary @ember-data-types/request-utils@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/tracking@canary @warp-drive-types/core-types@canary
+pnpm install ember-data-types@canary @ember-data-types/adapter@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @ember-data-types/request@canary @ember-data-types/request-utils@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @warp-drive-types/core-types@canary
 ```
 
 Here's an example change to package.json which drops all use of types from `@types/` for both Ember and EmberData and adds the appropriate canary packages.
@@ -202,17 +199,16 @@ Here's an example change to package.json which drops all use of types from `@typ
 -    "@types/ember__template": "4.0.7",
 -    "@types/ember__test": "4.0.6",
 -    "@types/ember__utils": "4.0.7",
-+    "@ember-data-types/adapter": "^5.4.0-alpha.64",
-+    "@ember-data-types/model": "^5.4.0-alpha.64",
-+    "@ember-data-types/serializer": "^5.4.0-alpha.64",
-+    "@ember-data-types/store": "^5.4.0-alpha.64",
-+    "@ember-data-types/graph": "^5.4.0-alpha.64",
-+    "@ember-data-types/json-api": "^5.4.0-alpha.64",
-+    "@ember-data-types/legacy-compat": "^5.4.0-alpha.64",
-+    "@ember-data-types/request": "^5.4.0-alpha.64",
-+    "@ember-data-types/request-utils": "^5.4.0-alpha.64",
-+    "@ember-data-types/tracking": "^5.4.0-alpha.64",
++    "@ember-data-types/adapter": "^5.4.1-alpha.64",
++    "@ember-data-types/model": "^5.4.1-alpha.64",
++    "@ember-data-types/serializer": "^5.4.1-alpha.64",
++    "@ember-data-types/store": "^5.4.1-alpha.64",
++    "@ember-data-types/graph": "^5.4.1-alpha.64",
++    "@ember-data-types/json-api": "^5.4.1-alpha.64",
++    "@ember-data-types/legacy-compat": "^5.4.1-alpha.64",
++    "@ember-data-types/request": "^5.4.1-alpha.64",
++    "@ember-data-types/request-utils": "^5.4.1-alpha.64",
 +    "@warp-drive-types/core-types": "^0.0.0-alpha.50",
      "ember-data": "^4.12.7",
-+    "ember-data-types": "^5.4.0-alpha.64",
++    "ember-data-types": "^5.4.1-alpha.64",
 ```

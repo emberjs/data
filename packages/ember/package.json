@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/ember",
   "description": "Data bindings and utilities for Ember applications using WarpDrive",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -42,15 +42,14 @@
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@ember-data/store": "workspace:*",
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
-    "ember-provide-consume-context": "^0.7.0",
-    "@ember-data/tracking": "workspace:*"
+    "ember-provide-consume-context": "^0.7.0"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
   },
@@ -77,15 +76,15 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember/test-helpers": "5.2.0",
+    "@ember/test-waiters": "^4.1.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.4.1",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~6.3.0",
-    "rollup": "^4.38.0",
-    "typescript": "^5.8.2",
+    "rollup": "^4.40.0",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15",
     "ember-provide-consume-context": "^0.7.0"
   },

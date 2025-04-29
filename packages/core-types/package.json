@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "description": "Provides core logic, utils and types for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -46,7 +46,7 @@
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-typescript": "^7.27.0",
     "@warp-drive/internal-config": "workspace:*",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },
   "engines": {
@@ -55,7 +55,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",

@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "description": "The lightweight reactive data library for JavaScript applications",
   "keywords": [
     "ember-addon"
@@ -77,11 +77,12 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
     "@embroider/macros": "^1.16.12",
     "@warp-drive/core-types": "workspace:*",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "@ember-data/tracking": "workspace:*",
+    "@warp-drive/ember": "workspace:*"
   },
   "peerDependencies": {
     "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
@@ -112,9 +113,9 @@
     "@ember/test-helpers": "5.2.0",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "vite": "^5.4.15",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "qunit": "^2.18.0"
   },
   "engines": {
@@ -126,5 +127,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.1"
 }

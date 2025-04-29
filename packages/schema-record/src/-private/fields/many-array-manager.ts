@@ -3,7 +3,6 @@ import type { RelatedCollection as ManyArray } from '@ember-data/store/-private'
 import { fastPush, SOURCE } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
 import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type { CacheOptions } from '@warp-drive/core-types/request';
@@ -22,17 +21,19 @@ export interface FindHasManyOptions {
 export class ManyArrayManager {
   declare record: SchemaRecord;
   declare store: Store;
-  declare cache: Cache;
   declare identifier: StableRecordIdentifier;
+  declare editable: boolean;
 
-  constructor(record: SchemaRecord) {
+  constructor(record: SchemaRecord, editable: boolean) {
     this.record = record;
     this.store = record[RecordStore];
     this.identifier = record[Identifier];
+    this.editable = editable;
   }
 
   _syncArray(array: ManyArray) {
-    const rawValue = this.store.cache.getRelationship(this.identifier, array.key) as CollectionRelationship;
+    const method = this.editable ? 'getRelationship' : 'getRemoteRelationship';
+    const rawValue = this.store.cache[method](this.identifier, array.key) as CollectionRelationship;
 
     if (rawValue.meta) {
       array.meta = rawValue.meta;
@@ -43,8 +44,14 @@ export class ManyArrayManager {
     }
 
     const currentState = array[SOURCE];
-    currentState.length = 0;
-    fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+
+    // unlike in the normal RecordArray case, we don't need to divorce the reference
+    // because we don't need to worry about associate/disassociate since the graph
+    // takes care of that for us
+    if (currentState !== rawValue.data) {
+      currentState.length = 0;
+      fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+    }
   }
 
   reloadHasMany<T>(key: string, options?: FindHasManyOptions): Promise<ManyArray<T>> {
@@ -75,7 +82,7 @@ export class ManyArrayManager {
   }
 
   mutate(mutation: LocalRelationshipOperation): void {
-    this.cache.mutate(mutation);
+    this.store.cache.mutate(mutation);
   }
 }
 

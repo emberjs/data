@@ -1,6 +1,6 @@
 {
   "name": "ember-data__adapter",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": true,
   "description": "Tests for @ember-data/adapter",
   "repository": {
@@ -36,11 +36,10 @@
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.2.0",
-    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
+    "@ember/test-waiters": "^4.1.0",
     "@embroider/addon-shim": "^1.9.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
@@ -48,8 +47,9 @@
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.3.0",
+    "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
@@ -60,8 +60,8 @@
     "ember-resolver": "^13.1.0",
     "ember-source": "~6.3.0",
     "loader.js": "^4.7.0",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0"
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.5"
   },
   "engines": {
     "node": ">= 18.20.8"
@@ -72,5 +72,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.1"
 }

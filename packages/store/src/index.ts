@@ -178,7 +178,6 @@
  * @module @ember-data/store
  * @main @ember-data/store
  */
-
 export {
   Store as default,
   type StoreRequestContext,

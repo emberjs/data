@@ -31,13 +31,13 @@ on:
         required: true
         default: false
         type: boolean
-      # downversion e.g. 5.4.0-alpha.1 => 5.3.1 happens when we use a canary, beta or later release to hotfix a stable
+      # downversion e.g. 5.4.1-alpha.1 => 5.3.1 happens when we use a canary, beta or later release to hotfix a stable
       # upversion e.g. 5.3.1 => 5.4.0 happens when we re-release an existing stable as a new minor/major
       # examples:
       #   Upversion: 5.3.1 => 5.4.0
       #     from-version: 5.3.1
       #     increment: minor
-      #   Downversion: 5.4.0-alpha.1 => 5.3.1
+      #   Downversion: 5.4.1-alpha.1 => 5.3.1
       #     from-version: 5.3.0
       #     increment: patch
       from-version:

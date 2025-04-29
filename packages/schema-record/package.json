@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema-record",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "description": "Schema Driven Resource Presentation for WarpDrive and EmberData",
   "keywords": [
     "ember-addon"
@@ -43,11 +43,9 @@
     }
   },
   "peerDependencies": {
-    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/request": "workspace:*",
     "@ember-data/model": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@warp-drive/core-types": "workspace:*"
   },
   "peerDependenciesMeta": {
@@ -68,7 +66,6 @@
     "@ember-data/model": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^2.0.0",
@@ -86,5 +83,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.1"
 }

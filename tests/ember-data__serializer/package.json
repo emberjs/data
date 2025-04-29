@@ -1,6 +1,6 @@
 {
   "name": "ember-data__serializer",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": true,
   "description": "Tests for the @ember-data/serializer package",
   "repository": {
@@ -33,7 +33,6 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.2.0",
@@ -43,8 +42,9 @@
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.3.0",
+    "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
@@ -57,8 +57,8 @@
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-dom": "^3.4.0",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0"
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.5"
   },
   "engines": {
     "node": ">= 18.20.8"
@@ -69,7 +69,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

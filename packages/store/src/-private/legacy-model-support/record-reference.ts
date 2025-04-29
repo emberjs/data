@@ -1,4 +1,3 @@
-import { defineSignal } from '@ember-data/tracking/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 /**
@@ -8,6 +7,7 @@ import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-ap
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
+import { defineSignal } from '../new-core-tmp/reactivity/signal';
 import type { Store } from '../store-service';
 
 /**

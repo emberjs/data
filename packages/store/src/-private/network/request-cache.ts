@@ -11,7 +11,7 @@ import type { Store } from '../store-service';
 
 const Touching = getOrSetGlobal('Touching', Symbol('touching'));
 export const RequestPromise = getOrSetGlobal('RequestPromise', Symbol('promise'));
-const EMPTY_ARR: RequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestState[]) : [];
+const EMPTY_ARR: RequestCacheRequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestCacheRequestState[]) : [];
 
 export interface Operation {
   op: string;
@@ -34,7 +34,7 @@ export interface Request {
 
 export type RequestStates = 'pending' | 'fulfilled' | 'rejected';
 
-export interface RequestState {
+export interface RequestCacheRequestState {
   state: RequestStates;
   type: 'query' | 'mutation';
   request: Request;
@@ -46,13 +46,13 @@ export interface Response {
   data: unknown;
 }
 
-interface InternalRequest extends RequestState {
+interface InternalRequest extends RequestCacheRequestState {
   [Touching]: StableRecordIdentifier[];
   [RequestPromise]?: Promise<unknown>;
 }
 
 type RecordOperation = FindRecordQuery | SaveRecordMutation;
-export type RequestSubscription = (requestState: RequestState) => void;
+export type RequestSubscription = (requestState: RequestCacheRequestState) => void;
 
 function hasRecordIdentifier(op: Operation): op is RecordOperation {
   return 'recordIdentifier' in op;
@@ -218,7 +218,7 @@ export class RequestStateService {
    * @method subscribeForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @param {(state: RequestState) => void} callback
+   * @param {(state: RequestCacheRequestState) => void} callback
    */
   subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription) {
     let subscriptions = this._subscriptions.get(identifier);
@@ -235,9 +235,9 @@ export class RequestStateService {
    * @method getPendingRequestsForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {RequestState[]} an array of request states for any pending requests for the given identifier
+   * @return {RequestCacheRequestState[]} an array of request states for any pending requests for the given identifier
    */
-  getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestState[] {
+  getPendingRequestsForRecord(identifier: StableRecordIdentifier): RequestCacheRequestState[] {
     return this._pending.get(identifier) || EMPTY_ARR;
   }
 
@@ -247,9 +247,9 @@ export class RequestStateService {
    * @method getLastRequestForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {RequestState | null} the state of the most recent request for the given identifier
+   * @return {RequestCacheRequestState | null} the state of the most recent request for the given identifier
    */
-  getLastRequestForRecord(identifier: StableRecordIdentifier): RequestState | null {
+  getLastRequestForRecord(identifier: StableRecordIdentifier): RequestCacheRequestState | null {
     const requests = this._done.get(identifier);
     if (requests) {
       return requests[requests.length - 1];

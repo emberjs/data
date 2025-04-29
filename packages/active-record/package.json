@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/active-record",
   "description": "ActiveRecord Format Support for EmberData",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -60,13 +60,12 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
     "vite": "^5.4.15",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "ember": {
     "edition": "octane"

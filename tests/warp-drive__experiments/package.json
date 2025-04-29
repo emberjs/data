@@ -1,6 +1,6 @@
 {
   "name": "warp-drive__experiments",
-  "version": "5.4.0-alpha.155",
+  "version": "5.5.0-alpha.21",
   "description": "Provides tests for @warp-drive/experiments",
   "private": true,
   "keywords": [],
@@ -33,7 +33,6 @@
     "@ember-data/request": "workspace:*",
     "@ember-data/request-utils": "workspace:*",
     "@ember-data/store": "workspace:*",
-    "@ember-data/tracking": "workspace:*",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember-data/model": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",
@@ -56,7 +55,7 @@
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/experiments": "workspace:*",
     "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.3.0",
+    "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
@@ -71,8 +70,8 @@
     "ember-template-imports": "^4.3.0",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0"
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.5"
   },
   "ember": {
     "edition": "octane"
@@ -83,7 +82,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "dependencies": {
     "pnpm-sync-dependencies-meta-injected": "0.0.14"
   }

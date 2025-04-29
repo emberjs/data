@@ -125,6 +125,10 @@ const PotentialTypesDirectories = new Set([
   'types', // stable
 ]);
 
+function isAddon(pkg: Package) {
+  return pkg.pkgData.keywords?.includes('ember-addon') || 'ember-addon' in pkg.pkgData;
+}
+
 /**
  * scrub the package.json of any types fields in exports
  * to support private/alpha/beta types strategies
@@ -134,9 +138,8 @@ const PotentialTypesDirectories = new Set([
 function scrubTypesFromExports(pkg: Package) {
   // when addon is still V1, we completely remove the exports field
   // to avoid issues with embroider, auto-import and v1 addons
-  if (pkg.pkgData['ember-addon']?.version === 1) {
-    delete pkg.pkgData.exports;
-    return;
+  if (isAddon(pkg) && pkg.pkgData['ember-addon']?.version !== 2) {
+    throw new Error(`Unexpected attempt to publish package ${pkg.pkgData.name} without specifying addon version=2`);
   }
 
   // scrub the package.json of any types fields in exports
@@ -228,6 +231,9 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
       }
+      if (line.includes('.gts')) {
+        lines[i] = line.replace(/\.gts/, '');
+      }
     }
 
     // fix re-exports
@@ -239,6 +245,9 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
         const importPath = line.match(/'([^']+)'/)![1];
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
+      }
+      if (line.includes('.gts')) {
+        lines[i] = line.replace(/\.gts/, '');
       }
     }
 

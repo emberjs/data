@@ -145,6 +145,7 @@ export async function runModule<TC extends TestContext>(
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   groupLogs() && console.groupCollapsed(module.name);
   const moduleReport: ModuleReport = {
+    id: module.id,
     name: module.moduleName,
     start: null,
     end: null,

@@ -554,7 +554,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
           value: null,
         });
         graph.update({
-          op: 'removeFromRelatedRecords',
+          op: 'remove',
           field: 'apps',
           record: identifier('namespace', '1'),
           value: appIdentifier,
@@ -825,13 +825,13 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         // mutate app:1.namespaces, adding namespace:5
         store._join(() => {
           graph.update({
-            op: 'addToRelatedRecords',
+            op: 'add',
             field: 'configs',
             record: appIdentifier,
             value: identifier('config', '5'),
           });
           graph.update({
-            op: 'addToRelatedRecords',
+            op: 'add',
             field: 'namespaces',
             record: appIdentifier,
             value: identifier('namespace', '5'),
@@ -958,7 +958,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // remove comment 2
     store._join(() => {
       graph.update({
-        op: 'removeFromRelatedRecords',
+        op: 'remove',
         record: userIdentifier,
         field: 'comments',
         value: comment2Identifier,
@@ -1096,7 +1096,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // remove comment 2
     store._join(() => {
       graph.update({
-        op: 'addToRelatedRecords',
+        op: 'add',
         record: userIdentifier,
         field: 'comments',
         index: 1,
@@ -1247,7 +1247,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // remove comment 2
     store._join(() => {
       graph.update({
-        op: 'removeFromRelatedRecords',
+        op: 'remove',
         record: userIdentifier,
         field: 'comments',
         value: comment2Identifier,
@@ -1385,7 +1385,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     // remove comment 2
     store._join(() => {
       graph.update({
-        op: 'addToRelatedRecords',
+        op: 'add',
         record: userIdentifier,
         field: 'comments',
         index: 1,
@@ -1891,7 +1891,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         value: null,
       });
       graph.update({
-        op: 'removeFromRelatedRecords',
+        op: 'remove',
         field: 'apps',
         record: identifier('namespace', '1'),
         value: appIdentifier,

@@ -8,9 +8,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
-import { coerceId } from '@ember-data/store/-private';
-import { compat, notifySignal } from '@ember-data/tracking';
-import { defineSignal, subscribed as tagged } from '@ember-data/tracking/-private';
+import { coerceId, defineSignal, entangleSignal, gate, memoized, withSignalStore } from '@ember-data/store/-private';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -181,18 +179,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     this.___recordState?.destroy();
     const store = storeFor(this)!;
     store.notifications.unsubscribe(this.___private_notifications);
-    // Legacy behavior is to notify the relationships on destroy
-    // such that they "clear". It's uncertain this behavior would
-    // be good for a new model paradigm, likely cheaper and safer
-    // to simply not notify, for this reason the store does not itself
-    // notify individual changes once the delete has been signaled,
-    // this decision is left to model instances.
 
-    this.eachRelationship((name, meta) => {
-      if (meta.kind === 'belongsTo') {
-        this.notifyPropertyChange(name);
-      }
-    });
     LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
     LEGACY_SUPPORT.delete(this as unknown as MinimalLegacyRecord);
     LEGACY_SUPPORT.delete(identifier);
@@ -214,7 +201,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isEmpty(): boolean {
     return this.currentState.isEmpty;
   }
@@ -230,7 +217,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isLoading(): boolean {
     return this.currentState.isLoading;
   }
@@ -256,7 +243,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isLoaded(): boolean {
     return this.currentState.isLoaded;
   }
@@ -286,7 +273,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get hasDirtyAttributes(): boolean {
     return this.currentState.isDirty;
   }
@@ -314,7 +301,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isSaving(): boolean {
     return this.currentState.isSaving;
   }
@@ -357,7 +344,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isDeleted(): boolean {
     return this.currentState.isDeleted;
   }
@@ -384,7 +371,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isNew(): boolean {
     return this.currentState.isNew;
   }
@@ -400,7 +387,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isValid(): boolean {
     return this.currentState.isValid;
   }
@@ -426,7 +413,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {String}
     @readOnly
   */
-  @compat
+  @memoized
   get dirtyType(): 'created' | 'updated' | 'deleted' | '' {
     return this.currentState.dirtyType;
   }
@@ -451,7 +438,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @type {Boolean}
     @readOnly
   */
-  @compat
+  @memoized
   get isError(): boolean {
     return this.currentState.isError;
   }
@@ -498,7 +485,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
     @type {String}
   */
-  @tagged
+  @gate
   get id(): string | null {
     // this guard exists, because some dev-only deprecation code
     // (addListener via validatePropertyInjections) invokes toString before the
@@ -538,7 +525,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   */
   // TODO we can probably make this a computeOnce
   // we likely do not need to notify the currentState root anymore
-  @tagged
+  @gate
   get currentState() {
     // descriptors are called with the wrong `this` context during mergeMixins
     // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
@@ -629,7 +616,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
     @type {AdapterError}
   */
-  @compat
+  @memoized
   get adapterError() {
     return this.currentState.adapterError;
   }
@@ -662,7 +649,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   // @ts-expect-error no return is necessary, but Ember's types are forcing it
   notifyPropertyChange(prop: string): this {
-    notifySignal(this, prop as keyof this & string);
+    const signals = withSignalStore(this);
+    entangleSignal(signals, this, prop, undefined);
     super.notifyPropertyChange(prop);
   }
 

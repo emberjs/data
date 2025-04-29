@@ -30,7 +30,7 @@ export function getRuntimeConfig(): typeof RuntimeConfig {
  * Upserts the specified logging configuration into the runtime
  * config.
  *
- * globalThis.setWarpDriveLogging({ LOG_PAYLOADS: true } });
+ * globalThis.setWarpDriveLogging({ LOG_CACHE: true } });
  *
  * @typedoc
  */

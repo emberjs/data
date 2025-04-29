@@ -4,10 +4,9 @@
 import { deprecate } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';
+import type { WarpDriveSignal } from '@ember-data/store/-private';
+import { createMemo, withSignalStore } from '@ember-data/store/-private';
 import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
-import { createCache, getValue } from '@ember-data/tracking';
-import type { Signal } from '@ember-data/tracking/-private';
-import { Signals } from '@ember-data/tracking/-private';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -171,16 +170,16 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
   derivation: Derivation<R, T, FM>
 ): Derivation<R, T, FM> {
   const memoizedDerivation = (record: R, options: FM, prop: string): T => {
-    const signals = (record as { [Signals]: Map<string, Signal> })[Signals];
+    const signals = withSignalStore(record as object);
     let signal = signals.get(prop);
     if (!signal) {
-      signal = createCache(() => {
+      signal = createMemo(record as object, prop, () => {
         return derivation(record, options, prop);
-      }) as unknown as Signal; // a total lie, for convenience of reusing the storage
+      }) as unknown as WarpDriveSignal; // a total lie, for convenience of reusing the storage
       signals.set(prop, signal);
     }
 
-    return getValue(signal as unknown as ReturnType<typeof createCache>) as T;
+    return (signal as unknown as () => T)();
   };
   memoizedDerivation[Type] = derivation[Type];
   return memoizedDerivation;
@@ -211,6 +210,7 @@ export class SchemaService implements SchemaServiceInterface {
     this._transforms = new Map();
     this._hashFns = new Map();
     this._derivations = new Map();
+    this._traits = new Set();
   }
 
   resourceTypes(): Readonly<string[]> {

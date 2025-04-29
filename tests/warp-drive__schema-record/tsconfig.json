@@ -36,8 +36,6 @@
       "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
       "@ember-data/store": ["../../packages/store/unstable-preview-types"],
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
-      "@ember-data/tracking": ["../../packages/tracking/unstable-preview-types"],
-      "@ember-data/tracking/*": ["../../packages/tracking/unstable-preview-types/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
       "@ember-data/model": ["../../packages/model/unstable-preview-types"],
@@ -49,7 +47,9 @@
       "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
+      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -92,10 +92,10 @@
       "path": "../../packages/request"
     },
     {
-      "path": "../../packages/request-utils"
+      "path": "../../packages/ember"
     },
     {
-      "path": "../../packages/tracking"
+      "path": "../../packages/request-utils"
     },
     {
       "path": "../../packages/unpublished-test-infra"

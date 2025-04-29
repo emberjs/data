@@ -36,7 +36,6 @@ potential volatility.
 +      "@ember-data/request-utils/unstable-preview-types",
 +      "@ember-data/model/unstable-preview-types",
 +      "@ember-data/serializer/unstable-preview-types",
-+      "@ember-data/tracking/unstable-preview-types",
 +      "@warp-drive/core-types/unstable-preview-types"
 +    ]
    }
@@ -65,7 +64,6 @@ potential volatility.
 +      "@ember-data-types/request-utils/unstable-preview-types",
 +      "@ember-data-types/model/unstable-preview-types",
 +      "@ember-data-types/serializer/unstable-preview-types",
-+      "@ember-data-types/tracking/unstable-preview-types",
 +      "@warp-drive-types/core-types/unstable-preview-types"
 +    ]
    }

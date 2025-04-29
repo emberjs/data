@@ -1,3 +1,5 @@
+import '@warp-drive/ember/install';
+
 import { _backburner } from '@ember/runloop';
 import { getSettledState, isSettled, registerHook, setApplication } from '@ember/test-helpers';
 import { getPendingWaiterState } from '@ember/test-waiters';

@@ -39,7 +39,7 @@ module('Integration | Graph | Edges', function (hooks) {
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
       const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const bestFriend = graph.get(identifier, 'bestFriend');
 
@@ -320,7 +320,7 @@ module('Integration | Graph | Edges', function (hooks) {
 
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           record: identifier,
           field: 'bestFriends',
           value: identifier4,
@@ -415,7 +415,7 @@ module('Integration | Graph | Edges', function (hooks) {
 
       store._join(() => {
         graph.update({
-          op: 'addToRelatedRecords',
+          op: 'add',
           record: identifier,
           field: 'bestFriends',
           value: identifier4,

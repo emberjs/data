@@ -5,8 +5,7 @@ import type Owner from '@ember/owner';
 import Component from '@glimmer/component';
 
 import type { Awaitable } from '@ember-data/request';
-
-import { getPromiseState } from './promise-state.ts';
+import { getPromiseState } from '@ember-data/store/-private';
 
 export const and = (x: unknown, y: unknown) => Boolean(x && y);
 interface ThrowSignature<E = Error | string | object> {

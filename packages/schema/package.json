@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema",
-  "version": "0.0.0-alpha.141",
+  "version": "0.0.1-alpha.158",
   "private": true,
   "description": "Parse Declarative Typescript into JSON Schemas",
   "keywords": [
@@ -38,7 +38,7 @@
   "peerDependencies": {},
   "dependencies": {},
   "devDependencies": {
-    "bun-types": "1.2.8"
+    "bun-types": "1.2.10"
   },
   "engines": {
     "node": ">= 18.20.8"
@@ -46,5 +46,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.1"
 }

@@ -63,17 +63,16 @@ module.exports = async function (defaults) {
     compatWith: isEnabled(process.env.EMBER_DATA_FULL_COMPAT) ? '99.0' : null,
     deprecations: {
       DEPRECATE_STORE_EXTENDS_EMBER_OBJECT: false,
+      DEPRECATE_TRACKING_PACKAGE: false,
     },
     debug: {
       // LOG_GRAPH: true,
       // LOG_IDENTIFIERS: true,
       // LOG_NOTIFICATIONS: true,
       // LOG_INSTANCE_CACHE: true,
-      // LOG_MUTATIONS: true,
-      // LOG_PAYLOADS: true,
+      // LOG_CACHE: true,
       // LOG_REQUESTS: true,
       // LOG_REQUEST_STATUS: true,
-      // LOG_OPERATIONS: true,
     },
   });
 

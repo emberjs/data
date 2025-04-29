@@ -11,13 +11,13 @@ import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 import type { Future, StructuredErrorDocument } from '@ember-data/request';
 import type { StoreRequestInput } from '@ember-data/store';
 import type Store from '@ember-data/store';
+import type { RequestLoadingState, RequestState } from '@ember-data/store/-private';
+import { getRequestState } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
 import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
 import { and, Throw } from './await.gts';
-import type { RequestLoadingState, RequestState } from './request-state.ts';
-import { getRequestState } from './request-state.ts';
 
 function notNull(x: null): never;
 function notNull<T>(x: T): Exclude<T, null>;
@@ -60,7 +60,7 @@ type ContentFeatures<RT> = {
   latestRequest?: Future<RT>;
 };
 
-interface RequestSignature<T, RT> {
+interface RequestSignature<T, RT, E> {
   Args: {
     /**
      * The request to monitor. This should be a `Future` instance returned
@@ -155,7 +155,7 @@ interface RequestSignature<T, RT> {
      * @typedoc
      */
     cancelled: [
-      error: StructuredErrorDocument,
+      error: StructuredErrorDocument<E>,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
 
@@ -169,7 +169,7 @@ interface RequestSignature<T, RT> {
      * @typedoc
      */
     error: [
-      error: StructuredErrorDocument,
+      error: StructuredErrorDocument<E>,
       features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
     ];
 
@@ -179,7 +179,7 @@ interface RequestSignature<T, RT> {
      * @typedoc
      */
     content: [value: RT, features: ContentFeatures<RT>];
-    always: [state: RequestState<T, RT>];
+    always: [state: RequestState<T, RT, StructuredErrorDocument<E>>];
   };
 }
 
@@ -400,7 +400,7 @@ interface RequestSignature<T, RT> {
  * @class <Request />
  * @public
  */
-export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
+export class Request<T, RT, E> extends Component<RequestSignature<T, RT, E>> {
   /**
    * The store instance to use for making requests. If contexts are available, this
    * will be the `store` on the context, else it will be the store service.
@@ -498,7 +498,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   declare _subscription: object | null;
   declare _subscribedTo: object | null;
 
-  constructor(owner: Owner, args: RequestSignature<T, RT>['Args']) {
+  constructor(owner: Owner, args: RequestSignature<T, RT, E>['Args']) {
     super(owner, args);
     this._subscribedTo = null;
     this._subscription = null;
@@ -928,7 +928,7 @@ export class Request<T, RT> extends Component<RequestSignature<T, RT>> {
   }
 
   get reqState() {
-    return getRequestState<RT, T>(this.request);
+    return getRequestState<RT, T, E>(this.request);
   }
 
   get result() {

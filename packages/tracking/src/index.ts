@@ -1,41 +1,74 @@
-import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
+import { tagForProperty } from '@ember/-internals/metal';
+import { _backburner } from '@ember/runloop';
+import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
 
-import { assert } from '@warp-drive/build-config/macros';
+// import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 
-export { transact, memoTransact, untracked, compat, notifySignal } from './-private';
+type Tag = ReturnType<typeof tagForProperty>;
+const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
 
-export function cached<T extends object, K extends keyof T & string>(
-  target: T,
-  key: K,
-  descriptor: PropertyDescriptor
-) {
-  // Error on `@cached()`, `@cached(...args)`, and `@cached propName = value;`
-  assert(
-    'You attempted to use @cached(), which is not necessary nor supported. Remove the parentheses and you will be good to go!',
-    target !== undefined
-  );
-  assert(
-    `You attempted to use @cached on with ${arguments.length > 1 ? 'arguments' : 'an argument'} ( @cached(${Array.from(
-      arguments
-    )
-      .map((d) => `'${d}'`)
-      .join(
-        ', '
-      )}), which is not supported. Dependencies are automatically tracked, so you can just use ${'`@cached`'}`,
-    typeof target === 'object' && typeof key === 'string' && typeof descriptor === 'object' && arguments.length === 3
-  );
-  assert(
-    `The @cached decorator must be applied to getters. '${key}' is not a getter.`,
-    typeof descriptor.get === 'function'
-  );
+export function buildSignalConfig(options: {
+  wellknown: {
+    Array: symbol | string;
+  };
+}) {
+  const ARRAY_SIGNAL = options.wellknown.Array;
 
-  const caches = new WeakMap<object, object>();
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const getter = descriptor.get;
-  descriptor.get = function () {
-    if (!caches.has(this)) caches.set(this, createCache(getter.bind(this)));
-    return getValue<unknown>(caches.get(this) as Parameters<typeof getValue>[0]);
+  return {
+    createSignal(obj: object, key: string | symbol) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        if (key === ARRAY_SIGNAL) {
+          return [tagForProperty(obj, key), tagForProperty(obj, 'length'), tagForProperty(obj, '[]')] as const;
+        }
+      }
+      return tagForProperty(obj, key);
+    },
+    consumeSignal(signal: Tag | [Tag, Tag, Tag]) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        if (Array.isArray(signal)) {
+          consumeTag(signal[0]);
+          consumeTag(signal[1]);
+          consumeTag(signal[2]);
+          return;
+        }
+      }
+      consumeTag(signal as Tag);
+    },
+    notifySignal(signal: Tag | [Tag, Tag, Tag]) {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        if (Array.isArray(signal)) {
+          emberDirtyTag(signal[0]);
+          emberDirtyTag(signal[1]);
+          emberDirtyTag(signal[2]);
+          return;
+        }
+      }
+
+      emberDirtyTag(signal as Tag);
+    },
+    createMemo: <F>(object: object, key: string | symbol, fn: () => F): (() => F) => {
+      if (DEPRECATE_COMPUTED_CHAINS) {
+        const propertyTag = tagForProperty(object, key) as UpdatableTag;
+        const memo = createCache(fn);
+        let ret: F | undefined;
+        const wrappedFn = () => {
+          ret = getValue(memo) as F;
+        };
+        return () => {
+          const tag = track(wrappedFn);
+          updateTag(propertyTag, tag);
+          consumeTag(tag);
+          return ret!;
+        };
+      } else {
+        const memo = createCache(fn);
+        return () => getValue(memo) as F;
+      }
+    },
+    willSyncFlushWatchers: () => {
+      //@ts-expect-error
+      return !!_backburner.currentInstance && _backburner._autorun !== true;
+    },
   };
 }
-
-export { createCache, getValue };
