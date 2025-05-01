@@ -204,8 +204,8 @@ importers:
         specifier: ^12.1.1
         version: 12.1.1(eslint@9.24.0)
       glob:
-        specifier: ^11.0.1
-        version: 11.0.1
+        specifier: ^11.0.2
+        version: 11.0.2
       globals:
         specifier: ^16.0.0
         version: 16.0.0
@@ -2941,8 +2941,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       glob:
-        specifier: ^11.0.1
-        version: 11.0.1
+        specifier: ^11.0.2
+        version: 11.0.2
       loader.js:
         specifier: ^4.7.0
         version: 4.7.0
@@ -9328,8 +9328,8 @@ packages:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
     hasBin: true
 
-  glob@11.0.1:
-    resolution: {integrity: sha512-zrQDm8XPnYEKawJScsnM0QzobJxlT/kHOOlRTio8IH/GrmxRE5fjllkzdaHclIuNjUQTJYH2xHNIGfdpJkDJUw==}
+  glob@11.0.2:
+    resolution: {integrity: sha512-YT7U7Vye+t5fZ/QMkBFrTJ7ZQxInIUjwyAjVj84CYXqgBdv30MFUPGnBR6sQaVq6Is15wYJUsnzTuWaGRBhBAQ==}
     engines: {node: 20 || >=22}
     hasBin: true
 
@@ -17939,7 +17939,7 @@ snapshots:
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
-      glob: 11.0.1
+      glob: 11.0.2
       globals: 16.0.0
       rollup: 4.40.0
       typescript: 5.8.3
@@ -17983,7 +17983,7 @@ snapshots:
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
-      glob: 11.0.1
+      glob: 11.0.2
       globals: 16.0.0
       rollup: 4.40.0
       typescript: 5.8.3
@@ -18027,7 +18027,7 @@ snapshots:
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
-      glob: 11.0.1
+      glob: 11.0.2
       globals: 16.0.0
       rollup: 4.40.0
       typescript: 5.8.3
@@ -18071,7 +18071,7 @@ snapshots:
       eslint-plugin-n: 17.16.2(eslint@9.24.0)
       eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
-      glob: 11.0.1
+      glob: 11.0.2
       globals: 16.0.0
       rollup: 4.40.0
       typescript: 5.8.3
@@ -22411,7 +22411,7 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
-  glob@11.0.1:
+  glob@11.0.2:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.1.0
@@ -24846,7 +24846,7 @@ snapshots:
 
   rimraf@6.0.1:
     dependencies:
-      glob: 11.0.1
+      glob: 11.0.2
       package-json-from-dist: 1.0.1
 
   rollup-plugin-copy-assets@2.0.3(rollup@4.40.0):
