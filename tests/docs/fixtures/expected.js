@@ -14,6 +14,7 @@ module.exports = {
     '@ember-data/legacy-compat/builders',
     '@ember-data/legacy-compat/utils',
     '@ember-data/model',
+    '@ember-data/model/migration-support',
     '@ember-data/request',
     '@ember-data/request-utils',
     '@ember-data/request/fetch',
@@ -31,6 +32,7 @@ module.exports = {
     'ember-data-overview',
   ],
   classes: [
+    '(public) @ember-data/model/migration-support DelegatingSchemaService',
     '(private) @ember-data/debug InspectorDataAdapter',
     '(private) @ember-data/model PromiseBelongsTo',
     '(public) @ember-data/adapter Adapter',
@@ -124,6 +126,8 @@ module.exports = {
     '(public) @warp-drive/schema-record SchemaService',
   ],
   classitems: [
+    '(public) @ember-data/model/migration-support @ember-data/model/migration-support#registerDerivations',
+    '(public) @ember-data/model/migration-support @ember-data/model/migration-support#withDefaults',
     '(public) @ember-data/store/configure @ember-data/store/configure#setupSignals',
     '(public) @warp-drive/core-types <Type> LegacyResourceSchema#fields',
     '(public) @warp-drive/core-types <Type> LegacyResourceSchema#identity',
