@@ -497,3 +497,57 @@ export const DISABLE_7X_DEPRECATIONS = '7.0';
  * @public
  */
 export const DEPRECATE_TRACKING_PACKAGE = '5.5';
+
+/**
+ * **id: warp-drive:deprecate-spurious-schema-props**
+ *
+ * Deprecates the use of poorly documented properties on model
+ * schema fields that we had not intended to support.
+ *
+ * To clear this deprecation, you should remove any usage of
+ *
+ * - field.isRelationship
+ * - field.isAttribute
+ * - field.key
+ * - field.parentType
+ * - <record>.inverseFor()
+ *
+ * The correct way to access this information is:
+ *
+ * ```ts
+ * field.kind === 'hasMany' || field.kind === 'belongsTo'; // field.isRelationship
+ * field.kind === 'attribute'; // field.isAttribute
+ * field.name; // field.key
+ * ```
+ *
+ * The `parentType` property is not intended to be used as
+ * in order to access the schema for a field you must already
+ * have this information. On a model it might be
+ * `model.constructor.modelName`, on a record identifier it is
+ * `identifier.type`, in a {JSON:API} resource it is `resource.type`.
+ *
+ * The `inverseFor` method is not intended to be used. Instead,
+ * you should use the `SchemaService` to access the schema.
+ *
+ * For instance, if before you wanted to access the inverse schema for
+ * the `pets` field on the `person` model, you would have done:
+ *
+ * ```ts
+ * const person = store.peekRecord('person', '1');
+ * const petsModel = person.inverseFor('pets').type;
+ * ```
+ *
+ * The correct way to access this information is:
+ *
+ * ```ts
+ * const personSchema = store.schema.fields({ type: 'person' });
+ * const petsField = personSchema.get('pets');
+ * const petsSchema = store.schema.fields({ type: petsField.type });
+ * ```
+ *
+ * @property DEPRECATE_SPURIOUS_SCHEMA_PROPS
+ * @since 5.0
+ * @until 6.0
+ * @public
+ */
+export const DEPRECATE_SPURIOUS_SCHEMA_PROPS = '5.0';
