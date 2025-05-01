@@ -1,3 +1,24 @@
+/**
+ * This module provides support for migrating away from @ember-data/model
+ * to @warp-drive/schema-record.
+ *
+ * It includes:
+ *
+ * - A `withDefaults` function to assist in creating a schema in LegacyMode
+ * - A `registerDerivations` function to register the derivations necessary to support LegacyMode
+ * - A `DelegatingSchemaService` that can be used to provide a schema service that works with both
+ *   @ember-data/model and @warp-drive/schema-record simultaneously for migration purposes.
+ * - A `WithLegacy` type util that can be used to create a type that includes the legacy
+ *   properties and methods of a record.
+ *
+ * Using LegacyMode features on a SchemaRecord *requires* the use of these derivations and schema
+ * additions. LegacyMode is not intended to be a long-term solution, but rather a stepping stone
+ * to assist in more rapidly adopting modern WarpDrive features.
+ *
+ * @module @ember-data/model/migration-support
+ * @main @ember-data/model/migration-support
+ */
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { SchemaService } from '@ember-data/store/types';
@@ -5,8 +26,9 @@ import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecati
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import type { ChangedAttributesHash } from '@warp-drive/core-types/cache';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
-import type { TypedRecordInstance } from '@warp-drive/core-types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
   ArrayField,
@@ -14,6 +36,7 @@ import type {
   FieldSchema,
   GenericField,
   HashField,
+  LegacyResourceSchema,
   ObjectField,
   ObjectSchema,
   ResourceSchema,
@@ -37,6 +60,9 @@ import {
   unloadRecord,
 } from './-private/model-methods';
 import RecordState from './-private/record-state';
+import type BelongsToReference from './-private/references/belongs-to';
+import type HasManyReference from './-private/references/has-many';
+import type { _MaybeBelongsToFields, MaybeHasManyFields } from './-private/type-utils';
 import { buildSchema } from './hooks';
 
 export type WithLegacyDerivations<T extends TypedRecordInstance> = T &
@@ -47,6 +73,39 @@ export type WithLegacyDerivations<T extends TypedRecordInstance> = T &
 
 type AttributesSchema = ReturnType<Exclude<SchemaService['attributesDefinitionFor'], undefined>>;
 type RelationshipsSchema = ReturnType<Exclude<SchemaService['relationshipsDefinitionFor'], undefined>>;
+
+interface LegacyModeRecord<T extends TypedRecordInstance> {
+  id: string | null;
+
+  serialize(options?: Record<string, unknown>): unknown;
+  destroyRecord(options?: Record<string, unknown>): Promise<this>;
+  unloadRecord(): void;
+  changedAttributes(): ChangedAttributesHash;
+  rollbackAttributes(): void;
+  _createSnapshot(): Snapshot<T>;
+  save(options?: Record<string, unknown>): Promise<this>;
+  reload(options?: Record<string, unknown>): Promise<T>;
+  belongsTo<K extends _MaybeBelongsToFields<T>>(prop: K): BelongsToReference<T, K>;
+  hasMany<K extends MaybeHasManyFields<T>>(prop: K): HasManyReference<T, K>;
+  deleteRecord(): void;
+
+  adapterError: unknown;
+  constructor: { modelName: TypeFromInstance<T> };
+  currentState: RecordState;
+  dirtyType: 'deleted' | 'created' | 'updated' | '';
+  errors: unknown;
+  hasDirtyAttributes: boolean;
+  isDeleted: boolean;
+  isEmpty: boolean;
+  isError: boolean;
+  isLoaded: boolean;
+  isLoading: boolean;
+  isDestroying: boolean;
+  isDestroyed: boolean;
+  isNew: boolean;
+  isSaving: boolean;
+  isValid: boolean;
+}
 
 // 'isDestroying', 'isDestroyed'
 const LegacyFields = [
@@ -75,7 +134,51 @@ const LegacyFields = [
   'save',
   'serialize',
   'unloadRecord',
-];
+] as const;
+
+/**
+ * A Type utility that enables quickly adding type information for the fields
+ * defined by `import { withDefaults } from '@ember-data/model/migration-support'`.
+ *
+ * Example:
+ *
+ * ```ts
+ * import { withDefaults, WithLegacy } from '@ember-data/model/migration-support';
+ * import { Type } from '@warp-drive/core-types/symbols';
+ * import type { HasMany } from '@ember-data/model';
+ *
+ * export const UserSchema = withDefaults({
+ *   type: 'user',
+ *   fields: [
+ *     { name: 'firstName', kind: 'attribute' },
+ *     { name: 'lastName', kind: 'attribute' },
+ *     { name: 'age', kind: 'attribute' },
+ *     { name: 'friends',
+ *       kind: 'hasMany',
+ *       type: 'user',
+ *       options: { inverse: 'friends', async: false }
+ *     },
+ *     { name: 'bestFriend',
+ *       kind: 'belongsTo',
+ *       type: 'user',
+ *       options: { inverse: null, async: false }
+ *     },
+ *   ],
+ * });
+ *
+ * export type User = WithLegacy<{
+ *   firstName: string;
+ *   lastName: string;
+ *   age: number;
+ *   friends: HasMany<User>;
+ *   bestFriend: User | null;
+ *   [Type]: 'user';
+ * }>
+ * ```
+ *
+ * @typedoc
+ */
+export type WithLegacy<T extends TypedRecordInstance> = T & LegacyModeRecord<T>;
 
 const LegacySupport = getOrSetGlobal('LegacySupport', new WeakMap<MinimalLegacyRecord, Record<string, unknown>>());
 
@@ -149,7 +252,55 @@ function legacySupport(record: MinimalLegacyRecord, options: ObjectValue | null,
 }
 legacySupport[Type] = '@legacy';
 
-export function withDefaults(schema: WithPartial<ResourceSchema, 'legacy' | 'identity'>): ResourceSchema {
+/**
+ * A function which adds the necessary fields to a schema and marks it as
+ * being in legacy mode. This is used to support the legacy features of
+ * @ember-data/model while migrating to WarpDrive.
+ *
+ * Example:
+ *
+ * ```ts
+ * import { withDefaults, WithLegacy } from '@ember-data/model/migration-support';
+ * import { Type } from '@warp-drive/core-types/symbols';
+ * import type { HasMany } from '@ember-data/model';
+ *
+ * export const UserSchema = withDefaults({
+ *   type: 'user',
+ *   fields: [
+ *     { name: 'firstName', kind: 'attribute' },
+ *     { name: 'lastName', kind: 'attribute' },
+ *     { name: 'age', kind: 'attribute' },
+ *     { name: 'friends',
+ *       kind: 'hasMany',
+ *       type: 'user',
+ *       options: { inverse: 'friends', async: false }
+ *     },
+ *     { name: 'bestFriend',
+ *       kind: 'belongsTo',
+ *       type: 'user',
+ *       options: { inverse: null, async: false }
+ *     },
+ *   ],
+ * });
+ *
+ * export type User = WithLegacy<{
+ *   firstName: string;
+ *   lastName: string;
+ *   age: number;
+ *   friends: HasMany<User>;
+ *   bestFriend: User | null;
+ *   [Type]: 'user';
+ * }>
+ * ```
+ *
+ * @method withDefaults
+ * @for @ember-data/model/migration-support
+ * @static
+ * @param {LegacyResourceSchema} schema The schema to add legacy support to.
+ * @return {LegacyResourceSchema} The schema with legacy support added.
+ * @public
+ */
+export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' | 'identity'>): LegacyResourceSchema {
   schema.legacy = true;
   schema.identity = { kind: '@id', name: 'id' };
 
@@ -178,13 +329,58 @@ export function withDefaults(schema: WithPartial<ResourceSchema, 'legacy' | 'ide
     type: 'boolean',
     options: { defaultValue: false },
   });
-  return schema as ResourceSchema;
+  return schema as LegacyResourceSchema;
 }
 
+/**
+ * A function which registers the necessary derivations to support
+ * the legacy features of @ember-data/model while migrating to WarpDrive.
+ *
+ * This must be called in order to use the fields added by `withDefaults`.
+ *
+ * @method registerDerivations
+ * @for @ember-data/model/migration-support
+ * @static
+ * @param {SchemaService} schema The schema service to register the derivations with.
+ * @return {void}
+ * @public
+ */
 export function registerDerivations(schema: SchemaService) {
   schema.registerDerivation(legacySupport);
 }
 
+/**
+ * A class which provides a schema service that delegates between
+ * a primary schema service and one that supports legacy model
+ * classes as its schema source.
+ *
+ * When the primary schema service has a schema for the given
+ * resource, it will be used. Otherwise, the fallback schema
+ * service will be used.
+ *
+ * This can be used when incrementally migrating from Models to
+ * SchemaRecords by enabling unmigrated Models to continue to
+ * provide their own schema information to the application.
+ *
+ * ```ts
+ * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+ * import { SchemaService } from '@warp-drive/schema-record';
+ *
+ * class AppStore extends Store {
+ *   createSchemaService() {
+ *     const schema = new SchemaService();
+ *     return new DelegatingSchemaService(this, schema);
+ *   }
+ * }
+ * ```
+ *
+ * All calls to register resources, derivations, transformations, hash functions
+ * etc. will be delegated to the primary schema service.
+ *
+ * @class DelegatingSchemaService
+ * @extends SchemaService
+ * @public
+ */
 export interface DelegatingSchemaService {
   attributesDefinitionFor?(resource: StableRecordIdentifier | { type: string }): AttributesSchema;
   relationshipsDefinitionFor?(resource: StableRecordIdentifier | { type: string }): RelationshipsSchema;

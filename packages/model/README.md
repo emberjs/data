@@ -15,7 +15,7 @@
     />
 </p>
 
-<p align="center">Runtime Classes for use as a Schema Source and Resource Presentation for EmberData</p>
+<p align="center">Runtime Classes for use as a Schema Source and Reactive Object for EmberData</p>
 
 ## Installation
 
