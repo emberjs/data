@@ -566,11 +566,11 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.17.30
-        version: 20.17.30
+        specifier: ^20.17.32
+        version: 20.17.32
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(562729b1082c1d1cf25d37c0d7538468)
+        version: file:config(c2555b776e15f91cb9fb8244416ed3e4)
       bun-types:
         specifier: ^1.2.10
         version: 1.2.10
@@ -579,7 +579,7 @@ importers:
         version: 5.8.3
       vite:
         specifier: ^5.4.15
-        version: 5.4.15(@types/node@20.17.30)
+        version: 5.4.15(@types/node@20.17.32)
 
   packages/codemods:
     dependencies:
@@ -6313,8 +6313,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.17.30':
-    resolution: {integrity: sha512-7zf4YyHA+jvBNfVrk2Gtvs6x7E8V+YDW05bNfG2XkWDJfYRXrTiP/DsB2zSYTaHX0bGIujTBQdMVAhb+j7mwpg==}
+  '@types/node@20.17.32':
+    resolution: {integrity: sha512-zeMXFn8zQ+UkjK4ws0RiOC9EWByyW1CcVmLe+2rQocXRsGEDxUCwPEIVgpsGcLHS/P8JkT0oa3839BRABS0oPw==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -16696,11 +16696,11 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor-model@7.30.5(@types/node@20.17.30)':
+  '@microsoft/api-extractor-model@7.30.5(@types/node@20.17.32)':
     dependencies:
       '@microsoft/tsdoc': 0.15.1
       '@microsoft/tsdoc-config': 0.17.1
-      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.30)
+      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.32)
     transitivePeerDependencies:
       - '@types/node'
 
@@ -16722,15 +16722,15 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.52.2(@types/node@20.17.30)':
+  '@microsoft/api-extractor@7.52.2(@types/node@20.17.32)':
     dependencies:
-      '@microsoft/api-extractor-model': 7.30.5(@types/node@20.17.30)
+      '@microsoft/api-extractor-model': 7.30.5(@types/node@20.17.32)
       '@microsoft/tsdoc': 0.15.1
       '@microsoft/tsdoc-config': 0.17.1
-      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.30)
+      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.32)
       '@rushstack/rig-package': 0.5.3
-      '@rushstack/terminal': 0.15.2(@types/node@20.17.30)
-      '@rushstack/ts-command-line': 4.23.7(@types/node@20.17.30)
+      '@rushstack/terminal': 0.15.2(@types/node@20.17.32)
+      '@rushstack/ts-command-line': 4.23.7(@types/node@20.17.32)
       lodash: 4.17.21
       minimatch: 3.0.8
       resolve: 1.22.10
@@ -17323,7 +17323,7 @@ snapshots:
       resolve: 1.22.10
       semver: 7.5.4
 
-  '@rushstack/node-core-library@5.13.0(@types/node@20.17.30)':
+  '@rushstack/node-core-library@5.13.0(@types/node@20.17.32)':
     dependencies:
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
@@ -17334,7 +17334,7 @@ snapshots:
       resolve: 1.22.10
       semver: 7.5.4
     optionalDependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@rushstack/rig-package@0.5.3':
     dependencies:
@@ -17346,12 +17346,12 @@ snapshots:
       '@rushstack/node-core-library': 5.13.0
       supports-color: 8.1.1
 
-  '@rushstack/terminal@0.15.2(@types/node@20.17.30)':
+  '@rushstack/terminal@0.15.2(@types/node@20.17.32)':
     dependencies:
-      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.30)
+      '@rushstack/node-core-library': 5.13.0(@types/node@20.17.32)
       supports-color: 8.1.1
     optionalDependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@rushstack/ts-command-line@4.23.7':
     dependencies:
@@ -17362,9 +17362,9 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@rushstack/ts-command-line@4.23.7(@types/node@20.17.30)':
+  '@rushstack/ts-command-line@4.23.7(@types/node@20.17.32)':
     dependencies:
-      '@rushstack/terminal': 0.15.2(@types/node@20.17.30)
+      '@rushstack/terminal': 0.15.2(@types/node@20.17.32)
       '@types/argparse': 1.0.38
       argparse: 1.0.10
       string-argv: 0.3.2
@@ -17437,7 +17437,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/broccoli-plugin@3.0.4':
     dependencies:
@@ -17457,11 +17457,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/cors@2.8.17':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/debug@4.1.12':
     dependencies:
@@ -17488,7 +17488,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -17502,12 +17502,12 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/http-errors@2.0.4': {}
 
@@ -17528,7 +17528,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/mime@1.3.5': {}
 
@@ -17538,11 +17538,11 @@ snapshots:
 
   '@types/morgan@1.9.9':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@20.17.30':
+  '@types/node@20.17.32':
     dependencies:
       undici-types: 6.19.8
 
@@ -17554,12 +17554,12 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/rsvp@4.0.9': {}
 
@@ -17568,19 +17568,19 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
       '@types/send': 0.17.4
 
   '@types/sizzle@2.3.9': {}
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   '@types/supports-color@8.1.3': {}
 
@@ -17965,50 +17965,6 @@ snapshots:
       - terser
       - utf-8-validate
 
-  '@warp-drive/internal-config@file:config(562729b1082c1d1cf25d37c0d7538468)':
-    dependencies:
-      '@babel/cli': 7.27.0(@babel/core@7.26.10)
-      '@babel/core': 7.26.10
-      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.24.0)
-      '@embroider/addon-dev': 7.1.3(rollup@4.40.0)
-      '@eslint/js': 9.24.0
-      '@rollup/plugin-babel': 6.0.4(92820f8d838e2e03f9fd8b4cc641f494)
-      '@typescript-eslint/eslint-plugin': 8.30.1(b339eeb740e29f638515f89548ff07d0)
-      '@typescript-eslint/parser': 8.30.1(eslint@9.24.0)(typescript@5.8.3)
-      ember-eslint-parser: 0.5.9(55a8796c0403a54ddd81b6a519cb6b19)
-      eslint: 9.24.0
-      eslint-config-prettier: 10.1.2(eslint@9.24.0)
-      eslint-plugin-import: 2.31.0(7ade9f67e0f345737fad0ed05309d6ca)
-      eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
-      eslint-plugin-n: 17.16.2(eslint@9.24.0)
-      eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
-      eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
-      glob: 11.0.1
-      globals: 16.0.0
-      rollup: 4.40.0
-      typescript: 5.8.3
-      typescript-eslint: 8.30.1(eslint@9.24.0)(typescript@5.8.3)
-      vite: 5.4.15(@types/node@20.17.30)
-      vite-plugin-dts: 4.5.3(261da5b46075f75fe62ec35da9541a54)
-    transitivePeerDependencies:
-      - '@glint/template'
-      - '@types/babel__core'
-      - '@types/node'
-      - bufferutil
-      - canvas
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - utf-8-validate
-
   '@warp-drive/internal-config@file:config(@glint/template@1.5.2)':
     dependencies:
       '@babel/cli': 7.27.0(@babel/core@7.26.10)
@@ -18034,6 +17990,50 @@ snapshots:
       typescript-eslint: 8.30.1(eslint@9.24.0)(typescript@5.8.3)
       vite: 5.4.15
       vite-plugin-dts: 4.5.3(35fb79aa41f25d513343933f51282c39)
+    transitivePeerDependencies:
+      - '@glint/template'
+      - '@types/babel__core'
+      - '@types/node'
+      - bufferutil
+      - canvas
+      - eslint-import-resolver-typescript
+      - eslint-import-resolver-webpack
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - utf-8-validate
+
+  '@warp-drive/internal-config@file:config(c2555b776e15f91cb9fb8244416ed3e4)':
+    dependencies:
+      '@babel/cli': 7.27.0(@babel/core@7.26.10)
+      '@babel/core': 7.26.10
+      '@babel/eslint-parser': 7.27.0(@babel/core@7.26.10)(eslint@9.24.0)
+      '@embroider/addon-dev': 7.1.3(rollup@4.40.0)
+      '@eslint/js': 9.24.0
+      '@rollup/plugin-babel': 6.0.4(92820f8d838e2e03f9fd8b4cc641f494)
+      '@typescript-eslint/eslint-plugin': 8.30.1(b339eeb740e29f638515f89548ff07d0)
+      '@typescript-eslint/parser': 8.30.1(eslint@9.24.0)(typescript@5.8.3)
+      ember-eslint-parser: 0.5.9(55a8796c0403a54ddd81b6a519cb6b19)
+      eslint: 9.24.0
+      eslint-config-prettier: 10.1.2(eslint@9.24.0)
+      eslint-plugin-import: 2.31.0(7ade9f67e0f345737fad0ed05309d6ca)
+      eslint-plugin-mocha: 10.5.0(eslint@9.24.0)
+      eslint-plugin-n: 17.16.2(eslint@9.24.0)
+      eslint-plugin-qunit: 8.1.2(eslint@9.24.0)
+      eslint-plugin-simple-import-sort: 12.1.1(eslint@9.24.0)
+      glob: 11.0.1
+      globals: 16.0.0
+      rollup: 4.40.0
+      typescript: 5.8.3
+      typescript-eslint: 8.30.1(eslint@9.24.0)(typescript@5.8.3)
+      vite: 5.4.15(@types/node@20.17.32)
+      vite-plugin-dts: 4.5.3(7976fc4df8ba1b235767e9d5ded2b58b)
     transitivePeerDependencies:
       - '@glint/template'
       - '@types/babel__core'
@@ -19310,7 +19310,7 @@ snapshots:
 
   bun-types@1.2.10:
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
 
   bytes@1.0.0: {}
 
@@ -21246,7 +21246,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.17
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -23140,7 +23140,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -26242,25 +26242,6 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-dts@4.5.3(261da5b46075f75fe62ec35da9541a54):
-    dependencies:
-      '@microsoft/api-extractor': 7.52.2(@types/node@20.17.30)
-      '@rollup/pluginutils': 5.1.4(rollup@4.40.0)
-      '@volar/typescript': 2.4.12
-      '@vue/language-core': 2.2.0(typescript@5.8.3)
-      compare-versions: 6.1.1
-      debug: 4.4.0
-      kolorist: 1.8.0
-      local-pkg: 1.1.1
-      magic-string: 0.30.17
-      typescript: 5.8.3
-    optionalDependencies:
-      vite: 5.4.15(@types/node@20.17.30)
-    transitivePeerDependencies:
-      - '@types/node'
-      - rollup
-      - supports-color
-
   vite-plugin-dts@4.5.3(35fb79aa41f25d513343933f51282c39):
     dependencies:
       '@microsoft/api-extractor': 7.52.2
@@ -26280,6 +26261,25 @@ snapshots:
       - rollup
       - supports-color
 
+  vite-plugin-dts@4.5.3(7976fc4df8ba1b235767e9d5ded2b58b):
+    dependencies:
+      '@microsoft/api-extractor': 7.52.2(@types/node@20.17.32)
+      '@rollup/pluginutils': 5.1.4(rollup@4.40.0)
+      '@volar/typescript': 2.4.12
+      '@vue/language-core': 2.2.0(typescript@5.8.3)
+      compare-versions: 6.1.1
+      debug: 4.4.0
+      kolorist: 1.8.0
+      local-pkg: 1.1.1
+      magic-string: 0.30.17
+      typescript: 5.8.3
+    optionalDependencies:
+      vite: 5.4.15(@types/node@20.17.32)
+    transitivePeerDependencies:
+      - '@types/node'
+      - rollup
+      - supports-color
+
   vite@5.4.15:
     dependencies:
       esbuild: 0.21.5
@@ -26288,13 +26288,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@5.4.15(@types/node@20.17.30):
+  vite@5.4.15(@types/node@20.17.32):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
       rollup: 4.40.0
     optionalDependencies:
-      '@types/node': 20.17.30
+      '@types/node': 20.17.32
       fsevents: 2.3.3
 
   vite@5.4.15(terser@5.39.0):
