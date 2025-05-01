@@ -291,6 +291,7 @@ legacySupport[Type] = '@legacy';
  *   bestFriend: User | null;
  *   [Type]: 'user';
  * }>
+ * ```
  *
  * @method withDefaults
  * @for @ember-data/model/migration-support
