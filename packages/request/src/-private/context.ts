@@ -9,11 +9,8 @@ import { createDeferred } from './future';
 import type { DeferredStream, GodContext } from './types';
 
 export function upgradeHeaders(headers: Headers | ImmutableHeaders): ImmutableHeaders {
-  (headers as ImmutableHeaders).clone = () => {
-    return new Headers(headers);
-  };
   (headers as ImmutableHeaders).toJSON = () => {
-    return Array.from(headers as unknown as Iterable<[string, string]>);
+    return Object.fromEntries(headers as unknown as Iterable<[string, string]>);
   };
   return headers as ImmutableHeaders;
 }

@@ -853,7 +853,7 @@ export default class JSONAPICache implements Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier): void {
+  willCommit(identifier: StableRecordIdentifier | StableRecordIdentifier[]): void {
     const cached = this.__peek(identifier, false);
 
     /*
@@ -917,7 +917,7 @@ export default class JSONAPICache implements Cache {
    * @param data
    */
   didCommit(
-    committedIdentifier: StableRecordIdentifier,
+    committedIdentifier: StableRecordIdentifier | StableRecordIdentifier[],
     result: StructuredDataDocument<SingleResourceDocument>
   ): SingleResourceDataDocument {
     const payload = result.content;
@@ -1061,7 +1061,7 @@ export default class JSONAPICache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: StableRecordIdentifier | StableRecordIdentifier[], errors?: ApiError[]): void {
     const cached = this.__peek(identifier, false);
     if (cached.inflightAttrs) {
       const keys = Object.keys(cached.inflightAttrs);

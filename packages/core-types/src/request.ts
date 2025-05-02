@@ -1,7 +1,5 @@
 import { getOrSetGlobal, getOrSetUniversal } from './-private';
-import type { StableRecordIdentifier } from './identifier';
-import type { QueryParamsSerializationOptions } from './params';
-import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
+import type { ExtractSuggestedCacheTypes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
 import type { ResourceIdentifierObject } from './spec/json-api-raw';
 import type { RequestSignature } from './symbols';
 
@@ -32,7 +30,7 @@ export type HTTPMethod =
  *
  * @typedoc
  */
-export type CacheOptions<T = unknown> = {
+export interface CacheOptions<T = unknown> {
   /**
    * A key that uniquely identifies this request. If not present, the url wil be used
    * as the key for any GET request, while all other requests will not be cached.
@@ -40,6 +38,7 @@ export type CacheOptions<T = unknown> = {
    * @typedoc
    */
   key?: string;
+
   /**
    * If true, the request will be made even if a cached response is present
    * and not expired.
@@ -47,6 +46,7 @@ export type CacheOptions<T = unknown> = {
    * @typedoc
    */
   reload?: boolean;
+
   /**
    * If true, and a cached response is present and not expired, the request
    * will be made in the background and the cached response will be returned.
@@ -54,6 +54,7 @@ export type CacheOptions<T = unknown> = {
    * @typedoc
    */
   backgroundReload?: boolean;
+
   /**
    * Useful for metadata around when to invalidate the cache. Typically used
    * by strategies that invalidate requests by resource type when a new resource
@@ -73,113 +74,62 @@ export type CacheOptions<T = unknown> = {
   types?: T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
 
   /**
+   * If present, should contain the identifiers of the records that are
+   * involved in the request. For transactional (or bulk) operations
+   * where multiple records are being created, updated, or deleted
+   * this list will be used to trigger the cache lifecycle events
+   * for each record involved in the request.
+   *
+   * In the case of a bulk create, if the response has not reflected the
+   * `lid` of the created records, the order of the records in this array
+   * should match the order of the records in the response.
+   *
+   * This replaces `request.records`
+   *
+   * @typedoc
+   */
+  records?: ResourceIdentifierObject<TypeFromInstanceOrString<T>>[];
+
+  /**
+   * The store that the CacheHandler should use when fulfilling the request.
+   *
+   * This replaces `request.store`
+   *
+   * @typedoc
+   */
+  store?: Store;
+
+  /**
+   * If true, the resulting response will be a raw response object instead of
+   * a reactive document containing reactive resources.
+   *
+   * This replaces `request[EnableHydration]`
+   *
+   * @typedoc
+   */
+  raw?: boolean;
+
+  /**
    * If true, the request will never be handled by the cache-manager and thus
    * will never resolve from cache nor update the cache.
    *
-   * Generally this is only used for legacy request that manage resource cache
+   * Generally this is only used for legacy requests that manage resource cache
    * updates in a non-standard way via the LegacyNetworkHandler.
+   *
+   * This replaces `request.cacheOptions[SkipCache]`
+   *
+   * @typedoc
+   */
+  skipCache?: boolean;
+  /**
+   * An older version of `skipCache` that is used to skip the cache for a request.
    *
    * @typedoc
    */
   [SkipCache]?: boolean;
-};
-export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'GET';
-  headers: Headers;
-  cacheOptions?: CacheOptions<T>;
-  op: 'findRecord';
-  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
-  [RequestSignature]?: RT;
-};
+}
 
-export type QueryRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'GET';
-  headers: Headers;
-  cacheOptions?: CacheOptions<T>;
-  op: 'query';
-  [RequestSignature]?: RT;
-};
-
-export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'POST' | 'QUERY';
-  headers: Headers;
-  body?: string | BodyInit | FormData;
-  cacheOptions: CacheOptions<T> & { key: string };
-  op: 'query';
-  [RequestSignature]?: RT;
-};
-
-export type DeleteRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'DELETE';
-  headers: Headers;
-  op: 'deleteRecord';
-  body?: string | BodyInit | FormData;
-  data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
-  };
-  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
-  [RequestSignature]?: RT;
-};
-
-type ImmutableRequest<T> = Readonly<T> & {
-  readonly headers: ImmutableHeaders;
-  readonly records: [StableRecordIdentifier];
-};
-
-export type UpdateRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'PATCH' | 'PUT';
-  headers: Headers;
-  op: 'updateRecord';
-  body?: string | BodyInit | FormData;
-  data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
-  };
-  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
-  [RequestSignature]?: RT;
-};
-
-export type CreateRequestOptions<T = unknown, RT = unknown> = {
-  url: string;
-  method: 'POST';
-  headers: Headers;
-  op: 'createRecord';
-  body?: string | BodyInit | FormData;
-  data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
-  };
-  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
-  [RequestSignature]?: RT;
-};
-
-export type ImmutableDeleteRequestOptions = ImmutableRequest<DeleteRequestOptions>;
-export type ImmutableUpdateRequestOptions = ImmutableRequest<UpdateRequestOptions>;
-export type ImmutableCreateRequestOptions = ImmutableRequest<CreateRequestOptions>;
-
-export type RemotelyAccessibleIdentifier<T extends string = string> = {
-  id: string;
-  type: T;
-  lid?: string;
-};
-
-export type ConstrainedRequestOptions = {
-  reload?: boolean;
-  backgroundReload?: boolean;
-  host?: string;
-  namespace?: string;
-  resourcePath?: string;
-  urlParamsSettings?: QueryParamsSerializationOptions;
-};
-
-export type FindRecordOptions<T = unknown> = ConstrainedRequestOptions & {
-  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
-};
-
-export interface StructuredDataDocument<T> {
+interface StructuredResponse {
   [STRUCTURED]?: true;
   /**
    * @see {@link ImmutableRequestInfo}
@@ -187,25 +137,35 @@ export interface StructuredDataDocument<T> {
    */
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
+}
+
+export interface StructuredDataDocument<T> extends StructuredResponse {
   content: T;
 }
-export interface StructuredErrorDocument<T = unknown> extends Error {
-  [STRUCTURED]?: true;
-  request: ImmutableRequestInfo;
-  response: Response | ResponseInfo | null;
+
+interface StructuredError<T = unknown> extends StructuredResponse, Error {
   error: string | object;
   content?: T;
 }
+
+interface StructuredAggregateError<T = unknown> extends StructuredResponse, AggregateError {
+  errors: unknown[];
+  error: string | object;
+  content?: T;
+}
+
+export type StructuredErrorDocument<T = unknown> = StructuredError<T> | StructuredAggregateError<T>;
+
 export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;
 
 /**
  * JavaScript's native Request class.
  *
- * EmberData provides our own typings due to incompleteness in the native typings.
+ * WarpDrive provides our own typings due to incompleteness in the native typings.
  *
  * @typedoc
  */
-type Request = {
+interface Request {
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
    * @typedoc
    */
@@ -262,11 +222,10 @@ type Request = {
    * @typedoc
    */
   body?: BodyInit | null;
-};
+}
 
 export interface ImmutableHeaders extends Headers {
-  clone?(): Headers;
-  toJSON(): [string, string][];
+  toJSON(): Record<string, string>;
 }
 
 /**
@@ -275,7 +234,7 @@ export interface ImmutableHeaders extends Headers {
  *
  * @typedoc
  */
-export type RequestInfo<T = unknown, RT = unknown> = Request & {
+export interface RequestInfo<T = unknown, RT = unknown> extends Request {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -288,8 +247,23 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
    * @typedoc
    */
   cacheOptions?: CacheOptions<T>;
+
+  /**
+   * The store for the CacheHandler to use for the request.
+   *
+   * @deprecated use {@link CacheOptions.store} instead
+   * @typedoc
+   */
   store?: Store;
 
+  /**
+   * An operation name that identifies the purpose of the request.
+   *
+   * Some op codes have special meanings for the store's CacheHandler,
+   * see its documentation for more details.
+   *
+   * @typedoc
+   */
   op?: string;
 
   /**
@@ -297,9 +271,10 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
    * (if any). This may be used by handlers to perform transactional
    * operations on the store.
    *
+   * @deprecated use {@link CacheOptions.records} instead
    * @typedoc
    */
-  records?: StableRecordIdentifier[];
+  records?: ResourceIdentifierObject<TypeFromInstanceOrString<T>>[];
 
   disableTestWaiter?: boolean;
   /**
@@ -311,7 +286,7 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
    *
    * @typedoc
    */
-  data?: Record<string, unknown>;
+  data?: unknown;
   /**
    * options specifically intended for handlers
    * to utilize to process the request
@@ -322,15 +297,23 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
 
   [RequestSignature]?: RT;
 
+  /**
+   * Whether to convert the response into a reactive document
+   * or return the raw response object.
+   *
+   * @deprecated use {@link CacheOptions.raw} instead
+   * @typedoc
+   */
   [EnableHydration]?: boolean;
-};
+}
 
 /**
  * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
  *
  * @typedoc
  */
-export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T, RT>, 'controller'>> & {
+export interface ImmutableRequestInfo<T = unknown, RT = unknown>
+  extends Readonly<Omit<RequestInfo<T, RT>, 'controller'>> {
   readonly cacheOptions?: Readonly<CacheOptions<T>>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
@@ -340,8 +323,13 @@ export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<Requ
    * @typedoc
    */
   readonly bodyUsed?: boolean;
-};
+}
 
+/**
+ * A serialized/serializable subset of a processed Response
+ *
+ * @typedoc
+ */
 export interface ResponseInfo {
   readonly headers: ImmutableHeaders; // to do, maybe not this?
   readonly ok: boolean;
