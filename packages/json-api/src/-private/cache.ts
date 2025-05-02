@@ -10,7 +10,7 @@ import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
+import type { Cache, CacheV2, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
 import type { Change } from '@warp-drive/core-types/cache/change';
 import type {
   AddResourceOperation,
@@ -146,7 +146,7 @@ function makeCache(): CachedResource {
   @public
  */
 
-export default class JSONAPICache implements Cache {
+export default class JSONAPICache implements CacheV2 {
   /**
    * The Cache Version that this implementation implements.
    *
