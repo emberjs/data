@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "5.5.0-alpha.22",
+  "version": "5.5.0-alpha.23",
   "description": "The lightweight reactive data library for JavaScript applications",
   "keywords": [
     "ember-addon"
