@@ -1289,26 +1289,21 @@ export interface LinksModeBelongsToField {
      *
      * Async relationships will be loaded via their link if needed.
      *
+     * Activating LinksMode will *also* deactivate the deprecated
+     * `resetOnRemoteUpdate` behavior for this field.
+     *
+     * This means that when new remote state is received, the cache
+     * will intelligently commit any changes from local state that
+     * are present in the remote data for this field, leaving any remaining
+     * changes in local state still.
+     *
+     * Previously, the cache would clear local state of all changes
+     * except for the addition of records still in the "new" state any
+     * time the remote data for this field was updated.
+     *
      * @typedoc
      */
     linksMode: true;
-
-    /**
-     * When omitted, the cache data for this field will
-     * clear local state of all changes except for the
-     * addition of records still in the "new" state any
-     * time the remote data for this field is updated.
-     *
-     * When set to `false`, the cache data for this field
-     * will instead intelligently commit any changes from
-     * local state that are present in the remote data,
-     * leaving any remaining changes in local state still.
-     *
-     * MUST be false for PolarisMode + LinksMode
-     *
-     * @typedoc
-     */
-    resetOnRemoteUpdate: false;
   };
 }
 
@@ -1591,26 +1586,21 @@ export interface LinksModeHasManyField {
      *
      * Async relationships will be loaded via their link if needed.
      *
+     * Activating LinksMode will *also* deactivate the deprecated
+     * `resetOnRemoteUpdate` behavior for this field.
+     *
+     * This means that when new remote state is received, the cache
+     * will intelligently commit any changes from local state that
+     * are present in the remote data for this field, leaving any remaining
+     * changes in local state still.
+     *
+     * Previously, the cache would clear local state of all changes
+     * except for the addition of records still in the "new" state any
+     * time the remote data for this field was updated.
+     *
      * @typedoc
      */
     linksMode: true;
-
-    /**
-     * When omitted, the cache data for this field will
-     * clear local state of all changes except for the
-     * addition of records still in the "new" state any
-     * time the remote data for this field is updated.
-     *
-     * When set to `false`, the cache data for this field
-     * will instead intelligently commit any changes from
-     * local state that are present in the remote data,
-     * leaving any remaining changes in local state still.
-     *
-     * MUST be false for PolarisMode + LinksMode
-     *
-     * @typedoc
-     */
-    resetOnRemoteUpdate: false;
   };
 }
 
@@ -1957,8 +1947,10 @@ export type Schema = ResourceSchema | ObjectSchema;
  * @return {ResourceSchema} the passed in schema
  * @public
  */
-export function resourceSchema<T extends ResourceSchema>(schema: T): T {
-  return schema;
+export function resourceSchema<T extends LegacyResourceSchema | PolarisResourceSchema>(
+  schema: LegacyResourceSchema | PolarisResourceSchema
+): T {
+  return schema as T;
 }
 
 /**

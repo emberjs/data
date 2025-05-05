@@ -467,6 +467,7 @@ module('Reads | belongsTo in linksMode', function (hooks) {
             name: 'name',
             kind: 'field',
           },
+          // @ts-expect-error not implemented yet
           {
             name: 'bestFriend',
             type: 'user',

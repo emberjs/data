@@ -286,6 +286,7 @@
  *           inverse: 'owner',
  *           polymorphic: true,
  *           linksMode: true,
+ *           resetOnRemoteUpdate: false,
  *         }
  *       }
  *     ]
@@ -303,6 +304,7 @@
  *           inverse: 'pets',
  *           as: 'pet',
  *           linksMode: true,
+ *           resetOnRemoteUpdate: false,
  *         }
  *       }
  *     ]

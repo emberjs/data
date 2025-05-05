@@ -36,8 +36,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
@@ -71,8 +70,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
@@ -109,8 +107,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
@@ -145,8 +142,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
@@ -187,8 +183,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
@@ -223,8 +218,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
         fields: [
           {
             name: 'name',
-            type: null,
-            kind: 'attribute',
+            kind: 'field',
           },
         ],
       })
