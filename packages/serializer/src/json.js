@@ -8,7 +8,7 @@ import { dasherize, singularize } from '@ember-data/request-utils/string';
 import { assert } from '@warp-drive/build-config/macros';
 
 import Serializer from '.';
-import { coerceId } from './-private/utils';
+import { coerceId, determineConnectionType } from './-private/utils';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -950,11 +950,12 @@ const JSONSerializer = Serializer.extend({
     @return {boolean} true if the hasMany relationship should be serialized
   */
   shouldSerializeHasMany(snapshot, key, relationship) {
-    const schema = this.store.modelFor(snapshot.modelName);
-    const relationshipType = schema.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
     }
+
+    const relationshipType = determineConnectionType(this.store, relationship);
+
     return this._canSerialize(key) && (relationshipType === 'manyToNone' || relationshipType === 'manyToMany');
   },
 

@@ -499,7 +499,10 @@ export const DISABLE_7X_DEPRECATIONS = '7.0';
 export const DEPRECATE_TRACKING_PACKAGE = '5.5';
 
 /**
- * **id: warp-drive:deprecate-spurious-schema-props**
+ * **id: ember-data.legacy-schema-props.key**
+ * **id: ember-data.legacy-schema-props.isAttribute**
+ * **id: ember-data.legacy-schema-props.isRelationship**
+ * **id: ember-data.legacy-schema-props.inverseFor**
  *
  * Deprecates the use of poorly documented properties on model
  * schema fields that we had not intended to support.
@@ -545,9 +548,9 @@ export const DEPRECATE_TRACKING_PACKAGE = '5.5';
  * const petsSchema = store.schema.fields({ type: petsField.type });
  * ```
  *
- * @property DEPRECATE_SPURIOUS_SCHEMA_PROPS
+ * @property DEPRECATE_LEGACY_SCHEMA_PROPS
  * @since 5.0
  * @until 6.0
  * @public
  */
-export const DEPRECATE_SPURIOUS_SCHEMA_PROPS = '5.0';
+export const DEPRECATE_LEGACY_SCHEMA_PROPS = '5.0';

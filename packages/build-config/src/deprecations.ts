@@ -12,4 +12,4 @@ export const ENABLE_LEGACY_SCHEMA_SERVICE: boolean = true;
 export const DEPRECATE_EMBER_INFLECTOR: boolean = true;
 export const DISABLE_7X_DEPRECATIONS: boolean = true;
 export const DEPRECATE_TRACKING_PACKAGE: boolean = true;
-export const DEPRECATE_SPURIOUS_SCHEMA_PROPS: boolean = true;
+export const DEPRECATE_LEGACY_SCHEMA_PROPS: boolean = true;

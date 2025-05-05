@@ -5,7 +5,7 @@ import { deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import { dasherize, singularize } from '@ember-data/request-utils/string';
-import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_LEGACY_SCHEMA_PROPS, DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
@@ -51,11 +51,38 @@ function _hasMany<T, Async extends boolean>(
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
   const meta = {
+    kind: 'hasMany',
+    name: '<Unknown HasMany>',
     type: normalizeType(type),
     options,
-    kind: 'hasMany',
-    name: '<Unknown BelongsTo>',
   };
+
+  if (DEPRECATE_LEGACY_SCHEMA_PROPS) {
+    Object.defineProperty(meta, 'key', {
+      get(this: typeof meta) {
+        deprecate(`The 'key' property on meta is deprecated. Use 'name' instead.`, false, {
+          id: 'ember-data.legacy-schema-props.key',
+          until: '6.0.0',
+          url: 'https://deprecations.emberjs.com/id/ember-data.legacy-schema-props.key',
+          for: 'ember-data',
+          since: { enabled: '5.5.0', available: '5.5.0' },
+        });
+        return this.name;
+      },
+    });
+    Object.defineProperty(meta, 'isRelationship', {
+      get(this: typeof meta) {
+        deprecate(`The 'isRelationship' property on meta is deprecated. Use 'kind' instead.`, false, {
+          id: 'ember-data.legacy-schema-props.isRelationship',
+          until: '6.0.0',
+          url: 'https://deprecations.emberjs.com/id/ember-data.legacy-schema-props.isRelationship',
+          for: 'ember-data',
+          since: { enabled: '5.5.0', available: '5.5.0' },
+        });
+        return true;
+      },
+    });
+  }
 
   return computed({
     get<R extends MinimalLegacyRecord>(this: R, key: string) {
