@@ -32,11 +32,13 @@ async function getOrUpdateRepo(gitUrl: string) {
   }
 
   if (!updated) {
+    log(`No updates found for ${chalk.green(details.repoPath)}`);
     return;
   }
 
   // install dependencies
   const packageManager = determinePackageManager(details.location);
+  console.log({ packageManager });
   if (packageManager === 'pnpm') {
     // some of the repositories use pnpm but do not have volta configured
     // and have not had their engines/packageManager field updated in a while.

@@ -101,6 +101,18 @@ export async function maybeMakePNPMInstallable(details: ReturnType<typeof repoDe
   const nodeVersion = await getCurrentVersion('node');
   const pnpmVersion = await getCurrentVersion('pnpm');
 
+  console.log({
+    cwd: process.cwd(),
+    location: details.location,
+    nodeVersion,
+    pnpmVersion,
+    volta: packageJson.volta,
+    voltaNodeMatches: packageJson.volta?.node === nodeVersion,
+    voltaPnpmMatches: packageJson.volta?.pnpm === pnpmVersion,
+    packageManager: packageJson.packageManager,
+    enginesNode: packageJson.engines?.node,
+  });
+
   if (
     !packageJson.volta ||
     packageJson.volta.node !== nodeVersion ||
