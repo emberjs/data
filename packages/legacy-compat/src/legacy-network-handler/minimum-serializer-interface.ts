@@ -104,7 +104,7 @@ export interface MinimumSerializerInterface {
    * @method serialize
    * @public
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
-   * @param {object} [options]
+   * @param {Object} [options]
    */
   serialize(snapshot: Snapshot, options?: SerializerOptions): ObjectValue;
 
@@ -156,7 +156,7 @@ export interface MinimumSerializerInterface {
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {JSONObject} rawPayload Some raw JSON data to be normalized into a JSON:API Resource.
-   * @param {string} [prop] When called by the EmbeddedRecordsMixin this param will be the
+   * @param {String} [prop] When called by the EmbeddedRecordsMixin this param will be the
    *  property at which the object provided as rawPayload was found.
    * @return {SingleResourceDocument} A JSON:API Document
    *  containing a single JSON:API Resource
@@ -244,7 +244,7 @@ export interface MinimumSerializerInterface {
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
-   * @param {object} rawPayload The raw JSON response data returned from an API request.
+   * @param {Object} rawPayload The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
    * @return {void}
    */

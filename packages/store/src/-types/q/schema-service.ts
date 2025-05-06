@@ -373,7 +373,7 @@ export interface SchemaService {
    *
    * @method resourceTypes
    * @public
-   * @return {string[]}
+   * @return {String[]}
    */
   resourceTypes(): Readonly<string[]>;
 }

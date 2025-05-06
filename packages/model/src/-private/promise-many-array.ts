@@ -103,28 +103,32 @@ export class PromiseManyArray<T = unknown> {
   /**
    * Whether the loading promise is still pending
    *
-   * @property {boolean} isPending
+   * @property isPending
+   * @type {Boolean}
    * @public
    */
   declare isPending: boolean;
   /**
    * Whether the loading promise rejected
    *
-   * @property {boolean} isRejected
+   * @property isRejected
+   * @type {Boolean}
    * @public
    */
   declare isRejected: boolean;
   /**
    * Whether the loading promise succeeded
    *
-   * @property {boolean} isFulfilled
+   * @property isFulfilled
+   * @type {Boolean}
    * @public
    */
   declare isFulfilled: boolean;
   /**
    * Whether the loading promise completed (resolved or rejected)
    *
-   * @property {boolean} isSettled
+   * @property isSettled
+   * @type {Boolean}
    * @public
    */
   declare isSettled: boolean;

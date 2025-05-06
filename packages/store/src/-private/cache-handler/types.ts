@@ -32,7 +32,7 @@ export interface CachePolicy {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @return {boolean} true if the request is considered hard expired
+   * @return {Boolean} true if the request is considered hard expired
    */
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
   /**
@@ -48,7 +48,7 @@ export interface CachePolicy {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @return {boolean} true if the request is considered soft expired
+   * @return {Boolean} true if the request is considered soft expired
    */
   isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean;
 

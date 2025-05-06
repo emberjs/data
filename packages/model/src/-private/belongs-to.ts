@@ -270,8 +270,8 @@ function _belongsTo<T, Async extends boolean>(
   @public
   @static
   @for @ember-data/model
-  @param {string} type (optional) the name of the related resource
-  @param {object} options (optional) a hash of options
+  @param {String} type (optional) the name of the related resource
+  @param {Object} options (optional) a hash of options
   @return {PropertyDescriptor} relationship
 */
 

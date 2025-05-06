@@ -80,7 +80,8 @@ export default class HasManyReference<
   /**
    * The field name on the parent record for this has-many relationship.
    *
-   * @property {String} key
+   * @property key
+   * @type {String}
    * @public
    */
   declare key: K;
@@ -88,7 +89,8 @@ export default class HasManyReference<
   /**
    * The type of resource this relationship will contain.
    *
-   * @property {String} type
+   * @property type
+   * @type {String}
    * @public
    */
   declare type: TypeFromInstanceOrString<Related>;
@@ -142,7 +144,8 @@ export default class HasManyReference<
   /**
    * An array of identifiers for the records that this reference refers to.
    *
-   * @property {StableRecordIdentifier[]} identifiers
+   * @property identifiers
+   * @type {StableRecordIdentifier[]}
    * @public
    */
   @memoized

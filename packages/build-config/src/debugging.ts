@@ -31,7 +31,8 @@
  * log cache updates for both local
  * and remote state.
  *
- * @property {boolean} LOG_CACHE
+ * @property LOG_CACHE
+ * @type {Boolean}
  * @public
  */
 export const LOG_CACHE: boolean = false;
@@ -39,14 +40,16 @@ export const LOG_CACHE: boolean = false;
 /**
  * log notifications received by the NotificationManager
  *
- * @property {boolean} LOG_NOTIFICATIONS
+ * @property LOG_NOTIFICATIONS
+ * @type {Boolean}
  * @public
  */
 export const LOG_NOTIFICATIONS: boolean = false;
 /**
  * log requests issued by the RequestManager
  *
- * @property {boolean} LOG_REQUESTS
+ * @property LOG_REQUESTS
+ * @type {Boolean}
  * @public
  */
 export const LOG_REQUESTS: boolean = false;
@@ -54,7 +57,8 @@ export const LOG_REQUESTS: boolean = false;
  * log updates to requests the store has issued to
  * the network (adapter) to fulfill.
  *
- * @property {boolean} LOG_REQUEST_STATUS
+ * @property LOG_REQUEST_STATUS
+ * @type {Boolean}
  * @public
  */
 export const LOG_REQUEST_STATUS: boolean = false;
@@ -62,14 +66,17 @@ export const LOG_REQUEST_STATUS: boolean = false;
  * log peek, generation and updates to
  * Record Identifiers.
  *
- * @property {boolean} LOG_IDENTIFIERS
+ * @property LOG_IDENTIFIERS
+ * @type {Boolean}
+
  * @public
  */
 export const LOG_IDENTIFIERS: boolean = false;
 /**
  * log updates received by the graph (relationship pointer storage)
  *
- * @property {boolean} LOG_GRAPH
+ * @property LOG_GRAPH
+ * @type {Boolean}
  * @public
  */
 export const LOG_GRAPH: boolean = false;
@@ -77,7 +84,8 @@ export const LOG_GRAPH: boolean = false;
  * log creation/removal of RecordData and Record
  * instances.
  *
- * @property {boolean} LOG_INSTANCE_CACHE
+ * @property LOG_INSTANCE_CACHE
+ * @type {Boolean}
  * @public
  */
 export const LOG_INSTANCE_CACHE: boolean = false;
@@ -85,7 +93,8 @@ export const LOG_INSTANCE_CACHE: boolean = false;
  * Log key count metrics, useful for performance
  * debugging.
  *
- * @property {boolean} LOG_METRIC_COUNTS
+ * @property LOG_METRIC_COUNTS
+ * @type {Boolean}
  * @public
  */
 export const LOG_METRIC_COUNTS: boolean = false;
@@ -93,7 +102,8 @@ export const LOG_METRIC_COUNTS: boolean = false;
  * Helps when debugging causes of a change notification
  * when processing an update to a hasMany relationship.
  *
- * @property {boolean} DEBUG_RELATIONSHIP_NOTIFICATIONS
+ * @property DEBUG_RELATIONSHIP_NOTIFICATIONS
+ * @type {Boolean}
  * @public
  */
 export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;

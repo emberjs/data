@@ -235,7 +235,8 @@ Properties are documented with `@property` and attach to the most recent class t
 /**
  * An explanation of the property
  *
- * @property {SomeType} propertyName
+ * @property propertyName
+ * @type {SomeType}
  * @public
  */
 ```

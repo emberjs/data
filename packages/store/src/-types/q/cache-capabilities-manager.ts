@@ -28,7 +28,8 @@ export type CacheCapabilitiesManager = {
    * The IdentifierCache can be used to peek, generate or
    * retrieve a stable unique identifier for any resource.
    *
-   * @property {IdentifierCache} identifierCache
+   * @property identifierCache
+   * @type {IdentifierCache}
    * @public
    */
   identifierCache: IdentifierCache;
@@ -66,7 +67,7 @@ export type CacheCapabilitiesManager = {
    *
    * @method setRecordId
    * @param {StableRecordIdentifier} identifier;
-   * @param {string} id;
+   * @param {String} id;
    * @public
    */
   setRecordId(identifier: StableRecordIdentifier, id: string): void;
@@ -89,7 +90,7 @@ export type CacheCapabilitiesManager = {
    *
    * @method hasRecord
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    * @public
    */
   hasRecord(identifier: StableRecordIdentifier): boolean;

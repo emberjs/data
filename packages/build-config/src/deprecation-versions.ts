@@ -91,6 +91,7 @@ export const DEPRECATE_CATCH_ALL = '99.0';
  * e.g. `app/models/foo/bar-bem.js` must have a type of `foo/bar-bem`
  *
  * @property DEPRECATE_NON_STRICT_TYPES
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -115,6 +116,7 @@ export const DEPRECATE_NON_STRICT_TYPES = '5.3';
  * custom identifier configuration should provide a string ID.
  *
  * @property DEPRECATE_NON_STRICT_ID
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -139,6 +141,7 @@ export const DEPRECATE_NON_STRICT_ID = '5.3';
  * update this version number to the proper version.
  *
  * @property DEPRECATE_COMPUTED_CHAINS
+ * @type {Boolean}
  * @since 5.0
  * @until 8.0
  * @public
@@ -158,6 +161,7 @@ export const DEPRECATE_COMPUTED_CHAINS = '7.0';
  * of defaults.
  *
  * @property DEPRECATE_LEGACY_IMPORTS
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -201,6 +205,7 @@ export const DEPRECATE_LEGACY_IMPORTS = '5.3';
  * duplicate data from relationship payloads.
  *
  * @property DEPRECATE_NON_UNIQUE_PAYLOADS
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -348,6 +353,7 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS = '5.3';
  * a custom Cache with the relationship behaviors you need.
  *
  * @property DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -365,6 +371,7 @@ export const DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE = '5.3';
  * When the flag is `false`, an error will be thrown when duplicates are added.
  *
  * @property DEPRECATE_MANY_ARRAY_DUPLICATES
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -379,6 +386,7 @@ export const DEPRECATE_MANY_ARRAY_DUPLICATES = '5.3';
  * from EmberObject.
  *
  * @property DEPRECATE_STORE_EXTENDS_EMBER_OBJECT
+ * @type {Boolean}
  * @since 5.4
  * @until 6.0
  * @public
@@ -403,6 +411,7 @@ export const DEPRECATE_STORE_EXTENDS_EMBER_OBJECT = '5.4';
  * - `SchemaService.relationshipsDefinitionFor` method is deprecated in favor of the `SchemaService.fields` method
  *
  * @property ENABLE_LEGACY_SCHEMA_SERVICE
+ * @type {Boolean}
  * @since 5.4
  * @until 6.0
  * @public
@@ -436,6 +445,7 @@ export const ENABLE_LEGACY_SCHEMA_SERVICE = '5.4';
  * ```
  *
  * @property DEPRECATE_EMBER_INFLECTOR
+ * @type {Boolean}
  * @since 5.3
  * @until 6.0
  * @public
@@ -452,7 +462,8 @@ export const DEPRECATE_EMBER_INFLECTOR = '5.3';
  * When this flag is present and set to `false`, the deprecations from the 6.x branch will
  * print and can be resolved.
  *
- * @property DISABLE_7X_DEPRECATIONS
+ * @property DISABLE_
+ * @type {Boolean}7X_DEPRECATIONS
  * @since 5.3
  * @until 7.0
  * @public
@@ -492,6 +503,7 @@ export const DISABLE_7X_DEPRECATIONS = '7.0';
  * ```
  *
  * @property DEPRECATE_TRACKING_PACKAGE
+ * @type {Boolean}
  * @since 5.5
  * @until 6.0
  * @public

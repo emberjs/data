@@ -111,8 +111,8 @@ const NORMALIZED_TYPES = new Map<string, string>();
  *
  * @method formattedType
  * @for @ember-data/legacy-compat/utils
- * @param {string} type the potentially un-normalized type
- * @return {string} the normalized type
+ * @param {String} type the potentially un-normalized type
+ * @return {String} the normalized type
  * @public
  * @static
  */
@@ -153,8 +153,8 @@ export function formattedType<T extends string>(type: T | string): T {
  *
  * @method formattedId
  * @for @ember-data/legacy-compat/utils
- * @param {string | number | null} id the potentially un-normalized id
- * @return {string | null} the normalized id
+ * @param {String | Number | null} id the potentially un-normalized id
+ * @return {String | null} the normalized id
  * @public
  * @static
  */
@@ -210,9 +210,9 @@ export function expectId(id: string | number | null): string {
  *
  * @method isEquivType
  * @for @ember-data/legacy-compat/utils
- * @param {string} expected a potentially unnormalized type to match against
- * @param {string} actual a potentially unnormalized type to match against
- * @return {boolean} true if the types are equivalent
+ * @param {String} expected a potentially unnormalized type to match against
+ * @param {String} actual a potentially unnormalized type to match against
+ * @return {Boolean} true if the types are equivalent
  * @public
  * @static
  */
@@ -250,7 +250,7 @@ export function isEquivType(expected: string, actual: string): boolean {
  * @for @ember-data/legacy-compat/utils
  * @param {string | number} expected a potentially un-normalized id to match against
  * @param {string | number} actual a potentially un-normalized id to match against
- * @return {boolean} true if the ids are equivalent
+ * @return {Boolean} true if the ids are equivalent
  * @public
  * @static
  */

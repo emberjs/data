@@ -27,8 +27,9 @@ export interface TypedRecordInstance {
    * take advantage of this to provide better type
    * safety and intellisense.
    *
-   * @property {Type} [Type]
-   * @type {string}
+   * @property [Type]
+   * @type {Type}
+   * @type {String}
    * @typedoc
    */
   [Type]: string;

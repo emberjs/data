@@ -24,7 +24,8 @@ export interface GenericField {
   /**
    * The kind of field this is.
    *
-   * @property {'field'} kind
+   * @property kind
+   * @type {'field'}
    * @public
    */
   kind: 'field';
@@ -32,7 +33,8 @@ export interface GenericField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -40,7 +42,8 @@ export interface GenericField {
   /**
    * the name of the transform to use, if any
    *
-   * @property {string | undefined} type
+   * @property type
+   * @type {String | undefined}
    * @public
    */
   type?: string;
@@ -51,7 +54,8 @@ export interface GenericField {
    * Must comply to the specific transform's options
    * schema.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: ObjectValue;
@@ -90,7 +94,8 @@ export interface LegacyAliasField {
   /**
    * The kind of field this is.
    *
-   * @property {'alias'} kind
+   * @property kind
+   * @type {'alias'}
    * @public
    */
   kind: 'alias';
@@ -98,7 +103,8 @@ export interface LegacyAliasField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -106,7 +112,8 @@ export interface LegacyAliasField {
   /**
    * Always null (for now)
    *
-   * @property {null} type
+   * @property type
+   * @type {null}
    * @public
    */
   type: null; // should always be null
@@ -114,7 +121,8 @@ export interface LegacyAliasField {
   /**
    * The field def for which this is an alias.
    *
-   * @property {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField | LegacyAttributeField | LegacyBelongsToField | LegacyHasManyField} options
+   * @property options
+   * @type {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField | LegacyAttributeField | LegacyBelongsToField | LegacyHasManyField}
    * @public
    */
   options:
@@ -163,7 +171,8 @@ export interface PolarisAliasField {
   /**
    * The kind of field this is.
    *
-   * @property {'alias'} kind
+   * @property kind
+   * @type {'alias'}
    * @public
    */
   kind: 'alias';
@@ -171,7 +180,8 @@ export interface PolarisAliasField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -179,7 +189,8 @@ export interface PolarisAliasField {
   /**
    * Always null (for now)
    *
-   * @property {null} type
+   * @property type
+   * @type {null}
    * @public
    */
   type: null; // should always be null
@@ -187,7 +198,8 @@ export interface PolarisAliasField {
   /**
    * The field def for which this is an alias.
    *
-   * @property {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField | LinksModeBelongsToField | LinksModeHasManyField} options
+   * @property options
+   * @type {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField | LinksModeBelongsToField | LinksModeHasManyField}
    * @public
    */
   options:
@@ -235,7 +247,8 @@ export interface ObjectAliasField {
   /**
    * The kind of field this is.
    *
-   * @property {'alias'} kind
+   * @property kind
+   * @type {'alias'}
    * @public
    */
   kind: 'alias';
@@ -243,7 +256,8 @@ export interface ObjectAliasField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -251,7 +265,8 @@ export interface ObjectAliasField {
   /**
    * Always null (for now)
    *
-   * @property {null} type
+   * @property type
+   * @type {null}
    * @public
    */
   type: null; // should always be null
@@ -259,7 +274,8 @@ export interface ObjectAliasField {
   /**
    * The field def for which this is an alias.
    *
-   * @property {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField} options
+   * @property options
+   * @type {GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField}
    * @public
    */
   options: GenericField | ObjectField | SchemaObjectField | ArrayField | SchemaArrayField;
@@ -284,7 +300,8 @@ export interface IdentityField {
   /**
    * The kind of field this is.
    *
-   * @property {'@id'} kind
+   * @property kind
+   * @type {'@id'}
    * @public
    */
   kind: '@id';
@@ -293,7 +310,8 @@ export interface IdentityField {
    * The name of the field that serves as the
    * primary key for the resource.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -327,7 +345,8 @@ export interface HashField {
   /**
    * The kind of field this is.
    *
-   * @property {'@hash'} kind
+   * @property kind
+   * @type {'@hash'}
    * @public
    */
   kind: '@hash';
@@ -339,7 +358,8 @@ export interface HashField {
    * Only required if access to this value by
    * the UI is desired, it can be `null` otherwise.
    *
-   * @property {string | null} name
+   * @property name
+   * @type {String | null}
    * @public
    */
   name: string | null;
@@ -349,7 +369,8 @@ export interface HashField {
    * The function will only have access to the cached
    * data for the record.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -358,7 +379,8 @@ export interface HashField {
    * Any options that should be provided to the hash
    * function.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: ObjectValue;
@@ -398,7 +420,8 @@ export interface LocalField {
   /**
    * The kind of field this is.
    *
-   * @property {'@local'} kind
+   * @property kind
+   * @type {'@local'}
    * @public
    */
   kind: '@local';
@@ -406,7 +429,8 @@ export interface LocalField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -414,7 +438,8 @@ export interface LocalField {
    * Not currently utilized, we are considering
    * allowing transforms to operate on local fields
    *
-   * @property {string | undefined} type
+   * @property type
+   * @type {String | undefined}
    * @public
    */
   type?: string;
@@ -422,7 +447,8 @@ export interface LocalField {
   /**
    * Options for the field.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: { defaultValue?: PrimitiveValue };
@@ -444,7 +470,8 @@ export interface ObjectField {
   /**
    * The kind of field this is.
    *
-   * @property {'object'} kind
+   * @property kind
+   * @type {'object'}
    * @public
    */
   kind: 'object';
@@ -452,7 +479,8 @@ export interface ObjectField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -461,7 +489,8 @@ export interface ObjectField {
    * The name of a transform to pass the entire object
    * through before displaying or serializing it.
    *
-   * @property {string | undefined} type
+   * @property type
+   * @type {String | undefined}
    * @public
    */
   type?: string;
@@ -472,7 +501,8 @@ export interface ObjectField {
    * Must comply to the specific transform's options
    * schema.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: ObjectValue;
@@ -493,7 +523,8 @@ export interface SchemaObjectField {
   /**
    * The kind of field this is.
    *
-   * @property {'schema-object'} kind
+   * @property kind
+   * @type {'schema-object'}
    * @public
    */
   kind: 'schema-object';
@@ -501,7 +532,8 @@ export interface SchemaObjectField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -510,7 +542,8 @@ export interface SchemaObjectField {
    * The name of the ObjectSchema that describes the
    * structure of the object.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -522,7 +555,8 @@ export interface SchemaObjectField {
    * - `polymorphic` : Whether this SchemaObject is Polymorphic.
    * - `type` : If the SchemaObject is Polymorphic, the key on the raw cache data to use as the "resource-type" value for the schema-object.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: {
@@ -561,7 +595,8 @@ export interface ArrayField {
   /**
    * The kind of field this is.
    *
-   * @property {'array'} kind
+   * @property kind
+   * @type {'array'}
    * @public
    */
   kind: 'array';
@@ -569,7 +604,8 @@ export interface ArrayField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -579,7 +615,8 @@ export interface ArrayField {
    * in the array through before displaying or
    * or serializing it.
    *
-   * @property {string | undefined} type
+   * @property type
+   * @type {String | undefined}
    * @public
    */
   type?: string;
@@ -590,7 +627,8 @@ export interface ArrayField {
    * Must comply to the specific transform's options
    * schema.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: ObjectValue;
@@ -611,7 +649,8 @@ export interface SchemaArrayField {
   /**
    * The kind of field this is.
    *
-   * @property {'schema-array'} kind
+   * @property kind
+   * @type {'schema-array'}
    * @public
    */
   kind: 'schema-array';
@@ -619,7 +658,8 @@ export interface SchemaArrayField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -628,7 +668,8 @@ export interface SchemaArrayField {
    * The name of the ObjectSchema that describes the
    * structure of the objects in the array.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -660,7 +701,8 @@ export interface SchemaArrayField {
    * - `polymorphic` : Whether this SchemaArray is Polymorphic.
    * - `type` : If the SchemaArray is Polymorphic, the key on the raw cache data to use as the "resource-type" value for the schema-object.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: {
@@ -731,7 +773,8 @@ export interface DerivedField {
   /**
    * The kind of field this is.
    *
-   * @property {'derived'} kind
+   * @property kind
+   * @type {'derived'}
    * @public
    */
   kind: 'derived';
@@ -739,7 +782,8 @@ export interface DerivedField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -761,7 +805,8 @@ export interface DerivedField {
    * Derivation functions must be explicitly
    * registered with the schema service.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -772,7 +817,8 @@ export interface DerivedField {
    * Must comply to the specific derivation's
    * options schema.
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: ObjectValue;
@@ -792,7 +838,8 @@ export interface ResourceField {
   /**
    * The kind of field this is.
    *
-   * @property {'resource'} kind
+   * @property kind
+   * @type {'resource'}
    * @public
    */
   kind: 'resource';
@@ -800,7 +847,8 @@ export interface ResourceField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -811,7 +859,8 @@ export interface ResourceField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -821,7 +870,8 @@ export interface ResourceField {
    * not present, all options are presumed
    * to be falsey
    *
-   * @property {ObjectValue | undefined} options
+   * @property options
+   * @type {ObjectValue | undefined}
    * @public
    */
   options?: {
@@ -886,7 +936,8 @@ export interface CollectionField {
   /**
    * The kind of field this is.
    *
-   * @property {'collection'} kind
+   * @property kind
+   * @type {'collection'}
    * @public
    */
   kind: 'collection';
@@ -894,7 +945,8 @@ export interface CollectionField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -905,7 +957,8 @@ export interface CollectionField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -997,7 +1050,8 @@ export interface LegacyAttributeField {
   /**
    * The kind of field this is.
    *
-   * @property {'attribute'} kind
+   * @property kind
+   * @type {'attribute'}
    * @public
    */
   kind: 'attribute';
@@ -1005,14 +1059,16 @@ export interface LegacyAttributeField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
   /**
    * The name of the transform to use, if any
    *
-   * @property {string | undefined | null} type
+   * @property type
+   * @type {String | undefined | null}
    * @public
    */
   type?: string | null;
@@ -1043,7 +1099,8 @@ export interface LegacyBelongsToField {
   /**
    * The kind of field this is.
    *
-   * @property {'belongsTo'} kind
+   * @property kind
+   * @type {'belongsTo'}
    * @public
    */
   kind: 'belongsTo';
@@ -1051,7 +1108,8 @@ export interface LegacyBelongsToField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -1062,7 +1120,8 @@ export interface LegacyBelongsToField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1186,7 +1245,8 @@ export interface LinksModeBelongsToField {
   /**
    * The kind of field this is.
    *
-   * @property {'belongsTo'} kind
+   * @property kind
+   * @type {'belongsTo'}
    * @public
    */
   kind: 'belongsTo';
@@ -1194,7 +1254,8 @@ export interface LinksModeBelongsToField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -1205,7 +1266,8 @@ export interface LinksModeBelongsToField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1323,7 +1385,8 @@ export interface LegacyHasManyField {
   /**
    * The kind of field this is.
    *
-   * @property {'hasMany'} kind
+   * @property kind
+   * @type {'hasMany'}
    * @public
    */
   kind: 'hasMany';
@@ -1331,7 +1394,8 @@ export interface LegacyHasManyField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -1342,7 +1406,8 @@ export interface LegacyHasManyField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1471,7 +1536,8 @@ export interface LinksModeHasManyField {
   /**
    * The kind of field this is.
    *
-   * @property {'hasMany'} kind
+   * @property kind
+   * @type {'hasMany'}
    * @public
    */
   kind: 'hasMany';
@@ -1479,7 +1545,8 @@ export interface LinksModeHasManyField {
   /**
    * The name of the field.
    *
-   * @property {string} name
+   * @property name
+   * @type {String}
    * @public
    */
   name: string;
@@ -1490,7 +1557,8 @@ export interface LinksModeHasManyField {
    * relationship, this should be the trait
    * or abstract type.
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1741,7 +1809,8 @@ export interface PolarisResourceSchema {
    *
    * for schema-objects, this should be either a HashField or null
    *
-   * @property {IdentityField} identity
+   * @property identity
+   * @type {IdentityField}
    * @public
    */
   identity: IdentityField;
@@ -1765,7 +1834,8 @@ export interface PolarisResourceSchema {
    * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
    * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1773,7 +1843,8 @@ export interface PolarisResourceSchema {
   /**
    * The fields that make up the shape of the resource
    *
-   * @property {PolarisModeFieldSchema[]} fields
+   * @property fields
+   * @type {PolarisModeFieldSchema[]}
    * @public
    */
   fields: PolarisModeFieldSchema[];
@@ -1786,7 +1857,8 @@ export interface PolarisResourceSchema {
    * resource schema. The trait can be abstract and reference a resource
    * type that is never defined as a schema.
    *
-   * @property {string[]} traits
+   * @property traits
+   * @type {String[]}
    * @public
    */
   traits?: string[];
@@ -1806,7 +1878,8 @@ export interface LegacyResourceSchema {
   /**
    * A flag indicating that this is a legacy resource schema
    *
-   * @property {true} legacy
+   * @property legacy
+   * @type {true}
    * @public
    */
   legacy: true;
@@ -1818,7 +1891,8 @@ export interface LegacyResourceSchema {
    * name of the identity field, we recommend using `{ kind: '@id', name: 'id' }`
    * for records in legacy mode, but this is not required.
    *
-   * @property {IdentityField} identity
+   * @property identity
+   * @type {IdentityField}
    * @public
    */
   identity: IdentityField;
@@ -1839,7 +1913,8 @@ export interface LegacyResourceSchema {
    * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
    * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1847,7 +1922,8 @@ export interface LegacyResourceSchema {
   /**
    * The fields that make up the shape of the resource
    *
-   * @property {LegacyModeFieldSchema[]} fields
+   * @property fields
+   * @type {LegacyModeFieldSchema[]}
    * @public
    */
   fields: LegacyModeFieldSchema[];
@@ -1860,7 +1936,8 @@ export interface LegacyResourceSchema {
    * resource schema. The trait can be abstract and reference a resource
    * type that is never defined as a schema.
    *
-   * @property {string[]} traits
+   * @property traits
+   * @type {String[]}
    * @public
    */
   traits?: string[];
@@ -1896,7 +1973,8 @@ export interface ObjectSchema {
    * on the referential identity of the object in the cache itself
    * when an identity is needed.
    *
-   * @property {HashField | null} identity
+   * @property identity
+   * @type {HashField | null}
    * @public
    */
   identity: HashField | null;
@@ -1914,7 +1992,8 @@ export interface ObjectSchema {
    * - for resource-specific objects: The pattern `$${ResourceKlassName}:$field:${KlassName}` e.g. `$User:$field:ReusableAddress`
    * - for inline objects: The pattern `$${ResourceKlassName}.${fieldPath}:$field:anonymous` e.g. `$User.shippingAddress:$field:anonymous`
    *
-   * @property {string} type
+   * @property type
+   * @type {String}
    * @public
    */
   type: string;
@@ -1922,7 +2001,8 @@ export interface ObjectSchema {
   /**
    * The fields that make up the shape of the object
    *
-   * @property {ObjectFieldSchema[]} fields
+   * @property fields
+   * @type {ObjectFieldSchema[]}
    * @public
    */
   fields: ObjectFieldSchema[];
@@ -1977,7 +2057,7 @@ export function objectSchema<T extends ObjectSchema>(schema: T): T {
  * @static
  * @for @warp-drive/core-types
  * @param schema
- * @return {boolean}
+ * @return {Boolean}
  * @public
  */
 export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
@@ -1991,7 +2071,7 @@ export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema 
  * @static
  * @for @warp-drive/core-types
  * @param schema
- * @return {boolean}
+ * @return {Boolean}
  * @public
  */
 export function isLegacyResourceSchema(schema: ResourceSchema | ObjectSchema): schema is LegacyResourceSchema {

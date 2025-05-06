@@ -77,7 +77,8 @@ export default class BelongsToReference<
   /**
    * The field name on the parent record for this has-many relationship.
    *
-   * @property {String} key
+   * @property key
+   * @type {String}
    * @public
    */
   declare key: K;
@@ -85,7 +86,8 @@ export default class BelongsToReference<
   /**
    * The type of resource this relationship will contain.
    *
-   * @property {String} type
+   * @property type
+   * @type {String}
    * @public
    */
   declare type: TypeFromInstanceOrString<Related>;
@@ -139,7 +141,8 @@ export default class BelongsToReference<
    * The identifier of the record that this reference refers to.
    * `null` if no related record is known.
    *
-   * @property {StableRecordIdentifier | null} identifier
+   * @property identifier
+   * @type {StableRecordIdentifier | null}
    * @public
    */
   @memoized

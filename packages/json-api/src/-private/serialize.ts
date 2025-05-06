@@ -34,7 +34,7 @@ export type JsonApiResourcePatch =
  * @for @ember-data/json-api/request
  * @param {Cache} cache}
  * @param {StableRecordIdentifier} identifier
- * @return {object} An object with a `data` property containing the serialized resource patch
+ * @return {Object} An object with a `data` property containing the serialized resource patch
  */
 export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: ResourceObject };
 export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: ResourceObject[] };
@@ -130,7 +130,7 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): R
  * @for @ember-data/json-api/request
  * @param {Cache} cache}
  * @param {StableRecordIdentifier} identifier
- * @return {object} An object with a `data` property containing the serialized resource patch
+ * @return {Object} An object with a `data` property containing the serialized resource patch
  */
 export function serializePatch(
   cache: Cache,

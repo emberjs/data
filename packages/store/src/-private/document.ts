@@ -44,7 +44,7 @@ export class ReactiveDocument<T> {
    * ```
    *
    * @property links
-   * @type {object|undefined} - a links object
+   * @type {Object|undefined} - a links object
    * @public
    */
   declare readonly links?: PaginationLinks;
@@ -59,7 +59,7 @@ export class ReactiveDocument<T> {
    *
    * @property data
    * @public
-   * @type {object|Array<object>|null|undefined} - a data object
+   * @type {Object|Array<object>|null|undefined} - a data object
    */
   declare readonly data?: T;
 
@@ -68,7 +68,7 @@ export class ReactiveDocument<T> {
    *
    * @property errors
    * @public
-   * @type {object|undefined} - an errors object
+   * @type {Object|undefined} - an errors object
    */
   declare readonly errors?: object[];
 
@@ -77,7 +77,7 @@ export class ReactiveDocument<T> {
    *
    * @property meta
    * @public
-   * @type {object|undefined} - a meta object
+   * @type {Object|undefined} - a meta object
    */
   declare readonly meta?: Meta;
 
@@ -152,7 +152,7 @@ export class ReactiveDocument<T> {
    *
    * @method fetch
    * @public
-   * @param {object} options
+   * @param {Object} options
    * @return Promise<Document>
    */
   fetch(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T>> {
@@ -169,7 +169,7 @@ export class ReactiveDocument<T> {
    *
    * @method next
    * @public
-   * @param {object} options
+   * @param {Object} options
    * @return Promise<Document | null>
    */
   next(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
@@ -183,7 +183,7 @@ export class ReactiveDocument<T> {
    *
    * @method prev
    * @public
-   * @param {object} options
+   * @param {Object} options
    * @return Promise<Document | null>
    */
   prev(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
@@ -197,7 +197,7 @@ export class ReactiveDocument<T> {
    *
    * @method first
    * @public
-   * @param {object} options
+   * @param {Object} options
    * @return Promise<Document | null>
    */
   first(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
@@ -211,7 +211,7 @@ export class ReactiveDocument<T> {
    *
    * @method last
    * @public
-   * @param {object} options
+   * @param {Object} options
    * @return Promise<Document | null>
    */
   last(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {

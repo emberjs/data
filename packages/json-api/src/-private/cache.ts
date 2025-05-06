@@ -1451,7 +1451,7 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     const cached = this.__peek(identifier, true);
@@ -1480,7 +1480,7 @@ export default class JSONAPICache implements Cache {
    * @method rollbackAttrs
    * @public
    * @param identifier
-   * @return {string[]} the names of fields that were restored
+   * @return {String[]} the names of fields that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[] {
     const cached = this.__peek(identifier, false);
@@ -1554,7 +1554,7 @@ export default class JSONAPICache implements Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     return this.__graph.hasChanged(identifier);
@@ -1570,7 +1570,7 @@ export default class JSONAPICache implements Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {string[]} the names of relationships that were restored
+   * @return {String[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     upgradeCapabilities(this._capabilities);
@@ -1613,7 +1613,7 @@ export default class JSONAPICache implements Cache {
    * @method setIsDeleted
    * @public
    * @param identifier
-   * @param isDeleted {boolean}
+   * @param {Boolean} isDeleted
    */
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
     const cached = this.__peek(identifier, false);
@@ -1640,7 +1640,7 @@ export default class JSONAPICache implements Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     const cached = this.__safePeek(identifier, true);
@@ -1654,7 +1654,7 @@ export default class JSONAPICache implements Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
@@ -1668,7 +1668,7 @@ export default class JSONAPICache implements Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
@@ -1682,7 +1682,7 @@ export default class JSONAPICache implements Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     // TODO can we assert here?
