@@ -462,8 +462,8 @@ export const DEPRECATE_EMBER_INFLECTOR = '5.3';
  * When this flag is present and set to `false`, the deprecations from the 6.x branch will
  * print and can be resolved.
  *
- * @property DISABLE_
- * @type {Boolean}7X_DEPRECATIONS
+ * @property DISABLE_7X_DEPRECATIONS
+ * @type {Boolean}
  * @since 5.3
  * @until 7.0
  * @public
