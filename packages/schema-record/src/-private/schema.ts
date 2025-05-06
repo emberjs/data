@@ -25,6 +25,7 @@ import {
   type LegacyRelationshipField,
   type ObjectField,
   type ObjectSchema,
+  type PolarisResourceSchema,
   type ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
@@ -66,17 +67,25 @@ function _constructor(record: SchemaRecord) {
 _constructor[Type] = '@constructor';
 
 /**
- * Utility for constructing a ResourceSchema with the recommended fields
- * for the Polaris experience.
+ * Utility for constructing a ResourceSchema with the recommended
+ * fields for the PolarisMode experience.
+ *
+ * Using this requires registering the PolarisMode derivations
+ *
+ * ```ts
+ * import { registerDerivations } from '@warp-drive/schema-record';
+ *
+ * registerDerivations(schema);
+ * ```
  *
  * @method withDefaults
  * @for @warp-drive/schema-record
  * @static
  * @public
  * @param schema
- * @return {ResourceSchema}
+ * @return {PolarisResourceSchema}
  */
-export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): ResourceSchema {
+export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identity'>): ResourceSchema {
   schema.identity = schema.identity || DefaultIdentityField;
 
   // because fields gets iterated in definition order,
@@ -84,7 +93,7 @@ export function withDefaults(schema: WithPartial<ResourceSchema, 'identity'>): R
   // appear right next to the identity field
   schema.fields.unshift(TypeField);
   schema.fields.push(ConstructorField);
-  return schema as ResourceSchema;
+  return schema as PolarisResourceSchema;
 }
 
 /**
@@ -132,7 +141,12 @@ export function fromIdentity(
 fromIdentity[Type] = '@identity';
 
 /**
- * Registers the default derivations for the SchemaRecord
+ * Registers the default derivations for records that want
+ * to use the PolarisMode defaults provided by
+ *
+ * ```ts
+ * import { withDefaults } from '@warp-drive/schema-record';
+ * ```
  *
  * @method registerDerivations
  * @for @warp-drive/schema-record

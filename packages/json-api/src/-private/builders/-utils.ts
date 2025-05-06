@@ -201,9 +201,9 @@ function collapseIncludePaths(basePath: string, include: RelatedObject, paths: s
  * @static
  * @public
  * @for @ember-data/json-api/request
- * @param {URLSearchParams | object} params
- * @param {object} [options]
- * @return {string} A sorted query params string without the leading `?`
+ * @param {URLSearchParams | Object} params
+ * @param {Object} [options]
+ * @return {String} A sorted query params string without the leading `?`
  */
 export function buildQueryParams(query: JsonApiQuery | QueryParamsSource): string {
   if (query instanceof URLSearchParams) {

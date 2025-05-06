@@ -21,6 +21,9 @@ import type {
 export type AttributesSchema = Record<string, LegacyAttributeField>;
 export type RelationshipsSchema = Record<string, LegacyRelationshipField>;
 
+interface ObjectWithStringTypeProperty {
+  type: string;
+}
 /**
  * The SchemaService provides the ability to query for information about the structure
  * of any resource type.
@@ -81,8 +84,8 @@ export interface SchemaService {
    * @method doesTypeExist
    * @public
    * @deprecated
-   * @param {string} type
-   * @return {boolean}
+   * @param {String} type
+   * @return {Boolean}
    */
   doesTypeExist?(type: string): boolean;
 
@@ -91,18 +94,18 @@ export interface SchemaService {
    *
    * @method hasResource
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
-   * @return {boolean}
+   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
+   * @return {Boolean}
    */
-  hasResource(resource: { type: string } | StableRecordIdentifier): boolean;
+  hasResource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): boolean;
 
   /**
    * Queries whether the SchemaService recognizes `type` as a resource trait
    *
    * @method hasTrait
    * @public
-   * @param {string} type
-   * @return {boolean}
+   * @param {String} type
+   * @return {Boolean}
    */
   hasTrait(type: string): boolean;
 
@@ -111,11 +114,11 @@ export interface SchemaService {
    *
    * @method resourceHasTrait
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
-   * @param {string} trait
-   * @return {boolean}
+   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
+   * @param {String} trait
+   * @return {Boolean}
    */
-  resourceHasTrait(resource: { type: string } | StableRecordIdentifier, trait: string): boolean;
+  resourceHasTrait(resource: ObjectWithStringTypeProperty | StableRecordIdentifier, trait: string): boolean;
 
   /**
    * Queries for the fields of a given resource type or resource identity.
@@ -124,10 +127,10 @@ export interface SchemaService {
    *
    * @method fields
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @return {Map<string, FieldSchema>}
    */
-  fields(resource: { type: string } | StableRecordIdentifier): Map<string, FieldSchema>;
+  fields(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Map<string, FieldSchema>;
 
   /**
    * Returns the transformation registered with the name provided
@@ -135,10 +138,10 @@ export interface SchemaService {
    *
    * @method transformation
    * @public
-   * @param {TransformableField|{ type: string }} field
+   * @param {TransformableField|ObjectWithStringTypeProperty} field
    * @return {Transformation}
    */
-  transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation;
+  transformation(field: GenericField | ObjectField | ArrayField | ObjectWithStringTypeProperty): Transformation;
 
   /**
    * Returns the hash function registered with the name provided
@@ -146,10 +149,10 @@ export interface SchemaService {
    *
    * @method hashFn
    * @public
-   * @param {HashField|{ type: string }} field
+   * @param {HashField|ObjectWithStringTypeProperty} field
    * @return {HashFn}
    */
-  hashFn(field: HashField | { type: string }): HashFn;
+  hashFn(field: HashField | ObjectWithStringTypeProperty): HashFn;
 
   /**
    * Returns the derivation registered with the name provided
@@ -157,23 +160,23 @@ export interface SchemaService {
    *
    * @method derivation
    * @public
-   * @param {DerivedField|{ type: string }} field
+   * @param {DerivedField|ObjectWithStringTypeProperty} field
    * @return {Derivation}
    */
-  derivation(field: DerivedField | { type: string }): Derivation;
+  derivation(field: DerivedField | ObjectWithStringTypeProperty): Derivation;
 
   /**
    * Returns the schema for the provided resource type.
    *
    * @method resource
    * @public
-   * @param {StableRecordIdentifier|{ type: string }} resource
+   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @return {ResourceSchema}
    */
-  resource(resource: { type: string } | StableRecordIdentifier): Schema;
+  resource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Schema;
 
   /**
-   * Enables registration of multiple ResourceSchemas at once.
+   * Enables registration of multiple Schemas at once.
    *
    * This can be useful for either pre-loading schema information
    * or for registering schema information delivered by API calls
@@ -181,12 +184,14 @@ export interface SchemaService {
    *
    * @method registerResources
    * @public
-   * @param schemas
+   * @param {Schema[]} schemas
    */
   registerResources(schemas: Schema[]): void;
 
   /**
-   * Enables registration of a single ResourceSchema.
+   * Enables registration of a single Schema representing either
+   * a resource in PolarisMode or LegacyMode or an ObjectSchema
+   * representing an embedded structure in other schemas.
    *
    * This can be useful for either pre-loading schema information
    * or for registering schema information delivered by API calls
@@ -194,7 +199,7 @@ export interface SchemaService {
    *
    * @method registerResource
    * @public
-   * @param {ResourceSchema} schema
+   * @param {Schema} schema
    */
   registerResource(schema: Schema): void;
 
@@ -275,10 +280,10 @@ export interface SchemaService {
    * @method attributesDefinitionFor
    * @public
    * @deprecated
-   * @param {RecordIdentifier|{ type: string }} identifier
+   * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
    * @return {AttributesSchema}
    */
-  attributesDefinitionFor?(identifier: RecordIdentifier | { type: string }): AttributesSchema;
+  attributesDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): AttributesSchema;
 
   /**
    * DEPRECATED - use `fields` instead
@@ -358,17 +363,17 @@ export interface SchemaService {
    * @method relationshipsDefinitionFor
    * @public
    * @deprecated
-   * @param {RecordIdentifier|{ type: string }} identifier
+   * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
    * @return {RelationshipsSchema}
    */
-  relationshipsDefinitionFor?(identifier: RecordIdentifier | { type: string }): RelationshipsSchema;
+  relationshipsDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): RelationshipsSchema;
 
   /**
    * Returns all known resource types
    *
    * @method resourceTypes
    * @public
-   * @return {string[]}
+   * @return {String[]}
    */
   resourceTypes(): Readonly<string[]>;
 }

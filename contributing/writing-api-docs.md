@@ -218,6 +218,10 @@ Classes are documented using `@class`.
 Methods are documented with `@method` and attatch to the most recent class the parser has
 seen.
 
+Unlike JSDoc, when the return or param type is a primitive like `string`, `object` `number` or `boolean` it should be described by `String`, `Object`, `Number` or `Boolean` respectively.
+
+Note: the use of non-typescript types here means that these doc comments cannot/should not be relied upon for type generation.
+
 ```ts
 /**
  * Some documentation
@@ -235,10 +239,18 @@ Properties are documented with `@property` and attach to the most recent class t
 /**
  * An explanation of the property
  *
- * @property {SomeType} propertyName
+ * @property propertyName
+ * @type {SomeType}
  * @public
  */
 ```
+
+Unlike JSDoc, the type must be documented separately via `@type` and types
+like `string`, `object` `number` and `boolean` should be described by `String`,
+`Object`, `Number` or `Boolean` respectively.
+
+`@type` is also valid in jsdoc syntax; however, the use of non-typescript types
+here means that these doc comments cannot/should not be relied upon for type generation.
 
 Static methods and properties can be documented by adding `@static` to the definition.
 

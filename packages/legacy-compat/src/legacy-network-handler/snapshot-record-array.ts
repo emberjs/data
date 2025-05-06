@@ -35,7 +35,7 @@ export class SnapshotRecordArray {
     @private
     @constructor
     @param {Store} store
-    @param {string} type
+    @param {String} type
     @param options
    */
   constructor(store: Store, type: string, options: FindAllOptions = {}) {

@@ -912,7 +912,7 @@ const JSONSerializer = Serializer.extend({
     @method _canSerialize
     @private
     @param {String} key
-    @return {boolean} true if the key can be serialized
+    @return {Boolean} true if the key can be serialized
   */
   _canSerialize(key) {
     const attrs = this.attrs;
@@ -928,7 +928,7 @@ const JSONSerializer = Serializer.extend({
     @method _mustSerialize
     @private
     @param {String} key
-    @return {boolean} true if the key must be serialized
+    @return {Boolean} true if the key must be serialized
   */
   _mustSerialize(key) {
     const attrs = this.attrs;
@@ -947,7 +947,7 @@ const JSONSerializer = Serializer.extend({
     @param {Snapshot} snapshot
     @param {String} key
     @param {RelationshipSchema} relationship
-    @return {boolean} true if the hasMany relationship should be serialized
+    @return {Boolean} true if the hasMany relationship should be serialized
   */
   shouldSerializeHasMany(snapshot, key, relationship) {
     const schema = this.store.modelFor(snapshot.modelName);

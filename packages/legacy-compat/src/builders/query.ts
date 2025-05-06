@@ -36,8 +36,8 @@ type QueryBuilderOptions = QueryOptions;
   @public
   @static
   @for @ember-data/legacy-compat/builders
-  @param {string} type the name of the resource
-  @param {object} query a query to be used by the adapter
+  @param {String} type the name of the resource
+  @param {Object} query a query to be used by the adapter
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRequestInput} request config
 */
@@ -98,8 +98,8 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
   @public
   @static
   @for @ember-data/legacy-compat/builders
-  @param {string} type the name of the resource
-  @param {object} query a query to be used by the adapter
+  @param {String} type the name of the resource
+  @param {Object} query a query to be used by the adapter
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
   @return {QueryRecordRequestInput} request config
 */

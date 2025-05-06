@@ -63,7 +63,6 @@ resourceSchema({
         async: false,
         inverse: null,
         linksMode: true,
-        resetOnRemoteUpdate: false,
       },
     },
   ],

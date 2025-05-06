@@ -659,7 +659,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     @property coalesceFindRequests
     @public
-    @type {boolean}
+    @type {Boolean}
   */
   get coalesceFindRequests() {
     const coalesceFindRequests = this._coalesceFindRequests;

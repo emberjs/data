@@ -97,6 +97,7 @@ export const SAMPLE_FEATURE_FLAG: boolean | null = null;
  * schemas as well as the JSON:API spec.
  *
  * @property JSON_API_CACHE_VALIDATION_ERRORS
+ * @type {Boolean|null}
  * @since 5.4
  * @public
  */

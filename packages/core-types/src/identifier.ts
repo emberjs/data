@@ -110,20 +110,23 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
 /**
  * A string representing a unique identity.
  *
- * @property {string} lid
+ * @property lid
+ * @type {String}
  * @public
  */
 /**
  * the primary resource `type` or `modelName` this identity belongs to.
  *
- * @property {string} type
+ * @property type
+ * @type {String}
  * @public
  */
 /**
  * the primary id for the record this identity belongs to. `null`
  * if not yet assigned an id.
  *
- * @property {string | null} id
+ * @property id
+ * @type {String | null}
  * @public
  */
 export type StableRecordIdentifier<T extends string = string> =

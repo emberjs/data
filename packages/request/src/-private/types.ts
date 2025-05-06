@@ -50,7 +50,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * Cancel this request by firing the AbortController's signal.
    *
    * @method abort
-   * @param {string} [reason] optional reason for aborting the request
+   * @param {String} [reason] optional reason for aborting the request
    * @public
    * @return {void}
    */
@@ -90,7 +90,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * by the RequestManager
    *
    * @property id
-   * @type {number}
+   * @type {Number}
    * @public
    */
   id: number;

@@ -91,7 +91,8 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   /**
     The loading state of this array
 
-    @property {Boolean} isLoaded
+    @property isLoaded
+    @type {Boolean}
     @public
     */
 
@@ -99,7 +100,8 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
-    @property {Boolean} isPolymorphic
+    @property isPolymorphic
+    @type {Boolean}
     @private
     */
   declare isPolymorphic: boolean;
@@ -138,14 +140,16 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     // meta.total => 5
     ```
 
-    @property {Object | null} meta
+    @property meta
+    @type {Object | null}
     @public
     */
   declare meta: Record<string, unknown> | null;
   /**
      * Retrieve the links for this relationship
      *
-     @property {Object | null} links
+     @property links
+     @type {Object | null}
      @public
      */
   declare links: Links | PaginationLinks | null;

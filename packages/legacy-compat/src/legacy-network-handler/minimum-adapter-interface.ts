@@ -128,9 +128,9 @@ export interface MinimumAdapterInterface {
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {object} query
+   * @param {Object} query
    * @param {CollectionRecordArray} recordArray
-   * @param {object} options
+   * @param {Object} options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
   query(
@@ -330,7 +330,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {Snapshot} snapshot A Snapshot containing the parent record's current data
-   * @param {string} relatedLink The link at which the associated resource might be found
+   * @param {String} relatedLink The link at which the associated resource might be found
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
@@ -368,7 +368,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {Snapshot} snapshot A Snapshot containing the parent record's current data
-   * @param {string} relatedLink The link at which the associated resource collection might be found
+   * @param {String} relatedLink The link at which the associated resource collection might be found
    * @param {RelationshipSchema} relationship
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
@@ -446,7 +446,7 @@ export interface MinimumAdapterInterface {
    * @property coalesceFindRequests [OPTIONAL]
    * @public
    * @optional
-   * @type {boolean} true if the requests to find individual records should be coalesced, false otherwise
+   * @type {Boolean} true if the requests to find individual records should be coalesced, false otherwise
    */
   coalesceFindRequests?: boolean;
 
@@ -496,7 +496,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
-   * @return {boolean} true if the record should be reloaded immediately, false otherwise
+   * @return {Boolean} true if the record should be reloaded immediately, false otherwise
    */
   shouldReloadRecord?(store: Store, snapshot: Snapshot): boolean;
 
@@ -523,7 +523,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {SnapshotRecordArray} snapshotArray
-   * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made immediately, false otherwise
+   * @return {Boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made immediately, false otherwise
    */
   shouldReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
 
@@ -550,7 +550,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {Snapshot} snapshot A Snapshot containing the record's current data
-   * @return {boolean} true if the record should be reloaded in the background, false otherwise
+   * @return {Boolean} true if the record should be reloaded in the background, false otherwise
    */
   shouldBackgroundReloadRecord?(store: Store, snapshot: Snapshot): boolean;
 
@@ -574,7 +574,7 @@ export interface MinimumAdapterInterface {
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
    * @param {SnapshotRecordArray} snapshotArray
-   * @return {boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made in the background, false otherwise
+   * @return {Boolean} true if the a new request for all records of the type in SnapshotRecordArray should be made in the background, false otherwise
    */
   shouldBackgroundReloadAll?(store: Store, snapshotArray: SnapshotRecordArray): boolean;
 

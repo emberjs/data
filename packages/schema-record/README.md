@@ -260,7 +260,9 @@ store.schema.registerResources([
         options: {
           async: false,
           inverse: 'owner',
-          polymorphic: true
+          polymorphic: true,
+          linksMode: true,
+          resetOnRemoteUpdate: false
         }
       }
     ]
@@ -277,6 +279,8 @@ store.schema.registerResources([
           async: false,
           inverse: 'pets',
           as: 'pet',
+          linksMode: true,
+          resetOnRemoteUpdate: false
         }
       }
     ]

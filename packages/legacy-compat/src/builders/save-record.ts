@@ -45,7 +45,7 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   @public
   @static
   @for @ember-data/legacy-compat/builders
-  @param {object} record a record to save
+  @param {Object} record a record to save
   @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config
 */

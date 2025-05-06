@@ -556,7 +556,8 @@ export class Store extends BaseClass {
    * The NotificationManager can be used to subscribe to
    * changes to the cache.
    *
-   * @property {NotificationManager} notifications
+   * @property notifications
+   * @type {NotificationManager}
    * @public
    */
   declare notifications: NotificationManager;
@@ -568,7 +569,8 @@ export class Store extends BaseClass {
    * The SchemaService can be used to query for
    * information about the schema of a resource.
    *
-   * @property {SchemaService} schema
+   * @property schema
+   * @type {SchemaService}
    * @public
    */
   get schema(): ReturnType<this['createSchemaService']> {
@@ -586,7 +588,8 @@ export class Store extends BaseClass {
    * The IdentifierCache can be used to generate or
    * retrieve a stable unique identifier for any resource.
    *
-   * @property {IdentifierCache} identifierCache
+   * @property identifierCache
+   * @type {IdentifierCache}
    * @public
    */
   declare identifierCache: IdentifierCache;
@@ -612,7 +615,8 @@ export class Store extends BaseClass {
    * ```
    *
    * @public
-   * @property {RequestManager} requestManager
+   * @property requestManager
+   * @type {RequestManager}
    */
   declare requestManager: RequestManager;
 
@@ -643,7 +647,8 @@ export class Store extends BaseClass {
    * ```
    *
    * @public
-   * @property {CachePolicy|undefined} lifetimes
+   * @property lifetimes
+   * @type {CachePolicy|undefined}
    */
   declare lifetimes?: CachePolicy;
 
@@ -963,7 +968,7 @@ export class Store extends BaseClass {
     @method modelFor
     @public
     @deprecated
-    @param {string} type
+    @param {String} type
     @return {ModelSchema}
     */
   modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
@@ -1734,7 +1739,7 @@ export class Store extends BaseClass {
     @method query
     @public
     @param {String} type the name of the resource
-    @param {object} query a query to be used by the adapter
+    @param {Object} query a query to be used by the adapter
     @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
@@ -1857,9 +1862,9 @@ export class Store extends BaseClass {
     @since 1.13.0
     @method queryRecord
     @public
-    @param {string} type
-    @param {object} query an opaque query to be used by the adapter
-    @param {object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
+    @param {String} type
+    @param {Object} query an opaque query to be used by the adapter
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
   queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
@@ -2066,8 +2071,8 @@ export class Store extends BaseClass {
     @since 1.13.0
     @method findAll
     @public
-    @param {string} type the name of the resource
-    @param {object} options
+    @param {String} type the name of the resource
+    @param {Object} options
     @return {Promise} promise
   */
   findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<IdentifierArray<T>>;
@@ -2116,7 +2121,7 @@ export class Store extends BaseClass {
     @since 1.13.0
     @method peekAll
     @public
-    @param {string} type the name of the resource
+    @param {String} type the name of the resource
     @return {RecordArray}
   */
   peekAll<T>(type: TypeFromInstance<T>): IdentifierArray<T>;
@@ -2146,7 +2151,7 @@ export class Store extends BaseClass {
     ```
 
     @method unloadAll
-    @param {string} type the name of the resource
+    @param {String} type the name of the resource
     @public
   */
   unloadAll<T>(type: TypeFromInstance<T>): void;
@@ -2451,7 +2456,8 @@ export class Store extends BaseClass {
    * Returns the cache instance associated to this Store, instantiates the Cache
    * if necessary via `Store.createCache`
    *
-   * @property {Cache} cache
+   * @property cache
+   * @type {Cache}
    * @public
    */
   get cache(): ReturnType<this['createCache']> {

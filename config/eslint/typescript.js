@@ -125,7 +125,7 @@ export function constructFileGlobs(srcDirs, files) {
 /** @return {import('eslint').Linter.FlatConfig} */
 export function browser(config) {
   config.files = config.files ?? ['**/*.ts'];
-  /** @type {string[]} */
+  /** @type {String[]} */
   const files = Array.isArray(config.srcDirs) ? constructFileGlobs(config.srcDirs, config.files) : config.files;
 
   const lintconfig = {
@@ -173,7 +173,7 @@ export function browser(config) {
 /** @return {import('eslint').Linter.FlatConfig} */
 export function node(config) {
   config.files = config.files ?? ['**/*.ts'];
-  /** @type {string[]} */
+  /** @type {String[]} */
   const files = Array.isArray(config.srcDirs) ? constructFileGlobs(config.srcDirs, config.files) : config.files;
 
   return {

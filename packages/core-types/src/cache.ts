@@ -421,7 +421,7 @@ export interface Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean;
 
@@ -433,7 +433,7 @@ export interface Cache {
    * @method rollbackAttrs
    * @public
    * @param identifier
-   * @return {string[]} the names of fields that were restored
+   * @return {String[]} the names of fields that were restored
    */
   rollbackAttrs(identifier: StableRecordIdentifier): string[];
 
@@ -472,7 +472,7 @@ export interface Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean;
 
@@ -486,7 +486,7 @@ export interface Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {string[]} the names of relationships that were restored
+   * @return {String[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[];
 
@@ -496,7 +496,7 @@ export interface Cache {
    * @method getRelationship
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @param {string} field
+   * @param {String} field
    * @return resource relationship object
    */
   getRelationship(
@@ -511,7 +511,7 @@ export interface Cache {
    * @method getRelationship
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @param {string} field
+   * @param {String} field
    * @return resource relationship object
    */
   getRemoteRelationship(
@@ -532,7 +532,7 @@ export interface Cache {
    * @method setIsDeleted
    * @public
    * @param identifier
-   * @param isDeleted {boolean}
+   * @param {Boolean} isDeleted
    */
   setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void;
 
@@ -552,7 +552,7 @@ export interface Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean;
 
@@ -563,7 +563,7 @@ export interface Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean;
 
@@ -574,7 +574,7 @@ export interface Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean;
 
@@ -585,7 +585,7 @@ export interface Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
 }

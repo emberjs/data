@@ -235,7 +235,7 @@ class JSONAPIAdapter extends RESTAdapter {
 
     @property coalesceFindRequests
     @public
-    @type {boolean}
+    @type {Boolean}
   */
   get coalesceFindRequests() {
     const coalesceFindRequests = this._coalesceFindRequests;

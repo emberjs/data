@@ -118,7 +118,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -239,7 +239,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -433,7 +433,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -553,7 +553,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -649,7 +649,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -768,7 +768,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
         fields: [
           {
             name: 'name',
-            kind: 'attribute',
+            kind: 'field',
           },
           {
             name: 'friends',
@@ -850,6 +850,7 @@ module('Reads | hasMany in linksMode', function (hooks) {
             name: 'name',
             kind: 'field',
           },
+          // @ts-expect-error not implemented yet
           {
             name: 'friends',
             type: 'user',

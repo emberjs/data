@@ -456,7 +456,7 @@ export class PersistedCache implements Cache {
    * @method hasChangedAttrs
    * @internal
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     return this._cache.hasChangedAttrs(identifier);
@@ -511,7 +511,7 @@ export class PersistedCache implements Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     return this._cache.hasChangedRelationships(identifier);
@@ -527,7 +527,7 @@ export class PersistedCache implements Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {string[]} the names of relationships that were restored
+   * @return {String[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     return this._cache.rollbackRelationships(identifier);
@@ -604,7 +604,7 @@ export class PersistedCache implements Cache {
    * @method isEmpty
    * @internal
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     return this._cache.isEmpty(identifier);
@@ -617,7 +617,7 @@ export class PersistedCache implements Cache {
    * @method isNew
    * @internal
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     return this._cache.isNew(identifier);
@@ -630,7 +630,7 @@ export class PersistedCache implements Cache {
    * @method isDeleted
    * @internal
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     return this._cache.isDeleted(identifier);
@@ -643,7 +643,7 @@ export class PersistedCache implements Cache {
    * @method isDeletionCommitted
    * @internal
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     return this._cache.isDeletionCommitted(identifier);

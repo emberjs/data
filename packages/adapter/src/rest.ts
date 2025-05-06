@@ -431,7 +431,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     @property coalesceFindRequests
     @public
-    @type {boolean}
+    @type {Boolean}
   */
   get coalesceFindRequests() {
     const coalesceFindRequests = this._coalesceFindRequests;

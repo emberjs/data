@@ -476,7 +476,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * @public
  * @for @ember-data/request-utils
  * @param {URLSearchParams | object} params
- * @param {object} options
+ * @param {Object} options
  * @return {URLSearchParams} A URLSearchParams with keys inserted in sorted order
  */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
@@ -556,9 +556,9 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * @static
  * @public
  * @for @ember-data/request-utils
- * @param {URLSearchParams | object} params
- * @param {object} [options]
- * @return {string} A sorted query params string without the leading `?`
+ * @param {URLSearchParams | Object} params
+ * @param {Object} [options]
+ * @return {String} A sorted query params string without the leading `?`
  */
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   return sortQueryParams(params, options).toString();
@@ -609,7 +609,7 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * @static
  * @public
  * @for @ember-data/request-utils
- * @param {string} header
+ * @param {String} header
  * @return {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
@@ -808,7 +808,7 @@ export class CachePolicy {
    *
    * @method invalidateRequestsForType
    * @public
-   * @param {string} type
+   * @param {String} type
    * @param {Store} store
    */
   invalidateRequestsForType(type: string, store: Store): void {
@@ -895,7 +895,7 @@ export class CachePolicy {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @return {boolean} true if the request is considered hard expired
+   * @return {Boolean} true if the request is considered hard expired
    */
   isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
@@ -922,7 +922,7 @@ export class CachePolicy {
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
-   * @return {boolean} true if the request is considered soft expired
+   * @return {Boolean} true if the request is considered soft expired
    */
   isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
     const cache = store.cache;

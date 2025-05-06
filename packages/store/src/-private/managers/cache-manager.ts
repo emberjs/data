@@ -404,7 +404,7 @@ export class CacheManager implements Cache {
    * @method hasChangedAttrs
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
     return this.#cache.hasChangedAttrs(identifier);
@@ -462,7 +462,7 @@ export class CacheManager implements Cache {
    * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
     return this.#cache.hasChangedRelationships(identifier);
@@ -478,7 +478,7 @@ export class CacheManager implements Cache {
    * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
-   * @return {string[]} the names of relationships that were restored
+   * @return {String[]} the names of relationships that were restored
    */
   rollbackRelationships(identifier: StableRecordIdentifier): string[] {
     return this.#cache.rollbackRelationships(identifier);
@@ -550,7 +550,7 @@ export class CacheManager implements Cache {
    * @method isEmpty
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isEmpty(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isEmpty(identifier);
@@ -563,7 +563,7 @@ export class CacheManager implements Cache {
    * @method isNew
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isNew(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isNew(identifier);
@@ -576,7 +576,7 @@ export class CacheManager implements Cache {
    * @method isDeleted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeleted(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isDeleted(identifier);
@@ -589,7 +589,7 @@ export class CacheManager implements Cache {
    * @method isDeletionCommitted
    * @public
    * @param identifier
-   * @return {boolean}
+   * @return {Boolean}
    */
   isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
     return this.#cache.isDeletionCommitted(identifier);

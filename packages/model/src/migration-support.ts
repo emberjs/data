@@ -254,7 +254,7 @@ legacySupport[Type] = '@legacy';
 
 /**
  * A function which adds the necessary fields to a schema and marks it as
- * being in legacy mode. This is used to support the legacy features of
+ * being in LegacyMode. This is used to support the legacy features of
  * @ember-data/model while migrating to WarpDrive.
  *
  * Example:
@@ -291,6 +291,15 @@ legacySupport[Type] = '@legacy';
  *   bestFriend: User | null;
  *   [Type]: 'user';
  * }>
+ * ```
+ *
+ * Using this function require registering the derivations
+ * it requires with the schema service.
+ *
+ * ```ts
+ * import { registerDerivations } from '@ember-data/model/migration-support';
+ *
+ * registerDerivations(schema);
  * ```
  *
  * @method withDefaults
@@ -334,9 +343,13 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
 
 /**
  * A function which registers the necessary derivations to support
- * the legacy features of @ember-data/model while migrating to WarpDrive.
+ * the LegacyMode features of @ember-data/model while migrating to WarpDrive.
  *
- * This must be called in order to use the fields added by `withDefaults`.
+ * This must be called in order to use the fields added by:
+ *
+ * ```ts
+ * import { withDefaults } from '@ember-data/model/migration-support';
+ * ```
  *
  * @method registerDerivations
  * @for @ember-data/model/migration-support

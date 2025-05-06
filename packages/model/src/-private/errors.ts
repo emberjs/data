@@ -246,7 +246,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
    ```
     @method add
     @public
-    @param {string} attribute - the property name of an attribute or relationship
+    @param {String} attribute - the property name of an attribute or relationship
     @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
   add(attribute: string, messages: string[] | string): void {
@@ -309,7 +309,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
    ```
    @method remove
     @public
-   @param {string} member - the property name of an attribute or relationship
+   @param {String} member - the property name of an attribute or relationship
    */
   remove(attribute: string) {
     if (this.isEmpty) {
