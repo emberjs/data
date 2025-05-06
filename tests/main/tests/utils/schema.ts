@@ -11,9 +11,12 @@ import {
   type HashField,
   isResourceSchema,
   type LegacyAttributeField,
+  type LegacyModeFieldSchema,
   type LegacyRelationshipField,
   type ObjectField,
+  type ObjectFieldSchema,
   type ObjectSchema,
+  type PolarisModeFieldSchema,
   type ResourceSchema,
 } from '@warp-drive/core-types/schema/fields';
 import { Type } from '@warp-drive/core-types/symbols';
@@ -131,7 +134,7 @@ export class TestSchema implements SchemaService {
     const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
-    schema.fields.forEach((field) => {
+    schema.fields.forEach((field: LegacyModeFieldSchema | PolarisModeFieldSchema | ObjectFieldSchema) => {
       assert(
         `${field.kind} is not valid inside a ResourceSchema's fields.`,
         // @ts-expect-error we are checking for mistakes at runtime

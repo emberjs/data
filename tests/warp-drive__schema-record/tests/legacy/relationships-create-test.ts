@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import type { AsyncHasMany } from '@ember-data/model';
 import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
@@ -17,7 +18,6 @@ module('Legacy | Create | relationships', function (hooks) {
   test('we can create with a belongsTo', function (assert) {
     type User = {
       id: string | null;
-      $type: 'user';
       name: string;
       bestFriend: User | null;
       friends: User[];
@@ -136,8 +136,8 @@ module('Legacy | Create | relationships', function (hooks) {
       id: string | null;
       $type: 'user';
       name: string;
-      bestFriend: User | null;
-      friends: User[];
+      bestFriend: Promise<User | null>;
+      friends: AsyncHasMany<User>;
       [Type]: 'user';
     };
     const store = this.owner.lookup('service:store') as Store;
@@ -197,10 +197,9 @@ module('Legacy | Create | relationships', function (hooks) {
   test('we can create with an async hasMany', async function (assert) {
     type User = {
       id: string | null;
-      $type: 'user';
       name: string;
-      bestFriend: User | null;
-      friends: User[];
+      bestFriend: Promise<User | null>;
+      friends: AsyncHasMany<User>;
       [Type]: 'user';
     };
     const store = this.owner.lookup('service:store') as Store;

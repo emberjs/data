@@ -96,7 +96,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     assert.true(store.cache.isDeleted(recordIdentifierFor(fetchedRecord)), 'immutable record is marked as deleted');
   });
 
-  test('destroyRecord removes a record from the store', async function (assert) {
+  test('destroyRecord removes a record from the store', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -172,7 +172,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
     );
   });
 
-  test('unloadRecord removes a record from the store', async function (assert) {
+  test('unloadRecord removes a record from the store', function (assert) {
     const store = this.owner.lookup('service:store') as Store;
     const { schema } = store;
     registerDerivations(schema);
@@ -189,7 +189,7 @@ module('SchemaRecord | Polaris | Delete Operations', function (hooks) {
       })
     );
 
-    const record = store.push<User>({
+    store.push<User>({
       data: {
         type: 'user',
         id: '1',
