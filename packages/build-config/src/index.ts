@@ -1,6 +1,8 @@
 /**
- * Settings configuration for deprecations, optional features, development/testing
- * support and debug logging is done using `setConfig` in `ember-cli-build`.
+ * This package provides a build-plugin that enables configuration of deprecations,
+ * optional features, development/testing support and debug logging.
+ *
+ * This configuration is done using `setConfig` in `ember-cli-build`.
  *
  * ```ts
  * 'use strict';

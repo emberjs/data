@@ -4,9 +4,38 @@
 /**
  * ## Debug Logging
  *
- * Many portions of the internals are helpfully instrumented with logging that can be activated
- * at build time. This instrumentation is always removed from production builds or any builds
- * that has not explicitly activated it. To activate it set the appropriate flag to `true`.
+ * Many portions of the internals are helpfully instrumented with logging.
+ * This instrumentation is always removed from production builds.
+ *
+ * Log instrumentation is "regionalized" to specific concepts and concerns
+ * to enable you to enable/disable just the areas you are interested in.
+ *
+ * To activate a particular group of logs set the appropriate flag to `true`
+ * either in your build config or via the runtime helper.
+ *
+ *
+ * ### Activation Via Runtime Helper
+ *
+ * A runtime helper is attached to `globalThis` to enable activation of the logs
+ * from anywhere in your application including from the devtools panel.
+ *
+ * The runtime helper overrides any build config settings for the given flag
+ * for the current browser tab. It stores the configuration you give it in
+ * `sessionStorage` so that it persists across page reloads of the current tab,
+ * but not across browser tabs or windows. Thus if you need to deactivate the
+ * logging, you can call the helper again with the same flag set to `false` or
+ * just open a new tab/window.
+ *
+ * Example Usage:
+ *
+ * ```ts
+ * setWarpDriveLogging({
+ *   LOG_CACHE: true,
+ *   LOG_REQUESTS: true,
+ * })
+ * ```
+ *
+ * ### Activation Via Build Config
  *
  * ```ts
  * setConfig(__dirname, app, {
@@ -29,7 +58,8 @@
  */
 /**
  * log cache updates for both local
- * and remote state.
+ * and remote state. Note in some older versions
+ * this was called `LOG_PAYLOADS`.
  *
  * @property LOG_CACHE
  * @type {Boolean}
