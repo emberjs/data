@@ -1,4 +1,5 @@
 import { setBuildURLConfig } from '@ember-data/request-utils';
+import { IS_CI } from '@warp-drive/build-config/env';
 import { setupGlobalHooks } from '@warp-drive/diagnostic';
 import { configure } from '@warp-drive/diagnostic/ember';
 import { start } from '@warp-drive/diagnostic/runners/dom';
@@ -26,10 +27,10 @@ configure();
 
 void start({
   tryCatch: false,
-  debug: false,
+  debug: IS_CI ? false : true,
+  hideReport: IS_CI ? true : false,
   concurrency: 10,
   groupLogs: false,
   instrument: true,
-  hideReport: true,
   useDiagnostic: true,
 });

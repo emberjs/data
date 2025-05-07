@@ -17,6 +17,7 @@ module.exports = {
     '@ember-data/model/migration-support',
     '@ember-data/request',
     '@ember-data/request-utils',
+    '@ember-data/request-utils/handlers',
     '@ember-data/request/fetch',
     '@ember-data/rest/request',
     '@ember-data/serializer',
@@ -32,6 +33,7 @@ module.exports = {
     'ember-data-overview',
   ],
   classes: [
+    '(public) @ember-data/request-utils/handlers AutoCompress',
     '(public) @ember-data/model/migration-support DelegatingSchemaService',
     '(private) @ember-data/debug InspectorDataAdapter',
     '(private) @ember-data/model PromiseBelongsTo',

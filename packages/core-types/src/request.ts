@@ -235,6 +235,9 @@ type Request = {
    */
   method?: HTTPMethod;
   /** Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs.
+   *
+   * `no-cors` is not allowed for streaming request bodies.
+   *
    * @typedoc
    */
   mode?: RequestMode;
@@ -262,6 +265,16 @@ type Request = {
    * @typedoc
    */
   body?: BodyInit | null;
+
+  /**
+   * When sending a ReadableStream as the body of a request, 'half' must be
+   * specified.
+   *
+   * [Half Duplex Further Reading](https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests#half_duplex)
+   *
+   * @typedoc
+   */
+  duplex?: 'half';
 };
 
 export interface ImmutableHeaders extends Headers {
