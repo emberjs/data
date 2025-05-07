@@ -284,6 +284,42 @@ export class InstanceCache {
     }
   }
 
+  __unloadRecord(identifier: StableRecordIdentifier) {
+    const record = this.__instances.record.get(identifier);
+    const cache = this.cache;
+
+    if (record) {
+      this.store.teardownRecord(record);
+      this.__instances.record.delete(identifier);
+      StoreMap.delete(record);
+      RecordCache.delete(record);
+      removeRecordDataFor(record);
+
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
+      }
+    }
+
+    if (cache) {
+      cache.unloadRecord(identifier);
+      removeRecordDataFor(identifier);
+      if (LOG_INSTANCE_CACHE) {
+        // eslint-disable-next-line no-console
+        console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
+      }
+    } else {
+      this.disconnect(identifier);
+    }
+
+    this.store._requestCache._clearEntries(identifier);
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+  }
   unloadRecord(identifier: StableRecordIdentifier) {
     if (DEBUG) {
       const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
@@ -302,40 +338,7 @@ export class InstanceCache {
 
     // TODO is this join still necessary?
     this.store._join(() => {
-      const record = this.__instances.record.get(identifier);
-      const cache = this.cache;
-
-      if (record) {
-        this.store.teardownRecord(record);
-        this.__instances.record.delete(identifier);
-        StoreMap.delete(record);
-        RecordCache.delete(record);
-        removeRecordDataFor(record);
-
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
-        }
-      }
-
-      if (cache) {
-        cache.unloadRecord(identifier);
-        removeRecordDataFor(identifier);
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
-        }
-      } else {
-        this.disconnect(identifier);
-      }
-
-      this.store._requestCache._clearEntries(identifier);
-      if (LOG_INSTANCE_CACHE) {
-        // eslint-disable-next-line no-console
-        console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
+      this.__unloadRecord(identifier);
     });
   }
 
