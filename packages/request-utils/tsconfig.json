@@ -41,7 +41,9 @@
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@ember-data/request": ["../request/unstable-preview-types"],
+      "@ember-data/request/*": ["../request/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,

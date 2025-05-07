@@ -9,6 +9,7 @@ const BODY_TYPES = {
   klass: ['Blob', 'ArrayBuffer', 'TypedArray', 'DataView', 'FormData', 'URLSearchParams', 'ReadableStream'],
 };
 const ValidKeys = new Map<string, string | string[] | typeof BODY_TYPES>([
+  ['duplex', ['half']],
   ['records', 'array'],
   ['data', 'json'],
   ['body', BODY_TYPES],
