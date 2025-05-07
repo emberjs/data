@@ -61,6 +61,8 @@ function validateResourceDocument(reporter: Reporter, doc: StructuredDataDocumen
   // TODO @runspired - validateMeta on resource
   // TODO @runspired - validateMeta on resource relationships
   // TODO @runspired - validate no-meta on resource identifiers
+  // TODO @runspired - validate directional relationships are consistent
+  // TODO @runspired - add schema errors
   //
   // ---------------------------------
   // super-strict-mode
