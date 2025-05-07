@@ -27,7 +27,7 @@ configure();
 
 void start({
   tryCatch: false,
-  debug: IS_CI ? false : true,
+  debug: true, // IS_CI ? false : true,
   hideReport: IS_CI ? true : false,
   concurrency: 10,
   groupLogs: false,

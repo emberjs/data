@@ -91,7 +91,7 @@ module('ember-data/request-utils/handlers/auto-compress', function (hooks) {
         31, 139, 8, 0, 0, 0, 0, 0, 0, 19, 75, 76, 28, 5, 163, 96, 20, 140, 130, 81, 48, 10, 70, 193, 80, 7, 0, 57, 62,
         19, 168, 208, 7, 0, 0,
       ],
-      'response body is the correct compressed content'
+      `response body is the correct compressed content: ${arr.join(',')}`
     );
   });
 

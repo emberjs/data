@@ -170,6 +170,21 @@ const TypedArray = Object.getPrototypeOf(Uint8Array.prototype) as typeof Uint8Ar
  * The compression format as well as the kinds of data to compress can be
  * configured using the `format` and `constraints` options.
  *
+ * ```diff
+ * +import { AutoCompress } from '@ember-data/request-utils/handlers';
+ * import Fetch from '@ember-data/request/fetch';
+ * import RequestManager from '@ember-data/request';
+ * import Store from '@ember-data/store';
+ *
+ * class AppStore extends Store {
+ *   requestManager = new RequestManager()
+ *     .use([
+ * +       new AutoCompress(),
+ *        Fetch
+ *     ]);
+ * }
+ * ```
+ *
  * @class AutoCompress
  * @extends Handler
  * @public
