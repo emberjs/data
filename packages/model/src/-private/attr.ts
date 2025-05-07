@@ -1,10 +1,12 @@
 /**
   @module @ember-data/model
 */
+import { deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import { peekCache } from '@ember-data/store/-private';
+import { DEPRECATE_LEGACY_SCHEMA_PROPS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core-types/json/raw';
@@ -62,12 +64,38 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions) {
   }
 
   const meta = {
-    type: type,
     kind: 'attribute',
-    isAttribute: true,
+    name: null,
+    type: type,
     options: options,
-    key: null,
   };
+
+  if (DEPRECATE_LEGACY_SCHEMA_PROPS) {
+    Object.defineProperty(meta, 'key', {
+      get(this: typeof meta) {
+        deprecate(`The 'isAttribute' property on meta is deprecated. Use 'kind' instead.`, false, {
+          id: 'ember-data.model-meta-is-attribute',
+          until: '6.0.0',
+          url: 'https://deprecations.emberjs.com/id/ember-data.model-meta-key',
+          for: 'ember-data',
+          since: { enabled: '5.5.0', available: '5.5.0' },
+        });
+        return this.name;
+      },
+    });
+    Object.defineProperty(meta, 'isAttribute', {
+      get(this: typeof meta) {
+        deprecate(`The 'isAttribute' property on meta is deprecated. Use 'kind' instead.`, false, {
+          id: 'ember-data.model-meta-is-attribute',
+          until: '6.0.0',
+          url: 'https://deprecations.emberjs.com/id/ember-data.model-meta-is-attribute',
+          for: 'ember-data',
+          since: { enabled: '5.5.0', available: '5.5.0' },
+        });
+        return true;
+      },
+    });
+  }
 
   return computed({
     get(this: Model, key: string) {

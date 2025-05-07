@@ -2,6 +2,7 @@
   @module @ember-data/model
  */
 
+import { deprecate } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
@@ -9,6 +10,7 @@ import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import { recordIdentifierFor, storeFor } from '@ember-data/store';
 import { coerceId, defineSignal, entangleSignal, gate, memoized, withSignalStore } from '@ember-data/store/-private';
+import { DEPRECATE_LEGACY_SCHEMA_PROPS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -109,6 +111,22 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
   @extends Ember.EmberObject
 */
 
+interface DeprecatedMeta {
+  type: typeof Model;
+  name: string;
+  key: string;
+  options?: {
+    inverse?: string | null;
+    async?: boolean;
+    polymorphic?: boolean;
+    as?: string;
+    resetOnRemoteUpdate?: boolean;
+    linksMode?: boolean;
+  };
+  isRelationship: boolean;
+  kind: 'hasMany' | 'belongsTo';
+}
+
 interface Model {
   serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): unknown;
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
@@ -129,6 +147,7 @@ interface Model {
   ): BelongsToReference<T, K>;
   hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
+  inverseFor?(prop: string): DeprecatedMeta | null;
 }
 class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
@@ -1007,7 +1026,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    - **name** <span class="type">String</span> the name of this relationship on the Model
    - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
    - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
-   - **parentType** <span class="type">Model</span> the type of the Model that owns this relationship
    - **type** <span class="type">String</span> the type name of the related Model
 
    Note that in addition to a callback, you can also pass an optional target
@@ -1048,10 +1066,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   relationshipFor(name: string): LegacyRelationshipField | undefined {
     return (this.constructor as typeof Model).relationshipsByName.get(name);
-  }
-
-  inverseFor(name: string) {
-    return (this.constructor as typeof Model).inverseFor(name, storeFor(this)!);
   }
 
   eachAttribute<T>(
@@ -1158,107 +1172,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     const relationship = this.relationshipsByName.get(name);
     return relationship && store.modelFor(relationship.type);
-  }
-
-  @computeOnce
-  static get inverseMap(): Record<string, LegacyRelationshipField | null> {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
-    return Object.create(null) as Record<string, LegacyRelationshipField | null>;
-  }
-
-  /**
-   Find the relationship which is the inverse of the one asked for.
-
-   For example, if you define models like this:
-
-   ```app/models/post.js
-   import Model, { hasMany } from '@ember-data/model';
-
-   export default class PostModel extends Model {
-      @hasMany('message') comments;
-    }
-   ```
-
-   ```app/models/message.js
-   import Model, { belongsTo } from '@ember-data/model';
-
-   export default class MessageModel extends Model {
-      @belongsTo('post') owner;
-    }
-   ```
-
-   ``` js
-   store.modelFor('post').inverseFor('comments', store) // { type: 'message', name: 'owner', kind: 'belongsTo' }
-   store.modelFor('message').inverseFor('owner', store) // { type: 'post', name: 'comments', kind: 'hasMany' }
-   ```
-
-   @method inverseFor
-    @public
-   @static
-   @param {String} name the name of the relationship
-   @param {Store} store
-   @return {Object} the inverse relationship, or null
-   */
-  static inverseFor(name: string, store: Store): LegacyRelationshipField | null {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
-    const inverseMap = this.inverseMap;
-    if (inverseMap[name]) {
-      return inverseMap[name];
-    } else {
-      const inverse = this._findInverseFor(name, store);
-      inverseMap[name] = inverse;
-      return inverse;
-    }
-  }
-
-  //Calculate the inverse, ignoring the cache
-  static _findInverseFor(name: string, store: Store): LegacyRelationshipField | null {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
-
-    const relationship = this.relationshipsByName.get(name)!;
-    assert(`No relationship named '${name}' on '${this.modelName}' exists.`, relationship);
-
-    if (!relationship) {
-      return null;
-    }
-
-    const { options } = relationship;
-    assert(
-      `Expected the relationship ${name} on ${this.modelName} to define an inverse.`,
-      options.inverse === null || (typeof options.inverse === 'string' && options.inverse.length > 0)
-    );
-
-    if (options.inverse === null) {
-      return null;
-    }
-
-    const schemaExists = store.schema.hasResource(relationship);
-
-    assert(
-      `No associated schema found for '${relationship.type}' while calculating the inverse of ${name} on ${this.modelName}`,
-      schemaExists
-    );
-
-    if (!schemaExists) {
-      return null;
-    }
-
-    const inverseField = store.schema.fields(relationship).get(options.inverse);
-    assert(
-      `No inverse relationship found for '${name}' on '${this.modelName}'`,
-      inverseField && (inverseField.kind === 'belongsTo' || inverseField.kind === 'hasMany')
-    );
-
-    return inverseField || null;
   }
 
   /**
@@ -1639,40 +1552,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   /**
-   *
-   * @method determineRelationshipType
-   * @private
-   * @deprecated
-   */
-  static determineRelationshipType(
-    knownSide: LegacyRelationshipField,
-    store: Store
-  ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
-    assert(
-      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
-      this.modelName
-    );
-
-    const knownKey = knownSide.name;
-    const knownKind = knownSide.kind;
-    const inverse = this.inverseFor(knownKey, store);
-    // let key;
-
-    if (!inverse) {
-      return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
-    }
-
-    // key = inverse.name;
-    const otherKind = inverse.kind;
-
-    if (otherKind === 'belongsTo') {
-      return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
-    } else {
-      return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
-    }
-  }
-
-  /**
    A map whose keys are the attributes of the model (properties
    described by attr) and whose values are the meta object for the
    property.
@@ -1699,9 +1578,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     });
 
    // prints:
-   // firstName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "firstName"}
-   // lastName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "lastName"}
-   // birthday {type: "date", kind: 'attribute', options: Object, parentType: function, name: "birthday"}
+   // firstName {type: "string", kind: 'attribute', options: Object, name: "firstName"}
+   // lastName {type: "string", kind: 'attribute', options: Object, name: "lastName"}
+   // birthday {type: "date", kind: 'attribute', options: Object, name: "birthday"}
    ```
 
    @property attributes
@@ -1727,8 +1606,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
           name !== 'id'
         );
 
-        // TODO deprecate key being here
-        (meta as unknown as { key: string }).key = name;
         meta.name = name;
         map.set(name, meta);
       }
@@ -1826,9 +1703,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     });
 
    // prints:
-   // firstName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "firstName"}
-   // lastName {type: "string", kind: 'attribute', options: Object, parentType: function, name: "lastName"}
-   // birthday {type: "date", kind: 'attribute', options: Object, parentType: function, name: "birthday"}
+   // firstName {type: "string", kind: 'attribute', options: Object, name: "firstName"}
+   // lastName {type: "string", kind: 'attribute', options: Object, name: "lastName"}
+   // birthday {type: "date", kind: 'attribute', options: Object, name: "birthday"}
    ```
 
    @method eachAttribute
@@ -1925,6 +1802,56 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     return `model:${this.modelName}`;
   }
+
+  // the below types should be removed when DEPRECATE_LEGACY_SCHEMA_PROPS is cleaned up
+  /**
+   Find the relationship which is the inverse of the one asked for.
+
+   For example, if you define models like this:
+
+   ```app/models/post.js
+   import Model, { hasMany } from '@ember-data/model';
+
+   export default class PostModel extends Model {
+      @hasMany('message') comments;
+    }
+   ```
+
+   ```app/models/message.js
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default class MessageModel extends Model {
+      @belongsTo('post') owner;
+    }
+   ```
+
+   ``` js
+   store.modelFor('post').inverseFor('comments', store) // { type: 'message', name: 'owner', kind: 'belongsTo' }
+   store.modelFor('message').inverseFor('owner', store) // { type: 'post', name: 'comments', kind: 'hasMany' }
+   ```
+
+   @method inverseFor
+   @deprecated
+   @public
+   @static
+   @param {String} name the name of the relationship
+   @param {Store} store
+   @return {Object} the inverse relationship, or null
+   */
+  static inverseFor?(prop: string, store: Store): DeprecatedMeta | null;
+  /**
+   * @deprecated
+   * @internal
+   */
+  static determineRelationshipType?(
+    knownSide: LegacyRelationshipField,
+    store: Store
+  ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone';
+  /**
+   * @deprecated
+   * @internal
+   */
+  static inverseMap?: Record<string, DeprecatedMeta | null>;
 }
 
 // @ts-expect-error TS doesn't know how to do `this` function overloads
@@ -2000,6 +1927,154 @@ if (DEBUG) {
 
   delete (Model as unknown as { reopen: unknown }).reopen;
   delete (Model as unknown as { reopenClass: unknown }).reopenClass;
+}
+
+if (DEPRECATE_LEGACY_SCHEMA_PROPS) {
+  (Model as typeof Model & { inverseFor: unknown }).inverseFor = function (
+    this: typeof Model,
+    name: string,
+    store: Store
+  ): DeprecatedMeta | null {
+    deprecate(`The 'inverseFor' method on models is deprecated. Use the schema service instead.`, false, {
+      id: 'ember-data.legacy-schema-props.inverseFor',
+      until: '6.0.0',
+      url: 'https://deprecations.emberjs.com/id/ember-data.legacy-schema-props.inverseFor',
+      for: 'ember-data',
+      since: { enabled: '5.5.0', available: '5.5.0' },
+    });
+
+    return _inverseFor(this, name, store);
+  };
+
+  function _inverseFor(Klass: typeof Model, name: string, store: Store) {
+    assert(
+      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+      Klass.modelName
+    );
+    const inverseMap = Klass.inverseMap!;
+    if (inverseMap[name]) {
+      return inverseMap[name];
+    } else {
+      const inverse = _findInverseFor(Klass, name, store);
+      inverseMap[name] = inverse;
+      return inverse;
+    }
+  }
+
+  /**
+   *
+   * @method determineRelationshipType
+   * @private
+   * @deprecated
+   */
+  Model.determineRelationshipType = function (
+    this: typeof Model,
+    knownSide: LegacyRelationshipField,
+    store: Store
+  ): 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany' | 'oneToNone' | 'manyToNone' {
+    assert(
+      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+      this.modelName
+    );
+    deprecate(
+      `The 'determineRelationshipForType' method on models is deprecated. Use the schema service instead.`,
+      false,
+      {
+        id: 'ember-data.legacy-schema-props.inverseFor',
+        until: '6.0.0',
+        url: 'https://deprecations.emberjs.com/id/ember-data.legacy-schema-props.inverseFor',
+        for: 'ember-data',
+        since: { enabled: '5.5.0', available: '5.5.0' },
+      }
+    );
+
+    const knownKey = knownSide.name;
+    const knownKind = knownSide.kind;
+    const inverse = _inverseFor(this, knownKey, store);
+
+    if (!inverse) {
+      return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
+    }
+
+    const otherKind = inverse.kind;
+
+    if (otherKind === 'belongsTo') {
+      return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
+    } else {
+      return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
+    }
+  };
+
+  Model.prototype.inverseFor = function (name: string) {
+    return (this.constructor as typeof Model).inverseFor!(name, storeFor(this)!);
+  };
+
+  //Calculate the inverse, ignoring the cache
+  function _findInverseFor(Klass: typeof Model, name: string, store: Store): DeprecatedMeta | null {
+    assert(
+      `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+      Klass.modelName
+    );
+
+    const relationship = Klass.relationshipsByName.get(name)!;
+    assert(`No relationship named '${name}' on '${Klass.modelName}' exists.`, relationship);
+
+    if (!relationship) {
+      return null;
+    }
+
+    const { options } = relationship;
+    assert(
+      `Expected the relationship ${name} on ${Klass.modelName} to define an inverse.`,
+      options.inverse === null || (typeof options.inverse === 'string' && options.inverse.length > 0)
+    );
+
+    if (options.inverse === null) {
+      return null;
+    }
+
+    const schemaExists = store.schema.hasResource(relationship);
+
+    assert(
+      `No associated schema found for '${relationship.type}' while calculating the inverse of ${name} on ${Klass.modelName}`,
+      schemaExists
+    );
+
+    if (!schemaExists) {
+      return null;
+    }
+
+    const inverseField = store.schema.fields(relationship).get(options.inverse);
+    assert(
+      `No inverse relationship found for '${name}' on '${Klass.modelName}'`,
+      inverseField && (inverseField.kind === 'belongsTo' || inverseField.kind === 'hasMany')
+    );
+
+    if (inverseField) {
+      return {
+        name: inverseField.name,
+        kind: inverseField.kind,
+        options: inverseField.options,
+        isRelationship: true,
+        key: inverseField.name,
+        get type() {
+          return store.modelFor(inverseField.type) as typeof Model;
+        },
+      } satisfies DeprecatedMeta;
+    }
+
+    return null;
+  }
+
+  Object.defineProperty(Model, 'inverseMap', {
+    get(this: typeof Model) {
+      assert(
+        `Accessing schema information on Models without looking up the model via the store is disallowed.`,
+        this.modelName
+      );
+      return Object.create(null) as Record<string, DeprecatedMeta | null>;
+    },
+  });
 }
 
 export { Model };

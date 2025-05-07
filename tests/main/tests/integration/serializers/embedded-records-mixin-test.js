@@ -7,6 +7,23 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
+function determineConnectionType(store, knownSide) {
+  const knownKind = knownSide.kind;
+  const inverse = knownSide.options?.inverse ? store.schema.fields(knownSide).get(knownSide.options.inverse) : null;
+
+  if (!inverse) {
+    return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
+  }
+
+  const otherKind = inverse.kind;
+
+  if (otherKind === 'belongsTo') {
+    return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
+  } else {
+    return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
+  }
+}
+
 module('integration/embedded-records-mixin', function (hooks) {
   setupTest(hooks);
   let store;
@@ -1638,8 +1655,8 @@ module('integration/embedded-records-mixin', function (hooks) {
           calledSerializeHasMany = true;
           const key = relationship.name;
           const payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
-          const schema = this.store.modelFor(snapshot.modelName);
-          const relationshipType = schema.determineRelationshipType(relationship, store);
+          const relationshipType = determineConnectionType(this.store, relationship);
+
           // "manyToOne" not supported in ActiveModelSerializer.prototype.serializeHasMany
           const relationshipTypes = ['manyToNone', 'manyToMany', 'manyToOne'];
           if (relationshipTypes.indexOf(relationshipType) > -1) {
