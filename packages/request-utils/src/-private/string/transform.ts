@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/request-utils/string
+ */
 import { DEBUG } from '@warp-drive/build-config/env';
 
 const DEFAULT_MAX_CACHE_SIZE = 10_000;
@@ -92,82 +95,118 @@ const CAPITALIZE_CACHE = new LRUCache<string, string>((str: string) =>
 );
 
 /**
-  Replaces underscores, spaces, or camelCase with dashes.
-
-  ```js
-  import { dasherize } from '@ember-data/request-utils/string';
-
-  dasherize('innerHTML');                // 'inner-html'
-  dasherize('action_name');              // 'action-name'
-  dasherize('css-class-name');           // 'css-class-name'
-  dasherize('my favorite items');        // 'my-favorite-items'
-  dasherize('privateDocs/ownerInvoice';  // 'private-docs/owner-invoice'
-  ```
-
-  @typedoc
-*/
+ * Replaces underscores, spaces, or camelCase with dashes.
+ *
+ * ```js
+ * import { dasherize } from '@ember-data/request-utils/string';
+ *
+ * dasherize('innerHTML');                // 'inner-html'
+ * dasherize('action_name');              // 'action-name'
+ * dasherize('css-class-name');           // 'css-class-name'
+ * dasherize('my favorite items');        // 'my-favorite-items'
+ * dasherize('privateDocs/ownerInvoice';  // 'private-docs/owner-invoice'
+ * ```
+ *
+ * @method dasherize
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} str
+ * @return {String}
+ * @since 4.13.0
+ */
 export function dasherize(str: string): string {
   return STRING_DASHERIZE_CACHE.get(str);
 }
 
 /**
-  Returns the lowerCamelCase form of a string.
-
-  ```js
-  import { camelize } from '@ember-data/request-utils/string';
-
-  camelize('innerHTML');                   // 'innerHTML'
-  camelize('action_name');                 // 'actionName'
-  camelize('css-class-name');              // 'cssClassName'
-  camelize('my favorite items');           // 'myFavoriteItems'
-  camelize('My Favorite Items');           // 'myFavoriteItems'
-  camelize('private-docs/owner-invoice');  // 'privateDocs/ownerInvoice'
-```
-
-  @typedoc
-*/
+ * Returns the lowerCamelCase form of a string.
+ *
+ * ```js
+ * import { camelize } from '@ember-data/request-utils/string';
+ *
+ * camelize('innerHTML');                   // 'innerHTML'
+ * camelize('action_name');                 // 'actionName'
+ * camelize('css-class-name');              // 'cssClassName'
+ * camelize('my favorite items');           // 'myFavoriteItems'
+ * camelize('My Favorite Items');           // 'myFavoriteItems'
+ * camelize('private-docs/owner-invoice');  // 'privateDocs/ownerInvoice'
+ * ```
+ *
+ * @method camelize
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} str
+ * @return {String}
+ * @since 4.13.0
+ */
 export function camelize(str: string): string {
   return CAMELIZE_CACHE.get(str);
 }
 
 /**
-  Returns the lower\_case\_and\_underscored form of a string.
-
-  ```js
-  import { underscore } from '@ember-data/request-utils/string';
-
-  underscore('innerHTML');                 // 'inner_html'
-  underscore('action_name');               // 'action_name'
-  underscore('css-class-name');            // 'css_class_name'
-  underscore('my favorite items');         // 'my_favorite_items'
-  underscore('privateDocs/ownerInvoice');  // 'private_docs/owner_invoice'
-  ```
-
-  @typedoc
-*/
+ * Returns the lower\_case\_and\_underscored form of a string.
+ *
+ * ```js
+ * import { underscore } from '@ember-data/request-utils/string';
+ *
+ * underscore('innerHTML');                 // 'inner_html'
+ * underscore('action_name');               // 'action_name'
+ * underscore('css-class-name');            // 'css_class_name'
+ * underscore('my favorite items');         // 'my_favorite_items'
+ * underscore('privateDocs/ownerInvoice');  // 'private_docs/owner_invoice'
+ * ```
+ *
+ * @method underscore
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} str
+ * @return {String}
+ * @since 4.13.0
+ */
 export function underscore(str: string): string {
   return UNDERSCORE_CACHE.get(str);
 }
 
 /**
-  Returns the Capitalized form of a string
-
-  ```js
-  import { capitalize } from '@ember-data/request-utils/string';
-
-  capitalize('innerHTML')                 // 'InnerHTML'
-  capitalize('action_name')               // 'Action_name'
-  capitalize('css-class-name')            // 'Css-class-name'
-  capitalize('my favorite items')         // 'My favorite items'
-  capitalize('privateDocs/ownerInvoice'); // 'PrivateDocs/ownerInvoice'
-  ```
-
-  @typedoc
-*/
+ * Returns the Capitalized form of a string
+ *
+ * ```js
+ * import { capitalize } from '@ember-data/request-utils/string';
+ *
+ * capitalize('innerHTML')                 // 'InnerHTML'
+ * capitalize('action_name')               // 'Action_name'
+ * capitalize('css-class-name')            // 'Css-class-name'
+ * capitalize('my favorite items')         // 'My favorite items'
+ * capitalize('privateDocs/ownerInvoice'); // 'PrivateDocs/ownerInvoice'
+ * ```
+ *
+ * @method capitalize
+ * @static
+ * @public
+ * @for @ember-data/request-utils/string
+ * @param {String} str
+ * @return {String}
+ * @since 4.13.0
+ */
 export function capitalize(str: string): string {
   return CAPITALIZE_CACHE.get(str);
 }
 
+/**
+ * Sets the maximum size of the LRUCache for all string transformation functions.
+ * The default size is 10,000.
+ *
+ * @method setMaxLRUCacheSize
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {Number} size
+ * @return {void}
+ * @since 4.13.0
+ */
 export function setMaxLRUCacheSize(size: number) {
   CAMELIZE_CACHE.size = size;
   UNDERSCORE_CACHE.size = size;

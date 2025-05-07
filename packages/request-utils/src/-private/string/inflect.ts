@@ -1,3 +1,6 @@
+/**
+ * @module @ember-data/request-utils/string
+ */
 import { assert } from '@warp-drive/build-config/macros';
 
 import { defaultRules } from './inflections';
@@ -20,16 +23,53 @@ const INVERSE_IRREGULAR: Map<string, string> = new Map();
 const SINGULAR_RULES = new Map(defaultRules.singular.reverse());
 const PLURAL_RULES = new Map(defaultRules.plurals.reverse());
 
+/**
+ * Marks a word as uncountable. Uncountable words are not pluralized
+ * or singularized.
+ *
+ * @method uncountable
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} word
+ * @return {void}
+ * @since 4.13.0
+ */
 export function uncountable(word: string) {
   UNCOUNTABLE.add(word.toLowerCase());
 }
 
+/**
+ * Marks a list of words as uncountable. Uncountable words are not pluralized
+ * or singularized.
+ *
+ * @method loadUncountable
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {Array<String>} uncountables
+ * @return {void}
+ * @since 4.13.0
+ */
 export function loadUncountable(uncountables: string[]) {
   uncountables.forEach((word) => {
     uncountable(word);
   });
 }
 
+/**
+ * Marks a word as irregular. Irregular words have unique
+ * pluralization and singularization rules.
+ *
+ * @method irregular
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} single
+ * @param {String} plur
+ * @return {void}
+ * @since 4.13.0
+ */
 export function irregular(single: string, plur: string) {
   //pluralizing
   IRREGULAR.set(single.toLowerCase(), plur);
@@ -40,6 +80,18 @@ export function irregular(single: string, plur: string) {
   INVERSE_IRREGULAR.set(single.toLowerCase(), single);
 }
 
+/**
+ * Marks a list of word pairs as irregular. Irregular words have unique
+ * pluralization and singularization rules.
+ *
+ * @method loadIrregular
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {Array<Array<String>>} irregularPairs
+ * @return {void}
+ * @since 4.13.0
+ */
 export function loadIrregular(irregularPairs: Array<[string, string]>) {
   irregularPairs.forEach((pair) => {
     //pluralizing
@@ -53,11 +105,31 @@ export function loadIrregular(irregularPairs: Array<[string, string]>) {
 }
 loadIrregular(defaultRules.irregularPairs);
 
+/**
+ * Clears the caches for singularize and pluralize.
+ *
+ * @method clear
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @return {void}
+ * @since 4.13.0
+ */
 export function clear() {
   SINGULARS.clear();
   PLURALS.clear();
 }
 
+/**
+ * Resets the inflection rules to the defaults.
+ *
+ * @method resetToDefaults
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @return {void}
+ * @since 4.13.0
+ */
 export function resetToDefaults() {
   clearRules();
   defaultRules.uncountable.forEach((v) => UNCOUNTABLE.add(v));
@@ -66,6 +138,17 @@ export function resetToDefaults() {
   loadIrregular(defaultRules.irregularPairs);
 }
 
+/**
+ * Clears all inflection rules
+ * and resets the caches for singularize and pluralize.
+ *
+ * @method clearRules
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @return {void}
+ * @since 4.13.0
+ */
 export function clearRules() {
   SINGULARS.clear();
   PLURALS.clear();
@@ -76,12 +159,34 @@ export function clearRules() {
   PLURAL_RULES.clear();
 }
 
+/**
+ * Singularizes a word.
+ *
+ * @method singularize
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} word
+ * @return {String}
+ * @since 4.13.0
+ */
 export function singularize(word: string) {
   assert(`singularize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
   return SINGULARS.get(word);
 }
 
+/**
+ * Pluralizes a word.
+ *
+ * @method pluralize
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {String} word
+ * @return {String}
+ * @since 4.13.0
+ */
 export function pluralize(word: string) {
   assert(`pluralize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
@@ -97,6 +202,18 @@ function unshiftMap<K, V>(v: [K, V], map: Map<K, V>) {
   });
 }
 
+/**
+ * Adds a pluralization rule.
+ *
+ * @method plural
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {RegExp} regex
+ * @param {String} string
+ * @return {void}
+ * @since 4.13.0
+ */
 export function plural(regex: RegExp, string: string) {
   // rule requires reordering if exists, so remove it first
   if (PLURAL_RULES.has(regex)) {
@@ -107,6 +224,18 @@ export function plural(regex: RegExp, string: string) {
   unshiftMap([regex, string], PLURAL_RULES);
 }
 
+/**
+ * Adds a singularization rule.
+ *
+ * @method singular
+ * @public
+ * @static
+ * @for @ember-data/request-utils/string
+ * @param {RegExp} regex
+ * @param {String} string
+ * @return {void}
+ * @since 4.13.0
+ */
 export function singular(regex: RegExp, string: string) {
   // rule requires reordering if exists, so remove it first
   if (SINGULAR_RULES.has(regex)) {
