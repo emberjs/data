@@ -82,17 +82,14 @@ module('ember-data/request-utils/handlers/auto-compress', function (hooks) {
     assert.true(result.content.body instanceof Blob, 'response body is a blob');
     assert.true(result.content.body.size === 35, 'response body is the correct compressed length');
 
+    const bytes = await new Response(
+      new Response(ALongString).body?.pipeThrough(new CompressionStream('gzip'))
+    ).bytes();
+    const expected = Array.from(bytes);
+
     const buffer = await result.content.body.arrayBuffer();
-    const uintarr = new Uint8Array(buffer);
-    const arr = Array.from(uintarr);
-    assert.deepEqual(
-      arr,
-      [
-        31, 139, 8, 0, 0, 0, 0, 0, 0, 19, 75, 76, 28, 5, 163, 96, 20, 140, 130, 81, 48, 10, 70, 193, 80, 7, 0, 57, 62,
-        19, 168, 208, 7, 0, 0,
-      ],
-      `response body is the correct compressed content: ${arr.join(',')}`
-    );
+    const arr = Array.from(new Uint8Array(buffer));
+    assert.deepEqual(arr, expected, `response body is the correct compressed content`);
   });
 
   test('It does not compress when below the threshold', async function (assert) {
