@@ -26,6 +26,10 @@ export async function bumpAllPackages(
     pkg.pkgData.version = strat.toVersion;
 
     await pkg.file.write();
+
+    if (pkg.pkgData.version !== strat.toVersion) {
+      throw new Error(`Version mismatch for ${pkg.pkgData.name}`);
+    }
   }
 
   const willPublish: boolean = Boolean(config.get('pack') && config.get('publish'));

@@ -452,7 +452,11 @@ async function amendFilesForTypesStrategy(pkg: Package, strategy: APPLIED_STRATE
 async function restoreTypesStrategyChanges(pkg: Package, _strategy: APPLIED_STRATEGY) {
   // restore the package.json to its original state
   await exec({ cmd: `git checkout HEAD -- ${pkg.filePath}`, silent: true });
+  const version = pkg.pkgData.version;
   await pkg.refresh();
+  if (pkg.pkgData.version !== version) {
+    throw new Error(`Unexpected version change for ${pkg.pkgData.name}`);
+  }
   process.stdout.write(
     `\t\t♻️ ` +
       chalk.grey(

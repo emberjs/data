@@ -43,6 +43,14 @@ export async function generateMirrorTarballs(
         tarballDir,
         `${toTarballName(strat.mirrorPublishTo)}-${pkg.pkgData.version}.tgz`
       );
+      if (pkg.pkgData.version !== strat.toVersion) {
+        console.log({
+          pkg: pkg.pkgData,
+          strat,
+          mirrorTarballPath,
+        });
+        throw new Error(`Mirror tarball version mismatch for ${strat.name}`);
+      }
 
       // unpack the main tarball for the package
       const mainTarballPath = pkg.tarballPath;
