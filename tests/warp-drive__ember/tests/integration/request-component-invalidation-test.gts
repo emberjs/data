@@ -64,6 +64,7 @@ class TestStore extends Store {
   lifetimes = new CachePolicy({
     apiCacheHardExpires: 5000,
     apiCacheSoftExpires: 1000,
+    disableTestOptimization: true,
   });
 
   createCache(capabilities: CacheCapabilitiesManager) {
