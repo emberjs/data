@@ -752,6 +752,7 @@ module.exports = {
     '(public) @warp-drive/build-config DebugLogging#LOG_CACHE',
     '(public) @warp-drive/build-config DebugLogging#LOG_REQUESTS',
     '(public) @warp-drive/build-config DebugLogging#LOG_REQUEST_STATUS',
+    '(public) @warp-drive/build-config DebugLogging#LOG_CACHE_POLICY',
     '(public) @warp-drive/ember @warp-drive/ember#getPromiseState',
     '(public) @warp-drive/ember @warp-drive/ember#getRequestState',
     '(public) @warp-drive/schema-record @warp-drive/schema-record#fromIdentity',
