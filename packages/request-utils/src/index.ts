@@ -1,12 +1,17 @@
 import { deprecate } from '@ember/debug';
 
+import { LOG_CACHE_POLICY } from '@warp-drive/build-config/debugging';
+import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
-import type { ImmutableRequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
+import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core-types/request';
+import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+
+import { LRUCache } from './-private/string/transform';
 
 type UnsubscribeToken = object;
 type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
@@ -613,16 +618,14 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * @return {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
+  return CACHE_CONTROL_CACHE.get(header);
+}
+
+const CACHE_CONTROL_CACHE = new LRUCache((header: string) => {
   let key: CacheControlKey = '' as CacheControlKey;
   let value = '';
   let isParsingKey = true;
   const cacheControlValue: CacheControlValue = {};
-
-  function parseCacheControlValue(stringToParse: string): number {
-    const parsedValue = Number.parseInt(stringToParse);
-    assert(`Invalid Cache-Control value, expected a number but got - ${stringToParse}`, !Number.isNaN(parsedValue));
-    return parsedValue;
-  }
 
   for (let i = 0; i < header.length; i++) {
     const char = header.charAt(i);
@@ -656,35 +659,328 @@ export function parseCacheControl(header: string): CacheControlValue {
   }
 
   return cacheControlValue;
+}, 200);
+
+function parseCacheControlValue(stringToParse: string): number {
+  const parsedValue = Number.parseInt(stringToParse);
+  assert(`Invalid Cache-Control value, expected a number but got - ${stringToParse}`, !Number.isNaN(parsedValue));
+  assert(`Invalid Cache-Control value, expected a number greater than 0 but got - ${stringToParse}`, parsedValue >= 0);
+  if (Number.isNaN(parsedValue) || parsedValue < 0) {
+    return 0;
+  }
+
+  return parsedValue;
 }
 
-function isStale(headers: Headers, expirationTime: number): boolean {
-  // const age = headers.get('age');
-  // const cacheControl = parseCacheControl(headers.get('cache-control') || '');
-  // const expires = headers.get('expires');
-  // const lastModified = headers.get('last-modified');
-  const date = headers.get('date');
+function isExpired(
+  identifier: StableDocumentIdentifier,
+  request: StructuredDocument<ResourceDocument>,
+  config: PolicyConfig
+): boolean {
+  const { constraints } = config;
 
-  if (!date) {
+  if (constraints?.isExpired) {
+    const result = constraints.isExpired(request);
+    if (result !== null) {
+      if (LOG_CACHE_POLICY) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because constraints.isExpired returned ${result}`
+        );
+      }
+      return result;
+    }
+  }
+
+  const { headers } = request.response!;
+
+  if (!headers) {
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no headers were provided`);
+    }
+
+    // if we have no headers then both the headers based expiration
+    // and the time based expiration will be considered expired
     return true;
   }
 
-  const time = new Date(date).getTime();
+  // check for X-WarpDrive-Expires
   const now = Date.now();
-  const deadline = time + expirationTime;
+  const date = headers.get('Date');
 
-  const result = now > deadline;
+  if (constraints?.headers) {
+    if (constraints.headers['X-WarpDrive-Expires']) {
+      const xWarpDriveExpires = headers.get('X-WarpDrive-Expires');
+      if (xWarpDriveExpires) {
+        const expirationTime = new Date(xWarpDriveExpires).getTime();
+        const result = now >= expirationTime;
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by X-WarpDrive-Expires header is ${result ? 'in the past' : 'in the future'}`
+          );
+        }
+        return result;
+      }
+    }
+
+    // check for Cache-Control
+    if (constraints.headers['Cache-Control']) {
+      const cacheControl = headers.get('Cache-Control');
+      const age = headers.get('Age');
+
+      if (cacheControl && age && date) {
+        const cacheControlValue = parseCacheControl(cacheControl);
+
+        // max-age and s-maxage are stored in
+        const maxAge = cacheControlValue['max-age'] || cacheControlValue['s-maxage'];
+
+        if (maxAge) {
+          // age is stored in seconds
+          const ageValue = parseInt(age, 10);
+          assert(`Invalid Cache-Control value, expected a number but got - ${age}`, !Number.isNaN(ageValue));
+          assert(`Invalid Cache-Control value, expected a number greater than 0 but got - ${age}`, ageValue >= 0);
+
+          if (!Number.isNaN(ageValue) && ageValue >= 0) {
+            const dateValue = new Date(date).getTime();
+            const expirationTime = dateValue + (maxAge - ageValue) * 1000;
+            const result = now >= expirationTime;
+
+            if (LOG_CACHE_POLICY) {
+              // eslint-disable-next-line no-console
+              console.log(
+                `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Cache-Control header is ${result ? 'in the past' : 'in the future'}`
+              );
+            }
+
+            return result;
+          }
+        }
+      }
+    }
+
+    // check for Expires
+    if (constraints.headers.Expires) {
+      const expires = headers.get('Expires');
+      if (expires) {
+        const expirationTime = new Date(expires).getTime();
+        const result = now >= expirationTime;
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Expires header is ${result ? 'in the past' : 'in the future'}`
+          );
+        }
+        return result;
+      }
+    }
+  }
+
+  // check for Date
+  if (!date) {
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no Date header was provided`);
+    }
+    return true;
+  }
+
+  let expirationTime = config.apiCacheHardExpires;
+  if (TESTING) {
+    if (!config.disableTestOptimization) {
+      expirationTime = config.apiCacheSoftExpires;
+    }
+  }
+
+  const time = new Date(date).getTime();
+  const deadline = time + expirationTime;
+  const result = now >= deadline;
+
+  if (LOG_CACHE_POLICY) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the apiCacheHardExpires time since the response's Date header is ${result ? 'in the past' : 'in the future'}`
+    );
+  }
 
   return result;
 }
 
-export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: number };
+/**
+ * The configuration options for the CachePolicy
+ * provided by `@ember-data/request-utils`.
+ *
+ * ```ts
+ * import { CachePolicy } from '@ember-data/request-utils';
+ *
+ * new CachePolicy({
+ *   // ... PolicyConfig Settings ... //
+ * });
+ * ```
+ *
+ * @typedoc
+ */
+export type PolicyConfig = {
+  /**
+   * the number of milliseconds after which a request is considered
+   * stale. If a request is issued again after this time, the request
+   * will respond from cache immediately while a background request
+   * is made to update the cache.
+   *
+   * This is calculated against the `date` header of the response.
+   *
+   * If your API does not provide a `date` header, the `Fetch` handler
+   * provided by `@ember-data/request/fetch` will automatically add
+   * it to responses if it is not present. Responses without a `date`
+   * header will be considered stale immediately.
+   *
+   * @typedoc
+   */
+  apiCacheSoftExpires: number;
+  /**
+   * the number of milliseconds after which a request is considered
+   * expired and should be re-fetched. If a request is issued again
+   * after this time, the request will disregard the cache and
+   * wait for a fresh response from the API.
+   *
+   * This is calculated against the `date` header of the response.
+   *
+   * If your API does not provide a `date` header, the `Fetch` handler
+   * provided by `@ember-data/request/fetch` will automatically add
+   * it to responses if it is not present. Responses without a `date`
+   * header will be considered hard expired immediately.
+   *
+   * @typedoc
+   */
+  apiCacheHardExpires: number;
+  /**
+   * In Testing environments, the `apiCacheSoftExpires` will always be `false`
+   * and `apiCacheHardExpires` will use the `apiCacheSoftExpires` value.
+   *
+   * This helps reduce flakiness and produce predictably rendered results in test suites.
+   *
+   * Requests that specifically set `cacheOptions.backgroundReload = true` will
+   * still be background reloaded in tests.
+   *
+   * This behavior can be opted out of by setting this value to `true`.
+   *
+   * @typedoc
+   */
+  disableTestOptimization?: boolean;
+
+  /**
+   * In addition to the simple time-based expiration strategy, CachePolicy
+   * supports various common server-supplied expiration strategies via
+   * headers, as well as custom expiration strategies via the `isExpired`
+   * function.
+   *
+   * Requests will be validated for expiration against these constraints.
+   * If any of these constraints are not met, the request will be considered
+   * expired. If all constraints are met, the request will be considered
+   * valid and the time based expiration strategy will NOT be used.
+   *
+   * Meeting a constraint means BOTH that the properties the constraint
+   * requires are present AND that the expiration time indicated by those
+   * properties has not been exceeded.
+   *
+   * In other words, if the properties for a constraint are not present,
+   * this does not count either as meeting or as not meeting the constraint,
+   * the constraint simply does not apply.
+   *
+   * The `isExpired` function is called with the request and should return
+   * `true` if the request is expired, `false` if it is not expired, and
+   * `null` if the expiration status is unknown.
+   *
+   * In order constraints are checked:
+   *
+   * - isExpired function
+   * -  ↳ (if null) X-WarpDrive-Expires header
+   * -  ↳ (if null) Cache-Control header
+   * -  ↳ (if null) Expires header
+   *
+   * @typedoc
+   */
+  constraints?: {
+    /**
+     * Headers that should be checked for expiration.
+     *
+     * @typedoc
+     */
+    headers?: {
+      /**
+       * Whether the `Cache-Control` header should be checked for expiration.
+       * If `true`, then the `max-age` and `s-maxage` directives are used alongside
+       * the `Age` and `Date` headers to determine if the expiration time has passed.
+       *
+       * Other directives are ignored.
+       *
+       * 'Cache-Control' will take precedence over 'Expires' if both are present
+       * and both configured to be checked.
+       *
+       * @typedoc
+       */
+      'Cache-Control'?: boolean;
+
+      /**
+       * Whether the `Expires` header should be checked for expiration.
+       *
+       * If `true`, then the `Expires` header is used to caclulate the expiration time
+       * and determine if the expiration time has passed.
+       *
+       * 'Cache-Control' will take precedence over 'Expires' if both are present.
+       *
+       * @typedoc
+       */
+      Expires?: boolean;
+
+      /**
+       * Whether the `X-WarpDrive-Expires` header should be checked for expiration.
+       *
+       * If `true`, then the `X-WarpDrive-Expires` header is used to caclulate the expiration time
+       * and determine if the expiration time has passed.
+       *
+       * This header will take precedence over 'Cache-Control' and 'Expires' if all three are present.
+       *
+       * The header's value should be a [UTC date string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toUTCString).
+       *
+       * @typedoc
+       */
+      'X-WarpDrive-Expires'?: boolean;
+    };
+
+    /**
+     * A function that should be called to determine if the request is expired.
+     *
+     * If present, this function will be called with the request and should return
+     * `true` if the request is expired, `false` if it is not expired, and
+     * `null` if the expiration status is unknown.
+     *
+     * If the function does not return `null`,
+     *
+     * @typedoc
+     */
+    isExpired?: (request: StructuredDocument<ResourceDocument>) => boolean | null;
+  };
+};
 
 /**
  * A basic CachePolicy that can be added to the Store service.
  *
  * Determines staleness based on time since the request was last received from the API
  * using the `date` header.
+ *
+ * Determines expiration based on configured constraints as well as a time based
+ * expiration strategy based on the `date` header.
+ *
+ * In order expiration is determined by:
+ *
+ * - Is explicitly invalidated
+ * -  ↳ (if null) isExpired function <IF Constraint Active>
+ * -  ↳ (if null) X-WarpDrive-Expires header <IF Constraint Active>
+ * -  ↳ (if null) Cache-Control header <IF Constraint Active>
+ * -  ↳ (if null) Expires header <IF Constraint Active>
+ * -  ↳ (if null) Date header + apiCacheHardExpires < current time
  *
  * Invalidates any request for which `cacheOptions.types` was provided when a createRecord
  * request for that type is successful.
@@ -724,6 +1020,17 @@ export type PolicyConfig = { apiCacheSoftExpires: number; apiCacheHardExpires: n
  *   }
  * }
  * ```
+ *
+ * In Testing environments, the `apiCacheSoftExpires` will always be `false`
+ * and `apiCacheHardExpires` will use the `apiCacheSoftExpires` value.
+ *
+ * This helps reduce flakiness and produce predictably rendered results in test suites.
+ *
+ * Requests that specifically set `cacheOptions.backgroundReload = true` will
+ * still be background reloaded in tests.
+ *
+ * This behavior can be opted out of by setting `disableTestOptimization = true`
+ * in the policy config.
  *
  * @class CachePolicy
  * @public
@@ -905,7 +1212,16 @@ export class CachePolicy {
     }
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
-    return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheHardExpires);
+
+    if (!cached?.response) {
+      if (LOG_CACHE_POLICY) {
+        // eslint-disable-next-line no-console
+        console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no cache entry was found`);
+      }
+      return true;
+    }
+
+    return isExpired(identifier, cached, this.config);
   }
 
   /**
@@ -925,9 +1241,46 @@ export class CachePolicy {
    * @return {Boolean} true if the request is considered soft expired
    */
   isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+    if (TESTING) {
+      if (!this.config.disableTestOptimization) {
+        return false;
+      }
+    }
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
-    return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+
+    if (cached?.response) {
+      const date = cached.response.headers.get('date');
+
+      if (!date) {
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(`CachePolicy: ${identifier.lid} is STALE because no date header was found`);
+        }
+        return true;
+      } else {
+        const time = new Date(date).getTime();
+        const now = Date.now();
+        const deadline = time + this.config.apiCacheSoftExpires;
+        const result = now >= deadline;
+
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'STALE' : 'NOT stale'}. Expiration time: ${deadline}, now: ${now}`
+          );
+        }
+
+        return result;
+      }
+    }
+
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is STALE because no cache entry was found`);
+    }
+
+    return true;
   }
 }
 
