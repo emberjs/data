@@ -1,5 +1,6 @@
 import { deprecate } from '@ember/debug';
 
+import { LOG_CACHE_POLICY } from '@warp-drive/build-config/debugging';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
@@ -671,35 +672,34 @@ function parseCacheControlValue(stringToParse: string): number {
   return parsedValue;
 }
 
-function isStale(headers: Headers, expirationTime: number): boolean {
-  const date = headers.get('date');
-
-  if (!date) {
-    return true;
-  }
-
-  const time = new Date(date).getTime();
-  const now = Date.now();
-  const deadline = time + expirationTime;
-
-  const result = now > deadline;
-
-  return result;
-}
-
-function isExpired(request: StructuredDocument<ResourceDocument>, config: PolicyConfig): boolean {
+function isExpired(
+  identifier: StableDocumentIdentifier,
+  request: StructuredDocument<ResourceDocument>,
+  config: PolicyConfig
+): boolean {
   const { constraints } = config;
 
   if (constraints?.isExpired) {
     const result = constraints.isExpired(request);
     if (result !== null) {
+      if (LOG_CACHE_POLICY) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because constraints.isExpired returned ${result}`
+        );
+      }
       return result;
     }
   }
 
-  const { headers } = request.request;
+  const { headers } = request.response!;
 
   if (!headers) {
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no headers were provided`);
+    }
+
     // if we have no headers then both the headers based expiration
     // and the time based expiration will be considered expired
     return true;
@@ -714,7 +714,14 @@ function isExpired(request: StructuredDocument<ResourceDocument>, config: Policy
       const xWarpDriveExpires = headers.get('X-WarpDrive-Expires');
       if (xWarpDriveExpires) {
         const expirationTime = new Date(xWarpDriveExpires).getTime();
-        return now >= expirationTime;
+        const result = now >= expirationTime;
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by X-WarpDrive-Expires header is ${result ? 'in the past' : 'in the future'}`
+          );
+        }
+        return result;
       }
     }
 
@@ -738,7 +745,16 @@ function isExpired(request: StructuredDocument<ResourceDocument>, config: Policy
           if (!Number.isNaN(ageValue) && ageValue >= 0) {
             const dateValue = new Date(date).getTime();
             const expirationTime = dateValue + (maxAge - ageValue) * 1000;
-            return now >= expirationTime;
+            const result = now >= expirationTime;
+
+            if (LOG_CACHE_POLICY) {
+              // eslint-disable-next-line no-console
+              console.log(
+                `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Cache-Control header is ${result ? 'in the past' : 'in the future'}`
+              );
+            }
+
+            return result;
           }
         }
       }
@@ -749,13 +765,24 @@ function isExpired(request: StructuredDocument<ResourceDocument>, config: Policy
       const expires = headers.get('Expires');
       if (expires) {
         const expirationTime = new Date(expires).getTime();
-        return now >= expirationTime;
+        const result = now >= expirationTime;
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Expires header is ${result ? 'in the past' : 'in the future'}`
+          );
+        }
+        return result;
       }
     }
   }
 
   // check for Date
   if (!date) {
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no Date header was provided`);
+    }
     return true;
   }
 
@@ -768,8 +795,16 @@ function isExpired(request: StructuredDocument<ResourceDocument>, config: Policy
 
   const time = new Date(date).getTime();
   const deadline = time + expirationTime;
+  const result = now >= deadline;
 
-  return now >= deadline;
+  if (LOG_CACHE_POLICY) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the apiCacheHardExpires time since the response's Date header is ${result ? 'in the past' : 'in the future'}`
+    );
+  }
+
+  return result;
 }
 
 /**
@@ -1178,7 +1213,15 @@ export class CachePolicy {
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
 
-    return !cached || !cached.response || isExpired(cached, this.config);
+    if (!cached?.response) {
+      if (LOG_CACHE_POLICY) {
+        // eslint-disable-next-line no-console
+        console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no cache entry was found`);
+      }
+      return true;
+    }
+
+    return isExpired(identifier, cached, this.config);
   }
 
   /**
@@ -1205,7 +1248,39 @@ export class CachePolicy {
     }
     const cache = store.cache;
     const cached = cache.peekRequest(identifier);
-    return !cached || !cached.response || isStale(cached.response.headers, this.config.apiCacheSoftExpires);
+
+    if (cached?.response) {
+      const date = cached.response.headers.get('date');
+
+      if (!date) {
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(`CachePolicy: ${identifier.lid} is STALE because no date header was found`);
+        }
+        return true;
+      } else {
+        const time = new Date(date).getTime();
+        const now = Date.now();
+        const deadline = time + this.config.apiCacheSoftExpires;
+        const result = now >= deadline;
+
+        if (LOG_CACHE_POLICY) {
+          // eslint-disable-next-line no-console
+          console.log(
+            `CachePolicy: ${identifier.lid} is ${result ? 'STALE' : 'NOT stale'}. Expiration time: ${deadline}, now: ${now}`
+          );
+        }
+
+        return result;
+      }
+    }
+
+    if (LOG_CACHE_POLICY) {
+      // eslint-disable-next-line no-console
+      console.log(`CachePolicy: ${identifier.lid} is STALE because no cache entry was found`);
+    }
+
+    return true;
   }
 }
 

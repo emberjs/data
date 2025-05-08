@@ -70,6 +70,14 @@
  * @public
  */
 export const LOG_CACHE: boolean = false;
+/**
+ * Log decisions made by the Basic CachePolicy
+ *
+ * @property LOG_CACHE_POLICY
+ * @type {Boolean}
+ * @public
+ */
+export const LOG_CACHE_POLICY: boolean = false;
 
 /**
  * log notifications received by the NotificationManager
