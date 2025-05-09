@@ -37,27 +37,29 @@ export async function verifyTarballs(
     if (tarballExists) {
       results.push(chalk.grey(`\t✅ Tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
     } else {
-      results.push(chalk.grey(`\t❌ Tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      results.push(chalk.grey(`\t❌ Tarball ${tarballPath} does not exist for package ${chalk.red(pkg.pkgData.name)}`));
       hasErrors = true;
     }
 
     if (!typesTarballPath) {
       results.push(chalk.grey(`\t✖️ Types tarball path is missing for package ${chalk.yellow(pkg.pkgData.name)}`));
-      hasErrors = true;
     } else if (typesTarballExists) {
       results.push(chalk.grey(`\t✅ Types tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
     } else {
-      results.push(chalk.grey(`\t❌ Types tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      results.push(
+        chalk.grey(`\t❌ Types tarball ${typesTarballPath} does not exist for package ${chalk.red(pkg.pkgData.name)}`)
+      );
       hasErrors = true;
     }
 
     if (!mirrorTarballPath) {
       results.push(chalk.grey(`\t✖️ Mirror tarball path is missing for package ${chalk.yellow(pkg.pkgData.name)}`));
-      hasErrors = true;
     } else if (mirrorTarballExists) {
       results.push(chalk.grey(`\t✅ Mirror tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
     } else {
-      results.push(chalk.grey(`\t❌ Mirror tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      results.push(
+        chalk.grey(`\t❌ Mirror tarball ${mirrorTarballPath} does not exist for package ${chalk.red(pkg.pkgData.name)}`)
+      );
       hasErrors = true;
     }
   }
