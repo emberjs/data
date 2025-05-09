@@ -8,10 +8,17 @@
     "src"
   ],
   "bin": {
-    "preview-api-docs": "./src/preview-docs.ts",
-    "rebuild-api-docs": "./src/rebuild-docs.ts"
+    "preview-api-docs": "./src/preview-ember-docs.ts",
+    "rebuild-api-docs": "./src/rebuild-ember-docs.ts"
+  },
+  "scripts": {
+    "prepare": "bun src/prepare-website.ts",
+    "dev": "vitepress dev docs.warp-drive.io",
+    "build": "vitepress build docs.warp-drive.io",
+    "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
+    "vitepress": "^1.6.3",
     "@types/bun": "^1.2.10",
     "typescript": "^5.8.3",
     "chalk": "5.4.1",
