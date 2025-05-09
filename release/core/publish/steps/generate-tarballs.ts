@@ -12,6 +12,64 @@ export function toTarballName(name: string) {
   return name.replace('@', '').replace('/', '-');
 }
 
+export async function verifyTarballs(
+  config: Map<string, string | number | boolean | null>,
+  packages: Map<string, Package>,
+  strategy: Map<string, APPLIED_STRATEGY>
+) {
+  const tarballDir = path.join(TARBALL_DIR, packages.get('root')!.pkgData.version);
+  const actualTarballsList = fs.readdirSync(tarballDir);
+  console.log(`Tarballs in ${tarballDir}:`);
+  actualTarballsList.forEach((tarball) => {
+    console.log(`\t- ${tarball}`);
+  });
+  console.log(`\nVerifying tarballs...`);
+
+  let hasErrors = false;
+  const results = [];
+  for (const [, pkgStrategy] of strategy) {
+    const pkg = packages.get(pkgStrategy.name)!;
+    const { tarballPath, typesTarballPath, mirrorTarballPath } = pkg;
+    const tarballExists = fs.existsSync(tarballPath);
+    const typesTarballExists = typesTarballPath ? fs.existsSync(typesTarballPath) : false;
+    const mirrorTarballExists = mirrorTarballPath ? fs.existsSync(mirrorTarballPath) : false;
+
+    if (tarballExists) {
+      results.push(chalk.grey(`\t✅ Tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
+    } else {
+      results.push(chalk.grey(`\t❌ Tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      hasErrors = true;
+    }
+
+    if (!typesTarballPath) {
+      results.push(chalk.grey(`\t✖️ Types tarball path is missing for package ${chalk.yellow(pkg.pkgData.name)}`));
+      hasErrors = true;
+    } else if (typesTarballExists) {
+      results.push(chalk.grey(`\t✅ Types tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
+    } else {
+      results.push(chalk.grey(`\t❌ Types tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      hasErrors = true;
+    }
+
+    if (!mirrorTarballPath) {
+      results.push(chalk.grey(`\t✖️ Mirror tarball path is missing for package ${chalk.yellow(pkg.pkgData.name)}`));
+      hasErrors = true;
+    } else if (mirrorTarballExists) {
+      results.push(chalk.grey(`\t✅ Mirror tarball exists for package ${chalk.green(pkg.pkgData.name)}`));
+    } else {
+      results.push(chalk.grey(`\t❌ Mirror tarball does not exist for package ${chalk.red(pkg.pkgData.name)}`));
+      hasErrors = true;
+    }
+  }
+
+  results.forEach((result) => {
+    console.log(result);
+  });
+  if (hasErrors) {
+    throw new Error(`Tarball verification failed. Please check the logs for more details.`);
+  }
+}
+
 /**
  * Iterates the public packages declared in the strategy and
  * generates tarballs in the tmp/tarballs/<root-version> directory.

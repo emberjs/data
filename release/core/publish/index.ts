@@ -3,7 +3,7 @@ import { parseRawFlags, printConfig } from '../../utils/parse-args';
 import { GIT_TAG, getAllPackagesForGitTag, getGitState } from '../../utils/git';
 import { printHelpDocs } from '../../help/docs';
 import { bumpAllPackages, restorePackagesForDryRun } from './steps/bump-versions';
-import { generatePackageTarballs } from './steps/generate-tarballs';
+import { generatePackageTarballs, verifyTarballs } from './steps/generate-tarballs';
 import { generateMirrorTarballs } from './steps/generate-mirror-tarballs';
 import { printStrategy } from './steps/print-strategy';
 import { AppliedStrategy, applyStrategy } from './steps/generate-strategy';
@@ -80,6 +80,8 @@ export async function executePublish(args: string[]) {
   } else {
     console.log(`Skipped Pack`);
   }
+
+  await verifyTarballs(config.full, packages, applied.public_pks);
 
   // Publish to NPM registry
   // ========================
