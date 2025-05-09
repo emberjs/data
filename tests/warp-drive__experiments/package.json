@@ -1,6 +1,6 @@
 {
   "name": "warp-drive__experiments",
-  "version": "5.5.0-alpha.26",
+  "version": "5.5.0-beta.0",
   "description": "Provides tests for @warp-drive/experiments",
   "private": true,
   "keywords": [],
