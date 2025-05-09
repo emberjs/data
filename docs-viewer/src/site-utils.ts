@@ -42,7 +42,11 @@ export async function getGuidesStructure() {
   }
 
   // deep iterate converting items objects to arrays
-  return deepConvert(groups);
+  const result = deepConvert(groups);
+  if (process.env.CI) {
+    console.log(JSON.stringify(result, null, 2));
+  }
+  return result;
 }
 
 function deepConvert(obj: Record<string, any>) {
