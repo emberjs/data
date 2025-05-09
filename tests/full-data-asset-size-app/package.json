@@ -1,6 +1,6 @@
 {
   "name": "full-data-asset-size-app",
-  "version": "5.6.0-alpha.0",
+  "version": "5.6.0-alpha.1",
   "private": true,
   "description": "An app for determining asset-size of the meta package",
   "repository": {
