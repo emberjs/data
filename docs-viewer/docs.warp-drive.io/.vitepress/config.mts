@@ -1,9 +1,9 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "WarpDrive",
-  description: "Boldly go where no App has gone before",
+  title: 'WarpDrive',
+  description: 'Boldly go where no App has gone before',
 
   // just until we have the guides and docs in a better state
   ignoreDeadLinks: true,
@@ -29,14 +29,14 @@ export default defineConfig({
     logo: {
       dark: '/logos/warp-drive-logo-gold.svg',
       light: '/logos/warp-drive-logo-dark.svg',
-      alt: 'WarpDrive'
+      alt: 'WarpDrive',
     },
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guides', link: '/guides' },
-      { text: 'API', link: '/api' }
+      { text: 'API', link: '/api' },
     ],
 
     sidebar: [
@@ -44,15 +44,15 @@ export default defineConfig({
         text: 'Examples',
         items: [
           { text: 'Guides', link: '/guides' },
-          { text: 'API', link: '/api' }
-        ]
-      }
+          { text: 'API', link: '/api' },
+        ],
+      },
     ],
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/emberjs/data' },
       { icon: 'discord', link: 'https://discord.gg/zT3asNS' },
-      { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' }
-    ]
-  }
-})
+      { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
+    ],
+  },
+});
