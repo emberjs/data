@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/smoke-tests-native-types",
-  "version": "0.0.1-alpha.14",
+  "version": "0.0.3-alpha.26",
   "private": true,
   "description": "Small description for vite-basic-compat goes here",
   "repository": "",
