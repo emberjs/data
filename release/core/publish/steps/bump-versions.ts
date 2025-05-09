@@ -37,11 +37,9 @@ export async function bumpAllPackages(
   const nextVersion = strategy.get('root')?.toVersion;
   let commitCommand = `git commit -am "Release v${nextVersion}"`;
 
-  if (!dryRun) {
-    if (willPublish) commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
-    else commitCommand = `pnpm install && ` + commitCommand;
-    commitCommand += ` && git tag v${nextVersion}`;
-  }
+  if (willPublish) commitCommand = `pnpm install --no-frozen-lockfile && ` + commitCommand;
+  else commitCommand = `pnpm install && ` + commitCommand;
+  commitCommand += ` && git tag v${nextVersion}`;
 
   // Let the github action determine whether to push the tag to remote
   if (!dryRun && config.get('upstream')) {
