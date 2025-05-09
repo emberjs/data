@@ -451,6 +451,8 @@ async function amendFilesForTypesStrategy(pkg: Package, strategy: APPLIED_STRATE
 
 async function restoreTypesStrategyChanges(pkg: Package, _strategy: APPLIED_STRATEGY) {
   // restore the package.json to its original state
+  const result = await exec({ cmd: `git status` });
+  console.log({ result });
   await exec({ cmd: `git checkout HEAD -- ${pkg.filePath}`, silent: true });
   const version = pkg.pkgData.version;
   await pkg.refresh();
