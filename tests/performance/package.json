@@ -1,6 +1,6 @@
 {
   "name": "performance-test-app",
-  "version": "5.5.0-beta.0",
+  "version": "5.5.0",
   "private": true,
   "description": "Small description for performance-test-app goes here",
   "repository": {
