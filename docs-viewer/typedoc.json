@@ -1,0 +1,3 @@
+{
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"]
+}
