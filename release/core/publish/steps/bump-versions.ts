@@ -53,7 +53,7 @@ export async function bumpAllPackages(
     ? ['sh', '-c', `${cleanCommand}${commitCommand}`]
     : ['zsh', '-c', `${cleanCommand}${commitCommand}`];
 
-  await exec(finalCommand, dryRun);
+  await exec(finalCommand);
   console.log(`✅ ` + chalk.cyan(`Successfully Versioned ${nextVersion}`));
 
   await updateWorkspaceVersionsForPublish(config, packages, strategy);
