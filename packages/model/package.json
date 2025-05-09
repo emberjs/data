@@ -48,7 +48,6 @@
     }
   },
   "peerDependencies": {
-    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",
     "@ember-data/legacy-compat": "workspace:*",

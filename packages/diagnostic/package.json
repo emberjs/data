@@ -74,14 +74,10 @@
     "start": "vite"
   },
   "peerDependencies": {
-    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/test-helpers": "5.2.0",
     "ember-cli-test-loader": ">= 3.1.0"
   },
   "peerDependenciesMeta": {
-    "ember-source": {
-      "optional": true
-    },
     "@ember/test-helpers": {
       "optional": true
     },

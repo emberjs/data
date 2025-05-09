@@ -85,7 +85,6 @@
     "@warp-drive/ember": "workspace:*"
   },
   "peerDependencies": {
-    "ember-source": "3.28.12 || ^4.0.4 || ^5.0.0 || ^6.0.0",
     "@ember/test-helpers": "^3.3.0 || ^4.0.4 || ^5.1.0",
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "qunit": "^2.18.0"
@@ -108,7 +107,6 @@
     "@babel/preset-typescript": "^7.27.0",
     "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^2.0.0",
-    "@glimmer/tracking": "^1.1.2",
     "@types/qunit": "2.19.10",
     "@ember/test-helpers": "5.2.0",
     "@warp-drive/internal-config": "workspace:*",
