@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitepress';
+import { getGuidesStructure } from '../../src/site-utils.ts';
+
+const GuidesStructure = await getGuidesStructure();
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -39,15 +42,24 @@ export default defineConfig({
       { text: 'API', link: '/api' },
     ],
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Guides', link: '/guides' },
-          { text: 'API', link: '/api' },
-        ],
-      },
-    ],
+    sidebar: {
+      // This sidebar gets displayed when a user
+      // is on `guide` directory.
+      '/api-docs/': [
+        {
+          text: 'API Documentation',
+          items: [
+            { text: 'Index', link: '/guide/' },
+            { text: 'One', link: '/guide/one' },
+            { text: 'Two', link: '/guide/two' },
+          ],
+        },
+      ],
+
+      // This sidebar gets displayed when a user
+      // is on `guide` directory.
+      '/guides/': GuidesStructure,
+    },
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/emberjs/data' },
