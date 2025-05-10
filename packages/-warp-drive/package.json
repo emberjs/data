@@ -47,7 +47,7 @@
   "type": "module",
   "peerDependencies": {},
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.17.2",
     "@manypkg/get-packages": "^2.2.2",
     "@warp-drive/build-config": "workspace:*",
     "semver": "^7.7.1",
