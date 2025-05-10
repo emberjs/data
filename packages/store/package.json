@@ -38,7 +38,7 @@
     "start": "vite"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.17.2",
     "@warp-drive/build-config": "workspace:*"
   },
   "peerDependencies": {

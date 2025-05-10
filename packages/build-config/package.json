@@ -43,8 +43,8 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
-    "@embroider/addon-shim": "^1.9.0",
+    "@embroider/macros": "^1.17.2",
+    "@embroider/addon-shim": "^1.10.0",
     "babel-import-util": "^2.1.1",
     "semver": "^7.7.1"
   },

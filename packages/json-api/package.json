@@ -49,7 +49,7 @@
     "@warp-drive/core-types": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.17.2",
     "@warp-drive/build-config": "workspace:*",
     "json-to-ast": "2.1.0",
     "fuse.js": "7.1.0"

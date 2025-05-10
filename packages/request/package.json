@@ -44,7 +44,7 @@
     "@ember/test-waiters": "^3.1.0 || ^4.0.0"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.17.2",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
