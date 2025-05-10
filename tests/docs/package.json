@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",
-    "qunit": "^2.20.1"
+    "qunit": "^2.24.1"
   },
   "engines": {
     "node": ">= 18.20.8"

@@ -163,7 +163,7 @@
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
       "webpack": "5.99.5",
-      "qunit": "2.19.4",
+      "qunit": "2.24.1",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0"
     },
