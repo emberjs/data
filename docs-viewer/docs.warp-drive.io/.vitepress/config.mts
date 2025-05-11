@@ -16,8 +16,8 @@ export default defineConfig({
   // lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.png', type: 'image/png' }],
-    ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/logos/NCC-1701-a-gold.png', type: 'image/png' }],
+    ['link', { rel: 'icon', href: '/logos/NCC-1701-a-gold.svg', type: 'image/svg+xml' }],
 
     [
       'meta',
@@ -56,8 +56,8 @@ export default defineConfig({
       },
     ],
     ['meta', { property: 'og:url', content: 'https://warp-drive.io' }],
-    ['meta', { property: 'og:image', content: './logos/social2.png' }],
-    ['meta', { property: 'og:image', content: './logos/social1.png' }],
+    ['meta', { property: 'og:image', content: '/logos/social1.png' }],
+    ['meta', { property: 'og:image', content: '/logos/social2.png' }],
     // [
     //   'link',
     //   { rel: 'preconnect', href: 'https://fonts.googleapis.com' }
