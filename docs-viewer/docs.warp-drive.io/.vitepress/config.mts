@@ -11,6 +11,10 @@ export default defineConfig({
   // just until we have the guides and docs in a better state
   ignoreDeadLinks: true,
 
+  // this won't work properly until we don't need to sync the guides
+  // from the repo root into the docs-viewer
+  // lastUpdated: true,
+
   head: [
     ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.svg' }],
     // [

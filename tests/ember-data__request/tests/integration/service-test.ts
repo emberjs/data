@@ -41,9 +41,9 @@ module('RequestManager | Ember Service Setup', function (hooks) {
     }
 
     const ManagerService = {
-      create(owner: Owner) {
+      create(ownerArgs: Owner | object) {
         const manager = new CustomManager();
-        setOwner(manager, owner);
+        setOwner(manager, getOwner(ownerArgs)!);
 
         return manager;
       },

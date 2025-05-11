@@ -63,9 +63,6 @@ export function getUser(id: string) {
 const { content } = await store.request(getUser('1')); // [!code focus]
 ```
 
-
-We pair this with [reactive control flow](./concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
-
 ## Build Quickly and Robustly with Reactive Control Flow {#reactive-control-flow}
 
 ```glimmer-ts
@@ -93,7 +90,12 @@ export default <template>
 </template>
 ```
 
-## ORM Powers without ORM Problems
+We pair the JS API with a headless component API providing [reactive control flow](./concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
+
+The component API is a thin framework-specific binding overtop of the framework-agnostic JS API. Don't see your
+framework yet? Let's add it!
+
+## ORM Powers Without ORM Problems
 
 ```ts
 const { content } = await store.request({

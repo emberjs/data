@@ -99,13 +99,13 @@ To use this handler we need to register it in our request manager service, but a
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import { setOwner } from '@ember/owner';
+import { getOwner, setOwner } from '@ember/owner';
 import AuthHandler from './auth-handler';
 
 export default {
-  create(owner) {
+  create(args) {
     const authHandler = new AuthHandler();
-    setOwner(authHandler, owner);
+    setOwner(authHandler, getOwner(args));
 
     return new RequestManager()
       .use([authHandler, Fetch]);
