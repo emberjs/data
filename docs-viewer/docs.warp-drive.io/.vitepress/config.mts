@@ -11,6 +11,10 @@ export default defineConfig({
   // just until we have the guides and docs in a better state
   ignoreDeadLinks: true,
 
+  // this won't work properly until we don't need to sync the guides
+  // from the repo root into the docs-viewer
+  // lastUpdated: true,
+
   head: [
     ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.svg' }],
     // [
@@ -37,7 +41,7 @@ export default defineConfig({
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Guides', link: '/guides/1-manual/1-introduction' },
+      { text: 'Guides', link: '/guide' },
       { text: 'API', link: '/api' },
     ],
 
@@ -57,7 +61,7 @@ export default defineConfig({
 
       // This sidebar gets displayed when a user
       // is on `guides` directory.
-      '/guides/': GuidesStructure,
+      '/guide/': GuidesStructure,
     },
 
     socialLinks: [
@@ -66,8 +70,21 @@ export default defineConfig({
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
 
+    editLink: {
+      pattern: 'https://github.com/emberjs/data/edit/main/:path',
+    },
+
     search: {
       provider: 'local',
+    },
+
+    outline: {
+      level: 2,
+    },
+
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: `Copyright &copy; 2025 Ember.js and Contributors`,
     },
   },
 });

@@ -609,7 +609,7 @@ export class RequestManager {
    * @param {RequestInfo} request
    * @return {Future}
    */
-  request<RT, T = unknown>(request: RequestInfo<T, RT>): Future<RT> {
+  request<RT, T = unknown>(request: RequestInfo<RT, T>): Future<RT> {
     const handlers = this.#handlers;
     if (DEBUG) {
       if (!Object.isFrozen(handlers)) {

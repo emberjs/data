@@ -226,7 +226,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
 export function updateRecord<T extends TypedRecordInstance, RT extends TypedRecordInstance = T>(
   record: T,
   options?: ConstrainedRequestOptions & { patch?: boolean }
-): UpdateRequestOptions<T, SingleResourceDataDocument<RT>>;
+): UpdateRequestOptions<SingleResourceDataDocument<RT>, T>;
 export function updateRecord(
   record: unknown,
   options?: ConstrainedRequestOptions & { patch?: boolean }

@@ -8,12 +8,14 @@ import { camelize, pluralize } from '@ember-data/request-utils/string';
 import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { TypedRecordInstance } from '@warp-drive/core-types/record';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
   UpdateRequestOptions,
 } from '@warp-drive/core-types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 
 import { copyForwardUrlOptions } from './-utils';
 
@@ -221,10 +223,10 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * @param record
  * @param options
  */
-export function updateRecord<T>(
+export function updateRecord<T extends TypedRecordInstance, RT extends TypedRecordInstance = T>(
   record: T,
   options?: ConstrainedRequestOptions & { patch?: boolean }
-): UpdateRequestOptions<T>;
+): UpdateRequestOptions<SingleResourceDataDocument<RT>, T>;
 export function updateRecord(
   record: unknown,
   options?: ConstrainedRequestOptions & { patch?: boolean }

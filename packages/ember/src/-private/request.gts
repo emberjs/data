@@ -15,7 +15,7 @@ import type { RequestLoadingState, RequestState } from '@ember-data/store/-priva
 import { getRequestState } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
-import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
+import { EnableHydration, withBrand, type RequestInfo } from '@warp-drive/core-types/request';
 
 import { and, Throw } from './await.gts';
 
@@ -60,7 +60,7 @@ type ContentFeatures<RT> = {
   latestRequest?: Future<RT>;
 };
 
-interface RequestSignature<T, RT, E> {
+interface RequestSignature<RT, T, E> {
   Args: {
     /**
      * The request to monitor. This should be a `Future` instance returned
@@ -77,7 +77,7 @@ interface RequestSignature<T, RT, E> {
      *
      * @typedoc
      */
-    query?: StoreRequestInput<T, RT>;
+    query?: StoreRequestInput<RT, T>;
 
     /**
      * The store instance to use for making requests. If contexts are available,
@@ -179,7 +179,7 @@ interface RequestSignature<T, RT, E> {
      * @typedoc
      */
     content: [value: RT, features: ContentFeatures<RT>];
-    always: [state: RequestState<T, RT, StructuredErrorDocument<E>>];
+    always: [state: RequestState<RT, T, StructuredErrorDocument<E>>];
   };
 }
 
@@ -400,7 +400,7 @@ interface RequestSignature<T, RT, E> {
  * @class <Request />
  * @public
  */
-export class Request<T, RT, E> extends Component<RequestSignature<T, RT, E>> {
+export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
   /**
    * The store instance to use for making requests. If contexts are available, this
    * will be the `store` on the context, else it will be the store service.
@@ -493,12 +493,12 @@ export class Request<T, RT, E> extends Component<RequestSignature<T, RT, E>> {
    *
    * @internal
    */
-  declare _originalQuery: StoreRequestInput<T, RT> | undefined;
+  declare _originalQuery: StoreRequestInput<RT, T> | undefined;
 
   declare _subscription: object | null;
   declare _subscribedTo: object | null;
 
-  constructor(owner: Owner, args: RequestSignature<T, RT, E>['Args']) {
+  constructor(owner: Owner, args: RequestSignature<RT, T, E>['Args']) {
     super(owner, args);
     this._subscribedTo = null;
     this._subscription = null;
@@ -780,7 +780,7 @@ export class Request<T, RT, E> extends Component<RequestSignature<T, RT, E>> {
 
     if (shouldAttempt) {
       this.clearInterval();
-      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<T, RT>);
+      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT, T>);
       const realMode = mode === 'invalidated' ? null : mode;
       const val = realMode ?? this.args.autorefreshBehavior ?? 'policy';
       switch (val) {
@@ -906,7 +906,7 @@ export class Request<T, RT, E> extends Component<RequestSignature<T, RT, E>> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return this.store.request<RT, T>(query);
+    return this.store.request(query);
   }
 
   @cached

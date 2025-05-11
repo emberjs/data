@@ -266,7 +266,7 @@ export interface PendingRequest extends PendingPromise {
  *
  * @typedoc
  */
-export interface ResolvedRequest<T, RT> extends ResolvedPromise<RT> {
+export interface ResolvedRequest<RT, T> extends ResolvedPromise<RT> {
   /**
    * Whether the request is cancelled.
    *
@@ -275,7 +275,7 @@ export interface ResolvedRequest<T, RT> extends ResolvedPromise<RT> {
   isCancelled: false;
 
   loadingState: RequestLoadingState;
-  request: ImmutableRequestInfo<T, RT> | null;
+  request: ImmutableRequestInfo<RT, T> | null;
   response: Response | ResponseInfo | null;
 }
 /**
@@ -287,7 +287,7 @@ export interface ResolvedRequest<T, RT> extends ResolvedPromise<RT> {
  *
  * @typedoc
  */
-export interface RejectedRequest<T, RT, E extends StructuredErrorDocument = StructuredErrorDocument>
+export interface RejectedRequest<RT, T, E extends StructuredErrorDocument = StructuredErrorDocument>
   extends RejectedPromise<E> {
   /**
    * Whether the request is cancelled.
@@ -297,7 +297,7 @@ export interface RejectedRequest<T, RT, E extends StructuredErrorDocument = Stru
   isCancelled: false;
 
   loadingState: RequestLoadingState;
-  request: ImmutableRequestInfo<T, RT> | null;
+  request: ImmutableRequestInfo<RT, T> | null;
   response: Response | ResponseInfo | null;
 }
 /**
@@ -307,7 +307,7 @@ export interface RejectedRequest<T, RT, E extends StructuredErrorDocument = Stru
  *
  * @typedoc
  */
-export interface CancelledRequest<T, RT, E extends StructuredErrorDocument = StructuredErrorDocument> {
+export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = StructuredErrorDocument> {
   /**
    * The status of the request.
    *
@@ -387,7 +387,7 @@ export interface CancelledRequest<T, RT, E extends StructuredErrorDocument = Str
   isCancelled: true;
 
   loadingState: RequestLoadingState;
-  request: ImmutableRequestInfo<T, RT> | null;
+  request: ImmutableRequestInfo<RT, T> | null;
   response: Response | ResponseInfo | null;
 }
 
@@ -430,10 +430,10 @@ interface PrivateRequestState {
  * @typedoc
  */
 export type RequestCacheRequestState<
-  T = unknown,
   RT = unknown,
+  T = unknown,
   E extends StructuredErrorDocument = StructuredErrorDocument,
-> = PendingRequest | ResolvedRequest<T, RT> | RejectedRequest<T, RT, E> | CancelledRequest<T, RT, E>;
+> = PendingRequest | ResolvedRequest<RT, T> | RejectedRequest<RT, T, E> | CancelledRequest<RT, T, E>;
 
 const RequestStateProto = {};
 
@@ -466,13 +466,13 @@ Object.defineProperty(RequestStateProto, 'loadingState', {
   },
 });
 
-export function createRequestState<T, RT, E>(
+export function createRequestState<RT, T, E>(
   future: Future<RT>
-): Readonly<RequestCacheRequestState<T, RT, StructuredErrorDocument<E>>> {
+): Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>> {
   const state = getPromiseResult(
     future as unknown as Awaitable<StructuredDataDocument<RT>, StructuredErrorDocument<E>>
   );
-  const promiseState = Object.create(RequestStateProto) as RequestCacheRequestState<T, RT, StructuredErrorDocument<E>> &
+  const promiseState = Object.create(RequestStateProto) as RequestCacheRequestState<RT, T, StructuredErrorDocument<E>> &
     PrivateRequestState;
   promiseState._request = future;
 
@@ -484,7 +484,7 @@ export function createRequestState<T, RT, E>(
       promiseState.isError = true;
       promiseState.isPending = false;
       promiseState.isLoading = false;
-      promiseState.request = state.result.request as ImmutableRequestInfo<T, RT>;
+      promiseState.request = state.result.request as ImmutableRequestInfo<RT, T>;
       promiseState.response = state.result.response;
     } else {
       promiseState.result = state.result.content;
@@ -493,7 +493,7 @@ export function createRequestState<T, RT, E>(
       promiseState.isSuccess = true;
       promiseState.isPending = false;
       promiseState.isLoading = false;
-      promiseState.request = state.result.request as ImmutableRequestInfo<T, RT>;
+      promiseState.request = state.result.request as ImmutableRequestInfo<RT, T>;
       promiseState.response = state.result.response;
     }
   } else {
@@ -506,7 +506,7 @@ export function createRequestState<T, RT, E>(
         promiseState.isSuccess = true;
         promiseState.isPending = false;
         promiseState.isLoading = false;
-        promiseState.request = result.request as ImmutableRequestInfo<T, RT>;
+        promiseState.request = result.request as ImmutableRequestInfo<RT, T>;
         promiseState.response = result.response;
       },
       (error: StructuredErrorDocument<E>) => {
@@ -517,7 +517,7 @@ export function createRequestState<T, RT, E>(
         promiseState.isError = true;
         promiseState.isPending = false;
         promiseState.isLoading = false;
-        promiseState.request = error.request as ImmutableRequestInfo<T, RT>;
+        promiseState.request = error.request as ImmutableRequestInfo<RT, T>;
         promiseState.response = error.response;
       }
     );
@@ -579,13 +579,13 @@ export function createRequestState<T, RT, E>(
  */
 export function getRequestState<RT, T, E>(
   future: Future<RT>
-): Readonly<RequestCacheRequestState<T, RT, StructuredErrorDocument<E>>> {
+): Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>> {
   let state = RequestCache.get(future);
 
   if (!state) {
-    state = createRequestState<T, RT, E>(future);
+    state = createRequestState<RT, T, E>(future);
     RequestCache.set(future, state);
   }
 
-  return state as Readonly<RequestCacheRequestState<T, RT, StructuredErrorDocument<E>>>;
+  return state as Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>>;
 }

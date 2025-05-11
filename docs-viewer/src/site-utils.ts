@@ -12,17 +12,27 @@ function segmentToTitle(segment: string) {
 }
 
 function segmentToIndex(segment: string, index: number) {
+  if (segment === 'index.md') {
+    return 0;
+  }
   const value = segment.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1));
   if (!isNaN(Number(value[0]))) {
     return Number(value[0]);
   }
+
   return index;
 }
 
 export async function getGuidesStructure() {
   const GuidesDirectoryPath = path.join(__dirname, '../../guides');
   const glob = globSync('**/*.md', { cwd: GuidesDirectoryPath });
-  const groups: Record<string, any> = {};
+  const groups: Record<string, any> = {
+    manual: {
+      text: 'The Manual',
+      index: 0,
+      items: {},
+    },
+  };
 
   for (const filepath of glob) {
     const segments = filepath.split(path.sep);
@@ -49,12 +59,16 @@ export async function getGuidesStructure() {
       group = group[segment].items;
     }
 
+    if (group === groups) {
+      group = groups.manual.items;
+    }
+
     // add the last segment to the group
     const existing = Object.keys(group);
     group[lastSegment] = {
       text: segmentToTitle(lastSegment),
       index: segmentToIndex(lastSegment, existing.length),
-      link: `/guides/${filepath.replace(/\.md$/, '')}`,
+      link: `/guide/${filepath.replace(/\.md$/, '')}`,
     };
   }
 

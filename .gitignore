@@ -63,5 +63,5 @@ docs-viewer/projects
 # Ignore generated output for the docs website
 docs-viewer/docs.warp-drive.io/.vitepress/dist
 docs-viewer/docs.warp-drive.io/.vitepress/cache
-docs-viewer/docs.warp-drive.io/guides
+docs-viewer/docs.warp-drive.io/guide
 docs-viewer/docs.warp-drive.io/api-docs

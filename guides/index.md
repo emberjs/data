@@ -1,15 +1,7 @@
-<table>
-  <tbody>
-  <tr>
-    <td align="center" width="450"></td>
-    <td align="center" width="450">
-
-[Making Requests →](./2-requests.md)
-
-</td>
-  </tr>
-  </tbody>
-</table>
+---
+title: Introduction
+editLink: true
+---
 
 # Introduction
 
@@ -17,7 +9,11 @@
 
 By ambitious, we mean that ***Warp*Drive** is ideal for both small and large applications that strive to be best-in-class. ***Warp*Drive** seamlessly handles and simplifies the hardest parts of state management when building an app, helping you focus on creating the features and user experiences that drive value.
 
-### Reactivity that Just Works
+<br>
+<img class="dark-only" src="./images/reactivity-pastel.png" alt="waves of reactive signals light up space" width="100%">
+<img class="light-only" src="./images/reactivity-pastel-light.png" alt="waves of reactive signals light up space" width="100%">
+
+## Reactivity That Just Works {#reactivity}
 
 ```hbs
 Hello {{@user.name}}!
@@ -26,7 +22,10 @@ Hello {{@user.name}}!
 Our innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/docs/svelte/what-are-runes), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
 [Preact](https://preactjs.com/guide/v10/signals/) or [Lit](https://lit.dev/docs/data/signals/).
 
-### Requests without the Fuss
+No more boxing/unboxing, extra methods, funny syntaxes, or other boilderplate. Your data is reactive
+without any ceremony, and has the same shape you'd expect if it were "just an object" or "just an array".
+
+## Requests Without The Fuss {#requests}
 
 ```ts
 const { content } = await store.request({
@@ -40,32 +39,31 @@ By building around the same interface as the [Fetch API](https://developer.mozil
   <strong>💚 Fully Typed!</strong>
 </p>
 
-```ts
-const { content } = await store.request<User>({ url: '/api/users/1' });
+```ts{1}
+const { content } = await store.request<User>({
+  url: '/api/users/1'
+});
 ```
 
-`request` takes a generic that can be used to set the return type of the content of the associated request. Builders – functions that return a RequestInit object – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript). This brand will be automatically inferred when using the `RequestInfo` return type.
+`request` takes a generic that can be used to set the return type of the content of the associated request. Builders – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
 
 ```ts
-import type { RequestInfo } from '@warp-drive/core-types/request';
+import { withBrand } from '@warp-drive/core-types/request';
 import type { User } from './types/data';
 
-export function getUser(id: string): RequestInfo<unknown, User> {
-  return {
+export function getUser(id: string) {
+  return withBrand<User>({
     method: 'GET',
     url: `/api/users/${id}`,
-  };
+  });
 }
 
 // ...
 
-const { content } = await store.request(getUser('1'));
+const { content } = await store.request(getUser('1')); // [!code focus]
 ```
 
-
-We pair this with [reactive control flow](./concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
-
-### Build Quickly and Robustly with Reactive Control Flow
+## Build Quickly and Robustly with Reactive Control Flow {#reactive-control-flow}
 
 ```glimmer-ts
 import { Request } from '@warp-drive/ember';
@@ -92,7 +90,12 @@ export default <template>
 </template>
 ```
 
-### ORM Powers without ORM Problems
+We pair the JS API with a headless component API providing [reactive control flow](./concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
+
+The component API is a thin framework-specific binding overtop of the framework-agnostic JS API. Don't see your
+framework yet? Let's add it!
+
+## ORM Powers Without ORM Problems
 
 ```ts
 const { content } = await store.request({
@@ -106,7 +109,7 @@ content.data.organizations.map(organization => {
 
 **Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./5-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
-### Schema Driven Reactivity
+## Schema Driven Reactivity
 
 ***Warp*Drive**'s reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and [transformation](./concepts/transformation.md) is controlled by a simple JSON [ResourceSchema](./concepts/schemas.md).
 
@@ -137,10 +140,10 @@ store.schema.registerResource(
 )
 ```
 
-### Immutability Without The Performative Hassle
+## Immutability Without The Performative Hassle
 
 
-### Mutation Management
+## Mutation Management
 
 [Mutation](./concepts/mutations.md) is handled within controlled contexts. The data to edit is "checked out" for editing, giving access to a mutable version. Local edits are seamlessly preserved if the user navigates away and returns without saving, and the changes are buffered from appearing elsewhere in your app until they are also committed to the server.
 
