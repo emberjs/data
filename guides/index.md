@@ -52,10 +52,10 @@ import { withBrand } from '@warp-drive/core-types/request';
 import type { User } from './types/data';
 
 export function getUser(id: string) {
-  return withBrand<User>({
+  return withBrand<User>({  // [!code focus]
     method: 'GET',
     url: `/api/users/${id}`,
-  });
+  });  // [!code focus]
 }
 
 // ...
@@ -71,22 +71,22 @@ import { findRecord } from '@ember-data/json-api/request';
 import { Spinner } from './spinner';
 
 export default <template>
-  <Request @query={{findRecord "user" "1"}}>
-    <:error as |error state|>
+  <Request @query={{findRecord "user" "1"}}> <!-- [!code focus] -->
+    <:error as |error state|> <!-- [!code focus] -->
       <h2>Whoops!</h2>
       <h3>{{error.message}}</h3>
       <button {{on "click" state.retry}}>Try Again?</button>
-    </:error>
+    </:error> <!-- [!code focus] -->
 
-    <:content as |result|>
+    <:content as |result|>  <!-- [!code focus] -->
       Hello {{result.data.name}}!
-    </:content>
+    </:content> <!-- [!code focus] -->
 
-    <:loading as |state|>
+    <:loading as |state|> <!-- [!code focus] -->
       <Spinner @progress={{state.completedRatio}} />
       <button {{on "click" state.abort}}>Cancel?</button>
-    </:loading>
-  </Request>
+    </:loading> <!-- [!code focus] -->
+  </Request> <!-- [!code focus] -->
 </template>
 ```
 
@@ -95,7 +95,7 @@ We pair the JS API with a headless component API providing [reactive control flo
 The component API is a thin framework-specific binding overtop of the framework-agnostic JS API. Don't see your
 framework yet? Let's add it!
 
-## ORM Powers Without ORM Problems
+## ORM Powers Without ORM Problems {#relational-data}
 
 ```ts
 const { content } = await store.request({
@@ -109,7 +109,7 @@ content.data.organizations.map(organization => {
 
 **Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./5-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
-## Schema Driven Reactivity
+## Schema Driven Reactivity {#schemas}
 
 ***Warp*Drive**'s reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and [transformation](./concepts/transformation.md) is controlled by a simple JSON [ResourceSchema](./concepts/schemas.md).
 
@@ -140,10 +140,12 @@ store.schema.registerResource(
 )
 ```
 
-## Immutability Without The Performative Hassle
+## Immutability Without The Performative Hassle {#immutability}
 
+Derivations, transformations, and immutability-by-default prevent the need for verbose allocation and compute
+heavy immutability tricks such as spread, slice, and map.
 
-## Mutation Management
+## Mutation Management {#mutations}
 
 [Mutation](./concepts/mutations.md) is handled within controlled contexts. The data to edit is "checked out" for editing, giving access to a mutable version. Local edits are seamlessly preserved if the user navigates away and returns without saving, and the changes are buffered from appearing elsewhere in your app until they are also committed to the server.
 
@@ -156,6 +158,8 @@ const editable = await user[Checkout]();
 editable.firstName = 'Chris';
 ```
 
+## Broad Compatibility {#api-compatibility}
+
 ***Warp*Drive** is only semi-opinionated about your API. Almost every API is compatible just by authoring a [request handler](./concepts/handlers.md) to ensure that the responses are normalized into the cache format.
 
 ```ts
@@ -167,6 +171,10 @@ const NormalizeKeysHandler = {
   }
 }
 ```
+
+---
+
+**probably discard this section**
 
 ***Warp*Drive** offers both a JS and a Component based way of making requests and working with the result. Above we saw
 how to generate a request in component form. Here's how we can generate the same request using plain JavaScript.
@@ -196,6 +204,10 @@ const result = await request;
 
 You may be thinking "what is store and where did that come from"? The [store]() helps us to manage our data and cache responses. The store is something that you will configure for your application. Our component usage above is also using our application's store, a detail we will explore further in later sections.
 
+---
+
+## Completely Customizable {#customization}
+
 If using an app-specific cache format would work better for the demands of your API, the [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) the store should use is customizable:
 
 ```ts
@@ -209,6 +221,8 @@ class AppStore extends Store {
 }
 ```
 
+## Ready for Realtime {#realtime}
+
 Realtime subscriptions are supported through an extensive list of [operations](./concepts/operations.md) for surgically updating cache state, as well as by a comprehensive [notifications service]() which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
 
 ```ts
@@ -219,6 +233,8 @@ store.cache.patch({
   value: User2Key
 });
 ```
+
+## And a Universe of More {#explore}
 
 ***Warp*Drive** has been designed as a series of interfaces following the single-responsibility principle with well defined boundaries and configuration points. Because of this, nearly every aspect of the library is configurable, extensible, composable, replaceable or all of the above: meaning that if something doesn't meet your needs out-of-the-box, you can configure it to.
 
