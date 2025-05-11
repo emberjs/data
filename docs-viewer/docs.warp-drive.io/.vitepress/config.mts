@@ -37,14 +37,13 @@ export default defineConfig({
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guides', link: '/guides' },
+      { text: 'Guides', link: '/guides/1-manual/1-introduction' },
       { text: 'API', link: '/api' },
     ],
 
     sidebar: {
       // This sidebar gets displayed when a user
-      // is on `guide` directory.
+      // is on `api-docs` directory.
       '/api-docs/': [
         {
           text: 'API Documentation',
@@ -57,7 +56,7 @@ export default defineConfig({
       ],
 
       // This sidebar gets displayed when a user
-      // is on `guide` directory.
+      // is on `guides` directory.
       '/guides/': GuidesStructure,
     },
 
@@ -66,5 +65,9 @@ export default defineConfig({
       { icon: 'discord', link: 'https://discord.gg/zT3asNS' },
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
+
+    search: {
+      provider: 'local',
+    },
   },
 });

@@ -1,5 +1,4 @@
 import path from 'path';
-// @ts-expect-error missing in node types
 import { globSync } from 'node:fs';
 
 function segmentToTitle(segment: string) {
@@ -12,22 +11,37 @@ function segmentToTitle(segment: string) {
   return result === 'Index' ? 'Introduction' : result;
 }
 
+function segmentToIndex(segment: string, index: number) {
+  const value = segment.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1));
+  if (!isNaN(Number(value[0]))) {
+    return Number(value[0]);
+  }
+  return index;
+}
+
 export async function getGuidesStructure() {
   const GuidesDirectoryPath = path.join(__dirname, '../../guides');
-  const glob = globSync('**/*.md', { cwd: GuidesDirectoryPath }) as string[];
-
+  const glob = globSync('**/*.md', { cwd: GuidesDirectoryPath });
   const groups: Record<string, any> = {};
 
   for (const filepath of glob) {
     const segments = filepath.split(path.sep);
     const lastSegment = segments.pop()!;
+
+    if (lastSegment.startsWith('0-')) {
+      // skip hidden files
+      continue;
+    }
+
     let group = groups;
 
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
       if (!group[segment]) {
+        const existing = Object.keys(group);
         group[segment] = {
           text: segmentToTitle(segment),
+          index: segmentToIndex(segment, existing.length),
           collapsed: true,
           items: {},
         };
@@ -35,17 +49,18 @@ export async function getGuidesStructure() {
       group = group[segment].items;
     }
 
+    // add the last segment to the group
+    const existing = Object.keys(group);
     group[lastSegment] = {
       text: segmentToTitle(lastSegment),
+      index: segmentToIndex(lastSegment, existing.length),
       link: `/guides/${filepath.replace(/\.md$/, '')}`,
     };
   }
 
   // deep iterate converting items objects to arrays
   const result = deepConvert(groups);
-  if (process.env.CI) {
-    console.log(JSON.stringify(result, null, 2));
-  }
+  console.log(JSON.stringify(result, null, 2));
   return result;
 }
 
@@ -57,5 +72,7 @@ function deepConvert(obj: Record<string, any>) {
       group.items = deepConvert(group.items);
     }
   }
-  return groups;
+  return groups.sort((a, b) => {
+    return a.index < b.index ? -1 : a.index > b.index ? 1 : 0;
+  });
 }

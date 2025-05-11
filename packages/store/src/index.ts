@@ -96,10 +96,11 @@
  * import RequestManager from '@ember-data/request';
  * import Fetch from '@ember-data/request/fetch';
  *
- * export default class extends RequestManager {
- *   constructor(createArgs) {
- *     super(createArgs);
- *     this.use([Fetch]);
+ * export default {
+ *   create() {
+ *     return new RequestManager()
+ *       .use([Fetch])
+ *       .useCache(CacheHandler);
  *   }
  * }
  * ```
