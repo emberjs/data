@@ -56,8 +56,9 @@ export default defineConfig({
       },
     ],
     ['meta', { property: 'og:url', content: 'https://warp-drive.io' }],
-    ['meta', { property: 'og:image', content: '/logos/social1.png' }],
-    ['meta', { property: 'og:image', content: '/logos/social2.png' }],
+    ['meta', { property: 'og:image', content: '/logos/github-header.svg' }],
+    // ['meta', { property: 'og:image', content: '/logos/social1.png' }],
+    // ['meta', { property: 'og:image', content: '/logos/social2.png' }],
     // [
     //   'link',
     //   { rel: 'preconnect', href: 'https://fonts.googleapis.com' }
