@@ -16,7 +16,48 @@ export default defineConfig({
   // lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.svg' }],
+    ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.png', type: 'image/png' }],
+    ['link', { rel: 'icon', href: './logos/NCC-1701-a-gold.svg', type: 'image/svg+xml' }],
+
+    [
+      'meta',
+      {
+        name: 'keywords',
+        content:
+          'data-framework fetch typescript typed REST data-loading apps GraphQL JSON:API jsonapi json reactivity signals cross-framework MPA SPA',
+      },
+    ],
+    [
+      'meta',
+      {
+        name: 'description',
+        content:
+          'WarpDrive is a lightweight data library for web apps — universal, typed, reactive, and ready to scale.',
+      },
+    ],
+    [
+      'meta',
+      {
+        itemprop: 'description',
+        content:
+          'WarpDrive is a lightweight data library for web apps — universal, typed, reactive, and ready to scale.',
+      },
+    ],
+
+    ['meta', { property: 'og:title', content: 'WarpDrive' }],
+    ['meta', { property: 'og:site_name', content: 'WarpDrive' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content:
+          'WarpDrive is a lightweight data library for web apps — universal, typed, reactive, and ready to scale.',
+      },
+    ],
+    ['meta', { property: 'og:url', content: 'https://warp-drive.io' }],
+    ['meta', { property: 'og:image', content: './logos/social2.png' }],
+    ['meta', { property: 'og:image', content: './logos/social1.png' }],
     // [
     //   'link',
     //   { rel: 'preconnect', href: 'https://fonts.googleapis.com' }
