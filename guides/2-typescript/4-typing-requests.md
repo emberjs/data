@@ -26,8 +26,7 @@ The signature for `request` will infer the generic for the content type from a s
 
 ```ts
 import type { RequestSignature } from '@warp-drive/core-types/symbols';
-import type { CollectionRecordArray } from '@ember-data/store/types';
-import type User from '../models/user';
+import type { User } from '../types/data/user';
 
 type MyRequest {
   // ...

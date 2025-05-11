@@ -1,13 +1,20 @@
 <table>
+<tbody>
   <tr>
     <td align="center" width="300"></td>
    <td align="center" width="300">
    
-[❖ Table of Contents](./0-index.md)</td>
+[❖ Table of Contents](./0-index.md)
+
+</td>
+
    <td align="center" width="300">
 
-[Overview →](./2-overview.md)</td>
+[Overview →](./2-overview.md)
+
+</td>
   </tr>
+  </tbody>
 </table>
 
 ## Why WarpDrive?
@@ -73,13 +80,14 @@ decades.
 <br>
 
 <table>
+<tbody>
   <tr>
-    <td align="center" width="300"></td>
-   <td align="center" width="300">
-   
-[❖ Table of Contents](./0-index.md)</td>
-   <td align="center" width="300">
+    <td align="center" width="450"></td>
+    <td align="center" width="450">
 
-[Overview →](./2-overview.md)</td>
+[Overview →](./2-overview.md)
+
+</td>
   </tr>
+</tbody>
 </table>

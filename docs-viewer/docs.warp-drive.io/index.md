@@ -6,10 +6,13 @@ hero:
   name: "The Manual"
   text: Boldly go where no App has gone before
   tagline: "WarpDrive is the lightweight data framework for ambitious web applications — universal, typed, reactive, and ready to scale."
+  image:
+    src: /images/handlers-all-labeled.gif
+    alt: WarpDrive
   actions:
     - theme: brand
       text: Guides
-      link: /guides
+      link: /guides/1-manual/1-introduction
     - theme: alt
       text: API Docs
       link: /api

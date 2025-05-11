@@ -1,18 +1,21 @@
 <table>
+  <tbody>
   <tr>
-    <td align="center" width="300">
+    <td align="center" width="450">
 
-[← Overview](./1-overview.md)</td>
-   <td align="center" width="300">
-   
-[❖ Table of Contents](./0-index.md)</td>
-   <td align="center" width="300">
+[← Introduction](./1-introduction.md)
 
-[Key Data Structures →](./4-data.md)</td>
+   </td>
+   <td align="center" width="450">
+
+[Key Data Structures →](./4-data.md)
+
+</td>
   </tr>
+  </tbody>
 </table>
 
-## Making Requests
+# Making Requests
 
 Requests are how your application fetches or updates data stored remotely.
 
@@ -84,21 +87,14 @@ Requests do not need to use fetch! The native [Request](https://developer.mozill
 
 Request handlers can be used to connect to any data source via any mechanism. Besides fetch, this might be localStorage, [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket), [ServerEvents](https://developer.mozilla.org/en-US/docs/Web/API/EventSource), [MessageChannel](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel), or something else entirely!
 
+<p align="center">
+  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-all-labeled.gif" width="100%">
+</p>
+
 
 
 WarpDrive offers both a typed JS approach to making requests and a declarative component approach.
 
-<p align="center">
-  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-early-resolution.gif" width="400">
-</p>
-
-<p align="center">
-  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-local-resolution.gif" width="400">
-</p>
-
-<p align="center">
-  <img alt="a flow diagram showing data resolving from server via a chain of request handlers" src="./images/handlers-cloud-resolution.gif" width="400">
-</p>
 
 
 <br>
@@ -293,23 +289,3 @@ A handler may be any object with a `request` method. This allows both stateful a
 > - don't block response streaming (we'll talk about this later)
 
 <br>
-
-<br>
-
----
-
-<br>
-
-<table>
-  <tr>
-    <td align="center" width="300">
-
-[← Overview](./1-overview.md)</td>
-   <td align="center" width="300">
-   
-[❖ Table of Contents](./0-index.md)</td>
-   <td align="center" width="300">
-
-[Key Data Structures →](./4-data.md)</td>
-  </tr>
-</table>
