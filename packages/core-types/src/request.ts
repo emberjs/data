@@ -83,7 +83,7 @@ export type CacheOptions<T = unknown> = {
    */
   [SkipCache]?: boolean;
 };
-export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
+export type FindRecordRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
@@ -93,7 +93,7 @@ export type FindRecordRequestOptions<T = unknown, RT = unknown> = {
   [RequestSignature]?: RT;
 };
 
-export type QueryRequestOptions<T = unknown, RT = unknown> = {
+export type QueryRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
@@ -102,7 +102,7 @@ export type QueryRequestOptions<T = unknown, RT = unknown> = {
   [RequestSignature]?: RT;
 };
 
-export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
+export type PostQueryRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'POST' | 'QUERY';
   headers: Headers;
@@ -112,7 +112,7 @@ export type PostQueryRequestOptions<T = unknown, RT = unknown> = {
   [RequestSignature]?: RT;
 };
 
-export type DeleteRequestOptions<T = unknown, RT = unknown> = {
+export type DeleteRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'DELETE';
   headers: Headers;
@@ -130,7 +130,7 @@ type ImmutableRequest<T> = Readonly<T> & {
   readonly records: [StableRecordIdentifier];
 };
 
-export type UpdateRequestOptions<T = unknown, RT = unknown> = {
+export type UpdateRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'PATCH' | 'PUT';
   headers: Headers;
@@ -143,7 +143,7 @@ export type UpdateRequestOptions<T = unknown, RT = unknown> = {
   [RequestSignature]?: RT;
 };
 
-export type CreateRequestOptions<T = unknown, RT = unknown> = {
+export type CreateRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'POST';
   headers: Headers;
@@ -205,7 +205,7 @@ export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorD
  *
  * @typedoc
  */
-type Request = {
+interface Request {
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
    * @typedoc
    */
@@ -275,7 +275,7 @@ type Request = {
    * @typedoc
    */
   duplex?: 'half';
-};
+}
 
 export interface ImmutableHeaders extends Headers {
   clone?(): Headers;
@@ -288,7 +288,7 @@ export interface ImmutableHeaders extends Headers {
  *
  * @typedoc
  */
-export type RequestInfo<T = unknown, RT = unknown> = Request & {
+export interface RequestInfo<RT = unknown, T = unknown> extends Request {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -336,14 +336,14 @@ export type RequestInfo<T = unknown, RT = unknown> = Request & {
   [RequestSignature]?: RT;
 
   [EnableHydration]?: boolean;
-};
+}
 
 /**
  * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
  *
  * @typedoc
  */
-export type ImmutableRequestInfo<T = unknown, RT = unknown> = Readonly<Omit<RequestInfo<T, RT>, 'controller'>> & {
+export type ImmutableRequestInfo<RT = unknown, T = unknown> = Readonly<Omit<RequestInfo<RT, T>, 'controller'>> & {
   readonly cacheOptions?: Readonly<CacheOptions<T>>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
@@ -375,4 +375,10 @@ export interface RequestContext {
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
   setResponse(response: Response | ResponseInfo | null): void;
+}
+
+export function withBrand<T>(obj: RequestInfo): RequestInfo<T> & { [RequestSignature]: T } {
+  return obj as RequestInfo<T> & {
+    [RequestSignature]: T;
+  };
 }

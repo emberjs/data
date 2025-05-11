@@ -37,7 +37,7 @@ export default defineConfig({
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Guides', link: '/guides/1-manual/1-introduction' },
+      { text: 'Guides', link: '/guide' },
       { text: 'API', link: '/api' },
     ],
 
@@ -57,7 +57,7 @@ export default defineConfig({
 
       // This sidebar gets displayed when a user
       // is on `guides` directory.
-      '/guides/': GuidesStructure,
+      '/guide/': GuidesStructure,
     },
 
     socialLinks: [
@@ -66,8 +66,21 @@ export default defineConfig({
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
 
+    editLink: {
+      pattern: 'https://github.com/emberjs/data/edit/main/:path',
+    },
+
     search: {
       provider: 'local',
+    },
+
+    outline: {
+      level: 2,
+    },
+
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: `Copyright &copy; 2025 Ember.js and Contributors`,
     },
   },
 });

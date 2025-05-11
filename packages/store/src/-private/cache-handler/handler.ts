@@ -19,6 +19,7 @@ import type {
 } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
 import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { RequestSignature } from '@warp-drive/core-types/symbols';
 
 import { ReactiveDocument } from '../document';
 import type { Store } from '../store-service';
@@ -31,15 +32,15 @@ import {
   isMutation,
 } from './utils';
 
-export type LooseStoreRequestInfo<T = unknown, RT = unknown> = Omit<
-  ImmutableRequestInfo<T, RT>,
-  'records' | 'headers'
+export type LooseStoreRequestInfo<RT = unknown, T = unknown> = Omit<
+  ImmutableRequestInfo<RT, T>,
+  'records' | 'headers' | typeof RequestSignature
 > & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput<T = unknown, RT = unknown> = ImmutableRequestInfo<T, RT> | LooseStoreRequestInfo<T, RT>;
+export type StoreRequestInput<RT = unknown, T = unknown> = ImmutableRequestInfo<RT, T> | LooseStoreRequestInfo<RT, T>;
 
 export interface StoreRequestContext extends RequestContext {
   request: ImmutableRequestInfo & { store: Store };

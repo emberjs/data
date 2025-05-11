@@ -5,6 +5,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ImmutableRequestInfo, RequestInfo } from '@warp-drive/core-types/request';
+import { withBrand } from '@warp-drive/core-types/request';
 import type { CollectionResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
 import type { Link, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
 import type { Mutable } from '@warp-drive/core-types/utils';
@@ -131,7 +132,7 @@ export class ReactiveDocument<T> {
 
   async #request(
     link: keyof PaginationLinks,
-    options: Partial<RequestInfo<T, ReactiveDocument<T>>>
+    options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
   ): Promise<ReactiveDocument<T> | null> {
     const href = this.links?.[link];
     if (!href) {
@@ -155,7 +156,9 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return Promise<Document>
    */
-  fetch(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T>> {
+  fetch(
+    options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
+  ): Promise<ReactiveDocument<T>> {
     assert(`No self or related link`, this.links?.related || this.links?.self);
     options.cacheOptions = options.cacheOptions || {};
     options.cacheOptions.key = this.identifier?.lid;
@@ -172,7 +175,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return Promise<Document | null>
    */
-  next(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
+  next(options?: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('next', options);
   }
 
@@ -186,7 +189,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return Promise<Document | null>
    */
-  prev(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
+  prev(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('prev', options);
   }
 
@@ -200,7 +203,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return Promise<Document | null>
    */
-  first(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
+  first(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('first', options);
   }
 
@@ -214,7 +217,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return Promise<Document | null>
    */
-  last(options: Partial<RequestInfo<T, ReactiveDocument<T>>> = {}): Promise<ReactiveDocument<T> | null> {
+  last(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('last', options);
   }
 
