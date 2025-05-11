@@ -45,7 +45,7 @@ export default defineConfig({
     ],
 
     ['meta', { property: 'og:title', content: 'WarpDrive' }],
-    ['meta', { property: 'og:site_name', content: 'WarpDrive' }],
+    ['meta', { property: 'og:site_name', content: 'warp-drive.io' }],
     ['meta', { property: 'og:type', content: 'website' }],
     [
       'meta',
