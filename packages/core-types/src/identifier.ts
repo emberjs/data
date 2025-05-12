@@ -36,6 +36,7 @@ export interface NewRecordIdentifier<T extends string = string> extends Identifi
 export type StableDocumentIdentifier = {
   lid: string;
 };
+export type RequestKey = StableDocumentIdentifier;
 
 /**
  * An Identifier specific to a record which may or may not
@@ -132,3 +133,5 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
 export type StableRecordIdentifier<T extends string = string> =
   | StableExistingRecordIdentifier<T>
   | StableNewRecordIdentifier<T>;
+
+export type ResourceKey<T extends string = string> = StableRecordIdentifier<T>;
