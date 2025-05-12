@@ -2,10 +2,25 @@
 title: Overview
 ---
 
+::: tip Boilerplate Sucks 👎🏽
+We're re-aligning our packages into a new streamlined installation and setup experience.<br>
+Below you'll find the current *boilerplate heavy* setup.
+
+Curious? Read the [RFC](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
+:::
+
 # Configuration
 
 ***Warp*Drive** is highly configurable. The library is designed as a series of small packages with clear
 interface-driven boundaries between each other and brought together by configuration.
+
+::: warning ⚠️ Caution
+WarpDrive packages follow lockstep: dependencies and peer-dependencies between WarpDrive packages are version-locked at the time of publish.
+
+We find this means its best to use exact versions instead of ranges as all WarpDrive packages should be upgraded together at once.
+
+All of the installation commands below pin the version for this reason.
+:::
 
 Below, we detail the installation for the most common configurations.
 
@@ -16,18 +31,23 @@ Below, we detail the installation for the most common configurations.
 
 ## Installation {#installation}
 
-::: tip Boilerplate Sucks 👎🏽
-We're re-aligning our packages into a new streamlined installation and setup experience.<br>
-Below you'll find the current *boilerplate heavy* setup.
 
-Curious? Read the [RFC](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
-:::
 
 Install the core packages:
 
+::: info 💡 TIP
+WarpDrive uses npm channel tags to simplify installation.
+- `@lts` is the latest LTS release
+- `@latest` is the latest stable release
+- `@beta` is the latest beta release
+- `@canary` is the latest canary release
+
+Replace `@latest` in the commands below with the desired channel if needed.
+:::
+
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -39,7 +59,7 @@ pnpm add -E \
   @ember-data/json-api@latest;
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -51,7 +71,7 @@ npm add -E \
   @ember-data/json-api@latest;
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -63,7 +83,7 @@ yarn add -E \
   @ember-data/json-api@latest;
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -81,19 +101,19 @@ Optionally, install the ESLint plugin `eslint-plugin-warp-drive`
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E eslint-plugin-warp-drive@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E eslint-plugin-warp-drive@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E eslint-plugin-warp-drive@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact eslint-plugin-warp-drive@latest
 ```
 
@@ -105,19 +125,19 @@ Install `@warp-drive/ember`
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E @warp-drive/ember@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E @warp-drive/ember@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E @warp-drive/ember@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact @warp-drive/ember@latest
 ```
 
@@ -127,19 +147,19 @@ Optionally, for Ember Inspector support install `@ember-data/debug`
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E @ember-data/debug@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E @ember-data/debug@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add-E @ember-data/debug@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact @ember-data/debug@latest
 ```
 
@@ -149,25 +169,25 @@ Optionally, to use the legacy `@ember-data/model` experience (via Model or via S
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E \
   @ember-data/model@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E \
   @ember-data/model@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E \
   @ember-data/model@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact \
   @ember-data/model@latest \
   @ember-data/legacy-compat@latest;
@@ -180,28 +200,28 @@ Optionally, to use the legacy **Adapter/Serializer** experience, install the fol
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E \
   @ember-data/adapter@latest \
   @ember-data/serializer@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E \
   @ember-data/adapter@latest \
   @ember-data/serializer@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E \
   @ember-data/adapter@latest \
   @ember-data/serializer@latest \
   @ember-data/legacy-compat@latest;
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact \
   @ember-data/adapter@latest \
   @ember-data/serializer@latest \
@@ -217,19 +237,19 @@ follow common REST API patterns.
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E @ember-data/rest@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E @ember-data/rest@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E @ember-data/rest@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact @ember-data/rest@latest
 ```
 
@@ -240,19 +260,19 @@ follow the rails ActiveRecord structure.
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E @ember-data/active-record@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E @ember-data/active-record@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E @ember-data/active-record@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact @ember-data/active-record@latest
 ```
 
@@ -263,19 +283,19 @@ we're prototyping like SharedWorker and PersistedCache.
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E @warp-drive-experiments@latest
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E @warp-drive-experiments@latest
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E @warp-drive-experiments@latest
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact @warp-drive-experiments@latest
 ```
 
@@ -291,7 +311,7 @@ If you're curious, the exact list of packages to replicate `ember-data` includin
 
 ::: code-group
 
-```cli [pnpm]
+```sh [pnpm]
 pnpm add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -310,7 +330,7 @@ pnpm add -E \
   @warp-drive/ember;
 ```
 
-```cli [npm]
+```sh [npm]
 npm add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -329,7 +349,7 @@ npm add -E \
   @warp-drive/ember;
 ```
 
-```cli [yarn]
+```sh [yarn]
 yarn add -E \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \
@@ -348,7 +368,7 @@ yarn add -E \
   @warp-drive/ember;
 ```
 
-```cli [bun]
+```sh [bun]
 bun add --exact \
   @warp-drive/core-types@latest \
   @warp-drive/build-config@latest \

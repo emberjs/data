@@ -1,12 +1,24 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure } from '../../src/site-utils.ts';
 
+import llmstxt from 'vitepress-plugin-llms';
+import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
+
 const GuidesStructure = await getGuidesStructure(false);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'WarpDrive',
   description: 'Boldly go where no App has gone before',
+
+  markdown: {
+    config(md) {
+      md.use(groupIconMdPlugin);
+    },
+  },
+  vite: {
+    plugins: [llmstxt(), groupIconVitePlugin()],
+  },
 
   // just until we have the guides and docs in a better state
   ignoreDeadLinks: true,
