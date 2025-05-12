@@ -21,7 +21,7 @@ Hello {{@user.name}}!
 Our innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf) enables rapidly developing robust, performant web applications using any [Signals](https://github.com/tc39/proposal-signals#readme) compatible framework such as [Ember](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/), [Svelte](https://svelte.dev/docs/svelte/what-are-runes), [Angular](https://angular.dev/guide/signals), [Vue.js](https://vuejs.org/guide/extras/reactivity-in-depth.html), [SolidJS](https://www.solidjs.com/tutorial/introduction_signals),
 [Preact](https://preactjs.com/guide/v10/signals/) or [Lit](https://lit.dev/docs/data/signals/).
 
-No more boxing/unboxing, extra methods, funny syntaxes, or other boilderplate. Your data is reactive
+No more boxing/unboxing, extra methods, funny syntaxes, or other boilerplate. Your data is reactive
 without any ceremony, and has the same shape you'd expect if it were "just an object" or "just an array".
 
 ## Requests Without The Fuss {#requests}

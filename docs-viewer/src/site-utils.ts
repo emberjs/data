@@ -1,6 +1,9 @@
 import path from 'path';
 import { globSync } from 'node:fs';
 
+const DefaultOpenGroups: string[] = [];
+const AlwaysOpenGroups: string[] = ['configuration.setup'];
+
 function segmentToTitle(segment: string, prevSegment: string | null) {
   if (segment === 'index.md') {
     if (!prevSegment || prevSegment === '1-the-manual') return 'Introduction';
@@ -43,6 +46,7 @@ export async function getGuidesStructure(withRewrites = false) {
     manual: {
       text: 'The Manual',
       index: 0,
+      collapsed: true,
       items: {},
     },
   };
@@ -73,6 +77,8 @@ export async function getGuidesStructure(withRewrites = false) {
       const niceSegment = segmentToNicePath(segment);
       const trueSegment = withRewrites ? niceSegment : segment;
       rewrittenPath.push(niceSegment);
+      const key = rewrittenPath.join('.');
+      const collapsed = AlwaysOpenGroups.includes(key) ? null : DefaultOpenGroups.includes(key) ? false : true;
 
       // setup a nested segment if we don't already have one
       if (!group[trueSegment]) {
@@ -80,7 +86,7 @@ export async function getGuidesStructure(withRewrites = false) {
         group[trueSegment] = {
           text: segmentToTitle(segment, prevSegment),
           index: segmentToIndex(segment, existing.length),
-          collapsed: true,
+          collapsed,
           items: {},
         };
       }
@@ -103,13 +109,19 @@ export async function getGuidesStructure(withRewrites = false) {
     rewrittenPath.push(niceSegment);
 
     const rewrittenUrl = `/guide/${rewrittenPath.join('/')}`;
-    const realUrl = `/guide/${filepath.replace('.md', '')}`;
+    // in order for index urls to highlight in the nav they can't have "index" in the url path
+    const realUrl = `/guide/${filepath.endsWith('index.md') ? filepath.replace('/index.md', '') : filepath.replace('.md', '')}`;
 
     // add the last segment to the group
     const existing = Object.keys(group);
     if (group !== groups && lastSegment === 'index.md') {
       // if we are an index file, we set the link on the parent
-      // this doesn't work yet: https://github.com/vuejs/vitepress/issues/2989
+      // this seems to work even though there's an issue
+      // that says it doesn't: https://github.com/vuejs/vitepress/issues/2989
+      // however:
+      // when doing this, the "next page" feature breaks for
+      // these pages, so for now we just do non-clickable headers.
+      //
       parent.link = withRewrites ? rewrittenUrl : realUrl;
     }
     group[trueSegment] = {
@@ -117,6 +129,7 @@ export async function getGuidesStructure(withRewrites = false) {
       index: segmentToIndex(lastSegment, existing.length),
       link: withRewrites ? rewrittenUrl : realUrl,
     };
+
     rewritten[`${realUrl + '.md'}`] = rewrittenUrl + '.md';
   }
 
@@ -134,6 +147,9 @@ function deepConvert(obj: Record<string, any>) {
   for (const group of groups) {
     if (group.items) {
       group.items = deepConvert(group.items);
+      if (!group.link && !group.items[0].items) {
+        group.link = group.items[0].link;
+      }
     }
   }
   return groups.sort((a, b) => {

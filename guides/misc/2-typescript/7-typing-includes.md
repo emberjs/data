@@ -20,7 +20,7 @@ Though some users author this requirement as a string instead:
 > [!TIP]
 > We recommend authoring includes as an array instead of as a string. It will
 > generally scale better if the list is long, and provides better autocomplete support.
-> Within WarpDrive/EmberData provide builders and adapters there should be no functional
+> Within WarpDrive/EmberData provided builders and adapters there should be no functional
 > difference between using an array or using a string.
 
 Typing relationship paths like includes is valuable for increased confidence, as small typos in these
