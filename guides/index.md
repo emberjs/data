@@ -1,6 +1,5 @@
 ---
 title: Introduction
-editLink: true
 ---
 
 # Introduction
@@ -221,7 +220,7 @@ class AppStore extends Store {
 }
 ```
 
-## Ready for Realtime {#realtime}
+## Ready for RealTime {#realtime}
 
 Realtime subscriptions are supported through an extensive list of [operations](./concepts/operations.md) for surgically updating cache state, as well as by a comprehensive [notifications service]() which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
 
@@ -235,6 +234,8 @@ store.cache.patch({
 ```
 
 ## And a Universe of More {#explore}
+
+<img src="./images/universe-of-more.png" width="100%" alt="a young child stares out across the mountains at the night sky">
 
 ***Warp*Drive** has been designed as a series of interfaces following the single-responsibility principle with well defined boundaries and configuration points. Because of this, nearly every aspect of the library is configurable, extensible, composable, replaceable or all of the above: meaning that if something doesn't meet your needs out-of-the-box, you can configure it to.
 

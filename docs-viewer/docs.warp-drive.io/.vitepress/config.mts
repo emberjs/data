@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure } from '../../src/site-utils.ts';
 
-const GuidesStructure = await getGuidesStructure();
+const GuidesStructure = await getGuidesStructure(false);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -73,6 +73,16 @@ export default defineConfig({
     // ]
   ],
 
+  // github pages supports cleanURLs
+  cleanUrls: true,
+
+  // we want to use rewrites but can't https://github.com/vuejs/vitepress/issues/4364
+  // rewrites: GuidesStructure.rewritten,
+
+  sitemap: {
+    hostname: 'https://docs.warp-drive.io',
+  },
+
   themeConfig: {
     siteTitle: false,
     logo: {
@@ -103,7 +113,7 @@ export default defineConfig({
 
       // This sidebar gets displayed when a user
       // is on `guides` directory.
-      '/guide/': GuidesStructure,
+      '/guide/': GuidesStructure.paths,
     },
 
     socialLinks: [
