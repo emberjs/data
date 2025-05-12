@@ -12,6 +12,8 @@ Curious? Read the [RFC](https://rfcs.emberjs.com/id/1075-warp-drive-package-unif
 
 # Setup
 
+All frameworks should follow this configuration first.
+
 ## Configure the Build Plugin
 
 ***Warp*Drive** uses a [babel plugin](https://www.npmjs.com/package/@embroider/macros) to inject app-specific configuration allowing us to provide advanced dev-mode debugging features, deprecation management, and canary feature toggles.
