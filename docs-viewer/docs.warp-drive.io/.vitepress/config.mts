@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure } from '../../src/site-utils.ts';
-// @ts-expect-error json file import
-import typedocSidebar from '../api/typedoc-sidebar.json';
+// @\ts-expect-error json file import
+// import typedocSidebar from '../api/typedoc-sidebar.json';
 
 import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
@@ -117,7 +117,7 @@ export default defineConfig({
       '/api/': [
         {
           text: 'API Documentation',
-          items: typedocSidebar,
+          items: [], // typedocSidebar,
         },
       ],
 
