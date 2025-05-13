@@ -154,7 +154,7 @@ export class ReactiveDocument<T> {
    * @method fetch
    * @public
    * @param {Object} options
-   * @return Promise<Document>
+   * @return {Promise<Document>}
    */
   fetch(
     options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
@@ -173,7 +173,7 @@ export class ReactiveDocument<T> {
    * @method next
    * @public
    * @param {Object} options
-   * @return Promise<Document | null>
+   * @return {Promise<Document | null>}
    */
   next(options?: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('next', options);
@@ -187,7 +187,7 @@ export class ReactiveDocument<T> {
    * @method prev
    * @public
    * @param {Object} options
-   * @return Promise<Document | null>
+   * @return {Promise<Document | null>}
    */
   prev(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('prev', options);
@@ -201,7 +201,7 @@ export class ReactiveDocument<T> {
    * @method first
    * @public
    * @param {Object} options
-   * @return Promise<Document | null>
+   * @return {Promise<Document | null>}
    */
   first(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('first', options);
@@ -215,7 +215,7 @@ export class ReactiveDocument<T> {
    * @method last
    * @public
    * @param {Object} options
-   * @return Promise<Document | null>
+   * @return {Promise<Document | null>}
    */
   last(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
     return this.#request('last', options);
