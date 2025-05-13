@@ -54,9 +54,8 @@ export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport 
 
   if (!support) {
     assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
-    support = new LegacySupport(record);
+    support = new LegacySupport(record, identifier);
     LEGACY_SUPPORT.set(identifier, support);
-    LEGACY_SUPPORT.set(record, support);
   }
 
   return support;
@@ -77,10 +76,10 @@ export class LegacySupport {
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
 
-  constructor(record: MinimalLegacyRecord) {
+  constructor(record: MinimalLegacyRecord, identifier: StableRecordIdentifier) {
     this.record = record;
     this.store = storeFor(record)!;
-    this.identifier = recordIdentifierFor(record);
+    this.identifier = identifier;
     this.cache = peekCache(record);
 
     if (macroCondition(dependencySatisfies('@ember-data/graph', '*'))) {
@@ -636,6 +635,9 @@ export class LegacySupport {
   }
 
   destroy() {
+    // TODO We can probably do less work here
+    // if we make is safe to simply release this object
+    // reference.
     this.isDestroying = true;
 
     let cache: Record<string, { destroy(): void } | undefined> = this._manyArrayCache;
