@@ -72,7 +72,7 @@ interface ObjectWithStringTypeProperty {
  * }
  * ```
  *
- * @class <Interface> SchemaService
+ * @class (Interface) SchemaService
  * @public
  */
 export interface SchemaService {

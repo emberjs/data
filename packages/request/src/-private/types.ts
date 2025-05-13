@@ -71,7 +71,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @method onFinalize
    * @param cb the callback to run
    * @public
-   * @return void
+   * @return {void}
    */
   onFinalize(cb: () => void): void;
 
@@ -212,7 +212,7 @@ const manager = new RequestManager()
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
 
- @class <Interface> Handler
+ @class (Interface) Handler
  @public
 */
 export interface Handler {
@@ -237,7 +237,7 @@ export interface Handler {
  * A RequestManager may only have one CacheHandler, registered via
  * `manager.useCache(CacheHandler)`.
  *
- * @class <Interface> CacheHandler
+ * @class (Interface) CacheHandler
  * @public
  */
 export interface CacheHandler {

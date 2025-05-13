@@ -42,7 +42,7 @@ export type RelationshipDiff =
  * A Cache handles in-memory storage of Document and Resource
  * data.
  *
- * @class <Interface> Cache
+ * @class (Interface) Cache
  * @public
  */
 export interface Cache {
@@ -214,7 +214,7 @@ export interface Cache {
    *
    * @method fork
    * @public
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache>;
 
@@ -228,7 +228,7 @@ export interface Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void>;
 

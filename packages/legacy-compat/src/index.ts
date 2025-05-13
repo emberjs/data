@@ -50,7 +50,7 @@ export type CompatStore = Store & LegacyStoreCompat;
     @method adapterFor
     @public
     @param {String} modelName
-    @return Adapter
+    @return {Adapter}
   */
 export function adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
 export function adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;

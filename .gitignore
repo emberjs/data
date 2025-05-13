@@ -19,6 +19,7 @@ scripts/asset-size-tracking/current-data.json
 .turbo/
 .env*
 .pnp*
+!.pnpmfile.cjs
 .prettier-cache
 .sass-cache
 .eslintcache

@@ -45,38 +45,6 @@
       "outputLogs": "new-only"
     },
 
-    // run build in all library packages
-    // that ship gts files
-    // these do not require any associated packages
-    // to have been built to build other than
-    // the build-config package
-    "build:glint": {
-      "inputs": [
-        // + V2-Addon convention
-        "src/**",
-        "addon-main.*",
-        "tsconfig.json",
-        "package.json",
-        "babel.*",
-        "vite.config.*",
-        "../../config/**",
-        "tsconfig.tsbuildinfo"
-      ],
-      "outputs": [
-        // V1-Addon convention
-        "addon-test-support/**",
-        // V2-Addon convention
-        "dist/**",
-        "unstable-preview-types/**"
-      ],
-      "dependsOn": [
-        // we should create a "triggers" repo and have it depend
-        // on a TS "trigger"
-      ],
-      // https://turbo.build/repo/docs/reference/configuration#outputLogs
-      "outputLogs": "new-only"
-    },
-
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     //

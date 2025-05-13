@@ -1,4 +1,4 @@
-import { gjs } from '@warp-drive/internal-config/rollup/gjs';
+import { gjs } from '@warp-drive/internal-config/rollup/gjs.js';
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
 export const externals = [

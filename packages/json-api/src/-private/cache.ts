@@ -663,7 +663,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method fork
    * @internal
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache> {
     throw new Error(`Not Implemented`);
@@ -679,7 +679,7 @@ export default class JSONAPICache implements Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void> {
     throw new Error(`Not Implemented`);

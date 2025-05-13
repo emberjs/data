@@ -15,7 +15,7 @@ import type { RequestLoadingState, RequestState } from '@ember-data/store/-priva
 import { getRequestState } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
-import { EnableHydration, withBrand, type RequestInfo } from '@warp-drive/core-types/request';
+import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
 
 import { and, Throw } from './await.gts';
 

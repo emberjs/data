@@ -229,7 +229,7 @@ export class PersistedCache implements Cache {
    *
    * @method fork
    * @internal
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache> {
     return this._cache.fork();
@@ -245,7 +245,7 @@ export class PersistedCache implements Cache {
    * @method merge
    * @param {Cache} cache
    * @internal
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void> {
     return this._cache.merge(cache);

@@ -141,7 +141,7 @@ const CONFIG: BuildURLConfig = getOrSetGlobal('CONFIG', {
  * @public
  * @for @ember-data/request-utils
  * @param {BuildURLConfig} config
- * @return void
+ * @return {void}
  */
 export function setBuildURLConfig(config: BuildURLConfig) {
   assert(`setBuildURLConfig: You must pass a config object`, config);
@@ -319,7 +319,7 @@ function resourcePathForType(options: UrlOptions): string {
  * @public
  * @for @ember-data/request-utils
  * @param urlOptions
- * @return string
+ * @return {String}
  */
 export function buildBaseURL(urlOptions: UrlOptions): string {
   const options = Object.assign(

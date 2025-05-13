@@ -5,12 +5,14 @@ const config = {
   docsRoot: './docs.warp-drive.io',
   entryPoints: [
     // '../packages/*'
-    // '../packages/core-types',
+    '../packages/core-types',
     // '../packages/ember',
-    // '../packages/json-api',
-    // '../packages/store',
+    '../packages/json-api',
+    '../packages/store',
   ],
-  packageOptions: {},
+  packageOptions: {
+    readme: 'none',
+  },
   plugin: [require.resolve('typedoc-plugin-markdown'), require.resolve('typedoc-vitepress-theme')],
   out: './docs.warp-drive.io/api',
   sidebar: {

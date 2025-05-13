@@ -32,7 +32,7 @@ export type AdapterPayload = Record<string, unknown> | unknown[];
 
   Methods that are not required are marked as **optional**.
 
-  @class <Interface> Adapter
+  @class (Interface) Adapter
   @public
 */
 export interface MinimumAdapterInterface {

@@ -37,7 +37,7 @@ export type RequestType =
 
   Methods that are not required are marked as **optional**.
 
-  @class <Interface> Serializer
+  @class (Interface) Serializer
   @public
 */
 export interface MinimumSerializerInterface {

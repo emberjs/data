@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 282058f4484f3bddd060fbb21c04e05500c2a286..3aef1825e1ad99658a3f3aae88871874cc16b7be 100644
+--- a/package.json
++++ b/package.json
+@@ -22,7 +22,7 @@
+     "main": "./lib/typescript.js",
+     "typings": "./lib/typescript.d.ts",
+     "bin": {
+-        "tsc": "./bin/tsc",
++        "real-tsc": "./bin/tsc",
+         "tsserver": "./bin/tsserver"
+     },
+     "engines": {

@@ -290,7 +290,7 @@ whose name is `<Interface> Handler`.
 /**
  * << Handler Documentation >>
  * 
- * @class <Interface> Handler
+ * @class (Interface) Handler
  * @public
  */
 ```
