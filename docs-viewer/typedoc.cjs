@@ -6,8 +6,8 @@ const config = {
   entryPoints: [
     // '../packages/*'
     '../packages/core-types',
-    '../packages/ember',
-    '../packages/json-api',
+    // '../packages/ember',
+    // '../packages/json-api',
     // '../packages/store',
   ],
   packageOptions: {},
