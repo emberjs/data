@@ -1,11 +1,11 @@
 {
-  "include": ["src", "bin", "utils"],
+  "include": ["src", "bin", "utils", "package.json"],
   "baseUrl": ".",
   "compilerOptions": {
     "lib": ["ESNext"],
-    "module": "NodeNext",
+    "module": "ESNext",
     "target": "ESNext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
     "pretty": true,

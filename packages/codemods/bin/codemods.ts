@@ -1,6 +1,6 @@
 import { program } from 'commander';
 
-import { version } from '../package.json';
+import { version } from '../package.json' with { type: 'json' };
 import { createApplyCommand } from './apply.js';
 import { codemods } from './config.js';
 import { createListCommand } from './list.js';

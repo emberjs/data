@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure } from '../../src/site-utils.ts';
+// @ts-expect-error json file import
+import typedocSidebar from '../api/typedoc-sidebar.json';
 
 import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
@@ -112,14 +114,10 @@ export default defineConfig({
     sidebar: {
       // This sidebar gets displayed when a user
       // is on `api-docs` directory.
-      '/api-docs/': [
+      '/api/': [
         {
           text: 'API Documentation',
-          items: [
-            { text: 'Index', link: '/guide/' },
-            { text: 'One', link: '/guide/one' },
-            { text: 'Two', link: '/guide/two' },
-          ],
+          items: typedocSidebar,
         },
       ],
 

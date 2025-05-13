@@ -90,6 +90,7 @@ const formatForFile = winstonFormat.printf((info: Logform.TransformableInfo) => 
 class Logger {
   private static options: LoggerOptions = {};
   private static loggers = new Map<string, Logger>();
+  public name: string;
 
   static config(options: LoggerOptions): void {
     this.options = options;
@@ -105,7 +106,8 @@ class Logger {
   /** Can't be private because we stub this in tests. Grimace face emoji. */
   _logger: WinstonLogger;
 
-  constructor(public name: string) {
+  constructor(name: string) {
+    this.name = name;
     if (Logger.options.logFile) {
       const filename = typeof Logger.options.logFile === 'string' ? Logger.options.logFile : 'ember-data-codemods.log';
       // eslint-disable-next-line no-console

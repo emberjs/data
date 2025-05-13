@@ -100,6 +100,11 @@
           "vite": "*"
         }
       },
+      "typedoc-vitepress-theme": {
+        "peerDependencies": {
+          "typedoc": "*"
+        }
+      },
       "@glimmer/syntax": {
         "dependencies": {
           "@glimmer/env": "^0.1.7"

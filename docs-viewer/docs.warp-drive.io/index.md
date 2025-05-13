@@ -7,7 +7,7 @@ hero:
   text: Boldly go where no App has gone before
   tagline: "WarpDrive is the lightweight data framework for ambitious web applications — universal, typed, reactive, and ready to scale."
   image:
-    src: /images/handlers-all-labeled.gif
+    src: /logos/NCC-1701-a-gold.svg
     alt: WarpDrive
   actions:
     - theme: brand
