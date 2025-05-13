@@ -24,6 +24,8 @@ export async function getCurrentVersion(tool: string) {
     stdio: ['inherit', 'pipe', 'inherit'],
   });
   await proc.exited;
+  // @ts-expect-error the DOM settings adds .text()
+  // but seems to override headers in CI.
   const version = await new Response(proc.stdout).text();
   return version.trim().replace('v', '');
 }

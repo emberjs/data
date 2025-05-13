@@ -5,6 +5,7 @@
   "files": [],
   "include": [],
   "references": [
+    { "path": "./docs-viewer" },
     { "path": "./packages/-ember-data" },
     { "path": "./packages/active-record" },
     { "path": "./packages/adapter" },

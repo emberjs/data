@@ -56,6 +56,8 @@ async function getSHA(details: ReturnType<typeof repoDetails>, reference: string
     cwd: details.location,
   });
   await shaProc1.exited;
+  // @ts-expect-error the DOM settings adds .text()
+  // but seems to override headers in CI.
   return (await new Response(shaProc1.stdout).text()).trim();
 }
 
@@ -109,6 +111,8 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
 
   // if the clone fails for publicKey we try https
   if (exitCode !== 0) {
+    // @ts-expect-error the DOM settings adds .text()
+    // but seems to override headers in CI.
     const reason = await new Response(proc.stderr).text();
 
     if (reason.includes('publickey')) {
@@ -121,6 +125,8 @@ async function cloneRepo(details: ReturnType<typeof repoDetails>) {
       console.log({
         reason,
         exitCode,
+        // @ts-expect-error the DOM settings adds .text()
+        // but seems to override headers in CI.
         stdout: await new Response(proc.stdout).text(),
       });
 

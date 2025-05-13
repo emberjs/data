@@ -6,6 +6,7 @@ const guidesPath = join(__dirname, '../../guides');
 
 let debounce: ReturnType<typeof setTimeout> | null = null;
 
+// @ts-expect-error missing from Bun types
 watch(
   guidesPath,
   {

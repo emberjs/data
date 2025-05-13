@@ -1,4 +1,5 @@
 import path from 'path';
+// @ts-expect-error missing from Bun types
 import { globSync } from 'node:fs';
 
 const DefaultOpenGroups: string[] = [];
