@@ -6,7 +6,9 @@ const config = {
   entryPoints: [
     // '../packages/*'
     '../packages/core-types',
-    '../packages/store',
+    '../packages/ember',
+    '../packages/json-api',
+    // '../packages/store',
   ],
   packageOptions: {},
   plugin: [require.resolve('typedoc-plugin-markdown'), require.resolve('typedoc-vitepress-theme')],

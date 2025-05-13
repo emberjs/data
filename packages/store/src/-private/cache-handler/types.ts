@@ -93,8 +93,6 @@ export interface CachePolicy {
    * });
    * ```
    *
-   * Note,
-   *
    *
    * @method didRequest [Optional]
    * @public
