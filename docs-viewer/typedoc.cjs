@@ -5,9 +5,9 @@ const config = {
   docsRoot: './docs.warp-drive.io',
   entryPoints: [
     // '../packages/*'
-    '../packages/core-types',
-    '../packages/ember',
-    '../packages/json-api',
+    // '../packages/core-types',
+    // '../packages/ember',
+    // '../packages/json-api',
     // '../packages/store',
   ],
   packageOptions: {},
