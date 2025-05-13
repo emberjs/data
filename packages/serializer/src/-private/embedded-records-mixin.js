@@ -485,12 +485,12 @@ export const EmbeddedRecordsMixin = Mixin.create({
   */
   removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'belongsTo') {
-      const schema = this.store.modelFor(snapshot.modelName);
-      const parentRecord = schema.inverseFor(relationship.name, this.store);
-      if (parentRecord) {
-        const name = parentRecord.name;
+      const inverseField = relationship.options?.inverse
+        ? this.store.schema.field(relationship).get(relationship.options.inverse)
+        : null;
+      if (inverseField) {
         const embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
-        const parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
+        const parentKey = embeddedSerializer.keyForRelationship(inverseField.name, inverseField.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
         }
