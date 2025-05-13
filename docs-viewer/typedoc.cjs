@@ -15,6 +15,7 @@ const config = {
     pretty: true,
   },
   readme: 'none',
+  tsconfig: '../tsconfig.json',
 };
 
 module.exports = config;
