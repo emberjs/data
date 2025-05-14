@@ -7,10 +7,6 @@ import type {
   SingleResourceRelationship,
 } from '@warp-drive/core-types/spec/json-api-raw';
 
-/**
-  @module @ember-data/store
-*/
-
 export type AttributesHash = Record<string, Value>;
 
 export interface JsonApiResource {

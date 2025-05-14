@@ -1,10 +1,5 @@
 /**
  *
- * @module @warp-drive/build-config
- */
-
-/**
- *
  * ## Canary Features
  *
  * EmberData allows users to test features that are implemented but not yet

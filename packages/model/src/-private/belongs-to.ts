@@ -9,9 +9,6 @@ import { RecordStore } from '@warp-drive/core-types/symbols';
 import { lookupLegacySupport } from './legacy-relationships-support';
 import type { MinimalLegacyRecord } from './model-methods';
 import { isElementDescriptor, normalizeModelName } from './util';
-/**
-  @module @ember-data/model
-*/
 
 export type IsUnknown<T> = unknown extends T ? true : false;
 

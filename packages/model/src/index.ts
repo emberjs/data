@@ -34,8 +34,7 @@
   of the file in the `app/models` folder and should be lowercase, singular
   and dasherized.
 
-  @module @ember-data/model
-  @main @ember-data/model
+  @module
  */
 export { Model as default, attr, belongsTo, hasMany } from './-private';
 

@@ -17,7 +17,7 @@
   "scripts": {
     "build:tests": "IS_TESTING=true EMBER_CLI_TEST_COMMAND=true ember build --output-path=dist-test --suppress-sizes",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
-    "check:types": "glint",
+    "check:types": "glint --noEmit",
     "start": "bun run build:tests --watch",
     "test": "ember test --test-port=0 --path=dist-test",
     "test:start": "bun run test --serve --no-launch"
@@ -40,10 +40,10 @@
     "@ember/test-waiters": "^4.1.0",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "1.5.2",
-    "@glint/environment-ember-loose": "1.5.2",
-    "@glint/environment-ember-template-imports": "1.5.2",
-    "@glint/template": "1.5.2",
+    "@glint/core": "unstable",
+    "@glint/environment-ember-loose": "unstable",
+    "@glint/environment-ember-template-imports": "unstable",
+    "@glint/template": "unstable",
     "@types/qunit": "2.19.10",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
@@ -65,6 +65,7 @@
     "ember-source": "~6.3.0",
     "ember-source-channel-url": "^3.0.0",
     "ember-template-imports": "4.3.0",
+    "ember-route-template": "^1.0.3",
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-console-grouper": "^0.3.0",
@@ -76,9 +77,6 @@
   },
   "ember": {
     "edition": "octane"
-  },
-  "engines": {
-    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../../package.json"

@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 import { warn } from '@ember/debug';
 
 import { getGlobalConfig, macroCondition } from '@embroider/macros';

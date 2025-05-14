@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/experimental-preview-types
- */
 import type { ResourceBlob } from './cache/aliases';
 import type { Change } from './cache/change';
 import type { Mutation } from './cache/mutations';
@@ -42,7 +39,7 @@ export type RelationshipDiff =
  * A Cache handles in-memory storage of Document and Resource
  * data.
  *
- * @class <Interface> Cache
+ * @class (Interface) Cache
  * @public
  */
 export interface Cache {
@@ -214,7 +211,7 @@ export interface Cache {
    *
    * @method fork
    * @public
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache>;
 
@@ -228,7 +225,7 @@ export interface Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void>;
 
@@ -411,7 +408,7 @@ export interface Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @return {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
+   * @return {Record<string, [unknown, unknown]>} `{ <field>: [<old>, <new>] }`
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;
 

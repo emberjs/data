@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/serializer/json-api
- */
 import { warn } from '@ember/debug';
 
 import { dasherize, pluralize, singularize } from '@ember-data/request-utils/string';
@@ -128,7 +125,6 @@ import JSONSerializer from './json';
   }
   ```
 
-  @main @ember-data/serializer/json-api
   @since 1.13.0
   @class JSONAPISerializer
   @public

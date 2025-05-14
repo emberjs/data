@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/store
- */
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
 import type { ManagedRequestPriority } from '@ember-data/request/-private/types';
 import { assert } from '@warp-drive/build-config/macros';

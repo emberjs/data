@@ -1,8 +1,5 @@
 import { getOrSetGlobal } from './-private';
 
-/*
- * @module @warp-drive/core-types
- */
 export const RecordStore: '___(unique) Symbol(Store)' = getOrSetGlobal('Store', Symbol('Store'));
 
 /**

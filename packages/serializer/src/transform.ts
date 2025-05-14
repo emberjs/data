@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/serializer
-*/
 export { Transform as default } from './-private/transforms/transform';
 export { BooleanTransform } from './-private/transforms/boolean';
 export { DateTransform } from './-private/transforms/date';

@@ -1,6 +1,3 @@
-/**
- * @module @warp-drive/core-types
- */
 import type { ObjectValue, PrimitiveValue } from '../json/raw';
 
 /**
@@ -17,7 +14,7 @@ import type { ObjectValue, PrimitiveValue } from '../json/raw';
  * "type" points to a new-style transform on "field"
  * that a record implmentation *must* use.
  *
- * @class <Type> GenericField
+ * @class (Type) GenericField
  * @public
  */
 export interface GenericField {
@@ -87,7 +84,7 @@ export interface GenericField {
  * an AliasField could be used to expose both a string and a Date version of the
  * same field, with both being capable of being written to.
  *
- * @class <Type> LegacyAliasField
+ * @class (Type) LegacyAliasField
  * @public
  */
 export interface LegacyAliasField {
@@ -164,7 +161,7 @@ export interface LegacyAliasField {
  * an AliasField could be used to expose both a string and a Date version of the
  * same field, with both being capable of being written to.
  *
- * @class <Type> PolarisAliasField
+ * @class (Type) PolarisAliasField
  * @public
  */
 export interface PolarisAliasField {
@@ -240,7 +237,7 @@ export interface PolarisAliasField {
  * an AliasField could be used to expose both a string and a Date version of the
  * same field, with both being capable of being written to.
  *
- * @class <Type> ObjectAliasField
+ * @class (Type) ObjectAliasField
  * @public
  */
 export interface ObjectAliasField {
@@ -293,7 +290,7 @@ export interface ObjectAliasField {
  * 'uuid', 'urn' or 'entityUrn' or 'primaryKey' as their
  * primary key field instead of 'id'.
  *
- * @class <Type> IdentityField
+ * @class (Type) IdentityField
  * @public
  */
 export interface IdentityField {
@@ -338,7 +335,7 @@ export interface IdentityField {
  * it should be placed in the `ResourceSchema`'s `@id` field
  * in place of an `IdentityField`.
  *
- * @class <Type> HashField
+ * @class (Type) HashField
  * @public
  */
 export interface HashField {
@@ -413,7 +410,7 @@ export interface HashField {
  *
  * Don't make us regret this decision.
  *
- * @class <Type> LocalField
+ * @class (Type) LocalField
  * @public
  */
 export interface LocalField {
@@ -463,7 +460,7 @@ export interface LocalField {
  * if the key/value pairs have well-defined shape,
  * use 'schema-object' instead.
  *
- * @class <Type> ObjectField
+ * @class (Type) ObjectField
  * @public
  */
 export interface ObjectField {
@@ -516,7 +513,7 @@ export interface ObjectField {
  * If the object's structure is not well-defined,
  * use 'object' instead.
  *
- * @class <Type> SchemaObjectField
+ * @class (Type) SchemaObjectField
  * @public
  */
 export interface SchemaObjectField {
@@ -588,7 +585,7 @@ export interface SchemaObjectField {
  * If the array's elements are not primitive
  * values, use 'schema-array' instead.
  *
- * @class <Type> ArrayField
+ * @class (Type) ArrayField
  * @public
  */
 export interface ArrayField {
@@ -642,7 +639,7 @@ export interface ArrayField {
  * If the array's elements are not well-defined,
  * use 'array' instead.
  *
- * @class <Type> SchemaArrayField
+ * @class (Type) SchemaArrayField
  * @public
  */
 export interface SchemaArrayField {
@@ -693,7 +690,7 @@ export interface SchemaArrayField {
    *       This is only a good choice for arrays that rarely if ever change membership
    * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
    *       The contained schema-object and use the computed result to determine and compare identity.
-   * - <field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+   * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
    *       Are valid field names for this purpose. The cache state without transforms applied will be
    *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
    *       of the same type will not collide.
@@ -722,7 +719,7 @@ export interface SchemaArrayField {
      *       This is only a good choice for arrays that rarely if ever change membership
      * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
      *       The contained schema-object and use the computed result to determine and compare identity.
-     * - <field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+     * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
      *       Are valid field names for this purpose. The cache state without transforms applied will be
      *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
      *       of the same type will not collide.
@@ -766,7 +763,7 @@ export interface SchemaArrayField {
  * or that require access to related resources
  * that may not be loaded should be avoided.
  *
- * @class <Type> DerivedField
+ * @class (Type) DerivedField
  * @public
  */
 export interface DerivedField {
@@ -831,7 +828,7 @@ export interface DerivedField {
  * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
  * BY SchemaRecord
  *
- * @class <Type> ResourceField
+ * @class (Type) ResourceField
  * @public
  */
 export interface ResourceField {
@@ -929,7 +926,7 @@ export interface ResourceField {
  * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
  * BY SchemaRecord
  *
- * @class <Type> CollectionField
+ * @class (Type) CollectionField
  * @public
  */
 export interface CollectionField {
@@ -1043,7 +1040,7 @@ export interface CollectionField {
  * that a serializer *might* use, but their usage
  * is not guaranteed.
  *
- * @class <Type> LegacyAttributeField
+ * @class (Type) LegacyAttributeField
  * @public
  */
 export interface LegacyAttributeField {
@@ -1092,7 +1089,7 @@ export interface LegacyAttributeField {
  *
  * This is the legacy version of the `ResourceField`.
  *
- * @class <Type> LegacyBelongsToField
+ * @class (Type) LegacyBelongsToField
  * @public
  */
 export interface LegacyBelongsToField {
@@ -1238,7 +1235,7 @@ export interface LegacyBelongsToField {
  *
  * This is the legacy version of the `ResourceField`.
  *
- * @class <Type> LinksModeBelongsToField
+ * @class (Type) LinksModeBelongsToField
  * @public
  */
 export interface LinksModeBelongsToField {
@@ -1378,7 +1375,7 @@ export interface LinksModeBelongsToField {
  *
  * This is the legacy version of the `CollectionField`.
  *
- * @class <Type> LegacyHasManyField
+ * @class (Type) LegacyHasManyField
  * @public
  */
 export interface LegacyHasManyField {
@@ -1529,7 +1526,7 @@ export interface LegacyHasManyField {
  *
  * This is the legacy version of the `CollectionField`.
  *
- * @class <Type> LinksModeHasManyField
+ * @class (Type) LinksModeHasManyField
  * @public
  */
 export interface LinksModeHasManyField {
@@ -1677,21 +1674,21 @@ export interface LinksModeHasManyField {
  *
  * Available field schemas are:
  *
- * - [GenericField](../classes/<Type>%20GenericField)
- * - [LegacyAliasField](../classes/<Type>%20LegacyAliasField)
- * - [LocalField](../classes/<Type>%20LocalField)
- * - [ObjectField](../classes/<Type>%20ObjectField)
- * - [SchemaObjectField](../classes/<Type>%20SchemaObjectField)
- * - [ArrayField](../classes/<Type>%20ArrayField)
- * - [SchemaArrayField](../classes/<Type>%20SchemaArrayField)
- * - [DerivedField](../classes/<Type>%20DerivedField)
- * - [ResourceField (not yet implemented)](../classes/<Type>%20ResourceField)
- * - [CollectionField (not yet implemented)](../classes/<Type>%20CollectionField)
- * - [LegacyAttributeField](../classes/<Type>%20LegacyAttributeField)
- * - [LegacyBelongsToField](../classes/<Type>%20LegacyBelongsToField)
- * - [LegacyHasManyField](../classes/<Type>%20LegacyHasManyField)
+ * - {@link GenericField}
+ * - {@link LegacyAliasField}
+ * - {@link LocalField}
+ * - {@link ObjectField}
+ * - {@link SchemaObjectField}
+ * - {@link ArrayField}
+ * - {@link SchemaArrayField}
+ * - {@link DerivedField}
+ * - {@link ResourceField | ResourceField (not yet implemented)}
+ * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link LegacyAttributeField}
+ * - {@link LegacyBelongsToField}
+ * - {@link LegacyHasManyField}
  *
- * @class <Type> LegacyModeFieldSchema
+ * @class (Type) LegacyModeFieldSchema
  * @public
  */
 export type LegacyModeFieldSchema =
@@ -1714,20 +1711,20 @@ export type LegacyModeFieldSchema =
  *
  * Available field schemas are:
  *
- * - [GenericField](../classes/<Type>%20GenericField)
- * - [PolarisAliasField](../classes/<Type>%20PolarisAliasField)
- * - [LocalField](../classes/<Type>%20LocalField)
- * - [ObjectField](../classes/<Type>%20ObjectField)
- * - [SchemaObjectField](../classes/<Type>%20SchemaObjectField)
- * - [ArrayField](../classes/<Type>%20ArrayField)
- * - [SchemaArrayField](../classes/<Type>%20SchemaArrayField)
- * - [DerivedField](../classes/<Type>%20DerivedField)
- * - [ResourceField (not yet implemented)](../classes/<Type>%20ResourceField)
- * - [CollectionField (not yet implemented)](../classes/<Type>%20CollectionField)
- * - [LinksModeBelongsToField](../classes/<Type>%20LinksModeBelongsToField)
- * - [LinksModeHasManyField](../classes/<Type>%20LinksModeHasManyField)
+ * - {@link GenericField}
+ * - {@link PolarisAliasField}
+ * - {@link LocalField}
+ * - {@link ObjectField}
+ * - {@link SchemaObjectField}
+ * - {@link ArrayField}
+ * - {@link SchemaArrayField}
+ * - {@link DerivedField}
+ * - {@link ResourceField | ResourceField (not yet implemented)}
+ * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link LinksModeBelongsToField}
+ * - {@link LinksModeHasManyField}
  *
- * @class <Type> PolarisModeFieldSchema
+ * @class (Type) PolarisModeFieldSchema
  * @public
  */
 export type PolarisModeFieldSchema =
@@ -1753,7 +1750,7 @@ export type PolarisModeFieldSchema =
  * as appropriate as they are more specific and will
  * provide better guidance around what is valid.
  *
- * @class <Type> FieldSchema
+ * @class (Type) FieldSchema
  * @public
  */
 export type FieldSchema =
@@ -1778,7 +1775,7 @@ export type FieldSchema =
  * A union of all possible field schemas that can be
  * used in an ObjectSchema.
  *
- * @class <Type> ObjectFieldSchema
+ * @class (Type) ObjectFieldSchema
  * @public
  */
 export type ObjectFieldSchema =
@@ -1798,7 +1795,7 @@ export type ObjectFieldSchema =
  * own which may allow them to appear in relationships, or in multiple
  * response documents.
  *
- * @class <Type> PolarisResourceSchema
+ * @class (Type) PolarisResourceSchema
  * @public
  */
 export interface PolarisResourceSchema {
@@ -1871,7 +1868,7 @@ export interface PolarisResourceSchema {
  * own which may allow them to appear in relationships, or in multiple
  * response documents.
  *
- * @class <Type> LegacyResourceSchema
+ * @class (Type) LegacyResourceSchema
  * @public
  */
 export interface LegacyResourceSchema {
@@ -1962,7 +1959,7 @@ export type ResourceSchema = PolarisResourceSchema | LegacyResourceSchema;
  *
  * ObjectSchemas may not currently contain relationships.
  *
- * @class <Type> ObjectSchema
+ * @class (Type) ObjectSchema
  * @public
  */
 export interface ObjectSchema {

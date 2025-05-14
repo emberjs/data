@@ -2,9 +2,6 @@
   "name": "my-addon",
   "version": "0.0.0",
   "description": "Addon fixture package for ember-cli-blueprint-test-helpers",
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "devDependencies": {
     "ember-cli": "*",
     "ember-data": "*",

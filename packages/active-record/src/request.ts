@@ -58,8 +58,7 @@ URLs follow the most common ActiveRecord format (underscored pluralized resource
 - [updateRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Factive-record/updateRecord)
 
  *
- * @module @ember-data/active-record/request
- * @main @ember-data/active-record/request
+ * @module
  */
 export { findRecord } from './-private/builders/find-record';
 export { query } from './-private/builders/query';

@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/json-api
- */
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
 import type Store from '@ember-data/store';
@@ -663,7 +660,7 @@ export default class JSONAPICache implements Cache {
    *
    * @method fork
    * @internal
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache> {
     throw new Error(`Not Implemented`);
@@ -679,7 +676,7 @@ export default class JSONAPICache implements Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void> {
     throw new Error(`Not Implemented`);
@@ -1426,7 +1423,7 @@ export default class JSONAPICache implements Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @return {ChangedAttributesHash} { <field>: [<old>, <new>] }
+   * @return {ChangedAttributesHash} `{ <field>: [<old>, <new>] }`
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
     const cached = this.__peek(identifier, false);

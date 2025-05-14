@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';

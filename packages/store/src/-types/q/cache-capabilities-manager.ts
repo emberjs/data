@@ -5,10 +5,6 @@ import type { NotificationType } from '../../-private/managers/notification-mana
 import type { SchemaService } from './schema-service';
 
 /**
-  @module @ember-data/store
-*/
-
-/**
  * CacheCapabilitiesManager provides encapsulated API access to the minimal
  * subset of the Store's functionality that Cache implementations
  * should interact with. It is provided to the Store's `createCache` hook.

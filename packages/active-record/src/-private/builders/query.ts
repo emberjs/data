@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/active-record/request
- */
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import { pluralize, underscore } from '@ember-data/request-utils/string';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';

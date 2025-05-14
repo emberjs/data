@@ -7,8 +7,7 @@
  * recomputing the same value multiple times. The cache size can be set
  * using the `setMaxLRUCacheSize` function. The default size is 10,000.
  *
- * @module @ember-data/request-utils/string
- * @main @ember-data/request-utils/string
+ * @module
  */
 export {
   pluralize,

@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/serializer
-*/
 import EmberObject from '@ember/object';
 
 import type { LegacyAttributeField } from '@warp-drive/core-types/schema/fields';

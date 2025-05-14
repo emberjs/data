@@ -1,6 +1,3 @@
-/**
- * @module @warp-drive/build-config
- */
 // ========================
 // FOR CONTRIBUTING AUTHORS
 //

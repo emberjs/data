@@ -35,10 +35,6 @@ function isDestroyable(record: OpaqueRecordInstance): record is Destroyable {
   return Boolean(record && typeof record === 'object' && typeof (record as Destroyable).destroy === 'function');
 }
 
-/**
-  @module @ember-data/store
-*/
-
 const RecordCache = getOrSetGlobal('RecordCache', new Map<OpaqueRecordInstance, StableRecordIdentifier>());
 
 export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecordIdentifier | undefined {

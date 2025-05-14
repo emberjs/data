@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/experimental-preview-types
- */
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
@@ -37,7 +34,7 @@ export type RequestType =
 
   Methods that are not required are marked as **optional**.
 
-  @class <Interface> Serializer
+  @class (Interface) Serializer
   @public
 */
 export interface MinimumSerializerInterface {

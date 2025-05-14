@@ -176,8 +176,7 @@
  * > The `ember-data` package automatically includes the `@ember-data/model`
  * > package and configures it for you.
  *
- * @module @ember-data/store
- * @main @ember-data/store
+ * @module
  */
 export {
   Store as default,

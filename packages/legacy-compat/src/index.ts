@@ -17,10 +17,6 @@ export { LegacyNetworkHandler } from './legacy-network-handler/legacy-network-ha
 
 export type { MinimumAdapterInterface, MinimumSerializerInterface, SerializerOptions, AdapterPayload };
 
-/**
- * @module @ember-data/store
- * @class Store
- */
 export type LegacyStoreCompat = {
   _fetchManager: FetchManager;
   adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
@@ -50,7 +46,7 @@ export type CompatStore = Store & LegacyStoreCompat;
     @method adapterFor
     @public
     @param {String} modelName
-    @return Adapter
+    @return {Adapter}
   */
 export function adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
 export function adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;

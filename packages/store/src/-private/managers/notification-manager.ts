@@ -1,7 +1,3 @@
-/**
- * @module @ember-data/store
- */
-
 import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';

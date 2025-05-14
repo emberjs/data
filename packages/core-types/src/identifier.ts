@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 import { DEBUG } from '@warp-drive/build-config/env';
 
 // provided for additional debuggability

@@ -12,9 +12,6 @@ export interface HasManyProxyCreateArgs<T = unknown> {
 }
 
 /**
- @module @ember-data/model
- */
-/**
   This class is returned as the result of accessing an async hasMany relationship
   on an instance of a Model extending from `@ember-data/model`.
 
@@ -140,7 +137,7 @@ export class PromiseManyArray<T = unknown> {
    * @public
    * @param success
    * @param fail
-   * @return Promise
+   * @return {Promise}
    */
   then(s: Parameters<Promise<ManyArray<T>>['then']>[0], f?: Parameters<Promise<ManyArray<T>>['then']>[1]) {
     return this.promise!.then(s, f);
@@ -151,7 +148,7 @@ export class PromiseManyArray<T = unknown> {
    * @method catch
    * @public
    * @param callback
-   * @return Promise
+   * @return {Promise}
    */
   catch(cb: Parameters<Promise<ManyArray<T>>['catch']>[0]) {
     return this.promise!.catch(cb);
@@ -163,7 +160,7 @@ export class PromiseManyArray<T = unknown> {
    * @method finally
    * @public
    * @param callback
-   * @return Promise
+   * @return {Promise}
    */
   finally(cb: Parameters<Promise<ManyArray<T>>['finally']>[0]) {
     return this.promise!.finally(cb);

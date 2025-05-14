@@ -177,7 +177,7 @@ export class CacheManager implements Cache {
    *
    * @method fork
    * @public
-   * @return Promise<Cache>
+   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache> {
     return this.#cache.fork();
@@ -193,7 +193,7 @@ export class CacheManager implements Cache {
    * @method merge
    * @param {Cache} cache
    * @public
-   * @return Promise<void>
+   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void> {
     return this.#cache.merge(cache);

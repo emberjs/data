@@ -5,12 +5,31 @@ const config = {
   docsRoot: './docs.warp-drive.io',
   entryPoints: [
     // '../packages/*'
-    // '../packages/core-types',
+    '../packages/active-record',
+    '../packages/adapter',
+    '../packages/build-config',
+    '../packages/core-types',
+    // Won't work until we figure out how
+    // to get typedoc to work with glint
     // '../packages/ember',
-    // '../packages/json-api',
-    // '../packages/store',
+    '../packages/experiments',
+    '../packages/graph',
+    '../packages/json-api',
+    '../packages/legacy-compat',
+    '../packages/model',
+    '../packages/request',
+    '../packages/request-utils',
+    '../packages/rest',
+    '../packages/schema-record',
+    '../packages/serializer',
+    '../packages/store',
+    '../packages/tracking',
   ],
-  packageOptions: {},
+  entryFileName: 'index',
+  packageOptions: {
+    entryFileName: 'index',
+    readme: 'none',
+  },
   plugin: [require.resolve('typedoc-plugin-markdown'), require.resolve('typedoc-vitepress-theme')],
   out: './docs.warp-drive.io/api',
   sidebar: {

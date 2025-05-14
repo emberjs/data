@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/legacy-compat/builders
- */
 import type { StoreRequestInput } from '@ember-data/store';
 import { constructResource, ensureStringId } from '@ember-data/store/-private';
 import type { BaseFinderOptions, FindRecordOptions } from '@ember-data/store/types';

@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/request-utils/handlers
- */
 import type { Future, Handler, NextFn, RequestContext } from '@ember-data/request';
 import type { HTTPMethod } from '@warp-drive/core-types/request';
 

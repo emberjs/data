@@ -281,16 +281,16 @@ imported from `@ember-data/store` would be done like the below
 Yuidoc and the ember API docs do not have a mechanism for documenting types. However, because
 documentation is entirely doc-comment driven, we can document interfaces and types as classes,
 and mark them as such by giving them impossible names. Generally we follow the convention of
-`<Interface> AnInterface` and `<Type> AType` for this.
+`(Interface) AnInterface` and `(Type) AType` for this.
 
 For example, the interface for creating a request handler is documented as a class below
-whose name is `<Interface> Handler`.
+whose name is `(Interface) Handler`.
 
 ```ts
 /**
  * << Handler Documentation >>
  * 
- * @class <Interface> Handler
+ * @class (Interface) Handler
  * @public
  */
 ```

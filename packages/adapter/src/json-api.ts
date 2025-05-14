@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/adapter/json-api
- */
 import type { AdapterPayload } from '@ember-data/legacy-compat';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import { dasherize, pluralize } from '@ember-data/request-utils/string';
@@ -153,7 +150,6 @@ import RESTAdapter from './rest';
 
   @since 1.13.0
   @class JSONAPIAdapter
-  @main @ember-data/adapter/json-api
   @public
   @constructor
   @extends RESTAdapter

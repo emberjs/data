@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/serializer/json
- */
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 
@@ -86,7 +83,6 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
         - `normalize` delegates to these methods to
           turn the record payload into the JSON API format.
 
-  @main @ember-data/serializer/json
   @class JSONSerializer
   @public
   @extends Serializer

@@ -69,7 +69,7 @@
     "@embroider/vite": "1.0.1-unstable.f9c81e9",
     "@glimmer/component": "^2.0.0",
     "@glimmer/tracking": "^1.1.2",
-    "@glint/core": "1.5.2",
+    "@glint/core": "unstable",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.10",
     "@types/qunit": "2.19.10",
@@ -110,9 +110,6 @@
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.3",
     "webpack": "^5.99.5"
-  },
-  "engines": {
-    "node": ">= 18.20.8"
   },
   "ember": {
     "edition": "octane"

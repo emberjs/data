@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/json-api/request
- */
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';

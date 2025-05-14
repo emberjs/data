@@ -98,6 +98,11 @@ export function esm(config) {
     ...(config?.parserOptions ?? {}),
   });
 
+  finalConfig.settings = Object.assign({}, finalConfig.settings, {});
+  finalConfig.settings.node = Object.assign({}, finalConfig.settings.node, {
+    version: '>=22', // '>=18.20.0',
+  });
+
   finalConfig.rules = Object.assign(
     {},
     finalConfig.rules,

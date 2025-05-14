@@ -8,8 +8,7 @@
  * manager.use([Fetch]);
  * ```
  *
- * @module @ember-data/request/fetch
- * @main @ember-data/request/fetch
+ * @module
  */
 
 import { DEBUG } from '@warp-drive/build-config/env';

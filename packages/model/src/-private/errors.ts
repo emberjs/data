@@ -9,9 +9,7 @@ type ValidationError = {
   attribute: string;
   message: string;
 };
-/**
-  @module @ember-data/model
-*/
+
 interface ArrayProxyWithCustomOverrides<T> extends Omit<ArrayProxy<T>, 'clear' | 'content'> {
   // Omit causes `content` to be merged with the class def for ArrayProxy
   // which then causes it to be seen as a property, disallowing defining it

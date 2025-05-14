@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/experimental-preview-types
- */
 import type Store from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
 import type { ModelSchema } from '@ember-data/store/types';
@@ -32,7 +29,7 @@ export type AdapterPayload = Record<string, unknown> | unknown[];
 
   Methods that are not required are marked as **optional**.
 
-  @class <Interface> Adapter
+  @class (Interface) Adapter
   @public
 */
 export interface MinimumAdapterInterface {

@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-/**
-  @module @ember-data/adapter/rest
-*/
+
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 import { computed } from '@ember/object';
@@ -288,7 +286,6 @@ declare const jQuery: JQueryStatic | undefined;
   ```
 
   @class RESTAdapter
-  @main @ember-data/adapter/rest
   @public
   @constructor
   @extends Adapter

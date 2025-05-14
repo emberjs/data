@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
- */
 // this import location is deprecated but breaks in 4.8 and older
 import { deprecate } from '@ember/debug';
 

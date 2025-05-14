@@ -9,12 +9,13 @@
   ],
   "bin": {
     "preview-api-docs": "./src/preview-ember-docs.ts",
-    "rebuild-api-docs": "./src/rebuild-ember-docs.ts"
+    "rebuild-api-docs": "./src/rebuild-ember-docs.ts",
+    "_tsc": "./src/tsc.ts"
   },
   "scripts": {
     "prepare": "bun src/prepare-website.ts",
-    "dev": "vitepress dev docs.warp-drive.io",
-    "build": "vitepress build docs.warp-drive.io",
+    "dev": "typedoc; vitepress dev docs.warp-drive.io",
+    "build": "typedoc; vitepress build docs.warp-drive.io",
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
@@ -31,9 +32,6 @@
     "vitepress-plugin-llms": "^1.1.4",
     "vitepress-plugin-group-icons": "^1.5.2",
     "vite": "^5.4.15"
-  },
-  "engines": {
-    "node": ">= 18.20.8"
   },
   "volta": {
     "extends": "../package.json"

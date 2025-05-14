@@ -28,7 +28,7 @@
   server API format.
 
   To implement a serializer, export a class that conforms to the structure
-  described by [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)
+  described by {@link MinimumSerializerInterface}
   from the `app/serializers/` directory. An example is below.
 
   ```ts
@@ -103,8 +103,7 @@
   It is recommended that apps write their own serializer to best suit the needs of their API and
   application.
 
-  @module @ember-data/serializer
-  @main @ember-data/serializer
+  @module
 */
 
 import EmberObject from '@ember/object';
@@ -117,7 +116,7 @@ import type { EmptyResourceDocument, SingleResourceDocument } from '@warp-drive/
 const service = s.service ?? s.inject;
 
 /**
-  > ⚠️ CAUTION you likely want the docs for [<Interface> Serializer](/ember-data/release/classes/%3CInterface%3E%20Serializer)
+  > ⚠️ CAUTION you likely want the docs for {@link MinimumSerializerInterface}
   > as extending this abstract class is unnecessary.
 
   `Serializer` is an abstract base class that you may override in your

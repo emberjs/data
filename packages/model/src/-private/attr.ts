@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/model
-*/
 import { computed } from '@ember/object';
 
 import { recordIdentifierFor } from '@ember-data/store';
