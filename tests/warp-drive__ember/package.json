@@ -68,6 +68,7 @@
     "ember-source": "~6.3.0",
     "ember-source-channel-url": "^3.0.0",
     "ember-template-imports": "^4.3.0",
+    "ember-route-template": "^1.0.3",
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
     "typescript": "^5.8.3",

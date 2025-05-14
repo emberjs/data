@@ -65,6 +65,7 @@
     "ember-source": "~6.3.0",
     "ember-source-channel-url": "^3.0.0",
     "ember-template-imports": "4.3.0",
+    "ember-route-template": "^1.0.3",
     "loader.js": "^4.7.0",
     "qunit": "^2.20.1",
     "qunit-console-grouper": "^0.3.0",
