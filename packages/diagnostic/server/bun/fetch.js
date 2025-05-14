@@ -1,4 +1,3 @@
-/* eslint-disable n/no-unsupported-features/node-builtins */
 import chalk from 'chalk';
 import path from 'path';
 
