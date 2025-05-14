@@ -14,6 +14,12 @@ Curious? Read the [RFC](https://rfcs.emberjs.com/id/1075-warp-drive-package-unif
 ***Warp*Drive** is highly configurable. The library is designed as a series of small packages with clear
 interface-driven boundaries between each other and brought together by configuration.
 
+Below, we detail the installation for the most common configurations.
+
+<br>
+<img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
+<img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
+
 ::: warning ⚠️ Caution
 WarpDrive packages follow lockstep: dependencies and peer-dependencies between WarpDrive packages are version-locked at the time of publish.
 
@@ -22,15 +28,7 @@ We find this means its best to use exact versions instead of ranges as all WarpD
 All of the installation commands below pin the version for this reason.
 :::
 
-Below, we detail the installation for the most common configurations.
-
-<br>
-<img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
-<img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
-
-
 ## Installation {#installation}
-
 
 
 Install the core packages:
