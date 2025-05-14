@@ -475,7 +475,6 @@ export class IdentifierArray<T = unknown> {
     people.isUpdating; // true
     ```
 
-    @method update
     @public
   */
   update(): Promise<IdentifierArray<T>> {
@@ -526,7 +525,6 @@ export class IdentifierArray<T = unknown> {
     messages.save();
     ```
 
-    @method save
     @public
     @return {Promise<IdentifierArray>} promise
   */

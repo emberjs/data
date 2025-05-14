@@ -1,27 +1,22 @@
 export type Command = {
   /**
    * Human Label
-   * @typedoc
    */
   name: string;
   /**
    * Command Name
-   * @typedoc
    */
   cmd: string;
   /**
    * Command Description
-   * @typedoc
    */
   description: string;
   /**
    * Aliases
-   * @typedoc
    */
   alt?: string[];
   /**
    * Examples
-   * @typedoc
    */
   example?: string | string[];
   overview?: string;
@@ -365,7 +360,7 @@ export function getCommands<T extends Record<string, { default?: boolean; alt?: 
     commands.set(cmd, cmd);
     commands.set(command_config[key].cmd, cmd);
     if (command_config[cmd].alt) {
-      command_config[cmd].alt!.forEach((alt: string) => {
+      command_config[cmd].alt.forEach((alt: string) => {
         const alternate = normalizeFlag(alt);
         if (commands.has(alternate) && commands.get(alternate) !== cmd) {
           throw new Error(`Duplicate command alias ${alternate} for ${cmd} and ${commands.get(alternate)}`);

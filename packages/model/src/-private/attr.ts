@@ -33,7 +33,6 @@ import { isElementDescriptor } from './util';
  * }
  *
  * @class NOTATHING
- * @typedoc
  */
 export type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
   /**
@@ -45,7 +44,6 @@ export type AttrOptions<DV = PrimitiveValue | object | unknown[]> = {
    * Default values *should not* be stateful (object, arrays, etc.) as
    * they will be shared across all instances of the record.
    *
-   * @typedoc
    */
   defaultValue?: DV extends PrimitiveValue ? DV : () => DV;
 };
@@ -126,7 +124,6 @@ type LooseTransformInstance<V, Raw, Name extends string> = {
   /**
    * value type must match the return type of the deserialize method
    *
-   * @typedoc
    */
   // see note on Explicit ANY above
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -134,7 +131,6 @@ type LooseTransformInstance<V, Raw, Name extends string> = {
   /**
    * defaultValue type must match the return type of the deserialize method
    *
-   * @typedoc
    */
   // see note on Explicit ANY above
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -180,7 +176,6 @@ export type OptionsFromInstance<T> =
  * is a descriptor, but typescript incorrectly insists that decorator functions return
  * `void` or `any`.
  *
- * @typedoc
  */
 export type DataDecorator = (target: object, key: string, desc?: DecoratorPropertyDescriptor) => void;
 
@@ -266,10 +261,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   }
   ```
 
-  @method attr
   @public
-  @static
-  @for @ember-data/model
   @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}

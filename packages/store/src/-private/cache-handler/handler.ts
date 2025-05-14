@@ -82,7 +82,6 @@ export interface StoreRequestContext extends RequestContext {
  *   [EnableHydration]: true
  * });
  *
- * @typedoc
  */
 export const CacheHandler: CacheHandlerType = {
   request<T>(

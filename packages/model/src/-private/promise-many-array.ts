@@ -71,7 +71,6 @@ export class PromiseManyArray<T = unknown> {
    * We do not guarantee that forEach will always be available. This
    * may eventually be made to use Symbol.Iterator once glimmer supports it.
    *
-   * @method forEach
    * @param cb
    * @return
    * @private
@@ -84,7 +83,6 @@ export class PromiseManyArray<T = unknown> {
 
   /**
    * Reload the relationship
-   * @method reload
    * @public
    * @param options
    * @return
@@ -133,7 +131,6 @@ export class PromiseManyArray<T = unknown> {
   /**
    * chain this promise
    *
-   * @method then
    * @public
    * @param success
    * @param fail
@@ -145,7 +142,6 @@ export class PromiseManyArray<T = unknown> {
 
   /**
    * catch errors thrown by this promise
-   * @method catch
    * @public
    * @param callback
    * @return {Promise}
@@ -157,7 +153,6 @@ export class PromiseManyArray<T = unknown> {
   /**
    * run cleanup after this promise completes
    *
-   * @method finally
    * @public
    * @param callback
    * @return {Promise}

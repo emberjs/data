@@ -50,7 +50,6 @@ export class PersistedCache implements Cache {
    * a `content` member and therefor must not assume the existence
    * of `request` and `response` on the document.
    *
-   * @method put
    * @param {StructuredDocument} doc
    * @return {ResourceDocument}
    * @internal
@@ -93,7 +92,6 @@ export class PersistedCache implements Cache {
    * Note: currently the only valid operation is a MergeOperation
    * which occurs when a collision of identifiers is detected.
    *
-   * @method patch
    * @internal
    * @param op the operation to perform
    * @return {void}
@@ -106,7 +104,6 @@ export class PersistedCache implements Cache {
    * Update resource data with a local mutation. Currently supports operations
    * on relationships only.
    *
-   * @method mutate
    * @internal
    * @param mutation
    */
@@ -141,7 +138,6 @@ export class PersistedCache implements Cache {
    * of the Graph handling necessary entanglements and
    * notifications for relational data.
    *
-   * @method peek
    * @internal
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
@@ -179,7 +175,6 @@ export class PersistedCache implements Cache {
    * of the Graph handling necessary entanglements and
    * notifications for relational data.
    *
-   * @method peek
    * @internal
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
@@ -194,7 +189,6 @@ export class PersistedCache implements Cache {
    * Peek the Cache for the existing request data associated with
    * a cacheable request
    *
-   * @method peekRequest
    * @param {StableDocumentIdentifier}
    * @return {StableDocumentIdentifier | null}
    * @internal
@@ -206,7 +200,6 @@ export class PersistedCache implements Cache {
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
-   * @method upsert
    * @internal
    * @param identifier
    * @param data
@@ -227,7 +220,6 @@ export class PersistedCache implements Cache {
    * preferring instead to fork at the Store level, which will
    * utilize this method to fork the cache.
    *
-   * @method fork
    * @internal
    * @return {Promise<Cache>}
    */
@@ -242,7 +234,6 @@ export class PersistedCache implements Cache {
    * preferring instead to merge at the Store level, which will
    * utilize this method to merge the caches.
    *
-   * @method merge
    * @param {Cache} cache
    * @internal
    * @return {Promise<void>}
@@ -281,7 +272,6 @@ export class PersistedCache implements Cache {
    * }
    * ```
    *
-   * @method diff
    * @internal
    */
   diff(): Promise<Change[]> {
@@ -296,7 +286,6 @@ export class PersistedCache implements Cache {
    * which may be fed back into a new instance of the same Cache
    * via `cache.hydrate`.
    *
-   * @method dump
    * @return {Promise<ReadableStream>}
    * @internal
    */
@@ -316,7 +305,6 @@ export class PersistedCache implements Cache {
    * behavior supports optimizing pre/fetching of data for route transitions
    * via data-only SSR modes.
    *
-   * @method hydrate
    * @param {ReadableStream} stream
    * @return {Promise<void>}
    * @internal
@@ -337,7 +325,6 @@ export class PersistedCache implements Cache {
    * It returns properties from options that should be set on the record during the create
    * process. This return value behavior is deprecated.
    *
-   * @method clientDidCreate
    * @internal
    * @param identifier
    * @param options
@@ -350,7 +337,6 @@ export class PersistedCache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * will be part of a save transaction.
    *
-   * @method willCommit
    * @internal
    * @param identifier
    */
@@ -362,7 +348,6 @@ export class PersistedCache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was successfully updated as part of a save transaction.
    *
-   * @method didCommit
    * @internal
    * @param identifier
    * @param data
@@ -375,7 +360,6 @@ export class PersistedCache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was update via a save transaction failed.
    *
-   * @method commitWasRejected
    * @internal
    * @param identifier
    * @param errors
@@ -388,7 +372,6 @@ export class PersistedCache implements Cache {
    * [LIFECYCLE] Signals to the cache that all data for a resource
    * should be cleared.
    *
-   * @method unloadRecord
    * @internal
    * @param identifier
    */
@@ -402,7 +385,6 @@ export class PersistedCache implements Cache {
   /**
    * Retrieve the data for an attribute from the cache
    *
-   * @method getAttr
    * @internal
    * @param identifier
    * @param propertyName
@@ -415,7 +397,6 @@ export class PersistedCache implements Cache {
   /**
    * Retrieve the remote state for an attribute from the cache
    *
-   * @method getAttr
    * @internal
    * @param identifier
    * @param propertyName
@@ -428,7 +409,6 @@ export class PersistedCache implements Cache {
   /**
    * Mutate the data for an attribute in the cache
    *
-   * @method setAttr
    * @internal
    * @param identifier
    * @param propertyName
@@ -441,7 +421,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for the changed attributes of a resource.
    *
-   * @method changedAttrs
    * @internal
    * @param identifier
    * @return
@@ -453,7 +432,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for whether any mutated attributes exist
    *
-   * @method hasChangedAttrs
    * @internal
    * @param identifier
    * @return {Boolean}
@@ -465,7 +443,6 @@ export class PersistedCache implements Cache {
   /**
    * Tell the cache to discard any uncommitted mutations to attributes
    *
-   * @method rollbackAttrs
    * @internal
    * @param identifier
    * @return the names of attributes that were restored
@@ -496,7 +473,6 @@ export class PersistedCache implements Cache {
     };
     ```
    *
-   * @method changedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {Map<string, RelationshipDiff>}
@@ -508,7 +484,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for whether any mutated attributes exist
    *
-   * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {Boolean}
@@ -524,7 +499,6 @@ export class PersistedCache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {String[]} the names of relationships that were restored
@@ -539,7 +513,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for the current state of a relationship property
    *
-   * @method getRelationship
    * @internal
    * @param identifier
    * @param propertyName
@@ -556,7 +529,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the remote state for the current state of a relationship property
    *
-   * @method getRelationship
    * @internal
    * @param identifier
    * @param propertyName
@@ -577,7 +549,6 @@ export class PersistedCache implements Cache {
    * Update the cache state for the given resource to be marked as locally deleted,
    * or remove such a mark.
    *
-   * @method setIsDeleted
    * @internal
    * @param identifier
    * @param isDeleted
@@ -589,7 +560,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
-   * @method getErrors
    * @internal
    * @param identifier
    * @return
@@ -601,7 +571,6 @@ export class PersistedCache implements Cache {
   /**
    * Query the cache for whether a given resource has any available data
    *
-   * @method isEmpty
    * @internal
    * @param identifier
    * @return {Boolean}
@@ -614,7 +583,6 @@ export class PersistedCache implements Cache {
    * Query the cache for whether a given resource was created locally and not
    * yet persisted.
    *
-   * @method isNew
    * @internal
    * @param identifier
    * @return {Boolean}
@@ -627,7 +595,6 @@ export class PersistedCache implements Cache {
    * Query the cache for whether a given resource is marked as deleted (but not
    * necessarily persisted yet).
    *
-   * @method isDeleted
    * @internal
    * @param identifier
    * @return {Boolean}
@@ -640,7 +607,6 @@ export class PersistedCache implements Cache {
    * Query the cache for whether a given resource has been deleted and that deletion
    * has also been persisted.
    *
-   * @method isDeletionCommitted
    * @internal
    * @param identifier
    * @return {Boolean}

@@ -28,7 +28,6 @@ export interface CachePolicy {
    * the request will be fulfilled from the configured request handlers
    * and the cache will be updated before returning the response.
    *
-   * @method isHardExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
@@ -44,7 +43,6 @@ export interface CachePolicy {
    * If true, the request will be fulfilled from cache while a backgrounded
    * request is made to update the cache via the configured request handlers.
    *
-   * @method isSoftExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
@@ -58,7 +56,6 @@ export interface CachePolicy {
    *
    * Note, this is invoked regardless of whether the request has a cache-key.
    *
-   * @method willRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request
    * @param {StableDocumentIdentifier | null} identifier
@@ -94,7 +91,6 @@ export interface CachePolicy {
    * ```
    *
    *
-   * @method didRequest [Optional]
    * @public
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response

@@ -85,7 +85,6 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
 
   @class JSONSerializer
   @public
-  @extends Serializer
 */
 const JSONSerializer = Serializer.extend({
   /**
@@ -189,7 +188,6 @@ const JSONSerializer = Serializer.extend({
    JSON object.  This method is typically called after the
    serializer's `normalize` method.
 
-   @method applyTransforms
    @private
    @param {Model} typeClass
    @param {Object} data The data to transform
@@ -238,7 +236,6 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @since 1.13.0
-    @method normalizeResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -277,7 +274,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `findRecord`
 
     @since 1.13.0
-    @method normalizeFindRecordResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -295,7 +291,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `queryRecord`
 
     @since 1.13.0
-    @method normalizeQueryRecordResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -313,7 +308,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `findAll`
 
     @since 1.13.0
-    @method normalizeFindAllResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -331,7 +325,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `findBelongsTo`
 
     @since 1.13.0
-    @method normalizeFindBelongsToResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -349,7 +342,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `findHasMany`
 
     @since 1.13.0
-    @method normalizeFindHasManyResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -367,7 +359,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `findMany`
 
     @since 1.13.0
-    @method normalizeFindManyResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -385,7 +376,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `query`
 
     @since 1.13.0
-    @method normalizeQueryResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -403,7 +393,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `createRecord`
 
     @since 1.13.0
-    @method normalizeCreateRecordResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -421,7 +410,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `deleteRecord`
 
     @since 1.13.0
-    @method normalizeDeleteRecordResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -439,7 +427,6 @@ const JSONSerializer = Serializer.extend({
     type of request is `updateRecord`
 
     @since 1.13.0
-    @method normalizeUpdateRecordResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -457,7 +444,6 @@ const JSONSerializer = Serializer.extend({
     normalizeDeleteRecordResponse delegate to this method by default.
 
     @since 1.13.0
-    @method normalizeSaveResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -475,7 +461,6 @@ const JSONSerializer = Serializer.extend({
     method by default.
 
     @since 1.13.0
-    @method normalizeSingleResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -493,7 +478,6 @@ const JSONSerializer = Serializer.extend({
     to this method by default.
 
     @since 1.13.0
-    @method normalizeArrayResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -507,7 +491,6 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    @method _normalizeResponse
     @param {Store} store
     @param {Model} primaryModelClass
     @param {Object} payload
@@ -591,7 +574,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method normalize
     @public
     @param {Model} typeClass
     @param {Object} hash
@@ -626,7 +608,6 @@ const JSONSerializer = Serializer.extend({
   /**
     Returns the resource's ID.
 
-    @method extractId
     @public
     @param {Object} modelClass
     @param {Object} resourceHash
@@ -643,7 +624,6 @@ const JSONSerializer = Serializer.extend({
 
     http://jsonapi.org/format/#document-resource-object-attributes
 
-    @method extractAttributes
     @public
     @param {Object} modelClass
     @param {Object} resourceHash
@@ -668,7 +648,6 @@ const JSONSerializer = Serializer.extend({
 
     http://jsonapi.org/format/#document-resource-object-relationships
 
-    @method extractRelationship
     @public
     @param {Object} relationshipModelName
     @param {Object} relationshipHash
@@ -711,7 +690,6 @@ const JSONSerializer = Serializer.extend({
         extracted from the resourceHash
       - `relationshipMeta` meta information about the relationship
 
-    @method extractPolymorphicRelationship
     @public
     @param {Object} relationshipModelName
     @param {Object} relationshipHash
@@ -727,7 +705,6 @@ const JSONSerializer = Serializer.extend({
 
     http://jsonapi.org/format/#document-resource-object-relationships
 
-    @method extractRelationships
     @public
     @param {Object} modelClass
     @param {Object} resourceHash
@@ -797,7 +774,6 @@ const JSONSerializer = Serializer.extend({
   /**
     Dasherizes the model name in the payload
 
-    @method modelNameFromPayloadKey
     @public
     @param {String} key
     @return {String} the model's modelName
@@ -807,7 +783,6 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    @method normalizeRelationships
     @private
   */
   normalizeRelationships(typeClass, hash) {
@@ -830,7 +805,6 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    @method normalizeUsingDeclaredMapping
     @private
   */
   normalizeUsingDeclaredMapping(modelClass, hash) {
@@ -866,7 +840,6 @@ const JSONSerializer = Serializer.extend({
     Looks up the property key that was set by the custom `attr` mapping
     passed to the serializer.
 
-    @method _getMappedKey
     @private
     @param {String} key
     @return {String} key
@@ -905,7 +878,6 @@ const JSONSerializer = Serializer.extend({
     Check attrs.key.serialize property to inform if the `key`
     can be serialized
 
-    @method _canSerialize
     @private
     @param {String} key
     @return {Boolean} true if the key can be serialized
@@ -921,7 +893,6 @@ const JSONSerializer = Serializer.extend({
     it takes priority over the other checks and the related
     attribute/relationship will be serialized
 
-    @method _mustSerialize
     @private
     @param {String} key
     @return {Boolean} true if the key must be serialized
@@ -938,7 +909,6 @@ const JSONSerializer = Serializer.extend({
     By default only many-to-many and many-to-none relationships are serialized.
     This could be configured per relationship by Serializer's `attrs` object.
 
-    @method shouldSerializeHasMany
     @public
     @param {Snapshot} snapshot
     @param {String} key
@@ -1102,7 +1072,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method serialize
     @public
     @param {Snapshot} snapshot
     @param {Object} options
@@ -1155,7 +1124,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method serializeIntoHash
     @public
     @param {Object} hash
     @param {Model} typeClass
@@ -1185,7 +1153,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method serializeAttribute
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -1235,7 +1202,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method serializeBelongsTo
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -1289,7 +1255,6 @@ const JSONSerializer = Serializer.extend({
    }
    ```
 
-   @method serializeHasMany
     @public
    @param {Snapshot} snapshot
    @param {Object} json
@@ -1342,7 +1307,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method serializePolymorphicType
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -1371,7 +1335,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method extractMeta
     @public
     @param {Store} store
     @param {Model} modelClass
@@ -1463,7 +1426,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method extractErrors
     @public
     @param {Store} store
     @param {Model} typeClass
@@ -1537,7 +1499,6 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    @method keyForAttribute
     @public
     @param {String} key
     @param {String} method
@@ -1565,7 +1526,6 @@ const JSONSerializer = Serializer.extend({
       }
       ```
 
-    @method keyForRelationship
     @public
     @param {String} key
     @param {String} typeClass
@@ -1580,7 +1540,6 @@ const JSONSerializer = Serializer.extend({
    `keyForLink` can be used to define a custom key when deserializing link
    properties.
 
-   @method keyForLink
     @public
    @param {String} key
    @param {String} kind `belongsTo` or `hasMany`
@@ -1593,7 +1552,6 @@ const JSONSerializer = Serializer.extend({
   // HELPERS
 
   /**
-   @method transformFor
    @private
    @param {String} attributeType
    @param {Boolean} skipAssertion

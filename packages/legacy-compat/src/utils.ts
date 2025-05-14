@@ -36,11 +36,8 @@ let NormalizedType: Normalizer = (str: string) => {
  * changes during normalization. This is useful for instrumenting
  * to discover places where usage in the app is not consistent.
  *
- * @method configureMismatchReporter
- * @for @ember-data/legacy-compat/utils
  * @param method a function which takes a mismatch-type ('formatted-id' | 'formatted-type'), actual, and expected value
  * @public
- * @static
  */
 export function configureMismatchReporter(fn: Reporter): void {
   MismatchReporter = fn;
@@ -51,11 +48,8 @@ export function configureMismatchReporter(fn: Reporter): void {
  * fails validation. This is useful for instrumenting
  * to discover places where usage in the app is not consistent.
  *
- * @method configureAssertFn
- * @for @ember-data/legacy-compat/utils
  * @param method a function which takes a message and a condition
  * @public
- * @static
  */
 export function configureAssertFn(fn: (message: string, condition: unknown) => void): void {
   _AssertFn = fn;
@@ -71,11 +65,8 @@ export function configureAssertFn(fn: (message: string, condition: unknown) => v
  * the configured mismatch reporter and assert functions will
  * be called.
  *
- * @method configureTypeNormalization
- * @for @ember-data/legacy-compat/utils
  * @param method a function which takes a string and returns a string
  * @public
- * @static
  */
 export function configureTypeNormalization(fn: (type: string) => string): void {
   NormalizedType = fn;
@@ -108,12 +99,9 @@ const NORMALIZED_TYPES = new Map<string, string>();
  * formattedType('PostComment'); // => 'post-comment'
  * ```
  *
- * @method formattedType
- * @for @ember-data/legacy-compat/utils
  * @param {String} type the potentially un-normalized type
  * @return {String} the normalized type
  * @public
- * @static
  */
 export function formattedType<T extends string>(type: T | string): T {
   AssertFn('formattedType: type must not be null', type !== null);
@@ -150,12 +138,9 @@ export function formattedType<T extends string>(type: T | string): T {
  * formattedId(null); // => null
  *	```
  *
- * @method formattedId
- * @for @ember-data/legacy-compat/utils
  * @param {String | Number | null} id the potentially un-normalized id
  * @return {String | null} the normalized id
  * @public
- * @static
  */
 export function formattedId(id: string | number): string;
 export function formattedId(id: null): null;
@@ -207,13 +192,10 @@ export function expectId(id: string | number | null): string {
  * isEquivType('posts', null); // false
  * ```
  *
- * @method isEquivType
- * @for @ember-data/legacy-compat/utils
  * @param {String} expected a potentially unnormalized type to match against
  * @param {String} actual a potentially unnormalized type to match against
  * @return {Boolean} true if the types are equivalent
  * @public
- * @static
  */
 export function isEquivType(expected: string, actual: string): boolean {
   AssertFn('isEquivType: Expected type must not be null', expected !== null);
@@ -245,13 +227,10 @@ export function isEquivType(expected: string, actual: string): boolean {
  * isEquivId(1, null); // false
  * ```
  *
- * @method isEquivId
- * @for @ember-data/legacy-compat/utils
  * @param {string | number} expected a potentially un-normalized id to match against
  * @param {string | number} actual a potentially un-normalized id to match against
  * @return {Boolean} true if the ids are equivalent
  * @public
- * @static
  */
 export function isEquivId(expected: string | number, actual: string | number | null): boolean {
   AssertFn('isEquivId: Expected id must not be null', expected !== null);

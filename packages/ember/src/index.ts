@@ -117,10 +117,7 @@ export { Await, Throw } from './-private/await.gts';
  * ```
  *
  * If looking to use in a template, consider also the `<Await />` component.
- *
- * @method getPromiseState
- * @for @warp-drive/ember
- * @static
+
  * @public
  * @param {Promise<T> | Awaitable<T, E>} promise
  * @return {PromiseState<T, E>}
@@ -216,9 +213,6 @@ export { getPromiseState } from '@ember-data/store/-private';
  * which offers a numbe of additional capabilities for requests *beyond* what
  * `RequestState` provides.
  *
- * @method getRequestState
- * @for @warp-drive/ember
- * @static
  * @public
  * @param future
  * @return {RequestState}

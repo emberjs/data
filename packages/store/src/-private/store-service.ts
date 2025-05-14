@@ -269,7 +269,6 @@ type MaybeHasId = { id?: string | null };
  * TODO: These are limitations we want to (and can) address. If you
  * have need of lifting these limitations, please open an issue.
  *
- * @typedoc
  */
 export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
   ? Partial<FilteredKeys<T>>
@@ -409,7 +408,6 @@ export interface Store {
    * be sourced from directly registered schemas, then will fallback
    * to sourcing a schema from available models if no schema is found.
    *
-   * @method createSchemaService (hook)
    * @return {SchemaService}
    * @public
    */
@@ -424,7 +422,6 @@ export interface Store {
    * The SchemaDefinitionService can be used to query for
    * information about the schema of a resource.
    *
-   * @method getSchemaDefinitionService
    * @deprecated
    * @public
    */
@@ -479,7 +476,6 @@ export interface Store {
    * }
    * ```
    *
-   * @method registerSchemaDefinitionService
    * @param {SchemaService} schema
    * @deprecated
    * @public
@@ -535,7 +531,6 @@ export interface Store {
    * }
    * ```
    *
-   * @method registerSchema
    * @param {SchemaService} schema
    * @deprecated
    * @public
@@ -688,7 +683,6 @@ export class Store extends BaseClass {
   }
 
   /**
-    @method init
     @private
   */
   constructor(createArgs?: unknown) {
@@ -774,7 +768,6 @@ export class Store extends BaseClass {
    * This can be used to query the status of requests
    * that have been initiated for a given identifier.
    *
-   * @method getRequestStateService
    * @return {RequestStateService}
    * @public
    */
@@ -847,7 +840,6 @@ export class Store extends BaseClass {
    * is that `store.request` will attempt to hydrate the response content into
    * a response Document containing RecordInstances.
    *
-   * @method request
    * @param {StoreRequestInput} requestConfig
    * @return {Future}
    * @public
@@ -925,7 +917,6 @@ export class Store extends BaseClass {
    * mechanism of presenting cache data to the ui for access
    * mutation, and interaction.
    *
-   * @method instantiateRecord (hook)
    * @param identifier
    * @param createRecordArgs
    * @param recordDataFor deprecated use this.cache
@@ -940,7 +931,6 @@ export class Store extends BaseClass {
    * be used to teardown any custom record instances instantiated
    * with `instantiateRecord`.
    *
-   * @method teardownRecord (hook)
    * @public
    * @param record
    */
@@ -962,7 +952,6 @@ export class Store extends BaseClass {
     [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
     for example.
 
-    @method modelFor
     @public
     @deprecated
     @param {String} type
@@ -1004,7 +993,6 @@ export class Store extends BaseClass {
     });
     ```
 
-    @method createRecord
     @public
     @param {String} type the name of the resource
     @param {Object} inputProperties a hash of properties to set on the
@@ -1087,7 +1075,6 @@ export class Store extends BaseClass {
     store.deleteRecord(post);
     ```
 
-    @method deleteRecord
     @public
     @param {unknown} record
   */
@@ -1119,7 +1106,6 @@ export class Store extends BaseClass {
     store.unloadRecord(post);
     ```
 
-    @method unloadRecord
     @public
     @param {Model} record
   */
@@ -1479,7 +1465,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method findRecord
     @public
     @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
@@ -1575,7 +1560,6 @@ export class Store extends BaseClass {
     });
     ```
 
-    @method getReference
     @public
     @param {String|object} resource - modelName (string) or Identifier (object)
     @param {String|Integer} id
@@ -1649,7 +1633,6 @@ export class Store extends BaseClass {
 
 
     @since 1.13.0
-    @method peekRecord
     @public
     @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
@@ -1733,7 +1716,6 @@ export class Store extends BaseClass {
     once the server returns.
 
     @since 1.13.0
-    @method query
     @public
     @param {String} type the name of the resource
     @param {Object} query a query to be used by the adapter
@@ -1857,7 +1839,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method queryRecord
     @public
     @param {String} type
     @param {Object} query an opaque query to be used by the adapter
@@ -2066,7 +2047,6 @@ export class Store extends BaseClass {
     See [query](../methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
-    @method findAll
     @public
     @param {String} type the name of the resource
     @param {Object} options
@@ -2116,7 +2096,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method peekAll
     @public
     @param {String} type the name of the resource
     @return {RecordArray}
@@ -2147,7 +2126,6 @@ export class Store extends BaseClass {
     store.unloadAll('post');
     ```
 
-    @method unloadAll
     @param {String} type the name of the resource
     @public
   */
@@ -2322,7 +2300,6 @@ export class Store extends BaseClass {
     This method can be used both to push in brand new
     records, as well as to update existing records.
 
-    @method push
     @public
     @param {Object} data
     @return the record(s) that was created or
@@ -2354,7 +2331,6 @@ export class Store extends BaseClass {
     Push some data in the form of a json-api document into the store,
     without creating materialized records.
 
-    @method _push
     @private
     @param {Object} jsonApiDoc
     @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
@@ -2385,7 +2361,6 @@ export class Store extends BaseClass {
    *
    * Returns a promise resolving with the same record when the save is complete.
    *
-   * @method saveRecord
    * @public
    * @param {unknown} record
    * @param options
@@ -2443,7 +2418,6 @@ export class Store extends BaseClass {
    * This hook should not be called directly by consuming applications or libraries.
    * Use `Store.cache` to access the Cache instance.
    *
-   * @method createCache (hook)
    * @public
    * @param storeWrapper
    * @return {Cache}

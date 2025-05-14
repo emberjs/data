@@ -63,7 +63,6 @@ interface RequestSignature<RT, T, E> {
      * The request to monitor. This should be a `Future` instance returned
      * by either the `store.request` or `store.requestManager.request` methods.
      *
-     * @typedoc
      */
     request?: Future<RT>;
 
@@ -72,7 +71,6 @@ interface RequestSignature<RT, T, E> {
      * passed to `store.request`. Use this in place of `@request` if you would
      * like the component to also initiate the request.
      *
-     * @typedoc
      */
     query?: StoreRequestInput<RT, T>;
 
@@ -83,7 +81,6 @@ interface RequestSignature<RT, T, E> {
      * This is required if the store is not available via context or should be
      * different from the store provided via context.
      *
-     * @typedoc
      */
     store?: Store;
 
@@ -99,7 +96,6 @@ interface RequestSignature<RT, T, E> {
      *
      * Defaults to `false`.
      *
-     * @typedoc
      */
     autorefresh?: AutorefreshBehaviorCombos;
 
@@ -112,7 +108,6 @@ interface RequestSignature<RT, T, E> {
      *
      * Defaults to `30_000` (30 seconds).
      *
-     * @typedoc
      */
     autorefreshThreshold?: number;
 
@@ -127,7 +122,6 @@ interface RequestSignature<RT, T, E> {
      *
      * Defaults to `'policy'`.
      *
-     * @typedoc
      */
     autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
   };
@@ -135,21 +129,18 @@ interface RequestSignature<RT, T, E> {
     /**
      * The block to render when the component is idle and waiting to be given a request.
      *
-     * @typedoc
      */
     idle: [];
 
     /**
      * The block to render when the request is loading.
      *
-     * @typedoc
      */
     loading: [state: RequestLoadingState];
 
     /**
      * The block to render when the request was cancelled.
      *
-     * @typedoc
      */
     cancelled: [
       error: StructuredErrorDocument<E>,
@@ -163,7 +154,6 @@ interface RequestSignature<RT, T, E> {
      * Thus it is required to provide an error block and proper error handling if
      * you do not want the error to crash the application.
      *
-     * @typedoc
      */
     error: [
       error: StructuredErrorDocument<E>,
@@ -173,7 +163,6 @@ interface RequestSignature<RT, T, E> {
     /**
      * The block to render when the request succeeded.
      *
-     * @typedoc
      */
     content: [value: RT, features: ContentFeatures<RT>];
     always: [state: RequestState<RT, T, StructuredErrorDocument<E>>];

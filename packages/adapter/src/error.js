@@ -172,7 +172,6 @@ function extend(ParentErrorClass, defaultMessage) {
 
   @class InvalidError
   @public
-  @extends AdapterError
 */
 // TODO @deprecate extractError documentation
 export const InvalidError = getOrSetGlobal(
@@ -208,7 +207,6 @@ InvalidError.prototype.code = 'InvalidError';
 
   @class TimeoutError
   @public
-  @extends AdapterError
 */
 export const TimeoutError = getOrSetGlobal('TimeoutError', extend(AdapterError, 'The adapter operation timed out'));
 TimeoutError.prototype.code = 'TimeoutError';
@@ -221,7 +219,6 @@ TimeoutError.prototype.code = 'TimeoutError';
 
   @class AbortError
   @public
-  @extends AdapterError
 */
 export const AbortError = getOrSetGlobal('AbortError', extend(AdapterError, 'The adapter operation was aborted'));
 AbortError.prototype.code = 'AbortError';
@@ -254,7 +251,6 @@ AbortError.prototype.code = 'AbortError';
 
   @class UnauthorizedError
   @public
-  @extends AdapterError
 */
 export const UnauthorizedError = getOrSetGlobal(
   'UnauthorizedError',
@@ -271,7 +267,6 @@ UnauthorizedError.prototype.code = 'UnauthorizedError';
 
   @class ForbiddenError
   @public
-  @extends AdapterError
 */
 export const ForbiddenError = getOrSetGlobal(
   'ForbiddenError',
@@ -310,7 +305,6 @@ ForbiddenError.prototype.code = 'ForbiddenError';
 
   @class NotFoundError
   @public
-  @extends AdapterError
 */
 export const NotFoundError = getOrSetGlobal(
   'NotFoundError',
@@ -327,7 +321,6 @@ NotFoundError.prototype.code = 'NotFoundError';
 
   @class ConflictError
   @public
-  @extends AdapterError
 */
 export const ConflictError = getOrSetGlobal(
   'ConflictError',
@@ -342,7 +335,6 @@ ConflictError.prototype.code = 'ConflictError';
 
   @class ServerError
   @public
-  @extends AdapterError
 */
 export const ServerError = getOrSetGlobal(
   'ServerError',

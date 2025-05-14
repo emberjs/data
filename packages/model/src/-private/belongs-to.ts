@@ -263,10 +263,7 @@ function _belongsTo<T, Async extends boolean>(
   must be declared as polymorphic, and the `as` option must be used to declare the abstract
   type each record satisfies on both sides.
 
-  @method belongsTo
   @public
-  @static
-  @for @ember-data/model
   @param {String} type (optional) the name of the related resource
   @param {Object} options (optional) a hash of options
   @return {PropertyDescriptor} relationship

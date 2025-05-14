@@ -75,9 +75,6 @@ _constructor[Type] = '@constructor';
  * registerDerivations(schema);
  * ```
  *
- * @method withDefaults
- * @for @warp-drive/schema-record
- * @static
  * @public
  * @param schema
  * @return {PolarisResourceSchema}
@@ -112,9 +109,6 @@ export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identit
  *
  * `^` returns the entire identifier object.
  *
- * @method fromIdentity
- * @for @warp-drive/schema-record
- * @static
  * @public
  */
 export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
@@ -145,9 +139,6 @@ fromIdentity[Type] = '@identity';
  * import { withDefaults } from '@warp-drive/schema-record';
  * ```
  *
- * @method registerDerivations
- * @for @warp-drive/schema-record
- * @static
  * @public
  * @param {SchemaService} schema
  */

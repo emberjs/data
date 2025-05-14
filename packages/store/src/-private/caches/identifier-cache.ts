@@ -264,7 +264,6 @@ export class IdentifierCache {
    * we allow late binding of this private internal merge so that
    * the cache can insert itself here to handle elimination of duplicates
    *
-   * @method __configureMerge
    * @private
    */
   __configureMerge(method: MergeMethod | null) {
@@ -276,7 +275,6 @@ export class IdentifierCache {
   }
 
   /**
-   * @method _getRecordIdentifier
    * @private
    */
   _getRecordIdentifier(
@@ -359,7 +357,6 @@ export class IdentifierCache {
    * useful for the "create" case when we need to see if
    * we are accidentally overwritting something
    *
-   * @method peekRecordIdentifier
    * @param resource
    * @return {StableRecordIdentifier | undefined}
    * @private
@@ -372,7 +369,6 @@ export class IdentifierCache {
     Returns the DocumentIdentifier for the given Request, creates one if it does not yet exist.
     Returns `null` if the request does not have a `cacheKey` or `url`.
 
-    @method getOrCreateDocumentIdentifier
     @param request
     @return {StableDocumentIdentifier | null}
     @public
@@ -412,7 +408,6 @@ export class IdentifierCache {
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
 
-    @method getOrCreateRecordIdentifier
     @param resource
     @return {StableRecordIdentifier}
     @public
@@ -429,7 +424,6 @@ export class IdentifierCache {
    Delegates generation to the user supplied `GenerateMethod` if one has been provided
    with the signature `generateMethod({ type }, 'record')`.
 
-   @method createIdentifierForNewRecord
    @param data
    @return {StableRecordIdentifier}
    @public
@@ -475,7 +469,6 @@ export class IdentifierCache {
     provided identifier. In this case the abandoned identifier will go through the usual
     `forgetRecordIdentifier` codepaths.
 
-    @method updateRecordIdentifier
     @param identifierObject
     @param data
     @return {StableRecordIdentifier}
@@ -550,7 +543,6 @@ export class IdentifierCache {
   }
 
   /**
-   * @method _mergeRecordIdentifiers
    * @private
    */
   _mergeRecordIdentifiers(
@@ -602,7 +594,6 @@ export class IdentifierCache {
    we do not care about the record anymore. Especially useful when an `id` of a
    deleted record might be reused later for a new record.
 
-   @method forgetRecordIdentifier
    @param identifierObject
    @public
   */

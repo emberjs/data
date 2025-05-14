@@ -57,7 +57,6 @@ export type SignalRef = unknown;
  * method, and consuming the correct one via the correct framework via
  * the `consumeSignal` and `notifySignal` methods.
  *
- * @typedoc
  */
 export interface SignalHooks<T = SignalRef> {
   createSignal: (obj: object, key: string | symbol) => T;

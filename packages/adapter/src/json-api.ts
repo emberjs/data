@@ -152,13 +152,11 @@ import RESTAdapter from './rest';
   @class JSONAPIAdapter
   @public
   @constructor
-  @extends RESTAdapter
 */
 class JSONAPIAdapter extends RESTAdapter {
   _defaultContentType = 'application/vnd.api+json';
 
   /**
-    @method ajaxOptions
     @private
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
@@ -270,7 +268,6 @@ class JSONAPIAdapter extends RESTAdapter {
     Used by `findAll` and `findRecord` to build the query's `data` hash
     supplied to the ajax method.
 
-    @method buildQuery
     @since 2.5.0
     @public
     @param  {Snapshot} snapshot

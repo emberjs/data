@@ -11,7 +11,6 @@ export type KeyOrString<T> = keyof T & string extends never ? string : keyof T &
  * for @ember-data/model or when wrapping schema for legacy
  * Adapters/Serializers.
  *
- * @typedoc
  */
 export interface ModelSchema<T = unknown> {
   modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;

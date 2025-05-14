@@ -252,7 +252,6 @@ const service = s.service ?? s.inject;
 
   @class Adapter
   @public
-  @extends Ember.EmberObject
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   @service declare store: Store;
@@ -286,7 +285,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findRecord
     @param {Store} store
     @param {Model} type
     @param {String} id
@@ -324,7 +322,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findAll
     @param {Store} store
     @param {Model} type
     @param {null} neverSet a value is never provided to this argument
@@ -367,7 +364,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method query
     @param {Store} store
     @param {Model} type
     @param {Object} query
@@ -413,7 +409,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method queryRecord
     @param {Store} store
     @param {subclass of Model} type
     @param {Object} query
@@ -453,7 +448,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method generateIdForRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
@@ -480,7 +474,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method serialize
     @param {Snapshot} snapshot
     @param {Object}   options
     @return {Object} serialized snapshot
@@ -529,7 +522,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method createRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -586,7 +578,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method updateRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -635,7 +626,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method deleteRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -700,7 +690,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findMany
     @param {Store} store
     @param {Model} type   the Model class of the records
     @param {Array}    ids
@@ -718,7 +707,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     The default implementation returns the records as a single group.
 
-    @method groupRecordsForFindMany
     @public
     @param {Store} store
     @param {Array} snapshots
@@ -770,7 +758,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     suit your use case.
 
     @since 1.13.0
-    @method shouldReloadRecord
     @param {Store} store
     @param {Snapshot} snapshot
     @return {Boolean}
@@ -826,7 +813,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     your use case.
 
     @since 1.13.0
-    @method shouldReloadAll
     @param {Store} store
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
@@ -863,7 +849,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     in the background.
 
     @since 1.13.0
-    @method shouldBackgroundReloadRecord
     @param {Store} store
     @param {Snapshot} snapshot
     @return {Boolean}
@@ -900,7 +885,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     should always be triggered.
 
     @since 1.13.0
-    @method shouldBackgroundReloadAll
     @param {Store} store
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}

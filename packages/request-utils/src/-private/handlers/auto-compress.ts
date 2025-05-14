@@ -26,35 +26,30 @@ interface Constraints {
    * The minimum size at which to compress blobs
    *
    * @default 1000
-   * @typedoc
    */
   Blob?: number;
   /**
    * The minimum size at which to compress array buffers
    *
    * @default 1000
-   * @typedoc
    */
   ArrayBuffer?: number;
   /**
    * The minimum size at which to compress typed arrays
    *
    * @default 1000
-   * @typedoc
    */
   TypedArray?: number;
   /**
    * The minimum size at which to compress data views
    *
    * @default 1000
-   * @typedoc
    */
   DataView?: number;
   /**
    * The minimum size at which to compress strings
    *
    * @default 1000
-   * @typedoc
    */
   String?: number;
 }
@@ -62,7 +57,6 @@ interface Constraints {
 /**
  * Options for configuring the AutoCompress handler.
  *
- * @typedoc
  */
 interface CompressionOptions {
   /**
@@ -71,7 +65,6 @@ interface CompressionOptions {
    *
    * The default is `gzip`.
    *
-   * @typedoc
    */
   format?: CompressionFormat;
 
@@ -100,7 +93,6 @@ interface CompressionOptions {
    * in the chain can handle the request body as a stream.
    *
    * @default false
-   * @typedoc
    */
   allowStreaming?: boolean;
 
@@ -110,7 +102,6 @@ interface CompressionOptions {
    * in the chain can handle the request body as a stream.
    *
    * @default false
-   * @typedoc
    */
   forceStreaming?: boolean;
 
@@ -144,7 +135,6 @@ interface CompressionOptions {
    * enable compression for all values, and a value of `-1` will
    * disable compression.
    *
-   * @typedoc
    */
   constraints?: Constraints;
 }
@@ -183,7 +173,6 @@ const TypedArray = Object.getPrototypeOf(Uint8Array.prototype) as typeof Uint8Ar
  * ```
  *
  * @class AutoCompress
- * @extends Handler
  * @public
  * @since 5.5.0
  */

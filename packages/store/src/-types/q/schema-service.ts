@@ -77,7 +77,6 @@ export interface SchemaService {
    *
    * Queries whether the SchemaService recognizes `type` as a resource type
    *
-   * @method doesTypeExist
    * @public
    * @deprecated
    * @param {String} type
@@ -88,7 +87,6 @@ export interface SchemaService {
   /**
    * Queries whether the SchemaService recognizes `type` as a resource type
    *
-   * @method hasResource
    * @public
    * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @return {Boolean}
@@ -98,7 +96,6 @@ export interface SchemaService {
   /**
    * Queries whether the SchemaService recognizes `type` as a resource trait
    *
-   * @method hasTrait
    * @public
    * @param {String} type
    * @return {Boolean}
@@ -108,7 +105,6 @@ export interface SchemaService {
   /**
    * Queries whether the given resource has the given trait
    *
-   * @method resourceHasTrait
    * @public
    * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @param {String} trait
@@ -121,7 +117,6 @@ export interface SchemaService {
    *
    * Should error if the resource type is not recognized.
    *
-   * @method fields
    * @public
    * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @return {Map<string, FieldSchema>}
@@ -132,7 +127,6 @@ export interface SchemaService {
    * Returns the transformation registered with the name provided
    * by `field.type`. Validates that the field is a valid transformable.
    *
-   * @method transformation
    * @public
    * @param {TransformableField|ObjectWithStringTypeProperty} field
    * @return {Transformation}
@@ -143,7 +137,6 @@ export interface SchemaService {
    * Returns the hash function registered with the name provided
    * by `field.type`. Validates that the field is a valid HashField.
    *
-   * @method hashFn
    * @public
    * @param {HashField|ObjectWithStringTypeProperty} field
    * @return {HashFn}
@@ -154,7 +147,6 @@ export interface SchemaService {
    * Returns the derivation registered with the name provided
    * by `field.type`. Validates that the field is a valid DerivedField.
    *
-   * @method derivation
    * @public
    * @param {DerivedField|ObjectWithStringTypeProperty} field
    * @return {Derivation}
@@ -164,7 +156,6 @@ export interface SchemaService {
   /**
    * Returns the schema for the provided resource type.
    *
-   * @method resource
    * @public
    * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
    * @return {ResourceSchema}
@@ -178,7 +169,6 @@ export interface SchemaService {
    * or for registering schema information delivered by API calls
    * or other sources just-in-time.
    *
-   * @method registerResources
    * @public
    * @param {Schema[]} schemas
    */
@@ -193,7 +183,6 @@ export interface SchemaService {
    * or for registering schema information delivered by API calls
    * or other sources just-in-time.
    *
-   * @method registerResource
    * @public
    * @param {Schema} schema
    */
@@ -205,7 +194,6 @@ export interface SchemaService {
    * The transformation can later be retrieved by the name
    * attached to it's `[Type]` property.
    *
-   * @method registerTransformations
    * @public
    * @param {Transformation} transform
    */
@@ -217,7 +205,6 @@ export interface SchemaService {
    * The derivation can later be retrieved by the name
    * attached to it's `[Type]` property.
    *
-   * @method registerDerivations
    * @public
    * @param {Derivation} derivation
    */
@@ -229,7 +216,6 @@ export interface SchemaService {
    * The hashing function can later be retrieved by the name
    * attached to it's `[Type]` property.
    *
-   * @method registerHashFn
    * @public
    * @param {HashFn} hashfn
    */
@@ -273,7 +259,6 @@ export interface SchemaService {
    * }
    * ```
    *
-   * @method attributesDefinitionFor
    * @public
    * @deprecated
    * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
@@ -356,7 +341,6 @@ export interface SchemaService {
    * }
    * ```
    *
-   * @method relationshipsDefinitionFor
    * @public
    * @deprecated
    * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
@@ -367,7 +351,6 @@ export interface SchemaService {
   /**
    * Returns all known resource types
    *
-   * @method resourceTypes
    * @public
    * @return {String[]}
    */

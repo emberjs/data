@@ -230,7 +230,6 @@ export default class HasManyReference<
    }
    ```
 
-   @method remoteType
    @public
    @return {String} The name of the remote type. This should either be `link` or `ids`
    */
@@ -274,7 +273,6 @@ export default class HasManyReference<
    commentsRef.ids(); // ['1']
    ```
 
-   @method ids
     @public
    @return {Array} The ids in this has-many relationship
    */
@@ -316,7 +314,6 @@ export default class HasManyReference<
     }
    ```
 
-   @method link
    @public
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
@@ -335,7 +332,6 @@ export default class HasManyReference<
   /**
    * any links that have been received for this relationship
    *
-   * @method links
    * @public
    * @return
    */
@@ -381,7 +377,6 @@ export default class HasManyReference<
    usersRef.meta() // { lastUpdated: 1458014400000 }
    ```
 
-  @method meta
   @public
   @return {Object|null} The meta information for the belongs-to relationship.
   */
@@ -486,7 +481,6 @@ export default class HasManyReference<
    particularly useful if you want to update the state of the relationship without
    forcing the load of all of the associated records.
 
-   @method push
    @public
    @param {Array|Object} doc a JSONAPI document object describing the new value of this relationship.
    @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
@@ -594,7 +588,6 @@ export default class HasManyReference<
    })
    ```
 
-   @method value
     @public
    @return {ManyArray}
    */
@@ -670,7 +663,6 @@ export default class HasManyReference<
    });
    ```
 
-   @method load
    @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in
@@ -734,7 +726,6 @@ export default class HasManyReference<
    commentsRef.reload({ adapterOptions: { isPrivate: true } })
    ```
 
-   @method reload
     @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.

@@ -24,10 +24,7 @@ const PLURAL_RULES = new Map(defaultRules.plurals.reverse());
  * Marks a word as uncountable. Uncountable words are not pluralized
  * or singularized.
  *
- * @method uncountable
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} word
  * @return {void}
  * @since 4.13.0
@@ -40,10 +37,7 @@ export function uncountable(word: string) {
  * Marks a list of words as uncountable. Uncountable words are not pluralized
  * or singularized.
  *
- * @method loadUncountable
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {Array<String>} uncountables
  * @return {void}
  * @since 4.13.0
@@ -58,10 +52,7 @@ export function loadUncountable(uncountables: string[]) {
  * Marks a word as irregular. Irregular words have unique
  * pluralization and singularization rules.
  *
- * @method irregular
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} single
  * @param {String} plur
  * @return {void}
@@ -81,10 +72,7 @@ export function irregular(single: string, plur: string) {
  * Marks a list of word pairs as irregular. Irregular words have unique
  * pluralization and singularization rules.
  *
- * @method loadIrregular
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {Array<Array<String>>} irregularPairs
  * @return {void}
  * @since 4.13.0
@@ -105,10 +93,7 @@ loadIrregular(defaultRules.irregularPairs);
 /**
  * Clears the caches for singularize and pluralize.
  *
- * @method clear
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @return {void}
  * @since 4.13.0
  */
@@ -120,10 +105,7 @@ export function clear() {
 /**
  * Resets the inflection rules to the defaults.
  *
- * @method resetToDefaults
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @return {void}
  * @since 4.13.0
  */
@@ -139,10 +121,7 @@ export function resetToDefaults() {
  * Clears all inflection rules
  * and resets the caches for singularize and pluralize.
  *
- * @method clearRules
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @return {void}
  * @since 4.13.0
  */
@@ -159,10 +138,7 @@ export function clearRules() {
 /**
  * Singularizes a word.
  *
- * @method singularize
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} word
  * @return {String}
  * @since 4.13.0
@@ -176,10 +152,7 @@ export function singularize(word: string) {
 /**
  * Pluralizes a word.
  *
- * @method pluralize
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} word
  * @return {String}
  * @since 4.13.0
@@ -202,10 +175,7 @@ function unshiftMap<K, V>(v: [K, V], map: Map<K, V>) {
 /**
  * Adds a pluralization rule.
  *
- * @method plural
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {RegExp} regex
  * @param {String} string
  * @return {void}
@@ -224,10 +194,7 @@ export function plural(regex: RegExp, string: string) {
 /**
  * Adds a singularization rule.
  *
- * @method singular
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {RegExp} regex
  * @param {String} string
  * @return {void}

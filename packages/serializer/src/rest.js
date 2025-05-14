@@ -60,7 +60,6 @@ function makeArray(value) {
 
   @class RESTSerializer
   @public
-  @extends JSONSerializer
 */
 const RESTSerializer = JSONSerializer.extend({
   /**
@@ -82,7 +81,6 @@ const RESTSerializer = JSONSerializer.extend({
     }
     ```
 
-   @method keyForPolymorphicType
     @public
    @param {String} key
    @param {String} typeClass
@@ -155,7 +153,6 @@ const RESTSerializer = JSONSerializer.extend({
     one of the keys that were in the original payload or in the result of another
     normalization as `normalizeResponse`.
 
-    @method normalize
     @public
     @param {Model} modelClass
     @param {Object} resourceHash
@@ -167,7 +164,6 @@ const RESTSerializer = JSONSerializer.extend({
     Normalizes an array of resource payloads and returns a JSON-API Document
     with primary data and, if any, included data as `{ data, included }`.
 
-    @method _normalizeArray
     @param {Store} store
     @param {String} modelName
     @param {Object} arrayHash
@@ -215,7 +211,6 @@ const RESTSerializer = JSONSerializer.extend({
   },
 
   /**
-    @method _normalizeResponse
     @param {Store} store
     @param {Model} primaryModelClass
     @param {Object} payload
@@ -385,7 +380,6 @@ const RESTSerializer = JSONSerializer.extend({
     in data streaming in from your server structured the same way
     that fetches and saves are structured.
 
-    @method pushPayload
     @public
     @param {Store} store
     @param {Object} payload
@@ -474,7 +468,6 @@ const RESTSerializer = JSONSerializer.extend({
     can use the correct inflection to do this for you. Most of the time, you won't
     need to override `modelNameFromPayloadKey` for this purpose.
 
-    @method modelNameFromPayloadKey
     @public
     @param {String} key
     @return {String} the model's modelName
@@ -632,7 +625,6 @@ const RESTSerializer = JSONSerializer.extend({
     }
     ```
 
-    @method serialize
     @public
     @param {Snapshot} snapshot
     @param {Object} options
@@ -662,7 +654,6 @@ const RESTSerializer = JSONSerializer.extend({
     }
     ```
 
-    @method serializeIntoHash
     @public
     @param {Object} hash
     @param {Model} typeClass
@@ -716,7 +707,6 @@ const RESTSerializer = JSONSerializer.extend({
     }
     ```
 
-    @method payloadKeyFromModelName
     @public
     @param {String} modelName
     @return {String}
@@ -730,7 +720,6 @@ const RESTSerializer = JSONSerializer.extend({
     By default the REST Serializer creates the key by appending `Type` to
     the attribute and value from the model's camelcased model name.
 
-    @method serializePolymorphicType
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -752,7 +741,6 @@ const RESTSerializer = JSONSerializer.extend({
     You can use this method to customize how a polymorphic relationship should
     be extracted.
 
-    @method extractPolymorphicRelationship
     @public
     @param {Object} relationshipType
     @param {Object} relationshipHash

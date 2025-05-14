@@ -143,6 +143,9 @@ importers:
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
+      typedoc:
+        specifier: ^0.28.4
+        version: 0.28.4(typescript@5.8.3)
       typescript:
         specifier: 5.8.3
         version: 5.8.3

@@ -111,20 +111,15 @@ export default defineConfig({
       { text: 'API', link: '/api' },
     ],
 
-    sidebar: {
-      // This sidebar gets displayed when a user
-      // is on `api-docs` directory.
-      '/api/': [
-        {
-          text: 'API Documentation',
-          items: typedocSidebar,
-        },
-      ],
-
-      // This sidebar gets displayed when a user
-      // is on `guides` directory.
-      '/guide/': GuidesStructure.paths,
-    },
+    sidebar: [
+      ...GuidesStructure.paths,
+      {
+        text: 'API Docs',
+        collapsed: true,
+        link: '/api/',
+        items: typedocSidebar,
+      },
+    ],
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/emberjs/data' },

@@ -119,7 +119,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
       }
     }
     ```
-   @method normalize
     @public
    @param {Model} typeClass
    @param {Object} hash to be normalized
@@ -190,7 +189,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
     }
     ```
 
-    @method serializeBelongsTo
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -378,7 +376,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
     }
     ```
 
-    @method serializeHasMany
     @public
     @param {Snapshot} snapshot
     @param {Object} json
@@ -472,7 +469,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
     Serializing a `hasMany` relationship does not remove the property that refers to
     the parent record.
 
-    @method removeEmbeddedForeignKey
     @public
     @param {Snapshot} snapshot
     @param {Snapshot} embeddedSnapshot
@@ -542,7 +538,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
   },
 
   /**
-   @method _extractEmbeddedRecords
    @private
   */
   _extractEmbeddedRecords(serializer, store, typeClass, partial) {
@@ -560,7 +555,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
   },
 
   /**
-   @method _extractEmbeddedHasMany
    @private
   */
   _extractEmbeddedHasMany(store, key, hash, relationshipMeta) {
@@ -592,7 +586,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
   },
 
   /**
-   @method _extractEmbeddedBelongsTo
    @private
   */
   _extractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
@@ -619,7 +612,6 @@ export const EmbeddedRecordsMixin = Mixin.create({
   },
 
   /**
-   @method _normalizeEmbeddedRelationship
    @private
   */
   _normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash) {

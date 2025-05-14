@@ -85,29 +85,54 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
   return desc;
 }
 
-/**
-  Base class from which Models can be defined.
-
-  ```js
-  import Model, { attr } from '@ember-data/model';
-
-  export default class User extends Model {
-    @attr name;
-  }
-  ```
-
-  Models are used both to define the static schema for a
-  particular resource type as well as the class to instantiate
-  to present that data from cache.
-
-  @class Model
-  @public
-  @extends Ember.EmberObject
-*/
-
 interface Model {
   serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): unknown;
+
+  /**
+    Same as `deleteRecord`, but saves the record immediately.
+
+    Example
+
+    ```js
+    import Component from '@glimmer/component';
+
+    export default class extends Component {
+      delete = () => {
+        this.args.model.destroyRecord().then(function() {
+          this.transitionToRoute('model.index');
+        });
+      }
+    }
+    ```
+
+    If you pass an object on the `adapterOptions` property of the options
+    argument it will be passed to your adapter via the snapshot
+
+    ```js
+    record.destroyRecord({ adapterOptions: { subscribe: false } });
+    ```
+
+    ```app/adapters/post.js
+    import MyCustomAdapter from './custom-adapter';
+
+    export default class PostAdapter extends MyCustomAdapter {
+      deleteRecord(store, type, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    }
+    ```
+
+    @method destroyRecord
+    @public
+    @param {Object} options
+    @return {Promise} a promise that will be resolved when the adapter returns
+    successfully or rejected if the adapter returns with an error.
+  */
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+
   unloadRecord<T extends MinimalLegacyRecord>(this: T): void;
   changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash;
   rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void;
@@ -126,6 +151,24 @@ interface Model {
   hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
 }
+
+/**
+  Base class from which Models can be defined.
+
+  ```js
+  import Model, { attr } from '@ember-data/model';
+
+  export default class User extends Model {
+    @attr name;
+  }
+  ```
+
+  Models are used both to define the static schema for a
+  particular resource type as well as the class to instantiate
+  to present that data from cache.
+
+  @public
+*/
 class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
   declare store: Store;
@@ -195,7 +238,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isEmpty
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isEmpty(): boolean {
@@ -211,7 +254,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isLoading
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isLoading(): boolean {
@@ -237,7 +280,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isLoaded
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isLoaded(): boolean {
@@ -267,7 +310,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property hasDirtyAttributes
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get hasDirtyAttributes(): boolean {
@@ -295,7 +338,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isSaving
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isSaving(): boolean {
@@ -338,7 +381,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isDeleted
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isDeleted(): boolean {
@@ -365,7 +408,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isNew
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isNew(): boolean {
@@ -381,7 +424,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isValid
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isValid(): boolean {
@@ -407,7 +450,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property dirtyType
     @public
     @type {String}
-    @readOnly
+    @readonly
   */
   @memoized
   get dirtyType(): 'created' | 'updated' | 'deleted' | '' {
@@ -432,7 +475,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isError
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isError(): boolean {
@@ -458,7 +501,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @property isReloading
     @public
     @type {Boolean}
-    @readOnly
+    @readonly
   */
   declare isReloading: boolean;
 
@@ -678,50 +721,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @method deleteRecord
     @public
-  */
-
-  /**
-    Same as `deleteRecord`, but saves the record immediately.
-
-    Example
-
-    ```js
-    import Component from '@glimmer/component';
-
-    export default class extends Component {
-      delete = () => {
-        this.args.model.destroyRecord().then(function() {
-          this.transitionToRoute('model.index');
-        });
-      }
-    }
-    ```
-
-    If you pass an object on the `adapterOptions` property of the options
-    argument it will be passed to your adapter via the snapshot
-
-    ```js
-    record.destroyRecord({ adapterOptions: { subscribe: false } });
-    ```
-
-    ```app/adapters/post.js
-    import MyCustomAdapter from './custom-adapter';
-
-    export default class PostAdapter extends MyCustomAdapter {
-      deleteRecord(store, type, snapshot) {
-        if (snapshot.adapterOptions.subscribe) {
-          // ...
-        }
-        // ...
-      }
-    }
-    ```
-
-    @method destroyRecord
-    @public
-    @param {Object} options
-    @return {Promise} a promise that will be resolved when the adapter returns
-    successfully or rejected if the adapter returns with an error.
   */
 
   /**
@@ -1295,7 +1294,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type Map
-   @readOnly
+   @readonly
    */
 
   @computeOnce
@@ -1354,7 +1353,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type Object
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relationshipNames() {
@@ -1407,7 +1406,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @public
    @static
    @type Array
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relatedTypes(): string[] {
@@ -1470,7 +1469,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type Map
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relationshipsByName(): Map<string, LegacyRelationshipField> {
@@ -1558,7 +1557,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type Map
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
@@ -1636,7 +1635,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   /**
    *
-   * @method determineRelationshipType
    * @private
    * @deprecated
    */
@@ -1704,7 +1702,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type {Map}
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get attributes(): Map<string, LegacyAttributeField> {
@@ -1769,7 +1767,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
    @static
    @type {Map}
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get transformedAttributes() {

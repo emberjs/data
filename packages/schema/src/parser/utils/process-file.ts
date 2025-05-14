@@ -66,7 +66,6 @@ function numToIndexStr(num: number): string {
 /**
  * Extracts the type signature from a ClassProperty
  *
- * @typedoc
  */
 function extractType(field: ClassProperty) {
   if (field.typeAnnotation) {

@@ -51,7 +51,6 @@ export interface MinimumAdapterInterface {
    * `adapter.findRecord` is called whenever the `store` needs to load, reload, or backgroundReload
    * the resource data for a given `type` and `id`.
    *
-   * @method findRecord
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -82,7 +81,6 @@ export interface MinimumAdapterInterface {
    *
    * See also `shouldReloadAll` and `shouldBackgroundReloadAll`
    *
-   * @method findAll
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -120,7 +118,6 @@ export interface MinimumAdapterInterface {
    * returned by the `store`. For `findAll` the result is all known records of the `type`,
    * while for `query` it will only be the records returned from `adapter.query`.
    *
-   * @method query
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -152,7 +149,6 @@ export interface MinimumAdapterInterface {
    * call will NOT be made. In this scenario you may need to do at least a minimum amount of response
    * processing within the adapter.
    *
-   * @method queryRecord
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -211,7 +207,6 @@ export interface MinimumAdapterInterface {
    * throw error;
    * ```
    *
-   * @method createRecord
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -264,7 +259,6 @@ export interface MinimumAdapterInterface {
    * throw error;
    * ```
    *
-   * @method updateRecord
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -291,7 +285,6 @@ export interface MinimumAdapterInterface {
    * If the adapter rejects or errors the record will need to be saved again once the reason
    * for the error is addressed in order to persist the deleted state.
    *
-   * @method deleteRecord
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -322,7 +315,6 @@ export interface MinimumAdapterInterface {
    * call will NOT be made. In this scenario you may need to do at least a minimum amount of response
    * processing within the adapter.
    *
-   * @method findBelongsTo [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -360,7 +352,6 @@ export interface MinimumAdapterInterface {
    * call will NOT be made. In this scenario you may need to do at least a minimum amount of response
    * processing within the adapter.
    *
-   * @method findhasMany [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -395,7 +386,6 @@ export interface MinimumAdapterInterface {
    *
    * See also `groupRecordsForFindMany` and `coalesceFindRequests`
    *
-   * @method findMany [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -418,7 +408,6 @@ export interface MinimumAdapterInterface {
    * let newRecord = store.createRecord(type, { id });
    * ```
    *
-   * @method generateIdForRecord [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -462,7 +451,6 @@ export interface MinimumAdapterInterface {
    *
    * See also `findMany` and `coalesceFindRequests`
    *
-   * @method groupRecordsForFindMany [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -488,7 +476,6 @@ export interface MinimumAdapterInterface {
    *
    * See also the documentation for `shouldBackgroundReloadRecord` which defaults to `true`.
    *
-   * @method shouldReloadRecord [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -515,7 +502,6 @@ export interface MinimumAdapterInterface {
    * returned by `store.peekAll` for that type, and will include all records in the store for
    * the given type, including any previously existing records not returned by the reload request.
    *
-   * @method shouldReloadAll [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -542,7 +528,6 @@ export interface MinimumAdapterInterface {
    * The default behavior if this method is not implemented and the option was not specified is to
    * background reload, the same as a return of `true`.
    *
-   * @method shouldBackgroundReloadRecord [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -566,7 +551,6 @@ export interface MinimumAdapterInterface {
    * The default behavior if this method is not implemented and the option is not specified is to
    * perform a reload, the same as a return of `true`.
    *
-   * @method shouldBackgroundReloadAll [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -581,7 +565,6 @@ export interface MinimumAdapterInterface {
    *
    * If not implemented, the store does not inform the adapter of destruction.
    *
-   * @method destroy [OPTIONAL]
    * @public
    * @optional
    */

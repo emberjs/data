@@ -68,10 +68,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * const data = await store.request(options);
  * ```
  *
- * @method deleteRecord
  * @public
- * @static
- * @for @ember-data/rest/request
  * @param record
  * @param options
  */
@@ -141,10 +138,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * const data = await store.request(options);
  * ```
  *
- * @method createRecord
  * @public
- * @static
- * @for @ember-data/rest/request
  * @param record
  * @param options
  */
@@ -216,10 +210,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * const data = await store.request(options);
  * ```
  *
- * @method updateRecord
  * @public
- * @static
- * @for @ember-data/rest/request
  * @param record
  * @param options
  */

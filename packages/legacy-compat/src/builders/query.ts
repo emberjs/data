@@ -28,11 +28,8 @@ type QueryBuilderOptions = QueryOptions;
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @method query
   @deprecated
   @public
-  @static
-  @for @ember-data/legacy-compat/builders
   @param {String} type the name of the resource
   @param {Object} query a query to be used by the adapter
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query
@@ -90,11 +87,8 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @method queryRecord
   @deprecated
   @public
-  @static
-  @for @ember-data/legacy-compat/builders
   @param {String} type the name of the resource
   @param {Object} query a query to be used by the adapter
   @param {QueryBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.query

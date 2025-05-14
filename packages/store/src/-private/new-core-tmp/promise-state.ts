@@ -9,20 +9,17 @@ const PromiseCache = new WeakMap<Awaitable, PromiseState>();
  * The state of a promise in the "pending"
  * state. This is the default initial state.
  *
- * @typedoc
  */
 export interface PendingPromise {
   /**
    * The status of the promise.
    *
-   * @typedoc
    */
   status: 'pending';
 
   /**
    * Whether the promise is pending.
    *
-   * @typedoc
    */
   isPending: true;
 
@@ -30,7 +27,6 @@ export interface PendingPromise {
    * Whether the promise is pending.
    *
    * @deprecated use `isPending` instead
-   * @typedoc
    */
   isLoading: true;
 
@@ -38,7 +34,6 @@ export interface PendingPromise {
    * Whether the promise has resolved
    * successfully.
    *
-   * @typedoc
    */
   isSuccess: false;
 
@@ -46,7 +41,6 @@ export interface PendingPromise {
    * Whether the promise has rejected
    * with an error.
    *
-   * @typedoc
    */
   isError: false;
 
@@ -54,7 +48,6 @@ export interface PendingPromise {
    * Once the promise has resolved, this will
    * be the value the promise resolved to.
    *
-   * @typedoc
    */
   value: null;
   /**
@@ -62,7 +55,6 @@ export interface PendingPromise {
    * be the value the promise resolved to.
    *
    * @deprecated use `value` instead
-   * @typedoc
    */
   result: null;
 
@@ -72,7 +64,6 @@ export interface PendingPromise {
    *
    *
    * @deprecated use `reason` instead
-   * @typedoc
    */
   error: null;
 
@@ -80,7 +71,6 @@ export interface PendingPromise {
    * Once the promise has rejected, this will
    * be the error the promise rejected with.
    *
-   * @typedoc
    */
   reason: null;
 }
@@ -90,20 +80,17 @@ export interface PendingPromise {
  * This is the state of a promise that has resolved
  * successfully.
  *
- * @typedoc
  */
 export interface ResolvedPromise<T> {
   /**
    * The status of the promise.
    *
-   * @typedoc
    */
   status: 'fulfilled';
 
   /**
    * Whether the promise is pending.
    *
-   * @typedoc
    */
   isPending: false;
 
@@ -111,14 +98,12 @@ export interface ResolvedPromise<T> {
    * Whether the promise is pending.
    *
    * @deprecated use `isPending` instead
-   * @typedoc
    */
   isLoading: false;
   /**
    * Whether the promise has resolved
    * successfully.
    *
-   * @typedoc
    */
   isSuccess: true;
 
@@ -126,7 +111,6 @@ export interface ResolvedPromise<T> {
    * Whether the promise has rejected
    * with an error.
    *
-   * @typedoc
    */
   isError: false;
 
@@ -134,7 +118,6 @@ export interface ResolvedPromise<T> {
    * Once the promise has resolved, this will
    * be the value the promise resolved to.
    *
-   * @typedoc
    */
   value: T;
 
@@ -143,7 +126,6 @@ export interface ResolvedPromise<T> {
    * be the value the promise resolved to.
    *
    * @deprecated use `value` instead
-   * @typedoc
    */
   result: T;
 
@@ -153,7 +135,6 @@ export interface ResolvedPromise<T> {
    *
    *
    * @deprecated use `reason` instead
-   * @typedoc
    */
   error: null;
 
@@ -161,7 +142,6 @@ export interface ResolvedPromise<T> {
    * Once the promise has rejected, this will
    * be the error the promise rejected with.
    *
-   * @typedoc
    */
   reason: null;
 }
@@ -171,20 +151,17 @@ export interface ResolvedPromise<T> {
  * This is the state of a promise that has rejected
  * with an error.
  *
- * @typedoc
  */
 export interface RejectedPromise<E> {
   /**
    * The status of the promise.
    *
-   * @typedoc
    */
   status: 'rejected';
 
   /**
    * Whether the promise is pending.
    *
-   * @typedoc
    */
   isPending: false;
 
@@ -192,7 +169,6 @@ export interface RejectedPromise<E> {
    * Whether the promise is pending.
    *
    * @deprecated use `isPending` instead
-   * @typedoc
    */
   isLoading: false;
 
@@ -200,7 +176,6 @@ export interface RejectedPromise<E> {
    * Whether the promise has resolved
    * successfully.
    *
-   * @typedoc
    */
   isSuccess: false;
 
@@ -208,7 +183,6 @@ export interface RejectedPromise<E> {
    * Whether the promise has rejected
    * with an error.
    *
-   * @typedoc
    */
   isError: true;
 
@@ -216,7 +190,6 @@ export interface RejectedPromise<E> {
    * Once the promise has resolved, this will
    * be the value the promise resolved to.
    *
-   * @typedoc
    */
   value: null;
 
@@ -225,7 +198,6 @@ export interface RejectedPromise<E> {
    * be the value the promise resolved to.
    *
    * @deprecated use `value` instead
-   * @typedoc
    */
   result: null;
 
@@ -235,7 +207,6 @@ export interface RejectedPromise<E> {
    *
    *
    * @deprecated use `reason` instead
-   * @typedoc
    */
   error: E;
 
@@ -243,7 +214,6 @@ export interface RejectedPromise<E> {
    * Once the promise has rejected, this will
    * be the error the promise rejected with.
    *
-   * @typedoc
    */
   reason: E;
 }
@@ -257,7 +227,6 @@ export interface RejectedPromise<E> {
  * - {@link ResolvedPromise}
  * - {@link RejectedPromise}
  *
- * @typedoc
  */
 export type PromiseState<T = unknown, E = unknown> = PendingPromise | ResolvedPromise<T> | RejectedPromise<E>;
 
@@ -383,7 +352,6 @@ function getPromise<T, E>(promise: Promise<T> | Awaitable<T, E> | LegacyAwaitabl
  *
  * If looking to use in a template, consider also the `<Await />` component.
  *
- * @typedoc
  */
 export function getPromiseState<T = unknown, E = unknown>(
   promise: Promise<T> | Awaitable<T, E>

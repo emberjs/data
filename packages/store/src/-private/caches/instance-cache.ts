@@ -44,6 +44,7 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecord
 /**
   Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/StableRecordIdentifier)
   assigned to the given record instance.
+
   ```js
   import { recordIdentifierFor } from "@ember-data/store";
   // ... gain access to a record, for instance with peekRecord or findRecord
@@ -53,10 +54,8 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): StableRecord
   // access the identifier's properties.
   const { id, type, lid } = identifier;
   ```
-  @method recordIdentifierFor
+
   @public
-  @static
-  @for @ember-data/store
   @param {Object} record a record instance previously obstained from the store.
   @return {StableRecordIdentifier}
  */

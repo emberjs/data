@@ -61,10 +61,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * const data = await store.request(options);
  * ```
  *
- * @method findRecord
  * @public
- * @static
- * @for @ember-data/json-api/request
  * @param identifier
  * @param options
  */

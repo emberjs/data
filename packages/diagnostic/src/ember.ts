@@ -161,7 +161,6 @@ class TestLoader extends CLITestLoader {
    * The module name ends with `-test`
    * The module name ends with `.jshint`
 
-   @method loadTests
  */
 function loadTests() {
   TestLoader.load();

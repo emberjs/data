@@ -38,15 +38,13 @@ export type DeferredStream = {
  * `getStream` the response before the outer promise resolves;
  *
  * @class Future
- * @extends Promise
  * @public
  */
-export type Future<T> = Promise<StructuredDataDocument<T>> & {
+export interface Future<T> extends Promise<StructuredDataDocument<T>> {
   [IS_FUTURE]: true;
   /**
    * Cancel this request by firing the AbortController's signal.
    *
-   * @method abort
    * @param {String} [reason] optional reason for aborting the request
    * @public
    * @return {void}
@@ -55,7 +53,6 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
   /**
    * Get the response stream, if any, once made available.
    *
-   * @method getStream
    * @public
    * @return {Promise<ReadableStream | null>}
    */
@@ -65,7 +62,6 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    *  Run a callback when this request completes. Use sparingly,
    *  mostly useful for instrumentation and infrastructure.
    *
-   * @method onFinalize
    * @param cb the callback to run
    * @public
    * @return {void}
@@ -91,7 +87,7 @@ export type Future<T> = Promise<StructuredDataDocument<T>> & {
    * @public
    */
   id: number;
-};
+}
 
 export type DeferredFuture<T> = {
   resolve(v: StructuredDataDocument<T>): void;
@@ -218,7 +214,6 @@ export interface Handler {
    * context and a nextFn to call to pass-along the request to
    * other handlers.
    *
-   * @method request
    * @public
    * @param context
    * @param next
@@ -243,7 +238,6 @@ export interface CacheHandler {
    * context and a nextFn to call to pass-along the request to
    * other handlers.
    *
-   * @method request
    * @public
    * @param context
    * @param next

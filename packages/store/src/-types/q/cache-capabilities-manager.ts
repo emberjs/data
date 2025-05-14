@@ -39,7 +39,6 @@ export type CacheCapabilitiesManager = {
    * The SchemaService can be used to query for
    * information about the schema of a resource.
    *
-   * @method getSchemaDefinitionService
    * @deprecated
    * @public
    */
@@ -61,7 +60,6 @@ export type CacheCapabilitiesManager = {
    * Update the `id` for the record corresponding to the identifier
    * This operation can only be done for records whose `id` is `null`.
    *
-   * @method setRecordId
    * @param {StableRecordIdentifier} identifier;
    * @param {String} id;
    * @public
@@ -74,7 +72,6 @@ export type CacheCapabilitiesManager = {
    * data exist for the identified resource, no known relationships still
    * point to it either.
    *
-   * @method disconnectRecord
    * @param {StableRecordIdentifier} identifier
    * @public
    */
@@ -84,7 +81,6 @@ export type CacheCapabilitiesManager = {
    * Use this method to determine if the Store has an instantiated record associated
    * with an identifier.
    *
-   * @method hasRecord
    * @param identifier
    * @return {Boolean}
    * @public
@@ -99,7 +95,6 @@ export type CacheCapabilitiesManager = {
    *
    * No other namespaces currently expect the `key` argument.
    *
-   * @method notifyChange
    * @param {StableRecordIdentifier} identifier
    * @param {'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state'} namespace
    * @param {string|undefined} key

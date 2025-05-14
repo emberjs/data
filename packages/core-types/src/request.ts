@@ -30,28 +30,24 @@ export type HTTPMethod =
 /**
  * Use these options to adjust CacheHandler behavior for a request.
  *
- * @typedoc
  */
 export type CacheOptions<T = unknown> = {
   /**
    * A key that uniquely identifies this request. If not present, the url wil be used
    * as the key for any GET request, while all other requests will not be cached.
    *
-   * @typedoc
    */
   key?: string;
   /**
    * If true, the request will be made even if a cached response is present
    * and not expired.
    *
-   * @typedoc
    */
   reload?: boolean;
   /**
    * If true, and a cached response is present and not expired, the request
    * will be made in the background and the cached response will be returned.
    *
-   * @typedoc
    */
   backgroundReload?: boolean;
   /**
@@ -68,7 +64,6 @@ export type CacheOptions<T = unknown> = {
    * Generally it is better to patch the cache directly for relationship updates
    * than to invalidate findRecord requests for one.
    *
-   * @typedoc
    */
   types?: T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
 
@@ -79,7 +74,6 @@ export type CacheOptions<T = unknown> = {
    * Generally this is only used for legacy request that manage resource cache
    * updates in a non-standard way via the LegacyNetworkHandler.
    *
-   * @typedoc
    */
   [SkipCache]?: boolean;
 };
@@ -183,7 +177,6 @@ export interface StructuredDataDocument<T> {
   [STRUCTURED]?: true;
   /**
    * @see {@link ImmutableRequestInfo}
-   * @typedoc
    */
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
@@ -203,66 +196,51 @@ export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorD
  *
  * EmberData provides our own typings due to incompleteness in the native typings.
  *
- * @typedoc
  */
 interface Request {
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
-   * @typedoc
    */
   cache?: RequestCache;
   /** Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL.
-   * @typedoc
    */
   credentials?: RequestCredentials;
   /** Returns the kind of resource requested by request, e.g., "document" or "script".
-   * @typedoc
    */
   destination?: RequestDestination;
   /** Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
-   * @typedoc
    */
   headers?: Headers;
   /** Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI]
-   * @typedoc
    */
   integrity?: string;
   /** Returns a boolean indicating whether or not request can outlive the global in which it was created.
-   * @typedoc
    */
   keepalive?: boolean;
   /** Returns request's HTTP method, which is "GET" by default.
-   * @typedoc
    */
   method?: HTTPMethod;
   /** Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs.
    *
    * `no-cors` is not allowed for streaming request bodies.
    *
-   * @typedoc
    */
   mode?: RequestMode;
   /** Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default.
-   * @typedoc
    */
   redirect?: RequestRedirect;
   /** Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made.
-   * @typedoc
    */
   referrer?: string;
   /** Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer.
-   * @typedoc
    */
   referrerPolicy?: ReferrerPolicy;
   /** Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler.
-   * @typedoc
    */
   signal?: AbortSignal;
   /** Returns the URL of request as a string.
-   * @typedoc
    */
   url?: string;
   /** Any body that you want to add to your request. Note that a GET or HEAD request may not have a body.
-   * @typedoc
    */
   body?: BodyInit | null;
 
@@ -272,7 +250,6 @@ interface Request {
    *
    * [Half Duplex Further Reading](https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests#half_duplex)
    *
-   * @typedoc
    */
   duplex?: 'half';
 }
@@ -286,19 +263,16 @@ export interface ImmutableHeaders extends Headers {
  * Extends JavaScript's native {@link Request} object with additional
  * properties specific to the RequestManager's capabilities.
  *
- * @typedoc
  */
 export interface RequestInfo<RT = unknown, T = unknown> extends Request {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
-   * @typedoc
    */
   controller?: AbortController;
 
   /**
    * @see {@link CacheOptions}
-   * @typedoc
    */
   cacheOptions?: CacheOptions<T>;
   store?: Store;
@@ -310,7 +284,6 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
    * (if any). This may be used by handlers to perform transactional
    * operations on the store.
    *
-   * @typedoc
    */
   records?: StableRecordIdentifier[];
 
@@ -322,14 +295,12 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
    * Note: It is recommended that builders set query params
    * and body directly in most scenarios.
    *
-   * @typedoc
    */
   data?: Record<string, unknown>;
   /**
    * options specifically intended for handlers
    * to utilize to process the request
    *
-   * @typedoc
    */
   options?: Record<string, unknown>;
 
@@ -341,7 +312,6 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
 /**
  * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
  *
- * @typedoc
  */
 export type ImmutableRequestInfo<RT = unknown, T = unknown> = Readonly<Omit<RequestInfo<RT, T>, 'controller'>> & {
   readonly cacheOptions?: Readonly<CacheOptions<T>>;
@@ -350,7 +320,6 @@ export type ImmutableRequestInfo<RT = unknown, T = unknown> = Readonly<Omit<Requ
   readonly options?: Readonly<Record<string, unknown>>;
 
   /** Whether the request body has been read.
-   * @typedoc
    */
   readonly bodyUsed?: boolean;
 };
@@ -368,7 +337,6 @@ export interface ResponseInfo {
 export interface RequestContext {
   /**
    * @see {@link ImmutableRequestInfo}
-   * @typedoc
    */
   request: ImmutableRequestInfo;
   id: number;

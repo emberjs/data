@@ -47,10 +47,8 @@ When compiling the API documentation, several categories of comments will be ign
 
 - `@internal` - signifies internal documentation for contributors for a non-public API
 - `@feature` - signifies documentation for an unreleased feature gated by a canary flag
-- `@typedoc` - signifies typescript-only (in-editor) documentation that should not be compiled into the API docs
 
-Additionally, use of the following tags will cause a doc comment to be ignored due to intended use primarily being docs
-written for in-editor experience similar to `@typedoc`
+Additionally, use of the following tags will cause a doc comment to be ignored due to intended use primarily being docs written for in-editor experience.
 
 - `@see`
 - `@link`
@@ -211,7 +209,6 @@ Classes are documented using `@class`.
  * @main @ember-data/adapter/json-api
  * @public
  * @constructor
- * @extends RESTAdapter
 */
 ```
 
@@ -226,7 +223,6 @@ Note: the use of non-typescript types here means that these doc comments cannot/
 /**
  * Some documentation
  * 
- * @method myMethod
  * @public
  * @param {AType} myParam explanation of the param
  * @return {AnotherType} explanation of the return value
@@ -266,8 +262,6 @@ imported from `@ember-data/store` would be done like the below
  * Description of the function
  *
  * @public
- * @static
- * @for @ember-data/store
  * @param {Object} record a record instance previously obstained from the store.
  * @return {StableRecordIdentifier}
  */

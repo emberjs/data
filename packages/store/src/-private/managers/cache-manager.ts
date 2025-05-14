@@ -59,7 +59,6 @@ export class CacheManager implements Cache {
    * a `content` member and therefor must not assume the existence
    * of `request` and `response` on the document.
    *
-   * @method put
    * @param {StructuredDocument} doc
    * @return {ResourceDocument}
    * @public
@@ -74,7 +73,6 @@ export class CacheManager implements Cache {
    * Note: currently the only valid operation is a MergeOperation
    * which occurs when a collision of identifiers is detected.
    *
-   * @method patch
    * @public
    * @param op the operation to perform
    * @return {void}
@@ -87,7 +85,6 @@ export class CacheManager implements Cache {
    * Update resource data with a local mutation. Currently supports operations
    * on relationships only.
    *
-   * @method mutate
    * @public
    * @param mutation
    */
@@ -122,7 +119,6 @@ export class CacheManager implements Cache {
    * of the Graph handling necessary entanglements and
    * notifications for relational data.
    *
-   * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
@@ -142,7 +138,6 @@ export class CacheManager implements Cache {
    * Peek the Cache for the existing request data associated with
    * a cacheable request
    *
-   * @method peekRequest
    * @param {StableDocumentIdentifier}
    * @return {StableDocumentIdentifier | null}
    * @public
@@ -154,7 +149,6 @@ export class CacheManager implements Cache {
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
-   * @method upsert
    * @public
    * @param identifier
    * @param data
@@ -175,7 +169,6 @@ export class CacheManager implements Cache {
    * preferring instead to fork at the Store level, which will
    * utilize this method to fork the cache.
    *
-   * @method fork
    * @public
    * @return {Promise<Cache>}
    */
@@ -190,7 +183,6 @@ export class CacheManager implements Cache {
    * preferring instead to merge at the Store level, which will
    * utilize this method to merge the caches.
    *
-   * @method merge
    * @param {Cache} cache
    * @public
    * @return {Promise<void>}
@@ -229,7 +221,6 @@ export class CacheManager implements Cache {
    * }
    * ```
    *
-   * @method diff
    * @public
    */
   diff(): Promise<Change[]> {
@@ -244,7 +235,6 @@ export class CacheManager implements Cache {
    * which may be fed back into a new instance of the same Cache
    * via `cache.hydrate`.
    *
-   * @method dump
    * @return {Promise<ReadableStream>}
    * @public
    */
@@ -264,7 +254,6 @@ export class CacheManager implements Cache {
    * behavior supports optimizing pre/fetching of data for route transitions
    * via data-only SSR modes.
    *
-   * @method hydrate
    * @param {ReadableStream} stream
    * @return {Promise<void>}
    * @public
@@ -285,7 +274,6 @@ export class CacheManager implements Cache {
    * It returns properties from options that should be set on the record during the create
    * process. This return value behavior is deprecated.
    *
-   * @method clientDidCreate
    * @public
    * @param identifier
    * @param options
@@ -298,7 +286,6 @@ export class CacheManager implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * will be part of a save transaction.
    *
-   * @method willCommit
    * @public
    * @param identifier
    */
@@ -310,7 +297,6 @@ export class CacheManager implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was successfully updated as part of a save transaction.
    *
-   * @method didCommit
    * @public
    * @param identifier
    * @param data
@@ -323,7 +309,6 @@ export class CacheManager implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was update via a save transaction failed.
    *
-   * @method commitWasRejected
    * @public
    * @param identifier
    * @param errors
@@ -336,7 +321,6 @@ export class CacheManager implements Cache {
    * [LIFECYCLE] Signals to the cache that all data for a resource
    * should be cleared.
    *
-   * @method unloadRecord
    * @public
    * @param identifier
    */
@@ -350,7 +334,6 @@ export class CacheManager implements Cache {
   /**
    * Retrieve the data for an attribute from the cache
    *
-   * @method getAttr
    * @public
    * @param identifier
    * @param propertyName
@@ -363,7 +346,6 @@ export class CacheManager implements Cache {
   /**
    * Retrieve the remote state for an attribute from the cache
    *
-   * @method getRemoteAttr
    * @public
    * @param identifier
    * @param propertyName
@@ -376,7 +358,6 @@ export class CacheManager implements Cache {
   /**
    * Mutate the data for an attribute in the cache
    *
-   * @method setAttr
    * @public
    * @param identifier
    * @param propertyName
@@ -389,7 +370,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for the changed attributes of a resource.
    *
-   * @method changedAttrs
    * @public
    * @param identifier
    * @return
@@ -401,7 +381,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for whether any mutated attributes exist
    *
-   * @method hasChangedAttrs
    * @public
    * @param identifier
    * @return {Boolean}
@@ -413,7 +392,6 @@ export class CacheManager implements Cache {
   /**
    * Tell the cache to discard any uncommitted mutations to attributes
    *
-   * @method rollbackAttrs
    * @public
    * @param identifier
    * @return the names of attributes that were restored
@@ -447,7 +425,6 @@ export class CacheManager implements Cache {
     };
     ```
    *
-   * @method changedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {Map<string, RelationshipDiff>}
@@ -459,7 +436,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for whether any mutated attributes exist
    *
-   * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {Boolean}
@@ -475,7 +451,6 @@ export class CacheManager implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {String[]} the names of relationships that were restored
@@ -487,7 +462,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for the current state of a relationship property
    *
-   * @method getRelationship
    * @public
    * @param identifier
    * @param propertyName
@@ -503,7 +477,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for the remote state of a relationship property
    *
-   * @method getRelationship
    * @public
    * @param identifier
    * @param propertyName
@@ -523,7 +496,6 @@ export class CacheManager implements Cache {
    * Update the cache state for the given resource to be marked as locally deleted,
    * or remove such a mark.
    *
-   * @method setIsDeleted
    * @public
    * @param identifier
    * @param isDeleted
@@ -535,7 +507,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
-   * @method getErrors
    * @public
    * @param identifier
    * @return
@@ -547,7 +518,6 @@ export class CacheManager implements Cache {
   /**
    * Query the cache for whether a given resource has any available data
    *
-   * @method isEmpty
    * @public
    * @param identifier
    * @return {Boolean}
@@ -560,7 +530,6 @@ export class CacheManager implements Cache {
    * Query the cache for whether a given resource was created locally and not
    * yet persisted.
    *
-   * @method isNew
    * @public
    * @param identifier
    * @return {Boolean}
@@ -573,7 +542,6 @@ export class CacheManager implements Cache {
    * Query the cache for whether a given resource is marked as deleted (but not
    * necessarily persisted yet).
    *
-   * @method isDeleted
    * @public
    * @param identifier
    * @return {Boolean}
@@ -586,7 +554,6 @@ export class CacheManager implements Cache {
    * Query the cache for whether a given resource has been deleted and that deletion
    * has also been persisted.
    *
-   * @method isDeletionCommitted
    * @public
    * @param identifier
    * @return {Boolean}

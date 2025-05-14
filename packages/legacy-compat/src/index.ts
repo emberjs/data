@@ -43,7 +43,6 @@ export type CompatStore = Store & LegacyStoreCompat;
     for an `application` adapter (the default adapter for
     your entire application).
 
-    @method adapterFor
     @public
     @param {String} modelName
     @return {Adapter}
@@ -107,7 +106,6 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
     If a serializer cannot be found on the adapter, it will fall back
     to an instance of `JSONSerializer`.
 
-    @method serializerFor
     @public
     @param {String} modelName the record to serialize
     @return {Serializer}
@@ -168,7 +166,6 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
     });
     ```
 
-    @method normalize
     @public
     @param {String} modelName The name of the model type for this payload
     @param {Object} payload
@@ -247,7 +244,6 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue) 
     store.pushPayload('post', pushData); // Will use the post serializer
     ```
 
-    @method pushPayload
     @public
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload

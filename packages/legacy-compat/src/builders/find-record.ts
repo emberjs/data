@@ -47,11 +47,8 @@ type FindRecordBuilderOptions = Omit<FindRecordOptions, 'preload'>;
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @method findRecord
   @deprecated
   @public
-  @static
-  @for @ember-data/legacy-compat/builders
   @param {string|object} resource - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
   @param {string|number|object} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
   @param {FindRecordBuilderOptions} [options] - if the first param is a string this will be the optional options for the request. See examples for available options.

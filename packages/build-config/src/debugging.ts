@@ -155,6 +155,5 @@ export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;
  *
  * LOG_METRIC_COUNTS must also be enabled.
  *
- * @typedoc
  */
 export const __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS: boolean = false;

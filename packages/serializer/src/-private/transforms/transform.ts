@@ -91,7 +91,6 @@ import type { LegacyAttributeField } from '@warp-drive/core-types/schema/fields'
   }
   ```
 
-  @method serialize
   @public
   @param deserialized The deserialized value
   @param options hash of options passed to `attr`
@@ -109,7 +108,6 @@ import type { LegacyAttributeField } from '@warp-drive/core-types/schema/fields'
   }
   ```
 
-  @method deserialize
   @public
   @param serialized The serialized value
   @param options hash of options passed to `attr`

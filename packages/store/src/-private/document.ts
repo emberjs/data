@@ -148,7 +148,6 @@ export class ReactiveDocument<T> {
    * with the document when the request completes. If no related link is present,
    * will fallback to the self link if present
    *
-   * @method fetch
    * @public
    * @param {Object} options
    * @return {Promise<Document>}
@@ -167,7 +166,6 @@ export class ReactiveDocument<T> {
    * with the new document when the request completes, or null  if there is no
    * next link.
    *
-   * @method next
    * @public
    * @param {Object} options
    * @return {Promise<Document | null>}
@@ -181,7 +179,6 @@ export class ReactiveDocument<T> {
    * with the new document when the request completes, or null if there is no
    * prev link.
    *
-   * @method prev
    * @public
    * @param {Object} options
    * @return {Promise<Document | null>}
@@ -195,7 +192,6 @@ export class ReactiveDocument<T> {
    * with the new document when the request completes, or null if there is no
    * first link.
    *
-   * @method first
    * @public
    * @param {Object} options
    * @return {Promise<Document | null>}
@@ -209,7 +205,6 @@ export class ReactiveDocument<T> {
    * with the new document when the request completes, or null if there is no
    * last link.
    *
-   * @method last
    * @public
    * @param {Object} options
    * @return {Promise<Document | null>}
@@ -227,7 +222,6 @@ export class ReactiveDocument<T> {
    * the document's contents, leaving that to the individual record
    * instances to determine how to do, if at all.
    *
-   * @method toJSON
    * @public
    * @return
    */

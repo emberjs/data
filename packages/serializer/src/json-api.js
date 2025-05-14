@@ -128,11 +128,9 @@ import JSONSerializer from './json';
   @since 1.13.0
   @class JSONAPISerializer
   @public
-  @extends JSONSerializer
 */
 const JSONAPISerializer = JSONSerializer.extend({
   /**
-    @method _normalizeDocumentHelper
     @param {Object} documentHash
     @return {Object}
     @private
@@ -169,7 +167,6 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
-    @method _normalizeRelationshipDataHelper
     @param {Object} relationshipDataHash
     @return {Object}
     @private
@@ -181,7 +178,6 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
-    @method _normalizeResourceHelper
     @param {Object} resourceHash
     @return {Object}
     @private
@@ -209,7 +205,6 @@ const JSONAPISerializer = JSONSerializer.extend({
   /**
     Normalize some data and push it into the store.
 
-    @method pushPayload
     @public
     @param {Store} store
     @param {Object} payload
@@ -220,7 +215,6 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
-    @method _normalizeResponse
     @param {Store} store
     @param {Model} primaryModelClass
     @param {Object} payload
@@ -274,7 +268,6 @@ const JSONAPISerializer = JSONSerializer.extend({
 
      http://jsonapi.org/format/#document-resource-object-relationships
 
-     @method extractRelationship
     @public
      @param {Object} relationshipHash
      @return {Object}
@@ -301,7 +294,6 @@ const JSONAPISerializer = JSONSerializer.extend({
 
      http://jsonapi.org/format/#document-resource-object-relationships
 
-     @method extractRelationships
     @public
      @param {Object} modelClass
      @param {Object} resourceHash
@@ -335,7 +327,6 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
-    @method _extractType
     @param {Model} modelClass
     @param {Object} resourceHash
     @return {String}
@@ -352,7 +343,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     For example the key `posts` would be converted to `post` and the
     key `studentAssesments` would be converted to `student-assesment`.
 
-    @method modelNameFromPayloadKey
     @public
     @param {String} key
     @return {String} the model's modelName
@@ -367,7 +357,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     For example `post` would be converted to `posts` and
     `student-assesment` would be converted to `student-assesments`.
 
-    @method payloadKeyFromModelName
     @public
     @param {String} modelName
     @return {String}
@@ -423,7 +412,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
     ```
 
-    @method keyForAttribute
     @public
     @param {String} key
     @param {String} method
@@ -454,7 +442,6 @@ const JSONAPISerializer = JSONSerializer.extend({
       }
     }
     ```
-   @method keyForRelationship
     @public
    @param {String} key
    @param {String} typeClass
@@ -628,7 +615,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
     ```
 
-    @method serialize
     @public
     @param {Snapshot} snapshot
     @param {Object} options

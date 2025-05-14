@@ -400,7 +400,6 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     await permissions.reload();
     ```
 
-    @method reload
     @public
   */
   reload(options?: BaseFinderOptions): Promise<this> {
@@ -437,7 +436,6 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   /**
     Create a child record within the owner
 
-    @method createRecord
     @public
     @param {Object} hash
     @return {Model} record

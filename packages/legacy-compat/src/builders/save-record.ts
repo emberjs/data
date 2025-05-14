@@ -37,11 +37,8 @@ function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: Stable
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @method saveRecord
   @deprecated
   @public
-  @static
-  @for @ember-data/legacy-compat/builders
   @param {Object} record a record to save
   @param {SaveRecordBuilderOptions} options optional, may include `adapterOptions` hash which will be passed to adapter.saveRecord
   @return {SaveRecordRequestInput} request config

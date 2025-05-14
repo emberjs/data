@@ -28,7 +28,6 @@ export class SnapshotRecordArray {
     Instances are provided to consuming application's
     adapters and serializers for certain requests.
 
-    @method constructor
     @private
     @constructor
     @param {Store} store
@@ -159,7 +158,6 @@ export class SnapshotRecordArray {
     }
     ```
 
-    @method snapshots
     @public
     @return {Array} Array of snapshots
   */
