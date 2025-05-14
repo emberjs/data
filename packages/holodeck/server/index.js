@@ -324,7 +324,7 @@ export async function createServer(options, useBun = false) {
   if (!useBun) {
     const CURRENT_FILE = new URL(import.meta.url).pathname;
     const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
-    const server = Bun.spawn(['node', '--experimental-default-type=module', START_FILE, JSON.stringify(options)], {
+    const server = Bun.spawn(['node', START_FILE, JSON.stringify(options)], {
       env: process.env,
       cwd: process.cwd(),
       stdin: 'inherit',
