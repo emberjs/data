@@ -1,6 +1,3 @@
-/**
- * @module @warp-drive/schema-record
- */
 import { deprecate } from '@ember/debug';
 
 import { recordIdentifierFor } from '@ember-data/store';

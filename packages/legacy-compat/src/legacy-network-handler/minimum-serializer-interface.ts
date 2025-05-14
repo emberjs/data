@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/experimental-preview-types
- */
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';

@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/experimental-preview-types
- */
 import type Store from '@ember-data/store';
 import type { CollectionRecordArray } from '@ember-data/store/-private';
 import type { ModelSchema } from '@ember-data/store/types';

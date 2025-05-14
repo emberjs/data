@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/serializer
-*/
-
 import type { TransformName } from '@warp-drive/core-types/symbols';
 
 /**

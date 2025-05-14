@@ -51,8 +51,7 @@ the query or values in an array changes.
 
 URLs follow the most common JSON:API format (dasherized pluralized resource types).
  *
- * @module @ember-data/json-api/request
- * @main @ember-data/json-api/request
+ * @module
  */
 export { findRecord } from './-private/builders/find-record';
 export { query, postQuery } from './-private/builders/query';

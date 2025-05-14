@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/adapter/error
- */
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
@@ -67,7 +64,6 @@ import { getOrSetGlobal } from '@warp-drive/core-types/-private';
   }
   ```
 
-  @main @ember-data/adapter/error
   @class AdapterError
   @public
 */

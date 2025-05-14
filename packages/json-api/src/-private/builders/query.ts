@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/json-api/request
- */
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
 import { pluralize } from '@ember-data/request-utils/string';
 import type { QueryParamsSource } from '@warp-drive/core-types/params';

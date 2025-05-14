@@ -41,8 +41,7 @@
  * <WarpDriveAwait @promise={{this.getTheData}}></WarpDriveAwait>
  * ```
  *
- * @module @warp-drive/ember
- * @main @warp-drive/ember
+ * @module
  */
 export { Request } from './-private/request.gts';
 export { Await, Throw } from './-private/await.gts';

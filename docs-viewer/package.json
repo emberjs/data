@@ -10,7 +10,7 @@
   "bin": {
     "preview-api-docs": "./src/preview-ember-docs.ts",
     "rebuild-api-docs": "./src/rebuild-ember-docs.ts",
-    "tsc": "./src/tsc.ts"
+    "_tsc": "./src/tsc.ts"
   },
   "scripts": {
     "prepare": "bun src/prepare-website.ts",

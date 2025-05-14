@@ -1,6 +1,3 @@
-/**
- * @module @warp-drive/ember
- */
 import type Owner from '@ember/owner';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';

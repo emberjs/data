@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/model
-*/
 import { deprecate } from '@ember/debug';
 import { computed } from '@ember/object';
 

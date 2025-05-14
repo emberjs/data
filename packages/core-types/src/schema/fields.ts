@@ -1,6 +1,3 @@
-/**
- * @module @warp-drive/core-types
- */
 import type { ObjectValue, PrimitiveValue } from '../json/raw';
 
 /**
@@ -693,7 +690,7 @@ export interface SchemaArrayField {
    *       This is only a good choice for arrays that rarely if ever change membership
    * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
    *       The contained schema-object and use the computed result to determine and compare identity.
-   * - <field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+   * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
    *       Are valid field names for this purpose. The cache state without transforms applied will be
    *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
    *       of the same type will not collide.
@@ -722,7 +719,7 @@ export interface SchemaArrayField {
      *       This is only a good choice for arrays that rarely if ever change membership
      * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
      *       The contained schema-object and use the computed result to determine and compare identity.
-     * - <field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+     * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
      *       Are valid field names for this purpose. The cache state without transforms applied will be
      *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
      *       of the same type will not collide.
@@ -1677,19 +1674,19 @@ export interface LinksModeHasManyField {
  *
  * Available field schemas are:
  *
- * - [GenericField](../classes/<Type>%20GenericField)
- * - [LegacyAliasField](../classes/<Type>%20LegacyAliasField)
- * - [LocalField](../classes/<Type>%20LocalField)
- * - [ObjectField](../classes/<Type>%20ObjectField)
- * - [SchemaObjectField](../classes/<Type>%20SchemaObjectField)
- * - [ArrayField](../classes/<Type>%20ArrayField)
- * - [SchemaArrayField](../classes/<Type>%20SchemaArrayField)
- * - [DerivedField](../classes/<Type>%20DerivedField)
- * - [ResourceField (not yet implemented)](../classes/<Type>%20ResourceField)
- * - [CollectionField (not yet implemented)](../classes/<Type>%20CollectionField)
- * - [LegacyAttributeField](../classes/<Type>%20LegacyAttributeField)
- * - [LegacyBelongsToField](../classes/<Type>%20LegacyBelongsToField)
- * - [LegacyHasManyField](../classes/<Type>%20LegacyHasManyField)
+ * - {@link GenericField}
+ * - {@link LegacyAliasField}
+ * - {@link LocalField}
+ * - {@link ObjectField}
+ * - {@link SchemaObjectField}
+ * - {@link ArrayField}
+ * - {@link SchemaArrayField}
+ * - {@link DerivedField}
+ * - {@link ResourceField | ResourceField (not yet implemented)}
+ * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link LegacyAttributeField}
+ * - {@link LegacyBelongsToField}
+ * - {@link LegacyHasManyField}
  *
  * @class (Type) LegacyModeFieldSchema
  * @public
@@ -1714,18 +1711,18 @@ export type LegacyModeFieldSchema =
  *
  * Available field schemas are:
  *
- * - [GenericField](../classes/<Type>%20GenericField)
- * - [PolarisAliasField](../classes/<Type>%20PolarisAliasField)
- * - [LocalField](../classes/<Type>%20LocalField)
- * - [ObjectField](../classes/<Type>%20ObjectField)
- * - [SchemaObjectField](../classes/<Type>%20SchemaObjectField)
- * - [ArrayField](../classes/<Type>%20ArrayField)
- * - [SchemaArrayField](../classes/<Type>%20SchemaArrayField)
- * - [DerivedField](../classes/<Type>%20DerivedField)
- * - [ResourceField (not yet implemented)](../classes/<Type>%20ResourceField)
- * - [CollectionField (not yet implemented)](../classes/<Type>%20CollectionField)
- * - [LinksModeBelongsToField](../classes/<Type>%20LinksModeBelongsToField)
- * - [LinksModeHasManyField](../classes/<Type>%20LinksModeHasManyField)
+ * - {@link GenericField}
+ * - {@link PolarisAliasField}
+ * - {@link LocalField}
+ * - {@link ObjectField}
+ * - {@link SchemaObjectField}
+ * - {@link ArrayField}
+ * - {@link SchemaArrayField}
+ * - {@link DerivedField}
+ * - {@link ResourceField | ResourceField (not yet implemented)}
+ * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link LinksModeBelongsToField}
+ * - {@link LinksModeHasManyField}
  *
  * @class (Type) PolarisModeFieldSchema
  * @public

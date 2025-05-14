@@ -35,10 +35,6 @@ const Extended: PromiseObjectType<OpaqueRecordInstance> =
   PromiseObject as unknown as PromiseObjectType<OpaqueRecordInstance>;
 
 /**
- @module @ember-data/model
- */
-
-/**
   A PromiseBelongsTo is a PromiseObject that also proxies certain method calls
   to the underlying belongsTo model.
   Right now we proxy:

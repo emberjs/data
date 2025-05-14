@@ -12,9 +12,6 @@ export interface HasManyProxyCreateArgs<T = unknown> {
 }
 
 /**
- @module @ember-data/model
- */
-/**
   This class is returned as the result of accessing an async hasMany relationship
   on an instance of a Model extending from `@ember-data/model`.
 

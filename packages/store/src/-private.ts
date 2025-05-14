@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 export { Store, storeFor } from './-private/store-service';
 
 export { recordIdentifierFor } from './-private/caches/instance-cache';

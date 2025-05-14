@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 interface FastbootCrypto {
   randomFillSync(v: Uint8Array): Uint8Array;
 }

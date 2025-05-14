@@ -56,8 +56,7 @@
  * });
  * ```
  *
- * @module @warp-drive/build-config
- * @main @warp-drive/build-config
+ * @module
  */
 import EmbroiderMacros from '@embroider/macros/src/node.js';
 import { getEnv } from './-private/utils/get-env.ts';

@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 import { deprecate } from '@ember/debug';
 
 import { DEPRECATE_NON_STRICT_ID } from '@warp-drive/build-config/deprecations';

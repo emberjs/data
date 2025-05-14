@@ -3,10 +3,6 @@ import Mixin from '@ember/object/mixin';
 import type { Snapshot, SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 import { camelize, pluralize } from '@ember-data/request-utils/string';
 
-/**
-  @module @ember-data/adapter
-*/
-
 /*
  The structure of this file is such because typing Mixins is hard. Here we've structured it in
  such a way as to maximize the type information that a consumer can utilize. There are simpler

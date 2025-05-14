@@ -89,6 +89,5 @@ class extends Store {
 For the full list of APIs see the docs for [Cache Interface](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache)
 
 
-  @module @ember-data/json-api
-  @main @ember-data/json-api
+  @module
 */

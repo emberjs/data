@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 import type { ImmutableRequestInfo } from '@ember-data/request';
 import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
 

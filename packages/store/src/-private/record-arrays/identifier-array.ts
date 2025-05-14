@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';

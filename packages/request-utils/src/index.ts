@@ -84,8 +84,7 @@ type Store = {
  * // Note: options will also include other request options like headers, method, etc.
  * ```
  *
- * @module @ember-data/request-utils
- * @main @ember-data/request-utils
+ * @module
  * @public
  */
 
@@ -976,11 +975,11 @@ export type PolicyConfig = {
  * In order expiration is determined by:
  *
  * - Is explicitly invalidated
- * -  ↳ (if null) isExpired function <IF Constraint Active>
- * -  ↳ (if null) X-WarpDrive-Expires header <IF Constraint Active>
- * -  ↳ (if null) Cache-Control header <IF Constraint Active>
- * -  ↳ (if null) Expires header <IF Constraint Active>
- * -  ↳ (if null) Date header + apiCacheHardExpires < current time
+ * -  ↳ (if null) isExpired function \<IF Constraint Active>
+ * -  ↳ (if null) X-WarpDrive-Expires header \<IF Constraint Active>
+ * -  ↳ (if null) Cache-Control header \<IF Constraint Active>
+ * -  ↳ (if null) Expires header \<IF Constraint Active>
+ * -  ↳ (if null) Date header + apiCacheHardExpires \< current time
  *
  * Invalidates any request for which `cacheOptions.types` was provided when a createRecord
  * request for that type is successful.
@@ -1034,7 +1033,6 @@ export type PolicyConfig = {
  *
  * @class CachePolicy
  * @public
- * @module @ember-data/request-utils
  */
 export class CachePolicy {
   declare config: PolicyConfig;

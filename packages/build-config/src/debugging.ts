@@ -1,7 +1,4 @@
 /**
-  @module @warp-drive/build-config
- */
-/**
  * ## Debug Logging
  *
  * Many portions of the internals are helpfully instrumented with logging.

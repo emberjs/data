@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/legacy-compat
-*/
 import type Store from '@ember-data/store';
 import type { LiveArray } from '@ember-data/store/-private';
 import { SOURCE } from '@ember-data/store/-private';

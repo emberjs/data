@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/store
-*/
-
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { RecordIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';

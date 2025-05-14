@@ -1,8 +1,4 @@
 /**
-  @module @ember-data/store
-*/
-
-/**
   In EmberData, a "record instance" is a class instance used to present the data
   for a single resource, transforming the resource's cached raw data into a form
   that is useful for the application.

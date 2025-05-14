@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/request-utils/string
- */
 import { assert } from '@warp-drive/build-config/macros';
 
 import { defaultRules } from './inflections';

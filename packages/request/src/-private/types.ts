@@ -9,9 +9,6 @@ import type {
   StructuredDataDocument,
 } from '@warp-drive/core-types/request';
 
-/**
- * @module @ember-data/request
- */
 export interface GodContext {
   controller: AbortController;
   response: ResponseInfo | null;

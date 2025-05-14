@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/experimental-preview-types
- */
 import type { ResourceBlob } from './cache/aliases';
 import type { Change } from './cache/change';
 import type { Mutation } from './cache/mutations';
@@ -411,7 +408,7 @@ export interface Cache {
    * @method changedAttrs
    * @public
    * @param identifier
-   * @return {Record<string, [unknown, unknown]>} { <field>: [<old>, <new>] }
+   * @return {Record<string, [unknown, unknown]>} `{ <field>: [<old>, <new>] }`
    */
   changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;
 

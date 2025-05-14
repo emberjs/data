@@ -9,8 +9,8 @@
   },
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --prefer-offline --reporter=append-only",
-    "prepare": "./docs-viewer/src/install-tsc; export TURBO_FORCE=true; turbo run build:pkg; pnpm run prepare:types;",
-    "prepare:types": "export TURBO_FORCE=true; tsc --build --force",
+    "prepare": "export TURBO_FORCE=true; turbo run build:pkg; pnpm run prepare:types;",
+    "prepare:types": "export TURBO_FORCE=true; glint --build --force",
     "release": "./release/index.ts",
     "build": "turbo run build:pkg --log-order=stream --concurrency=10;",
     "sync": "pnpm --filter './packages/*' run --parallel --if-present sync",
@@ -197,8 +197,7 @@
       "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
       "@ember/test-helpers@5.2.0": "patches/@ember__test-helpers@5.2.0.patch",
       "ember-source@4.4.5": "patches/ember-source@4.4.5.patch",
-      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch",
-      "typescript": "patches/typescript.patch"
+      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch"
     }
   }
 }

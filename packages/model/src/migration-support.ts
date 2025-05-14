@@ -15,8 +15,7 @@
  * additions. LegacyMode is not intended to be a long-term solution, but rather a stepping stone
  * to assist in more rapidly adopting modern WarpDrive features.
  *
- * @module @ember-data/model/migration-support
- * @main @ember-data/model/migration-support
+ * @module
  */
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Store from '@ember-data/store';

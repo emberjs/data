@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/serializer/rest
- */
 import { warn } from '@ember/debug';
 
 import { camelize, dasherize, singularize } from '@ember-data/request-utils/string';
@@ -62,7 +59,6 @@ function makeArray(value) {
   the method (`serialize` or `deserialize`) as the third parameter.
 
   @class RESTSerializer
-  @main @ember-data/serializer/rest
   @public
   @extends JSONSerializer
 */

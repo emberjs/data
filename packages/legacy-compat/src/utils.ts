@@ -2,8 +2,7 @@
   Utilities for helping to migrate to stricter
   and more consistent use of IDs and types.
 
-  @module @ember-data/legacy-compat/utils
-  @main @ember-data/legacy-compat/utils
+  @module
   @deprecated
 */
 import { dasherize, singularize } from '@ember-data/request-utils/string';

@@ -1,7 +1,3 @@
-/**
-  @module @ember-data/model
- */
-
 import EmberObject from '@ember/object';
 
 import type { Snapshot } from '@ember-data/legacy-compat/-private';

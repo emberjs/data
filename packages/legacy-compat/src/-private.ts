@@ -6,8 +6,7 @@ import type { CompatStore } from '.';
  * Utilities - often temporary - for maintaining backwards compatibility with
  * older parts of EmberData.
  *
-  @module @ember-data/legacy-compat
-  @main @ember-data/legacy-compat
+  @module
 */
 export { SnapshotRecordArray } from './legacy-network-handler/snapshot-record-array';
 export { SaveOp } from './legacy-network-handler/fetch-manager';

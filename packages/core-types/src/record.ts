@@ -1,6 +1,3 @@
-/*
- * @module @warp-drive/core-types
- */
 import type { Type } from './symbols';
 
 /**

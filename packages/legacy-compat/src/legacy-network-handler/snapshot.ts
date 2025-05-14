@@ -1,6 +1,3 @@
-/**
-  @module @ember-data/store
-*/
 import { dependencySatisfies, importSync } from '@embroider/macros';
 
 import type { CollectionEdge, ResourceEdge } from '@ember-data/graph/-private';

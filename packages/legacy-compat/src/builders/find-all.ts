@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/legacy-compat/builders
- */
 import type { StoreRequestInput } from '@ember-data/store';
 import type { FindAllOptions } from '@ember-data/store/types';
 import { assert } from '@warp-drive/build-config/macros';

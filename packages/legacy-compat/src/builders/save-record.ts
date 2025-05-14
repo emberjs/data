@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/legacy-compat/builders
- */
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@ember-data/store';
 import type { InstanceCache } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';

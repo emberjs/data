@@ -60,8 +60,7 @@ URLs follow the most common REST format (camelCase pluralized resource types).
 - [query](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/query)
 - [updateRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/updateRecord)
 
- * @module @ember-data/rest/request
- * @main @ember-data/rest/request
+ * @module
  * @public
  */
 export { findRecord } from './-private/builders/find-record';

@@ -1,94 +1,93 @@
 /**
-  ## Overview
-
-  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
-    If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
-
-  In order to properly fetch and update data, EmberData
-  needs to understand how to connect to your API.
-
-  `Adapters` accept various kinds of requests from the store
-  and manage fulfillment of the request from your API.
-
-  ### Request Flow
-
-  When the store decides it needs to issue a request it uses the
-  following flow to manage the request and process the data.
-
-  - find the appropriate adapter
-  - issue the request to the adapter
-  - await the adapter's response
-    - if an error occurs reject with the error
-    - if no error
-      - if there is response data
-        - pass the response data to the appropriate serializer
-        - update the cache using the JSON:API formatted data from the serializer's response
-      - return the primary record(s) associated with the request
-
-  ### Request Errors
-
-  When a request errors and your adapter does not have the ability to recover from the error,
-  you may either reject the promise returned by your adapter method with the error or simply
-  throw the error.
-
-  If the request was for a `createRecord` `updateRecord` or `deleteRecord` special rules
-  apply to how this error will affect the state of the store and additional properties on
-  the `Error` class may be used. See the documentation for these methods in
-  [<Interface> Adapter](/ember-data/release/classes/%3CInterface%3E%20Adapter) for more information.
-
-  ### Implementing an Adapter
-
-  There are seven required adapter methods, one for each of
-  the primary request types that EmberData issues.
-
-  They are:
-
-  - findRecord
-  - findAll
-  - queryRecord
-  - query
-  - createRecord
-  - updateRecord
-  - deleteRecord
-
-  Each of these request types has a matching store method that triggers it
-  and matching `requestType` that is passed to the serializer's
-  `normalizeResponse` method.
-
-  If your app only reads data but never writes data, it is not necessary
-  to implement the methods for create, update, and delete. This extends to
-  all of the store's find methods with the exception of `findRecord` (`findAll`,
-  `query`, `queryRecord`): if you do not use the store method in your app then
-  your Adapter does not need the method.
-
-  ```ts
-  async function fetchData(url, options = {}) {
-    let response = await fetch(url, options);
-    return response.toJSON();
-  }
-
-  export default class ApplicationAdapter {
-    findRecord(_, { modelName }, id) {
-      return fetchData(`./${modelName}s/${id}`);
-    }
-
-    static create() {
-      return new this();
-    }
-  }
-  ```
-
-  ### Adapter Resolution
-
-  `store.adapterFor(name)` will lookup adapters defined in `app/adapters/` and
-  return an instance.
-
-  `adapterFor` first attempts to find an adapter with an exact match on `name`,
+ * ## Overview
+ *
+ * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
+ * <p>
+ *   ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+ *   If starting a new app or thinking of implementing a new adapter, consider writing a
+ *   <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+ * </p>
+ * </blockquote>
+ *
+ * In order to properly fetch and update data, EmberData
+ * needs to understand how to connect to your API.
+ *
+ * `Adapters` accept various kinds of requests from the store
+ * and manage fulfillment of the request from your API.
+ *
+ * ### Request Flow
+ *
+ * When the store decides it needs to issue a request it uses the following flow to manage the request and process the data.
+ *
+ * - find the appropriate adapter
+ * - issue the request to the adapter
+ * - await the adapter's response
+ *   - if an error occurs reject with the error
+ *   - if no error
+ *      - if there is response data
+ *      - pass the response data to the appropriate serializer
+ *      - update the cache using the JSON:API formatted data from the serializer's response
+ *    - return the primary record(s) associated with the request
+ *
+ * ### Request Errors
+ *
+ * When a request errors and your adapter does not have the ability to recover from the error,
+ * you may either reject the promise returned by your adapter method with the error or simply
+ * throw the error.
+ *
+ * If the request was for a `createRecord` `updateRecord` or `deleteRecord` special rules
+ * apply to how this error will affect the state of the store and additional properties on
+ * the `Error` class may be used. See the documentation for these methods in
+ * {@link MinimumAdapterInterface} for more information.
+ *
+ * ### Implementing an Adapter
+ *
+ * There are seven required adapter methods, one for each of
+ * the primary request types that EmberData issues.
+ *
+ * They are:
+ *
+ *  - findRecord
+ *  - findAll
+ *  - queryRecord
+ *  - query
+ *  - createRecord
+ *  - updateRecord
+ *  - deleteRecord
+ *
+ * Each of these request types has a matching store method that triggers it
+ * and matching `requestType` that is passed to the serializer's
+ * `normalizeResponse` method.
+ *
+ * If your app only reads data but never writes data, it is not necessary
+ * to implement the methods for create, update, and delete. This extends to
+ * all of the store's find methods with the exception of `findRecord` (`findAll`,
+ * `query`, `queryRecord`): if you do not use the store method in your app then
+ * your Adapter does not need the method.
+ *
+ * ```ts
+ * async function fetchData(url, options = {}) {
+ *   let response = await fetch(url, options);
+ *   return response.toJSON();
+ * }
+ *
+ * export default class ApplicationAdapter {
+ *   findRecord(_, { modelName }, id) {
+ *     return fetchData(`./${modelName}s/${id}`);
+ *   }
+ *
+ *   static create() {
+ *     return new this();
+ *   }
+ * }
+ * ```
+ *
+ * ### Adapter Resolution
+ *
+ * `store.adapterFor(name)` will lookup adapters defined in `app/adapters/` and
+ * return an instance.
+ *
+ * `adapterFor` first attempts to find an adapter with an exact match on `name`,
   then falls back to checking for the presence of an adapter named `application`.
 
   If no adapter is found, an error will be thrown.
@@ -183,8 +182,7 @@ By default when using with Ember you only need to implement this hook if you wan
   Many applications will find writing their own adapter to be allow greater flexibility,
   customization, and maintenance than attempting to override methods in these adapters.
 
-  @module @ember-data/adapter
-  @main @ember-data/adapter
+  @module
 */
 
 import EmberObject from '@ember/object';
@@ -206,7 +204,7 @@ const service = s.service ?? s.inject;
   adapter is not invoked directly instead its functionality is accessed
   through the `store`.
 
-  > ⚠️ CAUTION you likely want the docs for [<Interface> Adapter](/ember-data/release/classes/%3CInterface%3E%20Adapter)
+  > ⚠️ CAUTION you likely want the docs for {@link MinimumAdapterInterface}
   > as extending this abstract class is unnecessary.
 
   ### Creating an Adapter

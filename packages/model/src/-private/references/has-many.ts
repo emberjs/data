@@ -24,9 +24,6 @@ import type { LegacySupport } from '../legacy-relationships-support';
 import { areAllInverseRecordsLoaded, LEGACY_SUPPORT } from '../legacy-relationships-support';
 import type { MaybeHasManyFields } from '../type-utils';
 
-/**
-  @module @ember-data/model
-*/
 interface ResourceIdentifier {
   links?: {
     related?: string | LinkObject;

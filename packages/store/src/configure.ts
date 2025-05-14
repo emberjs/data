@@ -2,8 +2,7 @@
  * Provides a configuration API for the reactivity system
  * that WarpDrive should use.
  *
- * @module @ember-data/store/configure
- * @main @ember-data/store/configure
+ * @module
  */
 /**
  * Configures the signals implementation to use. Supports multiple

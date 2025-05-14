@@ -23,8 +23,7 @@ Install using your javascript package manager of choice. For instance with [pnpm
 pnpm add @ember-data/graph
 ```
 
-  @module @ember-data/graph
-  @main @ember-data/graph
+  @module
 */
 import type Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';

@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/store
- */
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';

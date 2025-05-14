@@ -1,18 +1,11 @@
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-/**
-  @module @ember-data/store
-*/
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
 import type { NotificationType } from '../managers/notification-manager';
 import { defineSignal } from '../new-core-tmp/reactivity/signal';
 import type { Store } from '../store-service';
-
-/**
-  @module @ember-data/store
-*/
 
 /**
    A `RecordReference` is a low-level API that allows users and

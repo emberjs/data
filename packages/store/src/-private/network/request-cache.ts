@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/store
- */
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core-types/-private';

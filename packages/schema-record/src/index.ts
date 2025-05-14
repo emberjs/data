@@ -2,7 +2,7 @@
  * <h3 align="center">Your Data, Managed.</h3>
  * <p align="center">🌲 Get back to Nature 🐿️ Or shipping 💚</p>
  *
- * SchemaRecord is a reactive object that transforms raw data from an [associated cache](../classes/<Interface>%20Cache)
+ * SchemaRecord is a reactive object that transforms raw data from an {@link Cache | associated cache}
  * into reactive data backed by Signals. The shape of the object and the transformation of raw cache data into its
  * reactive form is controlled by a resource schema. Resource schemas are simple JSON, allowing them to be defined
  * and delivered from anywhere.
@@ -314,13 +314,13 @@
  *
  * Additionally, `@warp-drive/core-types` provides several utilities for type-checking and narrowing schemas.
  *
- * - (type) [PolarisResourceSchema](../classes/<Type>%20PolarisResourceSchema)
- * - (type) [LegacyResourceSchema](../classes/<Type>%20LegacyResourceSchema)
- * - (type) [ObjectSchema](../classes/<Type>%20ObjectSchema)
- * - [resourceSchema](../functions/@warp-drive%2Fcore-types/resourceSchema)
- * - [objectSchema](../functions/@warp-drive%2Fcore-types/objectSchema)
- * - [isResourceSchema](../functions/@warp-drive%2Fcore-types/isResourceSchema)
- * - [isLegacyResourceSchema](../functions/@warp-drive%2Fcore-types/isLegacyResourceSchema)
+ * - {@link PolarisResourceSchema}
+ * - {@link LegacyResourceSchema}
+ * - {@link ObjectSchema}
+ * - {@link resourceSchema}
+ * - {@link objectSchema}
+ * - {@link isResourceSchema}
+ * - {@link isLegacyResourceSchema}
  *
  * ---
  *
@@ -328,14 +328,13 @@
  *
  * LegacyMode
  *
- * - (type) [LegacyModeFieldSchema](../classes/<Type>%20LegacyModeFieldSchema)
- *
+ * - {@link LegacyModeFieldSchema}
+
  * PolarisMode
  *
- * - (type) [PolarisModeFieldSchema](../classes/<Type>%20PolarisModeFieldSchema)
+ * - {@link PolarisModeFieldSchema}
  *
- * @module @warp-drive/schema-record
- * @main @warp-drive/schema-record
+ * @module
  */
 export { instantiateRecord, teardownRecord } from './-private/hooks';
 export { type Transformation, SchemaService, withDefaults, fromIdentity, registerDerivations } from './-private/schema';

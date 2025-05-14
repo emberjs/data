@@ -9,10 +9,6 @@ import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-c
 import type { Store } from '../store-service';
 import type { NotificationType } from './notification-manager';
 
-/**
-  @module @ember-data/store
-*/
-
 export interface CacheCapabilitiesManager {
   getSchemaDefinitionService(): SchemaService;
 }

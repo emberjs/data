@@ -1,6 +1,3 @@
-/**
- * @module @ember-data/request-utils/string
- */
 import { DEBUG } from '@warp-drive/build-config/env';
 
 const DEFAULT_MAX_CACHE_SIZE = 10_000;
