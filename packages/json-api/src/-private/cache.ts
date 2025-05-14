@@ -152,10 +152,16 @@ export default class JSONAPICache implements Cache {
    * @property version
    */
   declare version: '2';
+
+  /** @internal */
   declare _capabilities: CacheCapabilitiesManager;
+  /** @internal */
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
+  /** @internal */
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
+  /** @internal */
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
+  /** @internal */
   declare __graph: Graph;
 
   constructor(capabilities: CacheCapabilitiesManager) {
@@ -319,6 +325,7 @@ export default class JSONAPICache implements Cache {
     );
   }
 
+  /** @internal */
   _putDocument<T extends ResourceErrorDocument>(
     doc: StructuredErrorDocument<T>,
     data: undefined,
