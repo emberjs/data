@@ -486,7 +486,9 @@ interface Model {
  */
 class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
-  /** @internal */
+  /**
+   * The store service instance which created this record instance
+   */
   declare store: Store;
   /** @internal */
   declare ___recordState: RecordState;

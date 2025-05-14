@@ -72,15 +72,28 @@ function isNonEnumerableProp(prop: string | number | symbol) {
 }
 
 const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
+/**
+ * A record that does stuff
+ *
+ * @public
+ */
 export class SchemaRecord {
+  /** @internal */
   declare [RecordStore]: Store;
+  /** @internal */
   declare [Identifier]: StableRecordIdentifier;
+  /** @internal */
   declare [Parent]: StableRecordIdentifier;
+  /** @internal */
   declare [EmbeddedType]: string | null;
+  /** @internal */
   declare [EmbeddedPath]: string[] | null;
+  /** @internal */
   declare [Editable]: boolean;
+  /** @internal */
   declare [Legacy]: boolean;
   declare [Symbol.toStringTag]: `SchemaRecord<${string}>`;
+  /** @internal */
   declare ___notifications: object;
 
   constructor(
