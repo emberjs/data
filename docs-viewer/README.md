@@ -7,7 +7,8 @@
 From this directory (`docs-viewer`)
 
 - start sync for guides with `bun ./src/start-guides-sync.ts`
-- start the server with `bun run dev`
+- build/rebuild the API docs with `pnpm typedoc` (rerun as needed)
+- start the server with `pnpm dev`, visit the site url
 
 ### Deploying
 
