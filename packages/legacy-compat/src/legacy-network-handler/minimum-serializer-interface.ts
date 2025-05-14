@@ -53,7 +53,6 @@ export interface MinimumSerializerInterface {
    *    a valid optional sibling to `id` and `type` in both [Resources](https://jsonapi.org/format/#document-resource-objects)
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
-   * @method normalizeResponse
    * @public
    * @param {Store} store The store service that initiated the request being normalized
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -98,7 +97,6 @@ export interface MinimumSerializerInterface {
    * by `updateRecord` and `createRecord` if `Serializer.serializeIntoHash`
    * is not implemented.
    *
-   * @method serialize
    * @public
    * @param {Snapshot} snapshot A Snapshot for the record to serialize
    * @param {Object} [options]
@@ -147,7 +145,6 @@ export interface MinimumSerializerInterface {
    * your application we recommend implementing this method, but caution that
    * it may lead to unexpected mixing of formats.
    *
-   * @method normalize [OPTIONAL]
    * @public
    * @optional
    * @param {ModelSchema} schema An object with methods for accessing information about
@@ -190,7 +187,6 @@ export interface MinimumSerializerInterface {
    * }
    * ```
    *
-   * @method serializeIntoHash [OPTIONAL]
    * @public
    * @optional
    * @param hash A top most object of the request payload onto
@@ -237,7 +233,6 @@ export interface MinimumSerializerInterface {
    * }
    * ```
    *
-   * @method pushPayload [OPTIONAL]
    * @public
    * @optional
    * @param {Store} store The store service that initiated the request being normalized
@@ -253,7 +248,6 @@ export interface MinimumSerializerInterface {
    *
    * If not implemented, the store does not inform the serializer of destruction.
    *
-   * @method destroy [OPTIONAL]
    * @public
    * @optional
    */

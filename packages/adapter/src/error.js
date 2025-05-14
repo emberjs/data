@@ -21,7 +21,7 @@ import { getOrSetGlobal } from '@warp-drive/core-types/-private';
   external API exclusively used HTTP `503 Service Unavailable` to indicate
   it was closed for maintenance:
 
-  ```app/adapters/maintenance-error.js
+  ```js [app/adapters/maintenance-error.js]
   import AdapterError from '@ember-data/adapter/error';
 
   export default AdapterError.extend({ message: "Down for maintenance." });
@@ -29,7 +29,7 @@ import { getOrSetGlobal } from '@warp-drive/core-types/-private';
 
   This error would then be returned by an adapter's `handleResponse` method:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
   import MaintenanceError from './maintenance-error';
 
@@ -47,7 +47,7 @@ import { getOrSetGlobal } from '@warp-drive/core-types/-private';
   And can then be detected in an application and used to send the user to an
   `under-maintenance` route:
 
-  ```app/routes/application.js
+  ```js [app/routes/application.js]
   import MaintenanceError from '../adapters/maintenance-error';
 
   export default class ApplicationRoute extends Route {
@@ -129,7 +129,7 @@ function extend(ParentErrorClass, defaultMessage) {
   the property name. For example, if you had a Post model that
   looked like this.
 
-  ```app/models/post.js
+  ```js [app/models/post.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class PostModel extends Model {
@@ -142,7 +142,7 @@ function extend(ParentErrorClass, defaultMessage) {
   `content` properties your adapter could return a promise that
   rejects with a `InvalidError` object that looks like this:
 
-  ```app/adapters/post.js
+  ```js [app/adapters/post.js]
   import RSVP from 'RSVP';
   import RESTAdapter from '@ember-data/adapter/rest';
   import { InvalidError } from '@ember-data/adapter/error';
@@ -172,7 +172,6 @@ function extend(ParentErrorClass, defaultMessage) {
 
   @class InvalidError
   @public
-  @extends AdapterError
 */
 // TODO @deprecate extractError documentation
 export const InvalidError = getOrSetGlobal(
@@ -189,7 +188,7 @@ InvalidError.prototype.code = 'InvalidError';
   An example use case would be to warn the user to check their internet
   connection if an adapter operation has timed out:
 
-  ```app/routes/application.js
+  ```js [app/routes/application.js]
   import { TimeoutError } from '@ember-data/adapter/error';
 
   export default class ApplicationRoute extends Route {
@@ -208,7 +207,6 @@ InvalidError.prototype.code = 'InvalidError';
 
   @class TimeoutError
   @public
-  @extends AdapterError
 */
 export const TimeoutError = getOrSetGlobal('TimeoutError', extend(AdapterError, 'The adapter operation timed out'));
 TimeoutError.prototype.code = 'TimeoutError';
@@ -221,7 +219,6 @@ TimeoutError.prototype.code = 'TimeoutError';
 
   @class AbortError
   @public
-  @extends AdapterError
 */
 export const AbortError = getOrSetGlobal('AbortError', extend(AdapterError, 'The adapter operation was aborted'));
 AbortError.prototype.code = 'AbortError';
@@ -235,7 +232,7 @@ AbortError.prototype.code = 'AbortError';
   An example use case would be to redirect the user to a login route if a
   request is unauthorized:
 
-  ```app/routes/application.js
+  ```js [app/routes/application.js]
   import { UnauthorizedError } from '@ember-data/adapter/error';
 
   export default class ApplicationRoute extends Route {
@@ -254,7 +251,6 @@ AbortError.prototype.code = 'AbortError';
 
   @class UnauthorizedError
   @public
-  @extends AdapterError
 */
 export const UnauthorizedError = getOrSetGlobal(
   'UnauthorizedError',
@@ -271,7 +267,6 @@ UnauthorizedError.prototype.code = 'UnauthorizedError';
 
   @class ForbiddenError
   @public
-  @extends AdapterError
 */
 export const ForbiddenError = getOrSetGlobal(
   'ForbiddenError',
@@ -287,7 +282,7 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   An example use case would be to detect if the user has entered a route
   for a specific model that does not exist. For example:
 
-  ```app/routes/post.js
+  ```js [app/routes/post.js]
   import { NotFoundError } from '@ember-data/adapter/error';
 
   export default class PostRoute extends Route {
@@ -310,7 +305,6 @@ ForbiddenError.prototype.code = 'ForbiddenError';
 
   @class NotFoundError
   @public
-  @extends AdapterError
 */
 export const NotFoundError = getOrSetGlobal(
   'NotFoundError',
@@ -327,7 +321,6 @@ NotFoundError.prototype.code = 'NotFoundError';
 
   @class ConflictError
   @public
-  @extends AdapterError
 */
 export const ConflictError = getOrSetGlobal(
   'ConflictError',
@@ -342,7 +335,6 @@ ConflictError.prototype.code = 'ConflictError';
 
   @class ServerError
   @public
-  @extends AdapterError
 */
 export const ServerError = getOrSetGlobal(
   'ServerError',

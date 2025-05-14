@@ -269,7 +269,6 @@ type MaybeHasId = { id?: string | null };
  * TODO: These are limitations we want to (and can) address. If you
  * have need of lifting these limitations, please open an issue.
  *
- * @typedoc
  */
 export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T extends TypedRecordInstance
   ? Partial<FilteredKeys<T>>
@@ -282,7 +281,7 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
  * and sources of data (such as your API or a local persistence layer)
  * accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
  *
- * ```app/services/store.js
+ * ```js [app/services/store.js]
  * import Store from '@ember-data/store';
  *
  * export default class extends Store {}
@@ -409,7 +408,6 @@ export interface Store {
    * be sourced from directly registered schemas, then will fallback
    * to sourcing a schema from available models if no schema is found.
    *
-   * @method createSchemaService (hook)
    * @return {SchemaService}
    * @public
    */
@@ -424,7 +422,6 @@ export interface Store {
    * The SchemaDefinitionService can be used to query for
    * information about the schema of a resource.
    *
-   * @method getSchemaDefinitionService
    * @deprecated
    * @public
    */
@@ -479,7 +476,6 @@ export interface Store {
    * }
    * ```
    *
-   * @method registerSchemaDefinitionService
    * @param {SchemaService} schema
    * @deprecated
    * @public
@@ -535,7 +531,6 @@ export interface Store {
    * }
    * ```
    *
-   * @method registerSchema
    * @param {SchemaService} schema
    * @deprecated
    * @public
@@ -544,6 +539,7 @@ export interface Store {
 }
 
 export class Store extends BaseClass {
+  /** @internal */
   declare recordArrayManager: RecordArrayManager;
 
   /**
@@ -576,6 +572,7 @@ export class Store extends BaseClass {
     }
     return this._schema as ReturnType<this['createSchemaService']>;
   }
+  /** @internal */
   declare _schema: SchemaService;
 
   /**
@@ -650,11 +647,15 @@ export class Store extends BaseClass {
   declare lifetimes?: CachePolicy;
 
   // Private
+  /** @internal */
   declare _graph?: Graph;
+  /** @internal */
   declare _requestCache: RequestStateService;
+  /** @internal */
   declare _instanceCache: InstanceCache;
-
+  /** @internal */
   declare _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
+  /** @internal */
   declare _forceShim: boolean;
   /**
    * Async flush buffers notifications until flushed
@@ -669,17 +670,21 @@ export class Store extends BaseClass {
   declare _enableAsyncFlush: boolean | null;
 
   // DEBUG-only properties
+  /** @internal */
   declare DISABLE_WAITER?: boolean;
-
+  /** @internal */
   declare _isDestroying: boolean;
+  /** @internal */
   declare _isDestroyed: boolean;
 
+  /** @internal */
   get isDestroying(): boolean {
     return this._isDestroying;
   }
   set isDestroying(value: boolean) {
     this._isDestroying = value;
   }
+  /** @internal */
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
@@ -688,7 +693,6 @@ export class Store extends BaseClass {
   }
 
   /**
-    @method init
     @private
   */
   constructor(createArgs?: unknown) {
@@ -710,6 +714,7 @@ export class Store extends BaseClass {
     this.isDestroyed = false;
   }
 
+  /** @internal */
   _run(cb: () => void) {
     assert(`EmberData should never encounter a nested run`, !this._cbs);
     const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
@@ -760,6 +765,7 @@ export class Store extends BaseClass {
     }
   }
 
+  /** @internal */
   _schedule(name: 'coalesce' | 'sync' | 'notify', cb: () => void): void {
     assert(`EmberData expects to schedule only when there is an active run`, !!this._cbs);
     assert(`EmberData expects only one flush per queue name, cannot schedule ${name}`, !this._cbs[name]);
@@ -774,7 +780,6 @@ export class Store extends BaseClass {
    * This can be used to query the status of requests
    * that have been initiated for a given identifier.
    *
-   * @method getRequestStateService
    * @return {RequestStateService}
    * @public
    */
@@ -782,6 +787,7 @@ export class Store extends BaseClass {
     return this._requestCache;
   }
 
+  /** @internal */
   _getAllPending(): (Promise<unknown[]> & { length: number }) | void {
     if (TESTING) {
       const all: Promise<unknown>[] = [];
@@ -847,7 +853,6 @@ export class Store extends BaseClass {
    * is that `store.request` will attempt to hydrate the response content into
    * a response Document containing RecordInstances.
    *
-   * @method request
    * @param {StoreRequestInput} requestConfig
    * @return {Future}
    * @public
@@ -925,7 +930,6 @@ export class Store extends BaseClass {
    * mechanism of presenting cache data to the ui for access
    * mutation, and interaction.
    *
-   * @method instantiateRecord (hook)
    * @param identifier
    * @param createRecordArgs
    * @param recordDataFor deprecated use this.cache
@@ -940,7 +944,6 @@ export class Store extends BaseClass {
    * be used to teardown any custom record instances instantiated
    * with `instantiateRecord`.
    *
-   * @method teardownRecord (hook)
    * @public
    * @param record
    */
@@ -962,7 +965,6 @@ export class Store extends BaseClass {
     [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
     for example.
 
-    @method modelFor
     @public
     @deprecated
     @param {String} type
@@ -1004,7 +1006,6 @@ export class Store extends BaseClass {
     });
     ```
 
-    @method createRecord
     @public
     @param {String} type the name of the resource
     @param {Object} inputProperties a hash of properties to set on the
@@ -1087,7 +1088,6 @@ export class Store extends BaseClass {
     store.deleteRecord(post);
     ```
 
-    @method deleteRecord
     @public
     @param {unknown} record
   */
@@ -1119,7 +1119,6 @@ export class Store extends BaseClass {
     store.unloadRecord(post);
     ```
 
-    @method unloadRecord
     @public
     @param {Model} record
   */
@@ -1144,7 +1143,7 @@ export class Store extends BaseClass {
 
     **Example 1**
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class PostRoute extends Route {
       model({ post_id }) {
         return this.store.findRecord('post', post_id);
@@ -1158,7 +1157,7 @@ export class Store extends BaseClass {
     of `type` (modelName) and `id` as separate arguments. You may recognize this combo as
     the typical pairing from [JSON:API](https://jsonapi.org/format/#document-resource-object-identification)
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class PostRoute extends Route {
       model({ post_id: id }) {
         return this.store.findRecord({ type: 'post', id });
@@ -1171,7 +1170,7 @@ export class Store extends BaseClass {
     If you have previously received an lid via an Identifier for this record, and the record
     has already been assigned an id, you can find the record again using just the lid.
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     store.findRecord({ lid });
     ```
 
@@ -1189,7 +1188,7 @@ export class Store extends BaseClass {
     for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
     without also fetching the post you can pass in the post to the `findRecord` call:
 
-    ```app/routes/post-comments.js
+    ```js [app/routes/post-comments.js]
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { preload: { post: post_id }} });
@@ -1200,7 +1199,7 @@ export class Store extends BaseClass {
     In your adapter you can then access this id without triggering a network request via the
     snapshot:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     export default class Adapter {
 
       findRecord(store, schema, id, snapshot) {
@@ -1223,7 +1222,7 @@ export class Store extends BaseClass {
     This could also be achieved by supplying the post id to the adapter via the adapterOptions
     property on the options hash.
 
-    ```app/routes/post-comments.js
+    ```js [app/routes/post-comments.js]
     export default class PostRoute extends Route {
       model({ post_id, comment_id: id }) {
         return this.store.findRecord({ type: 'comment', id, { adapterOptions: { post: post_id }} });
@@ -1231,7 +1230,7 @@ export class Store extends BaseClass {
     }
     ```
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
@@ -1341,7 +1340,7 @@ export class Store extends BaseClass {
     boolean value for `backgroundReload` in the options object for
     `findRecord`.
 
-    ```app/routes/post/edit.js
+    ```js [app/routes/post/edit.js]
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
@@ -1352,7 +1351,7 @@ export class Store extends BaseClass {
     If you pass an object on the `adapterOptions` property of the options
     argument it will be passed to your adapter via the snapshot
 
-    ```app/routes/post/edit.js
+    ```js [app/routes/post/edit.js]
     export default class PostEditRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, {
@@ -1362,7 +1361,7 @@ export class Store extends BaseClass {
     }
     ```
 
-    ```app/adapters/post.js
+    ```js [app/adapters/post.js]
     import MyCustomAdapter from './custom-adapter';
 
     export default class PostAdapter extends MyCustomAdapter {
@@ -1391,7 +1390,7 @@ export class Store extends BaseClass {
     model, when we retrieve a specific post we can have the server also return that post's
     comments in the same request:
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: ['comments'] });
@@ -1399,7 +1398,7 @@ export class Store extends BaseClass {
     }
     ```
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     export default class Adapter {
       findRecord(store, schema, id, snapshot) {
         let type = schema.modelName;
@@ -1426,7 +1425,7 @@ export class Store extends BaseClass {
     using a dot-separated sequence of relationship names. So to request both the post's
     comments and the authors of those comments the request would look like this:
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class PostRoute extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { include: ['comments','comments.author'] });
@@ -1441,7 +1440,7 @@ export class Store extends BaseClass {
 
     1. Implement `buildQuery` in your adapter.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     buildQuery(snapshot) {
       let query = super.buildQuery(...arguments);
 
@@ -1459,7 +1458,7 @@ export class Store extends BaseClass {
 
     Given a `post` model with attributes body, title, publishDate and meta, you can retrieve a filtered list of attributes.
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title' } });
@@ -1470,7 +1469,7 @@ export class Store extends BaseClass {
     Moreover, you can filter attributes on related models as well. If a `post` has a `belongsTo` relationship to a user,
     just include the relationship key and attributes.
 
-    ```app/routes/post.js
+    ```js [app/routes/post.js]
     export default class extends Route {
       model(params) {
         return this.store.findRecord('post', params.post_id, { adapterOptions: { fields: { post: 'body,title', user: 'name,email' } });
@@ -1479,7 +1478,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method findRecord
     @public
     @param {String|object} type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {(String|Integer|Object)} id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
@@ -1575,7 +1573,6 @@ export class Store extends BaseClass {
     });
     ```
 
-    @method getReference
     @public
     @param {String|object} resource - modelName (string) or Identifier (object)
     @param {String|Integer} id
@@ -1649,7 +1646,6 @@ export class Store extends BaseClass {
 
 
     @since 1.13.0
-    @method peekRecord
     @public
     @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
@@ -1733,7 +1729,6 @@ export class Store extends BaseClass {
     once the server returns.
 
     @since 1.13.0
-    @method query
     @public
     @param {String} type the name of the resource
     @param {Object} query a query to be used by the adapter
@@ -1801,7 +1796,7 @@ export class Store extends BaseClass {
 
     The request is made through the adapters' `queryRecord`:
 
-    ```app/adapters/user.js
+    ```js [app/adapters/user.js]
     import Adapter from '@ember-data/adapter';
     import $ from 'jquery';
 
@@ -1857,7 +1852,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method queryRecord
     @public
     @param {String} type
     @param {Object} query an opaque query to be used by the adapter
@@ -1900,7 +1894,7 @@ export class Store extends BaseClass {
     this type present in the store, even if the adapter only returns a subset
     of them.
 
-    ```app/routes/authors.js
+    ```js [app/routes/authors.js]
     export default class AuthorsRoute extends Route {
       model(params) {
         return this.store.findAll('author');
@@ -1948,7 +1942,7 @@ export class Store extends BaseClass {
     which the promise resolves, is updated automatically so it contains all the
     records in the store:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
 
     export default class ApplicationAdapter extends Adapter {
@@ -1992,7 +1986,7 @@ export class Store extends BaseClass {
     boolean value for `backgroundReload` in the options object for
     `findAll`.
 
-    ```app/routes/post/edit.js
+    ```js [app/routes/post/edit.js]
     export default class PostEditRoute extends Route {
       model() {
         return this.store.findAll('post', { backgroundReload: false });
@@ -2003,7 +1997,7 @@ export class Store extends BaseClass {
     If you pass an object on the `adapterOptions` property of the options
     argument it will be passed to you adapter via the `snapshotRecordArray`
 
-    ```app/routes/posts.js
+    ```js [app/routes/posts.js]
     export default class PostsRoute extends Route {
       model(params) {
         return this.store.findAll('post', {
@@ -2013,7 +2007,7 @@ export class Store extends BaseClass {
     }
     ```
 
-    ```app/adapters/post.js
+    ```js [app/adapters/post.js]
     import MyCustomAdapter from './custom-adapter';
 
     export default class UserAdapter extends MyCustomAdapter {
@@ -2043,7 +2037,7 @@ export class Store extends BaseClass {
     model, when we retrieve all of the post records we can have the server also return
     all of the posts' comments in the same request:
 
-    ```app/routes/posts.js
+    ```js [app/routes/posts.js]
     export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: ['comments'] });
@@ -2055,7 +2049,7 @@ export class Store extends BaseClass {
     using a dot-separated sequence of relationship names. So to request both the posts'
     comments and the authors of those comments the request would look like this:
 
-    ```app/routes/posts.js
+    ```js [app/routes/posts.js]
     export default class PostsRoute extends Route {
       model() {
         return this.store.findAll('post', { include: ['comments','comments.author'] });
@@ -2066,7 +2060,6 @@ export class Store extends BaseClass {
     See [query](../methods/query?anchor=query) to only get a subset of records from the server.
 
     @since 1.13.0
-    @method findAll
     @public
     @param {String} type the name of the resource
     @param {Object} options
@@ -2116,7 +2109,6 @@ export class Store extends BaseClass {
     ```
 
     @since 1.13.0
-    @method peekAll
     @public
     @param {String} type the name of the resource
     @return {RecordArray}
@@ -2147,7 +2139,6 @@ export class Store extends BaseClass {
     store.unloadAll('post');
     ```
 
-    @method unloadAll
     @param {String} type the name of the resource
     @public
   */
@@ -2241,7 +2232,7 @@ export class Store extends BaseClass {
 
     For this model:
 
-    ```app/models/person.js
+    ```js [app/models/person.js]
     import Model, { attr, hasMany } from '@ember-data/model';
 
     export default class PersonRoute extends Route {
@@ -2322,7 +2313,6 @@ export class Store extends BaseClass {
     This method can be used both to push in brand new
     records, as well as to update existing records.
 
-    @method push
     @public
     @param {Object} data
     @return the record(s) that was created or
@@ -2354,7 +2344,6 @@ export class Store extends BaseClass {
     Push some data in the form of a json-api document into the store,
     without creating materialized records.
 
-    @method _push
     @private
     @param {Object} jsonApiDoc
     @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
@@ -2385,7 +2374,6 @@ export class Store extends BaseClass {
    *
    * Returns a promise resolving with the same record when the save is complete.
    *
-   * @method saveRecord
    * @public
    * @param {unknown} record
    * @param options
@@ -2443,7 +2431,6 @@ export class Store extends BaseClass {
    * This hook should not be called directly by consuming applications or libraries.
    * Use `Store.cache` to access the Cache instance.
    *
-   * @method createCache (hook)
    * @public
    * @param storeWrapper
    * @return {Cache}

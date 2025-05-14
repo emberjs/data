@@ -8,7 +8,7 @@ import { TransformName } from '@warp-drive/core-types/symbols';
 
   Usage
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr, belongsTo } from '@ember-data/model';
 
   export default class UserModel extends Model {

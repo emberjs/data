@@ -130,7 +130,6 @@ export default class NotificationManager {
    * }
    * ```
    *
-   * @method subscribe
    * @public
    * @param {StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document'} identifier
    * @param {NotificationCallback | ResourceOperationCallback | DocumentOperationCallback} callback
@@ -169,7 +168,6 @@ export default class NotificationManager {
   /**
    * remove a previous subscription
    *
-   * @method unsubscribe
    * @public
    * @param {UnsubscribeToken} token
    */
@@ -182,7 +180,6 @@ export default class NotificationManager {
   /**
    * Custom Caches and Application Code should not call this method directly.
    *
-   * @method notify
    * @param identifier
    * @param value
    * @param key

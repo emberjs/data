@@ -58,10 +58,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * const data = await store.request(options);
  * ```
  *
- * @method query
  * @public
- * @static
- * @for @ember-data/json-api/request
  * @param identifier
  * @param query
  * @param options
@@ -144,10 +141,7 @@ export function query(
  * const data = await store.request(options);
  * ```
  *
- * @method postQuery
  * @public
- * @static
- * @for @ember-data/json-api/request
  * @param identifier
  * @param query
  * @param options

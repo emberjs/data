@@ -22,7 +22,6 @@ export interface FindRecordOptions<T = unknown> extends BaseFinderOptions<T> {
    * resource type, or be record instances from which the identifier
    * will be extracted.
    *
-   * @typedoc
    */
   preload?: Record<string, Value>;
 }

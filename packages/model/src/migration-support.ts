@@ -175,7 +175,6 @@ const LegacyFields = [
  * }>
  * ```
  *
- * @typedoc
  */
 export type WithLegacy<T extends TypedRecordInstance> = T & LegacyModeRecord<T>;
 
@@ -301,9 +300,6 @@ legacySupport[Type] = '@legacy';
  * registerDerivations(schema);
  * ```
  *
- * @method withDefaults
- * @for @ember-data/model/migration-support
- * @static
  * @param {LegacyResourceSchema} schema The schema to add legacy support to.
  * @return {LegacyResourceSchema} The schema with legacy support added.
  * @public
@@ -350,9 +346,6 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
  * import { withDefaults } from '@ember-data/model/migration-support';
  * ```
  *
- * @method registerDerivations
- * @for @ember-data/model/migration-support
- * @static
  * @param {SchemaService} schema The schema service to register the derivations with.
  * @return {void}
  * @public
@@ -390,7 +383,6 @@ export function registerDerivations(schema: SchemaService) {
  * etc. will be delegated to the primary schema service.
  *
  * @class DelegatingSchemaService
- * @extends SchemaService
  * @public
  */
 export interface DelegatingSchemaService {

@@ -68,11 +68,3 @@ URLs are stable. The same query will produce the same URL every time, even if th
 the query or values in an array changes.
 
 URLs follow the most common ActiveRecord format (underscored pluralized resource types).
-
-### Available Builders
-
-- [createRecord]()
-- [deleteRecord]()
-- [findRecord]()
-- [query]()
-- [updateRecord]()

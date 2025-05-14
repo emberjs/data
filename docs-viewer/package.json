@@ -14,8 +14,8 @@
   },
   "scripts": {
     "prepare": "bun src/prepare-website.ts",
-    "dev": "typedoc; vitepress dev docs.warp-drive.io",
-    "build": "typedoc; vitepress build docs.warp-drive.io",
+    "dev": "vitepress dev docs.warp-drive.io",
+    "build": " typedoc; vitepress build docs.warp-drive.io",
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@types/debug": "4.1.12",
     "typedoc": "^0.28.4",
     "typedoc-plugin-markdown": "^4.6.3",
+    "typedoc-plugin-no-inherit": "^1.6.1",
     "typedoc-vitepress-theme": "^1.1.2",
     "vitepress-plugin-llms": "^1.1.4",
     "vitepress-plugin-group-icons": "^1.5.2",

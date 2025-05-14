@@ -63,10 +63,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
  * const data = await store.request(options);
  * ```
  *
- * @method findRecord
  * @public
- * @static
- * @for @ember-data/active-record/request
  * @param identifier
  * @param options
  */

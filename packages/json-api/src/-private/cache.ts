@@ -152,10 +152,16 @@ export default class JSONAPICache implements Cache {
    * @property version
    */
   declare version: '2';
+
+  /** @internal */
   declare _capabilities: CacheCapabilitiesManager;
+  /** @internal */
   declare __cache: Map<StableRecordIdentifier, CachedResource>;
+  /** @internal */
   declare __destroyedCache: Map<StableRecordIdentifier, CachedResource>;
+  /** @internal */
   declare __documents: Map<string, StructuredDocument<ResourceDocument>>;
+  /** @internal */
   declare __graph: Graph;
 
   constructor(capabilities: CacheCapabilitiesManager) {
@@ -204,7 +210,6 @@ export default class JSONAPICache implements Cache {
    * associated resource membership order and contents preserved but linked
    * into the cache.
    *
-   * @method put
    * @param {StructuredDocument} doc
    * @return {ResourceDocument}
    * @public
@@ -320,6 +325,7 @@ export default class JSONAPICache implements Cache {
     );
   }
 
+  /** @internal */
   _putDocument<T extends ResourceErrorDocument>(
     doc: StructuredErrorDocument<T>,
     data: undefined,
@@ -398,7 +404,6 @@ export default class JSONAPICache implements Cache {
    * Update the "remote" or "canonical" (persisted) state of the Cache
    * by merging new information into the existing state.
    *
-   * @method patch
    * @public
    * @param {Operation|Operation[]} op the operation or list of operations to perform
    * @return {void}
@@ -428,7 +433,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Update the "local" or "current" (unpersisted) state of the Cache
    *
-   * @method mutate
    * @param {Mutation} mutation
    * @return {void}
    * @public
@@ -480,7 +484,6 @@ export default class JSONAPICache implements Cache {
    * of the Graph handling necessary entanglements and
    * notifications for relational data.
    *
-   * @method peek
    * @public
    * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceObject | null} the known resource data
@@ -611,7 +614,6 @@ export default class JSONAPICache implements Cache {
    * that it will return the the request, response, and content
    * whereas `peek` will return just the `content`.
    *
-   * @method peekRequest
    * @param {StableDocumentIdentifier}
    * @return {StructuredDocument<ResourceDocument> | null}
    * @public
@@ -623,7 +625,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Push resource data from a remote source into the cache for this identifier
    *
-   * @method upsert
    * @public
    * @param identifier
    * @param data
@@ -658,7 +659,6 @@ export default class JSONAPICache implements Cache {
    * preferring instead to fork at the Store level, which will
    * utilize this method to fork the cache.
    *
-   * @method fork
    * @internal
    * @return {Promise<Cache>}
    */
@@ -673,7 +673,6 @@ export default class JSONAPICache implements Cache {
    * preferring instead to merge at the Store level, which will
    * utilize this method to merge the caches.
    *
-   * @method merge
    * @param {Cache} cache
    * @public
    * @return {Promise<void>}
@@ -712,7 +711,6 @@ export default class JSONAPICache implements Cache {
    * }
    * ```
    *
-   * @method diff
    * @public
    */
   diff(): Promise<Change[]> {
@@ -727,7 +725,6 @@ export default class JSONAPICache implements Cache {
    * which may be fed back into a new instance of the same Cache
    * via `cache.hydrate`.
    *
-   * @method dump
    * @return {Promise<ReadableStream>}
    * @public
    */
@@ -747,7 +744,6 @@ export default class JSONAPICache implements Cache {
    * behavior supports optimizing pre/fetching of data for route transitions
    * via data-only SSR modes.
    *
-   * @method hydrate
    * @param {ReadableStream} stream
    * @return {Promise<void>}
    * @public
@@ -765,7 +761,6 @@ export default class JSONAPICache implements Cache {
    * It returns properties from options that should be set on the record during the create
    * process. This return value behavior is deprecated.
    *
-   * @method clientDidCreate
    * @public
    * @param identifier
    * @param createArgs
@@ -846,7 +841,6 @@ export default class JSONAPICache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * will be part of a save transaction.
    *
-   * @method willCommit
    * @public
    * @param identifier
    */
@@ -908,7 +902,6 @@ export default class JSONAPICache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was successfully updated as part of a save transaction.
    *
-   * @method didCommit
    * @public
    * @param identifier
    * @param data
@@ -1053,7 +1046,6 @@ export default class JSONAPICache implements Cache {
    * [LIFECYCLE] Signals to the cache that a resource
    * was update via a save transaction failed.
    *
-   * @method commitWasRejected
    * @public
    * @param identifier
    * @param errors
@@ -1085,7 +1077,6 @@ export default class JSONAPICache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method unloadRecord
    * @public
    * @param identifier
    */
@@ -1166,7 +1157,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Retrieve the data for an attribute from the cache
    *
-   * @method getAttr
    * @public
    * @param identifier
    * @param field
@@ -1301,7 +1291,6 @@ export default class JSONAPICache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method setAttr
    * @public
    * @param identifier
    * @param field
@@ -1420,7 +1409,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for the changed attributes of a resource.
    *
-   * @method changedAttrs
    * @public
    * @param identifier
    * @return {ChangedAttributesHash} `{ <field>: [<old>, <new>] }`
@@ -1445,7 +1433,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for whether any mutated attributes exist
    *
-   * @method hasChangedAttrs
    * @public
    * @param identifier
    * @return {Boolean}
@@ -1474,7 +1461,6 @@ export default class JSONAPICache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method rollbackAttrs
    * @public
    * @param identifier
    * @return {String[]} the names of fields that were restored
@@ -1536,7 +1522,6 @@ export default class JSONAPICache implements Cache {
       };
       ```
      *
-     * @method changedRelationships
      * @public
      * @param {StableRecordIdentifier} identifier
      * @return {Map<string, RelationshipDiff>}
@@ -1548,7 +1533,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for whether any mutated relationships exist
    *
-   * @method hasChangedRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {Boolean}
@@ -1564,7 +1548,6 @@ export default class JSONAPICache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method rollbackRelationships
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {String[]} the names of relationships that were restored
@@ -1581,7 +1564,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for the current state of a relationship property
    *
-   * @method getRelationship
    * @public
    * @param identifier
    * @param field
@@ -1607,7 +1589,6 @@ export default class JSONAPICache implements Cache {
    *
    * This method is a candidate to become a mutation
    *
-   * @method setIsDeleted
    * @public
    * @param identifier
    * @param {Boolean} isDeleted
@@ -1622,7 +1603,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
-   * @method getErrors
    * @public
    * @param identifier
    * @return {JsonApiError[]}
@@ -1634,7 +1614,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Query the cache for whether a given resource has any available data
    *
-   * @method isEmpty
    * @public
    * @param identifier
    * @return {Boolean}
@@ -1648,7 +1627,6 @@ export default class JSONAPICache implements Cache {
    * Query the cache for whether a given resource was created locally and not
    * yet persisted.
    *
-   * @method isNew
    * @public
    * @param identifier
    * @return {Boolean}
@@ -1662,7 +1640,6 @@ export default class JSONAPICache implements Cache {
    * Query the cache for whether a given resource is marked as deleted (but not
    * necessarily persisted yet).
    *
-   * @method isDeleted
    * @public
    * @param identifier
    * @return {Boolean}
@@ -1676,7 +1653,6 @@ export default class JSONAPICache implements Cache {
    * Query the cache for whether a given resource has been deleted and that deletion
    * has also been persisted.
    *
-   * @method isDeletionCommitted
    * @public
    * @param identifier
    * @return {Boolean}
@@ -1689,7 +1665,6 @@ export default class JSONAPICache implements Cache {
   /**
    * Private method used to populate an entry for the identifier
    *
-   * @method _createCache
    * @internal
    * @param {StableRecordIdentifier} identifier
    * @return {CachedResource}
@@ -1705,7 +1680,6 @@ export default class JSONAPICache implements Cache {
    * Peek whether we have cached resource data matching the identifier
    * without asserting if the resource data is missing.
    *
-   * @method __safePeek
    * @param {StableRecordIdentifier} identifier
    * @param {Boolean} allowDestroyed
    * @internal
@@ -1723,7 +1697,6 @@ export default class JSONAPICache implements Cache {
    * Peek whether we have cached resource data matching the identifier
    * Asserts if the resource data is missing.
    *
-   * @method __Peek
    * @param {StableRecordIdentifier} identifier
    * @param {Boolean} allowDestroyed
    * @internal

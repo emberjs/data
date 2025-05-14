@@ -29,7 +29,6 @@ export interface CollectionEdge {
    * if state.hasReceivedData=false we are also
    * not dirty since there is nothing to sync with.
    *
-   * @typedoc
    */
   isDirty: boolean;
   transactionRef: number;
@@ -37,7 +36,6 @@ export interface CollectionEdge {
    * Whether data for this edge has been accessed at least once
    * via `graph.getData`
    *
-   * @typedoc
    */
   accessed: boolean;
 

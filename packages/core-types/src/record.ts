@@ -10,7 +10,6 @@ import type { Type } from './symbols';
  * intellisense.
  *
  * @class TypedRecordInstance
- * @typedoc
  */
 export interface TypedRecordInstance {
   /**
@@ -27,7 +26,6 @@ export interface TypedRecordInstance {
    * @property [Type]
    * @type {Type}
    * @type {String}
-   * @typedoc
    */
   [Type]: string;
 }
@@ -36,7 +34,6 @@ export interface TypedRecordInstance {
  * A type utility that extracts the Type if available,
  * otherwise it returns never.
  *
- * @typedoc
  */
 export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof Type] : never;
 
@@ -44,7 +41,6 @@ export type TypeFromInstance<T> = T extends TypedRecordInstance ? T[typeof Type]
  * A type utility that extracts the Type if available,
  * otherwise it returns string
  *
- * @typedoc
  */
 export type TypeFromInstanceOrString<T> = T extends TypedRecordInstance ? T[typeof Type] : string;
 
@@ -129,7 +125,6 @@ type _ExtractUnion<
  * There's a 90% chance this particular implementation belongs being in the JSON:API package instead
  * of core-types, but it's here for now.
  *
- * @typedoc
  */
 type ExtractUnion<
   MAX_DEPTH extends _DEPTHCOUNT,
@@ -158,7 +153,6 @@ type DEFAULT_MAX_DEPTH = 3;
  * A utility that provides the union of all ResourceName for all potential
  * includes for the given TypedRecordInstance.
  *
- * @typedoc
  */
 export type ExtractSuggestedCacheTypes<
   T extends TypedRecordInstance,
@@ -171,7 +165,6 @@ export type ExtractSuggestedCacheTypes<
  *
  * Cyclical paths are filtered out.
  *
- * @typedoc
  */
 export type Includes<T extends TypedRecordInstance, MAX_DEPTH extends _DEPTHCOUNT = DEFAULT_MAX_DEPTH> = ExtractUnion<
   MAX_DEPTH,

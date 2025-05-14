@@ -104,10 +104,7 @@ const CAPITALIZE_CACHE = new LRUCache<string, string>((str: string) =>
  * dasherize('privateDocs/ownerInvoice';  // 'private-docs/owner-invoice'
  * ```
  *
- * @method dasherize
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} str
  * @return {String}
  * @since 4.13.0
@@ -130,10 +127,7 @@ export function dasherize(str: string): string {
  * camelize('private-docs/owner-invoice');  // 'privateDocs/ownerInvoice'
  * ```
  *
- * @method camelize
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} str
  * @return {String}
  * @since 4.13.0
@@ -155,10 +149,7 @@ export function camelize(str: string): string {
  * underscore('privateDocs/ownerInvoice');  // 'private_docs/owner_invoice'
  * ```
  *
- * @method underscore
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {String} str
  * @return {String}
  * @since 4.13.0
@@ -180,10 +171,7 @@ export function underscore(str: string): string {
  * capitalize('privateDocs/ownerInvoice'); // 'PrivateDocs/ownerInvoice'
  * ```
  *
- * @method capitalize
- * @static
  * @public
- * @for @ember-data/request-utils/string
  * @param {String} str
  * @return {String}
  * @since 4.13.0
@@ -196,10 +184,7 @@ export function capitalize(str: string): string {
  * Sets the maximum size of the LRUCache for all string transformation functions.
  * The default size is 10,000.
  *
- * @method setMaxLRUCacheSize
  * @public
- * @static
- * @for @ember-data/request-utils/string
  * @param {Number} size
  * @return {void}
  * @since 4.13.0

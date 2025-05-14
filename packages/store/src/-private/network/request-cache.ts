@@ -212,7 +212,6 @@ export class RequestStateService {
    * with the RequestManager for these purposes is likely to be a better long-term
    * design.
    *
-   * @method subscribeForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
    * @param {(state: RequestCacheRequestState) => void} callback
@@ -229,7 +228,6 @@ export class RequestStateService {
   /**
    * Retrieve all active requests for a given resource identity.
    *
-   * @method getPendingRequestsForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {RequestCacheRequestState[]} an array of request states for any pending requests for the given identifier
@@ -241,7 +239,6 @@ export class RequestStateService {
   /**
    * Retrieve the last completed request for a given resource identity.
    *
-   * @method getLastRequestForRecord
    * @public
    * @param {StableRecordIdentifier} identifier
    * @return {RequestCacheRequestState | null} the state of the most recent request for the given identifier

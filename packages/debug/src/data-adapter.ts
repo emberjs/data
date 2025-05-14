@@ -126,7 +126,6 @@ function typesMapFor(store: Store): Map<string, boolean> {
   integration with the ember-inspector.
 
   @class InspectorDataAdapter
-  @extends DataAdapter
   @private
 */
 class InspectorDataAdapter extends DataAdapter<Model> {
@@ -137,7 +136,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Records returned will need to have a `filterValues`
     property with a key for every name in the returned array
 
-    @method getFilters
     @private
     @return {Array} List of objects defining filters
      The object should have a `name` and `desc` property
@@ -158,7 +156,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Fetch the model types and observe them for changes.
     Maintains the list of model types without needing the Model package for detection.
 
-    @method watchModelTypes
     @private
     @param {Function} typesAdded Callback to call to add types.
     Takes an array of objects containing wrapped types (returned from `wrapModelType`).
@@ -209,7 +206,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
    * Loop over the discovered types and use the callbacks from watchModelTypes to notify
    * the consumer of this adapter about the mdoels.
    *
-   * @method watchTypeIfUnseen
    * @param {store} store
    * @param {Map} discoveredTypes
    * @param {String} type
@@ -239,7 +235,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   /**
     Creates a human readable string used for column headers
 
-    @method columnNameToDesc
     @private
     @param {String} name The attribute name
     @return {String} Human readable string based on the attribute name
@@ -251,7 +246,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   /**
     Get the columns for a given model type
 
-    @method columnsForType
     @private
     @param {Model} typeClass
     @return {Array} An array of columns of the following format:
@@ -279,7 +273,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   /**
     Fetches all loaded records for a given type
 
-    @method getRecords
     @private
     @param {Model} modelClass of the record
     @param {String} modelName of the record
@@ -306,7 +299,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Gets the values for each column
     This is the attribute values for a given record
 
-    @method getRecordColumnValues
     @private
     @param {Model} record to get values from
     @return {Object} Keys should match column names defined by the model type
@@ -327,7 +319,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   /**
     Returns keywords to match when searching records
 
-    @method getRecordKeywords
     @private
     @param {Model} record
     @return {Array} Relevant keywords for search based on the record's attribute values
@@ -348,7 +339,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Returns the values of filters defined by `getFilters`
     These reflect the state of the record
 
-    @method getRecordFilterValues
     @private
     @param {Model} record
     @return {Object} The record state filter values
@@ -365,7 +355,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Returns a color that represents the record's state
     Possible colors: black, blue, green
 
-    @method getRecordColor
     @private
     @param {Model} record
     @return {String} The record color
@@ -384,7 +373,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Observes all relevant properties and re-sends the wrapped record
     when a change occurs
 
-    @method observeRecord
     @private
     @param {Model} record
     @param {Function} recordUpdated Callback used to notify changes

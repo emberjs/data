@@ -113,7 +113,6 @@ export class RequestManager {
    * RequestManager as the Store instance the Store
    * registers itself as a Cache handler.
    *
-   * @method useCache
    * @public
    * @param {Handler[]} cacheHandler
    * @return {ThisType}
@@ -142,7 +141,6 @@ export class RequestManager {
    * Each Handler is given the opportunity to handle the request,
    * curry the request, or pass along a modified request.
    *
-   * @method use
    * @public
    * @param {Handler[]} newHandlers
    * @return {ThisType}
@@ -175,7 +173,6 @@ export class RequestManager {
    *
    * Returns a Future that fulfills with a StructuredDocument
    *
-   * @method request
    * @public
    * @param {RequestInfo} request
    * @return {Future}

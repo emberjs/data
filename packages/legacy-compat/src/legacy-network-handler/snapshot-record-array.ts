@@ -28,7 +28,6 @@ export class SnapshotRecordArray {
     Instances are provided to consuming application's
     adapters and serializers for certain requests.
 
-    @method constructor
     @private
     @constructor
     @param {Store} store
@@ -58,7 +57,7 @@ export class SnapshotRecordArray {
 
       Example
 
-      ```app/adapters/post.js
+      ```js [app/adapters/post.js]
       import MyCustomAdapter from './custom-adapter';
 
       export default class PostAdapter extends MyCustomAdapter {
@@ -82,7 +81,7 @@ export class SnapshotRecordArray {
 
       Example
 
-      ```app/adapters/application.js
+      ```js [app/adapters/application.js]
       import Adapter from '@ember-data/adapter';
 
       export default class ApplicationAdapter extends Adapter {
@@ -117,7 +116,7 @@ export class SnapshotRecordArray {
 
       Example
 
-      ```app/adapters/post.js
+      ```js [app/adapters/post.js]
       import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
       export default class PostAdapter extends JSONAPIAdapter {
@@ -140,7 +139,7 @@ export class SnapshotRecordArray {
 
     Example
 
-    ```app/adapters/post.js
+    ```js [app/adapters/post.js]
     import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
     export default class PostAdapter extends JSONAPIAdapter {
@@ -159,7 +158,6 @@ export class SnapshotRecordArray {
     }
     ```
 
-    @method snapshots
     @public
     @return {Array} Array of snapshots
   */

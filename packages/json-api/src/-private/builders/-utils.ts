@@ -54,10 +54,7 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  * }
  * ```
  *
- * @method setBuildURLConfig
- * @static
  * @public
- * @for @ember-data/json-api/request
  * @param {BuildURLConfig} config
  * @return {void}
  */
@@ -194,10 +191,7 @@ function collapseIncludePaths(basePath: string, include: RelatedObject, paths: s
  * 'repeat': appends the key for every value e.g. `ids=1&ids=2`
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `ids=1,2`
  *
- * @method buildQueryParams
- * @static
  * @public
- * @for @ember-data/json-api/request
  * @param {URLSearchParams | Object} params
  * @param {Object} [options]
  * @return {String} A sorted query params string without the leading `?`

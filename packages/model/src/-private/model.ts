@@ -86,53 +86,416 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
 }
 
 /**
-  Base class from which Models can be defined.
-
-  ```js
-  import Model, { attr } from '@ember-data/model';
-
-  export default class User extends Model {
-    @attr name;
-  }
-  ```
-
-  Models are used both to define the static schema for a
-  particular resource type as well as the class to instantiate
-  to present that data from cache.
-
-  @class Model
-  @public
-  @extends Ember.EmberObject
-*/
-
+ * @noInheritDoc
+ */
 interface Model {
+  /**
+    Create a JSON representation of the record, using the serialization
+    strategy of the store's adapter.
+
+   `serialize` takes an optional hash as a parameter, currently
+    supported options are:
+
+   - `includeId`: `true` if the record's ID should be included in the
+      JSON representation.
+
+    @public
+    @param {Object} options
+    @return {Object} an object whose values are primitive JSON values only
+  */
   serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): unknown;
+
+  /**
+    Same as `deleteRecord`, but saves the record immediately.
+
+    Example
+
+    ```js
+    import Component from '@glimmer/component';
+
+    export default class extends Component {
+      delete = () => {
+        this.args.model.destroyRecord().then(function() {
+          this.transitionToRoute('model.index');
+        });
+      }
+    }
+    ```
+
+    If you pass an object on the `adapterOptions` property of the options
+    argument it will be passed to your adapter via the snapshot
+
+    ```js
+    record.destroyRecord({ adapterOptions: { subscribe: false } });
+    ```
+
+    ```js [app/adapters/post.js]
+    import MyCustomAdapter from './custom-adapter';
+
+    export default class PostAdapter extends MyCustomAdapter {
+      deleteRecord(store, type, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    }
+    ```
+
+    @public
+    @param {Object} options
+    @return {Promise} a promise that will be resolved when the adapter returns
+    successfully or rejected if the adapter returns with an error.
+  */
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+
+  /**
+    Unloads the record from the store. This will not send a delete request
+    to your server, it just unloads the record from memory.
+
+    @public
+  */
   unloadRecord<T extends MinimalLegacyRecord>(this: T): void;
+
+  /**
+    Returns an object, whose keys are changed properties, and value is
+    an [oldProp, newProp] array.
+
+    The array represents the diff of the canonical state with the local state
+    of the model. Note: if the model is created locally, the canonical state is
+    empty since the adapter hasn't acknowledged the attributes yet:
+
+    Example
+
+    ```js [app/models/mascot.js]
+    import Model, { attr } from '@ember-data/model';
+
+    export default class MascotModel extends Model {
+      @attr('string') name;
+      @attr('boolean', {
+        defaultValue: false
+      })
+      isAdmin;
+    }
+    ```
+
+    ```javascript
+    let mascot = store.createRecord('mascot');
+
+    mascot.changedAttributes(); // {}
+
+    mascot.set('name', 'Tomster');
+    mascot.changedAttributes(); // { name: [undefined, 'Tomster'] }
+
+    mascot.set('isAdmin', true);
+    mascot.changedAttributes(); // { isAdmin: [undefined, true], name: [undefined, 'Tomster'] }
+
+    mascot.save().then(function() {
+      mascot.changedAttributes(); // {}
+
+      mascot.set('isAdmin', false);
+      mascot.changedAttributes(); // { isAdmin: [true, false] }
+    });
+    ```
+
+    @public
+    @return {Object} an object, whose keys are changed properties,
+      and value is an [oldProp, newProp] array.
+  */
   changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash;
+
+  /**
+    If the model `hasDirtyAttributes` this function will discard any unsaved
+    changes. If the model `isNew` it will be removed from the store.
+
+    Example
+
+    ```javascript
+    record.name; // 'Untitled Document'
+    record.set('name', 'Doc 1');
+    record.name; // 'Doc 1'
+    record.rollbackAttributes();
+    record.name; // 'Untitled Document'
+    ```
+
+    @since 1.13.0
+    @public
+  */
   rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void;
+
+  // TODO @deprecate in favor of a public API or examples of how to test successfully
+  /**
+    @private
+  */
   _createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot<T>;
+
+  /**
+    Save the record and persist any changes to the record to an
+    external source via the adapter.
+
+    Example
+
+    ```javascript
+    record.set('name', 'Tomster');
+    record.save().then(function() {
+      // Success callback
+    }, function() {
+      // Error callback
+    });
+    ```
+
+   If you pass an object using the `adapterOptions` property of the options
+   argument it will be passed to your adapter via the snapshot.
+
+    ```js
+    record.save({ adapterOptions: { subscribe: false } });
+    ```
+
+    ```js [app/adapters/post.js]
+    import MyCustomAdapter from './custom-adapter';
+
+    export default class PostAdapter extends MyCustomAdapter {
+      updateRecord(store, type, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    }
+    ```
+
+    @public
+    @param {Object} options
+    @return {Promise} a promise that will be resolved when the adapter returns
+    successfully or rejected if the adapter returns with an error.
+  */
   save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
+
+  /**
+    Reload the record from the adapter.
+
+    This will only work if the record has already finished loading.
+
+    Example
+
+    ```js
+    import Component from '@glimmer/component';
+
+    export default class extends Component {
+      async reload = () => {
+        await this.args.model.reload();
+        // do something with the reloaded model
+      }
+    }
+    ```
+
+    @public
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter request
+
+   @return {Promise} a promise that will be resolved with the record when the
+    adapter returns successfully or rejected if the adapter returns
+    with an error.
+  */
+
   reload<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T>;
 
   // belongsTo<T extends MinimalLegacyRecord, K extends MaybeBelongsToFields<T>>(
   //   this: T,
   //   prop: K
   // ): BelongsToReference<T, K>;
+
+  /**
+    Get the reference for the specified belongsTo relationship.
+
+    For instance, given the following model
+
+    ```js [app/models/blog-post.js]
+    import Model, { belongsTo } from '@ember-data/model';
+
+    export default class BlogPost extends Model {
+      @belongsTo('user', { async: true, inverse: null }) author;
+    }
+    ```
+
+    Then the reference for the author relationship would be
+    retrieved from a record instance like so:
+
+    ```js
+    blogPost.belongsTo('author');
+    ```
+
+    A `BelongsToReference` is a low-level API that allows access
+    and manipulation of a belongsTo relationship.
+
+    It is especially useful when you're dealing with `async` relationships
+    as it allows synchronous access to the relationship data if loaded, as
+    well as APIs for loading, reloading the data or accessing available
+    information without triggering a load.
+
+    It may also be useful when using `sync` relationships that need to be
+    loaded/reloaded with more precise timing than marking the
+    relationship as `async` and relying on autofetch would have allowed.
+
+    However,keep in mind that marking a relationship as `async: false` will introduce
+    bugs into your application if the data is not always guaranteed to be available
+    by the time the relationship is accessed. Ergo, it is recommended when using this
+    approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+    Reference APIs are entangled with the relationship's underlying state,
+    thus any getters or cached properties that utilize these will properly
+    invalidate if the relationship state changes.
+
+    References are "stable", meaning that multiple calls to retrieve the reference
+    for a given relationship will always return the same HasManyReference.
+
+    @public
+    @param {String} name of the relationship
+    @since 2.5.0
+    @return {BelongsToReference} reference for this relationship
+  */
   belongsTo<T extends Model, K extends keyof T & string>(
     this: T,
     prop: K & (K extends _MaybeBelongsToFields<T> ? K : never)
   ): BelongsToReference<T, K>;
+
+  /**
+    Get the reference for the specified hasMany relationship.
+
+    For instance, given the following model
+
+    ```js [app/models/blog-post.js]
+    import Model, { hasMany } from '@ember-data/model';
+
+    export default class BlogPost extends Model {
+      @hasMany('comment', { async: true, inverse: null }) comments;
+    }
+    ```
+
+    Then the reference for the comments relationship would be
+    retrieved from a record instance like so:
+
+    ```js
+    blogPost.hasMany('comments');
+    ```
+
+    A `HasManyReference` is a low-level API that allows access
+    and manipulation of a hasMany relationship.
+
+    It is especially useful when you are dealing with `async` relationships
+    as it allows synchronous access to the relationship data if loaded, as
+    well as APIs for loading, reloading the data or accessing available
+    information without triggering a load.
+
+    It may also be useful when using `sync` relationships with `@ember-data/model`
+    that need to be loaded/reloaded with more precise timing than marking the
+    relationship as `async` and relying on autofetch would have allowed.
+
+    However,keep in mind that marking a relationship as `async: false` will introduce
+    bugs into your application if the data is not always guaranteed to be available
+    by the time the relationship is accessed. Ergo, it is recommended when using this
+    approach to utilize `links` for unloaded relationship state instead of identifiers.
+
+    Reference APIs are entangled with the relationship's underlying state,
+    thus any getters or cached properties that utilize these will properly
+    invalidate if the relationship state changes.
+
+    References are "stable", meaning that multiple calls to retrieve the reference
+    for a given relationship will always return the same HasManyReference.
+
+    @public
+    @param {String} name of the relationship
+    @since 2.5.0
+    @return {HasManyReference} reference for this relationship
+  */
   hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFields<T>>(this: T, prop: K): HasManyReference<T, K>;
+
+  /**
+    Marks the record as deleted but does not save it. You must call
+    `save` afterwards if you want to persist it. You might use this
+    method if you want to allow the user to still `rollbackAttributes()`
+    after a delete was made.
+
+    Example
+
+    ```js
+    import Component from '@glimmer/component';
+
+    export default class extends Component {
+      softDelete = () => {
+        this.args.model.deleteRecord();
+      }
+
+      confirm = () => {
+        this.args.model.save();
+      }
+
+      undo = () => {
+        this.args.model.rollbackAttributes();
+      }
+    }
+    ```
+
+    @public
+  */
   deleteRecord<T extends MinimalLegacyRecord>(this: T): void;
 }
+
+/**
+ * Base class from which Models can be defined.
+ *
+ * ::: code-group
+ *
+ * ```js [app/models/user.js]
+ * import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+ *
+ * export default class User extends Model {
+ *   @attr name;
+ *   @attr('number') age;
+ *   @hasMany('post', { async: true, inverse: null }) posts;
+ *   @belongsTo('group', { async: false, inverse: 'users' }) group;
+ * }
+ * ```
+ *
+ * ```ts [app/models/user.ts]
+ * import Model, { attr, belongsTo, hasMany, type AsyncHasMany } from '@ember-data/model';
+ * import type { NumberTransform } from '@ember-data/serializer/transform';
+ * import type Group from './group';
+ * import type Post from './post';
+ *
+ * export default class User extends Model {
+ *   @attr declare name: string;
+ *
+ *   @attr<NumberTransform>('number')
+ *   declare age: number;
+ *
+ *   @hasMany('post', { async: true, inverse: null })
+ *   declare posts: AsyncHasMany<Post>;
+ *
+ *   @belongsTo('group', { async: false, inverse: 'users' })
+ *   declare group: Group | null;
+ * }
+ * ```
+ *
+ * :::
+ *
+ * Models both define the schema for a resource type and provide
+ * the class to use as the reactive object for data of resource
+ * of that type.
+ *
+ * @noInheritDoc
+ */
 class Model extends EmberObject implements MinimalLegacyRecord {
   // set during create by the store
+  /** @internal */
   declare store: Store;
+  /** @internal */
   declare ___recordState: RecordState;
+  /** @internal */
   declare ___private_notifications: object;
+  /** @internal */
   declare [RecordStore]: Store;
 
+  /** @internal */
   init(options: ModelCreateArgs) {
     if (DEBUG) {
       if (!options?._secretInit && !options?._createProps) {
@@ -169,6 +532,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
   }
 
+  /** @internal */
   // @ts-expect-error destroy should not return a value, but ember's types force it to
   destroy(): this {
     const identifier = recordIdentifierFor(this);
@@ -194,8 +558,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isEmpty
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isEmpty(): boolean {
@@ -210,8 +573,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isLoading
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isLoading(): boolean {
@@ -236,8 +598,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isLoaded
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isLoaded(): boolean {
@@ -266,8 +627,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @since 1.13.0
     @property hasDirtyAttributes
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get hasDirtyAttributes(): boolean {
@@ -294,8 +654,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isSaving
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isSaving(): boolean {
@@ -337,8 +696,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isDeleted
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isDeleted(): boolean {
@@ -364,8 +722,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isNew
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isNew(): boolean {
@@ -380,8 +737,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isValid
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isValid(): boolean {
@@ -406,8 +762,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property dirtyType
     @public
-    @type {String}
-    @readOnly
+    @readonly
   */
   @memoized
   get dirtyType(): 'created' | 'updated' | 'deleted' | '' {
@@ -431,8 +786,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isError
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   @memoized
   get isError(): boolean {
@@ -457,8 +811,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property isReloading
     @public
-    @type {Boolean}
-    @readOnly
+    @readonly
   */
   declare isReloading: boolean;
 
@@ -479,7 +832,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property id
     @public
-    @type {String}
   */
   @gate
   get id(): string | null {
@@ -517,7 +869,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   /**
     @property currentState
     @private
-    @type {Object}
   */
   // TODO we can probably make this a computeOnce
   // we likely do not need to notify the currentState root anymore
@@ -595,7 +946,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property errors
     @public
-    @type {Errors}
   */
   @computeOnce
   get errors(): Errors {
@@ -610,7 +960,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     @property adapterError
     @public
-    @type {AdapterError}
   */
   @memoized
   get adapterError() {
@@ -620,21 +969,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     throw new Error(`adapterError is not directly settable`);
   }
 
-  /**
-    Create a JSON representation of the record, using the serialization
-    strategy of the store's adapter.
-
-   `serialize` takes an optional hash as a parameter, currently
-    supported options are:
-
-   - `includeId`: `true` if the record's ID should be included in the
-      JSON representation.
-
-    @method serialize
-    @public
-    @param {Object} options
-    @return {Object} an object whose values are primitive JSON values only
-  */
   /*
     We hook the default implementation to ensure
     our tagged properties are properly notified
@@ -650,337 +984,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     super.notifyPropertyChange(prop);
   }
 
-  /**
-    Marks the record as deleted but does not save it. You must call
-    `save` afterwards if you want to persist it. You might use this
-    method if you want to allow the user to still `rollbackAttributes()`
-    after a delete was made.
-
-    Example
-
-    ```js
-    import Component from '@glimmer/component';
-
-    export default class extends Component {
-      softDelete = () => {
-        this.args.model.deleteRecord();
-      }
-
-      confirm = () => {
-        this.args.model.save();
-      }
-
-      undo = () => {
-        this.args.model.rollbackAttributes();
-      }
-    }
-    ```
-
-    @method deleteRecord
-    @public
-  */
-
-  /**
-    Same as `deleteRecord`, but saves the record immediately.
-
-    Example
-
-    ```js
-    import Component from '@glimmer/component';
-
-    export default class extends Component {
-      delete = () => {
-        this.args.model.destroyRecord().then(function() {
-          this.transitionToRoute('model.index');
-        });
-      }
-    }
-    ```
-
-    If you pass an object on the `adapterOptions` property of the options
-    argument it will be passed to your adapter via the snapshot
-
-    ```js
-    record.destroyRecord({ adapterOptions: { subscribe: false } });
-    ```
-
-    ```app/adapters/post.js
-    import MyCustomAdapter from './custom-adapter';
-
-    export default class PostAdapter extends MyCustomAdapter {
-      deleteRecord(store, type, snapshot) {
-        if (snapshot.adapterOptions.subscribe) {
-          // ...
-        }
-        // ...
-      }
-    }
-    ```
-
-    @method destroyRecord
-    @public
-    @param {Object} options
-    @return {Promise} a promise that will be resolved when the adapter returns
-    successfully or rejected if the adapter returns with an error.
-  */
-
-  /**
-    Unloads the record from the store. This will not send a delete request
-    to your server, it just unloads the record from memory.
-
-    @method unloadRecord
-    @public
-  */
-
-  /**
-    Returns an object, whose keys are changed properties, and value is
-    an [oldProp, newProp] array.
-
-    The array represents the diff of the canonical state with the local state
-    of the model. Note: if the model is created locally, the canonical state is
-    empty since the adapter hasn't acknowledged the attributes yet:
-
-    Example
-
-    ```app/models/mascot.js
-    import Model, { attr } from '@ember-data/model';
-
-    export default class MascotModel extends Model {
-      @attr('string') name;
-      @attr('boolean', {
-        defaultValue: false
-      })
-      isAdmin;
-    }
-    ```
-
-    ```javascript
-    let mascot = store.createRecord('mascot');
-
-    mascot.changedAttributes(); // {}
-
-    mascot.set('name', 'Tomster');
-    mascot.changedAttributes(); // { name: [undefined, 'Tomster'] }
-
-    mascot.set('isAdmin', true);
-    mascot.changedAttributes(); // { isAdmin: [undefined, true], name: [undefined, 'Tomster'] }
-
-    mascot.save().then(function() {
-      mascot.changedAttributes(); // {}
-
-      mascot.set('isAdmin', false);
-      mascot.changedAttributes(); // { isAdmin: [true, false] }
-    });
-    ```
-
-    @method changedAttributes
-    @public
-    @return {Object} an object, whose keys are changed properties,
-      and value is an [oldProp, newProp] array.
-  */
-
-  /**
-    If the model `hasDirtyAttributes` this function will discard any unsaved
-    changes. If the model `isNew` it will be removed from the store.
-
-    Example
-
-    ```javascript
-    record.name; // 'Untitled Document'
-    record.set('name', 'Doc 1');
-    record.name; // 'Doc 1'
-    record.rollbackAttributes();
-    record.name; // 'Untitled Document'
-    ```
-
-    @since 1.13.0
-    @method rollbackAttributes
-    @public
-  */
-
-  /**
-    @method _createSnapshot
-    @private
-  */
-  // TODO @deprecate in favor of a public API or examples of how to test successfully
-
-  /**
-    Save the record and persist any changes to the record to an
-    external source via the adapter.
-
-    Example
-
-    ```javascript
-    record.set('name', 'Tomster');
-    record.save().then(function() {
-      // Success callback
-    }, function() {
-      // Error callback
-    });
-    ```
-
-   If you pass an object using the `adapterOptions` property of the options
-   argument it will be passed to your adapter via the snapshot.
-
-    ```js
-    record.save({ adapterOptions: { subscribe: false } });
-    ```
-
-    ```app/adapters/post.js
-    import MyCustomAdapter from './custom-adapter';
-
-    export default class PostAdapter extends MyCustomAdapter {
-      updateRecord(store, type, snapshot) {
-        if (snapshot.adapterOptions.subscribe) {
-          // ...
-        }
-        // ...
-      }
-    }
-    ```
-
-    @method save
-    @public
-    @param {Object} options
-    @return {Promise} a promise that will be resolved when the adapter returns
-    successfully or rejected if the adapter returns with an error.
-  */
-
-  /**
-    Reload the record from the adapter.
-
-    This will only work if the record has already finished loading.
-
-    Example
-
-    ```js
-    import Component from '@glimmer/component';
-
-    export default class extends Component {
-      async reload = () => {
-        await this.args.model.reload();
-        // do something with the reloaded model
-      }
-    }
-    ```
-
-    @method reload
-    @public
-    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter request
-
-   @return {Promise} a promise that will be resolved with the record when the
-    adapter returns successfully or rejected if the adapter returns
-    with an error.
-  */
-
+  /** @internal */
   attr() {
     assert(
       'The `attr` method is not available on Model, a Snapshot was probably expected. Are you passing a Model instead of a Snapshot to your serializer?',
       false
     );
   }
-
-  /**
-    Get the reference for the specified belongsTo relationship.
-
-    For instance, given the following model
-
-    ```app/models/blog-post.js
-    import Model, { belongsTo } from '@ember-data/model';
-
-    export default class BlogPost extends Model {
-      @belongsTo('user', { async: true, inverse: null }) author;
-    }
-    ```
-
-    Then the reference for the author relationship would be
-    retrieved from a record instance like so:
-
-    ```js
-    blogPost.belongsTo('author');
-    ```
-
-    A `BelongsToReference` is a low-level API that allows access
-    and manipulation of a belongsTo relationship.
-
-    It is especially useful when you're dealing with `async` relationships
-    as it allows synchronous access to the relationship data if loaded, as
-    well as APIs for loading, reloading the data or accessing available
-    information without triggering a load.
-
-    It may also be useful when using `sync` relationships that need to be
-    loaded/reloaded with more precise timing than marking the
-    relationship as `async` and relying on autofetch would have allowed.
-
-    However,keep in mind that marking a relationship as `async: false` will introduce
-    bugs into your application if the data is not always guaranteed to be available
-    by the time the relationship is accessed. Ergo, it is recommended when using this
-    approach to utilize `links` for unloaded relationship state instead of identifiers.
-
-    Reference APIs are entangled with the relationship's underlying state,
-    thus any getters or cached properties that utilize these will properly
-    invalidate if the relationship state changes.
-
-    References are "stable", meaning that multiple calls to retrieve the reference
-    for a given relationship will always return the same HasManyReference.
-
-    @method belongsTo
-    @public
-    @param {String} name of the relationship
-    @since 2.5.0
-    @return {BelongsToReference} reference for this relationship
-  */
-
-  /**
-    Get the reference for the specified hasMany relationship.
-
-    For instance, given the following model
-
-    ```app/models/blog-post.js
-    import Model, { hasMany } from '@ember-data/model';
-
-    export default class BlogPost extends Model {
-      @hasMany('comment', { async: true, inverse: null }) comments;
-    }
-    ```
-
-    Then the reference for the comments relationship would be
-    retrieved from a record instance like so:
-
-    ```js
-    blogPost.hasMany('comments');
-    ```
-
-    A `HasManyReference` is a low-level API that allows access
-    and manipulation of a hasMany relationship.
-
-    It is especially useful when you are dealing with `async` relationships
-    as it allows synchronous access to the relationship data if loaded, as
-    well as APIs for loading, reloading the data or accessing available
-    information without triggering a load.
-
-    It may also be useful when using `sync` relationships with `@ember-data/model`
-    that need to be loaded/reloaded with more precise timing than marking the
-    relationship as `async` and relying on autofetch would have allowed.
-
-    However,keep in mind that marking a relationship as `async: false` will introduce
-    bugs into your application if the data is not always guaranteed to be available
-    by the time the relationship is accessed. Ergo, it is recommended when using this
-    approach to utilize `links` for unloaded relationship state instead of identifiers.
-
-    Reference APIs are entangled with the relationship's underlying state,
-    thus any getters or cached properties that utilize these will properly
-    invalidate if the relationship state changes.
-
-    References are "stable", meaning that multiple calls to retrieve the reference
-    for a given relationship will always return the same HasManyReference.
-
-    @method hasMany
-    @public
-    @param {String} name of the relationship
-    @since 2.5.0
-    @return {HasManyReference} reference for this relationship
-  */
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1011,7 +1021,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    Example
 
-   ```app/serializers/application.js
+   ```js [app/serializers/application.js]
    import JSONSerializer from '@ember-data/serializer/json';
 
    export default class ApplicationSerializer extends JSONSerializer {
@@ -1030,7 +1040,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
    ```
 
-   @method eachRelationship
    @public
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
@@ -1061,18 +1070,10 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     (this.constructor as typeof Model).eachAttribute<T, this>(callback, binding);
   }
 
-  static isModel = true;
-
   /**
-    Create should only ever be called by the store. To create an instance of a
-    `Model` in a dirty state use `store.createRecord`.
-
-   To create instances of `Model` in a clean state, use `store.push`
-
-    @method create
-    @private
-    @static
-  */
+   * @internal
+   */
+  static isModel = true;
 
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
@@ -1101,9 +1102,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    ```
    @property modelName
     @public
-   @type String
    @readonly
-   @static
   */
   static modelName: string = null as unknown as string;
 
@@ -1129,7 +1128,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    For example, if you define a model like this:
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -1139,9 +1138,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
 
-   @method typeForRelationship
     @public
-   @static
    @param {String} name the name of the relationship
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
@@ -1170,7 +1167,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    For example, if you define models like this:
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -1178,7 +1175,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     }
    ```
 
-   ```app/models/message.js
+   ```js [app/models/message.js]
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class MessageModel extends Model {
@@ -1191,9 +1188,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    store.modelFor('message').inverseFor('owner', store) // { type: 'post', name: 'comments', kind: 'hasMany' }
    ```
 
-   @method inverseFor
     @public
-   @static
    @param {String} name the name of the relationship
    @param {Store} store
    @return {Object} the inverse relationship, or null
@@ -1265,7 +1260,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    For example, given the following model definition:
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -1293,9 +1288,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property relationships
     @public
-   @static
-   @type Map
-   @readOnly
+   @readonly
    */
 
   @computeOnce
@@ -1327,7 +1320,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    by the relationship kind. For example, given a model with this
    definition:
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -1352,9 +1345,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property relationshipNames
     @public
-   @static
-   @type Object
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relationshipNames() {
@@ -1383,7 +1374,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    For example, given a model with this definition:
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -1405,9 +1396,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property relatedTypes
    @public
-   @static
-   @type Array
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relatedTypes(): string[] {
@@ -1443,7 +1432,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example, given a model with this
    definition:
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo, hasMany } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -1468,9 +1457,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property relationshipsByName
     @public
-   @static
-   @type Map
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get relationshipsByName(): Map<string, LegacyRelationshipField> {
@@ -1526,7 +1513,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    For example:
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -1556,9 +1543,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property fields
     @public
-   @static
-   @type Map
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get fields(): Map<string, 'attribute' | 'belongsTo' | 'hasMany'> {
@@ -1584,9 +1569,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    invoking the callback with the name of each relationship and its relationship
    descriptor.
 
-   @method eachRelationship
     @public
-   @static
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
@@ -1614,9 +1597,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    returned just once, regardless of how many different relationships it has
    with a model.
 
-   @method eachRelatedType
     @public
-   @static
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
@@ -1636,7 +1617,6 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
   /**
    *
-   * @method determineRelationshipType
    * @private
    * @deprecated
    */
@@ -1675,7 +1655,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    Example
 
-   ```app/models/person.js
+   ```js [app/models/person.js]
    import Model, { attr } from '@ember-data/model';
 
    export default class PersonModel extends Model {
@@ -1702,9 +1682,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property attributes
     @public
-   @static
-   @type {Map}
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get attributes(): Map<string, LegacyAttributeField> {
@@ -1741,7 +1719,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    Example
 
-   ```app/models/person.js
+   ```js [app/models/person.js]
    import Model, { attr } from '@ember-data/model';
 
    export default class PersonModel extends Model {
@@ -1767,9 +1745,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
    @property transformedAttributes
     @public
-   @static
-   @type {Map}
-   @readOnly
+   @readonly
    */
   @computeOnce
   static get transformedAttributes() {
@@ -1827,11 +1803,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    // birthday {type: "date", kind: 'attribute', options: Object, parentType: function, name: "birthday"}
    ```
 
-   @method eachAttribute
     @public
    @param {Function} callback The callback to execute
    @param {Object} [binding] the value to which the callback's `this` should be bound
-   @static
    */
   static eachAttribute<T, Schema extends Model>(
     callback: (this: T | undefined, key: MaybeAttrFields<Schema>, attribute: LegacyAttributeField) => void,
@@ -1886,11 +1860,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    // birthday date
    ```
 
-   @method eachTransformedAttribute
     @public
    @param {Function} callback The callback to execute
    @param {Object} [binding] the value to which the callback's `this` should be bound
-   @static
    */
   static eachTransformedAttribute<T, Schema extends Model>(
     callback: (this: T | undefined, key: Exclude<keyof Schema & string, keyof Model & string>, type: string) => void,
@@ -1909,9 +1881,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   /**
    Returns the name of the model class.
 
-   @method toString
     @public
-   @static
    */
   static toString() {
     assert(

@@ -78,7 +78,6 @@ async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoa
  * reactive properties that can be used to build UIs that respond
  * to the progress of a request.
  *
- * @typedoc
  */
 export class RequestLoadingState {
   declare _sizeHint: number;
@@ -243,13 +242,11 @@ defineNonEnumerableSignal(RequestLoadingState.prototype, '_lastPacketTime', 0);
  *
  * Extends the {@link PendingPromise} interface.
  *
- * @typedoc
  */
 export interface PendingRequest extends PendingPromise {
   /**
    * Whether the request is cancelled.
    *
-   * @typedoc
    */
   isCancelled: false;
 
@@ -264,13 +261,11 @@ export interface PendingRequest extends PendingPromise {
  *
  * Extends the {@link ResolvedPromise} interface.
  *
- * @typedoc
  */
 export interface ResolvedRequest<RT, T> extends ResolvedPromise<RT> {
   /**
    * Whether the request is cancelled.
    *
-   * @typedoc
    */
   isCancelled: false;
 
@@ -285,14 +280,12 @@ export interface ResolvedRequest<RT, T> extends ResolvedPromise<RT> {
  *
  * Extends the {@link RejectedPromise} interface.
  *
- * @typedoc
  */
 export interface RejectedRequest<RT, T, E extends StructuredErrorDocument = StructuredErrorDocument>
   extends RejectedPromise<E> {
   /**
    * Whether the request is cancelled.
    *
-   * @typedoc
    */
   isCancelled: false;
 
@@ -305,27 +298,23 @@ export interface RejectedRequest<RT, T, E extends StructuredErrorDocument = Stru
  * This is the state of a promise that has been
  * cancelled.
  *
- * @typedoc
  */
 export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = StructuredErrorDocument> {
   /**
    * The status of the request.
    *
-   * @typedoc
    */
   status: 'cancelled';
 
   /**
    * Whether the request is pending.
    *
-   * @typedoc
    */
   isPending: false;
 
   /**
    * Whether the request is pending.
    *
-   * @typedoc
    */
   isLoading: false;
 
@@ -333,7 +322,6 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    * Whether the request has resolved
    * successfully.
    *
-   * @typedoc
    */
   isSuccess: false;
 
@@ -341,7 +329,6 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    * Whether the request has rejected
    * with an error.
    *
-   * @typedoc
    */
   isError: true;
 
@@ -349,7 +336,6 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    * Once the request has resolved, this will
    * be the value the request resolved to.
    *
-   * @typedoc
    */
   value: null;
   /**
@@ -357,7 +343,6 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    * be the value the request resolved to.
    *
    * @deprecated use `value` instead
-   * @typedoc
    */
   result: null;
 
@@ -367,7 +352,6 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    *
    *
    * @deprecated use `reason` instead
-   * @typedoc
    */
   error: E;
 
@@ -375,14 +359,12 @@ export interface CancelledRequest<RT, T, E extends StructuredErrorDocument = Str
    * Once the request has rejected, this will
    * be the error the request rejected with.
    *
-   * @typedoc
    */
   reason: E;
 
   /**
    * Whether the request is cancelled.
    *
-   * @typedoc
    */
   isCancelled: true;
 
@@ -427,7 +409,6 @@ interface PrivateRequestState {
  * - {@link RejectedRequest}
  * - {@link CancelledRequest}
  *
- * @typedoc
  */
 export type RequestCacheRequestState<
   RT = unknown,
@@ -575,7 +556,6 @@ export function createRequestState<RT, T, E>(
  * which offers a numbe of additional capabilities for requests *beyond* what
  * `RequestState` provides.
  *
- * @typedoc
  */
 export function getRequestState<RT, T, E>(
   future: Future<RT>

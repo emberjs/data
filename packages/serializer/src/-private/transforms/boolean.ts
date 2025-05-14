@@ -8,7 +8,7 @@ import type { TransformName } from '@warp-drive/core-types/symbols';
 
   Usage
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -22,7 +22,7 @@ import type { TransformName } from '@warp-drive/core-types/symbols';
   `false`. You can opt into allowing `null` values for
   boolean attributes via `attr('boolean', { allowNull: true })`
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {

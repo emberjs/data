@@ -202,7 +202,6 @@ export default class BelongsToReference<
     }
    ```
 
-   @method id
    @public
    @return {String} The id of the record in this belongsTo relationship.
    */
@@ -244,7 +243,6 @@ export default class BelongsToReference<
     }
    ```
 
-   @method link
    @public
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
@@ -263,7 +261,6 @@ export default class BelongsToReference<
   /**
    * any links that have been received for this relationship
    *
-   * @method links
    * @public
    * @return
    */
@@ -309,7 +306,6 @@ export default class BelongsToReference<
    userRef.meta() // { lastUpdated: 1458014400000 }
    ```
 
-   @method meta
     @public
    @return {Object} The meta information for the belongs-to relationship.
    */
@@ -338,7 +334,7 @@ export default class BelongsToReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -369,7 +365,6 @@ export default class BelongsToReference<
    }
    ```
 
-   @method remoteType
    @public
    @return {String} The name of the remote type. This should either be `link` or `id`
    */
@@ -389,7 +384,7 @@ export default class BelongsToReference<
 
    Example model
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -468,7 +463,6 @@ export default class BelongsToReference<
    particularly useful if you want to update the state of the relationship without
    forcing the load of all of the associated record.
 
-   @method push
    @public
    @param {Object} doc a JSONAPI document object describing the new value of this relationship.
    @param {Boolean} [skipFetch] if `true`, do not attempt to fetch unloaded records
@@ -560,7 +554,6 @@ export default class BelongsToReference<
     });
    ```
 
-   @method value
     @public
    @return {Model} the record in this relationship
    */
@@ -615,7 +608,7 @@ export default class BelongsToReference<
      userRef.value() === user;
    });
    ```
-   ```app/adapters/user.js
+   ```js [app/adapters/user.js]
    import Adapter from '@ember-data/adapter';
 
    export default class UserAdapter extends Adapter {
@@ -626,7 +619,6 @@ export default class BelongsToReference<
    });
    ```
 
-   @method load
     @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
@@ -689,7 +681,6 @@ export default class BelongsToReference<
    userRef.reload({ adapterOptions: { isPrivate: true } })
    ```
 
-   @method reload
     @public
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.

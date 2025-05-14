@@ -44,7 +44,6 @@ export class Snapshot<R = unknown> {
   declare _store: Store;
 
   /**
-   * @method constructor
    * @constructor
    * @private
    * @param options
@@ -195,7 +194,6 @@ export class Snapshot<R = unknown> {
 
    Note: Values are loaded eagerly and cached when the snapshot is created.
 
-   @method attr
    @param {String} keyName
    @return {Object} The attribute value or undefined
    @public
@@ -217,7 +215,6 @@ export class Snapshot<R = unknown> {
    postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
    ```
 
-   @method attributes
    @return {Object} All attributes of the current snapshot
    @public
    */
@@ -236,7 +233,6 @@ export class Snapshot<R = unknown> {
    postSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
    ```
 
-   @method changedAttributes
    @return {Object} All changed attributes of the current snapshot
    @public
    */
@@ -284,7 +280,6 @@ export class Snapshot<R = unknown> {
 
    Note: Relationships are loaded lazily and cached upon first access.
 
-   @method belongsTo
    @param {String} keyName
    @param {Object} [options]
    @public
@@ -386,7 +381,6 @@ export class Snapshot<R = unknown> {
 
    Note: Relationships are loaded lazily and cached upon first access.
 
-   @method hasMany
    @param {String} keyName
    @param {Object} [options]
    @public
@@ -485,7 +479,6 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @method eachAttribute
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
@@ -511,7 +504,6 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @method eachRelationship
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @public
@@ -530,7 +522,7 @@ export class Snapshot<R = unknown> {
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
 
     export default Adapter.extend({
@@ -546,7 +538,6 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @method serialize
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
     @public

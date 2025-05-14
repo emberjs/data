@@ -57,7 +57,6 @@ export default class RecordReference {
      userRef.id(); // '1'
      ```
 
-     @method id
     @public
      @return {String} The id of the record.
   */
@@ -81,7 +80,6 @@ export default class RecordReference {
      userRef.identifier(); // '1'
      ```
 
-     @method identifier
     @public
      @return {String} The identifier of the record.
   */
@@ -102,7 +100,6 @@ export default class RecordReference {
      userRef.remoteType(); // 'identity'
      ```
 
-     @method remoteType
      @public
      @return {String} 'identity'
   */
@@ -144,7 +141,6 @@ export default class RecordReference {
      });
      ```
 
-    @method push
     @public
     @param objectOrPromise a JSON:API ResourceDocument or a promise resolving to one
     @return a promise for the value (record or relationship)
@@ -169,7 +165,6 @@ export default class RecordReference {
      userRef.value(); // user
      ```
 
-     @method value
     @public
      @return {Model} the record for this RecordReference
   */
@@ -190,7 +185,6 @@ export default class RecordReference {
      userRef.load().then(...)
      ```
 
-     @method load
     @public
      @return {Promise<record>} the record for this RecordReference
   */
@@ -215,7 +209,6 @@ export default class RecordReference {
      userRef.reload().then(...)
      ```
 
-     @method reload
     @public
      @return {Promise<record>} the record for this RecordReference
   */

@@ -32,7 +32,6 @@ export function getRuntimeConfig(): typeof RuntimeConfig {
  *
  * globalThis.setWarpDriveLogging({ LOG_CACHE: true } });
  *
- * @typedoc
  */
 export function setLogging(config: Partial<LOG_CONFIG>): void {
   Object.assign(RuntimeConfig.debug, config);

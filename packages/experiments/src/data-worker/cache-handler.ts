@@ -25,7 +25,6 @@ import type { DataWorker } from './worker';
  * A simplified CacheHandler that hydrates ResourceDataDocuments from the cache
  * with their referenced resources.
  *
- * @typedoc
  */
 export const CacheHandler: CacheHandlerType = {
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T> | T {

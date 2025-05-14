@@ -39,7 +39,6 @@ export const RecordStore: '___(unique) Symbol(Store)' = getOrSetGlobal('Store', 
  * that the name is the same as the transform name.
  *
  * @type {Symbol}
- * @typedoc
  */
 export const Type: '___(unique) Symbol($type)' = getOrSetGlobal('$type', Symbol('$type'));
 
@@ -55,7 +54,6 @@ export const Type: '___(unique) Symbol($type)' = getOrSetGlobal('$type', Symbol(
  * safety and intellisense.
  *
  * @type {Symbol}
- * @typedoc
  */
 export const ResourceType: '___(unique) Symbol($type)' = Type;
 
@@ -74,7 +72,6 @@ export const ResourceType: '___(unique) Symbol($type)' = Type;
  * that the name is the same as the transform name.
  *
  * @type {Symbol}
- * @typedoc
  */
 export const TransformName: '___(unique) Symbol($type)' = Type;
 
@@ -83,7 +80,6 @@ export const TransformName: '___(unique) Symbol($type)' = Type;
  * generic to use for store.request()
  *
  * @type {Symbol}
- * @typedoc
  */
 export const RequestSignature: '___(unique) Symbol(RequestSignature)' = getOrSetGlobal(
   'RequestSignature',

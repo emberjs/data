@@ -135,10 +135,7 @@ const CONFIG: BuildURLConfig = getOrSetGlobal('CONFIG', {
  * });
  * ```
  *
- * @method setBuildURLConfig
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param {BuildURLConfig} config
  * @return {void}
  */
@@ -313,10 +310,7 @@ function resourcePathForType(options: UrlOptions): string {
  *   - 'findRecord' 'query' 'findMany' 'findRelatedCollection' 'findRelatedRecord'` 'createRecord' 'updateRecord' 'deleteRecord'
  * - Depending on the value of `op`, `identifier` or `identifiers` will be required.
  *
- * @method buildBaseURL
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param urlOptions
  * @return {String}
  */
@@ -440,10 +434,7 @@ function handleInclude(include: string | string[]): string[] {
  * filter out keys of an object that have falsy values or point to empty arrays
  * returning a new object with only those keys that have truthy values / non-empty arrays
  *
- * @method filterEmpty
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param {Record<string, Serializable>} source object to filter keys with empty values from
  * @return {Record<string, Serializable>} A new object with the keys that contained empty values removed
  */
@@ -475,10 +466,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * 'repeat': appends the key for every value e.g. `&ids=1&ids=2`
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `&ids=1,2`
  *
- * @method sortQueryParams
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param {URLSearchParams | object} params
  * @param {Object} options
  * @return {URLSearchParams} A URLSearchParams with keys inserted in sorted order
@@ -556,10 +544,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * 'repeat': appends the key for every value e.g. `ids=1&ids=2`
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `ids=1,2`
  *
- * @method buildQueryParams
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param {URLSearchParams | Object} params
  * @param {Object} [options]
  * @return {String} A sorted query params string without the leading `?`
@@ -609,10 +594,7 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  *   'stale-while-revalidate'?: number;
  * }
  * ```
- * @method parseCacheControl
- * @static
  * @public
- * @for @ember-data/request-utils
  * @param {String} header
  * @return {CacheControlValue}
  */
@@ -818,7 +800,6 @@ function isExpired(
  * });
  * ```
  *
- * @typedoc
  */
 export type PolicyConfig = {
   /**
@@ -834,7 +815,6 @@ export type PolicyConfig = {
    * it to responses if it is not present. Responses without a `date`
    * header will be considered stale immediately.
    *
-   * @typedoc
    */
   apiCacheSoftExpires: number;
   /**
@@ -850,7 +830,6 @@ export type PolicyConfig = {
    * it to responses if it is not present. Responses without a `date`
    * header will be considered hard expired immediately.
    *
-   * @typedoc
    */
   apiCacheHardExpires: number;
   /**
@@ -864,7 +843,6 @@ export type PolicyConfig = {
    *
    * This behavior can be opted out of by setting this value to `true`.
    *
-   * @typedoc
    */
   disableTestOptimization?: boolean;
 
@@ -898,13 +876,11 @@ export type PolicyConfig = {
    * -  ↳ (if null) Cache-Control header
    * -  ↳ (if null) Expires header
    *
-   * @typedoc
    */
   constraints?: {
     /**
      * Headers that should be checked for expiration.
      *
-     * @typedoc
      */
     headers?: {
       /**
@@ -917,7 +893,6 @@ export type PolicyConfig = {
        * 'Cache-Control' will take precedence over 'Expires' if both are present
        * and both configured to be checked.
        *
-       * @typedoc
        */
       'Cache-Control'?: boolean;
 
@@ -929,7 +904,6 @@ export type PolicyConfig = {
        *
        * 'Cache-Control' will take precedence over 'Expires' if both are present.
        *
-       * @typedoc
        */
       Expires?: boolean;
 
@@ -943,7 +917,6 @@ export type PolicyConfig = {
        *
        * The header's value should be a [UTC date string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toUTCString).
        *
-       * @typedoc
        */
       'X-WarpDrive-Expires'?: boolean;
     };
@@ -957,7 +930,6 @@ export type PolicyConfig = {
      *
      * If the function does not return `null`,
      *
-     * @typedoc
      */
     isExpired?: (request: StructuredDocument<ResourceDocument>) => boolean | null;
   };
@@ -1087,7 +1059,6 @@ export class CachePolicy {
    * store.lifetimes.invalidateRequest(store, identifier);
    * ```
    *
-   * @method invalidateRequest
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
@@ -1111,7 +1082,6 @@ export class CachePolicy {
    * store.lifetimes.invalidateRequestsForType(store, 'person');
    * ```
    *
-   * @method invalidateRequestsForType
    * @public
    * @param {String} type
    * @param {Store} store
@@ -1140,7 +1110,6 @@ export class CachePolicy {
    *
    * This method should not be invoked directly by consumers.
    *
-   * @method didRequest
    * @public
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response
@@ -1196,7 +1165,6 @@ export class CachePolicy {
    * the request will be fulfilled from the configured request handlers
    * and the cache will be updated before returning the response.
    *
-   * @method isHardExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store
@@ -1232,7 +1200,6 @@ export class CachePolicy {
    * If true, the request will be fulfilled from cache while a backgrounded
    * request is made to update the cache via the configured request handlers.
    *
-   * @method isSoftExpired
    * @public
    * @param {StableDocumentIdentifier} identifier
    * @param {Store} store

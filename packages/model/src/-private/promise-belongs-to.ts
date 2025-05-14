@@ -40,7 +40,6 @@ const Extended: PromiseObjectType<OpaqueRecordInstance> =
   Right now we proxy:
     * `reload()`
   @class PromiseBelongsTo
-  @extends PromiseObject
   @private
 */
 class PromiseBelongsTo<T = unknown> extends Extended<T> {

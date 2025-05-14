@@ -562,7 +562,6 @@ export interface SchemaObjectField {
      *
      * If the SchemaObject is polymorphic, `options.type` must also be supplied.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -572,7 +571,6 @@ export interface SchemaObjectField {
      *
      * Defaults to "type".
      *
-     * @typedoc
      */
     type?: string;
   };
@@ -724,7 +722,6 @@ export interface SchemaArrayField {
      *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
      *       of the same type will not collide.
      *
-     * @typedoc
      */
     key?: '@identity' | '@index' | '@hash' | string;
 
@@ -733,7 +730,6 @@ export interface SchemaArrayField {
      *
      * If the SchemaArray is polymorphic, `options.type` must also be supplied.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -743,7 +739,6 @@ export interface SchemaArrayField {
      *
      * Defaults to "type".
      *
-     * @typedoc
      */
     type?: string;
   };
@@ -880,7 +875,6 @@ export interface ResourceField {
      * that can be used to fetch the related
      * resource when needed.
      *
-     * @typedoc
      */
     async?: boolean;
 
@@ -892,7 +886,6 @@ export interface ResourceField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse?: string | null;
 
@@ -902,7 +895,6 @@ export interface ResourceField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -912,7 +904,6 @@ export interface ResourceField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
   };
@@ -965,7 +956,6 @@ export interface CollectionField {
    * not present, all options are presumed
    * to be falsey
    *
-   * @typedoc
    */
   options?: {
     /**
@@ -987,7 +977,6 @@ export interface CollectionField {
      * full list of pointers, and loading "page 1" would
      * load all related resources.
      *
-     * @typedoc
      */
     async?: boolean;
 
@@ -999,7 +988,6 @@ export interface CollectionField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse?: string | null;
 
@@ -1009,7 +997,6 @@ export interface CollectionField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -1019,7 +1006,6 @@ export interface CollectionField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
   };
@@ -1075,7 +1061,6 @@ export interface LegacyAttributeField {
    * Must comply to the specific transform's options
    * schema.
    *
-   * @typedoc
    */
   options?: ObjectValue;
 }
@@ -1126,7 +1111,6 @@ export interface LegacyBelongsToField {
   /**
    * Options for belongsTo are mandatory.
    *
-   * @typedoc
    */
   options: {
     /**
@@ -1139,7 +1123,6 @@ export interface LegacyBelongsToField {
      *
      * Pointers are highly discouraged.
      *
-     * @typedoc
      */
     async: boolean;
 
@@ -1151,7 +1134,6 @@ export interface LegacyBelongsToField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse: string | null;
 
@@ -1161,7 +1143,6 @@ export interface LegacyBelongsToField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -1171,7 +1152,6 @@ export interface LegacyBelongsToField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -1205,7 +1185,6 @@ export interface LegacyBelongsToField {
      *
      * Async relationships will be loaded via their link if needed.
      *
-     * @typedoc
      */
     linksMode?: true;
 
@@ -1220,7 +1199,6 @@ export interface LegacyBelongsToField {
      * local state that are present in the remote data,
      * leaving any remaining changes in local state still.
      *
-     * @typedoc
      */
     resetOnRemoteUpdate?: false;
   };
@@ -1272,7 +1250,6 @@ export interface LinksModeBelongsToField {
   /**
    * Options for belongsTo are mandatory.
    *
-   * @typedoc
    */
   options: {
     /**
@@ -1280,7 +1257,6 @@ export interface LinksModeBelongsToField {
      *
      * MUST be false for PolarisMode + LinksMode
      *
-     * @typedoc
      */
     async: false;
 
@@ -1292,7 +1268,6 @@ export interface LinksModeBelongsToField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse: string | null;
 
@@ -1302,7 +1277,6 @@ export interface LinksModeBelongsToField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -1312,7 +1286,6 @@ export interface LinksModeBelongsToField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -1360,7 +1333,6 @@ export interface LinksModeBelongsToField {
      * except for the addition of records still in the "new" state any
      * time the remote data for this field was updated.
      *
-     * @typedoc
      */
     linksMode: true;
   };
@@ -1412,7 +1384,6 @@ export interface LegacyHasManyField {
   /**
    * Options for hasMany are mandatory.
    *
-   * @typedoc
    */
   options: {
     /**
@@ -1430,7 +1401,6 @@ export interface LegacyHasManyField {
      *
      * hasMany relationships do not support pagination.
      *
-     * @typedoc
      */
     async: boolean;
 
@@ -1442,7 +1412,6 @@ export interface LegacyHasManyField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse: string | null;
 
@@ -1452,7 +1421,6 @@ export interface LegacyHasManyField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -1462,7 +1430,6 @@ export interface LegacyHasManyField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -1496,7 +1463,6 @@ export interface LegacyHasManyField {
      *
      * Async relationships will be loaded via their link if needed.
      *
-     * @typedoc
      */
     linksMode?: true;
 
@@ -1511,7 +1477,6 @@ export interface LegacyHasManyField {
      * local state that are present in the remote data,
      * leaving any remaining changes in local state still.
      *
-     * @typedoc
      */
     resetOnRemoteUpdate?: false;
   };
@@ -1563,7 +1528,6 @@ export interface LinksModeHasManyField {
   /**
    * Options for hasMany are mandatory.
    *
-   * @typedoc
    */
   options: {
     /**
@@ -1583,7 +1547,6 @@ export interface LinksModeHasManyField {
      *
      * hasMany relationships do not support pagination.
      *
-     * @typedoc
      */
     async: false;
 
@@ -1595,7 +1558,6 @@ export interface LinksModeHasManyField {
      *
      * If null, the relationship is unidirectional.
      *
-     * @typedoc
      */
     inverse: string | null;
 
@@ -1605,7 +1567,6 @@ export interface LinksModeHasManyField {
      * should be set to the trait or abstract type
      * that this resource implements.
      *
-     * @typedoc
      */
     as?: string;
 
@@ -1615,7 +1576,6 @@ export interface LinksModeHasManyField {
      * resources so long as they implement the trait
      * or abstract type specified in `type`.
      *
-     * @typedoc
      */
     polymorphic?: boolean;
 
@@ -1663,7 +1623,6 @@ export interface LinksModeHasManyField {
      * except for the addition of records still in the "new" state any
      * time the remote data for this field was updated.
      *
-     * @typedoc
      */
     linksMode: true;
   };
@@ -1949,7 +1908,6 @@ export interface LegacyResourceSchema {
  * by the SchemaService which provides fields as a Map
  * instead of as an Array.
  *
- * @typedoc
  */
 export type ResourceSchema = PolarisResourceSchema | LegacyResourceSchema;
 
@@ -2017,9 +1975,6 @@ export type Schema = ResourceSchema | ObjectSchema;
  * as doing so would require a full schema graph to be passed in
  * and no cycles in the graph to be present.
  *
- * @method resourceSchema
- * @static
- * @for @warp-drive/core-types
  * @param {ResourceSchema} schema
  * @return {ResourceSchema} the passed in schema
  * @public
@@ -2036,9 +1991,6 @@ export function resourceSchema<T extends LegacyResourceSchema | PolarisResourceS
  *
  * Will return the passed in schema.
  *
- * @method objectSchema
- * @static
- * @for @warp-drive/core-types
  * @param {ObjectSchema} schema
  * @return {ObjectSchema} the passed in schema
  * @public
@@ -2050,9 +2002,6 @@ export function objectSchema<T extends ObjectSchema>(schema: T): T {
 /**
  * A type utility to narrow a schema to a ResourceSchema
  *
- * @method isResourceSchema
- * @static
- * @for @warp-drive/core-types
  * @param schema
  * @return {Boolean}
  * @public
@@ -2064,9 +2013,6 @@ export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema 
 /**
  * A type utility to narrow a schema to LegacyResourceSchema
  *
- * @method isLegacyResourceSchema
- * @static
- * @for @warp-drive/core-types
  * @param schema
  * @return {Boolean}
  * @public

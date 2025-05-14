@@ -14,7 +14,6 @@ const GlobalStorage = globalThis as typeof globalThis & {
 /**
  * Retrieve the configured IndexedDB database instance
  *
- * @typedoc
  */
 export async function getCache(): Promise<IDBDatabase> {
   if (GlobalStorage.__WarpDriveCache) {
@@ -39,7 +38,6 @@ export async function getCache(): Promise<IDBDatabase> {
  * for the cache. Running this function will run upgrades on the database
  * if necessary.
  *
- * @typedoc
  */
 async function setupCache(): Promise<IDBDatabase> {
   const request = indexedDB.open('WarpDriveCache', WarpDriveCacheVersion);
@@ -80,7 +78,6 @@ async function setupCache(): Promise<IDBDatabase> {
 /**
  * Perform the necessary migrations to upgrade the database
  *
- * @typedoc
  */
 async function upgradeCache(db: IDBDatabase, oldVersion: number): Promise<void> {
   const promises: Promise<void>[] = [];
@@ -117,7 +114,6 @@ async function upgradeCache(db: IDBDatabase, oldVersion: number): Promise<void> 
  *
  * If any resource is not found in the cache, the result will be null.
  *
- * @typedoc
  */
 export async function getCachedRequest(
   db: IDBDatabase,

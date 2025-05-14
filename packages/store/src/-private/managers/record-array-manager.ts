@@ -163,7 +163,6 @@ export class RecordArrayManager {
     Get the `RecordArray` for a modelName, which contains all loaded records of
     given modelName.
 
-    @method liveArrayFor
     @internal
     @param {String} modelName
     @return {RecordArray}

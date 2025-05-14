@@ -149,7 +149,6 @@ export interface MixtBuildURLMixin extends BuildURLMixin {
     When called by `RESTAdapter.findMany()` the `id` and `snapshot` parameters
     will be arrays of ids and snapshots.
 
-    @method buildURL
     @public
     @param {String} modelName
     @param {(String|Array|Object)} id single id or array of ids or query
@@ -286,7 +285,6 @@ function buildURL(
 }
 
 /**
-    @method _buildURL
     @private
     @param {String} modelName
     @param {String} id
@@ -325,7 +323,7 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
 
    Example:
 
-   ```app/adapters/user.js
+   ```js [app/adapters/user.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -336,7 +334,6 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
    }
    ```
 
-   @method urlForFindRecord
    @public
    @param {String} id
    @param {String} modelName
@@ -353,7 +350,7 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
 
    Example:
 
-   ```app/adapters/comment.js
+   ```js [app/adapters/comment.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -364,7 +361,6 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
    }
    ```
 
-   @method urlForFindAll
     @public
    @param {String} modelName
    @param {SnapshotRecordArray} snapshot
@@ -379,7 +375,7 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -395,7 +391,6 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    }
    ```
 
-   @method urlForQuery
     @public
    @param {Object} query
    @param {String} modelName
@@ -410,7 +405,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, mo
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -421,7 +416,6 @@ function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, mo
    }
    ```
 
-   @method urlForQueryRecord
     @public
    @param {Object} query
    @param {String} modelName
@@ -438,7 +432,7 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknow
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -449,7 +443,6 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknow
    }
    ```
 
-   @method urlForFindMany
     @public
    @param {Array} ids
    @param {String} modelName
@@ -466,7 +459,7 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -477,7 +470,6 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
    }
    ```
 
-   @method urlForFindHasMany
     @public
    @param {String} id
    @param {String} modelName
@@ -494,7 +486,7 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -505,7 +497,6 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
    }
    ```
 
-   @method urlForFindBelongsTo
     @public
    @param {String} id
    @param {String} modelName
@@ -522,7 +513,7 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -532,7 +523,6 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
    }
    ```
 
-   @method urlForCreateRecord
     @public
    @param {String} modelName
    @param {Snapshot} snapshot
@@ -547,7 +537,7 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -557,7 +547,6 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
    }
    ```
 
-   @method urlForUpdateRecord
     @public
    @param {String} id
    @param {String} modelName
@@ -573,7 +562,7 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -583,7 +572,6 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
    }
    ```
 
-   @method urlForDeleteRecord
     @public
    @param {String} id
    @param {String} modelName
@@ -595,7 +583,6 @@ function urlForDeleteRecord(this: MixtBuildURLMixin, id: string, modelName: stri
 }
 
 /**
-    @method urlPrefix
     @private
     @param {String} path
     @param {String} parentURL
@@ -646,7 +633,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     For example, if you have an object `LineItem` with an
     endpoint of `/line_items/`.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
     import { undesrcore, pluralize } from '<app-name>/utils/string-utils';
 
@@ -657,7 +644,6 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     }
     ```
 
-    @method pathForType
     @public
     @param {String} modelName
     @return {String} path

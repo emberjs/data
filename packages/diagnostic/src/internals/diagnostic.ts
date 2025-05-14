@@ -176,7 +176,6 @@ export class Diagnostic<TC extends TestContext> {
    * higher priority or more stable properties of an object in a dynamic
    * environment.
    *
-   * @typedoc
    */
   satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void {
     const isEqual = equiv(actual, expected, false);

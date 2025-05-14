@@ -25,10 +25,7 @@ export type JsonApiResourcePatch =
 /**
  * Serializes the current state of a resource or array of resources for use with POST or PUT requests.
  *
- * @method serializeResources
- * @static
  * @public
- * @for @ember-data/json-api/request
  * @param {Cache} cache}
  * @param {StableRecordIdentifier} identifier
  * @return {Object} An object with a `data` property containing the serialized resource patch
@@ -121,10 +118,7 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): R
  * const relationshipDiffMap = cache.changedRelationships(identifier);
  * ```
  *
- * @method serializePatch
- * @static
  * @public
- * @for @ember-data/json-api/request
  * @param {Cache} cache}
  * @param {StableRecordIdentifier} identifier
  * @return {Object} An object with a `data` property containing the serialized resource patch

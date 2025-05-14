@@ -118,7 +118,7 @@
   that make use of `options` to specify the desired format when making a request, then forwards to the
   request to the desired adapter or serializer as needed.
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   export default class Adapter extends EmberObject {
     findRecord(store, schema, id, snapshot) {
       let { apiVersion } = snapshot.adapterOptions;
@@ -211,7 +211,7 @@ const service = s.service ?? s.inject;
 
   Create a new subclass of `Adapter` in the `app/adapters` folder:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import Adapter from '@ember-data/adapter';
 
   export default Adapter.extend({
@@ -222,7 +222,7 @@ const service = s.service ?? s.inject;
   Model-specific adapters can be created by putting your adapter
   class in an `app/adapters/` + `model-name` + `.js` file of the application.
 
-  ```app/adapters/post.js
+  ```js [app/adapters/post.js]
   import Adapter from '@ember-data/adapter';
 
   export default Adapter.extend({
@@ -252,7 +252,6 @@ const service = s.service ?? s.inject;
 
   @class Adapter
   @public
-  @extends Ember.EmberObject
 */
 export default class Adapter extends EmberObject implements MinimumAdapterInterface {
   @service declare store: Store;
@@ -268,7 +267,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Here is an example of the `findRecord` implementation:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -286,7 +285,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findRecord
     @param {Store} store
     @param {Model} type
     @param {String} id
@@ -306,7 +304,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -324,7 +322,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findAll
     @param {Store} store
     @param {Model} type
     @param {null} neverSet a value is never provided to this argument
@@ -349,7 +346,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -367,7 +364,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method query
     @param {Store} store
     @param {Model} type
     @param {Object} query
@@ -395,7 +391,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter, { BuildURLMixin } from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -413,7 +409,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method queryRecord
     @param {Store} store
     @param {subclass of Model} type
     @param {Object} query
@@ -453,7 +448,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method generateIdForRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
@@ -467,7 +461,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
 
     export default class ApplicationAdapter extends Adapter {
@@ -480,7 +474,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method serialize
     @param {Snapshot} snapshot
     @param {Object}   options
     @return {Object} serialized snapshot
@@ -503,7 +496,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -529,7 +522,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method createRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -559,7 +551,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -586,7 +578,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method updateRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -608,7 +599,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -635,7 +626,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method deleteRecord
     @param {Store} store
     @param {Model} type   the Model class of the record
     @param {Snapshot} snapshot
@@ -676,7 +666,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     requests to find multiple records at once if coalesceFindRequests
     is true.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -700,7 +690,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     }
     ```
 
-    @method findMany
     @param {Store} store
     @param {Model} type   the Model class of the records
     @param {Array}    ids
@@ -718,7 +707,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     The default implementation returns the records as a single group.
 
-    @method groupRecordsForFindMany
     @public
     @param {Store} store
     @param {Array} snapshots
@@ -770,7 +758,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     suit your use case.
 
     @since 1.13.0
-    @method shouldReloadRecord
     @param {Store} store
     @param {Snapshot} snapshot
     @return {Boolean}
@@ -826,7 +813,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     your use case.
 
     @since 1.13.0
-    @method shouldReloadAll
     @param {Store} store
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
@@ -863,7 +849,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     in the background.
 
     @since 1.13.0
-    @method shouldBackgroundReloadRecord
     @param {Store} store
     @param {Snapshot} snapshot
     @return {Boolean}
@@ -900,7 +885,6 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     should always be triggered.
 
     @since 1.13.0
-    @method shouldBackgroundReloadAll
     @param {Store} store
     @param {SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}

@@ -151,7 +151,7 @@ declare const jQuery: JQueryStatic | undefined;
 
   For example, if you have a `Person` model:
 
-  ```app/models/person.js
+  ```js [app/models/person.js]
   import Model, { attr } from '@ember-data/model';
 
   export default Model.extend({
@@ -244,7 +244,7 @@ declare const jQuery: JQueryStatic | undefined;
   Endpoint paths can be prefixed with a `namespace` by setting the namespace
   property on the adapter:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -257,7 +257,7 @@ declare const jQuery: JQueryStatic | undefined;
 
   An adapter can target other hosts by setting the `host` property.
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -272,7 +272,7 @@ declare const jQuery: JQueryStatic | undefined;
   object and EmberData will send them along with each ajax request.
 
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -288,7 +288,6 @@ declare const jQuery: JQueryStatic | undefined;
   @class RESTAdapter
   @public
   @constructor
-  @extends Adapter
   @uses BuildURLMixin
 */
 class RESTAdapter extends Adapter.extend(BuildURLMixin) {
@@ -345,7 +344,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     In case you want to sort the query parameters with a different criteria, set
     `sortQueryParams` to your custom sort function.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -362,7 +361,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     }
     ```
 
-    @method sortQueryParams
     @param {Object} obj
     @return {Object}
     @public
@@ -446,7 +444,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -464,7 +462,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   /**
     An adapter can target other hosts by setting the `host` property.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -486,7 +484,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     along with each ajax request. For dynamic headers see [headers
     customization](/ember-data/release/classes/RESTAdapter).
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -515,7 +513,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     This method performs an HTTP `GET` request with the id provided as part of the query string.
 
     @since 1.13.0
-    @method findRecord
     @public
     @param {Store} store
     @param {Model} type
@@ -537,7 +534,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     The `findAll` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
-    @method findAll
     @public
     @param {Store} store
     @param {Model} type
@@ -572,7 +568,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.
 
-    @method query
     @public
     @param {Store} store
     @param {Model} type
@@ -603,7 +598,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     to the server as parameters.
 
     @since 1.13.0
-    @method queryRecord
     @public
     @param {Store} store
     @param {Model} type
@@ -652,7 +646,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     The `findMany` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
-    @method findMany
     @public
     @param {Store} store
     @param {Model} type
@@ -694,7 +687,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
-    @method findHasMany
     @public
     @param {Store} store
     @param {Snapshot} snapshot
@@ -749,7 +741,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
-    @method findBelongsTo
     @public
     @param {Store} store
     @param {Snapshot} snapshot
@@ -779,7 +770,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     See `serialize` for information on how to customize the serialized form
     of a record.
 
-    @method createRecord
     @public
     @param {Store} store
     @param {Model} type
@@ -804,7 +794,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     See `serialize` for information on how to customize the serialized form
     of a record.
 
-    @method updateRecord
     @public
     @param {Store} store
     @param {Model} schema
@@ -826,7 +815,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
 
     The `deleteRecord` method  makes an Ajax (HTTP DELETE) request to a URL computed by `buildURL`.
 
-    @method deleteRecord
     @public
     @param {Store} store
     @param {Model} type
@@ -887,7 +875,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     It does not group records that have differing base urls, such as for example: `/posts/1/comments/2`
     and `/posts/2/comments/3`
 
-    @method groupRecordsForFindMany
     @public
     @param {Store} store
     @param {Array} snapshots
@@ -940,7 +927,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     method.
 
     @since 1.13.0
-    @method handleResponse
     @public
     @param  {Number} status
     @param  {Object} headers
@@ -986,7 +972,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     response is a success.
 
     @since 1.13.0
-    @method isSuccess
     @public
     @param  {Number} status
     @param  {Object} headers
@@ -1002,7 +987,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     response is an invalid error.
 
     @since 1.13.0
-    @method isInvalid
     @public
     @param  {Number} status
     @param  {Object} headers
@@ -1030,7 +1014,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
       data is the serialized record in the case of a save.
     * Registers success and failure handlers.
 
-    @method ajax
     @private
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
@@ -1061,7 +1044,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
-    @method _ajaxRequest
     @private
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
@@ -1085,7 +1067,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
-    @method ajaxOptions
     @private
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
@@ -1166,7 +1147,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
-    @method parseErrorResponse
     @private
     @param {String} responseText
     @return {Object}
@@ -1184,7 +1164,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   }
 
   /**
-    @method normalizeErrorResponse
     @private
     @param  {Number} status
     @param  {Object} headers
@@ -1217,7 +1196,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Generates a detailed ("friendly") error message, with plenty
     of information for debugging (good luck!)
 
-    @method generatedDetailedMessage
     @private
     @param  {Number} status
     @param  {Object} headers
@@ -1256,7 +1234,6 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Used by `findAll` and `findRecord` to build the query's `data` hash
     supplied to the ajax method.
 
-    @method buildQuery
     @since 2.5.0
     @public
     @param  {Snapshot} snapshot
@@ -1445,8 +1422,6 @@ function headersToObject(headers: Headers): Record<string, string> {
 /**
  * Helper function that translates the options passed to `jQuery.ajax` into a format that `fetch` expects.
  *
- * @method fetchOptions
- * @for @ember-data/adapter/rest
  * @param {Object} _options
  * @param {Adapter} adapter
  * @private

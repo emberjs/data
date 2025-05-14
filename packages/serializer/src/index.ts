@@ -135,7 +135,6 @@ const service = s.service ?? s.inject;
 
   @class Serializer
   @public
-  @extends Ember.EmberObject
 */
 
 export default class extends EmberObject {
@@ -188,7 +187,6 @@ export default class extends EmberObject {
     ```
 
     @since 1.13.0
-    @method normalizeResponse
     @public
     @param {Store} store
     @param {Model} primaryModelClass
@@ -233,7 +231,6 @@ export default class extends EmberObject {
     });
     ```
 
-    @method serialize
     @public
     @param {Snapshot} snapshot
     @param {Object} [options]
@@ -261,7 +258,6 @@ export default class extends EmberObject {
     })
     ```
 
-    @method normalize
     @public
     @param {Model} typeClass
     @param {Object} hash

@@ -17,7 +17,5 @@
   also allows EmberData to provide typechecking and intellisense for the record
   based on a special symbol prsent on record instances that implement the
   `TypedRecordInstance` interface.
-
-  @typedoc
 */
 export type OpaqueRecordInstance = unknown;

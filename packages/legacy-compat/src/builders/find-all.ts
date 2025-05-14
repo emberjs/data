@@ -27,11 +27,8 @@ type FindAllBuilderOptions<T = unknown> = FindAllOptions<T>;
   This is useful for quickly upgrading an entire app to a unified syntax while a longer incremental migration is made to shift off of adapters and serializers.
   To that end, these builders are deprecated and will be removed in a future version of Ember Data.
 
-  @method findAll
   @deprecated
   @public
-  @static
-  @for @ember-data/legacy-compat/builders
   @param {String} type the name of the resource
   @param {Object} query a query to be used by the adapter
   @param {FindAllBuilderOptions} [options] optional, may include `adapterOptions` hash which will be passed to adapter.findAll

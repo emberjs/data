@@ -70,11 +70,8 @@ import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from 
 
   ⚠️ Caution: Requests that do not have a `method` assigned are assumed to be `GET`
 
-  @method setIdentifierGenerationMethod
-  @for @ember-data/store
   @param method
   @public
-  @static
 */
 export interface GenerationMethod {
   (data: ImmutableRequestInfo, bucket: 'document'): string | null;
@@ -111,11 +108,8 @@ export interface GenerationMethod {
   `updateRecordIdentifier` that attempt to change the `id` or calling update
   without providing an `id` when one is missing will throw an error.
 
-  @method setIdentifierUpdateMethod
-  @for @ember-data/store
   @param method
   @public
-  @static
 */
 
 export type UpdateMethod = {
@@ -135,11 +129,8 @@ export type UpdateMethod = {
  Takes method which can expect to receive an existing `Identifier` that should be eliminated
  from any secondary lookup tables or caches that the user has populated for it.
 
-  @method setIdentifierForgetMethod
-  @for @ember-data/store
   @param method
   @public
-  @static
 */
 export type ForgetMethod = (identifier: StableIdentifier | StableRecordIdentifier, bucket: IdentifierBucket) => void;
 
@@ -157,11 +148,8 @@ export type ForgetMethod = (identifier: StableIdentifier | StableRecordIdentifie
  If you have properly used a WeakMap to encapsulate the state of your customization
  to the application instance, you may not need to implement the `resetMethod`.
 
-  @method setIdentifierResetMethod
-  @for @ember-data/store
   @param method
   @public
-  @static
 */
 export type ResetMethod = () => void;
 
@@ -178,11 +166,8 @@ export type ResetMethod = () => void;
  import { setKeyInfoForResource } from '@ember-data/store';
  ```
 
-  @method setKeyInfoForResource
-  @for @ember-data/store
   @param method
   @public
-  @static
  */
 export type KeyInfo = {
   id: string | null;

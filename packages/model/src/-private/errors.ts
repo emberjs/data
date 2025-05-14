@@ -35,7 +35,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
 
   For Example, if you had a `User` model that looked like this:
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -97,7 +97,6 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
 
   @class Errors
   @public
-  @extends Ember.ArrayProxy
  */
 export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   declare __record: { currentState: RecordState };
@@ -125,7 +124,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     });
     ```
 
-    @method errorsFor
     @public
     @param {String} attribute
     @return {Array}
@@ -179,7 +177,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   }
 
   /**
-    @method unknownProperty
     @private
   */
   unknownProperty(attribute: string) {
@@ -196,7 +193,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     @property length
     @type {Number}
     @public
-    @readOnly
+    @readonly
   */
 
   /**
@@ -205,7 +202,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     @property isEmpty
     @type {Boolean}
     @public
-    @readOnly
+    @readonly
   */
   @not('length')
   declare isEmpty: boolean;
@@ -242,7 +239,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     //   { attribute: 'username', message: 'This field is required' },
     // ]
    ```
-    @method add
     @public
     @param {String} attribute - the property name of an attribute or relationship
     @param {string[]|string} messages - an error message or array of error messages for the attribute
@@ -258,7 +254,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   }
 
   /**
-    @method _findOrCreateMessages
     @private
   */
   _findOrCreateMessages(attribute: string, messages: string | string[]): ValidationError[] {
@@ -305,7 +300,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     errors.errorsFor('phone');
     // => undefined
    ```
-   @method remove
     @public
    @param {String} member - the property name of an attribute or relationship
    */
@@ -369,7 +363,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
    errors.messages
    // => []
    ```
-   @method clear
    @public
    */
   clear(): void {
@@ -396,7 +389,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   /**
     Checks if there are error messages for the given attribute.
 
-    ```app/controllers/user/edit.js
+    ```js [app/controllers/user/edit.js]
     export default class UserEditController extends Controller {
       @action
       save(user) {
@@ -408,7 +401,6 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     }
     ```
 
-    @method has
     @public
     @param {String} attribute
     @return {Boolean} true if there some errors on given attribute

@@ -61,10 +61,7 @@ import { copyForwardUrlOptions, extractCacheOptions } from './-utils';
  * const data = await store.request(options);
  * ```
  *
- * @method findRecord
  * @public
- * @static
- * @for @ember-data/rest/request
  * @param identifier
  * @param options
  */
