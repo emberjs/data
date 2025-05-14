@@ -62,9 +62,6 @@
     "typescript": "^5.8.3",
     "webpack": "^5.99.5"
   },
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "ember": {
     "edition": "octane"
   },

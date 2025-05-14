@@ -71,9 +71,6 @@
   "ember": {
     "edition": "octane"
   },
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "volta": {
     "extends": "../../package.json"
   },

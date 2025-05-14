@@ -40,9 +40,6 @@
     "mocha": "^11.1.0",
     "silent-error": "^1.1.1"
   },
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "volta": {
     "extends": "../../package.json"
   },

@@ -49,9 +49,6 @@
     "eslint": "^9.24.0",
     "qunit": "^2.20.1"
   },
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "volta": {
     "extends": "../../package.json"
   },

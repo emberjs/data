@@ -33,9 +33,6 @@
     "vitepress-plugin-group-icons": "^1.5.2",
     "vite": "^5.4.15"
   },
-  "engines": {
-    "node": ">= 18.20.8"
-  },
   "volta": {
     "extends": "../package.json"
   }
