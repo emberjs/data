@@ -31,6 +31,8 @@ const config = {
     readme: 'none',
     excludeInternal: true,
     // inheritNone: true,
+    useCodeBlocks: true,
+    hidePageTitle: true,
   },
   plugin: [
     require.resolve('typedoc-plugin-markdown'),
@@ -45,6 +47,7 @@ const config = {
   tsconfig: '../tsconfig.json',
   excludeInternal: true,
   useCodeBlocks: true,
+  hidePageTitle: true,
   // inheritNone: true,
 };
 

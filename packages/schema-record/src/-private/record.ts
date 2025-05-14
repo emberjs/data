@@ -73,8 +73,15 @@ function isNonEnumerableProp(prop: string | number | symbol) {
 
 const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
 /**
- * A record that does stuff
+ * A class that uses a the ResourceSchema for a ResourceType
+ * and a ResouceKey to transform data from the cache into a rich, reactive
+ * object.
  *
+ * This class is not directly instantiable. To use it, you should
+ * configure the store's `instantiateRecord` and `teardownRecord` hooks
+ * with the matching hooks provided by this package.
+ *
+ * @hideconstructor
  * @public
  */
 export class SchemaRecord {
