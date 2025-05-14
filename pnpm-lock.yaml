@@ -251,6 +251,9 @@ importers:
       typedoc-plugin-markdown:
         specifier: ^4.6.3
         version: 4.6.3(typedoc@0.28.4(typescript@5.8.3))
+      typedoc-plugin-no-inherit:
+        specifier: ^1.6.1
+        version: 1.6.1(typedoc@0.28.4(typescript@5.8.3))
       typedoc-vitepress-theme:
         specifier: ^1.1.2
         version: 1.1.2(6e46de4d5b133f483635fea0188673b2)
@@ -12907,6 +12910,11 @@ packages:
     peerDependencies:
       typedoc: 0.28.x
 
+  typedoc-plugin-no-inherit@1.6.1:
+    resolution: {integrity: sha512-+qf0RkO5YR9kUBBS1HqzzDOsWOnLcXTtGL0f2ia4jDQAjGrtF0+po/0R8k3UNtBqyDzL273aaV3FIGHEX+U/tg==}
+    peerDependencies:
+      typedoc: 0.26.x || 0.27.x || 0.28.x
+
   typedoc-vitepress-theme@1.1.2:
     resolution: {integrity: sha512-hQvCZRr5uKDqY1bRuY1+eNTNn6d4TE4OP5pnw65Y7WGgajkJW9X1/lVJK2UJpcwCmwkdjw1QIO49H9JQlxWhhw==}
     peerDependencies:
@@ -18207,6 +18215,7 @@ snapshots:
       debug: 4.4.0
       typedoc: 0.28.4(typescript@5.8.3)
       typedoc-plugin-markdown: 4.6.3(typedoc@0.28.4(typescript@5.8.3))
+      typedoc-plugin-no-inherit: 1.6.1(typedoc@0.28.4(typescript@5.8.3))
       typedoc-vitepress-theme: 1.1.2(6e46de4d5b133f483635fea0188673b2)
       typescript: 5.8.3
       vite: 5.4.19
@@ -26411,6 +26420,10 @@ snapshots:
       is-typedarray: 1.0.0
 
   typedoc-plugin-markdown@4.6.3(typedoc@0.28.4(typescript@5.8.3)):
+    dependencies:
+      typedoc: 0.28.4(typescript@5.8.3)
+
+  typedoc-plugin-no-inherit@1.6.1(typedoc@0.28.4(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.4(typescript@5.8.3)
 

@@ -522,7 +522,7 @@ export class Snapshot<R = unknown> {
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
 
     export default Adapter.extend({

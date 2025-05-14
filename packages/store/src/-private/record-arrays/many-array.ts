@@ -55,7 +55,7 @@ export interface ManyArrayCreateArgs<T> {
   an inverse. For example, imagine the following models are
   defined:
 
-  ```app/models/post.js
+  ```js [app/models/post.js]
   import Model, { hasMany } from '@ember-data/model';
 
   export default class PostModel extends Model {
@@ -63,7 +63,7 @@ export interface ManyArrayCreateArgs<T> {
   }
   ```
 
-  ```app/models/comment.js
+  ```js [app/models/comment.js]
   import Model, { belongsTo } from '@ember-data/model';
 
   export default class CommentModel extends Model {
@@ -412,6 +412,22 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   }
 
   /**
+    Create a child record within the owner
+
+    @public
+    @param {Object} hash
+    @return {Model} record
+  */
+  createRecord(hash: CreateRecordProperties<T>): T {
+    const { store } = this;
+    assert(`Expected modelName to be set`, this.modelName);
+    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
+    this.push(record);
+
+    return record;
+  }
+
+  /**
     Saves all of the records in the `ManyArray`.
 
     Note: this API can only be used in legacy mode with a configured Adapter.
@@ -428,27 +444,12 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     messages.save();
     ```
 
-    @method save
     @public
     @return {PromiseArray} promise
   */
+  declare save: () => Promise<IdentifierArray<T>>;
 
-  /**
-    Create a child record within the owner
-
-    @public
-    @param {Object} hash
-    @return {Model} record
-  */
-  createRecord(hash: CreateRecordProperties<T>): T {
-    const { store } = this;
-    assert(`Expected modelName to be set`, this.modelName);
-    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
-    this.push(record);
-
-    return record;
-  }
-
+  /** @internal */
   destroy() {
     super.destroy(false);
   }

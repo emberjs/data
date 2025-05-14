@@ -124,7 +124,7 @@ import RESTAdapter from './rest';
   Endpoint paths can be prefixed with a `namespace` by setting the
   namespace property on the adapter:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
   export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -137,7 +137,7 @@ import RESTAdapter from './rest';
 
   An adapter can target other hosts by setting the `host` property.
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
   export default class ApplicationAdapter extends JSONAPIAdapter {

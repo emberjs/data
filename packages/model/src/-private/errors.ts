@@ -35,7 +35,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
 
   For Example, if you had a `User` model that looked like this:
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -389,7 +389,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   /**
     Checks if there are error messages for the given attribute.
 
-    ```app/controllers/user/edit.js
+    ```js [app/controllers/user/edit.js]
     export default class UserEditController extends Controller {
       @action
       save(user) {

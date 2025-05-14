@@ -29,14 +29,23 @@ const config = {
   packageOptions: {
     entryFileName: 'index',
     readme: 'none',
+    excludeInternal: true,
+    // inheritNone: true,
   },
-  plugin: [require.resolve('typedoc-plugin-markdown'), require.resolve('typedoc-vitepress-theme')],
+  plugin: [
+    require.resolve('typedoc-plugin-markdown'),
+    require.resolve('typedoc-vitepress-theme'),
+    require.resolve('typedoc-plugin-no-inherit'),
+  ],
   out: './docs.warp-drive.io/api',
   sidebar: {
     pretty: true,
   },
   readme: 'none',
   tsconfig: '../tsconfig.json',
+  excludeInternal: true,
+  useCodeBlocks: true,
+  // inheritNone: true,
 };
 
 module.exports = config;

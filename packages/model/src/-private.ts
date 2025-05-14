@@ -1,7 +1,3 @@
-export { attr } from './-private/attr';
-export { belongsTo } from './-private/belongs-to';
-export { hasMany } from './-private/has-many';
-export { Model } from './-private/model';
 export type { ModelStore } from './-private/model';
 export { Errors } from './-private/errors';
 

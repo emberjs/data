@@ -202,7 +202,7 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue) 
     All objects should be in the format expected by the
     serializer.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer;
@@ -227,13 +227,13 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue) 
     Alternatively, `pushPayload` will accept a model type which
     will determine which serializer will process the payload.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
      export default class ApplicationSerializer extends RESTSerializer;
     ```
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default JSONSerializer;

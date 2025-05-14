@@ -12,7 +12,7 @@ function isNumber(value: number) {
 
   Usage
 
-  ```app/models/score.js
+  ```js [app/models/score.js]
   import Model, { attr, belongsTo } from '@ember-data/model';
 
   export default class ScoreModel extends Model {

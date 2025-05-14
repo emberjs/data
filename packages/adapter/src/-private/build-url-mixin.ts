@@ -323,7 +323,7 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
 
    Example:
 
-   ```app/adapters/user.js
+   ```js [app/adapters/user.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -350,7 +350,7 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
 
    Example:
 
-   ```app/adapters/comment.js
+   ```js [app/adapters/comment.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -375,7 +375,7 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -405,7 +405,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, mo
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -432,7 +432,7 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknow
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -459,7 +459,7 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -486,7 +486,7 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
@@ -513,7 +513,7 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -537,7 +537,7 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -562,7 +562,7 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
 
    Example:
 
-   ```app/adapters/application.js
+   ```js [app/adapters/application.js]
    import RESTAdapter from '@ember-data/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
@@ -633,7 +633,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     For example, if you have an object `LineItem` with an
     endpoint of `/line_items/`.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
     import { undesrcore, pluralize } from '<app-name>/utils/string-utils';
 

@@ -151,7 +151,7 @@ declare const jQuery: JQueryStatic | undefined;
 
   For example, if you have a `Person` model:
 
-  ```app/models/person.js
+  ```js [app/models/person.js]
   import Model, { attr } from '@ember-data/model';
 
   export default Model.extend({
@@ -244,7 +244,7 @@ declare const jQuery: JQueryStatic | undefined;
   Endpoint paths can be prefixed with a `namespace` by setting the namespace
   property on the adapter:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -257,7 +257,7 @@ declare const jQuery: JQueryStatic | undefined;
 
   An adapter can target other hosts by setting the `host` property.
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -272,7 +272,7 @@ declare const jQuery: JQueryStatic | undefined;
   object and EmberData will send them along with each ajax request.
 
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import RESTAdapter from '@ember-data/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
@@ -344,7 +344,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     In case you want to sort the query parameters with a different criteria, set
     `sortQueryParams` to your custom sort function.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -444,7 +444,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -462,7 +462,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
   /**
     An adapter can target other hosts by setting the `host` property.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
@@ -484,7 +484,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     along with each ajax request. For dynamic headers see [headers
     customization](/ember-data/release/classes/RESTAdapter).
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import RESTAdapter from '@ember-data/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {

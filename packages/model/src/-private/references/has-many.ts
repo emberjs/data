@@ -199,7 +199,7 @@ export default class HasManyReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -247,7 +247,7 @@ export default class HasManyReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -397,7 +397,7 @@ export default class HasManyReference<
 
    Example model
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -560,7 +560,7 @@ export default class HasManyReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -613,7 +613,7 @@ export default class HasManyReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -654,7 +654,7 @@ export default class HasManyReference<
      });
    ```
 
-   ```app/adapters/comment.js
+   ```js [app/adapters/comment.js]
    export default ApplicationAdapter.extend({
      findMany(store, type, id, snapshots) {
        // In the adapter you will have access to adapterOptions.
@@ -687,7 +687,7 @@ export default class HasManyReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {

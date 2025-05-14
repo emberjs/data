@@ -25,7 +25,7 @@ import JSONSerializer from './json';
 
   This serializer normalizes a JSON API payload that looks like:
 
-  ```app/models/player.js
+  ```js [app/models/player.js]
   import Model, { attr, belongsTo } from '@ember-data/model';
 
   export default class Player extends Model {
@@ -36,7 +36,7 @@ import JSONSerializer from './json';
   }
   ```
 
-  ```app/models/club.js
+  ```js [app/models/club.js]
   import Model, { attr, hasMany } from '@ember-data/model';
 
   export default class Club extends Model {
@@ -101,7 +101,7 @@ import JSONSerializer from './json';
   below shows how this could be done using `normalizeArrayResponse` and
   `extractRelationship`.
 
-  ```app/serializers/application.js
+  ```js [app/serializers/application.js]
   import JSONAPISerializer from '@ember-data/serializer/json-api';
 
   export default class ApplicationSerializer extends JSONAPISerializer {
@@ -401,7 +401,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     Example
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { dasherize } from '<app-name>/utils/string-utils';
 
@@ -432,7 +432,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
    Example
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { underscore } from '<app-name>/utils/string-utils';
 
@@ -458,7 +458,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     For example, consider this model:
 
-    ```app/models/comment.js
+    ```js [app/models/comment.js]
     import Model, { attr, belongsTo } from '@ember-data/model';
 
     export default class CommentModel extends Model {
@@ -523,7 +523,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     consider authoring your own adapter and serializer instead of extending
     this class.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONAPISerializer from '@ember-data/serializer/json-api';
 
     export default class PostSerializer extends JSONAPISerializer {
@@ -549,7 +549,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     application, you'll probably want to use `eachAttribute`
     and `eachRelationship` on the record.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { underscore, singularize } from '<app-name>/utils/string-utils';
 
@@ -600,7 +600,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     you can call `super.serialize` first and make the tweaks
     on the returned object.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONAPISerializer from '@ember-data/serializer/json-api';
 
     export default class PostSerializer extends JSONAPISerializer {

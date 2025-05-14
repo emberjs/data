@@ -118,7 +118,7 @@
   that make use of `options` to specify the desired format when making a request, then forwards to the
   request to the desired adapter or serializer as needed.
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   export default class Adapter extends EmberObject {
     findRecord(store, schema, id, snapshot) {
       let { apiVersion } = snapshot.adapterOptions;
@@ -211,7 +211,7 @@ const service = s.service ?? s.inject;
 
   Create a new subclass of `Adapter` in the `app/adapters` folder:
 
-  ```app/adapters/application.js
+  ```js [app/adapters/application.js]
   import Adapter from '@ember-data/adapter';
 
   export default Adapter.extend({
@@ -222,7 +222,7 @@ const service = s.service ?? s.inject;
   Model-specific adapters can be created by putting your adapter
   class in an `app/adapters/` + `model-name` + `.js` file of the application.
 
-  ```app/adapters/post.js
+  ```js [app/adapters/post.js]
   import Adapter from '@ember-data/adapter';
 
   export default Adapter.extend({
@@ -267,7 +267,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Here is an example of the `findRecord` implementation:
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -304,7 +304,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -346,7 +346,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -391,7 +391,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter, { BuildURLMixin } from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -461,7 +461,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
 
     export default class ApplicationAdapter extends Adapter {
@@ -496,7 +496,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -551,7 +551,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -599,7 +599,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
 
     Example
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
@@ -666,7 +666,7 @@ export default class Adapter extends EmberObject implements MinimumAdapterInterf
     requests to find multiple records at once if coalesceFindRequests
     is true.
 
-    ```app/adapters/application.js
+    ```js [app/adapters/application.js]
     import Adapter from '@ember-data/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';

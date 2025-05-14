@@ -216,7 +216,7 @@ export class Graph {
 
    For example if there was:
 
-   ```app/models/comment.js
+   ```js [app/models/comment.js]
    import Model, { attr } from '@ember-data/model';
 
    export default class Comment extends Model {
@@ -226,7 +226,7 @@ export class Graph {
 
    and there is also:
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { attr, hasMany } from '@ember-data/model';
 
    export default class Post extends Model {

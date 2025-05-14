@@ -334,7 +334,7 @@ export default class BelongsToReference<
 
    Example
 
-   ```app/models/post.js
+   ```js [app/models/post.js]
    import Model, { hasMany } from '@ember-data/model';
 
    export default class PostModel extends Model {
@@ -384,7 +384,7 @@ export default class BelongsToReference<
 
    Example model
 
-   ```app/models/blog.js
+   ```js [app/models/blog.js]
    import Model, { belongsTo } from '@ember-data/model';
 
    export default class BlogModel extends Model {
@@ -608,7 +608,7 @@ export default class BelongsToReference<
      userRef.value() === user;
    });
    ```
-   ```app/adapters/user.js
+   ```js [app/adapters/user.js]
    import Adapter from '@ember-data/adapter';
 
    export default class UserAdapter extends Adapter {

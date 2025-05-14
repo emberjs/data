@@ -17,7 +17,7 @@ import { camelize } from '@ember-data/request-utils/string';
 
   Below is an example of a per-type serializer (`post` type).
 
-  ```app/serializers/post.js
+  ```js [app/serializers/post.js]
   import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
   export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
@@ -163,7 +163,7 @@ export const EmbeddedRecordsMixin = Mixin.create({
 
     Use a custom (type) serializer for the post model to configure embedded author
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
     export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
@@ -266,7 +266,7 @@ export const EmbeddedRecordsMixin = Mixin.create({
 
     Use a custom (type) serializer for the post model to configure embedded comments
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
     export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
@@ -305,7 +305,7 @@ export const EmbeddedRecordsMixin = Mixin.create({
 
     To embed the `ids` for a related object (using a hasMany relationship):
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
     export default class PostSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {
@@ -353,7 +353,7 @@ export const EmbeddedRecordsMixin = Mixin.create({
     });
     ```
 
-    ```app/serializers/user.js
+    ```js [app/serializers/user.js]
     import RESTSerializer, { EmbeddedRecordsMixin } from '@ember-data/serializer/rest';
 
     export default class UserSerializer extends RESTSerializer.extend(EmbeddedRecordsMixin) {

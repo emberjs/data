@@ -197,7 +197,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
 
   Example
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -210,7 +210,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   Default value can also be a function. This is useful it you want to return
   a new object for each attribute.
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -230,7 +230,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   `serialize` and `deserialize` method. This allows to configure a
   transformation and adapt the corresponding value, based on the config:
 
-  ```app/models/post.js
+  ```js [app/models/post.js]
   import Model, { attr } from '@ember-data/model';
 
   export default class PostModel extends Model {
@@ -241,7 +241,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   }
   ```
 
-  ```app/transforms/text.js
+  ```js [app/transforms/text.js]
   export default class TextTransform {
     serialize(value, options) {
       if (options.uppercase) {

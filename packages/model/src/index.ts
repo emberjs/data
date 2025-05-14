@@ -16,7 +16,7 @@
 
   ### Defining a Model
 
-  ```app/models/person.js
+  ```js [app/models/person.js]
   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
   export default class PersonModel extends Model {
@@ -36,7 +36,11 @@
 
   @module
  */
-export { Model as default, attr, belongsTo, hasMany } from './-private';
+export { attr } from './-private/attr';
+export { belongsTo } from './-private/belongs-to';
+export { hasMany } from './-private/has-many';
+export { Model } from './-private/model';
+export { Model as default } from './-private/model';
 
 export type { PromiseBelongsTo as AsyncBelongsTo } from './-private/promise-belongs-to';
 export type { PromiseManyArray as AsyncHasMany } from './-private/promise-many-array';

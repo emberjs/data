@@ -42,7 +42,7 @@ function makeArray(value) {
   can implement across-the-board rules for how to convert an attribute
   name in your model to a key in your JSON.
 
-  ```app/serializers/application.js
+  ```js [app/serializers/application.js]
   import RESTSerializer from '@ember-data/serializer/rest';
   import { underscore } from '<app-name>/utils/string-utils';
 
@@ -69,7 +69,7 @@ const RESTSerializer = JSONSerializer.extend({
 
    Example
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -134,7 +134,7 @@ const RESTSerializer = JSONSerializer.extend({
     For example, if the `IDs` under `"comments"` are provided as `_id` instead of
     `id`, you can specify how to normalize just the comments:
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -424,7 +424,7 @@ const RESTSerializer = JSONSerializer.extend({
     the name of the model in your app. Let's take a look at an example model,
     and an example payload:
 
-    ```app/models/post.js
+    ```js [app/models/post.js]
     import Model from '@ember-data/model';
 
     export default class Post extends Model {}
@@ -446,7 +446,7 @@ const RESTSerializer = JSONSerializer.extend({
     Since we want to remove this namespace, we can define a serializer for the application that will
     remove "blog/" from the payload key whenver it's encountered by Ember Data:
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -487,7 +487,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     For example, consider this model:
 
-    ```app/models/comment.js
+    ```js [app/models/comment.js]
     import Model, { attr, belongsTo } from '@ember-data/model';
 
     export default class Comment extends Model {
@@ -533,7 +533,7 @@ const RESTSerializer = JSONSerializer.extend({
     In that case, you can implement `serialize` yourself and
     return a JSON hash of your choosing.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -559,7 +559,7 @@ const RESTSerializer = JSONSerializer.extend({
     application, you'll probably want to use `eachAttribute`
     and `eachRelationship` on the record.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
     import { pluralize } from '<app-name>/utils/string-utils';
 
@@ -610,7 +610,7 @@ const RESTSerializer = JSONSerializer.extend({
     you can call super first and make the tweaks on the returned
     JSON.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import RESTSerializer from '@ember-data/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -642,7 +642,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     For example, your server may expect underscored root objects.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
     import { underscore } from '<app-name>/utils/string-utils';
 
@@ -684,7 +684,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     For example, your server may expect dasherized root objects:
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
     import { dasherize } from '<app-name>/utils/string-utils';
 

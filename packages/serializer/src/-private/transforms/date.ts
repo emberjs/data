@@ -7,7 +7,7 @@ import { TransformName } from '@warp-drive/core-types/symbols';
  [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function. It uses the [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)
  standard.
 
- ```app/models/score.js
+ ```js [app/models/score.js]
  import Model, { attr, belongsTo } from '@ember-data/model';
 
  export default class ScoreModel extends Model {

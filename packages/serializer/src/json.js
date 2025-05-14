@@ -32,7 +32,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
 
   For example, given the following `User` model and JSON payload:
 
-  ```app/models/user.js
+  ```js [app/models/user.js]
   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 
   export default class UserModel extends Model {
@@ -97,7 +97,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class ApplicationSerializer extends JSONSerializer {
@@ -121,7 +121,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/models/person.js
+    ```js [app/models/person.js]
     import Model, { attr } from '@ember-data/model';
 
     export default class PersonModel extends Model {
@@ -132,7 +132,7 @@ const JSONSerializer = Serializer.extend({
     }
     ```
 
-    ```app/serializers/person.js
+    ```js [app/serializers/person.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PersonSerializer extends JSONSerializer {
@@ -148,7 +148,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/person.js
+    ```js [app/serializers/person.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -552,7 +552,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONSerializer from '@ember-data/serializer/json';
     import { underscore } from '<app-name>/utils/string-utils';
     import { get } from '@ember/object';
@@ -934,7 +934,7 @@ const JSONSerializer = Serializer.extend({
 
     For example, consider this model:
 
-    ```app/models/comment.js
+    ```js [app/models/comment.js]
     import Model, { attr, belongsTo } from '@ember-data/model';
 
     export default class CommentModel extends Model {
@@ -980,7 +980,7 @@ const JSONSerializer = Serializer.extend({
     In that case, you can implement `serialize` yourself and
     return a JSON hash of your choosing.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -1006,7 +1006,7 @@ const JSONSerializer = Serializer.extend({
     application, you'll probably want to use `eachAttribute`
     and `eachRelationship` on the record.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONSerializer from '@ember-data/serializer/json';
     import { singularize } from '<app-name>/utils/string-utils';
 
@@ -1057,7 +1057,7 @@ const JSONSerializer = Serializer.extend({
     you can call `super.serialize` first and make the tweaks on
     the returned JSON.
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -1112,7 +1112,7 @@ const JSONSerializer = Serializer.extend({
 
     For example, your server may expect underscored root objects.
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import RESTSerializer from '@ember-data/serializer/rest';
     import { underscoren} from '<app-name>/utils/string-utils';
 
@@ -1142,7 +1142,7 @@ const JSONSerializer = Serializer.extend({
     serialized as properties on an `attributes` object you could
     write:
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class ApplicationSerializer extends JSONSerializer {
@@ -1187,7 +1187,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -1240,7 +1240,7 @@ const JSONSerializer = Serializer.extend({
 
    Example
 
-   ```app/serializers/post.js
+   ```js [app/serializers/post.js]
    import JSONSerializer from '@ember-data/serializer/json';
 
    export default class PostSerializer extends JSONSerializer {
@@ -1288,7 +1288,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/comment.js
+    ```js [app/serializers/comment.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class CommentSerializer extends JSONSerializer {
@@ -1321,7 +1321,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -1412,7 +1412,7 @@ const JSONSerializer = Serializer.extend({
     Example of alternative implementation, overriding the default
     behavior to deal with a different format of errors:
 
-    ```app/serializers/post.js
+    ```js [app/serializers/post.js]
     import JSONSerializer from '@ember-data/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
@@ -1488,7 +1488,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-    ```app/serializers/application.js
+    ```js [app/serializers/application.js]
     import JSONSerializer from '@ember-data/serializer/json';
     import { underscore } from '<app-name>/utils/string-utils';
 
@@ -1515,7 +1515,7 @@ const JSONSerializer = Serializer.extend({
 
     Example
 
-      ```app/serializers/post.js
+      ```js [app/serializers/post.js]
       import JSONSerializer from '@ember-data/serializer/json';
       import { underscore } from '<app-name>/utils/string-utils';
 
