@@ -13,9 +13,9 @@
     "_tsc": "./src/tsc.ts"
   },
   "scripts": {
-    "prepare": "bun src/prepare-website.ts; typedoc;",
+    "prepare": "bun src/prepare-website.ts",
     "dev": "vitepress dev docs.warp-drive.io",
-    "build": "vitepress build docs.warp-drive.io",
+    "build": " typedoc; vitepress build docs.warp-drive.io",
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
