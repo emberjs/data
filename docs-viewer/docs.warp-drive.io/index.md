@@ -7,7 +7,8 @@ hero:
   text: Boldly Read What No Dev Has Read Before
   tagline: "Comprehensive Documentation for Engineers Aiming for the Stars 💫"
   image:
-    src: /logos/NCC-1701-a-gold.svg
+    light: /logos/NCC-1701-a-dark.svg
+    dark: /logos/NCC-1701-a-gold.svg
     alt: WarpDrive
   actions:
     - theme: brand
