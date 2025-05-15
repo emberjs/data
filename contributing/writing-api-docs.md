@@ -1,4 +1,16 @@
-# Writing API Docs
+# Writing Documentation
+
+There are two sources of documentation in this repository:
+
+- [Guides](../guides/) - markdown files that are compiled into the manual for the website
+- inline code comments and types - from which the API Docs are compiled
+
+Both are previewable by following the instructions in the [Docs Viewer](../docs-viewer/README.md)
+
+Great documentation requires both guides and docs. We encourage updating any associated guides affected by code changes as you make them, and writing new guides when appropriate.
+
+
+## API Documentation Infra Overview
 
 API Documentation is generated from [TSDoc](https://tsdoc.org/) comments in the source code
 compiled with [TypeDoc](https://typedoc.org/) and transformed for [Vitepress](https://vitepress.dev/) using [typedoc-plugin-markdown](https://www.typedoc-plugin-markdown.org/plugins/vitepress)
