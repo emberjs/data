@@ -4,17 +4,17 @@
  *
  * This configuration is done using `setConfig` in `ember-cli-build`.
  *
- * ```ts
+ * ```ts [ember-cli-build.js]
  * 'use strict';
  *
  * const EmberApp = require('ember-cli/lib/broccoli/ember-app');
  *
  * module.exports = async function (defaults) {
- *   const { setConfig } = await import('@warp-drive/build-config');
+ *   const { setConfig } = await import('@warp-drive/build-config'); // [!code focus]
  *
  *   const app = new EmberApp(defaults, {});
  *
- *   setConfig(app, __dirname, {
+ *   setConfig(app, __dirname, { // [!code focus:3]
  *     // settings here
  *   });
  *
@@ -26,35 +26,14 @@
  *
  * Available settings include:
  *
- * - [Debug Logging](../classes/DebugLogging)
- * - [Deprecated Code Removal](../classes/CurrentDeprecations)
- * - [Canary Feature Activation](../classes/CanaryFeatures)
+ * - {@link LOGGING | debugging}
+ * - {@link DEPRECATIONS | deprecations}
+ * - {@link FEATURES | features}
+ * - {@link WarpDriveConfig.polyfillUUID | polyfillUUID}
+ * - {@link WarpDriveConfig.includeDataAdapterInProduction | includeDataAdapterInProduction}
+ * - {@link WarpDriveConfig.compatWith | compatWith}
  *
- * As well as:
  *
- * ### polyfillUUID
- *
- * If you are using the library in an environment that does not support `window.crypto.randomUUID`
- * you can enable a polyfill for it.
- *
- * ```ts
- * setConfig(app, __dirname, {
- *  polyfillUUID: true
- * });
- * ```
- *
- * ### includeDataAdapterInProduction
- *
- * By default, the integration required to support the ember inspector browser extension
- * is included in production builds only when using the `ember-data` package. Otherwise
- * the default is to exclude it. This setting allows to explicitly enable/disable it in
- * production builds.
- *
- * ```ts
- * setConfig(app, __dirname, {
- *   includeDataAdapterInProduction: true
- * });
- * ```
  *
  * @module
  */
@@ -63,36 +42,113 @@ import { getEnv } from './-private/utils/get-env.ts';
 import { getDeprecations } from './-private/utils/deprecations.ts';
 import { getFeatures } from './-private/utils/features.ts';
 import * as LOGGING from './debugging.ts';
+import type * as FEATURES from './canary-features.ts';
+import type * as DEPRECATIONS from './deprecations.ts';
 import type { MacrosConfig } from '@embroider/macros/src/node.js';
 import { createLoggingConfig } from './-private/utils/logging.ts';
 
 const _MacrosConfig = EmbroiderMacros.MacrosConfig as unknown as typeof MacrosConfig;
 
-type LOG_CONFIG_KEY = keyof typeof LOGGING;
-
 export type WarpDriveConfig = {
+  /**
+   * An object of key/value pairs of logging flags
+   *
+   * see {@link LOGGING | debugging} for the available flags.
+   *
+   * ```ts
+   * {
+   *  LOG_CACHE: true,
+   * }
+   * ```
+   *
+   * @public
+   */
   debug?: Partial<InternalWarpDriveConfig['debug']>;
+
+  /**
+   * If you are using the library in an environment that does not
+   * support `window.crypto.randomUUID` you can enable a polyfill
+   * for it.
+   *
+   * @public
+   */
   polyfillUUID?: boolean;
+
+  /**
+   * By default, the integration required to support the ember-inspector
+   * browser extension is included in production builds only when using
+   * the `ember-data` package.
+   *
+   * Otherwise the default is to exclude it. This setting allows to explicitly
+   * enable/disable it in production builds.
+   *
+   * @public
+   */
   includeDataAdapterInProduction?: boolean;
+
+  /**
+   * The most recent version of the library from which all
+   * deprecations have been resolved.
+   *
+   * For instance if all deprecations released prior to or
+   * within `5.3` have been resolved, then setting this to
+   * `5.3` will remove all the support for the deprecated
+   * features for associated deprecations.
+   *
+   * See {@link DEPRECATIONS | deprecations} for more details.
+   */
   compatWith?: `${number}.${number}`;
+
+  /**
+   * An object of key/value pairs of logging flags
+   *
+   * see {@link DEPRECATIONS | deprecations} for the available flags.
+   *
+   * ```ts
+   * {
+   *   DEPRECATE_THING: false,
+   * }
+   * ```
+   *
+   * @public
+   */
   deprecations?: Partial<InternalWarpDriveConfig['deprecations']>;
+
+  /**
+   * An object of key/value pairs of canary feature flags
+   * for use when testing new features gated behind a flag
+   * in a canary release version.
+   *
+   * see {@link FEATURES | features} for the available flags.
+   *
+   * ```ts
+   * {
+   *   FEATURE_A: true,
+   * }
+   * ```
+   *
+   * @public
+   */
   features?: Partial<InternalWarpDriveConfig['features']>;
 };
 
 type InternalWarpDriveConfig = {
-  debug: { [key in LOG_CONFIG_KEY]: boolean };
+  debug: typeof LOGGING;
   polyfillUUID: boolean;
   includeDataAdapter: boolean;
   compatWith: `${number}.${number}` | null;
   deprecations: ReturnType<typeof getDeprecations>;
   features: ReturnType<typeof getFeatures>;
-  activeLogging: { [key in LOG_CONFIG_KEY]: boolean };
+  activeLogging: typeof LOGGING;
   env: {
     TESTING: boolean;
     PRODUCTION: boolean;
     DEBUG: boolean;
   };
 };
+
+type B = InternalWarpDriveConfig['features']['JSON_API_CACHE_VALIDATION_ERRORS'];
+type A = InternalWarpDriveConfig['deprecations']['DEPRECATE_EMBER_INFLECTOR'];
 
 type MacrosWithGlobalConfig = Omit<MacrosConfig, 'globalConfig'> & { globalConfig: Record<string, unknown> };
 

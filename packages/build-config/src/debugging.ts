@@ -1,5 +1,5 @@
 /**
- * ## Debug Logging
+ * # Log Instrumentation <Badge type="tip" text="debug only" />
  *
  * Many portions of the internals are helpfully instrumented with logging.
  * This instrumentation is always removed from production builds.
@@ -11,19 +11,11 @@
  * either in your build config or via the runtime helper.
  *
  *
- * ### Activation Via Runtime Helper
+ * ## Runtime Activation
  *
- * A runtime helper is attached to `globalThis` to enable activation of the logs
- * from anywhere in your application including from the devtools panel.
- *
- * The runtime helper overrides any build config settings for the given flag
- * for the current browser tab. It stores the configuration you give it in
- * `sessionStorage` so that it persists across page reloads of the current tab,
- * but not across browser tabs or windows. Thus if you need to deactivate the
- * logging, you can call the helper again with the same flag set to `false` or
- * just open a new tab/window.
- *
- * Example Usage:
+ * ::: tip 💡 Just Works in browser Dev Tools!
+ * No import is needed, and the logging config is preserved when the page is refreshed
+ * :::
  *
  * ```ts
  * setWarpDriveLogging({
@@ -32,26 +24,34 @@
  * })
  * ```
  *
- * ### Activation Via Build Config
+ * A runtime helper is attached to `globalThis` to enable activation of the logs
+ * from anywhere in your application including from the devtools panel.
+ *
+ * The runtime helper overrides any build config settings for the given flag
+ * for the current browser tab. It stores the configuration you give it in
+ * `sessionStorage` so that it persists across page reloads of the current tab,
+ * but not across browser tabs or windows.
+ *
+ * If you need to deactivate the logging, you can call the helper again with the
+ * same flag set to `false` or just open a new tab/window.
+ *
+ * ## Buildtime Activation
  *
  * ```ts
  * setConfig(__dirname, app, {
  *   debug: {
- *     LOG_CACHE: false, // data store received to update cache with
- *     LOG_NOTIFICATIONS: false,
+ *     LOG_CACHE: true,
  *     LOG_REQUESTS: false,
- *     LOG_REQUEST_STATUS: false,
- *     LOG_IDENTIFIERS: false,
- *     LOG_GRAPH: false,
- *     LOG_INSTANCE_CACHE: false,
- *     LOG_METRIC_COUNTS: false,
- *     DEBUG_RELATIONSHIP_NOTIFICATIONS: false,
+ *     LOG_NOTIFICATIONS: true,
  *   }
  * });
  * ```
  *
- * @class DebugLogging
- * @public
+ * The build config settings are used to set the default values for the
+ * logging flags. Any logging flag that is not set in the build config
+ * will default to `false`.
+ *
+ * @module
  */
 /**
  * log cache updates for both local
@@ -62,16 +62,50 @@
  *
  * The others were `LOG_OPERATIONS` and `LOG_MUTATIONS`.
  *
- * @property LOG_CACHE
- * @type {Boolean}
  * @public
+ * @since 5.5
  */
 export const LOG_CACHE: boolean = false;
+
+/**
+ * <Badge type="danger" text="removed" />
+ *
+ * This flag no longer has any effect.
+ *
+ * Use {@link LOG_CACHE} instead.
+ *
+ * @deprecated removed in version 5.5
+ * @public
+ */
+export const LOG_PAYLOADS: boolean = false;
+
+/**
+ * <Badge type="danger" text="removed" />
+ *
+ * This flag no longer has any effect.
+ *
+ * Use {@link LOG_CACHE} instead.
+ *
+ * @deprecated removed in version 5.5
+ * @public
+ */
+export const LOG_OPERATIONS: boolean = false;
+
+/**
+ * <Badge type="danger" text="removed" />
+ *
+ * This flag no longer has any effect.
+ *
+ * Use {@link LOG_CACHE} instead.
+ *
+ * @deprecated removed in version 5.5
+ * @public
+ */
+export const LOG_MUTATIONS: boolean = false;
+
 /**
  * Log decisions made by the Basic CachePolicy
  *
- * @property LOG_CACHE_POLICY
- * @type {Boolean}
  * @public
  */
 export const LOG_CACHE_POLICY: boolean = false;
@@ -79,16 +113,12 @@ export const LOG_CACHE_POLICY: boolean = false;
 /**
  * log notifications received by the NotificationManager
  *
- * @property LOG_NOTIFICATIONS
- * @type {Boolean}
  * @public
  */
 export const LOG_NOTIFICATIONS: boolean = false;
 /**
  * log requests issued by the RequestManager
  *
- * @property LOG_REQUESTS
- * @type {Boolean}
  * @public
  */
 export const LOG_REQUESTS: boolean = false;
@@ -96,8 +126,6 @@ export const LOG_REQUESTS: boolean = false;
  * log updates to requests the store has issued to
  * the network (adapter) to fulfill.
  *
- * @property LOG_REQUEST_STATUS
- * @type {Boolean}
  * @public
  */
 export const LOG_REQUEST_STATUS: boolean = false;
@@ -105,8 +133,6 @@ export const LOG_REQUEST_STATUS: boolean = false;
  * log peek, generation and updates to
  * Record Identifiers.
  *
- * @property LOG_IDENTIFIERS
- * @type {Boolean}
 
  * @public
  */
@@ -114,8 +140,6 @@ export const LOG_IDENTIFIERS: boolean = false;
 /**
  * log updates received by the graph (relationship pointer storage)
  *
- * @property LOG_GRAPH
- * @type {Boolean}
  * @public
  */
 export const LOG_GRAPH: boolean = false;
@@ -123,8 +147,6 @@ export const LOG_GRAPH: boolean = false;
  * log creation/removal of RecordData and Record
  * instances.
  *
- * @property LOG_INSTANCE_CACHE
- * @type {Boolean}
  * @public
  */
 export const LOG_INSTANCE_CACHE: boolean = false;
@@ -132,8 +154,6 @@ export const LOG_INSTANCE_CACHE: boolean = false;
  * Log key count metrics, useful for performance
  * debugging.
  *
- * @property LOG_METRIC_COUNTS
- * @type {Boolean}
  * @public
  */
 export const LOG_METRIC_COUNTS: boolean = false;
@@ -141,8 +161,6 @@ export const LOG_METRIC_COUNTS: boolean = false;
  * Helps when debugging causes of a change notification
  * when processing an update to a hasMany relationship.
  *
- * @property DEBUG_RELATIONSHIP_NOTIFICATIONS
- * @type {Boolean}
  * @public
  */
 export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;
@@ -155,5 +173,6 @@ export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;
  *
  * LOG_METRIC_COUNTS must also be enabled.
  *
+ * @internal
  */
 export const __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS: boolean = false;

@@ -1,3 +1,5 @@
+import { OptionDefaults } from 'typedoc';
+
 /** @type {Partial<import("typedoc").TypeDocOptions>} */
 const config = {
   $schema: 'https://typedoc.org/schema.json',
@@ -33,11 +35,13 @@ const config = {
     // inheritNone: true,
     useCodeBlocks: true,
     hidePageTitle: true,
+    blockTags: [...OptionDefaults.blockTags, '@until', '@since', '@id'],
+    modifierTags: [...OptionDefaults.modifierTags, '@required', '@optional', '@recommended', '@legacy', '@polaris'],
   },
   plugin: [
-    require.resolve('typedoc-plugin-markdown'),
-    require.resolve('typedoc-vitepress-theme'),
-    require.resolve('typedoc-plugin-no-inherit'),
+    import.meta.resolve('typedoc-plugin-markdown').slice(7),
+    import.meta.resolve('typedoc-vitepress-theme').slice(7),
+    import.meta.resolve('typedoc-plugin-no-inherit').slice(7),
   ],
   out: './docs.warp-drive.io/api',
   sidebar: {
@@ -48,7 +52,8 @@ const config = {
   excludeInternal: true,
   useCodeBlocks: true,
   hidePageTitle: true,
+  // typeAliasPropertiesFormat: 'htmlTable',
   // inheritNone: true,
 };
 
-module.exports = config;
+export default config;

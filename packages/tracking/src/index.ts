@@ -1,7 +1,7 @@
 /**
  * # ~~@ember-data/tracking~~ <Badge type="warning" text="deprecated v5.5" />
  *
- * Using WarpDrive with EmberJS requires configuring it to use Ember's reactivity system.
+ * Using ***Warp*Drive** with EmberJS requires configuring it to use Ember's reactivity system.
  *
  * ::: warning
  * The use of the package **@ember-data/tracking** is now deprecated. It

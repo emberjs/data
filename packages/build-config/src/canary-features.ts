@@ -1,65 +1,119 @@
 /**
  *
- * ## Canary Features
+ * # Canary Features <Badge type="warning" text="requires canary" />
  *
- * EmberData allows users to test features that are implemented but not yet
- * available even in canary.
+ * ***Warp*Drive** allows users to test upcoming features that are implemented
+ * but not yet activated in canary builds.
  *
- * Typically these features represent work that might introduce a new concept,
- * new API, change an API, or risk an unintended change in behavior to consuming
- * applications.
+ * Typically these features represent work that carries higher risk of breaking
+ * changes, or are not yet fully ready for production use.
  *
  * Such features have their implementations guarded by a "feature flag", and the
  * flag is only activated once the core-data team is prepared to ship the work
- * in a canary release.
+ * in a canary release, beginning the process of it landing in a stable release.
  *
  * ### Installing Canary
  *
- * To test a feature you MUST be using a canary build. Canary builds are published
- * to `npm` and can be installed using a precise tag (such as `ember-data@3.16.0-alpha.1`)
- * or by installing the latest dist-tag published to the `canary` channel using your javascript
- * package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-  ```cli
-  pnpm add ember-data@canary
-  ```
+ * ::: warning To test a feature guarded behind a flag, you MUST be using a canary build.
+ * :::
  *
- * ### Activating a Canary Feature
+ * Canary builds are published to `npm` and can be installed using a precise tag
+ * (such as `@warp-drive/core@5.6.0-alpha.1`) or by installing the latest dist-tag
+ * published to the `canary` channel.
  *
- * Once you have installed canary, feature-flags can be activated at build-time
+ * Because ***Warp*Drive** packages operate on a strict lockstep policy with each other,
+ * you must install the matching canary version of all ***Warp*Drive** packages.
  *
- * by setting an environment variable:
+ * Below is an example of installing the latest canary version of all the primary
+ * packages that are part of the ***Warp*Drive** project. Add/remove packages from
+ * this list to match your project.
  *
- * ```cli
- * # Activate a single flag
- * WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG ember build
+ * ::: code-group
  *
- * # Activate multiple flags by separating with commas
- * WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG,OTHER_FLAG ember build
- *
- * # Activate all flags
- * WARP_DRIVE_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL ember build
+ * ```sh [pnpm]
+ * pnpm add -E @ember-data/store@canary \
+ *   @ember-data/json-api@canary \
+ *   @ember-data/debug@canary \
+ *   @ember-data/graph@canary \
+ *   @ember-data/request@canary \
+ *   @ember-data/request-utils@canary \
+ *   @warp-drive/schema-record@canary \
+ *   @warp-drive/build-config@canary \
+ *   @warp-drive/core-types@canary;
  * ```
  *
- * or by setting the appropriate flag in your `ember-cli-build` file:
+ * ```sh [npm]
+ * npm add -E @ember-data/store@canary \
+ *   @ember-data/json-api@canary \
+ *   @ember-data/debug@canary \
+ *   @ember-data/graph@canary \
+ *   @ember-data/request@canary \
+ *   @ember-data/request-utils@canary \
+ *   @warp-drive/schema-record@canary \
+ *   @warp-drive/build-config@canary \
+ *   @warp-drive/core-types@canary;
+ * ```
+ *
+ * ```sh [yarn]
+ * yarn add -E @ember-data/store@canary \
+ *   @ember-data/json-api@canary \
+ *   @ember-data/debug@canary \
+ *   @ember-data/graph@canary \
+ *   @ember-data/request@canary \
+ *   @ember-data/request-utils@canary \
+ *   @warp-drive/schema-record@canary \
+ *   @warp-drive/build-config@canary \
+ *   @warp-drive/core-types@canary;
+ * ```
+ *
+ * ```sh [bun]
+ * bun add --exact @ember-data/store@canary \
+ *   @ember-data/json-api@canary \
+ *   @ember-data/debug@canary \
+ *   @ember-data/graph@canary \
+ *   @ember-data/request@canary \
+ *   @ember-data/request-utils@canary \
+ *   @warp-drive/schema-record@canary \
+ *   @warp-drive/build-config@canary \
+ *   @warp-drive/core-types@canary;
+ * ```
+ *
+ * :::
+ *
+ * ### Activating a Feature
+ *
+ * Once you have installed canary, feature-flags can be activated at build-time
  *
  * ```ts
  * setConfig(app, __dirname, {
  *   features: {
- *     SAMPLE_FEATURE_FLAG: false // utliize existing behavior, strip code for the new feature
- *     OTHER_FEATURE_FLAG: true // utilize this new feature, strip code for the older behavior
+ *     FEATURE_A: false, // utilize existing behavior
+ *     FEATURE_B: true // utilize the new behavior
  *   }
  * })
  * ```
  *
- * **The "off" branch of feature-flagged code is always stripped from production builds.**
+ * by setting an environment variable:
  *
- * The list of available feature-flags is located [here](https://github.com/emberjs/data/tree/main/packages/build-config/src/virtual/canary-features.ts "List of EmberData FeatureFlags")
+ * ```sh
+ * # Activate a single flag
+ * export WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG;
+ *
+ * # Activate multiple flags by separating with commas
+ * export WARP_DRIVE_FEATURE_OVERRIDE=SOME_FLAG,OTHER_FLAG;
+ *
+ * # Activate all flags
+ * export WARP_DRIVE_FEATURE_OVERRIDE=ENABLE_ALL_OPTIONAL;
+ * ```
+ *
+ * ::: warning To test a feature guarded behind a flag, you MUST be running a development build.
+ * :::
  *
  *
  * ### Preparing a Project to use a Canary Feature
  *
- * For most projects, simple version detection should be enough.
+ * For most projects and features, simple version detection should be enough.
+ *
  * Using the provided version compatibility helpers from [embroider-macros](https://github.com/embroider-build/embroider/tree/main/packages/macros#readme)
  * the following can be done:
  *
@@ -69,8 +123,12 @@
  * }
  * ```
  *
+ * For more complex projects and migrations, configure [@warp-drive/build-config/babel-macros](./babel-macros)
+ *
  * The current list of features used at build time for canary releases is defined below.
- * If empty there are no features currently gated by feature flags.
+ *
+ * ::: tip 💡 If empty there are no features currently gated by feature flags.
+ * :::
  *
  * The valid values are:
  *
@@ -78,9 +136,15 @@
  *  - `false` | The feature is **disabled** at all times, and cannot be enabled.
  *  - `null` | The feature is **disabled by default**, but can be enabled via configuration.
  *
- * @class CanaryFeatures
+ * @module
  * @public
-*/
+ */
+
+/**
+ * We use this for some tests etc.
+ *
+ * @internal
+ */
 export const SAMPLE_FEATURE_FLAG: boolean | null = null;
 
 /**
@@ -91,8 +155,6 @@ export const SAMPLE_FEATURE_FLAG: boolean | null = null;
  * `cache.put`, the cache will validate the payload against registered
  * schemas as well as the JSON:API spec.
  *
- * @property JSON_API_CACHE_VALIDATION_ERRORS
- * @type {Boolean|null}
  * @since 5.4
  * @public
  */
