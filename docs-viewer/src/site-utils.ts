@@ -40,7 +40,7 @@ function segmentToIndex(segment: string, index: number) {
 }
 
 export async function getGuidesStructure(withRewrites = false) {
-  const GuidesDirectoryPath = path.join(__dirname, '../../guides');
+  const GuidesDirectoryPath = path.join(__dirname, '../docs.warp-drive.io/guide');
   const glob = globSync('**/*.md', { cwd: GuidesDirectoryPath });
   const rewritten: Record<string, string> = {};
   const groups: Record<string, any> = {
