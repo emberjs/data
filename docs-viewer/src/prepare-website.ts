@@ -7,7 +7,9 @@ import { spawnSync } from 'child_process';
 
 export async function main() {
   const guidesPath = join(__dirname, '../../guides');
+  const contributingPath = join(__dirname, '../../contributing');
   const copiedPath = join(__dirname, '../docs.warp-drive.io/guide');
+  const copiedContributingPath = join(__dirname, '../docs.warp-drive.io/guide/contributing');
 
   // use Bun to create the symlink if it doesn't exist
 
@@ -22,6 +24,16 @@ export async function main() {
       cwd: __dirname,
     });
     console.log(`Copied: ${guidesPath} -> ${copiedPath}`);
+  } catch (error) {
+    console.error('Error copying directory:', error);
+  }
+
+  try {
+    spawnSync('cp', ['-r', contributingPath, copiedContributingPath], {
+      stdio: 'inherit',
+      cwd: __dirname,
+    });
+    console.log(`Copied: ${contributingPath} -> ${copiedContributingPath}`);
   } catch (error) {
     console.error('Error copying directory:', error);
   }
