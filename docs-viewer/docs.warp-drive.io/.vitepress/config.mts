@@ -108,7 +108,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guides', link: '/guide' },
-      { text: 'API', link: '/api' },
+      { text: 'API Docs', link: '/api' },
     ],
 
     sidebar: [

@@ -18,20 +18,17 @@ hero:
       link: /api
 
 features:
+  - title: Connect With Any API
+    icon: 🧩
+    details: Or All Of Them. No Architectural Lock-in 🔓
   - title: Universal
     icon: 🌌
-    details: Works Natively With any Framework or Library
-  - title: Reactive
-    icon: ⚛️
-    details: Fine Grained Signals Based Reactivity
+    details: Fine Grained Reactivity That Works Natively With Any Framework Or Library
   - title: Typed
-    icon: 💚
-    details: Fully Typed, Ready To Rock
-  - title: Blazing
-    icon: ⚡️
-    details: Unparalleled Size and Speed
-  - title: For Apps at Every Scale
-    icon: ♾️
-    details: Grows with your Apps / Teams / Business / Experience / Tech Choices
+    icon: ts
+    details: Fully Typed, Ready To Rock 💚 
+  - title: For Every Scale
+    icon: 🚀
+    details: From Weekend Hobby To Enterprise - WarpDrive Delivers
 ---
 
