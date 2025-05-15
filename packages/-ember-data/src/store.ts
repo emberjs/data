@@ -10,7 +10,6 @@ import {
 } from '@ember-data/legacy-compat';
 import type { FetchManager } from '@ember-data/legacy-compat/-private';
 import type Model from '@ember-data/model';
-import type { ModelStore } from '@ember-data/model/-private';
 import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model/hooks';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -45,16 +44,12 @@ export default class Store extends BaseStore {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(
-    this: ModelStore,
-    identifier: StableRecordIdentifier,
-    createRecordArgs: Record<string, unknown>
-  ): Model {
+  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>) {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
-  teardownRecord(record: Model): void {
-    teardownRecord.call(this, record);
+  teardownRecord(record: unknown): void {
+    return teardownRecord.call(this, record as Model);
   }
 
   modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
