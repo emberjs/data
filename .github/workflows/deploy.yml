@@ -47,7 +47,10 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Generate Artifact
         run: pnpm run build
-        cwd: docs-viewer
+        working-directory: docs-viewer
+        env:
+          BASE: '/data/'
+          HOSTNAME: 'https://emberjs.github.io/data'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -89,12 +89,15 @@ export default defineConfig({
 
   // github pages supports cleanURLs
   cleanUrls: true,
+  // @ts-expect-error
+  base: process.env.BASE || '/',
 
   // we want to use rewrites but can't https://github.com/vuejs/vitepress/issues/4364
   // rewrites: GuidesStructure.rewritten,
 
   sitemap: {
-    hostname: 'https://docs.warp-drive.io',
+    // @ts-expect-error
+    hostname: process.env.HOSTNAME || 'https://canary.warp-drive.io',
   },
 
   themeConfig: {
