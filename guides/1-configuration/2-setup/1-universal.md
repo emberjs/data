@@ -222,7 +222,7 @@ export default class AppStore extends Store {
 
 ```ts [Legacy via Model (Ember Only)]
 import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -231,12 +231,15 @@ import { CachePolicy } from '@ember-data/request-utils';
 import JSONAPICache from '@ember-data/json-api';
 
 import type { ResourceKey } from '@warp-drive/core-types';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+
+import type Model from '@ember-data/model';
 import {
+  buildSchema,
   instantiateRecord,
-  registerDerivations,
-  SchemaService,
+  modelFor,
   teardownRecord
-} from '@warp-drive/schema-record';
+} from '@ember-data/model/hooks';
 
 export default class AppStore extends Store {
 
@@ -254,22 +257,26 @@ export default class AppStore extends Store {
     }
   });
 
-  createSchemaService() {
-    const schema = new SchemaService();
-    registerDerivations(schema);
-    return schema;
+  createSchemaService(): SchemaService {
+    return buildSchema(this);
   }
 
   createCache(capabilities: CacheCapabilitiesManager) {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
-    return instantiateRecord(this, identifier, createArgs);
+  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>) {
+    return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
   teardownRecord(record: unknown): void {
-    return teardownRecord(record);
+    return teardownRecord.call(this, record as Model);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
   }
 }
 ```
