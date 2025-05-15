@@ -221,11 +221,111 @@ export default class AppStore extends Store {
 ```
 
 ```ts [Legacy via Model (Ember Only)]
-🚧 Under Construction
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import { CachePolicy } from '@ember-data/request-utils';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord
+} from '@warp-drive/schema-record';
+
+export default class AppStore extends Store {
+
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
+
+  lifetimes = new CachePolicy({
+    apiHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    constraints: {
+      'X-WarpDrive-Expires': true,
+      'Cache-Control': true,
+      'Expires': true,
+    }
+  });
+
+  createSchemaService() {
+    const schema = new SchemaService();
+    registerDerivations(schema);
+    return schema;
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager) {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, identifier, createArgs);
+  }
+
+  teardownRecord(record: unknown): void {
+    return teardownRecord(record);
+  }
+}
 ```
 
 ```ts [Migration (Ember Only)]
-🚧 Under Construction
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import { CachePolicy } from '@ember-data/request-utils';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord
+} from '@warp-drive/schema-record';
+
+export default class AppStore extends Store {
+
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
+
+  lifetimes = new CachePolicy({
+    apiHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    constraints: {
+      'X-WarpDrive-Expires': true,
+      'Cache-Control': true,
+      'Expires': true,
+    }
+  });
+
+  createSchemaService() {
+    const schema = new SchemaService();
+    registerDerivations(schema);
+    return schema;
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager) {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, identifier, createArgs);
+  }
+
+  teardownRecord(record: unknown): void {
+    return teardownRecord(record);
+  }
+}
 ```
 
 :::
