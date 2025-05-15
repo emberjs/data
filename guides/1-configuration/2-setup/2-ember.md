@@ -53,7 +53,7 @@ module.exports = async function (defaults) {
 ## Setup Legacy Support
 
 This guide presumes you've already gone through the [setup steps 
-the apply to all applications](./1-universal.md)
+that apply to all applications](./1-universal.md)
 
 "Legacy" is a term that applies to a fairly broad set of patterns that
 ***Warp*Drive**/***Ember*Data** is migrating away from. The previous
