@@ -52,7 +52,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "push" ]]; then
             echo "This is a push to the main branch. Deploying."
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            if [[ "${{ github.event.action }}" == "labeled" && "${{ github.event.label.name }}" == "pr-preview" ]]; then
+            if [[ "contains(github.event.pull_request.labels.*.name, 'ci-perf')" ]]; then
               echo "This is a pull request with the pr-preview label. Deploying."
             else
               echo "This is a pull request without the pr-preview label. Not deploying."
