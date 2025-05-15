@@ -68,6 +68,7 @@ jobs:
   # Build job
   build:
     if: ${{ needs.checkShouldDeploy.outputs.shouldDeploy == 'true' }}
+    needs: checkShouldDeploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
