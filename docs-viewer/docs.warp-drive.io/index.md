@@ -17,6 +17,9 @@ hero:
     - theme: alt
       text: API Docs
       link: /api
+    # - theme: alt
+    #   text: Contributing
+    #   link: /guide/contributing/become-a-contributor
 
 features:
   - title: Connect With Any API

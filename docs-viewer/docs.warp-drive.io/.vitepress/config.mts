@@ -112,6 +112,7 @@ export default defineConfig({
     nav: [
       { text: 'Guides', link: '/guide' },
       { text: 'API Docs', link: '/api' },
+      { text: 'Contributing', link: '/guide/contributing/become-a-contributor' },
     ],
 
     sidebar: [
