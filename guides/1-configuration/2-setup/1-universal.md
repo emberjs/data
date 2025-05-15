@@ -166,7 +166,7 @@ Looking for Legacy Adapter/Serializer Support?
 
 ::: code-group
 
-```ts [Polaris/Legacy via SchemaRecord]
+```ts [SchemaRecord]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 
@@ -220,7 +220,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Legacy via Model (Ember Only)]
+```ts [Model (Ember Only)]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
@@ -282,8 +282,8 @@ export default class AppStore extends Store {
 ```
 
 ```ts [Migration (Ember Only)]
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
+import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
@@ -292,6 +292,15 @@ import { CachePolicy } from '@ember-data/request-utils';
 import JSONAPICache from '@ember-data/json-api';
 
 import type { ResourceKey } from '@warp-drive/core-types';
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+
+import type Model from '@ember-data/model';
+import {
+  instantiateRecord as instantiateModel,
+  modelFor,
+  teardownRecord as teardownModel
+} from '@ember-data/model/hooks';
 import {
   instantiateRecord,
   registerDerivations,
@@ -318,7 +327,7 @@ export default class AppStore extends Store {
   createSchemaService() {
     const schema = new SchemaService();
     registerDerivations(schema);
-    return schema;
+    return new DelegatingSchemaService(this, schema);
   }
 
   createCache(capabilities: CacheCapabilitiesManager) {
@@ -326,11 +335,24 @@ export default class AppStore extends Store {
   }
 
   instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
+    if (this.schema.isDelegated(identifier)) {
+      return instantiateModel.call(this, identifier, createRecordArgs)
+    }
     return instantiateRecord(this, identifier, createArgs);
   }
 
   teardownRecord(record: unknown): void {
+    const identifier = recordIdentifierFor(record);
+    if (this.schema.isDelegated(identifier)) {
+      return teardownModel.call(this, record as Model);
+    }
     return teardownRecord(record);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
   }
 }
 ```
@@ -384,7 +406,9 @@ applications.
 → Learn more about [Resource Schemas](../../8-schemas.md)
 :::
 
-```ts
+::: code-group
+
+```ts [SchemaRecord]
 import Store from '@ember-data/store';
 
 import RequestManager from '@ember-data/request';
@@ -399,7 +423,6 @@ export default class AppStore extends Store {
   requestManager = new RequestManager()
     .use([Fetch]);
 
-  
   createSchemaService() { // [!code focus:5]
     const schema = new SchemaService();
     registerDerivations(schema);
@@ -408,6 +431,74 @@ export default class AppStore extends Store {
 
 }
 ```
+
+```ts [Model (Ember Only)]
+import Store from '@ember-data/store';
+import type { ModelSchema, SchemaService } from '@ember-data/store/types'; // [!code focus]
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import type { TypeFromInstance } from '@warp-drive/core-types/record'; // [!code focus]
+
+import {  // [!code focus:4]
+  buildSchema,
+  modelFor,
+} from '@warp-drive/schema-record';
+
+export default class AppStore extends Store {
+  requestManager = new RequestManager()
+    .use([Fetch]);
+
+  createSchemaService(): SchemaService { // [!code focus:3]
+    return buildSchema(this);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>; // [!code focus:6]
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
+  }
+}
+```
+
+```ts [Migration (Ember Only)]
+import Store from '@ember-data/store';
+import type { ModelSchema } from '@ember-data/store/types'; // [!code focus]
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import type { TypeFromInstance } from '@warp-drive/core-types/record'; // [!code focus:2]
+import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+
+import {  // [!code focus:3]
+  modelFor,
+} from '@warp-drive/schema-record';
+import { // [!code focus:4]
+  registerDerivations,
+  SchemaService,
+} from '@warp-drive/schema-record';
+
+export default class AppStore extends Store {
+  requestManager = new RequestManager()
+    .use([Fetch]);
+
+  createSchemaService() { // [!code focus:5]
+    const schema = new SchemaService();
+    registerDerivations(schema);
+    return new DelegatingSchemaService(this, schema);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>; // [!code focus:6]
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
+  }
+}
+```
+
+:::
 
 ### Add a Cache
 
@@ -460,7 +551,9 @@ be missing out on the best part. Reactive objects transform raw cached data into
 reactive data. The resulting objects are immutable, always displaying the latest state
 in the cache while preventing accidental or unsafe mutation in your app.
 
-```ts
+::: code-group
+
+```ts [SchemaRecord]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 
@@ -469,7 +562,7 @@ import Fetch from '@ember-data/request/fetch';
 
 import JSONAPICache from '@ember-data/json-api';
 
-import type { ResourceKey } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types'; // [!code focus]
 import {
   instantiateRecord, // [!code focus]
   registerDerivations,
@@ -502,6 +595,124 @@ export default class AppStore extends Store {
   }
 }
 ```
+
+```ts [Model (Ember Only)]
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types'; // [!code focus]
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+
+import type Model from '@ember-data/model'; // [!code focus]
+import {
+  buildSchema,
+  instantiateRecord, // [!code focus]
+  modelFor,
+  teardownRecord  // [!code focus]
+} from '@ember-data/model/hooks';
+
+export default class AppStore extends Store {
+
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
+
+  createSchemaService(): SchemaService {
+    return buildSchema(this);
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager) {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>) {  // [!code focus:3]
+    return instantiateRecord.call(this, identifier, createRecordArgs);
+  }
+
+  teardownRecord(record: unknown): void {  // [!code focus:3]
+    return teardownRecord.call(this, record as Model);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
+  }
+}
+```
+
+
+```ts [Migration (Ember Only)]
+import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
+import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types'; // [!code focus]
+import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import { DelegatingSchemaService } from '@ember-data/model/migration-support';
+
+import type Model from '@ember-data/model'; // [!code focus]
+import {
+  instantiateRecord as instantiateModel, // [!code focus]
+  modelFor,
+  teardownRecord as teardownModel // [!code focus]
+} from '@ember-data/model/hooks';
+import {
+  instantiateRecord, // [!code focus]
+  registerDerivations,
+  SchemaService,
+  teardownRecord // [!code focus]
+} from '@warp-drive/schema-record';
+
+export default class AppStore extends Store {
+
+  requestManager = new RequestManager()
+    .use([Fetch])
+    .useCache(CacheHandler);
+
+  createSchemaService() {
+    const schema = new SchemaService();
+    registerDerivations(schema);
+    return new DelegatingSchemaService(this, schema);
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager) {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {  // [!code focus:6]
+    if (this.schema.isDelegated(identifier)) {
+      return instantiateModel.call(this, identifier, createRecordArgs)
+    }
+    return instantiateRecord(this, identifier, createArgs);
+  }
+
+  teardownRecord(record: unknown): void {  // [!code focus:7]
+    const identifier = recordIdentifierFor(record);
+    if (this.schema.isDelegated(identifier)) {
+      return teardownModel.call(this, record as Model);
+    }
+    return teardownRecord(record);
+  }
+
+  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+  modelFor(type: string): ModelSchema;
+  modelFor(type: string): ModelSchema {
+    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
+  }
+}
+```
+
+:::
 
 ### Decide How Long Requests are Valid for with a CachePolicy
 

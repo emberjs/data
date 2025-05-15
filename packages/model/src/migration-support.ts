@@ -399,6 +399,10 @@ export class DelegatingSchemaService implements SchemaService {
     this._secondary = buildSchema(store);
   }
 
+  isDelegated(resource: StableRecordIdentifier | { type: string }): boolean {
+    return !this._preferred.hasResource(resource) && this._secondary.hasResource(resource);
+  }
+
   resourceTypes(): Readonly<string[]> {
     return Array.from(new Set(this._preferred.resourceTypes().concat(this._secondary.resourceTypes())));
   }

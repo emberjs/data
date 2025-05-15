@@ -1,11 +1,11 @@
-import { SignalHooks } from '@ember-data/store/-private';
 import { tagForProperty } from '@ember/-internals/metal';
-import { consumeTag, createCache, dirtyTag, getValue, track, updateTag, type UpdatableTag } from '@glimmer/validator';
-
 import { _backburner } from '@ember/runloop';
+import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
+
+import type { SignalHooks } from '@ember-data/store/-private';
+import { setupSignals } from '@ember-data/store/configure';
 // import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
-import { setupSignals } from '@ember-data/store/configure';
 
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;

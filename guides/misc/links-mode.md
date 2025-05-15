@@ -1,7 +1,5 @@
 # LinksMode
 
-- ⮐ [Relationships Guide](../index.md)
-
 ---
 
 **LinksMode** is a special feature that can be activated for any `belongsTo` or `hasMany` relationship.
@@ -9,7 +7,7 @@
 It allows that relationship to be fetched using the standard `request` experience instead of via the legacy `adapter` interface.
 
 LinksMode behaves *slightly* differently depending on whether
-you are using Model (including via [LegacyMode](../../reactive-data/legacy/overview.md)) or [PolarisMode](../../reactive-data/polaris/overview.md). We'll explain this nuance below.
+you are using Model (including via [LegacyMode](./4-reactivity/legacy/overview.md)) or [PolarisMode](./4-reactivity/polaris/overview.md). We'll explain this nuance below.
 
 > [!TIP]
 > The next-generation of reactive data which replaces Model is SchemaRecord.
@@ -112,7 +110,6 @@ Sideloads (included records) are valid to include in these responses.
 
 <br>
 
----
 
 ## Activating LinksMode
 
