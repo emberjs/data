@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "The Manual"
-  text: Boldly go where no App has gone before
-  tagline: "WarpDrive is the lightweight data framework for ambitious web applications — universal, typed, reactive, and ready to scale."
+  text: Boldly Read What No Dev Has Read Before
+  tagline: "Comprehensive Documentation for Engineers Aiming for the Stars 💫"
   image:
     src: /logos/NCC-1701-a-gold.svg
     alt: WarpDrive
