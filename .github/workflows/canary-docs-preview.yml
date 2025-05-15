@@ -1,11 +1,9 @@
 # This workflow is triggered on push to the main branch
 # It builds the documentation and deploys it to the canary environment
-name: Canary Docs Preview
+name: api.emberjs.com canary preview deployment
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency:
   group: ci-canary-docs-preview

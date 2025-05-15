@@ -1,6 +1,6 @@
 # Sample workflow for building and deploying a VitePress site to GitHub Pages
 #
-name: Deploy canary.warp-drive.io
+name: canary.warp-drive.io deployment
 
 on:
   # Runs on pushes targeting the `main` branch. Change this to `master` if you're
@@ -22,6 +22,11 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: false
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
 
 jobs:
   # Build job
