@@ -4206,7 +4206,54 @@ importers:
         specifier: 5.99.5
         version: 5.99.5
 
-  warp-drive-packages/core: {}
+  warp-drive-packages/core:
+    dependencies:
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core-types':
+        specifier: workspace:*
+        version: file:packages/core-types(@babel/core@7.27.1)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.27.1
+      '@babel/parser':
+        specifier: 7.27.0
+        version: 7.27.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/traverse':
+        specifier: 7.27.0
+        version: 7.27.0
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/babel__parser':
+        specifier: ^7.1.5
+        version: 7.1.5
+      '@types/babel__traverse':
+        specifier: ^7.20.7
+        version: 7.20.7
+      '@types/node':
+        specifier: ^20.17.27
+        version: 20.17.46
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config(5329c024b4ebf34f915440665ecbd07d)
+      bun-types:
+        specifier: ^1.2.6
+        version: 1.2.10
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^5.4.15
+        version: 5.4.19(@types/node@20.17.46)
 
 packages:
 
@@ -4407,6 +4454,11 @@ packages:
   '@babel/helpers@7.27.1':
     resolution: {integrity: sha512-FCvFTm0sWV8Fxhpp2McP5/W53GPllQ9QeQ7SiqGWjMf/LVG07lFa5+pgK05IRhVwtvafT22KF+ZSnM9I545CvQ==}
     engines: {node: '>=6.9.0'}
+
+  '@babel/parser@7.27.0':
+    resolution: {integrity: sha512-iaepho73/2Pz7w2eMS0Q5f83+0RKI7i4xmiYeBmDzfRVbQtTOG7Ts0S4HzJVsTMGI9keU8rNfuZr8DKfSt7Yyg==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
 
   '@babel/parser@7.27.2':
     resolution: {integrity: sha512-QYLs8299NA7WM/bZAdp+CviYYkVoYXlDW2rzliy3chxd1PQjej7JORuMJDJXJUb9g0TT+B99EwaVLKmX+sPXWw==}
@@ -4885,6 +4937,10 @@ packages:
 
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/traverse@7.27.0':
+    resolution: {integrity: sha512-19lYZFzYVQkkHkl4Cy4WrAVcqBkgvV2YM2TU3xG6DIwO7O3ecbDPfW3yM3bjAGcqcQHi+CCtjMR3dIEHxsd6bA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/traverse@7.27.1':
@@ -6292,6 +6348,10 @@ packages:
 
   '@types/babel__generator@7.27.0':
     resolution: {integrity: sha512-ufFd2Xi92OAVPYsy+P4n7/U7e68fex0+Ee8gSG9KX7eo084CWiQ4sdxktvdl0bOPupXtVJPY19zk6EwWqUQ8lg==}
+
+  '@types/babel__parser@7.1.5':
+    resolution: {integrity: sha512-yyWPJg3KawM9ydArmt2q+UE6dhy0usfXNB1yxDv0gE27KbZXeFCDtqR2L4jdVxXqq7I9tvkL9zuSY/ZVgF6fXQ==}
+    deprecated: This is a stub types definition. @babel/parser provides its own type definitions, so you do not need this installed.
 
   '@types/babel__template@7.4.4':
     resolution: {integrity: sha512-h/NUaSyG5EyxBIp8YRxo4RMe2/qQgvyowRwVMzhYhBCONbW8PUsg4lkFMrhgZhUe5z3L3MiLDuvyJ/CaPa2A8A==}
@@ -13951,6 +14011,10 @@ snapshots:
       '@babel/template': 7.27.2
       '@babel/types': 7.27.1
 
+  '@babel/parser@7.27.0':
+    dependencies:
+      '@babel/types': 7.27.1
+
   '@babel/parser@7.27.2':
     dependencies:
       '@babel/types': 7.27.1
@@ -14781,6 +14845,18 @@ snapshots:
       '@babel/code-frame': 7.27.1
       '@babel/parser': 7.27.2
       '@babel/types': 7.27.1
+
+  '@babel/traverse@7.27.0':
+    dependencies:
+      '@babel/code-frame': 7.27.1
+      '@babel/generator': 7.27.1
+      '@babel/parser': 7.27.0
+      '@babel/template': 7.27.2
+      '@babel/types': 7.27.1
+      debug: 4.4.0
+      globals: 11.12.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@babel/traverse@7.27.1':
     dependencies:
@@ -17545,9 +17621,13 @@ snapshots:
     dependencies:
       '@babel/types': 7.27.1
 
+  '@types/babel__parser@7.1.5':
+    dependencies:
+      '@babel/parser': 7.27.0
+
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.27.2
+      '@babel/parser': 7.27.0
       '@babel/types': 7.27.1
 
   '@types/babel__traverse@7.20.7':
@@ -17870,7 +17950,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.13':
     dependencies:
-      '@babel/parser': 7.27.2
+      '@babel/parser': 7.27.0
       '@vue/shared': 3.5.13
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -17883,7 +17963,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.13':
     dependencies:
-      '@babel/parser': 7.27.2
+      '@babel/parser': 7.27.0
       '@vue/compiler-core': 3.5.13
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-ssr': 3.5.13
@@ -20976,8 +21056,8 @@ snapshots:
 
   ember-router-generator@2.0.0:
     dependencies:
-      '@babel/parser': 7.27.2
-      '@babel/traverse': 7.27.1
+      '@babel/parser': 7.27.0
+      '@babel/traverse': 7.27.0
       recast: 0.18.10
     transitivePeerDependencies:
       - supports-color

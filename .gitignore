@@ -9,6 +9,7 @@ dist-*
 tmp
 unstable-preview-types
 packages/*/addon
+warp-drive-packages/core/types
 
 # dependencies
 bower_components
