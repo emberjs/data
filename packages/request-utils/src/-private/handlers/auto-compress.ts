@@ -1,5 +1,5 @@
-import type { Future, Handler, NextFn, RequestContext } from '@ember-data/request';
-import type { HTTPMethod } from '@warp-drive/core-types/request';
+import type { Future, Handler, NextFn } from '@warp-drive/core/request';
+import type { HTTPMethod, RequestContext } from '@warp-drive/core/types/request';
 
 function isCompressibleMethod(method?: HTTPMethod): boolean {
   return method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';

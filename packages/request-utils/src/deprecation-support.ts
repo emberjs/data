@@ -4,8 +4,8 @@ import { dependencySatisfies, importSync, macroCondition } from '@embroider/macr
 
 import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/build-config/deprecations';
 
-import { defaultRules as WarpDriveDefaults } from './-private/string/inflections';
-import { irregular, plural, singular, uncountable } from './string';
+import { defaultRules as WarpDriveDefaults } from './-private/string/inflections.ts';
+import { irregular, plural, singular, uncountable } from './string.ts';
 
 if (DEPRECATE_EMBER_INFLECTOR) {
   if (macroCondition(dependencySatisfies('ember-inflector', '*'))) {

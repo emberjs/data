@@ -21,6 +21,6 @@ export {
   resetToDefaults,
   clear,
   clearRules,
-} from './-private/string/inflect';
+} from './-private/string/inflect.ts';
 
-export { dasherize, camelize, capitalize, underscore, setMaxLRUCacheSize } from './-private/string/transform';
+export { dasherize, camelize, capitalize, underscore, setMaxLRUCacheSize } from './-private/string/transform.ts';

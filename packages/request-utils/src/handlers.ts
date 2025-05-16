@@ -4,4 +4,4 @@
  *
  * @module
  */
-export { AutoCompress, SupportsRequestStreams } from './-private/handlers/auto-compress';
+export { AutoCompress, SupportsRequestStreams } from './-private/handlers/auto-compress.ts';

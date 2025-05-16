@@ -3,15 +3,14 @@ import { deprecate } from '@ember/debug';
 import { LOG_CACHE_POLICY } from '@warp-drive/build-config/debugging';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core-types/params';
-import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core-types/request';
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import { getOrSetGlobal } from '@warp-drive/core/types/-private';
+import type { Cache } from '@warp-drive/core/types/cache';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core/types/params';
+import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
+import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
-import { LRUCache } from './-private/string/transform';
+import { LRUCache } from './-private/string/transform.ts';
 
 type UnsubscribeToken = object;
 type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
