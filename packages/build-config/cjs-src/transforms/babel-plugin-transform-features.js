@@ -22,12 +22,12 @@ export default function (babel) {
       ImportDeclaration(path, state) {
         const importPath = path.node.source.value;
 
-        if (importPath === state.opts.source) {
+        if (state.opts.sources.includes(importPath)) {
           const specifiers = path.get('specifiers');
           specifiers.forEach((specifier) => {
             let name = specifier.node.imported.name;
             if (!(name in state.opts.flags)) {
-              throw new Error(`Unexpected flag ${name} imported from ${state.opts.source}`);
+              throw new Error(`Unexpected flag ${name} imported from ${importPath}`);
             }
             let localBindingName = specifier.node.local.name;
             let binding = specifier.scope.getBinding(localBindingName);
