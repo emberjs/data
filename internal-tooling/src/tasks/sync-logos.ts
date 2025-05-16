@@ -7,47 +7,46 @@ import fs from 'fs';
 import debug from 'debug';
 import chalk from 'chalk';
 import type { BunFile } from 'bun';
-import { getMonorepoRoot, getPackageJson } from './-utils';
+import { getMonorepoRoot, getPackageJson, walkPackages, type ProjectPackage } from './-utils';
 
 const log = debug('wd:sync-logos');
 
 async function copyFiles({
-  packageDir,
   packageLogosDir,
   logosDir,
-  isCopied,
+  hasExistingCopy,
 }: {
-  packageDir: string;
   packageLogosDir: string;
   logosDir: string;
-  isCopied: boolean;
+  hasExistingCopy: boolean;
 }) {
   // if we are in copy mode, remove any existing symlink and copy the files
-  if (isCopied) {
+  if (hasExistingCopy) {
     fs.rmSync(packageLogosDir, { recursive: true, force: true });
-    log(`\t\t\t🗑️ Deleted existing copy of ${packageDir}/logos`);
+    log(`\t\t\t🗑️ Deleted existing copy of ${logosDir}`);
   }
   fs.mkdirSync(packageLogosDir, { recursive: true });
-  log(`\t\t\t📁 Created ${packageDir}/logos`);
+  log(`\t\t\t📁 Created ${logosDir}`);
 
   for (const logo of fs.readdirSync(logosDir, { recursive: true, encoding: 'utf-8' })) {
     const logoPath = path.join(logosDir, logo);
     const destPath = path.join(packageLogosDir, logo);
     fs.copyFileSync(logoPath, destPath);
-    log(`\t\t\t📁 Copied ${logo} to ${packageDir}/logos`);
+    log(`\t\t\t📁 Copied ${logo} to ${logosDir}`);
   }
 }
 
-async function updatePackageJson({ pkg, file, nicePath }: { pkg: any; file: BunFile; path: string; nicePath: string }) {
+async function updatePackageJson(project: ProjectPackage) {
+  const { pkg } = project;
   // ensure "files" field in package.json includes "logos"
   if (!pkg.files) {
     pkg.files = ['logos'];
-    await file.write(JSON.stringify(pkg, null, 2));
-    log(`\t\t📝 Added "logos" to "files" in ${nicePath}`);
+    await project.save({ pkgEdited: true, configEdited: false });
+    log(`\t\t📝 Added "logos" to "files" in ${project.project.dir}`);
   } else if (!pkg.files.includes('logos')) {
     pkg.files.push('logos');
-    await file.write(JSON.stringify(pkg, null, 2));
-    log(`\t\t📝 Added "logos" to "files" in ${nicePath}`);
+    await project.save({ pkgEdited: true, configEdited: false });
+    log(`\t\t📝 Added "logos" to "files" in ${project.project.dir}`);
   }
 }
 
@@ -61,27 +60,24 @@ export async function main() {
   // package directory that has a logos directory
 
   const logosDir = path.join(monorepoRoot, 'logos');
-  const packagesDir = path.join(monorepoRoot, 'packages');
 
-  for (const packageDir of fs.readdirSync(packagesDir)) {
-    const packageLogosDir = path.join(packagesDir, packageDir, 'logos');
-    const isCopied = fs.existsSync(packageLogosDir);
-    const details = await getPackageJson({ packageDir, packagesDir });
-
-    if (details.pkg.private) {
-      log(`\t\t🔒 Skipping private package ${details.nicePath}`);
-      continue;
+  await walkPackages(async (project: ProjectPackage, projects: Map<string, ProjectPackage>) => {
+    if (project.isPrivate) {
+      log(`\t\t🔒 Skipping private package ${project.pkg.name}`);
+      return;
     }
 
-    log(`\t\t🔁 Syncing logos to ${packageDir}`);
+    log(`\t\t🔁 Syncing logos to ${project.project.dir}`);
+
+    const packageLogosDir = path.join(project.project.dir, 'logos');
+    const hasExistingCopy = fs.existsSync(packageLogosDir);
 
     await copyFiles({
-      packageDir,
       packageLogosDir,
       logosDir,
-      isCopied,
+      hasExistingCopy,
     });
 
-    await updatePackageJson(details);
-  }
+    await updatePackageJson(project);
+  });
 }
