@@ -147,9 +147,6 @@ type InternalWarpDriveConfig = {
   };
 };
 
-type B = InternalWarpDriveConfig['features']['JSON_API_CACHE_VALIDATION_ERRORS'];
-type A = InternalWarpDriveConfig['deprecations']['DEPRECATE_EMBER_INFLECTOR'];
-
 type MacrosWithGlobalConfig = Omit<MacrosConfig, 'globalConfig'> & { globalConfig: Record<string, unknown> };
 
 function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
