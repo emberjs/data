@@ -1,1 +1,1 @@
-export * from '@warp-drive/core/types/spec/error';
+export type * from '@warp-drive/core/types/spec/error';

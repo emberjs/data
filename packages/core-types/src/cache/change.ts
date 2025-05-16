@@ -1,1 +1,1 @@
-export * from '@warp-drive/core/types/cache/change';
+export type * from '@warp-drive/core/types/cache/change';

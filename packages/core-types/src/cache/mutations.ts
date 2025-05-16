@@ -1,1 +1,1 @@
-export * from '@warp-drive/core/types/cache/mutations';
+export type * from '@warp-drive/core/types/cache/mutations';

@@ -1,1 +1,1 @@
-export * from '@warp-drive/core/types/schema/concepts';
+export type * from '@warp-drive/core/types/schema/concepts';
