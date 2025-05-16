@@ -1,5 +1,5 @@
+import type { Deferred } from '@ember-data/request';
 import { createDeferred } from '@ember-data/request';
-import type { Deferred } from '@ember-data/request/-private/types';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 

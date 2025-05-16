@@ -427,6 +427,14 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
  */
 
 export { createDeferred } from './request/-private/future.ts';
-export type { Future, Handler, CacheHandler, NextFn } from './request/-private/types.ts';
+export type {
+  Future,
+  Handler,
+  CacheHandler,
+  NextFn,
+  Deferred,
+  ManagedRequestPriority,
+} from './request/-private/types.ts';
 export { setPromiseResult, getPromiseResult } from './request/-private/promise-cache.ts';
 export type { Awaitable } from './request/-private/promise-cache.ts';
+export type { Context } from './request/-private/context.ts';

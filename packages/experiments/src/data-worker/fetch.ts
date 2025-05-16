@@ -1,7 +1,5 @@
-import type { RequestInfo } from '@ember-data/request';
+import type { Context, Deferred, Future, NextFn, RequestInfo } from '@ember-data/request';
 import { createDeferred } from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
-import type { Deferred, Future, NextFn } from '@ember-data/request/-private/types';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 import type { ApiError } from '@warp-drive/core-types/spec/error';

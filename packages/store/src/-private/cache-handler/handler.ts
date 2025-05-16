@@ -1,5 +1,4 @@
-import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
-import type { ManagedRequestPriority } from '@ember-data/request/-private/types';
+import type { CacheHandler as CacheHandlerType, Future, ManagedRequestPriority, NextFn } from '@ember-data/request';
 import { assert } from '@warp-drive/build-config/macros';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type {
