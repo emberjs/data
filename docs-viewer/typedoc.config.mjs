@@ -26,6 +26,7 @@ const config = {
     '../packages/serializer',
     '../packages/store',
     '../packages/tracking',
+    '../warp-drive-packages/core',
   ],
   entryFileName: 'index',
   packageOptions: {

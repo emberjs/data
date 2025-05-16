@@ -35,7 +35,7 @@
     "baseUrl": ".",
     "paths": {
       "@warp-drive/core": ["../../warp-drive-packages/core/types"],
-      "@warp-drive/core/*": ["../warp-drive-packages/core/types/*"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/types/*"],
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
     },
