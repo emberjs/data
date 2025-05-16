@@ -1,13 +1,13 @@
 import { DEBUG } from '@warp-drive/build-config/env';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+
+import { getOrSetGlobal } from '../../types/-private';
 import type {
   RequestInfo,
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
-} from '@warp-drive/core-types/request';
-import { STRUCTURED } from '@warp-drive/core-types/request';
-
+} from '../../types/request';
+import { STRUCTURED } from '../../types/request';
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
 import { createFuture, isFuture } from './future';
@@ -90,7 +90,7 @@ export interface HttpErrorProps extends DOMException {
   isRequestError: boolean;
 }
 
-export function enhanceReason(reason?: string) {
+export function enhanceReason(reason?: string): DOMException {
   return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }
 

@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from '../identifier.ts';
 
 export interface Change {
   identifier: StableRecordIdentifier | StableDocumentIdentifier;

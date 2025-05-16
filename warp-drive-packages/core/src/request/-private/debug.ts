@@ -1,7 +1,7 @@
 import { DEBUG } from '@warp-drive/build-config/env';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { ImmutableHeaders, RequestInfo } from '@warp-drive/core-types/request';
 
+import { getOrSetGlobal } from '../../types/-private';
+import type { ImmutableHeaders, RequestInfo } from '../../types/request';
 import { Context, upgradeHeaders } from './context';
 
 const BODY_TYPES = {

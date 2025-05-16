@@ -1,4 +1,4 @@
-import type { Includes, TypedRecordInstance } from './record';
+import type { Includes, TypedRecordInstance } from './record.ts';
 
 export type SerializablePrimitive = string | number | boolean | null;
 export type Serializable = SerializablePrimitive | SerializablePrimitive[];

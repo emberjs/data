@@ -1,9 +1,9 @@
-import { getOrSetGlobal, getOrSetUniversal } from './-private';
-import type { StableRecordIdentifier } from './identifier';
-import type { QueryParamsSerializationOptions } from './params';
-import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
-import type { ResourceIdentifierObject } from './spec/json-api-raw';
-import type { RequestSignature } from './symbols';
+import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
+import type { StableRecordIdentifier } from './identifier.ts';
+import type { QueryParamsSerializationOptions } from './params.ts';
+import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record.ts';
+import type { ResourceIdentifierObject } from './spec/json-api-raw.ts';
+import type { RequestSignature } from './symbols.ts';
 
 type Store = unknown;
 

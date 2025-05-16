@@ -4,4 +4,4 @@
  *
  * @module
  */
-export type { StableRecordIdentifier, ResourceKey } from './identifier';
+export type { StableRecordIdentifier, ResourceKey } from './types/identifier.ts';

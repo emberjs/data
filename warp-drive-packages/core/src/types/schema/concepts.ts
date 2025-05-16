@@ -1,7 +1,7 @@
-import type { StableRecordIdentifier } from '../identifier';
-import type { ObjectValue, Value } from '../json/raw';
-import type { OpaqueRecordInstance } from '../record';
-import type { Type } from '../symbols';
+import type { StableRecordIdentifier } from '../identifier.ts';
+import type { ObjectValue, Value } from '../json/raw.ts';
+import type { OpaqueRecordInstance } from '../record.ts';
+import type { Type } from '../symbols.ts';
 
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: ObjectValue | null, record: OpaqueRecordInstance): T;

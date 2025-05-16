@@ -1,4 +1,4 @@
-import { getOrSetGlobal } from './-private';
+import { getOrSetGlobal } from './-private.ts';
 
 export const RecordStore: '___(unique) Symbol(Store)' = getOrSetGlobal('Store', Symbol('Store'));
 

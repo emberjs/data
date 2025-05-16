@@ -1,15 +1,15 @@
 import type {
   AddToResourceRelationshipMutation as AddResourceMutation,
   RemoveFromResourceRelationshipMutation as RemoveResourceMutation,
-} from './cache/mutations';
+} from './cache/mutations.ts';
 import type {
   AddToResourceRelationshipOperation as AddResourceOperation,
   RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
   UpdateResourceRelationshipOperation,
-} from './cache/operations';
-import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
-import type { StableRecordIdentifier } from './identifier';
-import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw';
+} from './cache/operations.ts';
+import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
+import type { StableRecordIdentifier } from './identifier.ts';
+import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw.ts';
 
 export interface Graph {
   identifiers: Map<StableRecordIdentifier, unknown>;

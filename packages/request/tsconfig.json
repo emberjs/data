@@ -34,8 +34,8 @@
     "inlineSources": true,
     "baseUrl": ".",
     "paths": {
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/types"],
+      "@warp-drive/core/*": ["../warp-drive-packages/core/types/*"],
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
     },
@@ -47,7 +47,7 @@
   },
   "references": [
     {
-      "path": "../core-types"
+      "path": "../../warp-drive-packages/core"
     },
     {
       "path": "../build-config"

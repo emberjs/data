@@ -1,4 +1,4 @@
-import type { Link, Meta } from './json-api-raw';
+import type { Link, Meta } from './json-api-raw.ts';
 
 export interface ApiError {
   id?: string;

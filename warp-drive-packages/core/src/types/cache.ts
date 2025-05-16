@@ -1,14 +1,14 @@
-import type { ResourceBlob } from './cache/aliases';
-import type { Change } from './cache/change';
-import type { Mutation } from './cache/mutations';
-import type { Operation } from './cache/operations';
-import type { CollectionRelationship, ResourceRelationship } from './cache/relationship';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from './identifier';
-import type { Value } from './json/raw';
-import type { TypeFromInstanceOrString } from './record';
-import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request';
-import type { ResourceDocument, SingleResourceDataDocument } from './spec/document';
-import type { ApiError } from './spec/error';
+import type { ResourceBlob } from './cache/aliases.ts';
+import type { Change } from './cache/change.ts';
+import type { Mutation } from './cache/mutations.ts';
+import type { Operation } from './cache/operations.ts';
+import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
+import type { StableDocumentIdentifier, StableRecordIdentifier } from './identifier.ts';
+import type { Value } from './json/raw.ts';
+import type { TypeFromInstanceOrString } from './record.ts';
+import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';
+import type { ResourceDocument, SingleResourceDataDocument } from './spec/document.ts';
+import type { ApiError } from './spec/error.ts';
 
 /**
  * A hash of changed attributes with the key being the attribute name and the value being an

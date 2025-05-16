@@ -1,4 +1,4 @@
-import type { Type } from './symbols';
+import type { Type } from './symbols.ts';
 
 /**
  * Records may be anything, They don't even

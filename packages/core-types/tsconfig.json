@@ -26,6 +26,10 @@
     "noErrorTruncation": true,
     "preserveConstEnums": false,
     "experimentalDecorators": true,
+    "downlevelIteration": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": false,
+
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,

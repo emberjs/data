@@ -1,6 +1,6 @@
 import type { LOG_CONFIG } from '@warp-drive/build-config/-private/utils/logging';
 
-import { getOrSetUniversal } from './-private';
+import { getOrSetUniversal } from './-private.ts';
 
 const RuntimeConfig: { debug: Partial<LOG_CONFIG> } = getOrSetUniversal('WarpDriveRuntimeConfig', {
   debug: {},

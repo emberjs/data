@@ -1,6 +1,6 @@
-import type { StableExistingRecordIdentifier } from '../identifier';
-import type { ApiError } from './error';
-import type { Links, Meta, PaginationLinks } from './json-api-raw';
+import type { StableExistingRecordIdentifier } from '../identifier.ts';
+import type { ApiError } from './error.ts';
+import type { Links, Meta, PaginationLinks } from './json-api-raw.ts';
 
 export interface ResourceMetaDocument {
   // the url or cache-key associated with the structured document

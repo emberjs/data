@@ -426,14 +426,7 @@ For usage of the store's `requestManager` via `store.request(<req>)` see the
  * @module
  */
 
-export * from '@warp-drive/core/request';
-export { RequestManager as default } from '@warp-drive/core';
-export type {
-  RequestContext,
-  ImmutableRequestInfo,
-  RequestInfo,
-  ResponseInfo,
-  StructuredDocument,
-  StructuredErrorDocument,
-  StructuredDataDocument,
-} from '@warp-drive/core/types/request';
+export { createDeferred } from './request/-private/future.ts';
+export type { Future, Handler, CacheHandler, NextFn } from './request/-private/types.ts';
+export { setPromiseResult, getPromiseResult } from './request/-private/promise-cache.ts';
+export type { Awaitable } from './request/-private/promise-cache.ts';

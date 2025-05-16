@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['fs', 'path', 'semver', 'url'];
+export const externals = ['@ember/test-waiters'];
 
 export const entryPoints = [
   // build-config
@@ -12,6 +12,10 @@ export const entryPoints = [
   // './src/build-config/deprecations.ts',
   // './src/build-config/canary-features.ts',
 
+  // request
+  './src/index.ts',
+  './src/request.ts',
+
   // core-types
   './src/types/cache/**.ts',
   './src/types/json/**.ts',
@@ -20,7 +24,7 @@ export const entryPoints = [
   './src/types/cache.ts',
   './src/types/graph.ts',
   './src/types/identifier.ts',
-  './src/types/index.ts',
+  './src/types.ts',
   './src/types/params.ts',
   './src/types/record.ts',
   './src/types/request.ts',

@@ -43,7 +43,7 @@
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
     },
     "checkJs": false,
-    "isolatedDeclarations": true
+    "isolatedDeclarations": false
   },
   "references": [
     {

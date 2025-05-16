@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '../identifier';
+import type { StableRecordIdentifier } from '../identifier.ts';
 
 export interface AddToResourceRelationshipMutation {
   op: 'add';

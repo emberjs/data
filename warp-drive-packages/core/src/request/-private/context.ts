@@ -1,9 +1,9 @@
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '@warp-drive/core-types/request';
-import { SkipCache } from '@warp-drive/core-types/request';
 
+import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '../../types/request';
+import { SkipCache } from '../../types/request';
 import { deepFreeze } from './debug';
 import { createDeferred } from './future';
 import type { DeferredStream, GodContext } from './types';

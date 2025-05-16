@@ -1,4 +1,4 @@
-import type { ArrayValue, ObjectValue } from '../json/raw';
+import type { ArrayValue, ObjectValue } from '../json/raw.ts';
 
 export type Meta = ObjectValue;
 export type LinkObject = { href: string; meta?: Meta };

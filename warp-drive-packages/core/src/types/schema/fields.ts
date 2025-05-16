@@ -1,4 +1,4 @@
-import type { ObjectValue, PrimitiveValue } from '../json/raw';
+import type { ObjectValue, PrimitiveValue } from '../json/raw.ts';
 
 /**
  * A generic "field" that can be used to define

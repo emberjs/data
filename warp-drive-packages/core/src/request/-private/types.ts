@@ -1,13 +1,7 @@
 /* eslint-disable no-irregular-whitespace */
 
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type {
-  IS_FUTURE,
-  RequestContext,
-  RequestInfo,
-  ResponseInfo,
-  StructuredDataDocument,
-} from '@warp-drive/core-types/request';
+import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from '../../types/request';
 
 export interface GodContext {
   controller: AbortController;

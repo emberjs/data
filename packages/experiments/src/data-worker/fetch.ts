@@ -8,16 +8,6 @@ import type { ApiError } from '@warp-drive/core-types/spec/error';
 
 import type { AbortEventData, MainThreadEvent, RequestEventData } from './types';
 
-export interface FastBoot {
-  require(moduleName: string): unknown;
-  isFastBoot: boolean;
-  request: Request;
-}
-
-declare global {
-  const FastBoot: undefined | FastBoot;
-}
-
 const isServerEnv = typeof FastBoot !== 'undefined';
 
 function isAggregateError(error: Error & { errors?: ApiError[] }): error is AggregateError & { errors: ApiError[] } {

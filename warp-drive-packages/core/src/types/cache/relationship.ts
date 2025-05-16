@@ -1,5 +1,5 @@
-import type { StableRecordIdentifier } from '../identifier';
-import type { Links, Meta, PaginationLinks } from '../spec/json-api-raw';
+import type { StableRecordIdentifier } from '../identifier.ts';
+import type { Links, Meta, PaginationLinks } from '../spec/json-api-raw.ts';
 
 // we request that it be in the stable form already.
 export interface ResourceRelationship<T = StableRecordIdentifier> {

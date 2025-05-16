@@ -2,7 +2,7 @@
 // these maps, due to bugs in ember-auto-import
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 
-import { name, version } from '../../../../packages/core-types/package.json';
+import { name, version } from '../../package.json';
 
 type UniversalTransientKey =
   // @ember-data/request

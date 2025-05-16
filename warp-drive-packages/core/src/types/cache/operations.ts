@@ -1,7 +1,11 @@
-import type { StableDocumentIdentifier, StableExistingRecordIdentifier, StableRecordIdentifier } from '../identifier';
-import type { Value } from '../json/raw';
-import type { ExistingResourceObject } from '../spec/json-api-raw';
-import type { Relationship } from './relationship';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '../identifier.ts';
+import type { Value } from '../json/raw.ts';
+import type { ExistingResourceObject } from '../spec/json-api-raw.ts';
+import type { Relationship } from './relationship.ts';
 
 export interface Op {
   op: string;
