@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core",
-  "version": "5.6.0-alpha.3",
+  "version": "5.6.0-alpha.4",
   "private": true,
   "description": "Core package for WarpDrive | All the Universal Basics"
 }
