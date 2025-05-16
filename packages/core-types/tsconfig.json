@@ -41,7 +41,9 @@
     "baseUrl": ".",
     "paths": {
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/types"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/types/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -51,6 +53,9 @@
   "references": [
     {
       "path": "../build-config"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }

@@ -4,13 +4,13 @@ export const externals = ['fs', 'path', 'semver', 'url'];
 
 export const entryPoints = [
   // build-config
-  './src/build-config/index.ts',
-  './src/build-config/babel-macros.ts',
-  './src/build-config/env.ts',
-  './src/build-config/macros.ts',
-  './src/build-config/debugging.ts',
-  './src/build-config/deprecations.ts',
-  './src/build-config/canary-features.ts',
+  // './src/build-config/index.ts',
+  // './src/build-config/babel-macros.ts',
+  // './src/build-config/env.ts',
+  // './src/build-config/macros.ts',
+  // './src/build-config/debugging.ts',
+  // './src/build-config/deprecations.ts',
+  // './src/build-config/canary-features.ts',
 
   // core-types
   './src/types/cache/**.ts',
@@ -27,6 +27,7 @@ export const entryPoints = [
   './src/types/symbols.ts',
   './src/types/utils.ts',
   // non-public
+  './src/types/-private.ts',
   './src/types/runtime.ts',
 ];
 

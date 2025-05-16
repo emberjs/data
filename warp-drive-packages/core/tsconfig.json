@@ -40,9 +40,7 @@
     "erasableSyntaxOnly": true,
     "paths": {
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
     },
     "checkJs": false,
     "isolatedDeclarations": true
@@ -50,9 +48,6 @@
   "references": [
     {
       "path": "../../packages/build-config"
-    },
-    {
-      "path": "../../packages/core-types"
     }
   ]
 }

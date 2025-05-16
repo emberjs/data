@@ -1,0 +1,352 @@
+import { getOrSetGlobal, getOrSetUniversal } from './-private';
+import type { StableRecordIdentifier } from './identifier';
+import type { QueryParamsSerializationOptions } from './params';
+import type { ExtractSuggestedCacheTypes, Includes, TypedRecordInstance, TypeFromInstanceOrString } from './record';
+import type { ResourceIdentifierObject } from './spec/json-api-raw';
+import type { RequestSignature } from './symbols';
+
+type Store = unknown;
+
+export const SkipCache: '___(unique) Symbol(SkipCache)' = getOrSetUniversal('SkipCache', Symbol.for('wd:skip-cache'));
+export const EnableHydration: '___(unique) Symbol(EnableHydration)' = getOrSetUniversal(
+  'EnableHydration',
+  Symbol.for('wd:enable-hydration')
+);
+export const IS_FUTURE: '___(unique) Symbol(IS_FUTURE)' = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
+export const STRUCTURED: '___(unique) Symbol(DOC)' = getOrSetGlobal('DOC', Symbol('DOC'));
+
+export type HTTPMethod =
+  | 'QUERY'
+  | 'GET'
+  | 'OPTIONS'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'CONNECT'
+  | 'TRACE';
+
+/**
+ * Use these options to adjust CacheHandler behavior for a request.
+ *
+ */
+export type CacheOptions<T = unknown> = {
+  /**
+   * A key that uniquely identifies this request. If not present, the url wil be used
+   * as the key for any GET request, while all other requests will not be cached.
+   *
+   */
+  key?: string;
+  /**
+   * If true, the request will be made even if a cached response is present
+   * and not expired.
+   *
+   */
+  reload?: boolean;
+  /**
+   * If true, and a cached response is present and not expired, the request
+   * will be made in the background and the cached response will be returned.
+   *
+   */
+  backgroundReload?: boolean;
+  /**
+   * Useful for metadata around when to invalidate the cache. Typically used
+   * by strategies that invalidate requests by resource type when a new resource
+   * of that type has been created. See the CachePolicy implementation
+   * provided by `@ember-data/request-utils` for an example.
+   *
+   * It is recommended to only use this for query/queryRecord requests where
+   * new records created later would affect the results, though using it for
+   * findRecord requests is also supported if desired where it may be useful
+   * when a create may affect the result of a sideloaded relationship.
+   *
+   * Generally it is better to patch the cache directly for relationship updates
+   * than to invalidate findRecord requests for one.
+   *
+   */
+  types?: T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
+
+  /**
+   * If true, the request will never be handled by the cache-manager and thus
+   * will never resolve from cache nor update the cache.
+   *
+   * Generally this is only used for legacy request that manage resource cache
+   * updates in a non-standard way via the LegacyNetworkHandler.
+   *
+   */
+  [SkipCache]?: boolean;
+};
+export type FindRecordRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'GET';
+  headers: Headers;
+  cacheOptions?: CacheOptions<T>;
+  op: 'findRecord';
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
+};
+
+export type QueryRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'GET';
+  headers: Headers;
+  cacheOptions?: CacheOptions<T>;
+  op: 'query';
+  [RequestSignature]?: RT;
+};
+
+export type PostQueryRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'POST' | 'QUERY';
+  headers: Headers;
+  body?: string | BodyInit | FormData;
+  cacheOptions: CacheOptions<T> & { key: string };
+  op: 'query';
+  [RequestSignature]?: RT;
+};
+
+export type DeleteRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'DELETE';
+  headers: Headers;
+  op: 'deleteRecord';
+  body?: string | BodyInit | FormData;
+  data: {
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  };
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
+};
+
+type ImmutableRequest<T> = Readonly<T> & {
+  readonly headers: ImmutableHeaders;
+  readonly records: [StableRecordIdentifier];
+};
+
+export type UpdateRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'PATCH' | 'PUT';
+  headers: Headers;
+  op: 'updateRecord';
+  body?: string | BodyInit | FormData;
+  data: {
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  };
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
+};
+
+export type CreateRequestOptions<RT = unknown, T = unknown> = {
+  url: string;
+  method: 'POST';
+  headers: Headers;
+  op: 'createRecord';
+  body?: string | BodyInit | FormData;
+  data: {
+    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  };
+  records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
+  [RequestSignature]?: RT;
+};
+
+export type ImmutableDeleteRequestOptions = ImmutableRequest<DeleteRequestOptions>;
+export type ImmutableUpdateRequestOptions = ImmutableRequest<UpdateRequestOptions>;
+export type ImmutableCreateRequestOptions = ImmutableRequest<CreateRequestOptions>;
+
+export type RemotelyAccessibleIdentifier<T extends string = string> = {
+  id: string;
+  type: T;
+  lid?: string;
+};
+
+export type ConstrainedRequestOptions = {
+  reload?: boolean;
+  backgroundReload?: boolean;
+  host?: string;
+  namespace?: string;
+  resourcePath?: string;
+  urlParamsSettings?: QueryParamsSerializationOptions;
+};
+
+export type FindRecordOptions<T = unknown> = ConstrainedRequestOptions & {
+  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
+};
+
+export interface StructuredDataDocument<T> {
+  [STRUCTURED]?: true;
+  /**
+   * @see {@link ImmutableRequestInfo}
+   */
+  request: ImmutableRequestInfo;
+  response: Response | ResponseInfo | null;
+  content: T;
+}
+export interface StructuredErrorDocument<T = unknown> extends Error {
+  [STRUCTURED]?: true;
+  request: ImmutableRequestInfo;
+  response: Response | ResponseInfo | null;
+  error: string | object;
+  content?: T;
+}
+export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;
+
+/**
+ * JavaScript's native Request class.
+ *
+ * EmberData provides our own typings due to incompleteness in the native typings.
+ *
+ */
+interface Request {
+  /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
+   */
+  cache?: RequestCache;
+  /** Returns the credentials mode associated with request, which is a string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL.
+   */
+  credentials?: RequestCredentials;
+  /** Returns the kind of resource requested by request, e.g., "document" or "script".
+   */
+  destination?: RequestDestination;
+  /** Returns a Headers object consisting of the headers associated with request. Note that headers added in the network layer by the user agent will not be accounted for in this object, e.g., the "Host" header.
+   */
+  headers?: Headers;
+  /** Returns request's subresource integrity metadata, which is a cryptographic hash of the resource being fetched. Its value consists of multiple hashes separated by whitespace. [SRI]
+   */
+  integrity?: string;
+  /** Returns a boolean indicating whether or not request can outlive the global in which it was created.
+   */
+  keepalive?: boolean;
+  /** Returns request's HTTP method, which is "GET" by default.
+   */
+  method?: HTTPMethod;
+  /** Returns the mode associated with request, which is a string indicating whether the request will use CORS, or will be restricted to same-origin URLs.
+   *
+   * `no-cors` is not allowed for streaming request bodies.
+   *
+   */
+  mode?: RequestMode;
+  /** Returns the redirect mode associated with request, which is a string indicating how redirects for the request will be handled during fetching. A request will follow redirects by default.
+   */
+  redirect?: RequestRedirect;
+  /** Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init, the empty string to indicate no referrer, and "about:client" when defaulting to the global's default. This is used during fetching to determine the value of the `Referer` header of the request being made.
+   */
+  referrer?: string;
+  /** Returns the referrer policy associated with request. This is used during fetching to compute the value of the request's referrer.
+   */
+  referrerPolicy?: ReferrerPolicy;
+  /** Returns the signal associated with request, which is an AbortSignal object indicating whether or not request has been aborted, and its abort event handler.
+   */
+  signal?: AbortSignal;
+  /** Returns the URL of request as a string.
+   */
+  url?: string;
+  /** Any body that you want to add to your request. Note that a GET or HEAD request may not have a body.
+   */
+  body?: BodyInit | null;
+
+  /**
+   * When sending a ReadableStream as the body of a request, 'half' must be
+   * specified.
+   *
+   * [Half Duplex Further Reading](https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests#half_duplex)
+   *
+   */
+  duplex?: 'half';
+}
+
+export interface ImmutableHeaders extends Headers {
+  clone?(): Headers;
+  toJSON(): [string, string][];
+}
+
+/**
+ * Extends JavaScript's native {@link Request} object with additional
+ * properties specific to the RequestManager's capabilities.
+ *
+ */
+export interface RequestInfo<RT = unknown, T = unknown> extends Request {
+  /**
+   * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
+   *
+   */
+  controller?: AbortController;
+
+  /**
+   * @see {@link CacheOptions}
+   */
+  cacheOptions?: CacheOptions<T>;
+  store?: Store;
+
+  op?: string;
+
+  /**
+   * The identifiers of the primary resources involved in the request
+   * (if any). This may be used by handlers to perform transactional
+   * operations on the store.
+   *
+   */
+  records?: StableRecordIdentifier[];
+
+  disableTestWaiter?: boolean;
+  /**
+   * data that a handler should convert into
+   * the query (GET) or body (POST).
+   *
+   * Note: It is recommended that builders set query params
+   * and body directly in most scenarios.
+   *
+   */
+  data?: Record<string, unknown>;
+  /**
+   * options specifically intended for handlers
+   * to utilize to process the request
+   *
+   */
+  options?: Record<string, unknown>;
+
+  [RequestSignature]?: RT;
+
+  [EnableHydration]?: boolean;
+}
+
+/**
+ * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
+ *
+ */
+export type ImmutableRequestInfo<RT = unknown, T = unknown> = Readonly<Omit<RequestInfo<RT, T>, 'controller'>> & {
+  readonly cacheOptions?: Readonly<CacheOptions<T>>;
+  readonly headers?: ImmutableHeaders;
+  readonly data?: Readonly<Record<string, unknown>>;
+  readonly options?: Readonly<Record<string, unknown>>;
+
+  /** Whether the request body has been read.
+   */
+  readonly bodyUsed?: boolean;
+};
+
+export interface ResponseInfo {
+  readonly headers: ImmutableHeaders; // to do, maybe not this?
+  readonly ok: boolean;
+  readonly redirected: boolean;
+  readonly status: number;
+  readonly statusText: string;
+  readonly type: ResponseType;
+  readonly url: string;
+}
+
+export interface RequestContext {
+  /**
+   * @see {@link ImmutableRequestInfo}
+   */
+  request: ImmutableRequestInfo;
+  id: number;
+
+  setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
+  setResponse(response: Response | ResponseInfo | null): void;
+}
+
+export function withBrand<T>(obj: RequestInfo): RequestInfo<T> & { [RequestSignature]: T } {
+  return obj as RequestInfo<T> & {
+    [RequestSignature]: T;
+  };
+}
