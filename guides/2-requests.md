@@ -1,31 +1,8 @@
-<table>
-  <tbody>
-  <tr>
-    <td align="center" width="450">
-
-[← Introduction](./1-introduction.md)
-
-   </td>
-   <td align="center" width="450">
-
-[Key Data Structures →](./4-data.md)
-
-</td>
-  </tr>
-  </tbody>
-</table>
-
 # Making Requests
 
 Requests are how your application fetches or updates data stored remotely.
 
-```ts
-const { content } = await store.request({
-  url: '/api/users'
-});
-```
-
-### What does remote mean?
+***What Does Remote Mean?***
 
 Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
 
@@ -33,11 +10,23 @@ But it doesn't have to be! Remote really boils down to [persistence](https://en.
 
 Common examples of persistent or remote data sources that aren't accessed via connecting to a server are the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md).
 
-### Request Options
+<br>
+<img class="dark-only" src="./images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
+<img class="light-only" src="./images/requests-light.png" alt="waves of reactive signals light up space" width="100%">
+
+## Request Options
 
 *Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made. This ensures that if the platform supports it, WarpDrive exposes it: platform APIs are never hidden away.
 
-```ts
+::: code-group
+
+```ts [Simple GET]
+const { content } = await store.request({
+  url: '/api/users'
+});
+```
+
+```ts [QUERY with POST]
 const { content } = await store.request({
   url: '/api/users',
   method: 'POST',
@@ -54,7 +43,29 @@ const { content } = await store.request({
 });
 ```
 
-Of course, writing requests could get repetitive. This is where [builders]() help out. Builders are simple functions that produce the json request object.
+```ts [RPC Style Update]
+const { content } = await store.request({
+  url: '/actions/like',
+  method: 'POST',
+  headers: new Headers({
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  }),
+  body: JSON.stringify({
+    actor: { type: 'user', id: '1' },
+    content: { type: 'comment', id: '42' }
+  })
+});
+```
+
+:::
+
+Of course, writing requests so manually quickly gets repetitive.
+
+***Warp*Drive** offers two abstractions for helping to write organized, dry requests/
+
+
+This is where [builders]() help out. Builders are simple functions that produce the json request object.
 
 ```ts
 function queryUsers(query) {
