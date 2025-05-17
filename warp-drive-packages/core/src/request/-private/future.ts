@@ -1,5 +1,4 @@
-import { IS_FUTURE, type StructuredDocument } from '@warp-drive/core-types/request';
-
+import { IS_FUTURE, type StructuredDocument } from '../../types/request';
 import type { ContextOwner } from './context';
 import type { Deferred, DeferredFuture, Future } from './types';
 import { enhanceReason } from './utils';

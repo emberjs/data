@@ -1,10 +1,10 @@
 import { importSync } from '@embroider/macros';
 
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
-import { peekUniversalTransient, setUniversalTransient } from '@warp-drive/core-types/-private';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core-types/request';
 
+import { peekUniversalTransient, setUniversalTransient } from '../../types/-private';
+import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { RequestInfo, StructuredErrorDocument } from '../../types/request';
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import { clearRequestResult, getRequestResult, setPromiseResult } from './promise-cache';

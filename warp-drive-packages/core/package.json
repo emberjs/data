@@ -1,6 +1,69 @@
 {
   "name": "@warp-drive/core",
   "version": "5.6.0-alpha.4",
-  "private": true,
-  "description": "Core package for WarpDrive | All the Universal Basics"
+  "description": "Core package for WarpDrive | All the Universal Basics",
+  "keywords": [
+    "ember-addon"
+  ],
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "warp-drive-packages/core"
+  },
+  "scripts": {
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "sync": "echo \"syncing\"",
+    "start": "vite"
+  },
+  "files": [
+    "dist",
+    "declarations",
+    "addon-main.cjs",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.md",
+    "logos"
+  ],
+  "exports": {
+    ".": {
+      "types": "./declarations/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./declarations/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "peerDependencies": {
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0"
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.12",
+    "@warp-drive/build-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@ember/test-waiters": "^4.1.0",
+    "@warp-drive/internal-config": "workspace:*",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.15"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@10.8.1",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "ember": {
+    "edition": "octane"
+  }
 }

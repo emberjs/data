@@ -4,8 +4,8 @@ import { module, skip, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
+import type { Context } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
-import type { Context } from '@ember-data/request/-private/context';
 import type Store from '@ember-data/store';
 import { CacheHandler } from '@ember-data/store';
 import type { RelatedCollection } from '@ember-data/store/-private';

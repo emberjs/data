@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // tests
 
-import type { ExtractSuggestedCacheTypes, Includes, StringSatisfiesIncludes, TypedRecordInstance } from './record';
-import { createIncludeValidator } from './record';
-import type { Type } from './symbols';
+import type { ExtractSuggestedCacheTypes, Includes, StringSatisfiesIncludes, TypedRecordInstance } from './record.ts';
+import { createIncludeValidator } from './record.ts';
+import type { Type } from './symbols.ts';
 
 type NoRelations = {
   name: string;

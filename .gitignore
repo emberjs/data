@@ -9,6 +9,7 @@ dist-*
 tmp
 unstable-preview-types
 packages/*/addon
+declarations
 
 # dependencies
 bower_components

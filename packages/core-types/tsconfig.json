@@ -26,6 +26,10 @@
     "noErrorTruncation": true,
     "preserveConstEnums": false,
     "experimentalDecorators": true,
+    "downlevelIteration": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": false,
+
     // Enable faster builds
     // but causes us to not rebuild properly
     "composite": true,
@@ -41,7 +45,9 @@
     "baseUrl": ".",
     "paths": {
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -51,6 +57,9 @@
   "references": [
     {
       "path": "../build-config"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }

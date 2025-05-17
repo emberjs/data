@@ -1,4 +1,4 @@
-import { resourceSchema } from './fields';
+import { resourceSchema } from './fields.ts';
 
 // @ts-expect-error attribute field should result in an invalid schema
 // unless marked legacy

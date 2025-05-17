@@ -1,4 +1,4 @@
-import { getOrSetUniversal } from '@warp-drive/core-types/-private';
+import { getOrSetUniversal } from '../../types/-private';
 
 export type CacheResult<T = unknown, E = unknown> = { isError: true; result: E } | { isError: false; result: T };
 

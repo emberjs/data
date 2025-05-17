@@ -1,0 +1,27 @@
+// @ts-check
+import { globalIgnores } from '@warp-drive/internal-config/eslint/ignore.js';
+import * as node from '@warp-drive/internal-config/eslint/node.js';
+import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
+
+const externals = [];
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  // all ================
+  globalIgnores(),
+
+  // browser (js/ts) ================
+  typescript.browser({
+    srcDirs: ['src'],
+    allowedImports: externals,
+    rules: {
+      '@typescript-eslint/no-inferrable-types': 'off',
+    },
+  }),
+
+  // node (module) ================
+  node.esm(),
+
+  // node (script) ================
+  node.cjs(),
+];

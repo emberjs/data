@@ -40,12 +40,12 @@
     }
   },
   "peerDependencies": {
-    "@warp-drive/core-types": "workspace:*",
     "@ember/test-waiters": "^3.1.0 || ^4.0.0"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/core": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -53,7 +53,6 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
     "@glimmer/component": "^2.0.0",
-    "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@ember/test-waiters": "^4.1.0",
     "ember-source": "~6.3.0",
