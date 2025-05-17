@@ -38,9 +38,7 @@ export const entryPoints = [
 export default createConfig(
   {
     entryPoints,
-    flatten: false,
     externals,
-    fixModule: false,
   },
   import.meta.resolve
 );
