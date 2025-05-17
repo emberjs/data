@@ -15,18 +15,15 @@ be reused, or if updated data should be fetched.
 <img class="dark-only" src="./images/caching-dark.png" alt="waves of reactive signals light up space" width="100%">
 <img class="light-only" src="./images/caching-light.png" alt="waves of reactive signals light up space" width="100%">
 
-## The Request Process
 
-The process of checking and updating the cache flows roughly like this:
-
-### 1. Determining If A Request Can Use The Cache
+## Determining If A Request Can Use The Cache
 
 - `store.request` decorates the request with the store instance in use, and passes the request to the RequestManager
 - The RequestManager invokes its handler chain, starting with the CacheHandler
 - If the request has no Store or `cacheOptions[SkipCache] === true`, the CacheHandler passes along the request to the
   handler chain and will not attempt to handle the request or the response.
 
-### 2. Determining The CacheKey And Checking If The Response Is Stale
+## Determining The CacheKey And Checking If The Response Is Stale
 
 - The CacheHandler uses the attached store's IdentifierCache (a CacheKey manager) to determine the Request's CacheKey
     - this service will use `cacheOptions.key` if present
@@ -37,7 +34,7 @@ The process of checking and updating the cache flows roughly like this:
   - if there is a cache entry, it uses the `cacheOptions` and else the Store's `CachePolicy` to determine if the Response is stale.
 - If there is no cache entry or the Response is stale, the CacheHandler calls `next` and the Request continues down the handler chain.
 
-### 3. Updating The Cache With New Response Data
+## Updating The Cache With New Response Data
 
 - When the CacheHandler receives a response from the handler chain, it puts it in the cache. This occurs regardless of whether there is an
   associated `CacheKey` so that all responses are able to update the state of cached resources even if the request as a whole cannot be cached. For instance, when using `DELETE` to remove a record or a `POST` to create a new record.
@@ -58,7 +55,7 @@ there are either 3 or 4 tiers. Each tier operates on either `replace semantics` 
 
 - **Upsert Semantics:** new values received for a key merge with the existing value for the key
 
-### Tier 1: Responses Are Cached By Their CacheKey With Replace Semantics
+## Responses Are Cached By Their CacheKey With Replace Semantics
 
 ::: tip 💡 Resources within a Response are cached separately from the Response
 Read on to understand what this means.
@@ -119,7 +116,7 @@ interface ResponseDocument {
 }
 ```
 
-#### Resource Extraction
+### Resource Extraction
 
 During content processing, the cache extracts any resources it finds in the payload. The returned response document includes a list of the Resource CacheKeys representing resources extracted.
 
@@ -194,7 +191,7 @@ For example
 
 :::
 
-### Tier 2: Resources Are Cached By Their CacheKey With Upsert Semantics
+## Resources Are Cached By Their CacheKey With Upsert Semantics
 
 When the Cache finds a Resource in a Response, it generates a CacheKey for the Resource using the Store's IdentifierCache (a CacheKey manager). If an entry was
 already present for that CacheKey, the existing data and
@@ -267,11 +264,11 @@ Here's an example:
 
 :::
 
-### Tier 3a: Fields Are Cached By ResourceCacheKey + FieldName with Replace Semantics
+## Fields Are Cached By ResourceCacheKey + FieldName with Replace Semantics
 
 Where this really matters is for deep objects. Generally, we support partial resource representations due to the upsert strategy, but this also means that out-of-the-box we only support partials only one level deep. E.g. if a field's value is an object, that object should be the full state of the field not a partial state of the field, we will not deep-merge during upsert.
 
-### Tier 3b: Relationships Are Cached By ResourceCacheKey + FieldName
+## Relationships Are Cached By ResourceCacheKey + FieldName
 
 The Cache delegates relationship caching to the Graph Storage primitive provided by `@ember-data/graph`. The Graph is a powerful and highly optimized relational map that maintains the connections between ResourceCacheKeys.
 
