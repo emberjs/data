@@ -21,7 +21,8 @@
   },
   "files": [
     "dist",
-    "types",
+    "declarations",
+    "addon-main.cjs",
     "CHANGELOG.md",
     "README.md",
     "LICENSE.md",
