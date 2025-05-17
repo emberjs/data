@@ -37,6 +37,9 @@
       "default": "./dist/*.js"
     }
   },
+  "peerDependencies": {
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0"
+  },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*"
@@ -45,6 +48,7 @@
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-typescript": "^7.27.0",
+    "@ember/test-waiters": "^4.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "typescript": "^5.8.3",
     "vite": "^5.4.15"
