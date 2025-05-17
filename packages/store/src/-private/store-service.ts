@@ -345,12 +345,19 @@ const app = new EmberApp(defaults, {
 export interface Store {
   createCache(capabilities: CacheCapabilitiesManager): Cache;
 
+  /**
+   * This is the hook WarpDrive uses to create a record instance to give reactive access to
+   * a resource in the cache.
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   instantiateRecord<T>(
     identifier: StableRecordIdentifier,
     createRecordArgs: { [key: string]: unknown }
   ): OpaqueRecordInstance;
 
+  /**
+   * This is the hook WarpDrive uses to remove a record instance that is no longer needed
+   */
   teardownRecord(record: OpaqueRecordInstance): void;
 
   /**

@@ -222,7 +222,7 @@ and relationships onto the record for easier use.
 Notice also how we typed this object with `readonly`. This is because while
 SchemaRecord instances are ***deeply reactive***, they are also ***immutable***.
 
-We can mutate a SchemaRecord only be explicitly asking permission to do so, and
+We can mutate a SchemaRecord only by explicitly asking permission to do so, and
 in the process gaining access to an editable copy. The immutable version will
 not show any in-process edits made to this editable copy.
 

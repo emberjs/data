@@ -767,6 +767,7 @@ export class SchemaRecord {
     return proxy;
   }
 
+  /** @internal */
   [Destroy](): void {
     if (this[Legacy]) {
       // @ts-expect-error
@@ -776,6 +777,24 @@ export class SchemaRecord {
     }
     this[RecordStore].notifications.unsubscribe(this.___notifications);
   }
+
+  /**
+   * Create an editable copy of the record
+   *
+   * SchemaRecord instances are not editable by default. This method creates an editable copy of the record. To use,
+   * import the `Checkout` symbol from `@warp-drive/schema-record` and call it on the record.
+   *
+   * ```ts
+   * import { Checkout } from '@warp-drive/schema-record';
+   *
+   * const record = store.peekRecord('user', '1');
+   * const editableRecord = await record[Checkout]();
+   * ```
+   *
+   * @returns a promise that resolves to the editable record
+   * @throws if the record is already editable or if the record is embedded
+   *
+   */
   [Checkout](): Promise<SchemaRecord> {
     // IF we are already the editable record, throw an error
     if (this[Editable]) {
