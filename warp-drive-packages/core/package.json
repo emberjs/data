@@ -29,11 +29,11 @@
   ],
   "exports": {
     ".": {
-      "types": "./types/index.d.ts",
+      "types": "./declarations/index.d.ts",
       "default": "./dist/index.js"
     },
     "./*": {
-      "types": "./types/*.d.ts",
+      "types": "./declarations/*.d.ts",
       "default": "./dist/*.js"
     }
   },

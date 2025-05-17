@@ -34,7 +34,7 @@
     "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "types",
+    "declarationDir": "declarations",
     "inlineSourceMap": true,
     "inlineSources": true,
     "erasableSyntaxOnly": true,

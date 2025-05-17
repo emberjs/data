@@ -471,9 +471,9 @@ async function makeTypesStable(pkg: Package) {
 
   // enforce that the correct types directory is present
   const present = new Set(pkg.pkgData.files);
-  if (!present.has('types') && !hasInlineTypes) {
+  if (!present.has('declarations') && !hasInlineTypes) {
     throw new Error(
-      `Missing types directory from published files for ${pkg.pkgData.name}. This package is using a stable types strategy, and should thus publish a types directory.`
+      `Missing declarations directory from published files for ${pkg.pkgData.name}. This package is using a stable types strategy, and should thus publish a declarations directory.`
     );
   }
   if (present.has('unstable-preview-types')) {
