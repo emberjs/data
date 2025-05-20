@@ -11,9 +11,7 @@ Requests are how your application fetches or updates data stored remotely.
 
 Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
 
-But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored someplace so that it can be found again at a later time.
-
-Common examples of persistent or remote data sources that aren't accessed via connecting to a server are the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md).
+But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored and retrieved again at a later time.
 
 <br>
 <img class="dark-only" src="../images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
@@ -21,7 +19,7 @@ Common examples of persistent or remote data sources that aren't accessed via co
 
 ## Request Options
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interfaces for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) as the foundation upon which requests are made. This ensures that if the platform supports it, WarpDrive exposes it: platform APIs are never hidden away.
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
 
 ::: code-group
 
@@ -67,7 +65,7 @@ const { content } = await store.request({
 
 Of course, writing requests so manually quickly gets repetitive.
 
-***Warp*Drive** offers two abstractions for helping to write organized, reusable requests.
+*Warp***Drive** offers two abstractions for helping to write organized, reusable requests.
 
 - [Builders](./3-builders.md) - simple functions that produce a json request object
 - [Handlers](./4-handlers.md) - middleware that enable enhancing, modifying, or responding to requests
@@ -163,6 +161,19 @@ export default class AppStore extends Store {
 
 }
 ```
+
+## Requests Aren't Just For APIs
+
+Requests are a manner of expressing what data you want to use or an update to data you want to make. 
+
+
+[WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket), [ServerEvents](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+
+[WebSockets](), [ServerEvents](), 
+
+The [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md) are all common examples of persistent or remote data sources that aren't accessed via connecting to a server.
+
+
 
 ### The Chain of Responsibility
 
