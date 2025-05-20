@@ -1,4 +1,5 @@
-# Typing Requests & Builders
+# Typing Requests
+
 
 ## How it works (but what not to do in the general case)
 

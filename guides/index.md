@@ -44,7 +44,7 @@ const { content } = await store.request<User>({
 });
 ```
 
-`request` takes a generic that can be used to set the return type of the content of the associated request. Builders – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
+`request` takes a generic that can be used to set the [return type](./2-requests/2-typing-requests.md) of the content of the associated request. [Builders](./2-requests/3-builders.md) – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
 
 ```ts
 import { withBrand } from '@warp-drive/core-types/request'; // [!code focus]
@@ -106,7 +106,7 @@ content.data.organizations.map(organization => {
 });
 ```
 
-**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./5-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
+**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./3-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
 ## Schema Driven Reactivity {#schemas}
 
@@ -159,7 +159,7 @@ editable.firstName = 'Chris';
 
 ## Broad Compatibility {#api-compatibility}
 
-***Warp*Drive** is only semi-opinionated about your API. Almost every API is compatible just by authoring a [request handler](./concepts/handlers.md) to ensure that the responses are normalized into the cache format.
+***Warp*Drive** is only semi-opinionated about your API. Almost every API is compatible just by authoring a [request handler](./2-requests/4-handlers.md) to ensure that the responses are normalized into the cache format.
 
 ```ts
 const NormalizeKeysHandler = {
@@ -170,38 +170,6 @@ const NormalizeKeysHandler = {
   }
 }
 ```
-
----
-
-**probably discard this section**
-
-***Warp*Drive** offers both a JS and a Component based way of making requests and working with the result. Above we saw
-how to generate a request in component form. Here's how we can generate the same request using plain JavaScript.
-
-```ts
-
-// setup a store for the app
-import Store from '@ember-data/store';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-
-class AppStore extends Store {
-  requestManager = new RequestManager().use([Fetch])
-}
-
-// -------<elsewhere>--------
-
-// make use of the store
-import { findRecord } from '@ember-data/json-api/request';
-
-const request = store.request(
-  findRecord('user', this.args.id)
-);
-
-const result = await request;
-```
-
-You may be thinking "what is store and where did that come from"? The [store]() helps us to manage our data and cache responses. The store is something that you will configure for your application. Our component usage above is also using our application's store, a detail we will explore further in later sections.
 
 ---
 
