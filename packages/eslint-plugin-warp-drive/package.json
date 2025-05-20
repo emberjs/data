@@ -2,7 +2,7 @@
   "name": "eslint-plugin-warp-drive",
   "description": "ESLint rules for Applications using WarpDrive or EmberData",
   "main": "./src/index.js",
-  "version": "0.0.3-alpha.31",
+  "version": "0.0.3-alpha.32",
   "private": true,
   "repository": {
     "type": "git",
