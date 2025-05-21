@@ -46,7 +46,7 @@ const result = await store.request({
 ```glimmer-ts
 const UsersSearch = {
   url: '/api/users?search=Chris'
-});
+};
 
 export default <template>
   <Request @query={{UsersSearch}}>
