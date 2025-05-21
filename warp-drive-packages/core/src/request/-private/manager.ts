@@ -157,7 +157,11 @@ export class RequestManager {
         );
       }
       newHandlers.forEach((handler, index) => {
-        if (!handler || typeof handler !== 'object' || typeof handler.request !== 'function') {
+        if (
+          !handler ||
+          (typeof handler !== 'function' && typeof handler !== 'object') ||
+          typeof handler.request !== 'function'
+        ) {
           throw new Error(
             `\`RequestManager.use(<Handler[]>)\` expected to receive an array of handler objects with request methods, by the handler at index ${index} does not conform.`
           );
