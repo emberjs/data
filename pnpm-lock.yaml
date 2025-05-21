@@ -1540,21 +1540,12 @@ importers:
       '@ember-data/tracking':
         specifier: workspace:*
         version: file:packages/tracking(@babel/core@7.27.1)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
-      decorator-transforms:
-        specifier: ^2.3.0
-        version: 2.3.0(@babel/core@7.27.1)
       ember-source:
         specifier: ~6.3.0
-        version: 6.3.0(@glimmer/component@2.0.0)
-      expect-type:
-        specifier: ^1.2.1
-        version: 1.2.1
+        version: 6.3.0
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -4224,6 +4215,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      decorator-transforms:
+        specifier: ^2.3.0
+        version: 2.3.0(@babel/core@7.27.1)
       ember-source:
         specifier: ~6.3.0
         version: 6.3.0

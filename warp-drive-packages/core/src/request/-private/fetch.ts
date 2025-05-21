@@ -21,14 +21,10 @@ interface FastbootRequest extends Request {
   protocol: string;
   host: string;
 }
-interface FastBoot {
+export interface FastBoot {
   require(moduleName: string): unknown;
   isFastBoot: boolean;
   request: FastbootRequest;
-}
-
-declare global {
-  const FastBoot: undefined | FastBoot;
 }
 
 // Lazily close over fetch to avoid breaking Mirage
@@ -36,7 +32,7 @@ const _fetch: typeof fetch =
   typeof fetch !== 'undefined'
     ? (...args) => fetch(...args)
     : typeof FastBoot !== 'undefined'
-      ? (...args) => (FastBoot.require('node-fetch') as typeof fetch)(...args)
+      ? (...args) => ((FastBoot as FastBoot).require('node-fetch') as typeof fetch)(...args)
       : ((() => {
           throw new Error('No Fetch Implementation Found');
         }) as typeof fetch);
