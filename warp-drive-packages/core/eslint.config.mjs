@@ -3,7 +3,7 @@ import { globalIgnores } from '@warp-drive/internal-config/eslint/ignore.js';
 import * as node from '@warp-drive/internal-config/eslint/node.js';
 import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
 
-const externals = [];
+import { externals } from './vite.config.mjs';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [

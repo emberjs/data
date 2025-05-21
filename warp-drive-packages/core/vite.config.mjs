@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['@ember/test-waiters'];
+export const externals = ['@ember/object', '@ember/test-waiters', '@ember/debug'];
 
 export const entryPoints = [
   // build-config
@@ -33,6 +33,10 @@ export const entryPoints = [
   // non-public
   './src/types/-private.ts',
   './src/types/runtime.ts',
+
+  // store
+  './src/store/-private.ts',
+  './src/configure.ts',
 ];
 
 export default createConfig(

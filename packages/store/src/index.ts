@@ -187,18 +187,12 @@ export {
   type StoreRequestInput,
   recordIdentifierFor,
   storeFor,
-} from './-private';
-
-export type {
-  DocumentCacheOperation,
-  CacheOperation,
-  NotificationType,
-} from './-private/managers/notification-manager';
-
-export {
+  type DocumentCacheOperation,
+  type CacheOperation,
+  type NotificationType,
   setIdentifierGenerationMethod,
   setIdentifierUpdateMethod,
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
   setKeyInfoForResource,
-} from './-private/caches/identifier-cache';
+} from '@warp-drive/core';
