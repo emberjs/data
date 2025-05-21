@@ -6,6 +6,7 @@ import type { ApiError } from '@warp-drive/core-types/spec/error';
 
 import type { AbortEventData, MainThreadEvent, RequestEventData } from './types';
 
+// @ts-expect-error untyped global
 const isServerEnv = typeof FastBoot !== 'undefined';
 
 function isAggregateError(error: Error & { errors?: ApiError[] }): error is AggregateError & { errors: ApiError[] } {

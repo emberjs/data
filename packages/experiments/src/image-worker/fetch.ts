@@ -11,6 +11,7 @@ export interface FastBoot {
   request: Request;
 }
 
+// @ts-expect-error untyped global
 const isServerEnv = typeof FastBoot !== 'undefined';
 
 export class ImageFetch {

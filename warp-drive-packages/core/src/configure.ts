@@ -11,4 +11,4 @@
  * @public
  * @param {function} buildConfig - a function that takes options and returns a configuration object
  */
-export { setupSignals } from '@warp-drive/core/configure';
+export { setupSignals } from './store/-private/new-core-tmp/reactivity/configure';
