@@ -5,14 +5,14 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
-import type { Future, StructuredErrorDocument } from '@ember-data/request';
-import type { StoreRequestInput } from '@ember-data/store';
-import type Store from '@ember-data/store';
-import type { RequestLoadingState, RequestState } from '@ember-data/store/-private';
-import { getRequestState } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier.js';
-import { EnableHydration, type RequestInfo } from '@warp-drive/core-types/request';
+import type { Store, StoreRequestInput } from '@warp-drive/core';
+import type { Future } from '@warp-drive/core/request';
+import type { RequestLoadingState, RequestState } from '@warp-drive/core/store/-private';
+import { getRequestState } from '@warp-drive/core/store/-private';
+import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
+import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core/types/request';
+import { EnableHydration } from '@warp-drive/core/types/request';
 
 import { and, Throw } from './await.gts';
 

@@ -42,16 +42,10 @@
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "@ember-data/request": ["../request/unstable-preview-types"],
-      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
-      "@ember-data/store": ["../store/unstable-preview-types"],
-      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
-      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
-      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"]
+      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/core": ["../core/declarations"],
+      "@warp-drive/core/*": ["../core/declarations/*"]
     },
     "erasableSyntaxOnly": true,
     "lib": ["ESNext", "DOM"],
@@ -59,19 +53,10 @@
   },
   "references": [
     {
-      "path": "../store"
+      "path": "../core"
     },
     {
-      "path": "../core-types"
-    },
-    {
-      "path": "../request"
-    },
-    {
-      "path": "../build-config"
-    },
-    {
-      "path": "../request-utils"
+      "path": "../../packages/build-config"
     }
   ]
 }
