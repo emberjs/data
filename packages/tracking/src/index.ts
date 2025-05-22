@@ -22,7 +22,7 @@
  * ## 2. Add @warp-drive/ember
  *
  * - Add `@warp-drive/ember` to package.json - the version to install should match the version of `ember-data` or `@ember-data/store`
- * - Add `@warp-drive/ember` to tsconfig.json - the types import follows the same pattern (currently this means adding `@warp-drive/ember/unstable-preview-types` to the types array)
+ * - Do NOT add `@warp-drive/ember` to tsconfig.json - the types in this package install automatically, you can remove any entry for this if it is there
  * - Add `import '@warp-drive/ember/install';` to the top of your `app.js` or `app.ts` file
  *
  * ## 3. Clear the deprecation

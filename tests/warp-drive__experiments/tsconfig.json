@@ -47,8 +47,8 @@
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
-      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
-      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
@@ -74,7 +74,7 @@
       "path": "../../packages/diagnostic"
     },
     {
-      "path": "../../packages/ember"
+      "path": "../../warp-drive-packages/ember"
     },
     {
       "path": "../../packages/schema-record"

@@ -122,7 +122,7 @@ export { Await, Throw } from './-private/await.gts';
  * @param {Promise<T> | Awaitable<T, E>} promise
  * @return {PromiseState<T, E>}
  */
-export { getPromiseState } from '@ember-data/store/-private';
+export { getPromiseState } from '@warp-drive/core/store/-private';
 
 /**
  * Lazily consumes the stream of a request, providing a number of
@@ -217,4 +217,4 @@ export { getPromiseState } from '@ember-data/store/-private';
  * @param future
  * @return {RequestState}
  */
-export { getRequestState, type RequestLoadingState } from '@ember-data/store/-private';
+export { getRequestState, type RequestLoadingState } from '@warp-drive/core/store/-private';
