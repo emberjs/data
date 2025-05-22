@@ -18,7 +18,6 @@
       },
       "mappings": {
         "mock-server": "@warp-drive/diagnostic",
-        "core": "@warp-drive/core-types",
         "Other": null
       }
     }
@@ -79,7 +78,7 @@
     },
     "@warp-drive/ember": {
       "stage": "stable",
-      "types": "alpha",
+      "types": "stable",
       "typesPublish": false,
       "mirrorPublish": true
     },
@@ -102,7 +101,19 @@
       "mirrorPublish": true
     },
     "@warp-drive/core": {
-      "stage": "alpha",
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": false
+    },
+    "@warp-drive/utilities": {
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": false
+    },
+    "@warp-drive/legacy": {
+      "stage": "stable",
       "types": "stable",
       "typesPublish": false,
       "mirrorPublish": false
