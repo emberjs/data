@@ -67,3 +67,5 @@ docs-viewer/docs.warp-drive.io/.vitepress/dist
 docs-viewer/docs.warp-drive.io/.vitepress/cache
 docs-viewer/docs.warp-drive.io/guide
 docs-viewer/docs.warp-drive.io/api
+
+vite.config.mjs.timestamp-*
