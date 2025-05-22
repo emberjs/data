@@ -4140,6 +4140,9 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@glimmer/validator':
+        specifier: ^0.94.8
+        version: 0.94.8
       '@glint/core':
         specifier: unstable
         version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)

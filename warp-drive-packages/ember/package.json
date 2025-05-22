@@ -60,6 +60,7 @@
     "@babel/preset-typescript": "^7.27.0",
     "@babel/runtime": "^7.27.0",
     "@glimmer/component": "^2.0.0",
+    "@glimmer/validator": "^0.94.8",
     "@glint/core": "unstable",
     "@glint/environment-ember-loose": "unstable",
     "@glint/environment-ember-template-imports": "unstable",
