@@ -1,14 +1,14 @@
-import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
-import { graphFor, isBelongsTo, peekGraph } from '@ember-data/graph/-private';
-import type Store from '@ember-data/store';
-import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@ember-data/store/-private';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
-import type { Change } from '@warp-drive/core-types/cache/change';
+import type { Store } from '@warp-drive/core';
+import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
+import { graphFor, isBelongsTo, peekGraph } from '@warp-drive/core/graph/-private';
+import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@warp-drive/core/store/-private';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core/types/cache';
+import type { Change } from '@warp-drive/core/types/cache/change';
 import type {
   AddResourceOperation,
   AddToDocumentOperation,
@@ -22,28 +22,28 @@ import type {
   UpdateResourceFieldOperation,
   UpdateResourceOperation,
   UpdateResourceRelationshipOperation,
-} from '@warp-drive/core-types/cache/operations';
-import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
+} from '@warp-drive/core/types/cache/operations';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
+import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type {
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
   StableRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
-import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
+} from '@warp-drive/core/types/identifier';
+import type { ObjectValue, Value } from '@warp-drive/core/types/json/raw';
 import type {
   ImmutableRequestInfo,
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
-} from '@warp-drive/core-types/request';
+} from '@warp-drive/core/types/request';
 import type {
   CollectionField,
   FieldSchema,
   LegacyHasManyField,
   LegacyRelationshipField,
   ResourceField,
-} from '@warp-drive/core-types/schema/fields';
+} from '@warp-drive/core/types/schema/fields';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -51,19 +51,19 @@ import type {
   ResourceErrorDocument,
   ResourceMetaDocument,
   SingleResourceDataDocument,
-} from '@warp-drive/core-types/spec/document';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
+} from '@warp-drive/core/types/spec/document';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
 import type {
   CollectionResourceDocument,
   ExistingResourceObject,
   ResourceObject,
   SingleResourceDocument,
   SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/json-api-raw';
+} from '@warp-drive/core/types/spec/json-api-raw';
 
-import { validateDocumentFields } from './validate-document-fields';
-import { validateDocument } from './validator';
-import { isErrorDocument, isMetaDocument } from './validator/utils';
+import { validateDocumentFields } from './validate-document-fields.ts';
+import { validateDocument } from './validator/index.ts';
+import { isErrorDocument, isMetaDocument } from './validator/utils.ts';
 
 type IdentifierCache = Store['identifierCache'];
 type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
@@ -143,7 +143,7 @@ function makeCache(): CachedResource {
   @public
  */
 
-export default class JSONAPICache implements Cache {
+export class JSONAPICache implements Cache {
   /**
    * The Cache Version that this implementation implements.
    *

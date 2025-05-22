@@ -1,4 +1,4 @@
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
 import {
   getRemoteField,

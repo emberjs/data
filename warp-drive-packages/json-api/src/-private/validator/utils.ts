@@ -3,21 +3,21 @@ import Fuse from 'fuse.js';
 import type { ArrayNode, ObjectNode } from 'json-to-ast';
 import jsonToAst from 'json-to-ast';
 
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
 import { assert } from '@warp-drive/build-config/macros';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type {
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
-} from '@warp-drive/core-types/request';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
+} from '@warp-drive/core/types/request';
+import type { FieldSchema } from '@warp-drive/core/types/schema/fields';
 import type {
   ResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
   ResourceMetaDocument,
-} from '@warp-drive/core-types/spec/document';
+} from '@warp-drive/core/types/spec/document';
 
 export function inspectType(obj: unknown): string {
   if (obj === null) {

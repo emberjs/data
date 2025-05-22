@@ -53,4 +53,8 @@ URLs follow the most common JSON:API format (dasherized pluralized resource type
  *
  * @module
  */
-export * from '@warp-drive/utilities/json-api';
+export { findRecord } from './-private/json-api/find-record';
+export { query, postQuery } from './-private/json-api/query';
+export { deleteRecord, createRecord, updateRecord } from './-private/json-api/save-record';
+export { serializeResources, serializePatch } from './-private/json-api/serialize';
+export { setBuildURLConfig } from './-private/json-api/-utils';

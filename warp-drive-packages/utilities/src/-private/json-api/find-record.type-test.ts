@@ -1,10 +1,10 @@
 import { expectTypeOf } from 'expect-type';
 
-import Store from '@ember-data/store';
-import { RequestSignature, type Type } from '@warp-drive/core-types/symbols';
+import { Store } from '@warp-drive/core';
+import { RequestSignature, type Type } from '@warp-drive/core/types/symbols';
 
-import type { FindRecordResultDocument } from './find-record';
-import { findRecord } from './find-record';
+import type { FindRecordResultDocument } from './find-record.ts';
+import { findRecord } from './find-record.ts';
 
 type MyThing = {
   name: string;

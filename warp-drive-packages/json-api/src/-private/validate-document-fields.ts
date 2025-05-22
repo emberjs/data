@@ -1,12 +1,12 @@
-import type { SchemaService } from '@ember-data/store/types';
-import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core-types/schema/fields';
+import type { SchemaService } from '@warp-drive/core/types';
+import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import type {
   CollectionResourceDocument,
   ExistingResourceIdentifierObject,
   ExistingResourceObject,
   InnerRelationshipDocument,
   SingleResourceDocument,
-} from '@warp-drive/core-types/spec/json-api-raw';
+} from '@warp-drive/core/types/spec/json-api-raw';
 
 export function validateDocumentFields(
   schema: SchemaService,

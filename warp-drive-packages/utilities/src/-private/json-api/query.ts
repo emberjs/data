@@ -1,16 +1,16 @@
-import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '@ember-data/request-utils';
-import { pluralize } from '@ember-data/request-utils/string';
-import type { QueryParamsSource } from '@warp-drive/core-types/params';
-import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core-types/record';
+import type { QueryParamsSource } from '@warp-drive/core/types/params';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   CacheOptions,
   ConstrainedRequestOptions,
   PostQueryRequestOptions,
   QueryRequestOptions,
-} from '@warp-drive/core-types/request';
-import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
+} from '@warp-drive/core/types/request';
+import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
-import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils';
+import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '../../index.ts';
+import { pluralize } from '../../string.ts';
+import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils.ts';
 
 /**
  * Builds request options to query for resources, usually by a primary

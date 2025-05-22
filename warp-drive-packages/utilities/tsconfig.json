@@ -38,7 +38,6 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "erasableSyntaxOnly": true,
-    "types": ["ember-source/types"],
     "paths": {
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],

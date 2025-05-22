@@ -1,10 +1,10 @@
 import { expectTypeOf } from 'expect-type';
 
-import Store from '@ember-data/store';
-import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import { RequestSignature, type Type } from '@warp-drive/core-types/symbols';
+import { Store } from '@warp-drive/core';
+import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import { RequestSignature, type Type } from '@warp-drive/core/types/symbols';
 
-import { query } from './query';
+import { query } from './query.ts';
 
 type NoRelations = {
   name: string;
