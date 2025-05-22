@@ -1,4 +1,4 @@
-export { default } from './-private/cache';
+export { JSONAPICache as default } from '@warp-drive/json-api';
 
 /**
  * <p align="center">

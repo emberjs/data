@@ -1,7 +1,8 @@
-import type { BuildURLConfig, UrlOptions } from '@ember-data/request-utils';
-import { buildQueryParams as buildParams, setBuildURLConfig as setConfig } from '@ember-data/request-utils';
-import type { QueryParamsSource } from '@warp-drive/core-types/params';
-import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core-types/request';
+import type { QueryParamsSource } from '@warp-drive/core/types/params';
+import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core/types/request';
+
+import type { BuildURLConfig, UrlOptions } from '../../index.ts';
+import { buildQueryParams as buildParams, setBuildURLConfig as setConfig } from '../../index.ts';
 
 export interface JSONAPIConfig extends BuildURLConfig {
   profiles?: {

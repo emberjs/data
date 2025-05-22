@@ -1,9 +1,9 @@
-import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
 import { LOG_CACHE } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core/types/request';
+import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
 import { validateTopLevelDocumentMembers } from './1.1/7.1_top-level-document-members';
 import { validateDocumentResources } from './1.1/7.2_resource-objects';

@@ -1,14 +1,14 @@
-import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '@ember-data/request-utils';
-import { pluralize } from '@ember-data/request-utils/string';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
-} from '@warp-drive/core-types/request';
-import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+} from '@warp-drive/core/types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
-import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils';
+import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '../../index.ts';
+import { pluralize } from '../../string.ts';
+import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils.ts';
 
 /**
  * Builds request options to fetch a single resource by a known id or identifier

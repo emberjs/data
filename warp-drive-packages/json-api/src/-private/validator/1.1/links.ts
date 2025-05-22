@@ -1,9 +1,9 @@
-import type { ResourceDocument } from '@warp-drive/core-types/spec/document';
+import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 import type {
   CollectionResourceRelationship,
   ResourceObject,
   SingleResourceRelationship,
-} from '@warp-drive/core-types/spec/json-api-raw';
+} from '@warp-drive/core/types/spec/json-api-raw';
 
 import { inspectType, isSimpleObject, type PathLike, type Reporter } from '../utils';
 

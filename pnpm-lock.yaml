@@ -307,22 +307,22 @@ importers:
     dependencies:
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(29c044de829f6db30bdbec2b387f0970)
+        version: file:packages/adapter(04db5081363cd0b91084563846469619)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6b379ef1fd873cc97d8bdb1fe163d689)
+        version: file:packages/debug(cf28acccdf80b45786d00ded445bdff4)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(4dabfcb824b8f02199b0c6c4294633bc)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)
+        version: file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(0e595cdd97dd2c044475913903e19022)
+        version: file:packages/model(1140ceee714f8a79a9e4fb99bcbf3b9e)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -331,7 +331,7 @@ importers:
         version: file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(29c044de829f6db30bdbec2b387f0970)
+        version: file:packages/serializer(04db5081363cd0b91084563846469619)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(ba858e684713dd8beac686aa516c100b)
@@ -521,10 +521,10 @@ importers:
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1042,12 +1042,12 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.27.1)
-      fuse.js:
-        specifier: 7.1.0
-        version: 7.1.0
-      json-to-ast:
-        specifier: 2.1.0
-        version: 2.1.0
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -1061,33 +1061,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.27.0
         version: 7.27.1(@babel/core@7.27.1)
-      '@ember-data/graph':
-        specifier: workspace:*
-        version: file:packages/graph(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(@babel/core@7.27.1)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@types/json-to-ast':
-        specifier: ^2.1.4
-        version: 2.1.4
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
-      ember-source:
-        specifier: ~6.3.0
-        version: 6.3.0(@glimmer/component@2.0.0)
       expect-type:
         specifier: ^1.2.1
         version: 1.2.1
@@ -1121,7 +1097,7 @@ importers:
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1191,10 +1167,10 @@ importers:
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1663,22 +1639,22 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1687,7 +1663,7 @@ importers:
         version: file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -1744,19 +1720,19 @@ importers:
         version: file:packages/active-record(12aa1e1ce936288a3110149931984c27)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(689d4032303d6d5a4d1cf2184890b7d0)
+        version: file:packages/debug(25fb17c0707f2a1a868ad12b2e243196)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(d197ae22371afded72aba31eb71f8098)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
+        version: file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+        version: file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1919,19 +1895,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -1940,7 +1916,7 @@ importers:
         version: file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -2037,19 +2013,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2170,19 +2146,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2239,7 +2215,7 @@ importers:
         version: file:config
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(8fdf5a222f124eb50011e55b61e16bbc)
+        version: file:packages/schema-record(e0b3d900d6d20ebf2515a78125281d02)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -2309,16 +2285,16 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2327,7 +2303,7 @@ importers:
         version: file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -2545,22 +2521,22 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2659,22 +2635,22 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(0884af617b6e3ba1c48d935867b4998e)
+        version: file:packages/adapter(f73cb62c0093b79b3494e6cd29d961d6)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(689d4032303d6d5a4d1cf2184890b7d0)
+        version: file:packages/debug(25fb17c0707f2a1a868ad12b2e243196)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(d197ae22371afded72aba31eb71f8098)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
+        version: file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+        version: file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2683,7 +2659,7 @@ importers:
         version: file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(0884af617b6e3ba1c48d935867b4998e)
+        version: file:packages/serializer(f73cb62c0093b79b3494e6cd29d961d6)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -2807,19 +2783,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -2975,19 +2951,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3175,22 +3151,22 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(0884af617b6e3ba1c48d935867b4998e)
+        version: file:packages/adapter(f73cb62c0093b79b3494e6cd29d961d6)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(689d4032303d6d5a4d1cf2184890b7d0)
+        version: file:packages/debug(25fb17c0707f2a1a868ad12b2e243196)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(d197ae22371afded72aba31eb71f8098)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
+        version: file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+        version: file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3199,7 +3175,7 @@ importers:
         version: file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(0884af617b6e3ba1c48d935867b4998e)
+        version: file:packages/serializer(f73cb62c0093b79b3494e6cd29d961d6)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -3262,7 +3238,7 @@ importers:
         version: file:config
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(e0aa6aab85104d53b81ba702541d9367)
+        version: file:packages/schema-record(ad5bedc174e942301b28df56fff134ed)
       broccoli-concat:
         specifier: ^4.2.5
         version: 4.2.5
@@ -3394,13 +3370,13 @@ importers:
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3520,22 +3496,22 @@ importers:
         version: 7.27.1
       '@ember-data/adapter':
         specifier: workspace:*
-        version: file:packages/adapter(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3544,7 +3520,7 @@ importers:
         version: file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/serializer':
         specifier: workspace:*
-        version: file:packages/serializer(94200ac35da97682230b84530dfa39d8)
+        version: file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -3725,19 +3701,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3803,7 +3779,7 @@ importers:
         version: file:config
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(8fdf5a222f124eb50011e55b61e16bbc)
+        version: file:packages/schema-record(e0b3d900d6d20ebf2515a78125281d02)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -3876,19 +3852,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -3954,7 +3930,7 @@ importers:
         version: file:config
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(8fdf5a222f124eb50011e55b61e16bbc)
+        version: file:packages/schema-record(e0b3d900d6d20ebf2515a78125281d02)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -4030,19 +4006,19 @@ importers:
         version: 7.27.1
       '@ember-data/debug':
         specifier: workspace:*
-        version: file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+        version: file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph':
         specifier: workspace:*
         version: file:packages/graph(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/json-api':
         specifier: workspace:*
-        version: file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+        version: file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/legacy-compat':
         specifier: workspace:*
-        version: file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+        version: file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/model':
         specifier: workspace:*
-        version: file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+        version: file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request':
         specifier: workspace:*
         version: file:packages/request(71230f815b7f822a1df7a93bc6010582)
@@ -4102,7 +4078,7 @@ importers:
         version: file:config
       '@warp-drive/schema-record':
         specifier: workspace:*
-        version: file:packages/schema-record(8fdf5a222f124eb50011e55b61e16bbc)
+        version: file:packages/schema-record(e0b3d900d6d20ebf2515a78125281d02)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -4224,6 +4200,15 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.27.1)
+      fuse.js:
+        specifier: 7.1.0
+        version: 7.1.0
+      json-to-ast:
+        specifier: 2.1.0
+        version: 2.1.0
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -4234,6 +4219,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.27.0
         version: 7.27.1(@babel/core@7.27.1)
+      '@types/json-to-ast':
+        specifier: ^2.1.4
+        version: 2.1.4
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -5119,11 +5107,6 @@ packages:
 
   '@ember-data/json-api@file:packages/json-api':
     resolution: {directory: packages/json-api, type: directory}
-    peerDependencies:
-      '@ember-data/graph': workspace:*
-      '@ember-data/request-utils': workspace:*
-      '@ember-data/store': workspace:*
-      '@warp-drive/core-types': workspace:*
 
   '@ember-data/legacy-compat@file:packages/legacy-compat':
     resolution: {directory: packages/legacy-compat, type: directory}
@@ -6808,6 +6791,9 @@ packages:
   '@warp-drive/internal-tooling@file:internal-tooling':
     resolution: {directory: internal-tooling, type: directory}
     hasBin: true
+
+  '@warp-drive/json-api@file:warp-drive-packages/json-api':
+    resolution: {directory: warp-drive-packages/json-api, type: directory}
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
@@ -15017,25 +15003,9 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/adapter@file:packages/adapter(0884af617b6e3ba1c48d935867b4998e)':
+  '@ember-data/adapter@file:packages/adapter(04db5081363cd0b91084563846469619)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
-      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/adapter@file:packages/adapter(29c044de829f6db30bdbec2b387f0970)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember/edition-utils': 1.2.0
@@ -15049,10 +15019,26 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/adapter@file:packages/adapter(94200ac35da97682230b84530dfa39d8)':
+  '@ember-data/adapter@file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      ember-cli-path-utils: 1.0.0
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@ember-data/adapter@file:packages/adapter(f73cb62c0093b79b3494e6cd29d961d6)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
+      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
@@ -15078,9 +15064,9 @@ snapshots:
       - '@babel/preset-env'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(689d4032303d6d5a4d1cf2184890b7d0)':
+  '@ember-data/debug@file:packages/debug(25fb17c0707f2a1a868ad12b2e243196)':
     dependencies:
-      '@ember-data/model': file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+      '@ember-data/model': file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
       '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
@@ -15091,11 +15077,11 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(6b379ef1fd873cc97d8bdb1fe163d689)':
+  '@ember-data/debug@file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)':
     dependencies:
-      '@ember-data/model': file:packages/model(0e595cdd97dd2c044475913903e19022)
+      '@ember-data/model': file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
+      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
@@ -15104,11 +15090,11 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/debug@file:packages/debug(6e87379f69295b5fbe051d2873726de6)':
+  '@ember-data/debug@file:packages/debug(cf28acccdf80b45786d00ded445bdff4)':
     dependencies:
-      '@ember-data/model': file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+      '@ember-data/model': file:packages/model(1140ceee714f8a79a9e4fb99bcbf3b9e)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
@@ -15127,59 +15113,34 @@ snapshots:
       - '@ember/test-waiters'
       - supports-color
 
-  '@ember-data/graph@file:packages/graph(@babel/core@7.27.1)':
+  '@ember-data/json-api@file:packages/json-api(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/json-api': file:warp-drive-packages/json-api(71230f815b7f822a1df7a93bc6010582)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - '@ember/test-waiters'
       - supports-color
 
-  '@ember-data/json-api@file:packages/json-api(4dabfcb824b8f02199b0c6c4294633bc)':
+  '@ember-data/legacy-compat@file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)':
     dependencies:
-      '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      fuse.js: 7.1.0
-      json-to-ast: 2.1.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/json-api@file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)':
-    dependencies:
-      '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      fuse.js: 7.1.0
-      json-to-ast: 2.1.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/json-api@file:packages/json-api(d197ae22371afded72aba31eb71f8098)':
-    dependencies:
+    optionalDependencies:
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      fuse.js: 7.1.0
-      json-to-ast: 2.1.0
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/legacy-compat@file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)':
+  '@ember-data/legacy-compat@file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)':
     dependencies:
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
@@ -15190,12 +15151,12 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(4dabfcb824b8f02199b0c6c4294633bc)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/legacy-compat@file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)':
+  '@ember-data/legacy-compat@file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)':
     dependencies:
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
@@ -15206,23 +15167,7 @@ snapshots:
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(d197ae22371afded72aba31eb71f8098)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/legacy-compat@file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)':
-    dependencies:
-      '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -15240,9 +15185,9 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/model@file:packages/model(0e595cdd97dd2c044475913903e19022)':
+  '@ember-data/model@file:packages/model(1140ceee714f8a79a9e4fb99bcbf3b9e)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember/edition-utils': 1.2.0
@@ -15254,14 +15199,14 @@ snapshots:
       inflection: 3.0.2
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(4dabfcb824b8f02199b0c6c4294633bc)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/model@file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)':
+  '@ember-data/model@file:packages/model(51ea0be972d5bde0bb1f55877a465b43)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
       '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
@@ -15273,26 +15218,7 @@ snapshots:
       inflection: 3.0.2
     optionalDependencies:
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(d197ae22371afded72aba31eb71f8098)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/model@file:packages/model(41768b0a6d986030f305ba91a055ae4c)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
-      '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-      inflection: 3.0.2
-    optionalDependencies:
-      '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -15309,6 +15235,25 @@ snapshots:
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
       inflection: 3.0.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@ember-data/model@file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
+      '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+      inflection: 3.0.2
+    optionalDependencies:
+      '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -15380,25 +15325,9 @@ snapshots:
 
   '@ember-data/rfc395-data@0.0.4': {}
 
-  '@ember-data/serializer@file:packages/serializer(0884af617b6e3ba1c48d935867b4998e)':
+  '@ember-data/serializer@file:packages/serializer(04db5081363cd0b91084563846469619)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
-      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/edition-utils': 1.2.0
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
-      ember-cli-path-utils: 1.0.0
-      ember-cli-string-utils: 1.1.0
-      ember-cli-test-info: 1.0.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@ember-data/serializer@file:packages/serializer(29c044de829f6db30bdbec2b387f0970)':
-    dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember/edition-utils': 1.2.0
@@ -15412,10 +15341,26 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/serializer@file:packages/serializer(94200ac35da97682230b84530dfa39d8)':
+  '@ember-data/serializer@file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)':
     dependencies:
-      '@ember-data/legacy-compat': file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember/edition-utils': 1.2.0
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      ember-cli-path-utils: 1.0.0
+      ember-cli-string-utils: 1.1.0
+      ember-cli-test-info: 1.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@ember-data/serializer@file:packages/serializer(f73cb62c0093b79b3494e6cd29d961d6)':
+    dependencies:
+      '@ember-data/legacy-compat': file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
+      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
@@ -18182,7 +18127,31 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@warp-drive/schema-record@file:packages/schema-record(8fdf5a222f124eb50011e55b61e16bbc)':
+  '@warp-drive/json-api@file:warp-drive-packages/json-api(71230f815b7f822a1df7a93bc6010582)':
+    dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
+      fuse.js: 7.1.0
+      json-to-ast: 2.1.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@ember/test-waiters'
+      - supports-color
+
+  '@warp-drive/json-api@file:warp-drive-packages/json-api(@babel/core@7.27.1)':
+    dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
+      fuse.js: 7.1.0
+      json-to-ast: 2.1.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@ember/test-waiters'
+      - supports-color
+
+  '@warp-drive/schema-record@file:packages/schema-record(ad5bedc174e942301b28df56fff134ed)':
     dependencies:
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -18190,12 +18159,12 @@ snapshots:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
-      '@ember-data/model': file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+      '@ember-data/model': file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/schema-record@file:packages/schema-record(e0aa6aab85104d53b81ba702541d9367)':
+  '@warp-drive/schema-record@file:packages/schema-record(e0b3d900d6d20ebf2515a78125281d02)':
     dependencies:
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -18203,7 +18172,7 @@ snapshots:
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
-      '@ember-data/model': file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+      '@ember-data/model': file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -20643,15 +20612,15 @@ snapshots:
 
   ember-data@file:packages/-ember-data(161060b426f3947fa15e00df6e9f9dad):
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(0884af617b6e3ba1c48d935867b4998e)
-      '@ember-data/debug': file:packages/debug(689d4032303d6d5a4d1cf2184890b7d0)
+      '@ember-data/adapter': file:packages/adapter(f73cb62c0093b79b3494e6cd29d961d6)
+      '@ember-data/debug': file:packages/debug(25fb17c0707f2a1a868ad12b2e243196)
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(d197ae22371afded72aba31eb71f8098)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(8e5373a13a7a30f11a3be8445c890b8c)
-      '@ember-data/model': file:packages/model(1b7b533c496bcd90f7ef63891e7845f1)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(7c04b875a632a79cbf702054934993ff)
+      '@ember-data/model': file:packages/model(51ea0be972d5bde0bb1f55877a465b43)
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/serializer': file:packages/serializer(0884af617b6e3ba1c48d935867b4998e)
+      '@ember-data/serializer': file:packages/serializer(f73cb62c0093b79b3494e6cd29d961d6)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0
@@ -20671,15 +20640,15 @@ snapshots:
 
   ember-data@file:packages/-ember-data(71230f815b7f822a1df7a93bc6010582):
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(29c044de829f6db30bdbec2b387f0970)
-      '@ember-data/debug': file:packages/debug(6b379ef1fd873cc97d8bdb1fe163d689)
+      '@ember-data/adapter': file:packages/adapter(04db5081363cd0b91084563846469619)
+      '@ember-data/debug': file:packages/debug(cf28acccdf80b45786d00ded445bdff4)
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(4dabfcb824b8f02199b0c6c4294633bc)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(19635b300500002c086af5822ab3bff4)
-      '@ember-data/model': file:packages/model(0e595cdd97dd2c044475913903e19022)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(52c1c76cd7e54c276f2b38456f8c0541)
+      '@ember-data/model': file:packages/model(1140ceee714f8a79a9e4fb99bcbf3b9e)
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/serializer': file:packages/serializer(29c044de829f6db30bdbec2b387f0970)
+      '@ember-data/serializer': file:packages/serializer(04db5081363cd0b91084563846469619)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0
@@ -20697,15 +20666,15 @@ snapshots:
 
   ember-data@file:packages/-ember-data(a745ee7bcf7fac3eb2b3831f00f168fb):
     dependencies:
-      '@ember-data/adapter': file:packages/adapter(94200ac35da97682230b84530dfa39d8)
-      '@ember-data/debug': file:packages/debug(6e87379f69295b5fbe051d2873726de6)
+      '@ember-data/adapter': file:packages/adapter(c82c3bc9f3808b7add4ac18c8f5787fc)
+      '@ember-data/debug': file:packages/debug(a153926c4ab3fd749f82fbabf4be3ece)
       '@ember-data/graph': file:packages/graph(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/json-api': file:packages/json-api(64fc166deadfdb0a9a3bdb4d784d93e1)
-      '@ember-data/legacy-compat': file:packages/legacy-compat(a04e7b540a29667d04b749df01d10803)
-      '@ember-data/model': file:packages/model(41768b0a6d986030f305ba91a055ae4c)
+      '@ember-data/json-api': file:packages/json-api(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/legacy-compat': file:packages/legacy-compat(27025a808231d5dc4c3adf74137f1a24)
+      '@ember-data/model': file:packages/model(d19bf8d5f17cd96cf753adde7eef7c33)
       '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/serializer': file:packages/serializer(94200ac35da97682230b84530dfa39d8)
+      '@ember-data/serializer': file:packages/serializer(c82c3bc9f3808b7add4ac18c8f5787fc)
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0

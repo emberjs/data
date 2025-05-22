@@ -1,9 +1,9 @@
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { Relationship } from '@warp-drive/core-types/cache/relationship';
-import type { Value } from '@warp-drive/core-types/json/raw';
-import type { InnerRelationshipDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { Cache } from '@warp-drive/core/types/cache';
+import type { Relationship } from '@warp-drive/core/types/cache/relationship';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { Value } from '@warp-drive/core/types/json/raw';
+import type { InnerRelationshipDocument, ResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 
 type ChangedRelationshipData = InnerRelationshipDocument;
 
