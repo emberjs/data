@@ -22,7 +22,7 @@
     "start": "vite"
   },
   "files": [
-    "unstable-preview-types",
+    "declarations",
     "addon-main.cjs",
     "dist",
     "README.md",
@@ -31,11 +31,11 @@
   ],
   "exports": {
     ".": {
-      "types": "./unstable-preview-types/index.d.ts",
+      "types": "./declarations/index.d.ts",
       "default": "./dist/index.js"
     },
     "./*": {
-      "types": "./unstable-preview-types/*.d.ts",
+      "types": "./declarations/*.d.ts",
       "default": "./dist/*.js"
     }
   },

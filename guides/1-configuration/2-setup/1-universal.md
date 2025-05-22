@@ -118,7 +118,6 @@ setConfig(context, {
       "@ember-data/store/unstable-preview-types", // [!code ++]
       "@warp-drive/build-config/unstable-preview-types", // [!code ++]
       "@warp-drive/core-types/unstable-preview-types", // [!code ++]
-      "@warp-drive/ember/unstable-preview-types", // [!code ++]
       "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
     ]
   }
@@ -141,7 +140,6 @@ setConfig(context, {
       "@ember-data/store/unstable-preview-types", // [!code ++]
       "@warp-drive/build-config/unstable-preview-types", // [!code ++]
       "@warp-drive/core-types/unstable-preview-types", // [!code ++]
-      "@warp-drive/ember/unstable-preview-types", // [!code ++]
       "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
     ]
   }

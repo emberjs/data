@@ -58,8 +58,8 @@
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
       "ember-data": ["../../packages/-ember-data/unstable-preview-types"],
       "ember-data/*": ["../../packages/-ember-data/unstable-preview-types/*"],
-      "@warp-drive/ember": ["../../packages/ember/unstable-preview-types"],
-      "@warp-drive/ember/*": ["../../packages/ember/unstable-preview-types/*"]
+      "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -122,7 +122,7 @@
       "path": "../../packages/schema-record"
     },
     {
-      "path": "../../packages/ember"
+      "path": "../../warp-drive-packages/ember"
     }
   ]
 }
