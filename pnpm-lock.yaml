@@ -4216,6 +4216,40 @@ importers:
         specifier: ^5.4.15
         version: 5.4.19
 
+  warp-drive-packages/utilities:
+    dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:packages/build-config(@babel/core@7.27.1)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.27.1
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
+      decorator-transforms:
+        specifier: ^2.3.0
+        version: 2.3.0(@babel/core@7.27.1)
+      expect-type:
+        specifier: ^1.2.1
+        version: 1.2.1
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^5.4.15
+        version: 5.4.19
+
 packages:
 
   '@algolia/autocomplete-core@1.17.7':
