@@ -1,74 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
-
-const DEFAULT_MAX_CACHE_SIZE = 10_000;
-export class LRUCache<T, V> {
-  declare size: number;
-  declare state: Map<T, V>;
-  declare doWork: (k: T) => V;
-
-  // debug stats
-  declare _hits: number;
-  declare _misses: number;
-  declare _ejected: number;
-
-  constructor(doWork: (k: T) => V, size?: number) {
-    this.size = size || DEFAULT_MAX_CACHE_SIZE;
-    this.state = new Map();
-    this.doWork = doWork;
-
-    if (DEBUG) {
-      this._hits = 0;
-      this._misses = 0;
-      this._ejected = 0;
-    }
-  }
-  get(key: T) {
-    const value = this.state.get(key);
-    if (value) {
-      if (DEBUG) {
-        this._hits++;
-      }
-      this.state.delete(key);
-      this.state.set(key, value);
-      return value;
-    }
-    if (DEBUG) {
-      this._misses++;
-    }
-
-    const newValue = this.doWork(key);
-    this.set(key, newValue);
-    return newValue;
-  }
-
-  set(key: T, value: V) {
-    if (this.state.size === this.size) {
-      for (const [k] of this.state) {
-        if (DEBUG) {
-          this._ejected++;
-        }
-        this.state.delete(k);
-        break;
-      }
-    }
-    this.state.set(key, value);
-  }
-
-  clear() {
-    this.state.clear();
-    if (DEBUG) {
-      this._hits = 0;
-      this._misses = 0;
-      this._ejected = 0;
-    }
-  }
-}
-
-const STRING_DASHERIZE_REGEXP = /[ _]/g;
-const STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
-const STRING_DASHERIZE_CACHE = new LRUCache<string, string>((key: string) =>
-  key.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase().replace(STRING_DASHERIZE_REGEXP, '-')
-);
+import { dasherize as internalDasherize, LRUCache, STRING_DASHERIZE_CACHE } from '@warp-drive/core/utils/string';
 
 // eslint-disable-next-line no-useless-escape
 const STRING_CAMELIZE_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
@@ -109,9 +39,7 @@ const CAPITALIZE_CACHE = new LRUCache<string, string>((str: string) =>
  * @return {String}
  * @since 4.13.0
  */
-export function dasherize(str: string): string {
-  return STRING_DASHERIZE_CACHE.get(str);
-}
+export const dasherize = internalDasherize;
 
 /**
  * Returns the lowerCamelCase form of a string.

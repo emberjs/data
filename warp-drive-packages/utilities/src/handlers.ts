@@ -4,4 +4,4 @@
  *
  * @module
  */
-export * from '@warp-drive/utilities/handlers';
+export { AutoCompress, SupportsRequestStreams } from './-private/handlers/auto-compress.ts';

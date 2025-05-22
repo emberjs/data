@@ -9,4 +9,18 @@
  *
  * @module
  */
-export * from '@warp-drive/utilities/string';
+export {
+  pluralize,
+  singularize,
+  singular,
+  plural,
+  loadIrregular,
+  loadUncountable,
+  irregular,
+  uncountable,
+  resetToDefaults,
+  clear,
+  clearRules,
+} from './-private/string/inflect.ts';
+
+export { dasherize, camelize, capitalize, underscore, setMaxLRUCacheSize } from './-private/string/transform.ts';

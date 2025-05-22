@@ -33,8 +33,10 @@ export const entryPoints = [
   // non-public
   './src/types/-private.ts',
   './src/types/runtime.ts',
+  './src/utils/string.ts',
 
   // store
+  './src/store.ts',
   './src/store/-private.ts',
   './src/configure.ts',
 
