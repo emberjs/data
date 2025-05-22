@@ -1,21 +1,21 @@
 import { warn } from '@ember/debug';
 
-import type { Store } from '@ember-data/store/-private';
-import { peekCache } from '@ember-data/store/-private';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { UpdateResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
-import type { UpdateRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
-import type { UpgradedMeta } from './-edge-definition';
-import { coerceId } from './coerce-id';
-import type { CollectionEdge } from './edges/collection';
-import type { ImplicitEdge } from './edges/implicit';
-import type { ResourceEdge } from './edges/resource';
-import type { Graph, GraphEdge } from './graph';
+import type { Store } from '../../store/-private.ts';
+import { peekCache } from '../../store/-private.ts';
+import type { CacheCapabilitiesManager } from '../../types.ts';
+import type { UpdateResourceRelationshipOperation } from '../../types/cache/operations.ts';
+import type { UpdateRelationshipOperation } from '../../types/graph.ts';
+import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceIdentifierObject } from '../../types/spec/json-api-raw.ts';
+import type { UpgradedMeta } from './-edge-definition.ts';
+import { coerceId } from './coerce-id.ts';
+import type { CollectionEdge } from './edges/collection.ts';
+import type { ImplicitEdge } from './edges/implicit.ts';
+import type { ResourceEdge } from './edges/resource.ts';
+import type { Graph, GraphEdge } from './graph.ts';
 
 export function getStore(wrapper: CacheCapabilitiesManager | { _store: Store }): Store {
   assert(`expected a private _store property`, '_store' in wrapper);

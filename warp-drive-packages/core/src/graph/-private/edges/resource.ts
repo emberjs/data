@@ -1,10 +1,9 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { Links, Meta, PaginationLinks } from '@warp-drive/core-types/spec/json-api-raw';
-
-import type { UpgradedMeta } from '../-edge-definition';
-import type { RelationshipState } from '../-state';
-import { createState } from '../-state';
+import type { ResourceRelationship } from '../../../types/cache/relationship.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
+import type { UpgradedMeta } from '../-edge-definition.ts';
+import type { RelationshipState } from '../-state.ts';
+import { createState } from '../-state.ts';
 
 /**
  * Stores the data for one side of a "single" resource relationship.

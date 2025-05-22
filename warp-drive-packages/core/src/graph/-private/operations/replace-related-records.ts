@@ -4,14 +4,14 @@ import { DEBUG_RELATIONSHIP_NOTIFICATIONS, LOG_METRIC_COUNTS } from '@warp-drive
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { ReplaceRelatedRecordsOperation } from '@warp-drive/core-types/graph';
 
-import { _add, _removeLocal, _removeRemote, diffCollection } from '../-diff';
-import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils';
-import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import type { CollectionEdge } from '../edges/collection';
-import type { Graph } from '../graph';
+import type { StableRecordIdentifier } from '../../../types.ts';
+import type { ReplaceRelatedRecordsOperation } from '../../../types/graph.ts';
+import { _add, _removeLocal, _removeRemote, diffCollection } from '../-diff.ts';
+import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils.ts';
+import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
+import type { CollectionEdge } from '../edges/collection.ts';
+import type { Graph } from '../graph.ts';
 
 function count(label: string) {
   // @ts-expect-error
