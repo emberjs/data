@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
-
 import { LRUCache } from '@warp-drive/core/utils/string';
+
 import { defaultRules } from './inflections.ts';
 import { capitalize } from './transform.ts';
 

@@ -1,4 +1,4 @@
-import { LRUCache, STRING_DASHERIZE_CACHE, dasherize as internalDasherize } from '@warp-drive/core/utils/string';
+import { dasherize as internalDasherize, LRUCache, STRING_DASHERIZE_CACHE } from '@warp-drive/core/utils/string';
 
 // eslint-disable-next-line no-useless-escape
 const STRING_CAMELIZE_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
