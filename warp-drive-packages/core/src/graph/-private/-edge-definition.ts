@@ -1,18 +1,18 @@
-import type Store from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+
+import type { Store } from '../../index.ts';
+import type { StableRecordIdentifier } from '../../types.ts';
 import type {
   CollectionField,
   FieldSchema,
   LegacyBelongsToField,
   LegacyHasManyField,
   ResourceField,
-} from '@warp-drive/core-types/schema/fields';
-
-import { expandingGet, expandingSet, getStore } from './-utils';
-import { assertInheritedSchema } from './debug/assert-polymorphic-type';
-import type { Graph } from './graph';
+} from '../../types/schema/fields.ts';
+import { expandingGet, expandingSet, getStore } from './-utils.ts';
+import { assertInheritedSchema } from './debug/assert-polymorphic-type.ts';
+import type { Graph } from './graph.ts';
 
 export type EdgeCache = Record<string, Record<string, EdgeDefinition | null>>;
 

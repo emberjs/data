@@ -1,22 +1,21 @@
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { getOrSetGlobal, peekTransient, setTransient } from '@warp-drive/core-types/-private';
-import type { RelationshipDiff } from '@warp-drive/core-types/cache';
-import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
-import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
+
+import type { CacheCapabilitiesManager, StableRecordIdentifier } from '../../types.ts';
+import { getOrSetGlobal, peekTransient, setTransient } from '../../types/-private.ts';
+import type { RelationshipDiff } from '../../types/cache.ts';
+import type { MergeOperation } from '../../types/cache/operations.ts';
+import type { CollectionRelationship, ResourceRelationship } from '../../types/cache/relationship.ts';
 import type {
   DeleteRecordOperation,
   LocalRelationshipOperation,
   RemoteRelationshipOperation,
   UnknownOperation,
-} from '@warp-drive/core-types/graph';
-
-import { rollbackRelationship } from './-diff';
-import type { EdgeCache, UpgradedMeta } from './-edge-definition';
-import { isLHS, upgradeDefinition } from './-edge-definition';
+} from '../../types/graph.ts';
+import { rollbackRelationship } from './-diff.ts';
+import type { EdgeCache, UpgradedMeta } from './-edge-definition.ts';
+import { isLHS, upgradeDefinition } from './-edge-definition.ts';
 import {
   assertValidRelationshipPayload,
   forAllRelatedIdentifiers,
@@ -27,17 +26,17 @@ import {
   isNew,
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
-} from './-utils';
-import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection';
-import type { ImplicitEdge, ImplicitMeta } from './edges/implicit';
-import { createImplicitEdge } from './edges/implicit';
-import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource';
-import addToRelatedRecords from './operations/add-to-related-records';
-import { mergeIdentifier } from './operations/merge-identifier';
-import removeFromRelatedRecords from './operations/remove-from-related-records';
-import replaceRelatedRecord from './operations/replace-related-record';
-import replaceRelatedRecords from './operations/replace-related-records';
-import updateRelationshipOperation from './operations/update-relationship';
+} from './-utils.ts';
+import { type CollectionEdge, createCollectionEdge, legacyGetCollectionRelationshipData } from './edges/collection.ts';
+import type { ImplicitEdge, ImplicitMeta } from './edges/implicit.ts';
+import { createImplicitEdge } from './edges/implicit.ts';
+import { createResourceEdge, legacyGetResourceRelationshipData, type ResourceEdge } from './edges/resource.ts';
+import addToRelatedRecords from './operations/add-to-related-records.ts';
+import { mergeIdentifier } from './operations/merge-identifier.ts';
+import removeFromRelatedRecords from './operations/remove-from-related-records.ts';
+import replaceRelatedRecord from './operations/replace-related-record.ts';
+import replaceRelatedRecords from './operations/replace-related-records.ts';
+import updateRelationshipOperation from './operations/update-relationship.ts';
 
 export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 

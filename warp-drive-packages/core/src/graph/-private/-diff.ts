@@ -7,15 +7,15 @@ import {
 } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { isBelongsTo, notifyChange } from './-utils';
-import { assertPolymorphicType } from './debug/assert-polymorphic-type';
-import type { CollectionEdge } from './edges/collection';
-import type { ResourceEdge } from './edges/resource';
-import type { Graph } from './graph';
-import replaceRelatedRecord from './operations/replace-related-record';
-import replaceRelatedRecords from './operations/replace-related-records';
+import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import { isBelongsTo, notifyChange } from './-utils.ts';
+import { assertPolymorphicType } from './debug/assert-polymorphic-type.ts';
+import type { CollectionEdge } from './edges/collection.ts';
+import type { ResourceEdge } from './edges/resource.ts';
+import type { Graph } from './graph.ts';
+import replaceRelatedRecord from './operations/replace-related-record.ts';
+import replaceRelatedRecords from './operations/replace-related-records.ts';
 
 function _deprecatedCompare<T>(
   priorLocalState: T[] | null,

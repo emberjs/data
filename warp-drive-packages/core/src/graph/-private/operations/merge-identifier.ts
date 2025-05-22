@@ -1,10 +1,9 @@
-import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
-
-import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { CollectionEdge } from '../edges/collection';
-import type { ImplicitEdge } from '../edges/implicit';
-import type { ResourceEdge } from '../edges/resource';
-import type { Graph, GraphEdge } from '../graph';
+import type { MergeOperation } from '../../../types/cache/operations.ts';
+import { forAllRelatedIdentifiers, isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
+import type { CollectionEdge } from '../edges/collection.ts';
+import type { ImplicitEdge } from '../edges/implicit.ts';
+import type { ResourceEdge } from '../edges/resource.ts';
+import type { Graph, GraphEdge } from '../graph.ts';
 
 export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
   Object.keys(relationships).forEach((key) => {

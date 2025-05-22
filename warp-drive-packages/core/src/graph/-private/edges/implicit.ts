@@ -1,6 +1,5 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-
-import type { UpgradedMeta } from '../-edge-definition';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { UpgradedMeta } from '../-edge-definition.ts';
 
 export type ImplicitMeta = UpgradedMeta & { kind: 'implicit'; isImplicit: true };
 

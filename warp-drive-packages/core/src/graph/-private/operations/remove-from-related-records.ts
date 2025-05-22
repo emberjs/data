@@ -1,15 +1,15 @@
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { RemoveFromResourceRelationshipMutation } from '@warp-drive/core-types/cache/mutations';
-import type { RemoveFromResourceRelationshipOperation } from '@warp-drive/core-types/cache/operations';
-import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
-import { _remove } from '../-diff';
-import { isBelongsTo, isHasMany, notifyChange } from '../-utils';
-import type { CollectionEdge } from '../edges/collection';
-import type { Graph } from '../graph';
-import replaceRelatedRecord from './replace-related-record';
-import { removeFromInverse } from './replace-related-records';
+import type { RemoveFromResourceRelationshipMutation } from '../../../types/cache/mutations.ts';
+import type { RemoveFromResourceRelationshipOperation } from '../../../types/cache/operations.ts';
+import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import { _remove } from '../-diff.ts';
+import { isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
+import type { CollectionEdge } from '../edges/collection.ts';
+import type { Graph } from '../graph.ts';
+import replaceRelatedRecord from './replace-related-record.ts';
+import { removeFromInverse } from './replace-related-records.ts';
 
 export default function removeFromRelatedRecords(
   graph: Graph,

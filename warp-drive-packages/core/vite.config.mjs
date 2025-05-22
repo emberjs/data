@@ -37,6 +37,9 @@ export const entryPoints = [
   // store
   './src/store/-private.ts',
   './src/configure.ts',
+
+  // graph
+  './src/graph/-private.ts',
 ];
 
 export default createConfig(

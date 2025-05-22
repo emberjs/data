@@ -3,13 +3,13 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { ReplaceRelatedRecordOperation } from '@warp-drive/core-types/graph';
 
-import { isBelongsTo, isNew, notifyChange } from '../-utils';
-import { assertPolymorphicType } from '../debug/assert-polymorphic-type';
-import type { Graph } from '../graph';
-import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records';
+import type { StableRecordIdentifier } from '../../../types.ts';
+import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
+import { isBelongsTo, isNew, notifyChange } from '../-utils.ts';
+import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
+import type { Graph } from '../graph.ts';
+import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records.ts';
 
 export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
   const relationship = graph.get(op.record, op.field);

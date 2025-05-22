@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
 
-import { isLegacyField, isRelationshipField, temporaryConvertToLegacy, type UpgradedMeta } from '../-edge-definition';
+import type { CacheCapabilitiesManager } from '../../../types.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import {
+  isLegacyField,
+  isRelationshipField,
+  temporaryConvertToLegacy,
+  type UpgradedMeta,
+} from '../-edge-definition.ts';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the

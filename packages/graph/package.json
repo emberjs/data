@@ -37,12 +37,10 @@
       "default": "./dist/*.js"
     }
   },
-  "peerDependencies": {
-    "@ember-data/store": "workspace:*",
-    "@warp-drive/core-types": "workspace:*"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "@embroider/macros": "^1.16.12",
+    "@warp-drive/core": "workspace:*",
     "@warp-drive/build-config": "workspace:*"
   },
   "devDependencies": {
@@ -50,13 +48,7 @@
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
-    "@ember-data/request": "workspace:*",
-    "@ember-data/request-utils": "workspace:*",
-    "@ember-data/store": "workspace:*",
-    "@glimmer/component": "^2.0.0",
-    "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~6.3.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.15"
   },

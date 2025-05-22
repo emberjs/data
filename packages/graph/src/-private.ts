@@ -25,48 +25,4 @@ pnpm add @ember-data/graph
 
   @module
 */
-import type Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import { DEBUG } from '@warp-drive/build-config/env';
-
-import { getStore } from './-private/-utils';
-import { Graph, Graphs } from './-private/graph';
-
-export { isBelongsTo } from './-private/-utils';
-export type { CollectionEdge } from './-private/edges/collection';
-export type { ResourceEdge } from './-private/edges/resource';
-export type { ImplicitEdge } from './-private/edges/implicit';
-export type { GraphEdge } from './-private/graph';
-export type { UpgradedMeta } from './-private/-edge-definition';
-export type { Graph };
-
-function isStore(maybeStore: unknown): maybeStore is Store {
-  return (maybeStore as Store)._instanceCache !== undefined;
-}
-
-function getWrapper(store: CacheCapabilitiesManager | Store): CacheCapabilitiesManager {
-  return isStore(store) ? store._instanceCache._storeWrapper : store;
-}
-
-export function peekGraph(store: CacheCapabilitiesManager | Store): Graph | undefined {
-  return Graphs.get(getWrapper(store));
-}
-export type peekGraph = typeof peekGraph;
-
-export function graphFor(store: CacheCapabilitiesManager | Store): Graph {
-  const wrapper = getWrapper(store);
-  let graph = Graphs.get(wrapper);
-
-  if (!graph) {
-    graph = new Graph(wrapper);
-    Graphs.set(wrapper, graph);
-    getStore(wrapper)._graph = graph;
-
-    if (DEBUG) {
-      if (getStore(wrapper).isDestroying) {
-        throw new Error(`Memory Leak Detected During Teardown`);
-      }
-    }
-  }
-  return graph;
-}
+export * from '@warp-drive/core/graph/-private';

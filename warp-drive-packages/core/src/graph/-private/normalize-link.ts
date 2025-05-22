@@ -1,4 +1,4 @@
-import type { Link, LinkObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { Link, LinkObject } from '../../types/spec/json-api-raw.ts';
 
 /*
   This method normalizes a link to an "links object". If the passed link is
