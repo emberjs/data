@@ -3,8 +3,8 @@ import { deprecate } from '@ember/debug';
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
 import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/build-config/deprecations';
+import { InflectionRuleDefaults } from '@warp-drive/utilities/-private';
 
-import { defaultRules as WarpDriveDefaults } from './-private/string/inflections.ts';
 import { irregular, plural, singular, uncountable } from './string.ts';
 
 if (DEPRECATE_EMBER_INFLECTOR) {
@@ -51,10 +51,10 @@ if (DEPRECATE_EMBER_INFLECTOR) {
     // is default via our own list.
     const defaultPluralKeys = new Set<string>();
     const defaultSingularKeys = new Set<string>();
-    WarpDriveDefaults.plurals.forEach(([regex]) => {
+    InflectionRuleDefaults.plurals.forEach(([regex]) => {
       defaultPluralKeys.add(regex.toString());
     });
-    WarpDriveDefaults.singular.forEach(([regex]) => {
+    InflectionRuleDefaults.singular.forEach(([regex]) => {
       defaultSingularKeys.add(regex.toString());
     });
 

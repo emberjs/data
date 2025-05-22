@@ -49,21 +49,18 @@
     "version": 2
   },
   "peerDependencies": {
-    "@ember/string": "^3.1.1 || ^4.0.0",
     "ember-inflector": "^4.0.2 || ^5.0.0 || ^6.0.0"
   },
   "peerDependenciesMeta": {
     "ember-inflector": {
-      "optional": true
-    },
-    "@ember/string": {
       "optional": true
     }
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
     "@warp-drive/build-config": "workspace:*",
-    "@warp-drive/core": "workspace:*"
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/utilities": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -71,7 +68,6 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
     "@glimmer/component": "^2.0.0",
-    "@ember/string": "4.0.1",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
     "ember-inflector": "6.0.0",

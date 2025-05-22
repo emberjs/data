@@ -41,7 +41,9 @@
     "types": ["ember-source/types"],
     "paths": {
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/core": ["../core/declarations"],
+      "@warp-drive/core/*": ["../core/declarations/*"]
     },
     "checkJs": false,
     "isolatedDeclarations": false
@@ -49,6 +51,9 @@
   "references": [
     {
       "path": "../../packages/build-config"
+    },
+    {
+      "path": "../core"
     }
   ]
 }

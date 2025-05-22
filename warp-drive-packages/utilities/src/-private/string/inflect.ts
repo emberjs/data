@@ -1,7 +1,8 @@
 import { assert } from '@warp-drive/build-config/macros';
 
+import { LRUCache } from '@warp-drive/core/utils/string';
 import { defaultRules } from './inflections.ts';
-import { capitalize, LRUCache } from './transform.ts';
+import { capitalize } from './transform.ts';
 
 const BLANK_REGEX = /^\s*$/;
 const LAST_WORD_DASHED_REGEX = /([\w/-]+[_/\s-])([a-z\d]+$)/;
