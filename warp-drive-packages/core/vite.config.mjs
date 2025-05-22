@@ -36,6 +36,7 @@ export const entryPoints = [
   './src/utils/string.ts',
 
   // store
+  './src/store.ts',
   './src/store/-private.ts',
   './src/configure.ts',
 
