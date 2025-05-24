@@ -9,7 +9,7 @@ import {
   serializerFor,
 } from '@ember-data/legacy-compat';
 import type Model from '@ember-data/model';
-import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model/hooks';
+import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import BaseStore, { CacheHandler } from '@ember-data/store';

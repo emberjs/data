@@ -15,10 +15,10 @@ import {
 import { DEBUG, TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
+import type { Graph } from '../../graph/-private.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { Graph } from '../../types/graph.ts';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 import { EnableHydration, SkipCache } from '../../types/request.ts';
@@ -383,7 +383,7 @@ export interface Store {
    * Or to use the SchemaService for @ember-data/model
    *
    * ```ts
-   * import { buildSchema } from '@ember-data/model/hooks';
+   * import { buildSchema } from '@ember-data/model';
    *
    * class extends Store {
    *   createSchemaService() {

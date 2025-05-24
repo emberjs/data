@@ -36,15 +36,17 @@
 
   @module
  */
-export { attr } from './-private/attr';
-export { belongsTo } from './-private/belongs-to';
-export { hasMany } from './-private/has-many';
-export { Model } from './-private/model';
-export { Model as default } from './-private/model';
-
-export type { PromiseBelongsTo as AsyncBelongsTo } from './-private/promise-belongs-to';
-export type { PromiseManyArray as AsyncHasMany } from './-private/promise-many-array';
-export type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-export type { RelatedCollection as HasMany } from '@ember-data/store/-private';
-export { instantiateRecord, teardownRecord, modelFor } from './-private/hooks';
-export { ModelSchemaProvider } from './-private/schema-provider';
+export {
+  default,
+  attr,
+  belongsTo,
+  hasMany,
+  instantiateRecord,
+  teardownRecord,
+  modelFor,
+  buildSchema,
+  type ManyArray,
+  type HasMany,
+  type AsyncHasMany,
+  type AsyncBelongsTo,
+} from '@warp-drive/legacy/model';

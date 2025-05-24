@@ -88,7 +88,7 @@ import {
   instantiateRecord,
   modelFor,
   teardownRecord
-} from '@ember-data/model/hooks';
+} from '@ember-data/model';
 import { // [!code focus:9]
   adapterFor,
   cleanup,

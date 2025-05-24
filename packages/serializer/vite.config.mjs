@@ -12,9 +12,9 @@ export const externals = [
 export const entryPoints = [
   './src/index.ts',
   './src/transform.ts',
-  './src/json.js',
-  './src/json-api.js',
-  './src/rest.js',
+  './src/json.ts',
+  './src/json-api.ts',
+  './src/rest.ts',
 ];
 
 export default createConfig(
