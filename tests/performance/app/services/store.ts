@@ -1,7 +1,6 @@
 import JSONAPICache from '@ember-data/json-api';
 import type Model from '@ember-data/model';
-import { instantiateRecord, teardownRecord } from '@ember-data/model';
-import { buildSchema, modelFor } from '@ember-data/model/hooks';
+import { instantiateRecord, teardownRecord, buildSchema, modelFor } from '@ember-data/model';
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import DataStore, { CacheHandler } from '@ember-data/store';

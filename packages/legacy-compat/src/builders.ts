@@ -9,10 +9,4 @@
   @deprecated
 */
 
-export { findAllBuilder as findAll } from './builders/find-all';
-
-export { findRecordBuilder as findRecord } from './builders/find-record';
-
-export { queryBuilder as query, queryRecordBuilder as queryRecord } from './builders/query';
-
-export { saveRecordBuilder as saveRecord } from './builders/save-record';
+export * from '@warp-drive/legacy/compat/builders';

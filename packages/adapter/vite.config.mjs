@@ -9,7 +9,7 @@ export const externals = [
 ];
 export const entryPoints = [
   './src/index.ts',
-  './src/error.js',
+  './src/error.ts',
   './src/json-api.ts',
   './src/rest.ts',
   './src/-private.ts',

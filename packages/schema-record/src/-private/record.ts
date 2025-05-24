@@ -1,6 +1,6 @@
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import type { MinimalLegacyRecord } from '@ember-data/model/-private/model-methods';
+import type { MinimalLegacyRecord } from '@ember-data/model/-private';
 import type Store from '@ember-data/store';
 import type { NotificationType } from '@ember-data/store';
 import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';

@@ -237,7 +237,7 @@ import {
   instantiateRecord,
   modelFor,
   teardownRecord
-} from '@ember-data/model/hooks';
+} from '@ember-data/model';
 
 export default class AppStore extends Store {
 
@@ -298,7 +298,7 @@ import {
   instantiateRecord as instantiateModel,
   modelFor,
   teardownRecord as teardownModel
-} from '@ember-data/model/hooks';
+} from '@ember-data/model';
 import {
   instantiateRecord,
   registerDerivations,
@@ -612,7 +612,7 @@ import {
   instantiateRecord, // [!code focus]
   modelFor,
   teardownRecord  // [!code focus]
-} from '@ember-data/model/hooks';
+} from '@ember-data/model';
 
 export default class AppStore extends Store {
 
@@ -663,7 +663,7 @@ import {
   instantiateRecord as instantiateModel, // [!code focus]
   modelFor,
   teardownRecord as teardownModel // [!code focus]
-} from '@ember-data/model/hooks';
+} from '@ember-data/model';
 import {
   instantiateRecord, // [!code focus]
   registerDerivations,

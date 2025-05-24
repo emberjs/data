@@ -1,2 +1,1 @@
-export { instantiateRecord, teardownRecord, modelFor } from './-private/hooks';
-export { buildSchema } from './-private/schema-provider';
+export { instantiateRecord, teardownRecord, modelFor, buildSchema } from '@warp-drive/legacy/model';

@@ -28,52 +28,22 @@
     "declarationDir": "unstable-preview-types",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"],
+    "types": [],
     "paths": {
-      "@ember-data/graph": ["../graph/unstable-preview-types"],
-      "@ember-data/graph/*": ["../graph/unstable-preview-types/*"],
-      "@ember-data/json-api": ["../json-api/unstable-preview-types"],
-      "@ember-data/json-api/*": ["../json-api/unstable-preview-types/*"],
-      "@ember-data/legacy-compat": ["../legacy-compat/unstable-preview-types"],
-      "@ember-data/legacy-compat/*": ["../legacy-compat/unstable-preview-types/*"],
-      "@ember-data/request": ["../request/unstable-preview-types"],
-      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
-      "@ember-data/request-utils": ["../request-utils/unstable-preview-types"],
-      "@ember-data/request-utils/*": ["../request-utils/unstable-preview-types/*"],
-      "@ember-data/store": ["../store/unstable-preview-types"],
-      "@ember-data/store/*": ["../store/unstable-preview-types/*"],
       "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@warp-drive/legacy": ["../../warp-drive-packages/legacy/declarations"],
+      "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "checkJs": false
   },
   "references": [
     {
-      "path": "../graph"
-    },
-    {
-      "path": "../json-api"
-    },
-    {
-      "path": "../legacy-compat"
-    },
-    {
-      "path": "../request"
-    },
-    {
-      "path": "../request-utils"
-    },
-    {
-      "path": "../store"
-    },
-    {
-      "path": "../core-types"
-    },
-    {
       "path": "../build-config"
+    },
+    {
+      "path": "../../warp-drive-packages/legacy"
     }
   ]
 }

@@ -13,16 +13,17 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "emitDeclarationOnly": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitOverride": false,
     "noImplicitThis": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
-    "allowUnreachableCode": false,
+    "allowUnreachableCode": true,
     "allowUnusedLabels": false,
     "noEmitOnError": false,
     "strictNullChecks": true,
@@ -38,12 +39,14 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "erasableSyntaxOnly": true,
-    "types": ["ember-source/types"],
+    "types": ["ember-source/types", "@types/jquery"],
     "paths": {
       "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/core": ["../core/declarations"],
-      "@warp-drive/core/*": ["../core/declarations/*"]
+      "@warp-drive/core/*": ["../core/declarations/*"],
+      "@warp-drive/utilities": ["../utilities/declarations"],
+      "@warp-drive/utilities/*": ["../utilities/declarations/*"]
     },
     "checkJs": false,
     "isolatedDeclarations": false
@@ -54,6 +57,9 @@
     },
     {
       "path": "../core"
+    },
+    {
+      "path": "../utilities"
     }
   ]
 }

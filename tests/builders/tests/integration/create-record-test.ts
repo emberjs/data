@@ -2,8 +2,7 @@ import type { TestContext } from '@ember/test-helpers';
 
 import JSONAPICache from '@ember-data/json-api';
 import { createRecord } from '@ember-data/json-api/request';
-import Model, { attr, instantiateRecord, teardownRecord } from '@ember-data/model';
-import { buildSchema, modelFor } from '@ember-data/model/hooks';
+import Model, { attr, buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model';
 import type { Future, Handler, RequestContext, StructuredDataDocument } from '@ember-data/request';
 import RequestManager from '@ember-data/request';
 import { setBuildURLConfig } from '@ember-data/request-utils';
