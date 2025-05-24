@@ -4,7 +4,7 @@ import * as node from '@warp-drive/internal-config/eslint/node.js';
 import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
 import * as js from '@warp-drive/internal-config/eslint/browser.js';
 
-const AllowedImports = ['@ember/application', '@ember/service', '@ember/debug', '@ember/object', '@ember/object/mixin'];
+import { externals } from './vite.config.mjs';
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
@@ -14,14 +14,14 @@ export default [
   // browser (js) ================
   js.browser({
     srcDirs: ['src'],
-    allowedImports: AllowedImports,
+    allowedImports: externals,
   }),
 
   // browser (js/ts) ================
   typescript.browser({
     files: ['**/*.ts', '**/*.gts'],
     srcDirs: ['src'],
-    allowedImports: AllowedImports,
+    allowedImports: externals,
   }),
 
   // node (module) ================

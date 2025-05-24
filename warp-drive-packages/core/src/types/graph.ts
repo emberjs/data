@@ -7,19 +7,8 @@ import type {
   RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
   UpdateResourceRelationshipOperation,
 } from './cache/operations.ts';
-import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
 import type { StableRecordIdentifier } from './identifier.ts';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw.ts';
-
-export interface Graph {
-  identifiers: Map<StableRecordIdentifier, unknown>;
-
-  getData(identifier: StableRecordIdentifier, field: string): ResourceRelationship | CollectionRelationship;
-
-  remove(identifier: StableRecordIdentifier): void;
-  registerPolymorphicType(abstract: string, concrete: string): void;
-  destroy(): void;
-}
 
 export interface Operation {
   op: string;

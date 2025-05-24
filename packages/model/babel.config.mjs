@@ -7,6 +7,5 @@ export default {
       '@babel/plugin-transform-typescript',
       { allExtensions: true, onlyRemoveTypeImports: true, allowDeclareFields: true },
     ],
-    ['module:decorator-transforms', { runtime: { import: 'decorator-transforms/runtime' } }],
   ],
 };
