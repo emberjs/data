@@ -27,6 +27,12 @@ const config = {
     '../packages/store',
     '../packages/tracking',
     '../warp-drive-packages/core',
+    '../warp-drive-packages/legacy',
+    '../warp-drive-packages/utilities',
+    // Won't work until we figure out how
+    // to get typedoc to work with glint
+    // '../warp-drive-packages/ember',
+    '../warp-drive-packages/json-api',
   ],
   entryFileName: 'index',
   packageOptions: {
