@@ -213,22 +213,22 @@ const service = s.service ?? s.inject;
   Create a new subclass of `Adapter` in the `app/adapters` folder:
 
   ```js [app/adapters/application.js]
-  import Adapter from '@ember-data/adapter';
+  import { Adapter } from '@warp-drive/legacy/adapter';
 
-  export default Adapter.extend({
+  export default class extends Adapter {
     // ...your code here
-  });
+  }
   ```
 
   Model-specific adapters can be created by putting your adapter
   class in an `app/adapters/` + `model-name` + `.js` file of the application.
 
   ```js [app/adapters/post.js]
-  import Adapter from '@ember-data/adapter';
+  import { Adapter } from '@warp-drive/legacy/adapter';
 
-  export default Adapter.extend({
+  export default class extends Adapter {
     // ...Post-specific adapter code goes here
-  });
+  }
   ```
 
   `Adapter` is an abstract base class that you should override in your
@@ -269,7 +269,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Here is an example of the `findRecord` implementation:
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -306,7 +306,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -348,7 +348,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -393,19 +393,12 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter, { BuildURLMixin } from '@ember-data/adapter';
-    import RSVP from 'RSVP';
-    import $ from 'jquery';
+    import  { Adapter, BuildURLMixin } from '@warp-drive/legacy/adapter';
 
     export default class ApplicationAdapter extends Adapter.extend(BuildURLMixin) {
       queryRecord(store, type, query) {
-        return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}`, query).then(function(data) {
-            resolve(data);
-          }, function(jqXHR) {
-            reject(jqXHR);
-          });
-        });
+        return fetch(`/${type.modelName}`, { body: JSON.stringify(query) })
+          .then((response) => response.json());
       }
     }
     ```
@@ -439,7 +432,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     the first parameter and the newly created record as the second parameter:
 
     ```javascript
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import { v4 } from 'uuid';
 
     export default class ApplicationAdapter extends Adapter {
@@ -463,7 +456,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
 
     export default class ApplicationAdapter extends Adapter {
       createRecord(store, type, snapshot) {
@@ -498,7 +491,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -553,7 +546,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -601,7 +594,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     Example
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 
@@ -668,7 +661,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     is true.
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
     import RSVP from 'RSVP';
     import $ from 'jquery';
 

@@ -131,14 +131,14 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/comment.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Comment extends Model {
     @belongsTo('post', { async: false, inverse: 'comments' }) post;
   }
 
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('comment', { async: false, inverse: 'post' }) comments;
@@ -149,14 +149,14 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/author.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Author extends Model {
     @belongsTo('address', { async: true, inverse: 'owner' }) address;
   }
 
   // app/models/address.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Address extends Model {
     @belongsTo('author', { async: true, inverse: 'address' }) owner;
@@ -168,14 +168,14 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/author.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Author extends Model {
     @belongsTo('address', { async: true, inverse: null }) address;
   }
 
   // app/models/address.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Address extends Model {
     @belongsTo('author', { async: true, inverse: null }) owner;
@@ -187,7 +187,7 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/person.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Person extends Model {
     @belongsTo('person', { async: false, inverse: null }) bestFriend;
@@ -229,7 +229,7 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/comment.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Comment extends Model {
     @belongsTo('commentable', { async: false, inverse: 'comments', polymorphic: true }) parent;
@@ -248,7 +248,7 @@ function _belongsTo<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('comment', { async: false, inverse: 'parent', as: 'commentable' }) comments;

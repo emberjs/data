@@ -36,7 +36,7 @@ const ArrayProxyWithCustomOverrides = ArrayProxy as unknown as new <T>() => Arra
   For Example, if you had a `User` model that looked like this:
 
   ```js [app/models/user.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class UserModel extends Model {
     @attr('string') username;

@@ -325,7 +325,7 @@ function _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined
    Example:
 
    ```js [app/adapters/user.js]
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import { JSONAPIAdapter } from '@warp-drive/legacy/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindRecord(id, modelName, snapshot) {
@@ -352,7 +352,7 @@ function urlForFindRecord(this: MixtBuildURLMixin, id: string, modelName: string
    Example:
 
    ```js [app/adapters/comment.js]
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import { JSONAPIAdapter } from '@warp-drive/legacy/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindAll(modelName, snapshot) {
@@ -461,7 +461,7 @@ function urlForFindMany(this: MixtBuildURLMixin, ids: string[], modelName: strin
    Example:
 
    ```js [app/adapters/application.js]
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import { JSONAPIAdapter } from '@warp-drive/legacy/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindHasMany(id, modelName, snapshot) {
@@ -488,7 +488,7 @@ function urlForFindHasMany(this: MixtBuildURLMixin, id: string, modelName: strin
    Example:
 
    ```js [app/adapters/application.js]
-   import JSONAPIAdapter from '@ember-data/adapter/json-api';
+   import { JSONAPIAdapter } from '@warp-drive/legacy/adapter/json-api';
 
    export default class ApplicationAdapter extends JSONAPIAdapter {
      urlForFindBelongsTo(id, modelName, snapshot) {

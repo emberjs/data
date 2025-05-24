@@ -174,7 +174,7 @@ interface Model {
     Example
 
     ```js [app/models/mascot.js]
-    import Model, { attr } from '@ember-data/model';
+    import { Model, attr } from '@warp-drive/legacy/model';
 
     export default class MascotModel extends Model {
       @attr('string') name;
@@ -316,7 +316,7 @@ interface Model {
     For instance, given the following model
 
     ```js [app/models/blog-post.js]
-    import Model, { belongsTo } from '@ember-data/model';
+    import { Model, belongsTo } from '@warp-drive/legacy/model';
 
     export default class BlogPost extends Model {
       @belongsTo('user', { async: true, inverse: null }) author;
@@ -370,7 +370,7 @@ interface Model {
     For instance, given the following model
 
     ```js [app/models/blog-post.js]
-    import Model, { hasMany } from '@ember-data/model';
+    import { Model, hasMany } from '@warp-drive/legacy/model';
 
     export default class BlogPost extends Model {
       @hasMany('comment', { async: true, inverse: null }) comments;
@@ -452,7 +452,7 @@ interface Model {
  * ::: code-group
  *
  * ```js [app/models/user.js]
- * import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+ * import { Model, attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
  *
  * export default class User extends Model {
  *   @attr name;
@@ -463,7 +463,7 @@ interface Model {
  * ```
  *
  * ```ts [app/models/user.ts]
- * import Model, { attr, belongsTo, hasMany, type AsyncHasMany } from '@ember-data/model';
+ * import { Model, attr, belongsTo, hasMany, type AsyncHasMany } from '@warp-drive/legacy/model';
  * import type { NumberTransform } from '@ember-data/serializer/transform';
  * import type Group from './group';
  * import type Post from './post';
@@ -1137,7 +1137,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example, if you define a model like this:
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment') comments;
@@ -1176,7 +1176,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example, if you define models like this:
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
       @hasMany('message') comments;
@@ -1184,7 +1184,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    ```
 
    ```js [app/models/message.js]
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class MessageModel extends Model {
       @belongsTo('post') owner;
@@ -1269,7 +1269,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example, given the following model definition:
 
    ```js [app/models/blog.js]
-   import Model, { belongsTo, hasMany } from '@ember-data/model';
+   import { Model, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @hasMany('user') users;
@@ -1329,7 +1329,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    definition:
 
    ```js [app/models/blog.js]
-   import Model, { belongsTo, hasMany } from '@ember-data/model';
+   import { Model, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @hasMany('user') users;
@@ -1383,7 +1383,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example, given a model with this definition:
 
    ```js [app/models/blog.js]
-   import Model, { belongsTo, hasMany } from '@ember-data/model';
+   import { Model, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @hasMany('user') users;
@@ -1441,7 +1441,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    definition:
 
    ```js [app/models/blog.js]
-   import Model, { belongsTo, hasMany } from '@ember-data/model';
+   import { Model, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @hasMany('user') users;
@@ -1522,7 +1522,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    For example:
 
    ```js [app/models/blog.js]
-   import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+   import { Model, attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @hasMany('user') users;
@@ -1664,7 +1664,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Example
 
    ```js [app/models/person.js]
-   import Model, { attr } from '@ember-data/model';
+   import { Model, attr } from '@warp-drive/legacy/model';
 
    export default class PersonModel extends Model {
       @attr('string') firstName;
@@ -1728,7 +1728,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Example
 
    ```js [app/models/person.js]
-   import Model, { attr } from '@ember-data/model';
+   import { Model, attr } from '@warp-drive/legacy/model';
 
    export default class PersonModel extends Model {
       @attr firstName;
@@ -1793,7 +1793,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Example
 
    ```javascript
-   import Model, { attr } from '@ember-data/model';
+   import { Model, attr } from '@warp-drive/legacy/model';
 
    class PersonModel extends Model {
       @attr('string') firstName;
@@ -1851,7 +1851,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Example
 
    ```javascript
-   import Model, { attr } from '@ember-data/model';
+   import { Model, attr } from '@warp-drive/legacy/model';
 
    let Person = Model.extend({
       firstName: attr(),
