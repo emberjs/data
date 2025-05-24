@@ -175,7 +175,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
     @belongsTo('user', { async: true, inverse: null }) user;
@@ -215,7 +215,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
    export default Model.extend({
       user: belongsTo('user', { async: true, inverse: null })
     });
@@ -275,7 +275,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
    export default Model.extend({
       user: belongsTo('user', { async: true, inverse: null })
     });
@@ -383,7 +383,7 @@ export default class BelongsToReference<
    Example model
 
    ```js [app/models/blog.js]
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
       @belongsTo('user', { async: true, inverse: null }) user;
@@ -517,7 +517,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
      @belongsTo('user', { async: true, inverse: null }) user;
@@ -569,7 +569,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
      @belongsTo('user', { async: true, inverse: null }) user;
@@ -644,7 +644,7 @@ export default class BelongsToReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
 
    export default class BlogModel extends Model {
      @belongsTo('user', { async: true, inverse: null }) user;

@@ -159,7 +159,7 @@ declare const jQuery: JQueryStatic | undefined;
   For example, if you have a `Person` model:
 
   ```js [app/models/person.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default Model.extend({
     firstName: attr('string'),
@@ -252,7 +252,7 @@ declare const jQuery: JQueryStatic | undefined;
   property on the adapter:
 
   ```js [app/adapters/application.js]
-  import RESTAdapter from '@ember-data/adapter/rest';
+  import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
     namespace = 'api/1';
@@ -265,7 +265,7 @@ declare const jQuery: JQueryStatic | undefined;
   An adapter can target other hosts by setting the `host` property.
 
   ```js [app/adapters/application.js]
-  import RESTAdapter from '@ember-data/adapter/rest';
+  import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
     host = 'https://api.example.com';
@@ -280,7 +280,7 @@ declare const jQuery: JQueryStatic | undefined;
 
 
   ```js [app/adapters/application.js]
-  import RESTAdapter from '@ember-data/adapter/rest';
+  import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
   export default class ApplicationAdapter extends RESTAdapter {
     get headers() {
@@ -352,7 +352,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     `sortQueryParams` to your custom sort function.
 
     ```js [app/adapters/application.js]
-    import RESTAdapter from '@ember-data/adapter/rest';
+    import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
       sortQueryParams(params) {
@@ -452,7 +452,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     property on the adapter:
 
     ```js [app/adapters/application.js]
-    import RESTAdapter from '@ember-data/adapter/rest';
+    import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
       namespace = 'api/1';
@@ -470,7 +470,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     An adapter can target other hosts by setting the `host` property.
 
     ```js [app/adapters/application.js]
-    import RESTAdapter from '@ember-data/adapter/rest';
+    import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
       host = 'https://api.example.com';
@@ -492,7 +492,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     customization](/ember-data/release/classes/RESTAdapter).
 
     ```js [app/adapters/application.js]
-    import RESTAdapter from '@ember-data/adapter/rest';
+    import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
     export default class ApplicationAdapter extends RESTAdapter {
       get headers() {

@@ -25,7 +25,7 @@ const CAPITALIZE_CACHE = new LRUCache<string, string>((str: string) =>
  * Replaces underscores, spaces, or camelCase with dashes.
  *
  * ```js
- * import { dasherize } from '@ember-data/request-utils/string';
+ * import { dasherize } from '@warp-drive/utilities/string';
  *
  * dasherize('innerHTML');                // 'inner-html'
  * dasherize('action_name');              // 'action-name'
@@ -45,7 +45,7 @@ export const dasherize = internalDasherize;
  * Returns the lowerCamelCase form of a string.
  *
  * ```js
- * import { camelize } from '@ember-data/request-utils/string';
+ * import { camelize } from '@warp-drive/utilities/string';
  *
  * camelize('innerHTML');                   // 'innerHTML'
  * camelize('action_name');                 // 'actionName'
@@ -68,7 +68,7 @@ export function camelize(str: string): string {
  * Returns the lower\_case\_and\_underscored form of a string.
  *
  * ```js
- * import { underscore } from '@ember-data/request-utils/string';
+ * import { underscore } from '@warp-drive/utilities/string';
  *
  * underscore('innerHTML');                 // 'inner_html'
  * underscore('action_name');               // 'action_name'
@@ -90,7 +90,7 @@ export function underscore(str: string): string {
  * Returns the Capitalized form of a string
  *
  * ```js
- * import { capitalize } from '@ember-data/request-utils/string';
+ * import { capitalize } from '@warp-drive/utilities/string';
  *
  * capitalize('innerHTML')                 // 'InnerHTML'
  * capitalize('action_name')               // 'Action_name'

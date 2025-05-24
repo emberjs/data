@@ -9,7 +9,7 @@ import type { TransformName } from '@warp-drive/core/types/symbols';
   Usage
 
   ```js [app/models/user.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class UserModel extends Model {
     @attr('boolean') isAdmin;
@@ -23,7 +23,7 @@ import type { TransformName } from '@warp-drive/core/types/symbols';
   boolean attributes via `attr('boolean', { allowNull: true })`
 
   ```js [app/models/user.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class UserModel extends Model {
     @attr('string') email;

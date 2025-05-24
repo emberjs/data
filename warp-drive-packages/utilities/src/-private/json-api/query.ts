@@ -23,7 +23,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * **Basic Usage**
  *
  * ```ts
- * import { query } from '@ember-data/json-api/request';
+ * import { query } from '@warp-drive/utilities/json-api';
  *
  * const data = await store.request(query('person'));
  * ```
@@ -31,7 +31,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * **With Query Params**
  *
  * ```ts
- * import { query } from '@ember-data/json-api/request';
+ * import { query } from '@warp-drive/utilities/json-api';
  *
  * const options = query('person', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -52,7 +52,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { query } from '@ember-data/json-api/request';
+ * import { query } from '@warp-drive/utilities/json-api';
  *
  * const options = query('person', { include: ['pets', 'friends'] }, { reload: true });
  * const data = await store.request(options);
@@ -114,7 +114,7 @@ export function query(
  * in the store.
  *
  * ```ts
- * import { postQuery } from '@ember-data/json-api/request';
+ * import { postQuery } from '@warp-drive/utilities/json-api';
  *
  * const options = postQuery('person', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -135,7 +135,7 @@ export function query(
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { postQuery } from '@ember-data/json-api/request';
+ * import { postQuery } from '@warp-drive/utilities/json-api';
  *
  * const options = postQuery('person', { include: ['pets', 'friends'] }, { reload: true });
  * const data = await store.request(options);

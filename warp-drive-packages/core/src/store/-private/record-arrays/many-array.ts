@@ -63,7 +63,7 @@ export interface ManyArrayCreateArgs<T> {
   ```
 
   ```js [app/models/comment.js]
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class CommentModel extends Model {
     @belongsTo('post') post;

@@ -17,7 +17,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * **Basic Usage**
  *
  * ```ts
- * import { findRecord } from '@ember-data/json-api/request';
+ * import { findRecord } from '@warp-drive/utilities/json-api';
  *
  * const data = await store.request(findRecord('person', '1'));
  * ```
@@ -25,7 +25,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * **With Options**
  *
  * ```ts
- * import { findRecord } from '@ember-data/json-api/request';
+ * import { findRecord } from '@warp-drive/utilities/json-api';
  *
  * const options = findRecord('person', '1', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -34,7 +34,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * **With an Identifier**
  *
  * ```ts
- * import { findRecord } from '@ember-data/json-api/request';
+ * import { findRecord } from '@warp-drive/utilities/json-api';
  *
  * const options = findRecord({ type: 'person', id: '1' }, { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -55,7 +55,7 @@ import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from 
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { findRecord } from '@ember-data/json-api/request';
+ * import { findRecord } from '@warp-drive/utilities/json-api';
  *
  * const options = findRecord('person', '1', { include: ['pets', 'friends'] }, { namespace: 'api/v2' });
  * const data = await store.request(options);

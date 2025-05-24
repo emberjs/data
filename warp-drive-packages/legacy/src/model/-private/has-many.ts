@@ -107,7 +107,7 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('comment', { async: false, inverse: 'post' }) comments;
@@ -115,7 +115,7 @@ function _hasMany<T, Async extends boolean>(
 
 
   // app/models/comment.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Comment extends Model {
     @belongsTo('post', { async: false, inverse: 'comments' }) post;
@@ -126,14 +126,14 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('tag', { async: true, inverse: 'posts' }) tags;
   }
 
   // app/models/tag.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Tag extends Model {
     @hasMany('post', { async: true, inverse: 'tags' }) posts;
@@ -145,14 +145,14 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('tag', { async: true, inverse: null }) tags;
   }
 
   // app/models/tag.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Tag extends Model {
     @hasMany('post', { async: true, inverse: null }) posts;
@@ -164,7 +164,7 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('category', { async: true, inverse: null }) categories;
@@ -206,7 +206,7 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/comment.js
-  import Model, { belongsTo } from '@ember-data/model';
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
 
   export default class Comment extends Model {
     @belongsTo('commentable', { async: false, inverse: 'comments', polymorphic: true }) parent;
@@ -225,7 +225,7 @@ function _hasMany<T, Async extends boolean>(
 
   ```js
   // app/models/post.js
-  import Model, { hasMany } from '@ember-data/model';
+  import { Model, hasMany } from '@warp-drive/legacy/model';
 
   export default class Post extends Model {
     @hasMany('comment', { async: false, inverse: 'parent', as: 'commentable' }) comments;

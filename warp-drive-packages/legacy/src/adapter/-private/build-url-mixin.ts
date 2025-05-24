@@ -377,7 +377,7 @@ function urlForFindAll(this: MixtBuildURLMixin, modelName: string, snapshots: Sn
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      host = 'https://api.github.com';
@@ -407,7 +407,7 @@ function urlForQuery(this: MixtBuildURLMixin, query: Record<string, unknown>, mo
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForQueryRecord({ slug }, modelName) {
@@ -434,7 +434,7 @@ function urlForQueryRecord(this: MixtBuildURLMixin, query: Record<string, unknow
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForFindMany(ids, modelName) {
@@ -515,7 +515,7 @@ function urlForFindBelongsTo(this: MixtBuildURLMixin, id: string, modelName: str
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForCreateRecord(modelName, snapshot) {
@@ -539,7 +539,7 @@ function urlForCreateRecord(this: MixtBuildURLMixin, modelName: string, snapshot
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForUpdateRecord(id, modelName, snapshot) {
@@ -564,7 +564,7 @@ function urlForUpdateRecord(this: MixtBuildURLMixin, id: string, modelName: stri
    Example:
 
    ```js [app/adapters/application.js]
-   import RESTAdapter from '@ember-data/adapter/rest';
+   import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
 
    export default class ApplicationAdapter extends RESTAdapter {
      urlForDeleteRecord(id, modelName, snapshot) {
@@ -635,7 +635,7 @@ function urlPrefix(this: MixtBuildURLMixin, path?: string | null, parentURL?: st
     endpoint of `/line_items/`.
 
     ```js [app/adapters/application.js]
-    import RESTAdapter from '@ember-data/adapter/rest';
+    import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
     import { undesrcore, pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationAdapter extends RESTAdapter {

@@ -198,7 +198,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   Example
 
   ```js [app/models/user.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class UserModel extends Model {
     @attr('string') username;
@@ -211,7 +211,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   a new object for each attribute.
 
   ```js [app/models/user.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class UserModel extends Model {
     @attr('string') username;
@@ -231,7 +231,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   transformation and adapt the corresponding value, based on the config:
 
   ```js [app/models/post.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class PostModel extends Model {
     @attr('text', {

@@ -98,7 +98,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/application.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class ApplicationSerializer extends JSONSerializer {
       primaryKey = '_id'
@@ -133,7 +133,7 @@ const JSONSerializer = Serializer.extend({
     ```
 
     ```js [app/serializers/person.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PersonSerializer extends JSONSerializer {
       attrs = {
@@ -149,7 +149,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/person.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       attrs = {
@@ -553,7 +553,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/application.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
     import { underscore } from '<app-name>/utils/string-utils';
     import { get } from '@ember/object';
 
@@ -981,7 +981,7 @@ const JSONSerializer = Serializer.extend({
     return a JSON hash of your choosing.
 
     ```js [app/serializers/post.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
@@ -1007,7 +1007,7 @@ const JSONSerializer = Serializer.extend({
     and `eachRelationship` on the record.
 
     ```js [app/serializers/application.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
     import { singularize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONSerializer {
@@ -1058,7 +1058,7 @@ const JSONSerializer = Serializer.extend({
     the returned JSON.
 
     ```js [app/serializers/post.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       serialize(snapshot, options) {
@@ -1143,7 +1143,7 @@ const JSONSerializer = Serializer.extend({
     write:
 
     ```js [app/serializers/application.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class ApplicationSerializer extends JSONSerializer {
       serializeAttribute(snapshot, json, key, attributes) {
@@ -1188,7 +1188,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/post.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       serializeBelongsTo(snapshot, json, relationship) {
@@ -1241,7 +1241,7 @@ const JSONSerializer = Serializer.extend({
    Example
 
    ```js [app/serializers/post.js]
-   import JSONSerializer from '@ember-data/serializer/json';
+   import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
    export default class PostSerializer extends JSONSerializer {
      serializeHasMany(snapshot, json, relationship) {
@@ -1289,7 +1289,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/comment.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class CommentSerializer extends JSONSerializer {
       serializePolymorphicType(snapshot, json, relationship) {
@@ -1322,7 +1322,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/post.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       extractMeta(store, typeClass, payload) {
@@ -1413,7 +1413,7 @@ const JSONSerializer = Serializer.extend({
     behavior to deal with a different format of errors:
 
     ```js [app/serializers/post.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
 
     export default class PostSerializer extends JSONSerializer {
       extractErrors(store, typeClass, payload, id) {
@@ -1489,7 +1489,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
     ```js [app/serializers/application.js]
-    import JSONSerializer from '@ember-data/serializer/json';
+    import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
     import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends JSONSerializer {
@@ -1516,7 +1516,7 @@ const JSONSerializer = Serializer.extend({
     Example
 
       ```js [app/serializers/post.js]
-      import JSONSerializer from '@ember-data/serializer/json';
+      import { JSONSerializer } from '@warp-drive/legacy/serializer/json';
       import { underscore } from '<app-name>/utils/string-utils';
 
       export default class PostSerializer extends JSONSerializer {

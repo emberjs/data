@@ -128,7 +128,7 @@ function extend(ParentErrorClass, defaultMessage) {
   looked like this.
 
   ```js [app/models/post.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class PostModel extends Model {
     @attr('string') title;

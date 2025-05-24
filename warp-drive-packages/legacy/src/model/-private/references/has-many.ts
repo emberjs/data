@@ -199,7 +199,7 @@ export default class HasManyReference<
    Example
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;
@@ -247,7 +247,7 @@ export default class HasManyReference<
    Example
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;
@@ -287,7 +287,7 @@ export default class HasManyReference<
 
    ```javascript
    // models/blog.js
-   import Model, { belongsTo } from '@ember-data/model';
+   import { Model, belongsTo } from '@warp-drive/legacy/model';
    export default Model.extend({
       user: belongsTo('user', { async: true, inverse: null })
     });
@@ -347,7 +347,7 @@ export default class HasManyReference<
 
    ```javascript
    // models/blog.js
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
    export default Model.extend({
       users: hasMany('user', { async: true, inverse: null })
     });
@@ -397,7 +397,7 @@ export default class HasManyReference<
    Example model
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;
@@ -560,7 +560,7 @@ export default class HasManyReference<
    Example
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;
@@ -613,7 +613,7 @@ export default class HasManyReference<
    Example
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;
@@ -687,7 +687,7 @@ export default class HasManyReference<
    Example
 
    ```js [app/models/post.js]
-   import Model, { hasMany } from '@ember-data/model';
+   import { Model, hasMany } from '@warp-drive/legacy/model';
 
    export default class PostModel extends Model {
      @hasMany('comment', { async: true, inverse: null }) comments;

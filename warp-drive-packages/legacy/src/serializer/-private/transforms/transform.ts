@@ -32,7 +32,7 @@ import type { LegacyAttributeField } from '@warp-drive/core/types/schema/fields'
   Usage
 
   ```js [app/models/requirement.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class RequirementModel extends Model {
     @attr('string') name;
@@ -44,7 +44,7 @@ import type { LegacyAttributeField } from '@warp-drive/core/types/schema/fields'
   declared on the model is also available in the transform.
 
   ```js [app/models/post.js]
-  import Model, { attr } from '@ember-data/model';
+  import { Model, attr } from '@warp-drive/legacy/model';
 
   export default class PostModel extends Model {
     @attr('string') title;

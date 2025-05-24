@@ -43,7 +43,7 @@ function makeArray(value) {
   name in your model to a key in your JSON.
 
   ```js [app/serializers/application.js]
-  import RESTSerializer from '@ember-data/serializer/rest';
+  import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
   import { underscore } from '<app-name>/utils/string-utils';
 
   export default class ApplicationSerializer extends RESTSerializer {
@@ -70,7 +70,7 @@ const RESTSerializer = JSONSerializer.extend({
    Example
 
     ```js [app/serializers/post.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
       keyForPolymorphicType(key, relationship) {
@@ -135,7 +135,7 @@ const RESTSerializer = JSONSerializer.extend({
     `id`, you can specify how to normalize just the comments:
 
     ```js [app/serializers/post.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
       normalize(model, hash, prop) {
@@ -447,7 +447,7 @@ const RESTSerializer = JSONSerializer.extend({
     remove "blog/" from the payload key whenver it's encountered by Ember Data:
 
     ```js [app/serializers/application.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
       modelNameFromPayloadKey(payloadKey) {
@@ -534,7 +534,7 @@ const RESTSerializer = JSONSerializer.extend({
     return a JSON hash of your choosing.
 
     ```js [app/serializers/post.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
@@ -560,7 +560,7 @@ const RESTSerializer = JSONSerializer.extend({
     and `eachRelationship` on the record.
 
     ```js [app/serializers/application.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
     import { pluralize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -611,7 +611,7 @@ const RESTSerializer = JSONSerializer.extend({
     JSON.
 
     ```js [app/serializers/post.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
 
     export default class ApplicationSerializer extends RESTSerializer {
       serialize(snapshot, options) {
@@ -643,7 +643,7 @@ const RESTSerializer = JSONSerializer.extend({
     For example, your server may expect underscored root objects.
 
     ```js [app/serializers/application.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
     import { underscore } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
@@ -685,7 +685,7 @@ const RESTSerializer = JSONSerializer.extend({
     For example, your server may expect dasherized root objects:
 
     ```js [app/serializers/application.js]
-    import RESTSerializer from '@ember-data/serializer/rest';
+    import { RESTSerializer } from '@warp-drive/legacy/serializer/rest';
     import { dasherize } from '<app-name>/utils/string-utils';
 
     export default class ApplicationSerializer extends RESTSerializer {
