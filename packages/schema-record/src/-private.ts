@@ -1,1 +1,1 @@
-export { Editable, Legacy } from './-private/symbols';
+export { Editable, Legacy } from '@warp-drive/core/reactive/-private';

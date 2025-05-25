@@ -1,19 +1,19 @@
-import type { Future } from '@ember-data/request';
-import type Store from '@ember-data/store';
-import type { StoreRequestInput } from '@ember-data/store';
+import { DEBUG } from '@warp-drive/build-config/env';
+
+import type { Store, StoreRequestInput } from '../../../index.ts';
+import type { Future } from '../../../request.ts';
 import {
   consumeInternalSignal,
   defineSignal,
   getOrCreateInternalSignal,
   RelatedCollection as ManyArray,
   withSignalStore,
-} from '@ember-data/store/-private';
-import { DEBUG } from '@warp-drive/build-config/env';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { ResourceRelationship as SingleResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+} from '../../../store/-private.ts';
+import { getOrSetGlobal } from '../../../types/-private.ts';
+import type { Cache } from '../../../types/cache.ts';
+import type { ResourceRelationship as SingleResourceRelationship } from '../../../types/cache/relationship.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ObjectValue } from '../../../types/json/raw.ts';
 import type {
   ArrayField,
   DerivedField,
@@ -24,16 +24,15 @@ import type {
   ObjectField,
   SchemaArrayField,
   SchemaObjectField,
-} from '@warp-drive/core-types/schema/fields';
-import type { CollectionResourceRelationship, Link, Links } from '@warp-drive/core-types/spec/json-api-raw';
-import { RecordStore } from '@warp-drive/core-types/symbols';
-
-import { SchemaRecord } from '../record';
-import type { SchemaService } from '../schema';
-import { Editable, Identifier, Legacy, Parent } from '../symbols';
-import { ManagedArray } from './managed-array';
-import { ManagedObject } from './managed-object';
-import { ManyArrayManager } from './many-array-manager';
+} from '../../../types/schema/fields.ts';
+import type { CollectionResourceRelationship, Link, Links } from '../../../types/spec/json-api-raw.ts';
+import { RecordStore } from '../../../types/symbols.ts';
+import { SchemaRecord } from '../record.ts';
+import type { SchemaService } from '../schema.ts';
+import { Editable, Identifier, Legacy, Parent } from '../symbols.ts';
+import { ManagedArray } from './managed-array.ts';
+import { ManagedObject } from './managed-object.ts';
+import { ManyArrayManager } from './many-array-manager.ts';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',

@@ -42,6 +42,10 @@ export const entryPoints = [
 
   // graph
   './src/graph/-private.ts',
+
+  // schema-record
+  './src/reactive.ts',
+  './src/reactive/-private.ts',
 ];
 
 export default createConfig(

@@ -24,7 +24,7 @@
     "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "unstable-preview-types",
+    "declarationDir": "declarations",
     "inlineSourceMap": true,
     "inlineSources": true,
     "types": [],

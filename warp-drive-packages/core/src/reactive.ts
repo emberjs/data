@@ -336,14 +336,13 @@
  *
  * @module
  */
+export { instantiateRecord, teardownRecord } from './reactive/-private/hooks';
 export {
-  instantiateRecord,
-  teardownRecord,
   type Transformation,
   SchemaService,
   withDefaults,
   fromIdentity,
   registerDerivations,
-  type SchemaRecord,
-  Checkout,
-} from '@warp-drive/core/reactive';
+} from './reactive/-private/schema';
+export { type SchemaRecord } from './reactive/-private/record';
+export { Checkout } from './reactive/-private/symbols';

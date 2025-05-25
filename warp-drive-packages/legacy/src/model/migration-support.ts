@@ -21,6 +21,7 @@ import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecati
 import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
+import { ARRAY_SIGNAL, notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
@@ -34,6 +35,8 @@ import type {
   FieldSchema,
   GenericField,
   HashField,
+  LegacyBelongsToField,
+  LegacyHasManyField,
   LegacyResourceSchema,
   ObjectField,
   ObjectSchema,
@@ -43,7 +46,7 @@ import { Type } from '@warp-drive/core/types/symbols';
 import type { WithPartial } from '@warp-drive/core/types/utils';
 
 import type { Snapshot } from '../compat/-private.ts';
-import { Errors } from './-private.ts';
+import { Errors, lookupLegacySupport } from './-private.ts';
 import type { MinimalLegacyRecord } from './-private/model-methods.ts';
 import {
   belongsTo,
@@ -352,6 +355,52 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
  */
 export function registerDerivations(schema: SchemaService) {
   schema.registerDerivation(legacySupport);
+  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  schema._registerMode('@legacy', {
+    belongsTo: {
+      get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField) {
+        return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
+      },
+      set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField, value: unknown) {
+        store._join(() => {
+          lookupLegacySupport(record as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
+        });
+      },
+    },
+    hasMany: {
+      get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField) {
+        return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getHasMany(field.name);
+      },
+      set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField, value: unknown[]) {
+        store._join(() => {
+          const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
+          const manyArray = support.getManyArray(field.name);
+
+          manyArray.splice(0, manyArray.length, ...value);
+        });
+      },
+      notify(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField): boolean {
+        const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
+        const manyArray = support && support._manyArrayCache[field.name];
+        const hasPromise = support && (support._relationshipPromisesCache[field.name] as Promise<unknown> | undefined);
+
+        if (manyArray && hasPromise) {
+          // do nothing, we will notify the ManyArray directly
+          // once the fetch has completed.
+          return false;
+        }
+
+        if (manyArray) {
+          notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
+
+          return true;
+        }
+
+        return false;
+      },
+    },
+  });
 }
 
 /**
@@ -457,6 +506,40 @@ export class DelegatingSchemaService implements SchemaService {
   }
   registerHashFn(hashFn: HashFn): void {
     this._preferred.registerHashFn(hashFn);
+  }
+
+  /**
+   * This is an internal method used to register behaviors for legacy mode.
+   * It is not intended for public use.
+   *
+   * We do think a generalized `kind` registration system would be useful,
+   * but we have not yet designed it.
+   *
+   * See https://github.com/emberjs/data/issues/9534
+   *
+   * @internal
+   */
+  _registerMode(mode: string, kinds: unknown): void {
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    this._preferred._registerMode(mode, kinds);
+  }
+
+  /**
+   * This is an internal method used to enable legacy behaviors for legacy mode.
+   * It is not intended for public use.
+   *
+   * We do think a generalized `kind` registration system would be useful,
+   * but we have not yet designed it.
+   *
+   * See https://github.com/emberjs/data/issues/9534
+   *
+   * @internal
+   */
+  _kind(mode: string, kind: 'belongsTo' | 'hasMany'): () => unknown {
+    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return this._preferred._kind(mode, kind) as () => unknown;
   }
 }
 

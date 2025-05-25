@@ -1,11 +1,11 @@
-import type Store from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { isResourceSchema } from '@warp-drive/core-types/schema/fields';
 
-import { SchemaRecord } from './record';
-import type { SchemaService } from './schema';
-import { Destroy, Editable, Legacy } from './symbols';
+import type { Store } from '../../index.ts';
+import type { StableRecordIdentifier } from '../../types.ts';
+import { isResourceSchema } from '../../types/schema/fields.ts';
+import { SchemaRecord } from './record.ts';
+import type { SchemaService } from './schema.ts';
+import { Destroy, Editable, Legacy } from './symbols.ts';
 
 export function instantiateRecord(
   store: Store,
