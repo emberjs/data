@@ -246,6 +246,7 @@ export class SchemaService implements SchemaServiceInterface {
     this._hashFns = new Map();
     this._derivations = new Map();
     this._traits = new Set();
+    this._modes = new Map();
   }
 
   resourceTypes(): Readonly<string[]> {
