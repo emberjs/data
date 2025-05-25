@@ -1,9 +1,8 @@
-import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
+import { DEBUG } from '@warp-drive/build-config/env';
+import { assert } from '@warp-drive/build-config/macros';
 
-import type { MinimalLegacyRecord } from '@ember-data/model/-private';
-import type Store from '@ember-data/store';
-import type { NotificationType } from '@ember-data/store';
-import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
+import type { NotificationType, Store } from '../../index.ts';
+import type { RelatedCollection as ManyArray } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
@@ -14,16 +13,13 @@ import {
   setRecordIdentifier,
   Signals,
   withSignalStore,
-} from '@ember-data/store/-private';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-import { STRUCTURED } from '@warp-drive/core-types/request';
-import type { FieldSchema } from '@warp-drive/core-types/schema/fields';
-import type { SingleResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
-import { RecordStore } from '@warp-drive/core-types/symbols';
-
+} from '../../store/-private.ts';
+import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ArrayValue, ObjectValue, Value } from '../../types/json/raw.ts';
+import { STRUCTURED } from '../../types/request.ts';
+import type { FieldSchema } from '../../types/schema/fields.ts';
+import type { SingleResourceRelationship } from '../../types/spec/json-api-raw.ts';
+import { RecordStore } from '../../types/symbols.ts';
 import {
   computeArray,
   computeAttribute,
@@ -38,14 +34,9 @@ import {
   ManagedObjectMap,
   peekManagedArray,
   peekManagedObject,
-} from './fields/compute';
-import type { SchemaService } from './schema';
-import { Checkout, Destroy, Editable, EmbeddedPath, EmbeddedType, Identifier, Legacy, Parent } from './symbols';
-
-const HAS_MODEL_PACKAGE = dependencySatisfies('@ember-data/model', '*');
-const getLegacySupport = macroCondition(dependencySatisfies('@ember-data/model', '*'))
-  ? (importSync('@ember-data/model/-private') as typeof import('@ember-data/model/-private')).lookupLegacySupport
-  : null;
+} from './fields/compute.ts';
+import type { SchemaService } from './schema.ts';
+import { Checkout, Destroy, Editable, EmbeddedPath, EmbeddedType, Identifier, Legacy, Parent } from './symbols.ts';
 
 export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
@@ -372,15 +363,9 @@ export class SchemaRecord {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-return
               return rawValue.data ? store.peekRecord(rawValue.data) : null;
             }
-            if (!HAS_MODEL_PACKAGE) {
-              assert(
-                `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
-              );
-            }
-            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
             entangleSignal(signals, receiver, field.name, null);
-            return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
+            return schema._kind('@legacy', 'belongsTo').get(store, receiver, identifier, field);
           case 'hasMany':
             if (field.options.linksMode) {
               entangleSignal(signals, receiver, field.name, null);
@@ -397,15 +382,9 @@ export class SchemaRecord {
                 Mode[Legacy]
               );
             }
-            if (!HAS_MODEL_PACKAGE) {
-              assert(
-                `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
-              );
-            }
-            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
             entangleSignal(signals, receiver, field.name, null);
-            return getLegacySupport(receiver as unknown as MinimalLegacyRecord).getHasMany(field.name);
+            return schema._kind('@legacy', 'hasMany').get(store, receiver, identifier, field);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
@@ -585,32 +564,13 @@ export class SchemaRecord {
             throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
           case 'belongsTo':
-            if (!HAS_MODEL_PACKAGE) {
-              assert(
-                `Cannot use belongsTo fields in your schema unless @ember-data/model is installed to provide legacy model support. ${field.name} should likely be migrated to be a resource field.`
-              );
-            }
-            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            store._join(() => {
-              getLegacySupport(receiver as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
-            });
+            schema._kind('@legacy', 'belongsTo').set(store, receiver, identifier, field, value);
             return true;
           case 'hasMany':
-            if (!HAS_MODEL_PACKAGE) {
-              assert(
-                `Cannot use hasMany fields in your schema unless @ember-data/model is installed to provide legacy model support.  ${field.name} should likely be migrated to be a collection field.`
-              );
-            }
-            assert(`Expected to have a getLegacySupport function`, getLegacySupport);
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
             assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(value));
-            store._join(() => {
-              const support = getLegacySupport(receiver as unknown as MinimalLegacyRecord);
-              const manyArray = support.getManyArray(field.name);
-
-              manyArray.splice(0, manyArray.length, ...(value as unknown[]));
-            });
+            schema._kind('@legacy', 'hasMany').set(store, receiver, identifier, field, value);
             return true;
 
           default:
@@ -712,23 +672,9 @@ export class SchemaRecord {
                     return;
                   }
 
-                  assert(`Expected to have a getLegacySupport function`, getLegacySupport);
                   assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
 
-                  const support = getLegacySupport(proxy as unknown as MinimalLegacyRecord);
-                  const manyArray = support && support._manyArrayCache[key];
-                  const hasPromise =
-                    support && (support._relationshipPromisesCache[key] as Promise<unknown> | undefined);
-
-                  if (manyArray && hasPromise) {
-                    // do nothing, we will notify the ManyArray directly
-                    // once the fetch has completed.
-                    return;
-                  }
-
-                  if (manyArray) {
-                    notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
-
+                  if (schema._kind('@legacy', 'hasMany').notify(store, proxy, identifier, field)) {
                     assert(`Expected options to exist on relationship meta`, field.options);
                     assert(`Expected async to exist on relationship meta options`, 'async' in field.options);
                     if (field.options.async) {

@@ -2,7 +2,7 @@
 ///// WARNING /////
 ///////////////////
 
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
+import { getOrSetGlobal } from '../../types/-private';
 
 // Great, got your attention with that warning didn't we?
 // Good. Here's the deal: typescript treats symbols as unique types.

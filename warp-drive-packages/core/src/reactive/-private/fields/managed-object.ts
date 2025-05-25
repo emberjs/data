@@ -1,3 +1,5 @@
+import { assert } from '@warp-drive/build-config/macros';
+
 import {
   consumeInternalSignal,
   entangleSignal,
@@ -5,17 +7,14 @@ import {
   OBJECT_SIGNAL,
   type WarpDriveSignal,
   withSignalStore,
-} from '@ember-data/store/-private';
-import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-// import { STRUCTURED } from '@warp-drive/core-types/request';
-import type { ObjectField, SchemaObjectField } from '@warp-drive/core-types/schema/fields';
-
-import type { SchemaRecord } from '../record';
-import type { SchemaService } from '../schema';
-import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
+} from '../../../store/-private.ts';
+import type { Cache } from '../../../types/cache.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ObjectValue, Value } from '../../../types/json/raw.ts';
+import type { ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
+import type { SchemaRecord } from '../record.ts';
+import type { SchemaService } from '../schema.ts';
+import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
 
 export function notifyObject(obj: ManagedObject) {
   notifyInternalSignal(obj[OBJECT_SIGNAL]);

@@ -1,16 +1,16 @@
-import type Store from '@ember-data/store';
-import type { WarpDriveSignal } from '@ember-data/store/-private';
-import { ARRAY_SIGNAL, consumeInternalSignal, entangleSignal, withSignalStore } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache } from '@warp-drive/core-types/cache';
-import type { ArrayValue, ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
-import type { ArrayField, HashField, SchemaArrayField } from '@warp-drive/core-types/schema/fields';
 
-import { SchemaRecord } from '../record';
-import type { SchemaService } from '../schema';
-import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols';
+import type { Store } from '../../../index.ts';
+import type { WarpDriveSignal } from '../../../store/-private.ts';
+import { ARRAY_SIGNAL, consumeInternalSignal, entangleSignal, withSignalStore } from '../../../store/-private.ts';
+import type { Cache } from '../../../types/cache.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
+import type { OpaqueRecordInstance } from '../../../types/record.ts';
+import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
+import { SchemaRecord } from '../record.ts';
+import type { SchemaService } from '../schema.ts';
+import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([

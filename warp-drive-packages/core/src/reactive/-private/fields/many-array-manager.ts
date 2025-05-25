@@ -1,17 +1,17 @@
-import type Store from '@ember-data/store';
-import type { RelatedCollection as ManyArray } from '@ember-data/store/-private';
-import { fastPush, SOURCE } from '@ember-data/store/-private';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { CacheOptions } from '@warp-drive/core-types/request';
-import { EnableHydration } from '@warp-drive/core-types/request';
-import type { CollectionResourceRelationship } from '@warp-drive/core-types/spec/json-api-raw';
-import { RecordStore } from '@warp-drive/core-types/symbols';
 
-import type { SchemaRecord } from '../record';
-import { Identifier } from '../symbols';
+import type { Store } from '../../../index.ts';
+import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
+import { fastPush, SOURCE } from '../../../store/-private.ts';
+import type { CollectionRelationship } from '../../../types/cache/relationship.ts';
+import type { LocalRelationshipOperation } from '../../../types/graph.ts';
+import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { CacheOptions } from '../../../types/request.ts';
+import { EnableHydration } from '../../../types/request.ts';
+import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
+import { RecordStore } from '../../../types/symbols.ts';
+import type { SchemaRecord } from '../record.ts';
+import { Identifier } from '../symbols.ts';
 
 export interface FindHasManyOptions {
   reload?: boolean;

@@ -1,15 +1,16 @@
 import { deprecate } from '@ember/debug';
 
-import { recordIdentifierFor } from '@ember-data/store';
-import type { WarpDriveSignal } from '@ember-data/store/-private';
-import { createMemo, withSignalStore } from '@ember-data/store/-private';
-import type { SchemaService as SchemaServiceInterface } from '@ember-data/store/types';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import { getOrSetGlobal } from '@warp-drive/core-types/-private';
-import type { ObjectValue, Value } from '@warp-drive/core-types/json/raw';
-import type { Derivation, HashFn } from '@warp-drive/core-types/schema/concepts';
+
+import { recordIdentifierFor } from '../../index.ts';
+import type { Store, WarpDriveSignal } from '../../store/-private.ts';
+import { createMemo, withSignalStore } from '../../store/-private.ts';
+import type { SchemaService as SchemaServiceInterface } from '../../types.ts';
+import { getOrSetGlobal } from '../../types/-private.ts';
+import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ObjectValue, Value } from '../../types/json/raw.ts';
+import type { Derivation, HashFn } from '../../types/schema/concepts.ts';
 import {
   type ArrayField,
   type DerivedField,
@@ -19,17 +20,18 @@ import {
   type IdentityField,
   isResourceSchema,
   type LegacyAttributeField,
+  type LegacyBelongsToField,
+  type LegacyHasManyField,
   type LegacyRelationshipField,
   type ObjectField,
   type ObjectSchema,
   type PolarisResourceSchema,
   type ResourceSchema,
-} from '@warp-drive/core-types/schema/fields';
-import { Type } from '@warp-drive/core-types/symbols';
-import type { WithPartial } from '@warp-drive/core-types/utils';
-
-import type { SchemaRecord } from './record';
-import { Identifier } from './symbols';
+} from '../../types/schema/fields.ts';
+import { Type } from '../../types/symbols.ts';
+import type { WithPartial } from '../../types/utils.ts';
+import type { SchemaRecord } from './record.ts';
+import { Identifier } from './symbols.ts';
 
 const Support = getOrSetGlobal('Support', new WeakMap<WeakKey, Record<string, unknown>>());
 
@@ -187,6 +189,30 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
   return memoizedDerivation;
 }
 
+interface KindFns {
+  belongsTo: {
+    get: (store: Store, record: object, resourceKey: StableRecordIdentifier, field: LegacyBelongsToField) => unknown;
+    set: (
+      store: Store,
+      record: object,
+      cacheKey: StableRecordIdentifier,
+      field: LegacyBelongsToField,
+      value: unknown
+    ) => void;
+  };
+  hasMany: {
+    get: (store: Store, record: object, resourceKey: StableRecordIdentifier, field: LegacyHasManyField) => unknown;
+    set: (
+      store: Store,
+      record: object,
+      cacheKey: StableRecordIdentifier,
+      field: LegacyHasManyField,
+      value: unknown
+    ) => void;
+    notify: (store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField) => boolean;
+  };
+}
+
 export interface SchemaService {
   doesTypeExist(type: string): boolean;
   attributesDefinitionFor(identifier: { type: string }): InternalSchema['attributes'];
@@ -200,12 +226,19 @@ export interface SchemaService {
  * @public
  */
 export class SchemaService implements SchemaServiceInterface {
+  /** @internal */
   declare _schemas: Map<string, InternalSchema>;
+  /** @internal */
   declare _transforms: Map<string, Transformation>;
+  /** @internal */
   declare _hashFns: Map<string, HashFn>;
+  /** @internal */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   declare _derivations: Map<string, Derivation<any, any, any>>;
+  /** @internal */
   declare _traits: Set<string>;
+  /** @internal */
+  declare _modes: Map<string, KindFns>;
 
   constructor() {
     this._schemas = new Map();
@@ -319,6 +352,40 @@ export class SchemaService implements SchemaServiceInterface {
 
   registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void {
     this._derivations.set(derivation[Type], makeCachedDerivation(derivation));
+  }
+
+  /**
+   * This is an internal method used to register behaviors for legacy mode.
+   * It is not intended for public use.
+   *
+   * We do think a generalized `kind` registration system would be useful,
+   * but we have not yet designed it.
+   *
+   * See https://github.com/emberjs/data/issues/9534
+   *
+   * @internal
+   */
+  _registerMode(mode: string, kinds: KindFns): void {
+    assert(`Mode '${mode}' is already registered`, !this._traits.has(mode));
+    this._modes.set(mode, kinds);
+  }
+
+  /**
+   * This is an internal method used to enable legacy behaviors for legacy mode.
+   * It is not intended for public use.
+   *
+   * We do think a generalized `kind` registration system would be useful,
+   * but we have not yet designed it.
+   *
+   * See https://github.com/emberjs/data/issues/9534
+   *
+   * @internal
+   */
+  _kind<T extends keyof KindFns>(mode: string, kind: T): KindFns[T] {
+    assert(`Mode '${mode}' is not registered`, this._modes.has(mode));
+    const kinds = this._modes.get(mode)!;
+    assert(`Kind '${kind}' is not registered for mode '${mode}'`, kinds[kind]);
+    return kinds[kind];
   }
 
   registerHashFn<T extends object>(hashFn: HashFn<T>): void {
