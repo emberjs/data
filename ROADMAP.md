@@ -113,13 +113,13 @@ This would enable applications to pre-fetch the data for routes more optimally, 
 
 4) PersistedCache
 
-See the [experiment](./packages/experiments/src/persisted-cache/README.md)
+See the [experiment](./warp-drive-packages/experiments/src/persisted-cache/README.md)
 
 A wrapper for any Cache implementation that automatically syncs its state to IndexedDB in the background. Useful for being able to replay requests when reloading a page or opening a new tab, deduping requests across tabs, and providing minimal but powerful offline support.
 
 5) DataWorker
 
-See the [experiment](./packages/experiments/src/data-worker/README.md)
+See the [experiment](./warp-drive-packages/experiments/src/data-worker/README.md)
 
 A SharedWorker that integrates with PersistedCache and utilizes RequestManager in the worker to offload work from the main thread and dedupe/replay requests across tabs and windows.
 

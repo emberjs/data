@@ -55,8 +55,8 @@
       "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
-      "@warp-drive/experiments": ["../../packages/experiments/unstable-preview-types"],
-      "@warp-drive/experiments/*": ["../../packages/experiments/unstable-preview-types/*"]
+      "@warp-drive/experiments": ["../../warp-drive-packages/experiments/unstable-preview-types"],
+      "@warp-drive/experiments/*": ["../../warp-drive-packages/experiments/unstable-preview-types/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -116,7 +116,7 @@
       "path": "../../packages/holodeck"
     },
     {
-      "path": "../../packages/experiments"
+      "path": "../../warp-drive-packages/experiments"
     }
   ]
 }

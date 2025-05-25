@@ -26,7 +26,7 @@
     { "path": "./packages/store" },
     { "path": "./packages/tracking" },
     { "path": "./packages/unpublished-test-infra" },
-    { "path": "./packages/experiments" },
+    { "path": "./warp-drive-packages/experiments" },
     { "path": "./warp-drive-packages/core" },
     { "path": "./warp-drive-packages/ember" },
     { "path": "./warp-drive-packages/json-api" },
