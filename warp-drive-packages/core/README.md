@@ -1,13 +1,13 @@
 <h1 align="center">
   <img
-    class="project-logo"
-    src="https://github.com/emberjs/data/blob/main/logos/github-header.svg#gh-light-mode-only"
+    class="project-logo light-only"
+    src="./logos/github-header.svg#gh-light-mode-only"
     alt="WarpDrive | Boldly go where no app has gone before"
     title="WarpDrive | Boldly go where no app has gone before"
     />
   <img
-    class="project-logo"
-    src="https://github.com/emberjs/data/blob/main/logos/github-header.svg#gh-dark-mode-only"
+    class="project-logo dark-only"
+    src="./logos/github-header.svg#gh-dark-mode-only"
     alt="WarpDrive | Boldly go where no app has gone before"
     title="WarpDrive | Boldly go where no app has gone before"
     />
@@ -25,8 +25,9 @@
   <a href="https://warp-drive.io">WarpDrive</a> is a lightweight data library for web apps &mdash;
   <br>
   universal, typed, reactive, and ready to scale.
-  <br/><br/>
-<p>
+  <br>
+  <br>
+</p>
 
 WarpDrive provides features that make it easy to build scalable, fast, feature
 rich application &mdash; letting you ship better experiences more quickly without re-architecting your app or API. WarpDrive is:
@@ -53,7 +54,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 ## Installation
 
 ```sh
-pnpm add @warp-drive/core
+pnpm add -E @warp-drive/core@latest
 ```
 
 <br>
