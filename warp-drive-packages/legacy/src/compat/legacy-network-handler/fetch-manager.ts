@@ -1,7 +1,5 @@
 import { warn } from '@ember/debug';
 
-import { importSync } from '@embroider/macros';
-
 import type { Store } from '@warp-drive/core';
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -13,7 +11,7 @@ import type {
   RequestStateService,
   SaveRecordMutation,
 } from '@warp-drive/core/store/-private';
-import { coerceId } from '@warp-drive/core/store/-private';
+import { coerceId, waitFor } from '@warp-drive/core/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
@@ -216,10 +214,7 @@ export class FetchManager {
 
     if (TESTING) {
       if (!request.disableTestWaiter) {
-        const { waitForPromise } = importSync('@ember/test-waiters') as {
-          waitForPromise: <T>(promise: Promise<T>) => Promise<T>;
-        };
-        promise = waitForPromise(promise);
+        promise = waitFor(promise);
       }
     }
 

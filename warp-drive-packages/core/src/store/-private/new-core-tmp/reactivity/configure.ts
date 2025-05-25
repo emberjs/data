@@ -60,6 +60,7 @@ export interface SignalHooks<T = SignalRef> {
   notifySignal: (signal: T) => void;
   createMemo: <F>(obj: object, key: string | symbol, fn: () => F) => () => F;
   willSyncFlushWatchers: () => boolean;
+  waitFor?: <K>(promise: Promise<K>) => Promise<K>;
 }
 
 export interface HooksOptions {
@@ -130,4 +131,13 @@ export function willSyncFlushWatchers(): boolean {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
   assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.willSyncFlushWatchers();
+}
+
+export function waitFor<K>(promise: Promise<K>): Promise<K> {
+  const signalHooks: SignalHooks | null = peekTransient('signalHooks');
+  assert(`Signal hooks not configured`, signalHooks);
+  if (signalHooks.waitFor) {
+    return signalHooks.waitFor(promise);
+  }
+  return promise;
 }

@@ -1,11 +1,9 @@
-import { importSync } from '@embroider/macros';
-
 import type { Store, StoreRequestContext } from '@warp-drive/core';
 import { LOG_REQUESTS } from '@warp-drive/core/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
-import type { CollectionRecordArray } from '@warp-drive/core/store/-private';
+import { type CollectionRecordArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -440,10 +438,7 @@ function _findAll<T>(
 
   if (TESTING) {
     if (!request.disableTestWaiter) {
-      const { waitForPromise } = importSync('@ember/test-waiters') as {
-        waitForPromise: <PT>(promise: Promise<PT>) => Promise<PT>;
-      };
-      promise = waitForPromise(promise);
+      promise = waitFor(promise);
     }
   }
 

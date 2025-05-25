@@ -3,6 +3,7 @@ import { _backburner } from '@ember/runloop';
 import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
 
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
+import { TESTING } from '@warp-drive/core/build-config/env';
 import { setupSignals } from '@warp-drive/core/configure';
 import type { SignalHooks } from '@warp-drive/core/store/-private';
 
@@ -70,6 +71,13 @@ export function buildSignalConfig(options: {
     willSyncFlushWatchers: () => {
       //@ts-expect-error
       return !!_backburner.currentInstance && _backburner._autorun !== true;
+    },
+    waitFor: async <K>(promise: Promise<K>): Promise<K> => {
+      if (TESTING) {
+        const { waitForPromise } = await import('@ember/test-waiters');
+        return waitForPromise(promise);
+      }
+      return promise;
     },
   } satisfies SignalHooks<Tag | [Tag, Tag, Tag]>;
 }

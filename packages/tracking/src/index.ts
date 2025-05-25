@@ -65,6 +65,7 @@ import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, 
 
 // import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { TESTING } from '@warp-drive/build-config/env';
 
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
@@ -144,6 +145,13 @@ export function buildSignalConfig(options: {
     willSyncFlushWatchers: () => {
       //@ts-expect-error
       return !!_backburner.currentInstance && _backburner._autorun !== true;
+    },
+    waitFor: async <K>(promise: Promise<K>): Promise<K> => {
+      if (TESTING) {
+        const { waitForPromise } = await import('@ember/test-waiters');
+        return waitForPromise(promise);
+      }
+      return promise;
     },
   };
 }

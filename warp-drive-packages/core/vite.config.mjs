@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['@ember/object', '@ember/test-waiters', '@ember/debug'];
+export const externals = ['@ember/object', '@ember/debug'];
 
 export const entryPoints = [
   // build-config

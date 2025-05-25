@@ -1,7 +1,6 @@
-import { importSync } from '@embroider/macros';
-
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 
+import { waitFor } from '../../store/-private/new-core-tmp/reactivity/configure';
 import { peekUniversalTransient, setUniversalTransient } from '../../types/-private';
 import type { StableDocumentIdentifier } from '../../types/identifier';
 import type { RequestInfo, StructuredErrorDocument } from '../../types/request';
@@ -214,10 +213,7 @@ export class RequestManager {
 
     if (TESTING) {
       if (!request.disableTestWaiter) {
-        const { waitForPromise } = importSync('@ember/test-waiters') as {
-          waitForPromise: <PT>(promise: Promise<PT>) => Promise<PT>;
-        };
-        const newPromise = waitForPromise(promise);
+        const newPromise = waitFor(promise);
         const finalPromise = upgradePromise(
           newPromise.then(
             (result) => {

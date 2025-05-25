@@ -38,9 +38,6 @@
       "default": "./dist/*.js"
     }
   },
-  "peerDependencies": {
-    "@ember/test-waiters": "^3.1.0 || >= 4.0.0"
-  },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
     "@warp-drive/core": "workspace:*",
