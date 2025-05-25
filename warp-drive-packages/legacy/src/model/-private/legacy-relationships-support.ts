@@ -1,6 +1,6 @@
+import type { Document, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { Document, Store } from '@warp-drive/core';
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@warp-drive/core/graph/-private';
 import type { LiveArray } from '@warp-drive/core/store/-private';
 import {

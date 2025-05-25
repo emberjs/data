@@ -1,7 +1,7 @@
 import { cacheFor } from '@ember/object/internals';
 
-import { assert } from '@warp-drive/core/build-config/macros';
 import type { NotificationType, Store } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import {
   ARRAY_SIGNAL,
   notifyInternalSignal,

@@ -1,5 +1,5 @@
-import { assert } from '@warp-drive/core/build-config/macros';
 import type { StoreRequestContext } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { ExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { RequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDataDocument, ResourceDocument } from '@warp-drive/core/types/spec/document';

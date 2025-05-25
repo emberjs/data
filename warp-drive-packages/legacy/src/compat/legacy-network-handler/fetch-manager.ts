@@ -2,9 +2,9 @@ import { warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
+import type { Store } from '@warp-drive/core';
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { Store } from '@warp-drive/core';
 import { createDeferred } from '@warp-drive/core/request';
 import type {
   FindRecordQuery,

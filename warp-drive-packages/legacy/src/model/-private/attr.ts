@@ -1,8 +1,8 @@
 import { computed } from '@ember/object';
 
+import { recordIdentifierFor } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { recordIdentifierFor } from '@warp-drive/core';
 import { peekCache } from '@warp-drive/core/store/-private';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core/types/json/raw';
 import type { TransformName } from '@warp-drive/core/types/symbols';

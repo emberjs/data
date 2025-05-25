@@ -1,6 +1,6 @@
+import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { Store } from '@warp-drive/core';
 import type { UpgradedMeta } from '@warp-drive/core/graph/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 
