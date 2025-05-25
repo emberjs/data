@@ -14,7 +14,6 @@ const config = {
     // Won't work until we figure out how
     // to get typedoc to work with glint
     // '../packages/ember',
-    '../packages/experiments',
     '../packages/graph',
     '../packages/json-api',
     '../packages/legacy-compat',
@@ -33,6 +32,7 @@ const config = {
     // to get typedoc to work with glint
     // '../warp-drive-packages/ember',
     '../warp-drive-packages/json-api',
+    '../warp-drive-packages/experiments',
   ],
   entryFileName: 'index',
   packageOptions: {

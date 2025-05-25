@@ -1,17 +1,14 @@
+import type { Store, StoreRequestContext } from '@warp-drive/core';
+import type { Future, Handler, NextFn } from '@warp-drive/core/request';
+import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type {
-  Future,
-  Handler,
   ImmutableRequestInfo,
-  NextFn,
   StructuredDataDocument,
   StructuredErrorDocument,
-} from '@ember-data/request';
-import type Store from '@ember-data/store';
-import type { StoreRequestContext } from '@ember-data/store';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
-import { SkipCache } from '@warp-drive/core-types/request';
+} from '@warp-drive/core/types/request';
+import { SkipCache } from '@warp-drive/core/types/request';
 
-import { getCache, getCachedRequest } from './db';
+import { getCache, getCachedRequest } from './db.ts';
 
 /**
  * A Handler that resolves requests from the persisted cache.

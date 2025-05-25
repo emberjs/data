@@ -769,58 +769,6 @@ importers:
         specifier: ^11.1.0
         version: 11.2.2
 
-  packages/experiments:
-    dependencies:
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.27.1
-      '@babel/plugin-transform-typescript':
-        specifier: ^7.27.0
-        version: 7.27.1(@babel/core@7.27.1)
-      '@babel/preset-env':
-        specifier: ^7.26.9
-        version: 7.27.2(@babel/core@7.27.1)
-      '@babel/preset-typescript':
-        specifier: ^7.27.0
-        version: 7.27.1(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(@babel/core@7.27.1)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@sqlite.org/sqlite-wasm':
-        specifier: 3.46.0-build2
-        version: 3.46.0-build2
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config
-      ember-source:
-        specifier: ~6.3.0
-        version: 6.3.0(@glimmer/component@2.0.0)
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^5.4.15
-        version: 5.4.19
-
   packages/graph:
     dependencies:
       '@embroider/macros':
@@ -3686,7 +3634,7 @@ importers:
         version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/experiments':
         specifier: workspace:*
-        version: file:packages/experiments(726c4ae3bf6c1fb7086a6f1a33ce8838)
+        version: file:warp-drive-packages/experiments(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(73daf5709ad0453352fae4bb68773b50)
@@ -4032,6 +3980,43 @@ importers:
       rollup:
         specifier: ^4.40.0
         version: 4.40.2
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^5.4.15
+        version: 5.4.19
+
+  warp-drive-packages/experiments:
+    dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.27.1)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.27.1
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-env':
+        specifier: ^7.26.9
+        version: 7.27.2(@babel/core@7.27.1)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@sqlite.org/sqlite-wasm':
+        specifier: 3.46.0-build2
+        version: 3.46.0-build2
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -6570,14 +6555,10 @@ packages:
       ember-provide-consume-context:
         optional: true
 
-  '@warp-drive/experiments@file:packages/experiments':
-    resolution: {directory: packages/experiments, type: directory}
+  '@warp-drive/experiments@file:warp-drive-packages/experiments':
+    resolution: {directory: warp-drive-packages/experiments, type: directory}
     peerDependencies:
-      '@ember-data/request': workspace:*
-      '@ember-data/request-utils': workspace:*
-      '@ember-data/store': workspace:*
       '@sqlite.org/sqlite-wasm': 3.46.0-build2
-      '@warp-drive/core-types': workspace:*
     peerDependenciesMeta:
       '@sqlite.org/sqlite-wasm':
         optional: true
@@ -17526,16 +17507,14 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/experiments@file:packages/experiments(726c4ae3bf6c1fb7086a6f1a33ce8838)':
+  '@warp-drive/experiments@file:warp-drive-packages/experiments(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@ember-data/request': file:packages/request(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/request-utils': file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
+      - '@ember/test-waiters'
       - supports-color
 
   '@warp-drive/holodeck@file:packages/holodeck(73daf5709ad0453352fae4bb68773b50)':

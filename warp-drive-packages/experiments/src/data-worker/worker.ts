@@ -1,5 +1,6 @@
-import type { Future, ResponseInfo, StructuredDataDocument } from '@ember-data/request';
-import type Store from '@ember-data/store';
+import type { Store } from '@warp-drive/core';
+import type { Future } from '@warp-drive/core/request';
+import type { ResponseInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 
 import { DocumentStorage } from '../document-storage';
 import type { AbortEventData, RequestEventData, ThreadInitEventData, WorkerThreadEvent } from './types';

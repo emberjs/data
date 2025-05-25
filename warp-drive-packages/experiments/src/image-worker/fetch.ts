@@ -1,7 +1,7 @@
-import type { Deferred } from '@ember-data/request';
-import { createDeferred } from '@ember-data/request';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
+import type { Deferred } from '@warp-drive/core/request';
+import { createDeferred } from '@warp-drive/core/request';
 
 import type { MainThreadEvent, RequestEventData } from './types';
 

@@ -1,8 +1,9 @@
-import type { Context, Deferred, Future, NextFn, RequestInfo } from '@ember-data/request';
-import { createDeferred } from '@ember-data/request';
 import { TESTING } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { Context, Deferred, Future, NextFn } from '@warp-drive/core/request';
+import { createDeferred } from '@warp-drive/core/request';
+import type { RequestInfo } from '@warp-drive/core/types/request';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
 
 import type { AbortEventData, MainThreadEvent, RequestEventData } from './types';
 
