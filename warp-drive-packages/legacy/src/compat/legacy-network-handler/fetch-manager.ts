@@ -2,8 +2,8 @@ import { warn } from '@ember/debug';
 
 import { importSync } from '@embroider/macros';
 
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import { createDeferred } from '@warp-drive/core/request';
 import type {

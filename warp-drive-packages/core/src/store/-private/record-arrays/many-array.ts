@@ -1,7 +1,7 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/build-config/deprecations';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/core/build-config/deprecations';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { BaseFinderOptions, ModelSchema, StableRecordIdentifier } from '../../../types.ts';
 import type { Cache } from '../../../types/cache.ts';

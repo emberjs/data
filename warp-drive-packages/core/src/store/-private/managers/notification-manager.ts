@@ -1,5 +1,5 @@
-import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/core/build-config/debugging';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache.ts';

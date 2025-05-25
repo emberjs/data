@@ -1,6 +1,6 @@
-import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { BaseFinderOptions } from '../../../types';
 import { getOrSetGlobal } from '../../../types/-private.ts';

@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import type { ModelSchema } from '@warp-drive/core/types';
 

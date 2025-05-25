@@ -1,8 +1,8 @@
 import { warn } from '@ember/debug';
 
-import { LOG_INSTANCE_CACHE } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_INSTANCE_CACHE } from '@warp-drive/core/build-config/debugging';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';

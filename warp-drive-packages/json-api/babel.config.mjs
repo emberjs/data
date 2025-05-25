@@ -1,4 +1,4 @@
-import { macros } from '@warp-drive/build-config/babel-macros';
+import { macros } from '@warp-drive/core/build-config/babel-macros';
 
 export default {
   plugins: [

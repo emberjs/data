@@ -46,6 +46,15 @@ export const entryPoints = [
   // schema-record
   './src/reactive.ts',
   './src/reactive/-private.ts',
+
+  // build-config
+  './src/build-config.ts',
+  './src/build-config/babel-macros.ts',
+  './src/build-config/env.ts',
+  './src/build-config/macros.ts',
+  './src/build-config/debugging.ts',
+  './src/build-config/deprecations.ts',
+  './src/build-config/canary-features.ts',
 ];
 
 export default createConfig(

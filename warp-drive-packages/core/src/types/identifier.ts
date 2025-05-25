@@ -1,4 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = Symbol('record-originated-on-client');

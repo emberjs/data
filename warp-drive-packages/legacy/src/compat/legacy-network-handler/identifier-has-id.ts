@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 
 export function assertIdentifierHasId(identifier: unknown): asserts identifier is StableExistingRecordIdentifier {

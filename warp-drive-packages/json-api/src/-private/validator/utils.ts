@@ -3,8 +3,8 @@ import Fuse from 'fuse.js';
 import type { ArrayNode, ObjectNode } from 'json-to-ast';
 import jsonToAst from 'json-to-ast';
 
-import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
-import { assert } from '@warp-drive/build-config/macros';
+import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type {
   StructuredDataDocument,

@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import { LRUCache } from '@warp-drive/core/utils/string';
 
 import { defaultRules } from './inflections.ts';

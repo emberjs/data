@@ -40,8 +40,6 @@
   },
   "peerDependencies": {},
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
-    "@warp-drive/build-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "json-to-ast": "2.1.0",
     "fuse.js": "7.1.0"

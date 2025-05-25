@@ -1,4 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 
 import type { Store, StoreRequestInput } from '../../../index.ts';
 import type { Future } from '../../../request.ts';

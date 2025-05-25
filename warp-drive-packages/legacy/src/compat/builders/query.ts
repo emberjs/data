@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { StoreRequestInput } from '@warp-drive/core';
 import type { LegacyResourceQuery, QueryOptions } from '@warp-drive/core/types';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';

@@ -1,6 +1,6 @@
 import { importSync } from '@embroider/macros';
 
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 
 import { peekUniversalTransient, setUniversalTransient } from '../../types/-private';
 import type { StableDocumentIdentifier } from '../../types/identifier';

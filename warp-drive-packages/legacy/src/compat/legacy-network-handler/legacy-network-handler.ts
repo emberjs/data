@@ -1,8 +1,8 @@
 import { importSync } from '@embroider/macros';
 
-import { LOG_REQUESTS } from '@warp-drive/build-config/debugging';
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_REQUESTS } from '@warp-drive/core/build-config/debugging';
+import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store, StoreRequestContext } from '@warp-drive/core';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import type { CollectionRecordArray } from '@warp-drive/core/store/-private';

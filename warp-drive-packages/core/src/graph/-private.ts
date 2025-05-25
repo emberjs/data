@@ -25,7 +25,7 @@ pnpm add @ember-data/graph
 
   @module
 */
-import { DEBUG } from '@warp-drive/build-config/env';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 
 import type { Store } from '../index.ts';
 import type { CacheCapabilitiesManager } from '../types.ts';

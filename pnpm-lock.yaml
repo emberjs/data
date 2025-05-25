@@ -346,7 +346,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -407,7 +407,7 @@ importers:
         version: 2.2.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -447,7 +447,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/utilities':
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(@babel/core@7.27.1)
@@ -481,7 +481,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy':
         specifier: workspace:*
         version: file:warp-drive-packages/legacy(@babel/core@7.27.1)
@@ -513,49 +513,6 @@ importers:
       vite:
         specifier: ^5.4.15
         version: 5.4.19
-
-  packages/build-config:
-    dependencies:
-      '@embroider/addon-shim':
-        specifier: ^1.9.0
-        version: 1.10.0
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      babel-import-util:
-        specifier: ^2.1.1
-        version: 2.1.1
-      semver:
-        specifier: ^7.7.1
-        version: 7.7.2
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.27.1
-      '@babel/plugin-transform-typescript':
-        specifier: ^7.27.0
-        version: 7.27.1(@babel/core@7.27.1)
-      '@babel/preset-typescript':
-        specifier: ^7.27.0
-        version: 7.27.1(@babel/core@7.27.1)
-      '@types/babel__core':
-        specifier: ^7.20.5
-        version: 7.20.5
-      '@types/node':
-        specifier: ^20.17.32
-        version: 20.17.46
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config(5329c024b4ebf34f915440665ecbd07d)
-      bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^5.4.15
-        version: 5.4.19(@types/node@20.17.46)
 
   packages/codemods:
     dependencies:
@@ -604,7 +561,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -638,7 +595,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -696,7 +653,7 @@ importers:
     dependencies:
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -776,7 +733,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -850,7 +807,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(@babel/core@7.27.1)
@@ -887,7 +844,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy':
         specifier: workspace:*
         version: file:warp-drive-packages/legacy(@babel/core@7.27.1)
@@ -924,7 +881,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy':
         specifier: workspace:*
         version: file:warp-drive-packages/legacy(@babel/core@7.27.1)
@@ -970,7 +927,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
@@ -1010,7 +967,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -1056,7 +1013,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/utilities':
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(@babel/core@7.27.1)
@@ -1093,7 +1050,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -1127,7 +1084,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy':
         specifier: workspace:*
         version: file:warp-drive-packages/legacy(@babel/core@7.27.1)
@@ -1170,7 +1127,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -1210,7 +1167,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -1255,7 +1212,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1463,7 +1420,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -1632,7 +1589,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -1753,7 +1710,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -1886,7 +1843,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2019,7 +1976,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2119,7 +2076,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2255,7 +2212,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2384,7 +2341,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2532,7 +2489,7 @@ importers:
         version: 1.9.9
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2685,7 +2642,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -2912,7 +2869,7 @@ importers:
         version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3107,7 +3064,7 @@ importers:
         version: 6.0.4(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3266,7 +3223,7 @@ importers:
         version: 8.32.1(eslint@9.26.0)(typescript@5.8.3)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3450,7 +3407,7 @@ importers:
         version: 1.4.1-unstable.d17c1f1
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3598,7 +3555,7 @@ importers:
         version: 1.1.2
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3755,7 +3712,7 @@ importers:
         version: 2.19.10
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types':
         specifier: workspace:*
         version: file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
@@ -3841,6 +3798,46 @@ importers:
         specifier: 5.99.5
         version: 5.99.5
 
+  warp-drive-packages/build-config:
+    dependencies:
+      '@embroider/addon-shim':
+        specifier: ^1.9.0
+        version: 1.10.0
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
+      babel-import-util:
+        specifier: ^2.1.1
+        version: 2.1.1
+      semver:
+        specifier: ^7.7.1
+        version: 7.7.2
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.27.1
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.1(@babel/core@7.27.1)
+      '@types/babel__core':
+        specifier: ^7.20.5
+        version: 7.20.5
+      '@types/node':
+        specifier: ^20.17.32
+        version: 20.17.46
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config(5329c024b4ebf34f915440665ecbd07d)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^5.4.15
+        version: 5.4.19(@types/node@20.17.46)
+
   warp-drive-packages/core:
     dependencies:
       '@embroider/macros':
@@ -3848,7 +3845,7 @@ importers:
         version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config':
         specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -3886,9 +3883,6 @@ importers:
       '@embroider/macros':
         specifier: ^1.16.12
         version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
@@ -3965,12 +3959,6 @@ importers:
 
   warp-drive-packages/experiments:
     dependencies:
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -4002,12 +3990,6 @@ importers:
 
   warp-drive-packages/json-api:
     dependencies:
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -4051,9 +4033,6 @@ importers:
       '@embroider/macros':
         specifier: ^1.16.12
         version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -4094,12 +4073,6 @@ importers:
 
   warp-drive-packages/utilities:
     dependencies:
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -6500,8 +6473,8 @@ packages:
   '@vueuse/shared@12.8.2':
     resolution: {integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w==}
 
-  '@warp-drive/build-config@file:packages/build-config':
-    resolution: {directory: packages/build-config, type: directory}
+  '@warp-drive/build-config@file:warp-drive-packages/build-config':
+    resolution: {directory: warp-drive-packages/build-config, type: directory}
 
   '@warp-drive/core-types@file:packages/core-types':
     resolution: {directory: packages/core-types, type: directory}
@@ -14758,7 +14731,7 @@ snapshots:
   '@ember-data/active-record@file:packages/active-record(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14769,7 +14742,7 @@ snapshots:
     dependencies:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(71230f815b7f822a1df7a93bc6010582)
       ember-cli-path-utils: 1.0.0
       ember-cli-string-utils: 1.1.0
@@ -14799,7 +14772,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14812,7 +14785,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14825,7 +14798,7 @@ snapshots:
       '@ember-data/store': file:packages/store(ba858e684713dd8beac686aa516c100b)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14834,7 +14807,7 @@ snapshots:
   '@ember-data/graph@file:packages/graph(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14844,7 +14817,7 @@ snapshots:
   '@ember-data/json-api@file:packages/json-api(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
@@ -14855,7 +14828,7 @@ snapshots:
   '@ember-data/legacy-compat@file:packages/legacy-compat(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14866,7 +14839,7 @@ snapshots:
     dependencies:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(71230f815b7f822a1df7a93bc6010582)
       ember-cli-string-utils: 1.1.0
       ember-cli-test-info: 1.0.0
@@ -14879,7 +14852,7 @@ snapshots:
   '@ember-data/request-utils@file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
@@ -14892,7 +14865,7 @@ snapshots:
   '@ember-data/request-utils@file:packages/request-utils(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
@@ -14903,7 +14876,7 @@ snapshots:
   '@ember-data/request-utils@file:packages/request-utils(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(@babel/core@7.27.1)
     transitivePeerDependencies:
@@ -14915,7 +14888,7 @@ snapshots:
     dependencies:
       '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14924,7 +14897,7 @@ snapshots:
   '@ember-data/request@file:packages/request(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14933,7 +14906,7 @@ snapshots:
   '@ember-data/rest@file:packages/rest(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14946,7 +14919,7 @@ snapshots:
     dependencies:
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(71230f815b7f822a1df7a93bc6010582)
       ember-cli-path-utils: 1.0.0
       ember-cli-string-utils: 1.1.0
@@ -14959,7 +14932,7 @@ snapshots:
   '@ember-data/store@file:packages/store(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14969,7 +14942,7 @@ snapshots:
   '@ember-data/store@file:packages/store(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -14979,7 +14952,7 @@ snapshots:
   '@ember-data/store@file:packages/store(ba858e684713dd8beac686aa516c100b)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
@@ -14991,7 +14964,7 @@ snapshots:
   '@ember-data/tracking@file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -15000,7 +14973,7 @@ snapshots:
   '@ember-data/tracking@file:packages/tracking(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -15010,7 +14983,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       chalk: 4.1.2
       semver: 7.7.2
@@ -15023,7 +14996,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       chalk: 4.1.2
       semver: 7.7.2
@@ -15039,7 +15012,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       chalk: 4.1.2
       semver: 7.7.2
@@ -15054,7 +15027,7 @@ snapshots:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       chalk: 4.1.2
       semver: 7.7.2
@@ -16973,7 +16946,7 @@ snapshots:
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.27.0
+      '@babel/parser': 7.27.2
       '@babel/types': 7.27.1
 
   '@types/babel__traverse@7.20.7':
@@ -17296,7 +17269,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.13':
     dependencies:
-      '@babel/parser': 7.27.0
+      '@babel/parser': 7.27.2
       '@vue/shared': 3.5.13
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -17393,7 +17366,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@warp-drive/build-config@file:packages/build-config(@babel/core@7.27.1)':
+  '@warp-drive/build-config@file:warp-drive-packages/build-config(@babel/core@7.27.1)':
     dependencies:
       '@embroider/addon-shim': 1.10.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
@@ -17406,7 +17379,7 @@ snapshots:
   '@warp-drive/core-types@file:packages/core-types(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17416,7 +17389,7 @@ snapshots:
   '@warp-drive/core-types@file:packages/core-types(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17427,7 +17400,7 @@ snapshots:
     dependencies:
       '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -17435,14 +17408,14 @@ snapshots:
   '@warp-drive/core@file:warp-drive-packages/core(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
   '@warp-drive/diagnostic@file:packages/diagnostic(b4f72904c966d6a0c2e84aaa4afdc14f)':
     dependencies:
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
       tmp: 0.2.3
@@ -17454,7 +17427,7 @@ snapshots:
 
   '@warp-drive/diagnostic@file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)':
     dependencies:
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
       tmp: 0.2.3
@@ -17469,7 +17442,6 @@ snapshots:
     dependencies:
       '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17477,8 +17449,6 @@ snapshots:
 
   '@warp-drive/experiments@file:warp-drive-packages/experiments(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17681,8 +17651,6 @@ snapshots:
 
   '@warp-drive/json-api@file:warp-drive-packages/json-api(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
       fuse.js: 7.1.0
       json-to-ast: 2.1.0
@@ -17693,8 +17661,6 @@ snapshots:
 
   '@warp-drive/json-api@file:warp-drive-packages/json-api(@babel/core@7.27.1)':
     dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       fuse.js: 7.1.0
       json-to-ast: 2.1.0
@@ -17707,7 +17673,6 @@ snapshots:
     dependencies:
       '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
@@ -17717,7 +17682,6 @@ snapshots:
   '@warp-drive/legacy@file:warp-drive-packages/legacy(@babel/core@7.27.1)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(@babel/core@7.27.1)
     transitivePeerDependencies:
@@ -17727,7 +17691,7 @@ snapshots:
   '@warp-drive/schema-record@file:packages/schema-record(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17736,8 +17700,6 @@ snapshots:
 
   '@warp-drive/utilities@file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17746,8 +17708,6 @@ snapshots:
 
   '@warp-drive/utilities@file:warp-drive-packages/utilities(@babel/core@7.27.1)':
     dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -20182,7 +20142,7 @@ snapshots:
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
@@ -20210,7 +20170,7 @@ snapshots:
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:
@@ -20236,7 +20196,7 @@ snapshots:
       '@ember-data/tracking': file:packages/tracking(431be07f6082e13a7a50daab9caf72fb)
       '@ember/edition-utils': 1.2.0
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
     optionalDependencies:

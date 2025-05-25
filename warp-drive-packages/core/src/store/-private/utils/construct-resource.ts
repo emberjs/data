@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';

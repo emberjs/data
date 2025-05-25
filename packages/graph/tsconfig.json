@@ -29,8 +29,8 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "paths": {
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
       "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
@@ -41,7 +41,7 @@
   },
   "references": [
     {
-      "path": "../build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../../warp-drive-packages/core"

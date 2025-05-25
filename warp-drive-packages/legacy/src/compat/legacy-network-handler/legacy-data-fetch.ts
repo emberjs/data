@@ -1,5 +1,5 @@
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';

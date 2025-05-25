@@ -17,8 +17,8 @@
  *
  * @module
  */
-import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
-import { assert } from '@warp-drive/build-config/macros';
+import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ARRAY_SIGNAL, notifyInternalSignal } from '@warp-drive/core/store/-private';

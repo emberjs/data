@@ -5,7 +5,7 @@ import { cached, tracked } from '@glimmer/tracking';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store, StoreRequestInput } from '@warp-drive/core';
 import type { Future } from '@warp-drive/core/request';
 import type { RequestLoadingState, RequestState } from '@warp-drive/core/store/-private';

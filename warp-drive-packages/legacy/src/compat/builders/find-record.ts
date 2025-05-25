@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { StoreRequestInput } from '@warp-drive/core';
 import { constructResource, ensureStringId } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions, FindRecordOptions } from '@warp-drive/core/types';

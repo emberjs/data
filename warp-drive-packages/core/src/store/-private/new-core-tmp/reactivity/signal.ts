@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { createMemo } from './configure.ts';
 import type { Signals, SignalStore, WarpDriveSignal } from './internal.ts';

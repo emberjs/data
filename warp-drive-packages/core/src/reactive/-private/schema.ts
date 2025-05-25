@@ -1,7 +1,7 @@
 import { deprecate } from '@ember/debug';
 
-import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
-import { assert } from '@warp-drive/build-config/macros';
+import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { recordIdentifierFor } from '../../index.ts';
 import type { Store, WarpDriveSignal } from '../../store/-private.ts';

@@ -40,15 +40,15 @@
     "erasableSyntaxOnly": true,
     "types": ["ember-source/types"],
     "paths": {
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"]
+      "@warp-drive/build-config": ["../build-config/declarations"],
+      "@warp-drive/build-config/*": ["../build-config/declarations/*"]
     },
     "checkJs": false,
     "isolatedDeclarations": false
   },
   "references": [
     {
-      "path": "../../packages/build-config"
+      "path": "../build-config"
     }
   ]
 }

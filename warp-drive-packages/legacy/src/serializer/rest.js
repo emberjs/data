@@ -1,8 +1,8 @@
 import { warn } from '@ember/debug';
 
 import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { coerceId } from './-private/utils.ts';
 import { JSONSerializer } from './json.js';

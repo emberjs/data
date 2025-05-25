@@ -1,4 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 
 const DEFAULT_MAX_CACHE_SIZE = 10_000;
 

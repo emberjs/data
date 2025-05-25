@@ -2,7 +2,7 @@ import { tagForProperty } from '@ember/-internals/metal';
 import { _backburner } from '@ember/runloop';
 import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
 
-import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
 import { setupSignals } from '@warp-drive/core/configure';
 import type { SignalHooks } from '@warp-drive/core/store/-private';
 

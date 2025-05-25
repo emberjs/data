@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal } from '../../../../types/-private.ts';
 import { ARRAY_SIGNAL, consumeSignal, createSignal, notifySignal, OBJECT_SIGNAL, type SignalRef } from './configure.ts';

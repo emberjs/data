@@ -9,7 +9,7 @@ const config = {
     // '../packages/*'
     '../packages/active-record',
     '../packages/adapter',
-    '../packages/build-config',
+    '../warp-drive-packages/build-config',
     '../packages/core-types',
     // Won't work until we figure out how
     // to get typedoc to work with glint

@@ -42,8 +42,6 @@
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/core": ["../core/declarations"],
       "@warp-drive/core/*": ["../core/declarations/*"]
     },
@@ -54,9 +52,6 @@
   "references": [
     {
       "path": "../core"
-    },
-    {
-      "path": "../../packages/build-config"
     }
   ]
 }

@@ -54,8 +54,8 @@
       "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"]
     },
@@ -111,7 +111,7 @@
       "path": "../../packages/unpublished-test-infra"
     },
     {
-      "path": "../../packages/build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../../packages/holodeck"

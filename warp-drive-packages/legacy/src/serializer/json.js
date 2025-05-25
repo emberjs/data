@@ -2,7 +2,7 @@ import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 
 import { dasherize, singularize } from '@warp-drive/utilities/string';
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { Serializer } from '../serializer.ts';
 import { coerceId } from './-private/utils.ts';

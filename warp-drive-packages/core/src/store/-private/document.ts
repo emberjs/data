@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableRecordIdentifier } from '../../types.ts';
 import type { StableDocumentIdentifier } from '../../types/identifier.ts';

@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/core/build-config/deprecations';
 import { dasherize } from '@warp-drive/utilities/string';
 
 export type DecoratorPropertyDescriptor = (PropertyDescriptor & { initializer?: () => unknown }) | undefined;

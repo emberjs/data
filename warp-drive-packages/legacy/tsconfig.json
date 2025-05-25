@@ -41,8 +41,6 @@
     "erasableSyntaxOnly": true,
     "types": ["ember-source/types", "@types/jquery"],
     "paths": {
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/core": ["../core/declarations"],
       "@warp-drive/core/*": ["../core/declarations/*"],
       "@warp-drive/utilities": ["../utilities/declarations"],
@@ -52,9 +50,6 @@
     "isolatedDeclarations": false
   },
   "references": [
-    {
-      "path": "../../packages/build-config"
-    },
     {
       "path": "../core"
     },

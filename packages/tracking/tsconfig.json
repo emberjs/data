@@ -28,8 +28,8 @@
     "inlineSources": true,
     "types": ["ember-source/types"],
     "paths": {
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
     },
@@ -40,7 +40,7 @@
   },
   "references": [
     {
-      "path": "../build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../core-types"

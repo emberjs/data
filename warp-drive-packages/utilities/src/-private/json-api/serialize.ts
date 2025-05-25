@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { Relationship } from '@warp-drive/core/types/cache/relationship';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';

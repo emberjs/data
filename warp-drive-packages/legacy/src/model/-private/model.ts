@@ -1,7 +1,7 @@
 import EmberObject from '@ember/object';
 
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { NotificationType, Store } from '@warp-drive/core';
 import { recordIdentifierFor, storeFor } from '@warp-drive/core';
 import {

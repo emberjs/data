@@ -33,8 +33,8 @@
       "ember-data-qunit-asserts": ["../../@types/ember-data-qunit-asserts"],
       "@ember-data/store": ["../store/unstable-preview-types"],
       "@ember-data/store/*": ["../store/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../diagnostic/unstable-preview-types"],
@@ -54,7 +54,7 @@
       "path": "../diagnostic"
     },
     {
-      "path": "../build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../store"

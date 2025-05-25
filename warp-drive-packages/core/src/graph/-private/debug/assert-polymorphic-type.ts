@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { CacheCapabilitiesManager } from '../../../types.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
