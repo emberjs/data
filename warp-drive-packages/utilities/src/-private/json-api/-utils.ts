@@ -1,7 +1,6 @@
 import type { QueryParamsSource } from '@warp-drive/core/types/params';
-import type { CacheOptions, ConstrainedRequestOptions } from '@warp-drive/core/types/request';
 
-import type { BuildURLConfig, UrlOptions } from '../../index.ts';
+import type { BuildURLConfig } from '../../index.ts';
 import { buildQueryParams as buildParams, setBuildURLConfig as setConfig } from '../../index.ts';
 
 export interface JSONAPIConfig extends BuildURLConfig {
@@ -80,29 +79,6 @@ export function setBuildURLConfig(config: JSONAPIConfig): void {
   }
 
   setConfig(config);
-}
-
-export function copyForwardUrlOptions(urlOptions: UrlOptions, options: ConstrainedRequestOptions): void {
-  if ('host' in options) {
-    urlOptions.host = options.host;
-  }
-  if ('namespace' in options) {
-    urlOptions.namespace = options.namespace;
-  }
-  if ('resourcePath' in options) {
-    urlOptions.resourcePath = options.resourcePath;
-  }
-}
-
-export function extractCacheOptions(options: ConstrainedRequestOptions) {
-  const cacheOptions: CacheOptions = {};
-  if ('reload' in options) {
-    cacheOptions.reload = options.reload;
-  }
-  if ('backgroundReload' in options) {
-    cacheOptions.backgroundReload = options.backgroundReload;
-  }
-  return cacheOptions;
 }
 
 interface RelatedObject {

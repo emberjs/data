@@ -10,8 +10,8 @@ import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '../../index.ts';
 import { pluralize } from '../../string.ts';
-import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions, extractCacheOptions } from './-utils.ts';
-
+import { copyForwardUrlOptions, extractCacheOptions } from '../builder-utils.ts';
+import { ACCEPT_HEADER_VALUE } from './-utils.ts';
 /**
  * Builds request options to query for resources, usually by a primary
  * type, configured for the url and header expectations of most JSON:API APIs.

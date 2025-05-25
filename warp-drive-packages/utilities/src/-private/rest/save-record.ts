@@ -1,23 +1,23 @@
-import {
-  buildBaseURL,
-  type CreateRecordUrlOptions,
-  type DeleteRecordUrlOptions,
-  type UpdateRecordUrlOptions,
-} from '@ember-data/request-utils';
-import { camelize, pluralize } from '@ember-data/request-utils/string';
-import { recordIdentifierFor } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { TypedRecordInstance } from '@warp-drive/core-types/record';
+import { recordIdentifierFor } from '@warp-drive/core';
+import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { TypedRecordInstance } from '@warp-drive/core/types/record';
 import type {
   ConstrainedRequestOptions,
   CreateRequestOptions,
   DeleteRequestOptions,
   UpdateRequestOptions,
-} from '@warp-drive/core-types/request';
-import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
+} from '@warp-drive/core/types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
-import { copyForwardUrlOptions } from './-utils';
+import {
+  buildBaseURL,
+  type CreateRecordUrlOptions,
+  type DeleteRecordUrlOptions,
+  type UpdateRecordUrlOptions,
+} from '../../index.ts';
+import { camelize, pluralize } from '../../string';
+import { copyForwardUrlOptions } from '../builder-utils.ts';
 
 function isExisting(identifier: StableRecordIdentifier): identifier is StableExistingRecordIdentifier {
   return 'id' in identifier && identifier.id !== null && 'type' in identifier && identifier.type !== null;

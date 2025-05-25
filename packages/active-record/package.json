@@ -43,24 +43,15 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/utilities": "workspace:*"
   },
-  "peerDependencies": {
-    "@ember-data/request-utils": "workspace:*",
-    "@ember-data/store": "^4.12.0 || ^5.0.0",
-    "@warp-drive/core-types": "workspace:*"
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-typescript": "^7.27.0",
-    "@ember-data/request": "workspace:*",
-    "@ember-data/request-utils": "workspace:*",
-    "@ember-data/store": "workspace:*",
-    "@glimmer/component": "^2.0.0",
-    "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~6.3.0",
     "vite": "^5.4.15",
     "typescript": "^5.8.3"
   },

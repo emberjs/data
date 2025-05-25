@@ -8,6 +8,8 @@ export const entryPoints = [
   './src/handlers.ts',
   './src/-private.ts',
   './src/json-api.ts',
+  './src/active-record.ts',
+  './src/rest.ts',
 ];
 
 export default createConfig(

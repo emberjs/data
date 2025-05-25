@@ -63,4 +63,6 @@ URLs follow the most common REST format (camelCase pluralized resource types).
  * @module
  * @public
  */
-export { findRecord, query, deleteRecord, createRecord, updateRecord } from '@warp-drive/utilities/rest';
+export { findRecord } from './-private/rest/find-record';
+export { query } from './-private/rest/query';
+export { deleteRecord, createRecord, updateRecord } from './-private/rest/save-record';
