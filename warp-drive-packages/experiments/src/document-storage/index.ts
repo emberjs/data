@@ -1,9 +1,9 @@
-import type { RequestInfo, ResponseInfo, StructuredDocument } from '@ember-data/request';
-import type { StoreRequestContext } from '@ember-data/store';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { ResourceDataDocument, ResourceDocument } from '@warp-drive/core-types/spec/document';
-import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { StoreRequestContext } from '@warp-drive/core';
+import type { ExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { RequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
+import type { ResourceDataDocument, ResourceDocument } from '@warp-drive/core/types/spec/document';
+import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 
 export const WARP_DRIVE_STORAGE_FILE_NAME = 'warp-drive_document-storage';
 export const WARP_DRIVE_STORAGE_VERSION = 1;

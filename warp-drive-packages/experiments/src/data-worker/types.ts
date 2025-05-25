@@ -1,4 +1,4 @@
-import type { RequestInfo, StructuredDataDocument, StructuredErrorDocument } from '@ember-data/request';
+import type { RequestInfo, StructuredDataDocument, StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 export type SuccessResponseEventData<T> = {
   type: 'success-response';

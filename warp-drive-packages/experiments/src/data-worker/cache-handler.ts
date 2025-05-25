@@ -1,22 +1,21 @@
-import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@ember-data/request';
-import type Store from '@ember-data/store';
-import type { StoreRequestContext } from '@ember-data/store';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
-import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { Store, StoreRequestContext } from '@warp-drive/core';
+import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@warp-drive/core/request';
+import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type {
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
-} from '@warp-drive/core-types/request';
-import { SkipCache } from '@warp-drive/core-types/request';
+} from '@warp-drive/core/types/request';
+import { SkipCache } from '@warp-drive/core/types/request';
 import type {
   ResourceDataDocument,
   ResourceDocument,
   ResourceErrorDocument,
-} from '@warp-drive/core-types/spec/document';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
-import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+} from '@warp-drive/core/types/spec/document';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
+import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 
 import { calcShouldFetch, cloneError, isCacheAffecting, isMutation } from './utils';
 import type { DataWorker } from './worker';

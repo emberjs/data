@@ -1,16 +1,19 @@
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core-types/cache';
-import type { ResourceBlob } from '@warp-drive/core-types/cache/aliases';
-import type { Change } from '@warp-drive/core-types/cache/change';
-import type { Mutation } from '@warp-drive/core-types/cache/mutations';
-import type { Operation } from '@warp-drive/core-types/cache/operations';
-import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { StableDocumentIdentifier, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
-import type { Value } from '@warp-drive/core-types/json/raw';
-import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
-import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core-types/request';
-import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
+import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core/types/cache';
+import type { ResourceBlob } from '@warp-drive/core/types/cache/aliases';
+import type { Change } from '@warp-drive/core/types/cache/change';
+import type { Mutation } from '@warp-drive/core/types/cache/mutations';
+import type { Operation } from '@warp-drive/core/types/cache/operations';
+import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
+import type {
+  StableDocumentIdentifier,
+  StableExistingRecordIdentifier,
+  StableRecordIdentifier,
+} from '@warp-drive/core/types/identifier';
+import type { Value } from '@warp-drive/core/types/json/raw';
+import type { TypeFromInstanceOrString } from '@warp-drive/core/types/record';
+import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core/types/request';
+import type { ResourceDocument, SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
 /**
  * The PersistedCache wraps a Cache to enhance it with
  * Persisted Storage capabilities.

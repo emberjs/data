@@ -1,13 +1,13 @@
-import type Store from '@ember-data/store';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { Store } from '@warp-drive/core';
+import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type {
   ImmutableCreateRequestOptions,
   ImmutableDeleteRequestOptions,
   ImmutableRequestInfo,
   ImmutableUpdateRequestOptions,
   StructuredDataDocument,
-} from '@warp-drive/core-types/request';
-import type { ApiError } from '@warp-drive/core-types/spec/error';
+} from '@warp-drive/core/types/request';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
 
 export const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
