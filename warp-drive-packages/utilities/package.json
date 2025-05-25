@@ -40,6 +40,7 @@
   },
   "peerDependencies": {},
   "dependencies": {
+    "@embroider/macros": "^1.16.12",
     "@warp-drive/core": "workspace:*"
   },
   "devDependencies": {

@@ -3959,6 +3959,9 @@ importers:
 
   warp-drive-packages/experiments:
     dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -3990,6 +3993,9 @@ importers:
 
   warp-drive-packages/json-api:
     dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -4073,6 +4079,9 @@ importers:
 
   warp-drive-packages/utilities:
     dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -17394,6 +17403,7 @@ snapshots:
 
   '@warp-drive/experiments@file:warp-drive-packages/experiments(@babel/core@7.27.1)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
@@ -17595,6 +17605,7 @@ snapshots:
 
   '@warp-drive/json-api@file:warp-drive-packages/json-api(@babel/core@7.27.1)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       fuse.js: 7.1.0
       json-to-ast: 2.1.0
@@ -17622,6 +17633,7 @@ snapshots:
 
   '@warp-drive/utilities@file:warp-drive-packages/utilities(@babel/core@7.27.1)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
