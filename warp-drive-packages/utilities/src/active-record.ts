@@ -65,4 +65,6 @@
  *
  * @module
  */
-export { findRecord, query, deleteRecord, createRecord, updateRecord } from '@warp-drive/utilities/active-record';
+export { findRecord } from './-private/active-record/find-record';
+export { query } from './-private/active-record/query';
+export { deleteRecord, createRecord, updateRecord } from './-private/active-record/save-record';

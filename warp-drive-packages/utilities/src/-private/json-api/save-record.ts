@@ -17,7 +17,8 @@ import {
   type UpdateRecordUrlOptions,
 } from '../../index.ts';
 import { pluralize } from '../../string.ts';
-import { ACCEPT_HEADER_VALUE, copyForwardUrlOptions } from './-utils.ts';
+import { copyForwardUrlOptions } from '../builder-utils.ts';
+import { ACCEPT_HEADER_VALUE } from './-utils.ts';
 
 function isExisting(identifier: StableRecordIdentifier): identifier is StableExistingRecordIdentifier {
   return 'id' in identifier && identifier.id !== null && 'type' in identifier && identifier.type !== null;

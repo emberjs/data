@@ -448,6 +448,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -458,27 +461,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.27.0
         version: 7.27.1(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(@babel/core@7.27.1)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
-      ember-source:
-        specifier: ~6.3.0
-        version: 6.3.0(@glimmer/component@2.0.0)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -1124,6 +1109,9 @@ importers:
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -1137,27 +1125,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.27.0
         version: 7.27.1(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(@babel/core@7.27.1)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
-      ember-source:
-        specifier: ~6.3.0
-        version: 6.3.0(@glimmer/component@2.0.0)
       vite:
         specifier: ^5.4.15
         version: 5.4.19
@@ -1512,7 +1482,7 @@ importers:
         version: 7.27.1
       '@ember-data/active-record':
         specifier: workspace:*
-        version: file:packages/active-record(12aa1e1ce936288a3110149931984c27)
+        version: file:packages/active-record(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/debug':
         specifier: workspace:*
         version: file:packages/debug(4d52cc1448cffffc4ffedd47a52ebbee)
@@ -1536,7 +1506,7 @@ importers:
         version: file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
       '@ember-data/rest':
         specifier: workspace:*
-        version: file:packages/rest(12aa1e1ce936288a3110149931984c27)
+        version: file:packages/rest(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/store':
         specifier: workspace:*
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -4963,10 +4933,6 @@ packages:
 
   '@ember-data/active-record@file:packages/active-record':
     resolution: {directory: packages/active-record, type: directory}
-    peerDependencies:
-      '@ember-data/request-utils': workspace:*
-      '@ember-data/store': ^4.12.0 || ^5.0.0
-      '@warp-drive/core-types': workspace:*
 
   '@ember-data/adapter@file:packages/adapter':
     resolution: {directory: packages/adapter, type: directory}
@@ -5010,10 +4976,6 @@ packages:
 
   '@ember-data/rest@file:packages/rest':
     resolution: {directory: packages/rest, type: directory}
-    peerDependencies:
-      '@ember-data/request-utils': workspace:*
-      '@ember-data/store': ^4.12.0 || ^5.0.0
-      '@warp-drive/core-types': workspace:*
 
   '@ember-data/rfc395-data@0.0.4':
     resolution: {integrity: sha512-tGRdvgC9/QMQSuSuJV45xoyhI0Pzjm7A9o/MVVA3HakXIImJbbzx/k/6dO9CUEQXIyS2y0fW6C1XaYOG7rY0FQ==}
@@ -14844,15 +14806,14 @@ snapshots:
     transitivePeerDependencies:
       - '@algolia/client-search'
 
-  '@ember-data/active-record@file:packages/active-record(12aa1e1ce936288a3110149931984c27)':
+  '@ember-data/active-record@file:packages/active-record(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
+      - '@ember/test-waiters'
       - supports-color
 
   '@ember-data/adapter@file:packages/adapter(71230f815b7f822a1df7a93bc6010582)':
@@ -15020,15 +14981,14 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/rest@file:packages/rest(12aa1e1ce936288a3110149931984c27)':
+  '@ember-data/rest@file:packages/rest(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
-      '@ember-data/request-utils': file:packages/request-utils(51ee1b6d25c2a19967e2280f8e77a927)
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(71230f815b7f822a1df7a93bc6010582)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(71230f815b7f822a1df7a93bc6010582)
     transitivePeerDependencies:
       - '@babel/core'
+      - '@ember/test-waiters'
       - supports-color
 
   '@ember-data/rfc395-data@0.0.4': {}
