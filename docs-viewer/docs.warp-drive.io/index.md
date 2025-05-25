@@ -17,6 +17,9 @@ hero:
     - theme: alt
       text: API Docs
       link: /api
+    - theme: alt
+      text: LLM Docs
+      link: /llm-docs
     # - theme: alt
     #   text: Contributing
     #   link: /guide/contributing/become-a-contributor
