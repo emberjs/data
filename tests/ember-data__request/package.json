@@ -39,6 +39,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",

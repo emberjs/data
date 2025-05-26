@@ -2086,6 +2086,9 @@ importers:
       '@warp-drive/diagnostic':
         specifier: workspace:*
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(36ff27a07053dacc9d33e972a1358bfe)
