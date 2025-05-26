@@ -44,7 +44,6 @@
     "@embroider/core": "4.0.0-alpha.10",
     "@embroider/vite": "1.0.0-alpha.12",
     "@glimmer/component": "^2.0.0",
-    "@glimmer/tracking": "^1.1.2",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-ember-template-compilation": "^2.4.1",
     "bun-types": "^1.2.10",

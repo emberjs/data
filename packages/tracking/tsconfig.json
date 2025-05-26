@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../@types/@glimmer/validator.d.ts"],
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -28,10 +28,9 @@
     "inlineSources": true,
     "types": ["ember-source/types"],
     "paths": {
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@glimmer/validator": ["../../@types/@glimmer/validator.d.ts"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -40,7 +39,7 @@
   },
   "references": [
     {
-      "path": "../../warp-drive-packages/build-config"
+      "path": "../../warp-drive-packages/core"
     },
     {
       "path": "../core-types"

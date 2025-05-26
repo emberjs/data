@@ -190,7 +190,8 @@
       "allowAny": [
         "ember-source",
         "@glimmer/component",
-        "typescript"
+        "typescript",
+        "@pnpm/logger"
       ]
     },
     "allowUnusedPatches": true,

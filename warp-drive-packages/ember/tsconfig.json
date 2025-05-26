@@ -1,5 +1,10 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot", "../../@types/@glimmer/tracking.d.ts"],
+  "include": [
+    "src/**/*",
+    "../../@types/fastboot",
+    "../../@types/@glimmer/tracking.d.ts",
+    "../../@types/@glimmer/validator.d.ts"
+  ],
   "glint": {
     "environment": ["ember-loose", "ember-template-imports"]
   },
@@ -43,7 +48,8 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "@warp-drive/core": ["../core/declarations"],
-      "@warp-drive/core/*": ["../core/declarations/*"]
+      "@warp-drive/core/*": ["../core/declarations/*"],
+      "@glimmer/validator": ["../../@types/@glimmer/validator.d.ts"]
     },
     "erasableSyntaxOnly": true,
     "lib": ["ESNext", "DOM"],

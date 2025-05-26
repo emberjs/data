@@ -61,11 +61,10 @@
  */
 import { tagForProperty } from '@ember/-internals/metal';
 import { _backburner } from '@ember/runloop';
-import { consumeTag, createCache, dirtyTag, getValue, track, type UpdatableTag, updateTag } from '@glimmer/validator';
+import { consumeTag, createCache, dirtyTag, getValue, track, updateTag } from '@glimmer/validator';
 
-// import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
-import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
-import { TESTING } from '@warp-drive/build-config/env';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
+import { TESTING } from '@warp-drive/core/build-config/env';
 
 type Tag = ReturnType<typeof tagForProperty>;
 const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
@@ -92,7 +91,7 @@ export function buildSignalConfig(options: {
   const ARRAY_SIGNAL = options.wellknown.Array;
 
   return {
-    createSignal(obj: object, key: string | symbol) {
+    createSignal(obj: object, key: string | symbol): Tag | [Tag, Tag, Tag] {
       if (DEPRECATE_COMPUTED_CHAINS) {
         if (key === ARRAY_SIGNAL) {
           return [tagForProperty(obj, key), tagForProperty(obj, 'length'), tagForProperty(obj, '[]')] as const;
@@ -109,7 +108,7 @@ export function buildSignalConfig(options: {
           return;
         }
       }
-      consumeTag(signal as Tag);
+      consumeTag(signal);
     },
     notifySignal(signal: Tag | [Tag, Tag, Tag]) {
       if (DEPRECATE_COMPUTED_CHAINS) {
@@ -121,15 +120,15 @@ export function buildSignalConfig(options: {
         }
       }
 
-      emberDirtyTag(signal as Tag);
+      emberDirtyTag(signal);
     },
     createMemo: <F>(object: object, key: string | symbol, fn: () => F): (() => F) => {
       if (DEPRECATE_COMPUTED_CHAINS) {
-        const propertyTag = tagForProperty(object, key) as UpdatableTag;
+        const propertyTag = tagForProperty(object, key);
         const memo = createCache(fn);
         let ret: F | undefined;
         const wrappedFn = () => {
-          ret = getValue(memo) as F;
+          ret = getValue(memo);
         };
         return () => {
           const tag = track(wrappedFn);
@@ -139,7 +138,7 @@ export function buildSignalConfig(options: {
         };
       } else {
         const memo = createCache(fn);
-        return () => getValue(memo) as F;
+        return () => getValue(memo);
       }
     },
     willSyncFlushWatchers: () => {

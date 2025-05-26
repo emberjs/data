@@ -42,7 +42,6 @@
     "@ember/test-waiters": "^4.1.0",
     "@embroider/macros": "^1.16.12",
     "@glimmer/component": "^2.0.0",
-    "@glimmer/tracking": "^1.1.2",
     "@glint/core": "unstable",
     "@glint/environment-ember-loose": "unstable",
     "@glint/environment-ember-template-imports": "unstable",

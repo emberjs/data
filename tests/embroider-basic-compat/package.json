@@ -37,7 +37,6 @@
     "ember-data": "workspace:*",
     "webpack": "^5.99.5",
     "@glimmer/component": "^2.0.0",
-    "@glimmer/tracking": "^1.1.2",
     "@ember-data/request": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember-data/adapter": "workspace:*",
