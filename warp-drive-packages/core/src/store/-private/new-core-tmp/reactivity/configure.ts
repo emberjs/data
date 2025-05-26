@@ -135,8 +135,8 @@ export function willSyncFlushWatchers(): boolean {
 
 export function waitFor<K>(promise: Promise<K>): Promise<K> {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
-  assert(`Signal hooks not configured`, signalHooks);
-  if (signalHooks.waitFor) {
+
+  if (signalHooks?.waitFor) {
     return signalHooks.waitFor(promise);
   }
   return promise;
