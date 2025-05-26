@@ -67,7 +67,6 @@
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
-    "@glimmer/component": "^2.0.0",
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.3.0",
     "ember-inflector": "6.0.0",

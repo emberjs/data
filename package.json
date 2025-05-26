@@ -181,7 +181,11 @@
     },
     "peerDependencyRules": {
       "ignoreMissing": [
-        "rsvp"
+        "rsvp",
+        "@glimmer/component",
+        "search-insights",
+        "@pnpm/logger",
+        "@algolia/client-search"
       ],
       "allowAny": [
         "ember-source",
