@@ -63,6 +63,8 @@ import { tagForProperty } from '@ember/-internals/metal';
 import { _backburner } from '@ember/runloop';
 import { consumeTag, createCache, dirtyTag, getValue, track, updateTag } from '@glimmer/validator';
 
+import { importSync } from '@embroider/macros';
+
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
 import { TESTING } from '@warp-drive/core/build-config/env';
 
@@ -147,7 +149,7 @@ export function buildSignalConfig(options: {
     },
     waitFor: async <K>(promise: Promise<K>): Promise<K> => {
       if (TESTING) {
-        const { waitForPromise } = await import('@ember/test-waiters');
+        const { waitForPromise } = importSync('@ember/test-waiters') as typeof import('@ember/test-waiters');
         return waitForPromise(promise);
       }
       return promise;
