@@ -28,8 +28,8 @@
     "inlineSources": true,
     "types": [],
     "paths": {
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
       "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
       "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"]
     },
@@ -44,7 +44,7 @@
       "path": "../../warp-drive-packages/utilities"
     },
     {
-      "path": "../../warp-drive-packages/build-config"
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }

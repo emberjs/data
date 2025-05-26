@@ -41,11 +41,11 @@
   },
   "peerDependencies": {
     "@ember/test-waiters": "^3.1.0 || ^4.0.0",
-    "ember-provide-consume-context": "^0.7.0"
+    "ember-provide-consume-context": "^0.7.0",
+    "@warp-drive/core": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
-    "@warp-drive/core": "workspace:*"
+    "@embroider/macros": "^1.16.12"
   },
   "peerDependenciesMeta": {
     "ember-provide-consume-context": {
@@ -68,6 +68,7 @@
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.0",
     "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.4.1",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~6.3.0",

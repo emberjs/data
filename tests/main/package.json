@@ -59,6 +59,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/schema-record": "workspace:*",
     "@warp-drive/ember": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "broccoli-concat": "^4.2.5",
     "broccoli-merge-trees": "^4.2.0",
     "broccoli-stew": "^3.0.0",

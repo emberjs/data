@@ -35,9 +35,7 @@
     "baseUrl": ".",
     "paths": {
       "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
-      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"]
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -48,9 +46,6 @@
   "references": [
     {
       "path": "../../warp-drive-packages/core"
-    },
-    {
-      "path": "../../warp-drive-packages/build-config"
     }
   ]
 }

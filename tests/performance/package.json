@@ -39,6 +39,7 @@
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/ember": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "@embroider/compat": "4.0.0-alpha.15",
     "@embroider/config-meta-loader": "1.0.0-alpha.3",
     "@embroider/core": "4.0.0-alpha.10",

@@ -50,6 +50,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/schema-record": "workspace:*",
     "@warp-drive/ember": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",

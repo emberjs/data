@@ -29,8 +29,8 @@
     "inlineSources": true,
     "types": [],
     "paths": {
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
       "@warp-drive/legacy": ["../../warp-drive-packages/legacy/declarations"],
       "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"]
     },
@@ -41,7 +41,7 @@
   },
   "references": [
     {
-      "path": "../../warp-drive-packages/build-config"
+      "path": "../../warp-drive-packages/core"
     },
     {
       "path": "../../warp-drive-packages/legacy"

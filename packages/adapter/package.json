@@ -54,8 +54,9 @@
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-path-utils": "^1.0.0",
     "@ember/edition-utils": "1.2.0",
-    "@warp-drive/build-config": "workspace:*",
-    "@warp-drive/legacy": "workspace:*"
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/legacy": "workspace:*",
+    "@warp-drive/utilities": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",

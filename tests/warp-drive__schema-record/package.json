@@ -49,6 +49,7 @@
     "@warp-drive/schema-record": "workspace:*",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/ember": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "ember-auto-import": "2.10.0",
     "ember-cli": "~6.3.1",
     "ember-cli-babel": "^8.2.0",

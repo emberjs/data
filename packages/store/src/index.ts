@@ -182,7 +182,7 @@ import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/core/build-config/deprecations';
 import { setupSignals } from '@warp-drive/core/configure';
 
 export {

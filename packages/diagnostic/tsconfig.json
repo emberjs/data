@@ -27,8 +27,8 @@
     "inlineSources": true,
     "types": ["ember-source/types"],
     "paths": {
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"]
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
@@ -38,7 +38,7 @@
   },
   "references": [
     {
-      "path": "../../warp-drive-packages/build-config"
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }
