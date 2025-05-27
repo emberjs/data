@@ -19,7 +19,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
  * **Basic Usage**
  *
  * ```ts
- * import { findRecord } from '@ember-data/active-record/request';
+ * import { findRecord } from '@warp-drive/utilities/active-record';
  *
  * const data = await store.request(findRecord('person', '1'));
  * ```
@@ -27,7 +27,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
  * **With Options**
  *
  * ```ts
- * import { findRecord } from '@ember-data/active-record/request';
+ * import { findRecord } from '@warp-drive/utilities/active-record';
  *
  * const options = findRecord('person', '1', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -36,7 +36,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
  * **With an Identifier**
  *
  * ```ts
- * import { findRecord } from '@ember-data/active-record/request';
+ * import { findRecord } from '@warp-drive/utilities/active-record';
  *
  * const options = findRecord({ type: 'person', id: '1' }, { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -57,7 +57,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { findRecord } from '@ember-data/active-record/request';
+ * import { findRecord } from '@warp-drive/utilities/active-record';
  *
  * const options = findRecord('person', '1', { include: ['pets', 'friends'] }, { namespace: 'api/v2' });
  * const data = await store.request(options);

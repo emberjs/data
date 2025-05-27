@@ -276,7 +276,7 @@ declare const jQuery: JQueryStatic | undefined;
 
   Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
   headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
-  object and EmberData will send them along with each ajax request.
+  object and WarpDrive will send them along with each ajax request.
 
 
   ```js [app/adapters/application.js]

@@ -106,7 +106,7 @@ export default function updateRelationshipOperation(
 
       if (relatedLink && relatedLink.href && relatedLink.href !== currentLinkHref) {
         warn(
-          `You pushed a record of type '${identifier.type}' with a relationship '${definition.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+          `You pushed a record of type '${identifier.type}' with a relationship '${definition.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. WarpDrive will treat this relationship as known-to-be-empty.`,
           definition.isAsync || state.hasReceivedData,
           {
             id: 'ds.store.push-link-for-sync-relationship',

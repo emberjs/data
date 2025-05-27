@@ -9,7 +9,7 @@
  * </p>
  * </blockquote>
  *
- * In order to properly fetch and update data, EmberData
+ * In order to properly fetch and update data, @warp-drive/legacy
  * needs to understand how to connect to your API.
  *
  * `Adapters` accept various kinds of requests from the store
@@ -43,7 +43,7 @@
  * ### Implementing an Adapter
  *
  * There are seven required adapter methods, one for each of
- * the primary request types that EmberData issues.
+ * the primary request types that @warp-drive/legacy issues.
  *
  * They are:
  *
@@ -100,7 +100,7 @@
   //   app/adapters/application.js
   ```
 
-  Most requests in EmberData are made with respect to a particular `type` (or `modelName`)
+  Most requests in @warp-drive/legacy are made with respect to a particular `type` (or `modelName`)
   (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
   refer to this as the **primary** resource `type`.
 

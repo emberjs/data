@@ -39,8 +39,8 @@ export let ACCEPT_HEADER_VALUE = 'application/vnd.api+json';
  * ```
  *
  * This also sets the global configuration for `buildBaseURL`
- * for host and namespace values for the application
- * in the `@ember-data/request-utils` package.
+ * for host and namespace values for the global coniguration
+ * done via `import { setBuildURLConfig } from '@warp-drive/utilities';`
  *
  * These values may still be overridden by passing
  * them to buildBaseURL directly.

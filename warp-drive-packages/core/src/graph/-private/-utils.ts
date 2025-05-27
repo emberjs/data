@@ -46,7 +46,7 @@ export function assertValidRelationshipPayload(
 
   if (payload.links) {
     warn(
-      `You pushed a record of type '${type}' with a relationship '${field}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+      `You pushed a record of type '${type}' with a relationship '${field}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. WarpDrive will treat this relationship as known-to-be-empty.`,
       isAsync || !!payload.data || state.hasReceivedData,
       {
         id: 'ds.store.push-link-for-sync-relationship',

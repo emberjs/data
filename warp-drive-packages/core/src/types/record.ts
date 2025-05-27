@@ -5,7 +5,7 @@ import type { Type } from './symbols.ts';
  * have to be objects.
  *
  * Whatever they are, if they have a Type
- * property, that property will be used by EmberData
+ * property, that property will be used by WarpDrive
  * and WarpDrive to provide better type safety and
  * intellisense.
  *
@@ -19,7 +19,7 @@ export interface TypedRecordInstance {
    * record implementations to provide a typescript
    * hint for the type of the resource.
    *
-   * When used, EmberData and WarpDrive APIs can
+   * When used, WarpDrive APIs can
    * take advantage of this to provide better type
    * safety and intellisense.
    *

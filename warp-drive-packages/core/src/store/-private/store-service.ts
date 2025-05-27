@@ -723,7 +723,7 @@ export class Store extends BaseClass {
 
   /** @internal */
   _run(cb: () => void) {
-    assert(`EmberData should never encounter a nested run`, !this._cbs);
+    assert(`WarpDrive should never encounter a nested run`, !this._cbs);
     const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
     if (DEBUG) {
       try {
@@ -774,8 +774,8 @@ export class Store extends BaseClass {
 
   /** @internal */
   _schedule(name: 'coalesce' | 'sync' | 'notify', cb: () => void): void {
-    assert(`EmberData expects to schedule only when there is an active run`, !!this._cbs);
-    assert(`EmberData expects only one flush per queue name, cannot schedule ${name}`, !this._cbs[name]);
+    assert(`WarpDrive expects to schedule only when there is an active run`, !!this._cbs);
+    assert(`WarpDrive expects only one flush per queue name, cannot schedule ${name}`, !this._cbs[name]);
 
     this._cbs[name] = cb;
   }

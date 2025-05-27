@@ -74,7 +74,7 @@ you should load data based on user interactions and route navigations, not from 
 but what if you didn't need to use prop-drilling or contexts to access the result of a
 route based query?
 
-EmberData's RequestManager already allows for fulfillment from cache and for request 
+WarpDrive's RequestManager already allows for fulfillment from cache and for request 
 de-duping, so what if we could just pick up where we left off and use the result of a
 request right away if it already was fetched elsewhere?
 

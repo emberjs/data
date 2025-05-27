@@ -14,7 +14,7 @@ import { copyForwardUrlOptions, extractCacheOptions } from '../builder-utils.ts'
  * **Basic Usage**
  *
  * ```ts
- * import { query } from '@ember-data/active-record/request';
+ * import { query } from '@warp-drive/utilities/active-record';
  *
  * const data = await store.request(query('person'));
  * ```
@@ -22,7 +22,7 @@ import { copyForwardUrlOptions, extractCacheOptions } from '../builder-utils.ts'
  * **With Query Params**
  *
  * ```ts
- * import { query } from '@ember-data/active-record/request';
+ * import { query } from '@warp-drive/utilities/active-record';
  *
  * const options = query('person', { include: ['pets', 'friends'] });
  * const data = await store.request(options);
@@ -43,7 +43,7 @@ import { copyForwardUrlOptions, extractCacheOptions } from '../builder-utils.ts'
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { query } from '@ember-data/active-record/request';
+ * import { query } from '@warp-drive/utilities/active-record';
  *
  * const options = query('person', { include: ['pets', 'friends'] }, { reload: true });
  * const data = await store.request(options);

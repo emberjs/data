@@ -76,7 +76,7 @@
  *
  * SchemaRecord has two modes: `legacy` and `polaris`.
  *
- * **LegacyMode** can be used to emulate the behaviors and capabilities of EmberData's `Model` class,
+ * **LegacyMode** can be used to emulate the behaviors and capabilities of WarpDrive's `Model` class,
  * and because there is little distinction between Model and SchemaRecord in LegacyMode we refer
  * to both of these approaches as LegacyMode. This mode is the default experience in V5.
  *
