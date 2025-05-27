@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "cjs-dist",
     "declarations",
     "addon-main.cjs",
     "CHANGELOG.md",

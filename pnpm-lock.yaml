@@ -352,7 +352,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
@@ -1405,7 +1405,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -1574,7 +1574,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -1695,7 +1695,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -1828,7 +1828,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
@@ -1961,7 +1961,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2061,7 +2061,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
@@ -2197,7 +2197,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2326,7 +2326,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2474,7 +2474,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2627,7 +2627,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2851,7 +2851,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
@@ -3046,7 +3046,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config(terser@5.39.1)
@@ -3205,7 +3205,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3392,7 +3392,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
@@ -3540,7 +3540,7 @@ importers:
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/experiments':
         specifier: workspace:*
         version: file:warp-drive-packages/experiments(1de66b2f75e72c94246e46fd9714e1be)
@@ -3694,7 +3694,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/ember':
         specifier: workspace:*
-        version: file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3856,6 +3856,9 @@ importers:
       '@embroider/macros':
         specifier: ^1.16.12
         version: 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.27.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -3896,9 +3899,6 @@ importers:
       '@glint/template':
         specifier: unstable
         version: 1.4.1-unstable.d17c1f1
-      '@warp-drive/core':
-        specifier: workspace:*
-        version: file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -6477,7 +6477,6 @@ packages:
     resolution: {directory: warp-drive-packages/ember, type: directory}
     peerDependencies:
       '@ember/test-waiters': ^3.1.0 || ^4.0.0
-      '@warp-drive/core': workspace:*
       ember-provide-consume-context: ^0.7.0
     peerDependenciesMeta:
       ember-provide-consume-context:
@@ -17376,7 +17375,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/ember@file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)':
+  '@warp-drive/ember@file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)':
     dependencies:
       '@ember/test-waiters': 4.1.0(@babel/core@7.27.1)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
@@ -20053,7 +20052,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
-      '@warp-drive/ember': file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+      '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
@@ -20084,7 +20083,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
-      '@warp-drive/ember': file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+      '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
@@ -20112,7 +20111,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
-      '@warp-drive/ember': file:warp-drive-packages/ember(d1816f82fb542b3de7a5ac4e2d2786cb)
+      '@warp-drive/ember': file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
       '@warp-drive/legacy': file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
