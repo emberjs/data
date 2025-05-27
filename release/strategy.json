@@ -46,12 +46,6 @@
       "typesPublish": false,
       "mirrorPublish": false
     },
-    "@warp-drive/build-config": {
-      "stage": "stable",
-      "types": "alpha",
-      "typesPublish": false,
-      "mirrorPublish": true
-    },
     "@warp-drive/holodeck": {
       "stage": "alpha",
       "types": "private",
@@ -76,23 +70,11 @@
       "typesPublish": false,
       "mirrorPublish": false
     },
-    "@warp-drive/ember": {
-      "stage": "stable",
-      "types": "stable",
-      "typesPublish": false,
-      "mirrorPublish": true
-    },
     "@warp-drive/schema": {
       "stage": "alpha",
       "types": "private",
       "typesPublish": false,
       "mirrorPublish": false
-    },
-    "@warp-drive/experiments": {
-      "stage": "beta",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": true
     },
     "@warp-drive/schema-record": {
       "stage": "stable",
@@ -100,23 +82,47 @@
       "typesPublish": false,
       "mirrorPublish": true
     },
+    "@warp-drive/build-config": {
+      "stage": "stable",
+      "types": "alpha",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
+    "@warp-drive/ember": {
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
+    "@warp-drive/json-api": {
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
+    "@warp-drive/experiments": {
+      "stage": "beta",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": true
+    },
     "@warp-drive/core": {
       "stage": "stable",
       "types": "stable",
       "typesPublish": false,
-      "mirrorPublish": false
+      "mirrorPublish": true
     },
     "@warp-drive/utilities": {
       "stage": "stable",
       "types": "stable",
       "typesPublish": false,
-      "mirrorPublish": false
+      "mirrorPublish": true
     },
     "@warp-drive/legacy": {
       "stage": "stable",
       "types": "stable",
       "typesPublish": false,
-      "mirrorPublish": false
+      "mirrorPublish": true
     }
   }
 }
