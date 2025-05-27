@@ -23,7 +23,7 @@
   "type": "module",
   "files": [
     "dist",
-    "unstable-preview-types",
+    "declarations",
     "CHANGELOG.md",
     "README.md",
     "LICENSE.md",
@@ -31,14 +31,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./unstable-preview-types/index.d.ts",
+      "types": "./declarations/index.d.ts",
       "default": "./dist/index.js"
     },
     "./*.cjs": {
       "default": "./dist/*.cjs"
     },
     "./*": {
-      "types": "./unstable-preview-types/*.d.ts",
+      "types": "./declarations/*.d.ts",
       "default": "./dist/*.js"
     }
   },

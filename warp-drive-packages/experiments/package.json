@@ -13,34 +13,34 @@
   "bugs": "https://github.com/emberjs/data/issues",
   "exports": {
     "./persisted-cache": {
-      "types": "./unstable-preview-types/persisted-cache.d.ts",
+      "types": "./declarations/persisted-cache.d.ts",
       "default": "./dist/persisted-cache.js"
     },
     "./document-storage": {
-      "types": "./unstable-preview-types/document-storage.d.ts",
+      "types": "./declarations/document-storage.d.ts",
       "default": "./dist/document-storage.js"
     },
     "./data-worker": {
-      "types": "./unstable-preview-types/data-worker.d.ts",
+      "types": "./declarations/data-worker.d.ts",
       "default": "./dist/data-worker.js"
     },
     "./worker-fetch": {
-      "types": "./unstable-preview-types/worker-fetch.d.ts",
+      "types": "./declarations/worker-fetch.d.ts",
       "default": "./dist/worker-fetch.js"
     },
     "./image-worker": {
-      "types": "./unstable-preview-types/image-worker.d.ts",
+      "types": "./declarations/image-worker.d.ts",
       "default": "./dist/image-worker.js"
     },
     "./image-fetch": {
-      "types": "./unstable-preview-types/image-fetch.d.ts",
+      "types": "./declarations/image-fetch.d.ts",
       "default": "./dist/image-fetch.js"
     }
   },
   "files": [
     "addon-main.cjs",
     "dist",
-    "unstable-preview-types",
+    "declarations",
     "CHANGELOG.md",
     "README.md",
     "LICENSE.md",
