@@ -39,7 +39,7 @@ export interface StoreRequestContext extends RequestContext {
 }
 
 /**
- * A CacheHandler that adds support for using an EmberData Cache with a RequestManager.
+ * A CacheHandler that adds support for using an WarpDrive Cache with a RequestManager.
  *
  * This handler will only run when a request has supplied a `store` instance. Requests
  * issued by the store via `store.request()` will automatically have the `store` instance
@@ -65,10 +65,10 @@ export interface StoreRequestContext extends RequestContext {
  * Said differently, you could elect to issue all requests via a RequestManager, without ever using
  * the store directly, by setting [EnableHydration] to `true` and providing a store instance. Not
  * necessarily the most useful thing, but the decoupled nature of the RequestManager and incremental-feature
- * approach of EmberData allows for this flexibility.
+ * approach of WarpDrive allows for this flexibility.
  *
  * ```ts
- * import { EnableHydration } from '@warp-drive/core-types/request';
+ * import { EnableHydration } from '@warp-drive/core/types/request';
  *
  * requestManager.request({
  *   store: store,

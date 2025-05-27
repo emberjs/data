@@ -70,7 +70,7 @@ function count(label: string) {
 
     case many:?
     ========
-    In a uni-directional graph with Many:? edges (modeled in EmberData with `inverse:null`) with
+    In a uni-directional graph with Many:? edges (modeled in WarpDrive with `inverse:null`) with
     artificial (implicit) inverses, replacing a value results in 2 discrete value transitions.
     This is because a Many:? relationship is effectively Many:Many.
   */
@@ -318,7 +318,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
       if (deprecationInfo.triggered) {
         deprecate(
-          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+          `WarpDrive is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
             relationship.identifier.type
           }>.${
             relationship.definition.key

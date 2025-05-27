@@ -770,10 +770,10 @@ export class JSONAPICache implements Cache {
       try {
         const _data = options ? (JSON.parse(JSON.stringify(options)) as object) : options;
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, _data);
+        console.log(`WarpDrive | Mutation - clientDidCreate ${identifier.lid}`, _data);
       } catch {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Mutation - clientDidCreate ${identifier.lid}`, options);
+        console.log(`WarpDrive | Mutation - clientDidCreate ${identifier.lid}`, options);
       }
     }
     const cached = this._createCache(identifier);
@@ -918,10 +918,10 @@ export class JSONAPICache implements Cache {
       try {
         const payloadCopy: unknown = payload ? JSON.parse(JSON.stringify(payload)) : payload;
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Payload - ${operation}`, payloadCopy);
+        console.log(`WarpDrive | Payload - ${operation}`, payloadCopy);
       } catch {
         // eslint-disable-next-line no-console
-        console.log(`EmberData | Payload - ${operation}`, payload);
+        console.log(`WarpDrive | Payload - ${operation}`, payload);
       }
     }
 

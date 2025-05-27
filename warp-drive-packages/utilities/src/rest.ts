@@ -1,14 +1,4 @@
 /**
- * <p align="center">
-  <img
-    class="project-logo"
-    src="https://raw.githubusercontent.com/emberjs/data/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
-    alt="EmberData"
-    width="240px"
-    title="EmberData"
-  />
-</p>
-
 This package provides utilities for working with **REST**ful APIs with [*Ember***Data**](https://github.com/emberjs/data/).
 
 ## Installation
@@ -51,14 +41,6 @@ URLs are stable. The same query will produce the same URL every time, even if th
 the query or values in an array changes.
 
 URLs follow the most common REST format (camelCase pluralized resource types).
-
-### Available Builders
-
-- [createRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/createRecord)
-- [deleteRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/deleteRecord)
-- [findRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/findRecord)
-- [query](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/query)
-- [updateRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/updateRecord)
 
  * @module
  * @public

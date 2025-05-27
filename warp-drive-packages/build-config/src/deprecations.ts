@@ -109,7 +109,7 @@ export const DEPRECATE_CATCH_ALL: boolean = true;
  * <Badge type="danger" text="no-id-assigned" />
  *
  * This is a planned deprecation which will trigger when observer or computed
- * chains are used to watch for changes on any EmberData LiveArray, CollectionRecordArray,
+ * chains are used to watch for changes on any WarpDrive LiveArray, CollectionRecordArray,
  * ManyArray or PromiseManyArray.
  *
  * Support for these chains is currently guarded by the deprecation flag
@@ -164,7 +164,7 @@ export const DEPRECATE_NON_STRICT_TYPES: boolean = true;
 /**
  * <Badge type="warning" text="ember-data:deprecate-non-strict-id" />
  *
- * Currently, EmberData expects that the `id` property associated with
+ * Currently, WarpDrive expects that the `id` property associated with
  * a resource is a string.
  *
  * However, for legacy support in many locations we would accept a number
@@ -341,7 +341,7 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS: boolean = true;
  *
  * ### What if I don't want the new behavior?
  *
- * EmberData's philosophy is to not make assumptions about your application. Where possible
+ * WarpDrive's philosophy is to not make assumptions about your application. Where possible
  * we seek out "100%" solutions – solutions that work for all use cases - and where that is
  * not possible we default to "90%" solutions – solutions that work for the vast majority of use
  * cases. In the case of "90%" solutions we look for primitives that allow you to resolve the
@@ -375,7 +375,7 @@ export const DEPRECATE_NON_UNIQUE_PAYLOADS: boolean = true;
  * What this version (5.3) does not yet provide is a way to directly modify the cache's remote state
  * for the relationship via public APIs other than via the broader action of upserting a response via
  * `<Cache>.put(document)`. However, such an API was sketched in the Cache 2.1 RFC
- * `<Cache>.patch(operation)` and is likely to be added in a future 5.x release of EmberData.
+ * `<Cache>.patch(operation)` and is likely to be added in a future 5.x release of WarpDrive.
  *
  * This version (5.3) also does not yet provide a way to directly modify the graph (a general purpose
  * subset of cache behaviors specific to relationships) via public APIs. However, during the

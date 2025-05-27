@@ -317,7 +317,7 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       }
       // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
       throw new Error(
-        `PLEASE OPEN AN ISSUE :: Found a relationship that is neither the LHS nor RHS of the same edge. This is not supported. Please report this to the EmberData team.`
+        `PLEASE OPEN AN ISSUE :: Found a relationship that is neither the LHS nor RHS of the same edge. This is not supported. Please report this to the WarpDrive team.`
       );
     }
 
@@ -326,7 +326,7 @@ function assertConfiguration(info: EdgeDefinition, type: string, key: string) {
       // without having specified polymorphism correctly leading to it not being self-referential
       // OPEN AN ISSUE :: we would like to improve our errors but need to understand what corner case got us here
       throw new Error(
-        `PLEASE OPEN AN ISSUE :: Found a relationship that is both the LHS and RHS of the same edge but is not self-referential. This is not supported. Please report this to the EmberData team.`
+        `PLEASE OPEN AN ISSUE :: Found a relationship that is both the LHS and RHS of the same edge but is not self-referential. This is not supported. Please report this to the WarpDrive team.`
       );
     }
   }

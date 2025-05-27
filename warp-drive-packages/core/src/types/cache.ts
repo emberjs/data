@@ -34,7 +34,7 @@ export type RelationshipDiff =
     };
 
 /**
- * The interface for EmberData Caches.
+ * The interface for WarpDrive Caches.
  *
  * A Cache handles in-memory storage of Document and Resource
  * data.

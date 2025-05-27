@@ -135,13 +135,13 @@ if (TESTING) {
   } else {
     // eslint-disable-next-line no-console
     console.warn(`
-Multiple copies of EmberData have been detected. This may be due to a bug in ember-auto-import
+Multiple copies of WarpDrive have been detected. This may be due to a bug in ember-auto-import
   in which test assets get their own copy of some v2-addons. This can cause the application to
   malfunction as each copy will maintain its own separate state.`);
   }
 } else {
   if (GlobalSink.__warpDrive_hasOtherCopy) {
-    throw new Error('Multiple copies of EmberData detected, the application will malfunction.');
+    throw new Error('Multiple copies of WarpDrive detected, the application will malfunction.');
   }
   GlobalSink.__warpDrive_hasOtherCopy = true;
 }

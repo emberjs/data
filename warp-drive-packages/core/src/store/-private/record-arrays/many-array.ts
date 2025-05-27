@@ -383,7 +383,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   /**
     Reloads all of the records in the manyArray. If the manyArray
     holds a relationship that was originally fetched using a links url
-    EmberData will revisit the original links url to repopulate the
+    WarpDrive will revisit the original links url to repopulate the
     relationship.
 
     If the ManyArray holds the result of a `store.query()` reload will

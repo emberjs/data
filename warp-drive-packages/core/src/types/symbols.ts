@@ -12,7 +12,7 @@ export const RecordStore: '___(unique) Symbol(Store)' = getOrSetGlobal('Store', 
  * record implementations to provide a typescript
  * hint for the type of the resource.
  *
- * When used, EmberData and WarpDrive APIs can
+ * When used, EmberData/WarpDrive APIs can
  * take advantage of this to provide better type
  * safety and intellisense.
  *
@@ -49,7 +49,7 @@ export const Type: '___(unique) Symbol($type)' = getOrSetGlobal('$type', Symbol(
  * record implementations to provide a typescript
  * hint for the type of the resource.
  *
- * When used, EmberData and WarpDrive APIs can
+ * When used, EmberData/WarpDrive APIs can
  * take advantage of this to provide better type
  * safety and intellisense.
  *

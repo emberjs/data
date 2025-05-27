@@ -56,7 +56,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
 
     case 1:?
     ========
-    In a uni-directional graph with 1:? edges (modeled in EmberData with `inverse:null`) with
+    In a uni-directional graph with 1:? edges (modeled in WarpDrive with `inverse:null`) with
     artificial (implicit) inverses, replacing a value results in up-to 3 discrete value transitions.
     This is because a 1:? relationship is effectively 1:many.
 
@@ -90,7 +90,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
           relationship.localState = existingState;
 
           deprecate(
-            `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+            `WarpDrive is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
               relationship.identifier.type
             }>.${
               relationship.definition.key
@@ -169,7 +169,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
         relationship.localState = remoteState;
 
         deprecate(
-          `EmberData is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
+          `WarpDrive is changing the default semantics of updates to the remote state of relationships.\n\nThe following local state was cleared from the <${
             relationship.identifier.type
           }>.${
             relationship.definition.key

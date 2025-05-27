@@ -1,9 +1,9 @@
 /**
- * This package provides a Presentation Model for resource data in an EmberData Cache.
+ * This package provides a Presentation Model for resource data in an WarpDrive Cache.
  *
  * Models are defined as classes extending from `import Model from '@ember-data/model';` and the
  * attributes and relationships on these classes are parsed at runtime to supply static "schema"
- * to EmberData's SchemaService.
+ * to WarpDrive's SchemaService.
  *
  * Resource data for individual resources fetched from your API is presented to the UI via instances
  * of the `Model`s you define. An instantiated `Model` is referred to as a `record`.

@@ -9,15 +9,15 @@
   </p>
   </blockquote>
 
-  In order to properly manage and present your data, EmberData
+  In order to properly manage and present your data, WarpDrive
   needs to understand the structure of data it receives.
 
   `Serializers` convert data between the server's API format and
-  the format EmberData understands.
+  the format WarpDrive understands.
 
   Data received from an API response is **normalized** into
   [JSON:API](https://jsonapi.org/) (the format used internally
-  by EmberData), while data sent to an API is **serialized**
+  by WarpDrive), while data sent to an API is **serialized**
   into the format the API expects.
 
   ### Implementing a Serializer
@@ -69,7 +69,7 @@
   //   app/serializers/application.js
   ```
 
-  Most requests in EmberData are made with respect to a particular `type` (or `modelName`)
+  Most requests in @warp-drive/legacy are made with respect to a particular `type` (or `modelName`)
   (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
   refer to this as the **primary** resource `type`.
 

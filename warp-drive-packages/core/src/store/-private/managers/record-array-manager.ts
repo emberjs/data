@@ -32,7 +32,7 @@ const SLICE_BATCH_SIZE = 1200;
  *   are susceptible to stack overflows. The size of objects at which this
  *   occurs varies by environment, browser, and current stack depth and memory
  *   pressure; however, it occurs in all browsers in fairly pristine conditions
- *   somewhere around 125k to 200k elements. Since EmberData regularly encounters
+ *   somewhere around 125k to 200k elements. Since WarpDrive regularly encounters
  *   arrays larger than this in size, we cannot use push.
  *
  * 2) `array.concat` or simply setting the array to a new reference is often an

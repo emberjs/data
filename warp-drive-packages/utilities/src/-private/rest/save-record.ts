@@ -30,7 +30,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * **Basic Usage**
  *
  * ```ts
- * import { deleteRecord } from '@ember-data/rest/request';
+ * import { deleteRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.peekRecord('person', '1');
  *
@@ -56,7 +56,7 @@ function isExisting(identifier: StableRecordIdentifier): identifier is StableExi
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { deleteRecord } from '@ember-data/rest/request';
+ * import { deleteRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.peekRecord('person', '1');
  *
@@ -110,7 +110,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * **Basic Usage**
  *
  * ```ts
- * import { createRecord } from '@ember-data/rest/request';
+ * import { createRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.createRecord('person', { name: 'Ted' });
  * const data = await store.request(createRecord(person));
@@ -131,7 +131,7 @@ export function deleteRecord(record: unknown, options: ConstrainedRequestOptions
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { createRecord } from '@ember-data/rest/request';
+ * import { createRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.createRecord('person', { name: 'Ted' });
  * const options = createRecord(person, { namespace: 'api/v1' });
@@ -179,7 +179,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * **Basic Usage**
  *
  * ```ts
- * import { updateRecord } from '@ember-data/rest/request';
+ * import { updateRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.peekRecord('person', '1');
  * person.name = 'Chris';
@@ -202,7 +202,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
  * - `urlParamsSetting` - an object containing options for how to serialize the query params (see `buildQueryParams`)
  *
  * ```ts
- * import { updateRecord } from '@ember-data/rest/request';
+ * import { updateRecord } from '@warp-drive/utilities/rest';
  *
  * const person = store.peekRecord('person', '1');
  * person.name = 'Chris';

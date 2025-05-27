@@ -194,7 +194,7 @@ export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorD
 /**
  * JavaScript's native Request class.
  *
- * EmberData provides our own typings due to incompleteness in the native typings.
+ * WarpDrive provides our own typings due to incompleteness in the native typings.
  *
  */
 interface Request {

@@ -84,7 +84,7 @@ function _unsubscribe(
  * The NotificationManager provides the ability to subscribe to
  * changes to Cache state.
  *
- * This Feature is what allows EmberData to create subscriptions that
+ * This Feature is what allows WarpDrive to create subscriptions that
  * work with any framework or change-notification system.
  *
  * @class NotificationManager
