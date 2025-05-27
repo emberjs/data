@@ -1,6 +1,6 @@
 {
   "name": "ember-data__graph",
-  "version": "5.6.0-alpha.6",
+  "version": "5.6.0-alpha.7",
   "private": true,
   "description": "Provides tests for @ember-data/graph",
   "keywords": [],
