@@ -3,9 +3,11 @@ outline:
   level: 2,3
 ---
 
-::: tip EmberData/WarpDrive Packages Have Been [Simplified](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
+::: tip Boilerplate Sucks 👎🏽
+We're re-aligning our packages into a new streamlined installation and setup experience.<br>
+Below you'll find the current *boilerplate heavy* setup.
 
-Looking for the [Old Package Setup Guide?](../4-old-package-setup/1-overview.md)
+Curious? Read the [RFC](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
 :::
 
 # Setup
@@ -22,26 +24,13 @@ is done inside of the app's babel configuration file.
 
 ::: code-group
 
-```ts [Universal Apps]
-import { setConfig } from '@warp-drive/core/build-config';
-
-setConfig(context, {
-  // this should be the most recent <major>.<minor> version for
-  // which all deprecations have been fully resolved
-  // and should be updated when that changes
-  // for new apps it should be the version you installed
-  // for universal apps this MUST be at least 5.6
-  compatWith: '5.6'
-});
-```
-
 ```ts [New Ember Apps]
 'use strict';
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 const { compatBuild } = require('@embroider/compat');
 
 module.exports = async function (defaults) {
-  const { setConfig } = await import('@warp-drive/core/build-config'); // [!code focus]
+  const { setConfig } = await import('@warp-drive/build-config'); // [!code focus]
   const { buildOnce } = await import('@embroider/vite');
   const app = new EmberApp(defaults, {});
 
@@ -50,7 +39,7 @@ module.exports = async function (defaults) {
     // which all deprecations have been fully resolved
     // and should be updated when that changes
     // for new apps it should be the version you installed
-    compatWith: '5.6'
+    compatWith: '5.5'
   });
 
   return compatBuild(app, buildOnce);
@@ -63,7 +52,7 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 const { compatBuild } = require('@embroider/compat');
 
 module.exports = async function (defaults) {
-  const { setConfig } = await import('@warp-drive/core/build-config'); // [!code focus]
+  const { setConfig } = await import('@warp-drive/build-config'); // [!code focus]
   const { buildOnce } = await import('@embroider/vite');
   const app = new EmberApp(defaults, {});
 
@@ -81,7 +70,82 @@ module.exports = async function (defaults) {
 };
 ```
 
+```ts [Universal Apps]
+import { setConfig } from '@warp-drive/build-config';
+
+setConfig(context, {
+  // this should be the most recent <major>.<minor> version for
+  // which all deprecations have been fully resolved
+  // and should be updated when that changes
+  // for new apps it should be the version you installed
+  // for universal apps this MUST be at least 5.5
+  compatWith: '5.5'
+});
+```
+
 :::
+
+## Add TypeScript Types
+
+::: code-group
+
+```tsconfig.json [Universal]
+{
+  compilerOptions: {
+    types: [
+      "@ember-data/graph/unstable-preview-types", // [!code ++]
+      "@ember-data/json-api/unstable-preview-types", // [!code ++]
+      "@ember-data/request/unstable-preview-types", // [!code ++]
+      "@ember-data/request-utils/unstable-preview-types", // [!code ++]
+      "@ember-data/store/unstable-preview-types", // [!code ++]
+      "@warp-drive/build-config/declarations", // [!code ++]
+      "@warp-drive/core-types/unstable-preview-types", // [!code ++]
+      "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
+    ]
+  }
+}
+```
+
+```tsconfig.json [Ember Polaris]
+{
+  compilerOptions: {
+    types: [
+      "@ember-data/debug/unstable-preview-types", // [!code ++]
+      "@ember-data/graph/unstable-preview-types", // [!code ++]
+      "@ember-data/json-api/unstable-preview-types", // [!code ++]
+      "@ember-data/request/unstable-preview-types", // [!code ++]
+      "@ember-data/request-utils/unstable-preview-types", // [!code ++]
+      "@ember-data/store/unstable-preview-types", // [!code ++]
+      "@warp-drive/build-config/declarations", // [!code ++]
+      "@warp-drive/core-types/unstable-preview-types", // [!code ++]
+      "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
+    ]
+  }
+}
+```
+
+```tsconfig.json [Ember Full Legacy]
+{
+  compilerOptions: {
+    types: [
+      "@ember-data/adapter/unstable-preview-types", // [!code ++]
+      "@ember-data/debug/unstable-preview-types", // [!code ++]
+      "@ember-data/graph/unstable-preview-types", // [!code ++]
+      "@ember-data/json-api/unstable-preview-types", // [!code ++]
+      "@ember-data/legacy-compat/unstable-preview-types", // [!code ++]
+      "@ember-data/model/unstable-preview-types", // [!code ++]
+      "@ember-data/request/unstable-preview-types", // [!code ++]
+      "@ember-data/request-utils/unstable-preview-types", // [!code ++]
+      "@ember-data/serializer/unstable-preview-types", // [!code ++]
+      "@ember-data/store/unstable-preview-types", // [!code ++]
+      "@warp-drive/build-config/declarations", // [!code ++]
+      "@warp-drive/core-types/unstable-preview-types", // [!code ++]
+      "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
+    ]
+  }
+}
+```
+
 
 ## Configure the Store
 
@@ -100,17 +164,23 @@ Looking for Legacy Adapter/Serializer Support?
 
 ::: code-group
 
-```ts [Universal]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+```ts [SchemaRecord]
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import { CachePolicy } from '@ember-data/request-utils';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types';
 import {
   instantiateRecord,
   registerDerivations,
   SchemaService,
   teardownRecord
-} from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core/store';
-import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
-import { JSONAPICache } from '@warp-drive/json-api';
+} from '@warp-drive/schema-record';
 
 export default class AppStore extends Store {
 
@@ -296,7 +366,7 @@ While it's easy to use ***just*** ***Warp*Drive**'s request management, most app
 require far more than basic fetch management. For this reason it's often best to start with a Store even when you aren't sure yet.
 
 ```ts
-import { Store } from '@warp-drive/core';
+import Store from '@ember-data/store';
 
 export default class AppStore extends Store {}
 ```
@@ -312,7 +382,10 @@ backend.
 :::
 
 ```ts
-import { Fetch, RequestManager, Store } from '@warp-drive/core'; // [!code focus]
+import Store from '@ember-data/store';
+
+import RequestManager from '@ember-data/request'; // [!code focus:2]
+import Fetch from '@ember-data/request/fetch';
 
 export default class AppStore extends Store {
   requestManager = new RequestManager() // [!code focus:2]
@@ -333,12 +406,16 @@ applications.
 
 ::: code-group
 
-```ts [Unniversal]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+```ts [SchemaRecord]
+import Store from '@ember-data/store';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
 import {  // [!code focus:4]
   registerDerivations,
   SchemaService,
-} from '@warp-drive/core/reactive';
+} from '@warp-drive/schema-record';
 
 export default class AppStore extends Store {
   requestManager = new RequestManager()
@@ -434,16 +511,18 @@ and across requests.
 Out of the box, ***Warp*Drive** provides a Cache that expects the [{JSON:API}](https://jsonapi.org) format. This format excels at simiplifying common complex problems around cache consistency and information density. Most APIs can be quickly adapted to work with it, but if a cache built to understand another format would do better it just needs to follow the same interface.
 
 ```ts
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
-import { CacheHandler } from '@warp-drive/core/store'; // [!code focus:4]
-import type {
-  CacheCapabilitiesManager
-} from '@warp-drive/core/types';
+import Store, { CacheHandler } from '@ember-data/store'; // [!code focus:2]
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import JSONAPICache from '@ember-data/json-api'; // [!code focus]
+
 import {
   registerDerivations,
   SchemaService,
-} from '@warp-drive/core/reactive';
-import { JSONAPICache } from '@warp-drive/json-api'; // [!code focus]
+} from '@warp-drive/schema-record';
 
 export default class AppStore extends Store {
 
@@ -473,19 +552,21 @@ in the cache while preventing accidental or unsafe mutation in your app.
 ::: code-group
 
 ```ts [SchemaRecord]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
-import { CacheHandler } from '@warp-drive/core/store';
-import type {
-  CacheCapabilitiesManager,
-  ResourceKey // [!code focus]
-} from '@warp-drive/core/types';
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types'; // [!code focus]
 import {
   instantiateRecord, // [!code focus]
   registerDerivations,
   SchemaService,
   teardownRecord // [!code focus]
-} from '@warp-drive/core/reactive';
-import { JSONAPICache } from '@warp-drive/json-api';
+} from '@warp-drive/schema-record';
 
 export default class AppStore extends Store {
 
@@ -652,17 +733,22 @@ The basic policy will invalidate requests based on caching and date headers avai
 on request responses, falling back to a simple time based policy.
 
 ```ts
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+import Store, { CacheHandler } from '@ember-data/store';
+import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+
+import RequestManager from '@ember-data/request';
+import Fetch from '@ember-data/request/fetch';
+import { CachePolicy } from '@ember-data/request-utils'; // [!code focus]
+
+import JSONAPICache from '@ember-data/json-api';
+
+import type { ResourceKey } from '@warp-drive/core-types';
 import {
   instantiateRecord,
   registerDerivations,
   SchemaService,
   teardownRecord
-} from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core/store'; // [!code focus]
-import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
-import { JSONAPICache } from '@warp-drive/json-api';
-
+} from '@warp-drive/schema-record';
 
 export default class AppStore extends Store {
 
