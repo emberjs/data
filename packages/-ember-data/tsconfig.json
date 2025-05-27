@@ -51,8 +51,8 @@
       "@ember-data/store/*": ["../store/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -94,7 +94,7 @@
       "path": "../core-types"
     },
     {
-      "path": "../build-config"
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }

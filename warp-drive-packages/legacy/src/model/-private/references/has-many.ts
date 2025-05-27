@@ -1,6 +1,6 @@
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
 import type { NotificationType, Store } from '@warp-drive/core';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph } from '@warp-drive/core/graph/-private';
 import type { RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
 import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';

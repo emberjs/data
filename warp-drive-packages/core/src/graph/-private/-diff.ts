@@ -1,12 +1,12 @@
 import { deprecate } from '@ember/debug';
 
-import { DEBUG_RELATIONSHIP_NOTIFICATIONS } from '@warp-drive/build-config/debugging';
+import { DEBUG_RELATIONSHIP_NOTIFICATIONS } from '@warp-drive/core/build-config/debugging';
 import {
   DEPRECATE_NON_UNIQUE_PAYLOADS,
   DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE,
-} from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+} from '@warp-drive/core/build-config/deprecations';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
 import { isBelongsTo, notifyChange } from './-utils.ts';

@@ -62,7 +62,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 - Getting Started
   - [Basic Installation](#basic-installation)
   - [Advanced Installation](#advanced-installation)
-  - [Configuration](https://github.com/emberjs/data/blob/main/packages/build-config/README.md)
+  - [Configuration](https://github.com/emberjs/data/blob/main/warp-drive-packages/build-config/README.md)
 - Learn
   - [API Documentation](https://api.emberjs.com/ember-data/release)
   - [New Guides (🚧 WIP)](https://github.com/emberjs/data/blob/main/guides/index.md)
@@ -102,7 +102,7 @@ on the other *Ember***Data**/*Warp***Drive** packages they require use of.
 - [@ember-data/store](../packages/store) provides core functionality around coordinating caching and reactivity 
 - [@ember-data/json-api](../packages/json-api) provides a cache for data in the [{JSON:API}](https://jsonapi.org) format.
 - [@ember-data/debug](../packages/debug) provides (optional) debugging support for the `ember-inspector`.
-- [@warp-drive/build-config](../packages/build-config) provides a build plugin which ensures proper settings configuration for deprecations, optional features, development/testing support and debug logging.
+- [@warp-drive/build-config](../warp-drive-packages/build-config) provides a build plugin which ensures proper settings configuration for deprecations, optional features, development/testing support and debug logging.
 - [@warp-drive/core-types](../packages/core-types) provides core types and symbols used by all other packages
 - [@warp-drive/schema-record](../packages/schema-record) provides a flexible, schema-based approach to reactive data.
 - [@warp-drive/ember](../packages/ember) provides Ember specific components and utilities for reactive control-flow and declarative state management.

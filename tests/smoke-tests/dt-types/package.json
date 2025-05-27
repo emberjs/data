@@ -68,7 +68,6 @@
     "@embroider/core": "4.0.1-unstable.f9c81e9",
     "@embroider/vite": "1.0.1-unstable.f9c81e9",
     "@glimmer/component": "^2.0.0",
-    "@glimmer/tracking": "^1.1.2",
     "@glint/core": "unstable",
     "@rollup/plugin-babel": "^6.0.4",
     "@tsconfig/ember": "^3.0.10",

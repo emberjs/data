@@ -1,3 +1,5 @@
+import '@warp-drive/ember/install';
+
 import { setApplication } from '@ember/test-helpers';
 
 import { setBuildURLConfig } from '@ember-data/request-utils';

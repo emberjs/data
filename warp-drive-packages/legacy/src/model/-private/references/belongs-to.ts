@@ -1,5 +1,5 @@
-import { DEBUG } from '@warp-drive/build-config/env';
 import type { NotificationType, Store } from '@warp-drive/core';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';

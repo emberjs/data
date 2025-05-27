@@ -1,6 +1,6 @@
-import { assert } from '@warp-drive/build-config/macros';
 import type { NotificationType, Store } from '@warp-drive/core';
 import { storeFor } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { RequestCacheRequestState, RequestStateService } from '@warp-drive/core/store/-private';
 import {
   defineSignal,

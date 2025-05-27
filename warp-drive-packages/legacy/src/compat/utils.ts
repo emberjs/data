@@ -5,7 +5,7 @@
   @module
   @deprecated
 */
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import { dasherize, singularize } from '@warp-drive/utilities/string';
 
 interface AssertFunc {

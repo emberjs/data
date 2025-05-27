@@ -1,5 +1,5 @@
-import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/deprecations';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
 import { defineSignal, memoized } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions } from '@warp-drive/core/types';

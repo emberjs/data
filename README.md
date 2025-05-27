@@ -55,7 +55,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 - [Installation](#installation)
 - [API Docs](https://api.emberjs.com/ember-data/release)
 - [Guides](./guides/index.md)
-- [Build Config](./packages/build-config/README.md)
+- [Build Config](./warp-drive-packages/build-config/README.md)
 - [Ember Compatibility](#compatibility)
 - [The Big List of Versions](#the-big-list-of-versions)
 - [Contributing](./CONTRIBUTING.md)

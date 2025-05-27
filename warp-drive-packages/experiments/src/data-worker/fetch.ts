@@ -1,5 +1,5 @@
-import { TESTING } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { TESTING } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Context, Deferred, Future, NextFn } from '@warp-drive/core/request';
 import { createDeferred } from '@warp-drive/core/request';
 import type { RequestInfo } from '@warp-drive/core/types/request';

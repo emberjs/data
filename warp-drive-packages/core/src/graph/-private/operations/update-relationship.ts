@@ -1,6 +1,6 @@
 import { warn } from '@ember/debug';
 
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../../index.ts';
 import type { StableRecordIdentifier } from '../../../types.ts';

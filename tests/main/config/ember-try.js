@@ -9,7 +9,7 @@ module.exports = function () {
       buildManagerOptions(scenario) {
         return ['--ignore-scripts', '--prefer-offline', '--no-frozen-lockfile'];
       },
-      usePnpm: true,
+      packageManager: 'pnpm',
       scenarios: [
         {
           name: 'ember-lts-4.4',

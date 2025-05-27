@@ -1,8 +1,8 @@
-import { LOG_CACHE } from '@warp-drive/build-config/debugging';
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '@warp-drive/core';
+import { LOG_CACHE } from '@warp-drive/core/build-config/debugging';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/core/build-config/deprecations';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@warp-drive/core/graph/-private';
 import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@warp-drive/core/store/-private';

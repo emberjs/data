@@ -2,7 +2,7 @@ import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
-import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/build-config/deprecations';
+import { DEPRECATE_EMBER_INFLECTOR } from '@warp-drive/core/build-config/deprecations';
 import { InflectionRuleDefaults } from '@warp-drive/utilities/-private';
 
 import { irregular, plural, singular, uncountable } from './string.ts';

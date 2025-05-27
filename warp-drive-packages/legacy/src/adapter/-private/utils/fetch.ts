@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 

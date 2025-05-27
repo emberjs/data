@@ -1,8 +1,8 @@
 import { deprecate } from '@ember/debug';
 
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/core/build-config/deprecations';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';

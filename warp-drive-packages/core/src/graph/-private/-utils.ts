@@ -1,7 +1,7 @@
 import { warn } from '@ember/debug';
 
-import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_GRAPH } from '@warp-drive/core/build-config/debugging';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../store/-private.ts';
 import { peekCache } from '../../store/-private.ts';

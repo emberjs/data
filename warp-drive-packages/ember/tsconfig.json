@@ -1,5 +1,10 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot", "../../@types/@glimmer/tracking.d.ts"],
+  "include": [
+    "src/**/*",
+    "../../@types/fastboot",
+    "../../@types/@glimmer/tracking.d.ts",
+    "../../@types/@glimmer/validator.d.ts"
+  ],
   "glint": {
     "environment": ["ember-loose", "ember-template-imports"]
   },
@@ -42,10 +47,9 @@
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
       "@warp-drive/core": ["../core/declarations"],
-      "@warp-drive/core/*": ["../core/declarations/*"]
+      "@warp-drive/core/*": ["../core/declarations/*"],
+      "@glimmer/validator": ["../../@types/@glimmer/validator.d.ts"]
     },
     "erasableSyntaxOnly": true,
     "lib": ["ESNext", "DOM"],
@@ -54,9 +58,6 @@
   "references": [
     {
       "path": "../core"
-    },
-    {
-      "path": "../../packages/build-config"
     }
   ]
 }

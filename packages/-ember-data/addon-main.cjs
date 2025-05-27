@@ -1,6 +1,6 @@
 'use strict';
 
-const { addonShim } = require('@warp-drive/build-config/addon-shim.cjs');
+const { addonShim } = require('@warp-drive/core/addon-shim.cjs');
 
 const addon = addonShim(__dirname);
 const pkg = require('./package.json');
@@ -31,7 +31,7 @@ addon.included = function includedIntercept() {
   this.hasBeenCalled = true;
   const app = findApp(this);
   const dirname = app.project.root;
-  const { setConfig } = require('@warp-drive/build-config/cjs-set-config.cjs');
+  const { setConfig } = require('@warp-drive/core/cjs-set-config.cjs');
   setConfig(app, dirname, Object.assign({}, app.options?.emberData, { ___legacy_support: true }));
   return included?.apply(this, arguments);
 };

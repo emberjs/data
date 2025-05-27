@@ -1,6 +1,6 @@
 // in testing mode, we utilize globals to ensure only one copy exists of
 // these maps, due to bugs in ember-auto-import
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
+import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 
 import { name, version } from '../../package.json';
 

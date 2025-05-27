@@ -1,6 +1,6 @@
 import { getOwner, setOwner } from '@ember/application';
 
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@warp-drive/core/store/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';

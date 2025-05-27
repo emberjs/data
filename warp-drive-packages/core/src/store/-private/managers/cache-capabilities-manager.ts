@@ -1,5 +1,5 @@
-import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/build-config/deprecations';
-import { assert } from '@warp-drive/build-config/macros';
+import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';

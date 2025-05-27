@@ -1,5 +1,5 @@
-import { assert } from '@warp-drive/build-config/macros';
 import type { StoreRequestInput } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { LegacyResourceQuery, QueryOptions } from '@warp-drive/core/types';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import { SkipCache } from '@warp-drive/core/types/request';

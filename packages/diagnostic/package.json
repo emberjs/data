@@ -89,7 +89,7 @@
     "chalk": "^5.3.0",
     "debug": "^4.4.0",
     "tmp": "^0.2.3",
-    "@warp-drive/build-config": "workspace:*"
+    "@warp-drive/core": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",

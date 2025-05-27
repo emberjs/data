@@ -4,8 +4,8 @@ import { render as renderTemplate, settled } from '@ember/test-helpers';
 import * as QUnit from 'qunit';
 
 import type Store from '@ember-data/store';
-import { PRODUCTION } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { PRODUCTION } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 /*
   Temporary replacement for the render test helper

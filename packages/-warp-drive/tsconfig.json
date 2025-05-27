@@ -28,14 +28,14 @@
     "inlineSources": true,
     "rootDir": "src",
     "paths": {
-      "@warp-drive/build-config": ["../build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../build-config/unstable-preview-types/*"]
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "checkJs": false
   },
   "references": [
     {
-      "path": "../build-config"
+      "path": "../../warp-drive-packages/core"
     }
   ]
 }

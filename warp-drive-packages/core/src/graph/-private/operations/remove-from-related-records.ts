@@ -1,4 +1,4 @@
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { RemoveFromResourceRelationshipMutation } from '../../../types/cache/mutations.ts';
 import type { RemoveFromResourceRelationshipOperation } from '../../../types/cache/operations.ts';

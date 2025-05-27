@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "packages/build-config"
+    "directory": "warp-drive-packages/build-config"
   },
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
@@ -56,7 +56,6 @@
     "@babel/preset-typescript": "^7.27.0",
     "@babel/core": "^7.26.10",
     "typescript": "^5.8.3",
-    "bun-types": "^1.2.10",
     "vite": "^5.4.15"
   },
   "volta": {

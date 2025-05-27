@@ -2,9 +2,9 @@ import { warn } from '@ember/debug';
 
 import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
-import { LOG_IDENTIFIERS } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_IDENTIFIERS } from '@warp-drive/core/build-config/debugging';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal, peekTransient, setTransient } from '../../../types/-private.ts';
 import {

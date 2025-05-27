@@ -1,6 +1,6 @@
 import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
-export const externals = ['@ember/debug'];
+export const externals = ['@ember/debug', '@embroider/macros'];
 
 export const entryPoints = ['./src/index.ts'];
 

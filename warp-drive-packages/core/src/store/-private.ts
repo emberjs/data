@@ -53,7 +53,7 @@ export {
   type RequestCacheRequestState as RequestState,
 } from './-private/new-core-tmp/request-state.ts';
 
-export { createMemo, type SignalHooks } from './-private/new-core-tmp/reactivity/configure.ts';
+export { createMemo, type SignalHooks, waitFor } from './-private/new-core-tmp/reactivity/configure.ts';
 export {
   memoized,
   gate,

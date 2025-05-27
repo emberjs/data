@@ -1,4 +1,4 @@
-import { DEBUG } from '@warp-drive/build-config/env';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 
 import { getOrSetGlobal } from '../../types/-private';
 import type { ImmutableHeaders, RequestInfo } from '../../types/request';

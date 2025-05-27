@@ -1,6 +1,6 @@
-import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import { peekCache } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import { RecordStore } from '@warp-drive/core/types/symbols';

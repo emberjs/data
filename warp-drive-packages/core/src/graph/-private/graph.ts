@@ -1,6 +1,6 @@
-import { LOG_GRAPH } from '@warp-drive/build-config/debugging';
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { LOG_GRAPH } from '@warp-drive/core/build-config/debugging';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { CacheCapabilitiesManager, StableRecordIdentifier } from '../../types.ts';
 import { getOrSetGlobal, peekTransient, setTransient } from '../../types/-private.ts';

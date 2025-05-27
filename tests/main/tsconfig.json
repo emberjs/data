@@ -52,8 +52,8 @@
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
       "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
       "ember-data": ["../../packages/-ember-data/unstable-preview-types"],
@@ -74,7 +74,7 @@
   },
   "references": [
     {
-      "path": "../../packages/build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../../packages/adapter"

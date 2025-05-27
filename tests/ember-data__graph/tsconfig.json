@@ -39,8 +39,8 @@
       "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
@@ -62,7 +62,7 @@
   },
   "references": [
     {
-      "path": "../../packages/build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../../packages/debug"

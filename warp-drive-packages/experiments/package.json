@@ -54,7 +54,8 @@
     "start": "vite"
   },
   "peerDependencies": {
-    "@sqlite.org/sqlite-wasm": "3.46.0-build2"
+    "@sqlite.org/sqlite-wasm": "3.46.0-build2",
+    "@warp-drive/core": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@sqlite.org/sqlite-wasm": {
@@ -62,9 +63,7 @@
     }
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
-    "@warp-drive/build-config": "workspace:*",
-    "@warp-drive/core": "workspace:*"
+    "@embroider/macros": "^1.16.12"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -72,6 +71,7 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
     "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive/core": "workspace:*",
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
     "typescript": "^5.8.3",
     "vite": "^5.4.15"

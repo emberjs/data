@@ -35,8 +35,8 @@
       "@ember-data/model/*": ["../../packages/model/unstable-preview-types/*"],
       "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@ember-data/legacy-compat": ["../../packages/legacy-compat/unstable-preview-types"],
       "@ember-data/legacy-compat/*": ["../../packages/legacy-compat/unstable-preview-types/*"],
       "@ember-data/request-utils": ["../../packages/request-utils/unstable-preview-types"],
@@ -82,7 +82,7 @@
       "path": "../../packages/core-types"
     },
     {
-      "path": "../../packages/build-config"
+      "path": "../../warp-drive-packages/build-config"
     },
     {
       "path": "../../packages/legacy-compat"

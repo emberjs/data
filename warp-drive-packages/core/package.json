@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "cjs-dist",
     "declarations",
     "addon-main.cjs",
     "CHANGELOG.md",
@@ -33,13 +34,13 @@
       "types": "./declarations/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./*.cjs": {
+      "default": "./cjs-dist/*.cjs"
+    },
     "./*": {
       "types": "./declarations/*.d.ts",
       "default": "./dist/*.js"
     }
-  },
-  "peerDependencies": {
-    "@ember/test-waiters": "^3.1.0 || ^4.0.0"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
@@ -49,7 +50,6 @@
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",
     "@babel/preset-typescript": "^7.27.0",
-    "@ember/test-waiters": "^4.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "decorator-transforms": "^2.3.0",
     "ember-source": "~6.3.0",

@@ -1,5 +1,5 @@
-import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { ModelSchema } from '@warp-drive/core/types';
 
 import type { MinimumSerializerInterface, SerializerOptions } from '../../../compat.ts';

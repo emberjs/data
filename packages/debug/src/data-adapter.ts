@@ -11,7 +11,7 @@ import { capitalize, underscore } from '@ember-data/request-utils/string';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
-import { assert } from '@warp-drive/build-config/macros';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 const service = s.service ?? s.inject;
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();

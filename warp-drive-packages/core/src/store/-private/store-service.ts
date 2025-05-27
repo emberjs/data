@@ -7,13 +7,13 @@ import {
   __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS,
   LOG_METRIC_COUNTS,
   LOG_REQUESTS,
-} from '@warp-drive/build-config/debugging';
+} from '@warp-drive/core/build-config/debugging';
 import {
   DEPRECATE_STORE_EXTENDS_EMBER_OBJECT,
   ENABLE_LEGACY_SCHEMA_SERVICE,
-} from '@warp-drive/build-config/deprecations';
-import { DEBUG, TESTING } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+} from '@warp-drive/core/build-config/deprecations';
+import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Graph } from '../../graph/-private.ts';
 import type { Future } from '../../request.ts';

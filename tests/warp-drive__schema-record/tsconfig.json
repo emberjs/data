@@ -46,8 +46,8 @@
       "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/schema-record": ["../../packages/schema-record/unstable-preview-types"],
       "@warp-drive/schema-record/*": ["../../packages/schema-record/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../packages/build-config/unstable-preview-types"],
-      "@warp-drive/build-config/*": ["../../packages/build-config/unstable-preview-types/*"],
+      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
+      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
       "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"]
     },
@@ -101,7 +101,7 @@
       "path": "../../packages/unpublished-test-infra"
     },
     {
-      "path": "../../packages/build-config"
+      "path": "../../warp-drive-packages/build-config"
     }
   ]
 }

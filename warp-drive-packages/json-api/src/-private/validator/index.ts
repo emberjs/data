@@ -1,6 +1,6 @@
-import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
-import { LOG_CACHE } from '@warp-drive/build-config/debugging';
-import { assert } from '@warp-drive/build-config/macros';
+import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
+import { LOG_CACHE } from '@warp-drive/core/build-config/debugging';
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';

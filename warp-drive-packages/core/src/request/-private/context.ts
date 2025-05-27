@@ -1,5 +1,5 @@
-import { DEBUG } from '@warp-drive/build-config/env';
-import { assert } from '@warp-drive/build-config/macros';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableDocumentIdentifier } from '../../types/identifier';
 import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '../../types/request';
