@@ -1,10 +1,5 @@
 # Ember.js
 
-## Add TypeScript Types
-
-TypeScript will automatically discover the types these packages provide. If you're using `ember-source`,
-you should also configure and use Ember's native types.
-
 ## Configure Reactivity
 
 1. Ensure `@warp-drive/ember` is [installed](../1-overview.md#installation) with the proper version
