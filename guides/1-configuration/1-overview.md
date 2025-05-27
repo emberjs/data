@@ -21,10 +21,10 @@ Below, we detail the installation for the most common configurations.
 ## Installation {#installation}
 
 ::: info 💡 TIP
-WarpDrive uses npm channel tags to simplify installation. Available channels include:
+WarpDrive uses npm channel tags to simplify installation. Replace `@latest` in the commands
+below with a different channel as desired. Available channels include:
 - `@lts` | `@latest` | `@beta` | `@canary`
 
-Replace `@latest` in the commands below with a different channel as desired.
 :::
 
 ::: code-group
