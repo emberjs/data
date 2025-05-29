@@ -88,6 +88,8 @@ export class ReactiveDocument<T> {
    */
   declare readonly identifier: StableDocumentIdentifier | null;
 
+  declare isLoading: boolean;
+
   declare protected readonly _store: Store;
   declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
 
@@ -127,6 +129,10 @@ export class ReactiveDocument<T> {
     }
   }
 
+  get isError() {
+    return !!this.errors && this.errors.length > 0;
+  }
+
   async #request(
     link: keyof PaginationLinks,
     options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
@@ -138,9 +144,13 @@ export class ReactiveDocument<T> {
 
     options.method = options.method || 'GET';
     Object.assign(options, { url: urlFromLink(href) });
-    const response = await this._store.request<ReactiveDocument<T>>(options);
-
-    return response.content;
+    try {
+      this.isLoading = true;
+      const response = await this._store.request<ReactiveDocument<T>>(options);
+      return response.content;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   /**
