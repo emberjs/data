@@ -1,14 +1,11 @@
 /**
  * @module @warp-drive/ember
  */
-import { cached, tracked } from '@glimmer/tracking';
-
 import { assert } from '@warp-drive/build-config/macros';
 
 import type { Future } from '../../../request.ts';
 import type { StableDocumentIdentifier } from '../../../types/identifier';
 import type { StructuredErrorDocument } from '../../../types/request.ts';
-import type { ResourceErrorDocument } from '../../../types/spec/document.ts';
 import type { ReactiveDocument } from '../document';
 import type { RequestCacheRequestState } from './request-state';
 import { getRequestState } from './request-state';
@@ -102,7 +99,7 @@ class PaginationState<T = unknown, RT extends ReactiveDocument<T[]> = ReactiveDo
  * @param future
  * @return {PaginationState}
  */
-export function getPaginationState<T, RT extends ReactiveDocument<T[]>, E = ResourceErrorDocument>(
+export function getPaginationState<T, RT extends ReactiveDocument<T[]>, E = unknown>(
   future: Future<RT>
 ): PaginationState<T, RT, E> {
   const lid = future.lid;
