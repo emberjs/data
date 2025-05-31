@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -532,7 +530,7 @@ importers:
         specifier: ^13.1.0
         version: 13.1.0
       ignore:
-        specifier: ^7.0.3
+        specifier: ^7.0.4
         version: 7.0.4
       jscodeshift:
         specifier: ^17.3.0
