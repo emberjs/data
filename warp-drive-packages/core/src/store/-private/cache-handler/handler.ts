@@ -1,5 +1,6 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { CacheHandler as CacheHandlerType, Future, ManagedRequestPriority, NextFn } from '../../../request.ts';
 import type { StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type {
@@ -13,7 +14,6 @@ import type { ResourceDataDocument, ResourceDocument, ResourceErrorDocument } fr
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import type { RequestSignature } from '../../../types/symbols.ts';
-import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { Store } from '../store-service.ts';
 import {
   calcShouldBackgroundFetch,
