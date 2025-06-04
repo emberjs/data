@@ -27,21 +27,22 @@ export type DeferredStream = {
 };
 
 /**
- * A Future is a Promise which resolves to a StructuredDocument
- * while providing the ability to `abort` the underlying request,
- * `getStream` the response before the outer promise resolves;
+ * A Future is a {@link Promise} which resolves to a {@link StructuredDataDocument | StructuredDocument}
+ * while providing the ability to {@link Future.abort | abort} the underlying request, and
+ * {@link Future.getStream | access the response stream} before the outer promise resolves;
  *
- * @class Future
  * @public
  */
 export interface Future<T> extends Promise<StructuredDataDocument<T>> {
   [IS_FUTURE]: true;
   /**
-   * Cancel this request by firing the AbortController's signal.
+   * Cancel this request by firing the {@link AbortController}'s signal.
    *
-   * @param {String} [reason] optional reason for aborting the request
+   * @privateRemarks
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AbortController/abort)
+   *
+   * @param reason optional reason for aborting the request
    * @public
-   * @return {void}
    */
   abort(reason?: string): void;
   /**

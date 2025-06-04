@@ -251,6 +251,12 @@ function cleanSidebarItems(items: SidebarItem[], isPrimitive = false): SidebarIt
   return newItems.concat(submodules);
 }
 
+const DOC_FRONTMATTER = `---
+outline:
+  level: [2, 3]
+---
+`;
+
 export async function postProcessApiDocs() {
   const dir = path.join(__dirname, '../tmp/api');
   const outDir = path.join(__dirname, '../docs.warp-drive.io/api');
@@ -269,6 +275,10 @@ export async function postProcessApiDocs() {
     mkdirSync(path.dirname(outFile), { recursive: true });
 
     let newContent = content;
+
+    // insert frontmatter
+    newContent = DOC_FRONTMATTER + newContent;
+
     // if the content has a modules list, we remove it
     if (newContent.includes('## Modules')) {
       newContent = newContent.slice(0, newContent.indexOf('## Modules'));
