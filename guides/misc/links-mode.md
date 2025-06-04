@@ -10,8 +10,8 @@ LinksMode behaves *slightly* differently depending on whether
 you are using Model (including via [LegacyMode](./4-reactivity/legacy/overview.md)) or [PolarisMode](./4-reactivity/polaris/overview.md). We'll explain this nuance below.
 
 > [!TIP]
-> The next-generation of reactive data which replaces Model is SchemaRecord.
-> SchemaRecord has two modes, Legacy - which emulates all of Model's
+> The next-generation of reactive data which replaces Model is ReactiveResource.
+> ReactiveResource has two modes, Legacy - which emulates all of Model's
 > behaviors and APIs, and Polaris - a new experience which we intend
 > to make default in Version 6.
 
@@ -115,7 +115,7 @@ Sideloads (included records) are valid to include in these responses.
 
 LinksMode is activated by adding `linksMode: true` to the relationship's options.
 
-Read on below for examples and nuances specific to Model vs SchemaRecord
+Read on below for examples and nuances specific to Model vs ReactiveResource
 
 <br>
 
@@ -138,7 +138,7 @@ This works for both `async` and `non-async` relationships and only changes the f
 
 <br>
 
-### For a SchemaRecord in LegacyMode
+### For a ReactiveResource in LegacyMode
 
 ```ts
 import type { ResourceSchema } from '@warp-drive/core-types/schema/fields';
@@ -161,12 +161,12 @@ const UserSchema = {
 } satisfies ResourceSchema;
 ```
 
-The behavior of a relationship for a SchemaRecord in LegacyMode is always identical to that of a the same
+The behavior of a relationship for a ReactiveResource in LegacyMode is always identical to that of a the same
 relationship defined on a Model.
 
 <br>
 
-### For a SchemaRecord in PolarisMode
+### For a ReactiveResource in PolarisMode
 
 ```ts
 import type { ResourceSchema } from '@warp-drive/core-types/schema/fields';

@@ -11,7 +11,7 @@
  * - A `WithLegacy` type util that can be used to create a type that includes the legacy
  *   properties and methods of a record.
  *
- * Using LegacyMode features on a SchemaRecord *requires* the use of these derivations and schema
+ * Using LegacyMode features on a ReactiveResource *requires* the use of these derivations and schema
  * additions. LegacyMode is not intended to be a long-term solution, but rather a stepping stone
  * to assist in more rapidly adopting modern WarpDrive features.
  *
@@ -413,7 +413,7 @@ export function registerDerivations(schema: SchemaService) {
  * service will be used.
  *
  * This can be used when incrementally migrating from Models to
- * SchemaRecords by enabling unmigrated Models to continue to
+ * ReactiveResources by enabling unmigrated Models to continue to
  * provide their own schema information to the application.
  *
  * ```ts

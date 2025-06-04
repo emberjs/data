@@ -164,7 +164,7 @@ Looking for Legacy Adapter/Serializer Support?
 
 ::: code-group
 
-```ts [SchemaRecord]
+```ts [ReactiveResource]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 
@@ -406,7 +406,7 @@ applications.
 
 ::: code-group
 
-```ts [SchemaRecord]
+```ts [ReactiveResource]
 import Store from '@ember-data/store';
 
 import RequestManager from '@ember-data/request';
@@ -551,7 +551,7 @@ in the cache while preventing accidental or unsafe mutation in your app.
 
 ::: code-group
 
-```ts [SchemaRecord]
+```ts [ReactiveResource]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 

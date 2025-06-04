@@ -3,6 +3,7 @@
  * @mergeModuleWith <project>
  */
 
+import type { ReactiveDocument } from './reactive/-private/document.ts';
 import { getRuntimeConfig, setLogging } from './types/runtime.ts';
 
 export { Fetch } from './request/-private/fetch.ts';
@@ -18,12 +19,16 @@ export {
   Store,
   type StoreRequestContext,
   CacheHandler,
-  type Document,
   type CachePolicy,
   type StoreRequestInput,
   recordIdentifierFor,
   storeFor,
 } from './store/-private.ts';
+
+/**
+ * @deprecated use `ReactiveDocument` instead
+ */
+export type Document<T> = ReactiveDocument<T>;
 
 export type {
   DocumentCacheOperation,

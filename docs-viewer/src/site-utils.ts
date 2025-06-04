@@ -201,23 +201,34 @@ export function asApiDocsSidebar(o: unknown): { oldPackages: SidebarItem[]; newP
   return o as { oldPackages: SidebarItem[]; newPackages: SidebarItem[] };
 }
 
-const FILTERED_NAV_ITEMS = ['Classes', 'Interfaces', 'Type Aliases', 'Variables', 'Functions'];
+const HOISTED_PRIMITIVES = ['Classes', 'Variables', 'Functions'];
+const FILTERED_NAV_ITEMS = ['Interfaces', 'Type Aliases'];
 const META_PACKAGES = ['ember-data', 'warp-drive', 'eslint-plugin-ember-data', 'eslint-plugin-warp-drive'];
 
-function cleanSidebarItems(items: SidebarItem[]): SidebarItem[] {
+function cleanSidebarItems(items: SidebarItem[], isPrimitive = false): SidebarItem[] {
   const newItems: SidebarItem[] = [];
+  let submodules: SidebarItem[] = [];
+
+  const hoisted: SidebarItem = { text: 'exports', items: [] };
+
   for (const item of items) {
     if (FILTERED_NAV_ITEMS.includes(item.text)) {
-      // skip these items
+      // skip filtered items
+      continue;
+    }
+
+    if (HOISTED_PRIMITIVES.includes(item.text)) {
+      hoisted.items!.push(...cleanSidebarItems(item.items || [], true));
       continue;
     }
 
     if (item.text === 'Modules') {
       // hoist modules up
-      return cleanSidebarItems(item.items || []);
+      submodules = cleanSidebarItems(item.items || []);
+      continue;
     }
 
-    if (!META_PACKAGES.includes(item.text) && !item.text.startsWith('@')) {
+    if (!META_PACKAGES.includes(item.text) && !item.text.startsWith('@') && !isPrimitive) {
       item.text = '/' + item.text;
     }
 
@@ -228,7 +239,16 @@ function cleanSidebarItems(items: SidebarItem[]): SidebarItem[] {
     continue;
   }
 
-  return newItems;
+  if (submodules.length === 0) {
+    return newItems;
+  }
+
+  if (hoisted.items!.length > 0) {
+    // if we have hoisted items, we add them to the new items
+    newItems.unshift(hoisted);
+  }
+
+  return newItems.concat(submodules);
 }
 
 export async function postProcessApiDocs() {
@@ -253,6 +273,7 @@ export async function postProcessApiDocs() {
     if (newContent.includes('## Modules')) {
       newContent = newContent.slice(0, newContent.indexOf('## Modules'));
     }
+
     // if the content has `Interface` or `Type Aliases` we collapse them
     const hasInterfaces = newContent.includes('## Interfaces');
     const hasTypeAliases = newContent.includes('## Type Aliases');
@@ -261,6 +282,17 @@ export async function postProcessApiDocs() {
       newContent = newContent.replace('\n\n## Type Aliases\n', '');
     } else if (hasTypeAliases) {
       newContent = newContent.replace('## Type Aliases', '## Types');
+    }
+
+    // if the content has `Properties` and `Accessors` we collapse them
+    const hasProperties = newContent.includes('## Properties');
+    const hasAccessors = newContent.includes('## Accessors');
+    if (hasAccessors) {
+      if (hasProperties) {
+        newContent = newContent.replace('\n\n## Accessors\n', '');
+      } else {
+        newContent = newContent.replace('## Accessors', '## Properties');
+      }
     }
 
     writeFileSync(outFile, newContent, 'utf-8');

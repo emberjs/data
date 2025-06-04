@@ -10,7 +10,7 @@ import type { CacheOptions } from '../../../types/request.ts';
 import { EnableHydration } from '../../../types/request.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../../types/symbols.ts';
-import type { SchemaRecord } from '../record.ts';
+import type { ReactiveResource } from '../record.ts';
 import { Identifier } from '../symbols.ts';
 
 export interface FindHasManyOptions {
@@ -19,12 +19,12 @@ export interface FindHasManyOptions {
 }
 
 export class ManyArrayManager {
-  declare record: SchemaRecord;
+  declare record: ReactiveResource;
   declare store: Store;
   declare identifier: StableRecordIdentifier;
   declare editable: boolean;
 
-  constructor(record: SchemaRecord, editable: boolean) {
+  constructor(record: ReactiveResource, editable: boolean) {
     this.record = record;
     this.store = record[RecordStore];
     this.identifier = record[Identifier];

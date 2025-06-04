@@ -13,7 +13,7 @@ import type { ResourceDataDocument, ResourceDocument, ResourceErrorDocument } fr
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import type { RequestSignature } from '../../../types/symbols.ts';
-import { ReactiveDocument } from '../document.ts';
+import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { Store } from '../store-service.ts';
 import {
   calcShouldBackgroundFetch,

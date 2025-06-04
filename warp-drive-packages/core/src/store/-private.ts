@@ -8,8 +8,6 @@ export { type CachePolicy } from './-private/cache-handler/types.ts';
 export { isStableIdentifier, isDocumentIdentifier } from './-private/caches/identifier-cache.ts';
 
 export { constructResource } from './-private/utils/construct-resource.ts';
-
-export type { ReactiveDocument as Document } from './-private/document.ts';
 export type { InstanceCache } from './-private/caches/instance-cache.ts';
 
 export type {

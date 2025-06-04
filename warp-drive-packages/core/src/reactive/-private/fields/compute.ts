@@ -27,7 +27,7 @@ import type {
 } from '../../../types/schema/fields.ts';
 import type { CollectionResourceRelationship, Link, Links } from '../../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../../types/symbols.ts';
-import { SchemaRecord } from '../record.ts';
+import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, Parent } from '../symbols.ts';
 import { ManagedArray } from './managed-array.ts';
@@ -36,33 +36,33 @@ import { ManyArrayManager } from './many-array-manager.ts';
 
 export const ManagedArrayMap = getOrSetGlobal(
   'ManagedArrayMap',
-  new Map<SchemaRecord, Map<string, ManagedArray | ManyArray>>()
+  new Map<ReactiveResource, Map<string, ManagedArray | ManyArray>>()
 );
 export const ManagedObjectMap = getOrSetGlobal(
   'ManagedObjectMap',
-  new Map<SchemaRecord, Map<string, ManagedObject | SchemaRecord>>()
+  new Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>>()
 );
 
-export function computeLocal(record: typeof Proxy<SchemaRecord>, field: LocalField, prop: string): unknown {
+export function computeLocal(record: typeof Proxy<ReactiveResource>, field: LocalField, prop: string): unknown {
   const signals = withSignalStore(record);
   const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
   consumeInternalSignal(signal);
   return signal.value;
 }
 
-export function peekManagedArray(record: SchemaRecord, field: FieldSchema): ManyArray | ManagedArray | undefined {
+export function peekManagedArray(record: ReactiveResource, field: FieldSchema): ManyArray | ManagedArray | undefined {
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
     return managedArrayMapForRecord.get(field.name);
   }
 }
 
-export function peekManagedObject(record: SchemaRecord, field: ObjectField): ManagedObject | undefined;
-export function peekManagedObject(record: SchemaRecord, field: SchemaObjectField): SchemaRecord | undefined;
+export function peekManagedObject(record: ReactiveResource, field: ObjectField): ManagedObject | undefined;
+export function peekManagedObject(record: ReactiveResource, field: SchemaObjectField): ReactiveResource | undefined;
 export function peekManagedObject(
-  record: SchemaRecord,
+  record: ReactiveResource,
   field: ObjectField | SchemaObjectField
-): ManagedObject | SchemaRecord | undefined {
+): ManagedObject | ReactiveResource | undefined {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   if (managedObjectMapForRecord) {
     return managedObjectMapForRecord.get(field.name);
@@ -72,7 +72,7 @@ export function peekManagedObject(
 export function computeField(
   schema: SchemaService,
   cache: Cache,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: GenericField,
   prop: string | string[],
@@ -90,7 +90,7 @@ export function computeArray(
   store: Store,
   schema: SchemaService,
   cache: Cache,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string[],
@@ -141,7 +141,7 @@ export function computeArray(
 export function computeObject(
   schema: SchemaService,
   cache: Cache,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: ObjectField,
   path: string[],
@@ -178,7 +178,7 @@ export function computeObject(
 export function computeSchemaObject(
   store: Store,
   cache: Cache,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: SchemaObjectField,
   path: string[],
@@ -198,7 +198,7 @@ export function computeSchemaObject(
       return null;
     }
     const embeddedPath = path.slice();
-    schemaObject = new SchemaRecord(
+    schemaObject = new ReactiveResource(
       store,
       identifier,
       {
@@ -229,7 +229,7 @@ export function computeAttribute(
 
 export function computeDerivation(
   schema: SchemaService,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: DerivedField,
   prop: string
@@ -239,9 +239,9 @@ export function computeDerivation(
 
 // TODO probably this should just be a Document
 // but its separate until we work out the lid situation
-class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
+class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
   declare lid: string;
-  declare [Parent]: SchemaRecord;
+  declare [Parent]: ReactiveResource;
   declare [RecordStore]: Store;
   declare name: string;
 
@@ -252,7 +252,7 @@ class ResourceRelationship<T extends SchemaRecord = SchemaRecord> {
   constructor(
     store: Store,
     cache: Cache,
-    parent: SchemaRecord,
+    parent: ReactiveResource,
     identifier: StableRecordIdentifier,
     field: FieldSchema,
     name: string,
@@ -317,10 +317,10 @@ function getHref(link?: Link | null): string | null {
   return link.href;
 }
 
-export function computeResource<T extends SchemaRecord>(
+export function computeResource<T extends ReactiveResource>(
   store: Store,
   cache: Cache,
-  parent: SchemaRecord,
+  parent: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: FieldSchema,
   prop: string,
@@ -337,7 +337,7 @@ export function computeHasMany(
   store: Store,
   schema: SchemaService,
   cache: Cache,
-  record: SchemaRecord,
+  record: ReactiveResource,
   identifier: StableRecordIdentifier,
   field: LegacyHasManyField,
   path: string[],

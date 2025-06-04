@@ -150,7 +150,7 @@ export const DEPRECATE_COMPUTED_CHAINS: boolean = true;
  * singular, dasherized, etc. so long as everywhere you refer to the type
  * you use the same string.
  *
- * If using @ember-data/model, there will always be a restriction that the
+ * If using @warp-drive/legacy/model, there will always be a restriction that the
  * `type` must match the path on disk where the model is defined.
  *
  * e.g. `app/models/foo/bar-bem.js` must have a type of `foo/bar-bem`

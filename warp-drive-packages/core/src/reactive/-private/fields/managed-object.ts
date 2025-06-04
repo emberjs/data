@@ -12,7 +12,7 @@ import type { Cache } from '../../../types/cache.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
-import type { SchemaRecord } from '../record.ts';
+import type { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
 
@@ -51,7 +51,7 @@ export class ManagedObject {
     data: object,
     identifier: StableRecordIdentifier,
     path: string[],
-    owner: SchemaRecord,
+    owner: ReactiveResource,
     editable: boolean,
     legacy: boolean
   ) {
