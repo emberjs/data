@@ -24,58 +24,35 @@
  * Because ***Warp*Drive** packages operate on a strict lockstep policy with each other,
  * you must install the matching canary version of all ***Warp*Drive** packages.
  *
- * Below is an example of installing the latest canary version of all the primary
- * packages that are part of the ***Warp*Drive** project. Add/remove packages from
- * this list to match your project.
+ * Below is an example of installing the latest canary version of all the core
+ * packages that are part of the ***Warp*Drive** project when using EmberJS.
+ *
+ * Add/remove packages from this list to match your project.
  *
  * ::: code-group
  *
  * ```sh [pnpm]
- * pnpm add -E @ember-data/store@canary \
- *   @ember-data/json-api@canary \
- *   @ember-data/debug@canary \
- *   @ember-data/graph@canary \
- *   @ember-data/request@canary \
- *   @ember-data/request-utils@canary \
- *   @warp-drive/schema-record@canary \
- *   @warp-drive/build-config@canary \
- *   @warp-drive/core-types@canary;
+ * pnpm add -E @warp-drive/core@canary \
+ *   @warp-drive/json-api@canary \
+ *   @warp-drive/ember@canary;
  * ```
  *
  * ```sh [npm]
- * npm add -E @ember-data/store@canary \
- *   @ember-data/json-api@canary \
- *   @ember-data/debug@canary \
- *   @ember-data/graph@canary \
- *   @ember-data/request@canary \
- *   @ember-data/request-utils@canary \
- *   @warp-drive/schema-record@canary \
- *   @warp-drive/build-config@canary \
- *   @warp-drive/core-types@canary;
+ * npm add -E @warp-drive/core@canary \
+ *   @warp-drive/json-api@canary \
+ *   @warp-drive/ember@canary;
  * ```
  *
  * ```sh [yarn]
- * yarn add -E @ember-data/store@canary \
- *   @ember-data/json-api@canary \
- *   @ember-data/debug@canary \
- *   @ember-data/graph@canary \
- *   @ember-data/request@canary \
- *   @ember-data/request-utils@canary \
- *   @warp-drive/schema-record@canary \
- *   @warp-drive/build-config@canary \
- *   @warp-drive/core-types@canary;
+ * yarn add -E @warp-drive/core@canary \
+ *   @warp-drive/json-api@canary \
+ *   @warp-drive/ember@canary;
  * ```
  *
  * ```sh [bun]
- * bun add --exact @ember-data/store@canary \
- *   @ember-data/json-api@canary \
- *   @ember-data/debug@canary \
- *   @ember-data/graph@canary \
- *   @ember-data/request@canary \
- *   @ember-data/request-utils@canary \
- *   @warp-drive/schema-record@canary \
- *   @warp-drive/build-config@canary \
- *   @warp-drive/core-types@canary;
+ * bun add --exact @warp-drive/core@canary \
+ *   @warp-drive/json-api@canary \
+ *   @warp-drive/ember@canary;
  * ```
  *
  * :::
@@ -118,7 +95,7 @@
  * the following can be done:
  *
  * ```js
- * if (macroCondition(dependencySatisfies('@ember-data/store', '5.0'))) {
+ * if (macroCondition(dependencySatisfies('@warp-drive/core', '5.6'))) {
  *   // do thing
  * }
  * ```

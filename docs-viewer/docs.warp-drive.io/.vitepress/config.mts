@@ -1,48 +1,7 @@
 import { defineConfig } from 'vitepress';
-import { getGuidesStructure } from '../../src/site-utils.ts';
-// @ts-expect-error json file import
-import typedocSidebar from '../api/typedoc-sidebar.json';
+import { getGuidesStructure, postProcessApiDocs } from '../../src/site-utils.ts';
 
-type SidebarItem = { text: string };
-
-const OLD_PACKAGES = [
-  '@ember-data/adapter',
-  '@ember-data/active-record',
-  '@ember-data/debug',
-  '@ember-data/legacy-compat',
-  '@ember-data/model',
-  '@ember-data/json-api',
-  '@ember-data/store',
-  '@ember-data/graph',
-  '@ember-data/request',
-  '@ember-data/request-utils',
-  '@ember-data/rest',
-  '@ember-data/serializer',
-  '@ember-data/tracking',
-  '@warp-drive/core-types',
-  '@warp-drive/build-config',
-  '@warp-drive/schema-record',
-];
-
-function splitApiDocsSidebar(sidebar: SidebarItem[]) {
-  const oldPackages: SidebarItem[] = [];
-  const newPackages: SidebarItem[] = [];
-
-  for (const item of sidebar) {
-    if (OLD_PACKAGES.includes(item.text)) {
-      oldPackages.push(item);
-    } else {
-      newPackages.push(item);
-    }
-  }
-
-  return {
-    oldPackages,
-    newPackages,
-  };
-}
-
-const TypeDocSidebar = splitApiDocsSidebar(typedocSidebar);
+const TypeDocSidebar = await postProcessApiDocs();
 
 import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
@@ -151,9 +110,9 @@ export default defineConfig({
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Guides', link: '/guide' },
+      { text: 'Guides', link: '/guides' },
       { text: 'API Docs', link: '/api' },
-      { text: 'Contributing', link: '/guide/contributing/become-a-contributor' },
+      { text: 'Contributing', link: '/guides/contributing/become-a-contributor' },
     ],
 
     sidebar: [

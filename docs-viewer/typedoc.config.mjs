@@ -4,7 +4,7 @@ import { OptionDefaults } from 'typedoc';
 const config = {
   $schema: 'https://typedoc.org/schema.json',
   entryPointStrategy: 'packages',
-  docsRoot: './docs.warp-drive.io',
+  docsRoot: './tmp',
   entryPoints: [
     // '../packages/*'
     '../packages/active-record',
@@ -42,6 +42,7 @@ const config = {
     // inheritNone: true,
     useCodeBlocks: true,
     hidePageTitle: true,
+    groupOrder: ['Classes', 'Variables', 'Functions', '*', 'Interfaces', 'Type Aliases', 'Modules'],
     blockTags: [...OptionDefaults.blockTags, '@until', '@since', '@id'],
     modifierTags: [...OptionDefaults.modifierTags, '@required', '@optional', '@recommended', '@legacy', '@polaris'],
   },
@@ -50,7 +51,7 @@ const config = {
     import.meta.resolve('typedoc-vitepress-theme').slice(7),
     import.meta.resolve('typedoc-plugin-no-inherit').slice(7),
   ],
-  out: './docs.warp-drive.io/api',
+  out: './tmp/api',
   sidebar: {
     pretty: true,
   },

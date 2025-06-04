@@ -8,7 +8,7 @@ import { spawnSync } from 'child_process';
 export async function main() {
   const guidesPath = join(__dirname, '../../guides');
   const contributingPath = join(__dirname, '../../contributing');
-  const copiedPath = join(__dirname, '../docs.warp-drive.io/guide');
+  const copiedPath = join(__dirname, '../docs.warp-drive.io/guides');
   const copiedContributingPath = join(__dirname, '../docs.warp-drive.io/guide/contributing');
 
   // use Bun to create the symlink if it doesn't exist

@@ -1,3 +1,5 @@
+#! /usr/bin/env bun
+
 import { watch } from 'fs';
 import { main } from './prepare-website';
 import { join } from 'path';
