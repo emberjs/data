@@ -62,6 +62,7 @@ const config = {
     import.meta.resolve('typedoc-plugin-markdown').slice(7),
     import.meta.resolve('typedoc-vitepress-theme').slice(7),
     import.meta.resolve('typedoc-plugin-no-inherit').slice(7),
+    import.meta.resolve('typedoc-plugin-mdn-links').slice(7),
   ],
   out: './tmp/api',
   sidebar: {

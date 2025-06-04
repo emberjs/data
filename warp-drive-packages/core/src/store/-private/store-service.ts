@@ -16,11 +16,15 @@ import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Graph } from '../../graph/-private.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { CacheOptions, RequestInfo } from '../../types/request.ts';
 import { EnableHydration, SkipCache } from '../../types/request.ts';
 import { getRuntimeConfig, setLogging } from '../../types/runtime.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
@@ -58,7 +62,6 @@ import type { Collection, IdentifierArray } from './record-arrays/identifier-arr
 import { coerceId, ensureStringId } from './utils/coerce-id.ts';
 import { constructResource } from './utils/construct-resource.ts';
 import { normalizeModelName } from './utils/normalize-model-name.ts';
-
 // @ts-expect-error adding to globalThis
 globalThis.setWarpDriveLogging = setLogging;
 
@@ -327,8 +330,18 @@ export interface Store {
   createCache(capabilities: CacheCapabilitiesManager): Cache;
 
   /**
-   * This is the hook WarpDrive uses to create a record instance to give reactive access to
-   * a resource in the cache.
+   * A hook which an app or addon may implement. Called when
+   * the Store is attempting to create a Record Instance for
+   * a resource.
+   *
+   * This hook can be used to select or instantiate any desired
+   * mechanism of presenting cache data to the ui for access
+   * mutation, and interaction.
+   *
+   * @param identifier - The Resource CacheKey
+   * @param createRecordArgs - An object containing any properties passed to `store.createRecord`
+   * @return A record instance
+   * @public
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   instantiateRecord<T>(
@@ -337,7 +350,13 @@ export interface Store {
   ): OpaqueRecordInstance;
 
   /**
-   * This is the hook WarpDrive uses to remove a record instance that is no longer needed
+   * A hook which an app or addon may implement. Called when
+   * the Store is destroying a Record Instance. This hook should
+   * be used to teardown any custom record instances instantiated
+   * with `instantiateRecord`.
+   *
+   * @public
+   * @param record
    */
   teardownRecord(record: OpaqueRecordInstance): void;
 
@@ -804,38 +823,41 @@ export class Store extends BaseClass {
   }
 
   /**
-   * Issue a request via the configured RequestManager,
-   * inserting the response into the cache and handing
-   * back a Future which resolves to a ResponseDocument
+   * ::: tip 💡 For a more complete overview see the [Request Guide](/guides/2-requests/1-overview)
+   * :::
    *
-   * ## Cache Keys
+   * Issue a request via the configured {@link RequestManager},
+   * inserting the response into the {@link Store.cache | cache} and handing
+   * back a {@link Future} which resolves to a {@link ReactiveDocument | ReactiveDocument}
    *
-   * Only GET requests with a url or requests with an explicit
-   * cache key (`cacheOptions.key`) will have the request result
+   * #### Request Cache Keys
+   *
+   * Only {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods/GET | GET} requests with a url or requests with an explicit
+   * {@link CacheOptions.key | cache key} will have the request result
    * and document cached.
    *
-   * The cache key used is `requestConfig.cacheOptions.key`
-   * if present, falling back to `requestConfig.url`.
+   * The cache key used is {@link RequestInfo.cacheOptions | RequestInfo.cacheOptions.key}
+   * if present, falling back to {@link RequestInfo.url}.
    *
    * Params are not serialized as part of the cache-key, so
    * either ensure they are already in the url or utilize
    * `requestConfig.cacheOptions.key`. For queries issued
-   * via the `POST` method `requestConfig.cacheOptions.key`
+   * via the {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods/POST | POST} method `requestConfig.cacheOptions.key`
    * MUST be supplied for the document to be cached.
    *
-   * ## Requesting Without a Cache Key
+   * #### Requesting Without a Cache Key
    *
    * Resource data within the request is always updated in the cache,
    * regardless of whether a cache key is present for the request.
    *
-   * ## Fulfilling From Cache
+   * #### Fulfilling From Cache
    *
    * When a cache-key is determined, the request may fulfill
    * from cache provided the cache is not stale.
    *
-   * Cache staleness is determined by the configured CachePolicy
-   * with priority given to the `cacheOptions.reload` and
-   * `cacheOptions.backgroundReload` on the request if present.
+   * Cache staleness is determined by the configured {@link CachePolicy}
+   * with priority given to the  {@link CacheOptions.reload} and
+   * {@link CacheOptions.backgroundReload} on the request if present.
    *
    * If the cache data has soft expired or the request asks for a background
    * reload, the request will fulfill from cache if possible and
@@ -845,14 +867,12 @@ export class Store extends BaseClass {
    * the request will not fulfill from cache and will make a blocking
    * request to update the cache.
    *
-   * ## The Response
+   * #### The Response
    *
-   * The primary difference between `requestManager.request` and `store.request`
-   * is that `store.request` will attempt to hydrate the response content into
-   * a response Document containing RecordInstances.
+   * The primary difference between {@link RequestManager.request} and `store.request`
+   * is that `store.request` will convert the response into a {@link ReactiveDocument}
+   * containing {@link Store.instantiateRecord | ReactiveResources}.
    *
-   * @param {StoreRequestInput} requestConfig
-   * @return {Future}
    * @public
    */
   request<RT, T = unknown>(requestConfig: StoreRequestInput<RT, T>): Future<RT> {
@@ -918,33 +938,6 @@ export class Store extends BaseClass {
 
     return future;
   }
-
-  /**
-   * A hook which an app or addon may implement. Called when
-   * the Store is attempting to create a Record Instance for
-   * a resource.
-   *
-   * This hook can be used to select or instantiate any desired
-   * mechanism of presenting cache data to the ui for access
-   * mutation, and interaction.
-   *
-   * @param identifier
-   * @param createRecordArgs
-   * @param recordDataFor deprecated use this.cache
-   * @param notificationManager deprecated use this.notifications
-   * @return A record instance
-   * @public
-   */
-
-  /**
-   * A hook which an app or addon may implement. Called when
-   * the Store is destroying a Record Instance. This hook should
-   * be used to teardown any custom record instances instantiated
-   * with `instantiateRecord`.
-   *
-   * @public
-   * @param record
-   */
 
   /**
     Returns the schema for a particular resource type (modelName).

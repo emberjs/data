@@ -11,13 +11,15 @@ import type { CacheHandler, Future, GenericCreateArgs, Handler, ManagedRequestPr
 import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
 /**
+ * ## Import
+ *
  * ```js
- * import RequestManager from '@ember-data/request';
+ * import { RequestManager } from '@warp-drive/core';
  * ```
  *
- * A RequestManager provides a request/response flow in which configured
- * handlers are successively given the opportunity to handle, modify, or
- * pass-along a request.
+ * For complete usage guide see the [RequestManager Documentation](/guides/).
+ *
+ * ## How It Works
  *
  * ```ts
  * interface RequestManager {
@@ -25,24 +27,38 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * }
  * ```
  *
+ * A RequestManager provides a request/response flow in which configured
+ * handlers are successively given the opportunity to handle, modify, or
+ * pass-along a request.
+ *
+ * <img src="/images/handlers-all-labeled.gif" alt="RequestManager Flow Animation" width="100%" />
+ *
  * For example:
  *
- * ```ts
- * import RequestManager from '@ember-data/request';
- * import Fetch from '@ember-data/request/fetch';
- * import Auth from 'ember-simple-auth/ember-data-handler';
+ * ::: code-group
+ *
+ * ```ts [Setup.ts]
+ * import { RequestManager, Fetch } from '@warp-drive/core';
+ * import { AutoCompress } from '@warp-drive/utilities/handlers';
+ * import Auth from 'ember-simple-auth/handler';
+ *
+ * // ... create manager
+ * const manager = new RequestManager()
+ *    .use([Auth, new AutoCompress(), Fetch]); // [!code focus]
+ * ```
+ *
+ * ```ts [Usage.ts]
  * import Config from './config';
  *
  * const { apiUrl } = Config;
- *
- * // ... create manager
- * const manager = new RequestManager().use([Auth, Fetch]);
  *
  * // ... execute a request
  * const response = await manager.request({
  *   url: `${apiUrl}/users`
  * });
  * ```
+ *
+ * :::
  *
  * ### Futures
  *
@@ -87,6 +103,7 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  */
 export class RequestManager {
   #handlers: Handler[] = [];
+  /** @internal */
   declare _hasCacheHandler: boolean;
   /**
    * A map of pending requests from request.id to their
@@ -97,6 +114,7 @@ export class RequestManager {
    * @internal
    */
   declare _pending: Map<number, Promise<unknown>>;
+  /** @internal */
   declare _deduped: Map<StableDocumentIdentifier, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
@@ -113,8 +131,6 @@ export class RequestManager {
    * registers itself as a Cache handler.
    *
    * @public
-   * @param {Handler[]} cacheHandler
-   * @return {ThisType}
    */
   useCache(cacheHandler: CacheHandler & { [IS_CACHE_HANDLER]?: true }): this {
     if (DEBUG) {
@@ -267,6 +283,15 @@ export class RequestManager {
     return finalPromise;
   }
 
+  /**
+   * This method exists so that the RequestManager can be created
+   * can be created by container/factory systems that expect to
+   * call a static `create` method to instantiate the class.
+   *
+   * Using `new RequestManager()` directly is preferred.
+   *
+   * @private
+   */
   static create(options?: GenericCreateArgs) {
     return new this(options);
   }

@@ -29,6 +29,7 @@
     "typedoc": "^0.28.4",
     "typedoc-plugin-markdown": "^4.6.3",
     "typedoc-plugin-no-inherit": "^1.6.1",
+    "typedoc-plugin-mdn-links": "^5.0.2",
     "typedoc-vitepress-theme": "^1.1.2",
     "vitepress-plugin-llms": "^1.1.4",
     "vitepress-plugin-group-icons": "^1.5.2",
