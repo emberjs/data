@@ -62,7 +62,7 @@ function isNonEnumerableProp(prop: string | number | symbol) {
   );
 }
 
-const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
+const Editables = new WeakMap<ReactiveResource, ReactiveResource>();
 /**
  * A class that uses a the ResourceSchema for a ResourceType
  * and a ResouceKey to transform data from the cache into a rich, reactive
@@ -75,7 +75,7 @@ const Editables = new WeakMap<SchemaRecord, SchemaRecord>();
  * @hideconstructor
  * @public
  */
-export class SchemaRecord {
+export class ReactiveResource {
   /** @internal */
   declare [RecordStore]: Store;
   /** @internal */
@@ -90,7 +90,7 @@ export class SchemaRecord {
   declare [Editable]: boolean;
   /** @internal */
   declare [Legacy]: boolean;
-  declare [Symbol.toStringTag]: `SchemaRecord<${string}>`;
+  declare [Symbol.toStringTag]: `ReactiveResource<${string}>`;
   /** @internal */
   declare ___notifications: object;
 
@@ -137,7 +137,7 @@ export class SchemaRecord {
         return keys;
       },
 
-      has(target: SchemaRecord, prop: string | number | symbol) {
+      has(target: ReactiveResource, prop: string | number | symbol) {
         if (prop === Destroy || prop === Checkout) {
           return true;
         }
@@ -195,9 +195,9 @@ export class SchemaRecord {
         }
       },
 
-      get(target: SchemaRecord, prop: string | number | symbol, receiver: typeof Proxy<SchemaRecord>) {
+      get(target: ReactiveResource, prop: string | number | symbol, receiver: typeof Proxy<ReactiveResource>) {
         if (RecordSymbols.has(prop as RecordSymbol)) {
-          return target[prop as keyof SchemaRecord];
+          return target[prop as keyof ReactiveResource];
         }
         if (prop === Signals) {
           return signals;
@@ -208,7 +208,7 @@ export class SchemaRecord {
           return target.___notifications;
         }
 
-        // SchemaRecord reserves use of keys that begin with these characters
+        // ReactiveResource reserves use of keys that begin with these characters
         // for its own usage.
         // _, @, $, *
 
@@ -282,7 +282,7 @@ export class SchemaRecord {
           }
 
           if (prop === 'constructor') {
-            return SchemaRecord;
+            return ReactiveResource;
           }
           // too many things check for random symbols
           if (typeof prop === 'symbol') return undefined;
@@ -322,7 +322,13 @@ export class SchemaRecord {
             entangleSignal(signals, receiver, field.name, null);
             return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
           case 'derived':
-            return computeDerivation(schema, receiver as unknown as SchemaRecord, identifier, field, prop as string);
+            return computeDerivation(
+              schema,
+              receiver as unknown as ReactiveResource,
+              identifier,
+              field,
+              prop as string
+            );
           case 'schema-array':
           case 'array':
             entangleSignal(signals, receiver, field.name, null);
@@ -389,7 +395,12 @@ export class SchemaRecord {
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
-      set(target: SchemaRecord, prop: string | number | symbol, value: unknown, receiver: typeof Proxy<SchemaRecord>) {
+      set(
+        target: ReactiveResource,
+        prop: string | number | symbol,
+        value: unknown,
+        receiver: typeof Proxy<ReactiveResource>
+      ) {
         if (!IS_EDITABLE) {
           const type = isEmbedded ? embeddedType : identifier.type;
           throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
@@ -702,7 +713,7 @@ export class SchemaRecord {
         get() {
           const data: Record<string, unknown> = {};
           for (const key of fields.keys()) {
-            data[key] = proxy[key as keyof SchemaRecord];
+            data[key] = proxy[key as keyof ReactiveResource];
           }
 
           return data;
@@ -727,7 +738,7 @@ export class SchemaRecord {
   /**
    * Create an editable copy of the record
    *
-   * SchemaRecord instances are not editable by default. This method creates an editable copy of the record. To use,
+   * ReactiveResource instances are not editable by default. This method creates an editable copy of the record. To use,
    * import the `Checkout` symbol from `@warp-drive/schema-record` and call it on the record.
    *
    * ```ts
@@ -741,7 +752,7 @@ export class SchemaRecord {
    * @throws if the record is already editable or if the record is embedded
    *
    */
-  [Checkout](): Promise<SchemaRecord> {
+  [Checkout](): Promise<ReactiveResource> {
     // IF we are already the editable record, throw an error
     if (this[Editable]) {
       throw new Error(`Cannot checkout an already editable record`);
@@ -760,7 +771,7 @@ export class SchemaRecord {
       throw new Error(`Cannot checkout an embedded record (yet)`);
     }
 
-    const editableRecord = new SchemaRecord(
+    const editableRecord = new ReactiveResource(
       this[RecordStore],
       this[Identifier],
       {

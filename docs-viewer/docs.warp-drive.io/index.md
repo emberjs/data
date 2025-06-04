@@ -13,7 +13,7 @@ hero:
   actions:
     - theme: brand
       text: Guides
-      link: /guide
+      link: /guides
     - theme: alt
       text: API Docs
       link: /api

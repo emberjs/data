@@ -1,5 +1,13 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import type { DocumentCacheOperation } from '../../store/-private/managers/notification-manager.ts';
+import {
+  notifyInternalSignal,
+  peekInternalSignal,
+  withSignalStore,
+} from '../../store/-private/new-core-tmp/reactivity/internal.ts';
+import { defineGate } from '../../store/-private/new-core-tmp/reactivity/signal.ts';
+import type { Store } from '../../store/-private/store-service.ts';
 import type { StableRecordIdentifier } from '../../types.ts';
 import type { StableDocumentIdentifier } from '../../types/identifier.ts';
 import type { ImmutableRequestInfo, RequestInfo } from '../../types/request.ts';
@@ -7,10 +15,6 @@ import { withBrand } from '../../types/request.ts';
 import type { CollectionResourceDataDocument, ResourceDocument } from '../../types/spec/document.ts';
 import type { Link, Meta, PaginationLinks } from '../../types/spec/json-api-raw.ts';
 import type { Mutable } from '../../types/utils.ts';
-import type { DocumentCacheOperation } from './managers/notification-manager.ts';
-import { notifyInternalSignal, peekInternalSignal, withSignalStore } from './new-core-tmp/reactivity/internal.ts';
-import { defineGate } from './new-core-tmp/reactivity/signal.ts';
-import type { Store } from './store-service.ts';
 
 function urlFromLink(link: Link): string {
   if (typeof link === 'string') return link;
@@ -27,7 +31,7 @@ function urlFromLink(link: Link): string {
  * determined by the record instance itself.
  *
  * @public
- * @class ReactiveDocument
+ * @hideconstructor
  */
 export class ReactiveDocument<T> {
   /**

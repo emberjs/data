@@ -399,7 +399,7 @@ export interface HashField {
  * For this reason Local fields should be used sparingly.
  *
  * Currently, while we document this feature here,
- * only allow our own SchemaRecord default fields to
+ * only allow our own ReactiveResource default fields to
  * utilize them and the feature should be considered private.
  *
  * Example use cases that drove the creation of local
@@ -821,7 +821,7 @@ export interface DerivedField {
  * another resource.
  *
  * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
- * BY SchemaRecord
+ * BY ReactiveResource
  *
  * @class (Type) ResourceField
  * @public
@@ -915,7 +915,7 @@ export interface ResourceField {
  * paginate.
  *
  * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
- * BY SchemaRecord
+ * BY ReactiveResource
  *
  * @class (Type) CollectionField
  * @public

@@ -139,7 +139,7 @@ module('Legacy Mode', function (hooks) {
         `record.constructor.modelName throws: ${(e as Error).message}`
       );
     }
-    assert.strictEqual(record.constructor.name, 'SchemaRecord<user>', 'it has a useful constructor name');
+    assert.strictEqual(record.constructor.name, 'ReactiveResource<user>', 'it has a useful constructor name');
   });
 
   test('records in legacy mode set their constructor modelName value to the correct type', function (assert) {

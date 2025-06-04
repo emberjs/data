@@ -1203,7 +1203,7 @@ export class JSONAPICache implements Cache {
       }
     }
 
-    // TODO @runspired consider whether we need a defaultValue cache in SchemaRecord
+    // TODO @runspired consider whether we need a defaultValue cache in ReactiveResource
     // like we do for the simple case above.
     const path: string[] = attr as string[];
     const cached = this.__peek(identifier, true);
@@ -1266,7 +1266,7 @@ export class JSONAPICache implements Cache {
       }
     }
 
-    // TODO @runspired consider whether we need a defaultValue cache in SchemaRecord
+    // TODO @runspired consider whether we need a defaultValue cache in ReactiveResource
     // like we do for the simple case above.
     const path: string[] = attr as string[];
     const cached = this.__peek(identifier, true);

@@ -344,6 +344,6 @@ export {
   withDefaults,
   fromIdentity,
   registerDerivations,
-  type SchemaRecord,
+  type ReactiveResource as SchemaRecord,
   Checkout,
 } from '@warp-drive/core/reactive';

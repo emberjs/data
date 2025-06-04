@@ -1,83 +1,23 @@
 /**
- * <h3 align="center">Your Data, Managed.</h3>
- * <p align="center">🌲 Get back to Nature 🐿️ Or shipping 💚</p>
+ * # About
  *
- * SchemaRecord is a reactive object that transforms raw data from an {@link Cache | associated cache}
- * into reactive data backed by Signals. The shape of the object and the transformation of raw cache data into its
- * reactive form is controlled by a resource schema. Resource schemas are simple JSON, allowing them to be defined
- * and delivered from anywhere.
+ * This module provides an implementation of reactive objects that a Store may use for creating
+ * reactive representations of the raw data for requests, resources and their relationships
+ * stored in the cache.
  *
- * The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/emberjs/data/)
- * will simplify even the most complex parts of your app's state management.
+ * - For configuring the store to use these reactive objects, see [The Setup Guide](/guides/1-configuration/2-setup/1-universal.md)
+ * - For defining resource schemas, see [The Schema Guide](/guides)
  *
- * ## Installation
+ * Any method that returns a record instance will use the `instantiateRecord`
+ * hook configured above to instantiate a ReactiveResource once this is in place.
+ * After that, its up to you what ReactiveResource can do.
  *
- * Install using your javascript package manager of choice. For instance
- * with [pnpm](https://pnpm.io/)
+ * ## Modes
  *
- * ```cli
- * pnpm add @warp-drive/schema-record
- * ```
- *
- *
- * ---
- *
- *
- * ## Getting Started
- *
- * If this package is how you are first learning about WarpDrive/EmberData, we
- * recommend starting with learning about [Requests](../modules/@ember-data%2Frequest)
- * and the [Store](../modules/@ember-data%2Fstore).
- *
- *
- * ---
- *
- *
- * ## 🚀 Setup
- *
- * SchemaRecord integrates with WarpDrive via the Store's resource lifecycle hooks.
- * When WarpDrive needs to create a new record instance to give reactive access to
- * a resource in the cache, it calls `instantiateRecord`. When it no longer needs
- * that instance, it will call `teardownRecord`.
- *
- * ```diff
- * import Store from '@ember-data/store';
- * +import { instantiateRecord, teardownRecord, registerDerivations, SchemaService } from '@warp-drive/schema-record';
- *
- * class AppStore extends Store {
- *
- * +  createSchemaService() {
- * +    const schema = new SchemaService();
- * +    registerDerivations(schema);
- * +    return schema;
- * +  }
- *
- * +  instantiateRecord(identifier, createArgs) {
- * +    return instantiateRecord(this, identifier, createArgs);
- * +  }
- *
- * +  teardownRecord(record) {
- * +    return teardownRecord(record);
- * +  }
- * }
- * ```
- *
- * Any Store API that returns a record instance will use the `instantiateRecord`
- * hook configured above to instantiate a SchemaRecord once this is in place.
- * After that, its up to you what SchemaRecord can do.
- *
- *
- * ---
- *
- *
- * ## Start Using
- *
- * ### Modes
- *
- * SchemaRecord has two modes: `legacy` and `polaris`.
+ * ReactiveResource has two modes: `legacy` and `polaris`.
  *
  * **LegacyMode** can be used to emulate the behaviors and capabilities of WarpDrive's `Model` class,
- * and because there is little distinction between Model and SchemaRecord in LegacyMode we refer
+ * and because there is little distinction between Model and a ReactiveResource in LegacyMode we refer
  * to both of these approaches as LegacyMode. This mode is the default experience in V5.
  *
  * In LegacyMode:
@@ -85,7 +25,7 @@
  * - records are mutable
  * - local changes immediately reflect app wide
  * - records have all the APIs of Model (references, state props, currentState, methods etc)
- * - the continued use of `@ember-data/model` and `@ember-data/legacy-compat` packages is required (though most imports from them can be removed)
+ * - the continued use of `@warp-drive/legacy` is required (though most imports from it can be removed)
  * - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
  *
  * ---
@@ -99,24 +39,24 @@
  * - records have a more limited API, focused on only what is in their schema.
  * - some common operations may have more friction to perform because intended utilities are not yet available
  * - `async: true` relationships are not supported (see [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
- * - `@ember-data/model` and `@ember-data/legacy-compat` packages are not required
+ * - The `@warp-drive/legacy` package is not required
  *
  * These modes are interopable. The reactive object (record) for a resource in PolarisMode can relate to
  * a record in LegacyMode and vice-versa. This interopability is true whether the record in LegacyMode is
- * a SchemaRecord or a Model.
+ * a ReactiveResource or a Model.
  *
  * ---
  *
- * ### About
+ * ## Basic Usage
  *
- * SchemaRecord is a reactive object that transforms raw data from an associated
+ * ReactiveResource is a reactive object that transforms raw data from an associated
  * cache into reactive data backed by Signals.
  *
  * The shape of the object and the transformation of raw cache data into its
  * reactive form is controlled by a resource schema.
  *
  * For instance, lets say your API is a [{JSON:API}](https://jsonapi.org) and your store is using
- * the Cache provided by [@ember-data/json-api](../modules/@ember-data%2Fjson-api), and a request
+ * the Cache provided by [@warp-drive/json-api](/api/@warp-drive/json-api), and a request
  * returns the following raw data:
  *
  * ```ts
@@ -205,7 +145,6 @@
  * provide us whenever we encountered a `'user'` or a `'dog'` would be:
  *
  * ```ts
- *
  * interface Pet {
  *   readonly id: string;
  *   readonly owner: User;
@@ -242,9 +181,9 @@
  * and relationships onto the record for easier use.
  *
  * Notice also how we typed this object with `readonly`. This is because while
- * SchemaRecord instances are ***deeply reactive***, they are also ***immutable***.
+ * ReactiveResource instances are ***deeply reactive***, they are also ***immutable***.
  *
- * We can mutate a SchemaRecord only be explicitly asking permission to do so, and
+ * We can mutate a ReactiveResource only be explicitly asking permission to do so, and
  * in the process gaining access to an editable copy. The immutable version will
  * not show any in-process edits made to this editable copy.
  *
@@ -254,16 +193,14 @@
  * const editable = await user[Checkout]();
  * ```
  *
- * ---
+ * ## Utilities
  *
- * ### Utilities
- *
- * SchemaRecord provides a schema builder that simplifies setting up a couple of
+ * ReactiveResource provides a schema builder that simplifies setting up a couple of
  * conventional fields like identity and `$type`. We can rewrite the schema
  * definition above using this utility like so:
  *
  * ```ts
- * import { withDefaults } from '@warp-drive/schema-record';
+ * import { withDefaults } from '@warp-drive/core/reactive';
  *
  * store.schema.registerResources([
  *   withDefaults({
@@ -312,30 +249,49 @@
  * ]);
  * ```
  *
- * Additionally, `@warp-drive/core-types` provides several utilities for type-checking and narrowing schemas.
+ * ## Type Support
+ *
+ * ### Resource Schemas
  *
  * - {@link PolarisResourceSchema}
  * - {@link LegacyResourceSchema}
  * - {@link ObjectSchema}
+ *
+ * ### Resource Schema Type Utils
+ *
  * - {@link resourceSchema}
  * - {@link objectSchema}
  * - {@link isResourceSchema}
  * - {@link isLegacyResourceSchema}
  *
- * ---
- *
  * ### Field Schemas
  *
- * LegacyMode
- *
  * - {@link LegacyModeFieldSchema}
-
- * PolarisMode
- *
  * - {@link PolarisModeFieldSchema}
  *
  * @module
  */
+import type {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isLegacyResourceSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isResourceSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  LegacyModeFieldSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  LegacyResourceSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ObjectSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  objectSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  PolarisModeFieldSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  PolarisResourceSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  resourceSchema,
+} from './types/schema/fields';
+
 export { instantiateRecord, teardownRecord } from './reactive/-private/hooks';
 export {
   type Transformation,
@@ -344,5 +300,5 @@ export {
   fromIdentity,
   registerDerivations,
 } from './reactive/-private/schema';
-export { type SchemaRecord } from './reactive/-private/record';
+export { type ReactiveResource } from './reactive/-private/record';
 export { Checkout } from './reactive/-private/symbols';

@@ -59,7 +59,7 @@ The following versions supply their own type definitions. These type definitions
 
 In order to use the types for these versions, the dependencies of `ember-data` (and their peer-dependencies) must also be added to `package.json`.
 
-Generally that means the following packages are needed, though you may need fewer (or more!) depending on if you have migrated away from Adapter/Serializer and replaced Model with SchemaRecord:
+Generally that means the following packages are needed, though you may need fewer (or more!) depending on if you have migrated away from Adapter/Serializer and replaced Model with ReactiveResource:
 
 | Name | Latest | Canary | V4 |
 | ---- | -------| ------ | -- |

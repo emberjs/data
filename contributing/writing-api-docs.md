@@ -276,7 +276,7 @@ we would do the following in `packages/core-types/src/index.ts`
 /**
  * @hideconstructor
  */
-class SchemaRecord {}
+class ReactiveResource {}
 ```
 
 Methods are documented with `@method` and attatch to the most recent class the parser has

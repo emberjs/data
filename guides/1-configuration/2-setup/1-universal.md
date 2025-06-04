@@ -472,7 +472,7 @@ in the cache while preventing accidental or unsafe mutation in your app.
 
 ::: code-group
 
-```ts [SchemaRecord]
+```ts [ReactiveResource]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import { CacheHandler } from '@warp-drive/core/store';
 import type {

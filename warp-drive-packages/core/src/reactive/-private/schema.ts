@@ -30,7 +30,7 @@ import {
 } from '../../types/schema/fields.ts';
 import { Type } from '../../types/symbols.ts';
 import type { WithPartial } from '../../types/utils.ts';
-import type { SchemaRecord } from './record.ts';
+import type { ReactiveResource } from './record.ts';
 import { Identifier } from './symbols.ts';
 
 const Support = getOrSetGlobal('Support', new WeakMap<WeakKey, Record<string, unknown>>());
@@ -48,7 +48,7 @@ const TypeField = {
 } satisfies DerivedField;
 const DefaultIdentityField = { name: 'id', kind: '@id' } satisfies IdentityField;
 
-function _constructor(record: SchemaRecord) {
+function _constructor(record: ReactiveResource) {
   let state = Support.get(record as WeakKey);
   if (!state) {
     state = {};
@@ -56,7 +56,7 @@ function _constructor(record: SchemaRecord) {
   }
 
   return (state._constructor = state._constructor || {
-    name: `SchemaRecord<${recordIdentifierFor(record).type}>`,
+    name: `ReactiveResource<${recordIdentifierFor(record).type}>`,
     get modelName() {
       assert(`record.constructor.modelName is not available outside of legacy mode`, false);
       return undefined;
@@ -113,12 +113,12 @@ export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identit
  *
  * @public
  */
-export function fromIdentity(record: SchemaRecord, options: { key: 'lid' } | { key: 'type' }, key: string): string;
-export function fromIdentity(record: SchemaRecord, options: { key: 'id' }, key: string): string | null;
-export function fromIdentity(record: SchemaRecord, options: { key: '^' }, key: string): StableRecordIdentifier;
-export function fromIdentity(record: SchemaRecord, options: null, key: string): asserts options;
+export function fromIdentity(record: ReactiveResource, options: { key: 'lid' } | { key: 'type' }, key: string): string;
+export function fromIdentity(record: ReactiveResource, options: { key: 'id' }, key: string): string | null;
+export function fromIdentity(record: ReactiveResource, options: { key: '^' }, key: string): StableRecordIdentifier;
+export function fromIdentity(record: ReactiveResource, options: null, key: string): asserts options;
 export function fromIdentity(
-  record: SchemaRecord,
+  record: ReactiveResource,
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
   key: string
 ): StableRecordIdentifier | string | null {
@@ -158,8 +158,8 @@ interface InternalSchema {
 }
 
 export type Transformation<T extends Value = Value, PT = unknown> = {
-  serialize(value: PT, options: Record<string, unknown> | null, record: SchemaRecord): T;
-  hydrate(value: T | undefined, options: Record<string, unknown> | null, record: SchemaRecord): PT;
+  serialize(value: PT, options: Record<string, unknown> | null, record: ReactiveResource): T;
+  hydrate(value: T | undefined, options: Record<string, unknown> | null, record: ReactiveResource): PT;
   defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
   [Type]: string;
 };

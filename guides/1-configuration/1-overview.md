@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-::: tip EmberData/WarpDrive Packages Have Been [Simplified](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
+::: tip EmberData/WarpDrive Packages Have Been [Simplified](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)!
 
 Looking for the [Old Package Setup Guide?](./4-old-package-setup/1-overview.md)
 :::
@@ -12,20 +12,11 @@ Looking for the [Old Package Setup Guide?](./4-old-package-setup/1-overview.md)
 ***Warp*Drive** is highly configurable. The library is designed as a series of small packages and primitives with clear interface-driven boundaries between each other and brought together
 by configuration.
 
-Below, we detail the installation for the most common configurations.
-
 <br>
 <img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
 <img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
 
 ## Installation {#installation}
-
-::: info 💡 TIP
-WarpDrive uses npm channel tags to simplify installation. Replace `@latest` in the commands
-below with a different channel as desired. Available channels include:
-- `@lts` | `@latest` | `@beta` | `@canary`
-
-:::
 
 ::: code-group
 
@@ -47,15 +38,25 @@ bun add --exact @warp-drive/core@latest @warp-drive/json-api@latest
 
 :::
 
-### Lockstep Versioning
+::: info 💡 TIP
+*Warp***Drive** uses npm channel tags to simplify installation. Replace `@latest` in any installation command
+in this guide with a different channel as desired. Available channels include:
+- `@lts` | `@latest` | `@beta` | `@canary`
+
+:::
+
+## Lockstep Versioning
+
+*Warp***Drive** packages follow a lockstep versioning approach: all dependencies and peer-dependencies between the project's own packages are version-locked at the time of publish.
+
+For instance, `@warp-drive/utilities@5.6.0` has a peer-dependency on `@warp-drive/core@5.6.0`. If any other
+version were present (even a differing patch version such as `5.6.1`) it would create a conflict.
 
 ::: warning ⚠️ Caution
-WarpDrive packages follow lockstep: dependencies and peer-dependencies between WarpDrive packages are version-locked at the time of publish.
-
 We find this means its best to use exact versions instead of ranges as all WarpDrive packages should be upgraded together at once.
+:::
 
 All of the installation commands listed in this guide pin the version for this reason.
-:::
 
 ## Other Packages
 

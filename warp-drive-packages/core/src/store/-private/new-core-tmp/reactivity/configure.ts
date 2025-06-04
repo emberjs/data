@@ -70,9 +70,11 @@ export interface HooksOptions {
 }
 
 /**
- * The public API for configuring the signal hooks.
+ * Configures the signals implementation to use. Supports multiple
+ * implementations simultaneously.
  *
- * @internal
+ * @public
+ * @param buildConfig - a function that takes options and returns a configuration object
  */
 export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>) {
   // We want to assert this but can't because too many package manager

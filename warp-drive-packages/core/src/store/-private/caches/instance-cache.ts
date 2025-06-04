@@ -4,6 +4,7 @@ import { LOG_INSTANCE_CACHE } from '@warp-drive/core/build-config/debugging';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
@@ -17,7 +18,6 @@ import type {
 } from '../../../types/spec/json-api-raw.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { log, logGroup } from '../debug/utils.ts';
-import { ReactiveDocument } from '../document.ts';
 import RecordReference from '../legacy-model-support/record-reference.ts';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager.ts';
 import type { CacheManager } from '../managers/cache-manager.ts';
@@ -88,6 +88,10 @@ export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: St
 
 export const StoreMap = getOrSetGlobal('StoreMap', new Map<OpaqueRecordInstance, Store>());
 
+/**
+ * We may eventually make this public, but its likely better for this to be killed off
+ * @internal
+ */
 export function storeFor(record: OpaqueRecordInstance): Store | undefined {
   const store = StoreMap.get(record);
 

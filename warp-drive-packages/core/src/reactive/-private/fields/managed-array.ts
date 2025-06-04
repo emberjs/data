@@ -8,7 +8,7 @@ import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
-import { SchemaRecord } from '../record.ts';
+import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
 
@@ -106,7 +106,7 @@ export class ManagedArray {
   [SOURCE]: unknown[];
   declare identifier: StableRecordIdentifier;
   declare path: string[];
-  declare owner: SchemaRecord;
+  declare owner: ReactiveResource;
   declare [ARRAY_SIGNAL]: WarpDriveSignal;
   declare [Editable]: boolean;
   declare [Legacy]: boolean;
@@ -119,7 +119,7 @@ export class ManagedArray {
     data: unknown[],
     identifier: StableRecordIdentifier,
     path: string[],
-    owner: SchemaRecord,
+    owner: ReactiveResource,
     isSchemaArray: boolean,
     editable: boolean,
     legacy: boolean
@@ -139,18 +139,18 @@ export class ManagedArray {
     this.path = path;
     this.owner = owner;
     let transaction = false;
-    type StorageKlass = typeof WeakMap<object, WeakRef<SchemaRecord>>;
+    type StorageKlass = typeof WeakMap<object, WeakRef<ReactiveResource>>;
     const mode = (field as SchemaArrayField).options?.key ?? '@identity';
     const RefStorage: StorageKlass =
       mode === '@identity'
         ? (WeakMap as unknown as StorageKlass)
         : // CAUTION CAUTION CAUTION
           // this is a pile of lies
-          // the Map is Map<string, WeakRef<SchemaRecord>>
+          // the Map is Map<string, WeakRef<ReactiveResource>>
           // but TS does not understand how to juggle modes like this
           // internal to a method like ours without us duplicating the code
           // into two separate methods.
-          Map<object, WeakRef<SchemaRecord>>;
+          Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
@@ -220,12 +220,12 @@ export class ManagedArray {
                 // should change the types for paths to `Array<string | number>`
                 // TODO we should allow the schema for the field to define a "key"
                 // for stability. Default should be `@identity` which means that
-                // same object reference from cache should result in same SchemaRecord
+                // same object reference from cache should result in same ReactiveResource
                 // embedded object.
                 recordPath.push(index as unknown as string);
                 const recordIdentifier = self.owner[Identifier] || self.owner[Parent];
 
-                record = new SchemaRecord(
+                record = new ReactiveResource(
                   store,
                   recordIdentifier,
                   { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },

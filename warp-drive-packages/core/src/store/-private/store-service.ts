@@ -276,25 +276,6 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
     ? MaybeHasId & Partial<FilteredKeys<T>>
     : MaybeHasId & Record<string, unknown>;
 
-/**
- * A Store coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
- * and sources of data (such as your API or a local persistence layer)
- * accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
- *
- * ```js [app/services/store.js]
- * import Store from '@ember-data/store';
- *
- * export default class extends Store {}
- * ```
- *
- * Most Applications will only have a single `Store` configured as a Service
- * in this manner. However, setting up multiple stores is possible, including using
- * each as a unique service or within a specific context.
- *
-
-  @class Store
-  @public
-*/
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 const EmptyClass = class {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
@@ -368,7 +349,7 @@ export interface Store {
    * This method will only be called once to instantiate the singleton
    * service, which can then be accessed via `store.schema`.
    *
-   * For Example, to use the default SchemaService for SchemaRecord
+   * For Example, to use the default SchemaService for ReactiveResource
    *
    * ```ts
    * import { SchemaService } from '@warp-drive/schema-record';
@@ -545,9 +526,27 @@ export interface Store {
   registerSchema(schema: SchemaService): void;
 }
 
+/**
+ * ```ts
+ * import { Store } from '@warp-drive/core';
+ * ```
+ *
+ * The `Store` is the central piece of the ***Warp*Drive** experience. It connects
+ * requests for data with schemas, caching and reactivity.
+ *
+ * While it's easy to use ***just*** ***Warp*Drive**'s request management, most projects will find they
+ * require far more than basic fetch management. For this reason it's often best to start with a `Store`
+ * even when you aren't sure yet.
+ *
+ * Most projects will only have a single `Store`, though using multiple distinct stores
+ * is possible.
+ *
+ * @public
+ * @hideconstructor
+ */
 export class Store extends BaseClass {
   /** @internal */
-  declare recordArrayManager: RecordArrayManager;
+  declare readonly recordArrayManager: RecordArrayManager;
 
   /**
    * Provides access to the NotificationManager associated
@@ -556,11 +555,9 @@ export class Store extends BaseClass {
    * The NotificationManager can be used to subscribe to
    * changes to the cache.
    *
-   * @property notifications
-   * @type {NotificationManager}
    * @public
    */
-  declare notifications: NotificationManager;
+  declare readonly notifications: NotificationManager;
 
   /**
    * Provides access to the SchemaService instance
@@ -569,8 +566,6 @@ export class Store extends BaseClass {
    * The SchemaService can be used to query for
    * information about the schema of a resource.
    *
-   * @property schema
-   * @type {SchemaService}
    * @public
    */
   get schema(): ReturnType<this['createSchemaService']> {
@@ -589,11 +584,9 @@ export class Store extends BaseClass {
    * The IdentifierCache can be used to generate or
    * retrieve a stable unique identifier for any resource.
    *
-   * @property identifierCache
-   * @type {IdentifierCache}
    * @public
    */
-  declare identifierCache: IdentifierCache;
+  declare readonly identifierCache: IdentifierCache;
   /**
    * Provides access to the requestManager instance associated
    * with this Store instance.
@@ -616,8 +609,6 @@ export class Store extends BaseClass {
    * ```
    *
    * @public
-   * @property requestManager
-   * @type {RequestManager}
    */
   declare requestManager: RequestManager;
 
@@ -648,8 +639,6 @@ export class Store extends BaseClass {
    * ```
    *
    * @public
-   * @property lifetimes
-   * @type {CachePolicy|undefined}
    */
   declare lifetimes?: CachePolicy;
 
@@ -688,6 +677,7 @@ export class Store extends BaseClass {
   get isDestroying(): boolean {
     return this._isDestroying;
   }
+  /** @internal */
   set isDestroying(value: boolean) {
     this._isDestroying = value;
   }
@@ -695,6 +685,7 @@ export class Store extends BaseClass {
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
+  /** @internal */
   set isDestroyed(value: boolean) {
     this._isDestroyed = value;
   }
