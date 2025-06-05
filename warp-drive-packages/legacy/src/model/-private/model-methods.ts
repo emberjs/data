@@ -2,7 +2,7 @@ import { deprecate } from '@ember/debug';
 
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
-import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations.js';
+import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { peekCache } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
