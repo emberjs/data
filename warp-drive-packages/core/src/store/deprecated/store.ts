@@ -1,3 +1,5 @@
+import { deprecate } from '@ember/debug';
+
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 
@@ -360,15 +362,20 @@ declare module '../-private/store-service' {
     }
     ```
 
-    @since 1.13.0
     @public
+    @deprecated use {@link Store.request} instead
+    @until 6.0
+    @since 1.13.0
     @param type - either a string representing the name of the resource or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
     @param id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
     @param options - if the first param is a string this will be the optional options for the request. See examples for available options.
   */
     findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions<T>): Promise<T>;
+    /** @deprecated */
     findRecord(type: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
+    /** @deprecated */
     findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions<T>): Promise<T>;
+    /** @deprecated */
     findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
 
     /**
@@ -542,12 +549,15 @@ declare module '../-private/store-service' {
 
     See [query](../methods/query?anchor=query) to only get a subset of records from the server.
 
-    @since 1.13.0
     @public
+    @deprecated use {@link Store.request} instead
+    @until 6.0
+    @since 1.13.0
     @param type the name of the resource
     @param options
   */
     findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<LiveArray<T>>;
+    /** @deprecated */
     findAll(type: string, options?: FindAllOptions): Promise<LiveArray>;
 
     /**
@@ -593,8 +603,10 @@ declare module '../-private/store-service' {
     [`Collection`](/ember-data/release/classes/Collection)
     once the server returns.
 
-    @since 1.13.0
     @public
+    @deprecated use {@link Store.request} instead
+    @until 6.0
+    @since 1.13.0
     @param type the name of the resource
     @param query a query to be used by the adapter
     @param options optional, may include `adapterOptions` hash which will be passed to adapter.query
@@ -604,6 +616,7 @@ declare module '../-private/store-service' {
       query: LegacyResourceQuery<T>,
       options?: QueryOptions
     ): Promise<CollectionRecordArray<T>>;
+    /** @deprecated */
     query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<CollectionRecordArray>;
 
     /**
@@ -696,14 +709,17 @@ declare module '../-private/store-service' {
     });
     ```
 
-    @since 1.13.0
     @public
+    @deprecated use {@link Store.request} instead
+    @until 6.0
+    @since 1.13.0
     @param type
     @param query an opaque query to be used by the adapter
     @param options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return promise which resolves with the found record or `null`
   */
     queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
+    /** @deprecated */
     queryRecord(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<unknown | null>;
 
     /**
@@ -738,9 +754,11 @@ declare module '../-private/store-service' {
     ```
 
     @public
+    @deprecated use {@link Store.request} for loading and {@link Store.cache} for direct data insertion instead
+    @until 6.0
+    @since 2.5.0
     @param resource - modelName (string) or Identifier (object)
     @param id
-    @since 2.5.0
   */
     getReference(resource: string | ResourceIdentifierObject, id: string | number): RecordReference;
 
@@ -762,10 +780,12 @@ declare module '../-private/store-service' {
     for example.
 
     @public
-    @deprecated
+    @deprecated use {@link Store.schema} instead
+    @until 6.0
     @param type
-  */
+   */
     modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
+    /** @deprecated */
     modelFor(type: string): ModelSchema;
 
     /**
@@ -773,6 +793,8 @@ declare module '../-private/store-service' {
      *
      * Returns a promise resolving with the same record when the save is complete.
      *
+     * @deprecated use {@link Store.request} instead
+     * @until 6.0
      * @public
      * @param record
      * @param options
@@ -787,6 +809,16 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     id?: string | number | FindRecordOptions,
     options?: FindRecordOptions
   ): Promise<unknown> {
+    deprecate(`store.findRecord is deprecated. Use store.request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
     assert(
       `Attempted to call store.findRecord(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
@@ -841,6 +873,16 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     type: TypeFromInstance<T> | string,
     options: FindAllOptions = {}
   ): Promise<LiveArray<T>> {
+    deprecate(`store.findAll is deprecated. Use store.request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
     assert(
       `Attempted to call store.findAll(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
@@ -868,8 +910,18 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     query: LegacyResourceQuery,
     options: QueryOptions = {}
   ): Promise<CollectionRecordArray> {
+    deprecate(`store.query is deprecated. Use store.request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
     assert(
-      `Attempted to call store.fquery(), but the store instance has already been destroyed.`,
+      `Attempted to call store.query(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
     );
     assert(`You need to pass a model name to the store's query method`, type);
@@ -897,6 +949,16 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     query: Record<string, unknown>,
     options?: QueryOptions
   ): Promise<OpaqueRecordInstance | null> {
+    deprecate(`store.queryRecord is deprecated. Use store.request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
     assert(
       `Attempted to call store.queryRecord(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
@@ -925,6 +987,20 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     resource: string | ResourceIdentifierObject,
     id: string | number
   ): RecordReference {
+    deprecate(
+      `store.getReference is deprecated. There is no direct replacement. For working with the cache and relationships, use the cache with the appropriate identifiers. To load, use store.request.`,
+      false,
+      {
+        id: 'warp-drive:deprecate-legacy-request-methods',
+        until: '6.0',
+        for: '@warp-drive/core',
+        url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+        since: {
+          enabled: '5.6',
+          available: '5.6',
+        },
+      }
+    );
     assert(
       `Attempted to call store.getReference(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
@@ -959,8 +1035,20 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
   Store.prototype.modelFor = function <T>(
     type: T extends TypedRecordInstance ? TypeFromInstance<T> : string
   ): ModelSchema<T> {
-    // FIXME add deprecation and deprecation stripping
-    // FIXME/TODO update RFC to remove this method
+    deprecate(
+      `store.modelFor is deprecated, please use store.schema.fields({ type: '${type}' }) to access schema information instead.`,
+      false,
+      {
+        id: 'warp-drive:deprecate-legacy-request-methods',
+        until: '6.0',
+        for: '@warp-drive/core',
+        url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+        since: {
+          enabled: '5.6',
+          available: '5.6',
+        },
+      }
+    );
     assert(`Attempted to call store.modelFor(), but the store instance has already been destroyed.`, !this.isDestroyed);
     assert(`You need to pass <type> to the store's modelFor method`, typeof type === 'string' && type.length);
     assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
@@ -969,6 +1057,16 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
   };
 
   Store.prototype.saveRecord = function <T>(record: T, options: Record<string, unknown> = {}): Promise<T> {
+    deprecate(`store.saveRecord is deprecated, please use store.request to initiate a save request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
     assert(
       `Attempted to call store.saveRecord(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
