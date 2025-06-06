@@ -7,12 +7,6 @@ on:
   # using the `master` branch as the default branch.
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-    types:
-      - labeled
-      - synchronize
-      - ready_for_review
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,40 +29,8 @@ env:
   TURBO_TEAM: myself
 
 jobs:
-  # Determine if we should deploy
-  # We deploy if
-  # - this is a push to the main branch
-  # - this is a pull request to the main branch and has the label `pr-preview`
-  # - this was manually triggered
-  checkShouldDeploy:
-    runs-on: ubuntu-latest
-    outputs:
-      shouldDeploy: ${{ steps.shouldDeploy.outputs.shouldDeploy }}
-    steps:
-      - name: Check if we should deploy
-        id: shouldDeploy
-        run: |
-          echo "shouldDeploy=true" >> $GITHUB_OUTPUT
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "This is a push to the main branch. Deploying."
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            if [[ "contains(github.event.pull_request.labels.*.name, 'ci-perf')" ]]; then
-              echo "This is a pull request with the pr-preview label. Deploying."
-            else
-              echo "This is a pull request without the pr-preview label. Not deploying."
-              echo "shouldDeploy=false" >> $GITHUB_OUTPUT
-            fi
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "This was manually triggered. Deploying."
-          else
-            echo "This is not a push to the main branch or a pull request with the pr-preview label. Not deploying."
-            echo "shouldDeploy=false" >> $GITHUB_OUTPUT
-          fi
-
   # Build job
   build:
-    if: ${{ needs.checkShouldDeploy.outputs.shouldDeploy == 'true' }}
-    needs: checkShouldDeploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
