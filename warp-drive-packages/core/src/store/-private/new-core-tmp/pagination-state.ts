@@ -4,7 +4,7 @@
 import { assert } from '@warp-drive/build-config/macros';
 
 import type { Future } from '../../../request.ts';
-import type { StableDocumentIdentifier } from '../../../types/identifier';
+import type { StableDocumentIdentifier } from '../../../types/identifier'; 
 import type { StructuredErrorDocument } from '../../../types/request.ts';
 import type { ResourceErrorDocument } from '../../../types/spec/document.ts';
 import type { ReactiveDocument } from '../document';
