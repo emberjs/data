@@ -14,7 +14,7 @@
     "_tsc": "./src/tsc.ts"
   },
   "scripts": {
-    "start": "bun ./src/start-guides.ts",
+    "start": "bun ./src/sync-guides.ts",
     "build": "bun src/prepare-website.ts; typedoc; vitepress build docs.warp-drive.io",
     "preview": "vitepress preview docs.warp-drive.io"
   },
