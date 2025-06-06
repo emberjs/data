@@ -4,11 +4,7 @@
 
 ### Previewing
 
-From this directory (`docs-viewer`)
-
-- start sync for guides with `bun ./src/start-guides-sync.ts`
-- build/rebuild the API docs with `pnpm typedoc` (rerun as needed)
-- start the server with `pnpm dev`, visit the site url
+From this root directory, run `pnpm preview`
 
 ### Deploying
 

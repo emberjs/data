@@ -2,13 +2,10 @@
 
 If this PR updates API docs, preview them by:
 
+- install [bun](https://bun.sh/docs/installation) (if needed)
+- install [volta](https://docs.volta.sh/guide/getting-started) and configure it for [pnpm](https://docs.volta.sh/advanced/pnpm) (if needed)
 - run `pnpm install` in the root (if needed)
-
-From inside the `<root>/docs-viewer` directory
-
-- start sync for guides with `bun ./src/start-guides-sync.ts`
-- build/rebuild the API docs with `pnpm typedoc` (rerun as needed)
-- start the server with `pnpm dev`, visit the site url
+- run `pnpm preview` in the root
 
 ---
 
