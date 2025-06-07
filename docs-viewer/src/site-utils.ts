@@ -261,11 +261,15 @@ export async function postProcessApiDocs() {
   const dir = path.join(__dirname, '../tmp/api');
   const outDir = path.join(__dirname, '../docs.warp-drive.io/api');
   mkdirSync(outDir, { recursive: true });
+  console.log('Ensured API Docs Directory Exists:', outDir);
 
   // cleanup and prepare the sidebar items
+  const sidebarPath = path.join(outDir, 'typedoc-sidebar.json');
   const navStructure = JSON.parse(readFileSync(path.join(dir, 'typedoc-sidebar.json'), 'utf-8')) as SidebarItem[];
   const sidebar = splitApiDocsSidebar(cleanSidebarItems(navStructure));
-  writeFileSync(path.join(outDir, 'typedoc-sidebar.json'), JSON.stringify(sidebar, null, 2), 'utf-8');
+  writeFileSync(sidebarPath, JSON.stringify(sidebar, null, 2), 'utf-8');
+
+  console.log(`Processed API Docs Sidebar: ${sidebarPath}`);
 
   // copy the rest of the files
   const files = globSync('**/*.md', { cwd: dir, nodir: true });
@@ -307,6 +311,10 @@ export async function postProcessApiDocs() {
 
     writeFileSync(outFile, newContent, 'utf-8');
   }
+
+  await import(sidebarPath, {
+    with: { type: 'json' },
+  });
 
   return sidebar;
 }

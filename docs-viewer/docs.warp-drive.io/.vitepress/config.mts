@@ -1,10 +1,7 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure, postProcessApiDocs } from '../../src/site-utils.ts';
 
-await postProcessApiDocs();
-const TypeDocSidebar = await import('../api/typedoc-sidebar.json', {
-  with: { type: 'json' },
-});
+const TypeDocSidebar = await postProcessApiDocs();
 
 import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
