@@ -3,14 +3,13 @@ outline:
   level: 2,3
 ---
 
-::: tip EmberData/WarpDrive Packages Have Been [Simplified](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)
-
-Looking for the [Old Package Setup Guide?](../4-old-package-setup/1-overview.md)
+::: warning 💡 Looking for the [Legacy Package Setup Guide?](../4-legacy-package-setup/2-setup/1-universal)
 :::
 
 # Setup
 
-All frameworks should follow this configuration first.
+All frameworks should follow this configuration before continuing on to their framework
+specific setup guide.
 
 ## Configure the Build Plugin
 
@@ -85,18 +84,12 @@ module.exports = async function (defaults) {
 
 ## Configure the Store
 
-To get up and running we need to configure a `Store` to understand how we want
-to handle requests, what our data looks like, how to cache it, and what sort of
-reactive objects to create for that data.
+The `Store` is the central piece of the ***Warp*Drive** experience, linking
+together how we handle requests, the schemas for what our data looks like,
+how to cache it, and what sort of reactive objects to create for that data.
 
 Here's an example final configuration. Below we'll show each bit in parts and
 discuss what each does.
-
-::: tip 💡 Guide
-Looking for Legacy Adapter/Serializer Support?
-
-→ After finishing this page read the guide for [Ember.js](./2-ember.md)
-:::
 
 ::: code-group
 

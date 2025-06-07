@@ -2,9 +2,7 @@
 title: Overview
 ---
 
-::: tip EmberData/WarpDrive Packages Have Been [Simplified](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/)!
-
-Looking for the [Old Package Setup Guide?](./4-old-package-setup/1-overview.md)
+::: warning 💡 Looking for the [Legacy Package Configuration Guide?](./4-legacy-package-setup/1-overview)
 :::
 
 # Configuration

@@ -1,6 +1,7 @@
 import path from 'path';
 // @ts-expect-error missing from Bun types
 import { globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { write } from 'node:console';
 
 const DefaultOpenGroups: string[] = [];
 const AlwaysOpenGroups: string[] = ['configuration.setup'];
@@ -138,7 +139,16 @@ export async function getGuidesStructure(withRewrites = false) {
   const result = deepConvert(groups);
   // console.log(JSON.stringify(result, null, 2));
   // console.log(JSON.stringify(rewritten, null, 2));
+  const structure = { paths: result, rewritten };
 
+  writeFileSync(
+    path.join(__dirname, '../docs.warp-drive.io/guides/nav.json'),
+    JSON.stringify(structure, null, 2),
+    'utf-8'
+  );
+  await import(path.join(__dirname, '../docs.warp-drive.io/guides/nav.json'), {
+    with: { type: 'json' },
+  });
   return { paths: result, rewritten };
 }
 
@@ -158,7 +168,7 @@ function deepConvert(obj: Record<string, any>) {
   });
 }
 
-type SidebarItem = { text: string; items?: SidebarItem[] };
+type SidebarItem = { text: string; items?: SidebarItem[]; link?: string; collapsed?: boolean };
 
 const OLD_PACKAGES = [
   '@ember-data/adapter',
@@ -256,12 +266,12 @@ outline:
   level: [2, 3]
 ---
 `;
+const ApiDocumentation = `# API Docs\n\n`;
 
 export async function postProcessApiDocs() {
   const dir = path.join(__dirname, '../tmp/api');
   const outDir = path.join(__dirname, '../docs.warp-drive.io/api');
   mkdirSync(outDir, { recursive: true });
-  console.log('Ensured API Docs Directory Exists:', outDir);
 
   // cleanup and prepare the sidebar items
   const sidebarPath = path.join(outDir, 'typedoc-sidebar.json');
@@ -269,11 +279,27 @@ export async function postProcessApiDocs() {
   const sidebar = splitApiDocsSidebar(cleanSidebarItems(navStructure));
   writeFileSync(sidebarPath, JSON.stringify(sidebar, null, 2), 'utf-8');
 
-  console.log(`Processed API Docs Sidebar: ${sidebarPath}`);
+  // get the package list
+  const NewPackages: string[] = [];
+  const OldPackages: string[] = [];
+  for (const item of sidebar.newPackages) {
+    NewPackages.push(`- [${item.text}](${item.link!})`);
+  }
+  for (const item of sidebar.oldPackages) {
+    OldPackages.push(`- [${item.text}](${item.link!})`);
+  }
+
+  // generate the API documentation
+  const apiDocumentation = `${ApiDocumentation}\n\n## Main Packages\n\n${NewPackages.join('\n')}\n\n## Legacy Packages\n\n${OldPackages.join('\n')}\n\n`;
 
   // copy the rest of the files
   const files = globSync('**/*.md', { cwd: dir, nodir: true });
   for (const file of files) {
+    if (file === 'index.md') {
+      // Generate a custom index.md file
+      writeFileSync(path.join(outDir, 'index.md'), apiDocumentation, 'utf-8');
+      continue;
+    }
     const content = readFileSync(path.join(dir, file), 'utf-8');
     const outFile = path.join(outDir, file);
     mkdirSync(path.dirname(outFile), { recursive: true });
