@@ -51,11 +51,11 @@
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-qunit": "8.0.2",
+    "ember-qunit": "8.1.1",
     "ember-resolver": "^13.1.0",
     "ember-source": "~6.3.0",
     "loader.js": "^4.7.0",
-    "qunit": "^2.20.1",
+    "qunit": "^2.24.1",
     "qunit-dom": "^3.4.0",
     "typescript": "^5.8.3",
     "webpack": "^5.99.5"
