@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -3805,17 +3803,17 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.17.32
-        version: 20.17.46
+        specifier: ^20.19.0
+        version: 20.19.0
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(5329c024b4ebf34f915440665ecbd07d)
+        version: file:config(33292e398e912271ed177440e471a3fa)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
       vite:
         specifier: ^5.4.15
-        version: 5.4.19(@types/node@20.17.46)
+        version: 5.4.19(@types/node@20.19.0)
 
   warp-drive-packages/core:
     dependencies:
@@ -6227,6 +6225,9 @@ packages:
 
   '@types/node@20.17.46':
     resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
+
+  '@types/node@20.19.0':
+    resolution: {integrity: sha512-hfrc+1tud1xcdVTABC2JiomZJEklMcXYNTVtZLAeqTVWD+qL5jkHKT+1lOtqDdGxt+mB53DTtiz673vfjU8D1Q==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -12815,6 +12816,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
     engines: {node: '>=4'}
@@ -16922,7 +16926,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/broccoli-plugin@3.0.4':
     dependencies:
@@ -16942,11 +16946,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/cors@2.8.18':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/debug@4.1.12':
     dependencies:
@@ -16971,7 +16975,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -16985,12 +16989,12 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -17015,7 +17019,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/linkify-it@5.0.0': {}
 
@@ -17046,6 +17050,10 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
+  '@types/node@20.19.0':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/qs@6.9.18': {}
 
   '@types/qunit@2.19.10': {}
@@ -17054,12 +17062,12 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/rsvp@4.0.9': {}
 
@@ -17068,19 +17076,19 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
       '@types/send': 0.17.4
 
   '@types/sizzle@2.3.9': {}
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   '@types/supports-color@8.1.3': {}
 
@@ -17450,7 +17458,7 @@ snapshots:
       - terser
       - utf-8-validate
 
-  '@warp-drive/internal-config@file:config(5329c024b4ebf34f915440665ecbd07d)':
+  '@warp-drive/internal-config@file:config(33292e398e912271ed177440e471a3fa)':
     dependencies:
       '@babel/cli': 7.27.2(@babel/core@7.27.1)
       '@babel/core': 7.27.1
@@ -17473,7 +17481,7 @@ snapshots:
       rollup: 4.40.2
       typescript: 5.8.3
       typescript-eslint: 8.32.1(eslint@9.26.0)(typescript@5.8.3)
-      vite: 5.4.19(@types/node@20.17.46)
+      vite: 5.4.19(@types/node@20.19.0)
     transitivePeerDependencies:
       - '@types/babel__core'
       - '@types/node'
@@ -18771,7 +18779,7 @@ snapshots:
 
   bun-types@1.2.13:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
 
   byte-size@9.0.1: {}
 
@@ -20592,7 +20600,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.18
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -22544,7 +22552,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -25859,6 +25867,8 @@ snapshots:
 
   undici-types@6.19.8: {}
 
+  undici-types@6.21.0: {}
+
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
   unicode-match-property-ecmascript@2.0.0:
@@ -26017,13 +26027,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@5.4.19(@types/node@20.17.46):
+  vite@5.4.19(@types/node@20.19.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.3
       rollup: 4.40.2
     optionalDependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.0
       fsevents: 2.3.3
 
   vite@5.4.19(terser@5.39.1):
