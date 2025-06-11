@@ -101,6 +101,38 @@ eslintTester.run('no-invalid-resource-types', rule, {
         findRecord('user', '1');
 			`,
     },
+    {
+      code: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('user', '1');
+			`,
+      options: [
+        {
+          imports: {
+            'my-project/builders': ['findEntity'],
+          },
+        },
+      ],
+    },
+    {
+      code: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('user_settings', '1');
+			`,
+      options: [
+        {
+          imports: {
+            'my-project/builders': ['findEntity'],
+          },
+          normalize: {
+            moduleName: require.resolve('inflection'),
+            methodNames: ['underscore'],
+          },
+        },
+      ],
+    },
   ],
   invalid: [
     {
@@ -202,6 +234,50 @@ eslintTester.run('no-invalid-resource-types', rule, {
         friends: hasMany('user', { async: false, inverse: null })
       });
       `,
+      errors: [{ messageId: errorId + '.invalid-import' }],
+    },
+    {
+      code: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('users', '1');
+			`,
+      output: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('user', '1');
+			`,
+      options: [
+        {
+          imports: {
+            'my-project/builders': ['findEntity'],
+          },
+        },
+      ],
+      errors: [{ messageId: errorId + '.invalid-import' }],
+    },
+    {
+      code: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('user_setting', '1');
+			`,
+      output: `
+        import { findEntity } from 'my-project/builders';
+
+        findEntity('UserSettings', '1');
+			`,
+      options: [
+        {
+          imports: {
+            'my-project/builders': ['findEntity'],
+          },
+          normalize: {
+            moduleName: require.resolve('inflection'),
+            methodNames: ['classify', 'pluralize'],
+          },
+        },
+      ],
       errors: [{ messageId: errorId + '.invalid-import' }],
     },
   ],

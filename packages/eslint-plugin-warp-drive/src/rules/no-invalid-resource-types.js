@@ -30,7 +30,31 @@ const STORE_SERVICE_NAMES = new Set(['store', 'db', 'v2Store', 'v1Store']);
 const ARG_NAMES = new Set(['store', 'db', 'v2Store', 'v1Store', 'this']);
 const RULE_ID = 'warp-drive.no-invalid-resource-types';
 
-function mergeConfig(userConfig = {}) {
+function buildNormalizeFn(config) {
+  const mod = require(config.moduleName);
+  const chain = config.methodNames.map((name) => mod[name]);
+  if (chain.length === 1) {
+    return chain[0];
+  }
+
+  console.log({
+    chain,
+  });
+
+  return (str) => {
+    let val = str;
+    for (const link of chain) {
+      val = link(val);
+    }
+    return val;
+  };
+}
+
+function mergeConfig(userConfigs = []) {
+  if (userConfigs.length > 1) {
+    throw new Error(`Expected only one configuration object for the rule ${RULE_ID}`);
+  }
+  const userConfig = userConfigs[0] ?? {};
   return {
     serviceNames: userConfig.serviceNames ? new Set(userConfig.serviceNames) : STORE_SERVICE_NAMES,
     argNames: userConfig.argNames
@@ -39,7 +63,7 @@ function mergeConfig(userConfig = {}) {
         ? new Set(userConfig.serviceNames)
         : ARG_NAMES,
     imports: Object.assign({}, ImportedBuilders, userConfig.imports),
-    normalize: userConfig.normalize ? userConfig.normalize : (str) => dasherize(singularize(str)),
+    normalize: userConfig.normalize ? buildNormalizeFn(userConfig.normalize) : (str) => dasherize(singularize(str)),
   };
 }
 
@@ -68,10 +92,10 @@ module.exports = {
       recommended: true,
       url: `https://github.com/emberjs/data/tree/main/packages/eslint-plugin-warp-drive/docs/rules/no-invalid-resource-types.md`,
     },
+    schema: false,
   },
 
   create(context) {
-    // console.log(`options`, context.options);
     const config = mergeConfig(context.options);
 
     return {
@@ -98,6 +122,7 @@ module.exports = {
           }
         }
       },
+
       CallExpression(node) {
         // prettier-ignore
         if (node.callee.type === 'MemberExpression')

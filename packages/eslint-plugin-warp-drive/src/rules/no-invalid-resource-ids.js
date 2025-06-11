@@ -54,6 +54,7 @@ module.exports = {
       recommended: true,
       url: `https://github.com/emberjs/data/tree/main/packages/eslint-plugin-warp-drive/docs/rules/no-invalid-resource-ids.md`,
     },
+    schema: false,
   },
 
   create(context) {
