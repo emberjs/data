@@ -84,7 +84,7 @@
     },
     "@warp-drive/build-config": {
       "stage": "stable",
-      "types": "alpha",
+      "types": "stable",
       "typesPublish": false,
       "mirrorPublish": true
     },
