@@ -1,6 +1,6 @@
 {
   "config": {
-    "packageRoots": ["packages/*", "tests/*", "config", "internal-config", "warp-drive-packages/*", "docs-viewer"],
+    "packageRoots": ["packages/*", "tests/*", "config", "internal-tooling", "warp-drive-packages/*", "docs-viewer"],
     "changelogRoots": ["packages/*", "warp-drive-packages/*"],
     "changelog": {
       "labelOrder": [
@@ -65,7 +65,7 @@
       "mirrorPublish": false
     },
     "eslint-plugin-warp-drive": {
-      "stage": "alpha",
+      "stage": "stable",
       "types": "private",
       "typesPublish": false,
       "mirrorPublish": false
