@@ -22,6 +22,8 @@ const ImportedBuilders = {
   '@warp-drive/utilities/rest': ['findAll', 'findRecord', 'query', 'queryRecord', 'saveRecord'],
   '@warp-drive/utilities/json-api': ['findAll', 'findRecord', 'query', 'postQuery', 'queryRecord', 'saveRecord'],
   '@warp-drive/utilities/active-record': ['findAll', 'findRecord', 'query', 'queryRecord', 'saveRecord'],
+  '@ember-data/model': ['hasMany', 'belongsTo'],
+  '@warp-drive/legacy/model': ['hasMany', 'belongsTo'],
 };
 
 const STORE_SERVICE_NAMES = new Set(['store', 'db', 'v2Store', 'v1Store']);
@@ -82,13 +84,14 @@ module.exports = {
         const variables = context.sourceCode.getDeclaredVariables(node);
 
         for (const variable of variables) {
-          if (toAnalyze.includes(variable.name)) {
-            for (const ref of variable.scope.references) {
+          const names = getImportNames(variable);
+          if (toAnalyze.includes(names.importedName)) {
+            for (const ref of variable.references) {
               if (ref.identifier.parent.type === 'CallExpression') {
                 processImportUsage(context, ref.identifier.parent, config, {
                   source: node.source.value,
-                  importedName: variable.name,
-                  localName: variable.name,
+                  importedName: names.importedName,
+                  localName: names.localName,
                 });
               }
             }
@@ -123,6 +126,23 @@ function processImportUsage(context, node, config, opts) {
     localName,
     value,
   });
+}
+
+function getImportNames(variable) {
+  const localName = variable.name;
+  if (variable.identifiers.length) {
+    const token = variable.identifiers[0];
+    if (token.name === localName && token.parent.type === 'ImportSpecifier' && token.parent.imported) {
+      return {
+        localName: localName,
+        importedName: token.parent.imported.name,
+      };
+    }
+  }
+  return {
+    localName,
+    importedName: localName,
+  };
 }
 
 function processStoreAPIUsage(context, node, config) {
