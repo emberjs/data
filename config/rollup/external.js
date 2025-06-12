@@ -98,5 +98,5 @@ export function explicitExternals(manual = []) {
       return true;
     }
     return false;
-  }
+  };
 }

@@ -32,20 +32,22 @@ export function createConfig(options, resolve) {
           hoistTransitiveImports: false,
           preserveModules: options.rollup?.preserveModules ?? false,
           format: options.format ? options.format : 'es',
-          entryFileNames: options.format === 'cjs' ? '[name].cjs' : '[name].js'
+          entryFileNames: options.format === 'cjs' ? '[name].cjs' : '[name].js',
         },
       },
     },
     plugins: [
       babel(
-        options.babelConfigFile ? {
-          configFile: options.babelConfigFile,
-          babelHelpers: 'bundled',
-          extensions: ['.js', '.ts', '.gjs', '.gts'],
-        } : {
-          babelHelpers: 'bundled',
-          extensions: ['.js', '.ts', '.gjs', '.gts'],
-        }
+        options.babelConfigFile
+          ? {
+              configFile: options.babelConfigFile,
+              babelHelpers: 'bundled',
+              extensions: ['.js', '.ts', '.gjs', '.gts'],
+            }
+          : {
+              babelHelpers: 'bundled',
+              extensions: ['.js', '.ts', '.gjs', '.gts'],
+            }
       ),
       // options.compileTypes === true && options.rollupTypes === true
       //   ? dts({
