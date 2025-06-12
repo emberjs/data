@@ -709,9 +709,12 @@ importers:
 
   packages/eslint-plugin-warp-drive:
     dependencies:
-      inflection:
-        specifier: 3.0.2
-        version: 3.0.2
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
       requireindex:
         specifier: ^1.2.0
         version: 1.2.0

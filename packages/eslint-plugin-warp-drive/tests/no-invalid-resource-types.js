@@ -127,7 +127,7 @@ eslintTester.run('no-invalid-resource-types', rule, {
             'my-project/builders': ['findEntity'],
           },
           normalize: {
-            moduleName: require.resolve('inflection'),
+            moduleName: require.resolve('@warp-drive/utilities/string.cjs'),
             methodNames: ['underscore'],
           },
         },
@@ -265,7 +265,7 @@ eslintTester.run('no-invalid-resource-types', rule, {
       output: `
         import { findEntity } from 'my-project/builders';
 
-        findEntity('UserSettings', '1');
+        findEntity('userSettings', '1');
 			`,
       options: [
         {
@@ -273,8 +273,8 @@ eslintTester.run('no-invalid-resource-types', rule, {
             'my-project/builders': ['findEntity'],
           },
           normalize: {
-            moduleName: require.resolve('inflection'),
-            methodNames: ['classify', 'pluralize'],
+            moduleName: require.resolve('@warp-drive/utilities/string.cjs'),
+            methodNames: ['camelize', 'pluralize'],
           },
         },
       ],

@@ -130,6 +130,11 @@ export type WarpDriveConfig = {
    * @public
    */
   features?: Partial<InternalWarpDriveConfig['features']>;
+
+  /**
+   * @private
+   */
+  forceMode?: 'testing' | 'production' | 'development';
 };
 
 type InternalWarpDriveConfig = {
@@ -200,7 +205,7 @@ export function setConfig(context: object, appRootOrConfig: string | WarpDriveCo
 
   const debugOptions: InternalWarpDriveConfig['debug'] = Object.assign({}, LOGGING, userConfig.debug);
 
-  const env = getEnv();
+  const env = getEnv(userConfig.forceMode);
   const DEPRECATIONS = getDeprecations(userConfig.compatWith || null, userConfig.deprecations);
   const FEATURES = getFeatures(env.PRODUCTION);
 

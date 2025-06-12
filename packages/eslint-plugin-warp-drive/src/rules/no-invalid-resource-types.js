@@ -1,6 +1,10 @@
 'use strict';
 
-const { dasherize, singularize } = require('inflection');
+const { dasherize, singularize } = require('@warp-drive/utilities/string.cjs');
+
+function normalizeType(type) {
+  return dasherize(singularize(type));
+}
 
 const STORE_METHOD_NAMES = new Set([
   'findRecord',
@@ -63,7 +67,7 @@ function mergeConfig(userConfigs = []) {
         ? new Set(userConfig.serviceNames)
         : ARG_NAMES,
     imports: Object.assign({}, ImportedBuilders, userConfig.imports),
-    normalize: userConfig.normalize ? buildNormalizeFn(userConfig.normalize) : (str) => dasherize(singularize(str)),
+    normalize: userConfig.normalize ? buildNormalizeFn(userConfig.normalize) : normalizeType,
   };
 }
 
@@ -216,6 +220,8 @@ function processStoreAPIUsage(context, node, config) {
   } else if (node.callee.object.type === 'ThisExpression') {
     // e.g. this.findRecord()
     if (!config.argNames.has('this')) return;
+    // route this.modelFor conflicts
+    if (propertyName === 'modelFor') return;
     maybeReportError(context, node, config, { source: 'this', methodName: propertyName, value });
   } else {
     // e.g. this.store.findRecord()

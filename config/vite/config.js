@@ -1,5 +1,5 @@
 import { babel } from '@rollup/plugin-babel';
-import { external, entryPoints } from '../rollup/external.js';
+import { external, explicitExternals, entryPoints } from '../rollup/external.js';
 import { defineConfig } from 'vite';
 // import dts from 'vite-plugin-dts';
 import { FixModuleOutputPlugin } from './fix-module-output-plugin.js';
@@ -26,19 +26,29 @@ export function createConfig(options, resolve) {
         formats: options.format ? [options.format] : ['es'],
       },
       rollupOptions: {
-        external: external(options.externals),
+        external: options.explicitExternalsOnly ? explicitExternals(options.externals) : external(options.externals),
         plugins: options.rollup?.plugins,
         output: {
           hoistTransitiveImports: false,
           preserveModules: options.rollup?.preserveModules ?? false,
+          format: options.format ? options.format : 'es',
+          entryFileNames: options.format === 'cjs' ? '[name].cjs' : '[name].js',
         },
       },
     },
     plugins: [
-      babel({
-        babelHelpers: 'bundled',
-        extensions: ['.js', '.ts', '.gjs', '.gts'],
-      }),
+      babel(
+        options.babelConfigFile
+          ? {
+              configFile: options.babelConfigFile,
+              babelHelpers: 'bundled',
+              extensions: ['.js', '.ts', '.gjs', '.gts'],
+            }
+          : {
+              babelHelpers: 'bundled',
+              extensions: ['.js', '.ts', '.gjs', '.gts'],
+            }
+      ),
       // options.compileTypes === true && options.rollupTypes === true
       //   ? dts({
       //       rollupTypes: true,
