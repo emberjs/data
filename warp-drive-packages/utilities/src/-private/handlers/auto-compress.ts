@@ -1,3 +1,4 @@
+import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import type { HTTPMethod, RequestContext } from '@warp-drive/core/types/request';
 
@@ -224,6 +225,7 @@ export class AutoCompress implements Handler {
     if (forceStreaming || (SupportsRequestStreams && allowStreaming)) {
       const req = Object.assign({}, request, {
         body: stream,
+        headers,
       });
       if (SupportsRequestStreams) {
         // @ts-expect-error untyped
@@ -236,17 +238,17 @@ export class AutoCompress implements Handler {
       // For non-chromium browsers, we have to "pull" the stream to get the final
       // bytes and supply the final byte array as the new request body.
       //
-    } else {
-      // we need to pull the stream to get the final bytes
-      const resp = new Response(stream);
-      return resp.blob().then((blob) => {
-        const req = Object.assign({}, request, {
-          body: blob,
-          headers,
-        });
-        return next(req);
-      }) as Promise<T>;
     }
+
+    // we need to pull the stream to get the final bytes
+    const resp = new Response(stream);
+    return resp.blob().then((blob) => {
+      const req = Object.assign({}, request, {
+        body: blob,
+        headers,
+      });
+      return next(req);
+    }) as Promise<T>;
   }
 }
 
@@ -264,6 +266,8 @@ function encodingForFormat(format: CompressionFormat): string {
     case 'deflate-raw':
       return format;
     default:
-      throw new Error(`Unsupported compression format: ${format as unknown as string}`);
+      assert(`Unsupported compression format: ${format as unknown as string}`);
+      // @ts-expect-error - unreachable code is reachable in production
+      return format;
   }
 }
