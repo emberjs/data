@@ -26,3 +26,14 @@
 | [no-invalid-resource-ids](./docs/no-invalid-resource-ids.md) | Ensures resource ids are strings when used in common APIs | 🏆 | ✅🛠️ |
 
 ## Usage
+
+Recommended Rules are available as a flat config for easy consumption:
+
+```ts
+// eslint.config.js (flat config)
+const WarpDriveRecommended = require('eslint-plugin-warp-drive/recommended');
+
+module.exports = [
+  ...WarpDriveRecommended,
+];
+```

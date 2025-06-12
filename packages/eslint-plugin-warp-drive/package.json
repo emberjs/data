@@ -12,9 +12,18 @@
   "volta": {
     "extends": "../../package.json"
   },
+  "exports": {
+    ".": {
+      "default": "./src/index.js"
+    },
+    "./recommended": {
+      "default": "./src/recommended.js"
+    }
+  },
   "dependencies": {
     "requireindex": "^1.2.0",
-    "inflection": "3.0.2"
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/utilities": "workspace:*"
   },
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",

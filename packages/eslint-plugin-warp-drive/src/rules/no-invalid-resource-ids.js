@@ -1,7 +1,5 @@
 'use strict';
 
-const { dasherize, singularize } = require('inflection');
-
 const STORE_METHOD_NAMES = new Set(['findRecord', 'peekRecord']);
 const ImportedBuilders = {
   '@ember-data/legacy-compat/builders': ['findRecord'],
@@ -27,7 +25,6 @@ function mergeConfig(userConfig = {}) {
         ? new Set(userConfig.serviceNames)
         : ARG_NAMES,
     imports: Object.assign({}, ImportedBuilders, userConfig.imports),
-    normalize: userConfig.normalize ? userConfig.normalize : (str) => dasherize(singularize(str)),
   };
 }
 

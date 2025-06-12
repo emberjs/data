@@ -91,3 +91,12 @@ export function external(manual = []) {
     return false;
   };
 }
+
+export function explicitExternals(manual = []) {
+  return function (id) {
+    if (manual.includes(id)) {
+      return true;
+    }
+    return false;
+  }
+}

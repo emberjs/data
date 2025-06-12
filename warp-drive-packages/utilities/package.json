@@ -13,7 +13,7 @@
     "directory": "warp-drive-packages/utilities"
   },
   "scripts": {
-    "build:pkg": "vite build;",
+    "build:pkg": "vite build; vite build -c ./vite.config-cjs.mjs;",
     "prepack": "pnpm run build:pkg",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "sync": "echo \"syncing\"",
@@ -32,6 +32,10 @@
     ".": {
       "types": "./declarations/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./*.cjs": {
+      "types": "./declarations/*.d.ts",
+      "default": "./dist/*.cjs"
     },
     "./*": {
       "types": "./declarations/*.d.ts",
