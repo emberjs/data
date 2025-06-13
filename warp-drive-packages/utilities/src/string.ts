@@ -8,6 +8,7 @@
  * using the `setMaxLRUCacheSize` function. The default size is 10,000.
  *
  * @module
+ * @public
  */
 export {
   pluralize,

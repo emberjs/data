@@ -7,6 +7,10 @@ import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/ty
  */
 type CheckFn = (context: RequestContext) => boolean;
 
+/**
+ *
+ * @public
+ */
 export class Gate implements Handler {
   declare handler: Handler;
   declare checkFn: CheckFn;

@@ -41,7 +41,7 @@ const config = {
     excludeInternal: true,
     // inheritNone: true,
     useCodeBlocks: true,
-    hidePageTitle: true,
+    hidePageTitle: false,
     groupReferencesByType: true,
     groupOrder: [
       'Classes',
@@ -72,7 +72,7 @@ const config = {
   tsconfig: '../tsconfig.json',
   excludeInternal: true,
   useCodeBlocks: true,
-  hidePageTitle: true,
+  hidePageTitle: false,
   // typeAliasPropertiesFormat: 'htmlTable',
   // inheritNone: true,
 };

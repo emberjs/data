@@ -1,45 +1,11 @@
+/**
+ * @module
+ * @mergeModuleWith <project>
+ */
+
 import { assert } from '@warp-drive/core/build-config/macros';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { QueryParamsSerializationOptions, QueryParamsSource, Serializable } from '@warp-drive/core/types/params';
-
-/**
- * Simple utility function to assist in url building,
- * query params, and other common request operations.
- *
- * These primitives may be used directly or composed
- * by request builders to provide a consistent interface
- * for building requests.
- *
- * For instance:
- *
- * ```ts
- * import { buildBaseURL, buildQueryParams } from '@ember-data/request-utils';
- *
- * const baseURL = buildBaseURL({
- *   host: 'https://api.example.com',
- *   namespace: 'api/v1',
- *   resourcePath: 'emberDevelopers',
- *   op: 'query',
- *   identifier: { type: 'ember-developer' }
- * });
- * const url = `${baseURL}?${buildQueryParams({ name: 'Chris', include:['pets'] })}`;
- * // => 'https://api.example.com/api/v1/emberDevelopers?include=pets&name=Chris'
- * ```
- *
- * This is useful, but not as useful as the REST request builder for query which is sugar
- * over this (and more!):
- *
- * ```ts
- * import { query } from '@ember-data/rest/request';
- *
- * const options = query('ember-developer', { name: 'Chris', include:['pets'] });
- * // => { url: 'https://api.example.com/api/v1/emberDevelopers?include=pets&name=Chris' }
- * // Note: options will also include other request options like headers, method, etc.
- * ```
- *
- * @module
- * @public
- */
 
 // prevents the final constructed object from needing to add
 // host and namespace which are provided by the final consuming
@@ -89,8 +55,6 @@ const CONFIG: BuildURLConfig = getOrSetGlobal('CONFIG', {
  * ```
  *
  * @public
- * @param {BuildURLConfig} config
- * @return {void}
  */
 export function setBuildURLConfig(config: BuildURLConfig) {
   assert(`setBuildURLConfig: You must pass a config object`, config);
@@ -264,8 +228,6 @@ function resourcePathForType(options: UrlOptions): string {
  * - Depending on the value of `op`, `identifier` or `identifiers` will be required.
  *
  * @public
- * @param urlOptions
- * @return {String}
  */
 export function buildBaseURL(urlOptions: UrlOptions): string {
   const options = Object.assign(
@@ -388,8 +350,8 @@ function handleInclude(include: string | string[]): string[] {
  * returning a new object with only those keys that have truthy values / non-empty arrays
  *
  * @public
- * @param {Record<string, Serializable>} source object to filter keys with empty values from
- * @return {Record<string, Serializable>} A new object with the keys that contained empty values removed
+ * @param source object to filter keys with empty values from
+ * @return A new object with the keys that contained empty values removed
  */
 export function filterEmpty(source: Record<string, Serializable>): Record<string, Serializable> {
   const result: Record<string, Serializable> = {};
@@ -420,9 +382,7 @@ export function filterEmpty(source: Record<string, Serializable>): Record<string
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `&ids=1,2`
  *
  * @public
- * @param {URLSearchParams | object} params
- * @param {Object} options
- * @return {URLSearchParams} A URLSearchParams with keys inserted in sorted order
+ * @return A {@link URLSearchParams} with keys inserted in sorted order
  */
 export function sortQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): URLSearchParams {
   const opts = Object.assign({}, DEFAULT_QUERY_PARAMS_SERIALIZATION_OPTIONS, options);
@@ -498,9 +458,7 @@ export function sortQueryParams(params: QueryParamsSource, options?: QueryParams
  * 'comma' (default): appends the key once with a comma separated list of values e.g. `ids=1,2`
  *
  * @public
- * @param {URLSearchParams | Object} params
- * @param {Object} [options]
- * @return {String} A sorted query params string without the leading `?`
+ * @return A sorted query params string without the leading `?`
  */
 export function buildQueryParams(params: QueryParamsSource, options?: QueryParamsSerializationOptions): string {
   return sortQueryParams(params, options).toString();

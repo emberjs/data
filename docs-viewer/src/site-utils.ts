@@ -1,7 +1,6 @@
 import path from 'path';
 // @ts-expect-error missing from Bun types
 import { globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { write } from 'node:console';
 
 const DefaultOpenGroups: string[] = [];
 const AlwaysOpenGroups: string[] = ['configuration.setup'];
