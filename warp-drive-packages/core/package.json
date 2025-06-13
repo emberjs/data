@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core",
-  "version": "5.6.0-alpha.11",
+  "version": "5.6.0-alpha.12",
   "description": "Core package for WarpDrive | All the Universal Basics",
   "keywords": [
     "ember-addon"
