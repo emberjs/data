@@ -428,21 +428,21 @@ Out of the box, ***Warp*Drive** provides a Cache that expects the [{JSON:API}](h
 
 ```ts
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
-import { CacheHandler } from '@warp-drive/core/store'; // [!code focus:4]
-import type {
-  CacheCapabilitiesManager
-} from '@warp-drive/core/types';
 import {
   registerDerivations,
   SchemaService,
 } from '@warp-drive/core/reactive';
-import { JSONAPICache } from '@warp-drive/json-api'; // [!code focus]
+import { CacheHandler } from '@warp-drive/core/store'; // [!code focus:5]
+import type {
+  CacheCapabilitiesManager
+} from '@warp-drive/core/types';
+import { JSONAPICache } from '@warp-drive/json-api';
 
 export default class AppStore extends Store {
 
   requestManager = new RequestManager()
     .use([Fetch])
-    .useCache(CacheHandler);
+    .useCache(CacheHandler); // [!code focus:1]
 
   createSchemaService() {
     const schema = new SchemaService();
@@ -450,7 +450,7 @@ export default class AppStore extends Store {
     return schema;
   }
 
-  createCache(capabilities: CacheCapabilitiesManager) { // [!code focus:2]
+  createCache(capabilities: CacheCapabilitiesManager) { // [!code focus:3]
     return new JSONAPICache(capabilities);
   }
 }

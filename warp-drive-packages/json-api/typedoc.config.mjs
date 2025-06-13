@@ -6,6 +6,15 @@ const config = {
   entryPoints: entryPoints.filter((entry) => !entry.includes('-private')),
   out: 'doc',
   readme: 'none',
+  categoryOrder: [
+    'Cache Management',
+    'Cache Forking',
+    'SSR Support',
+    'Resource Lifecycle',
+    'Resource Data',
+    'Resource State',
+    '*',
+  ],
 };
 
 export default config;
