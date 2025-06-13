@@ -1,9 +1,9 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import Store from 'main-test-app/services/store';
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
@@ -235,6 +235,7 @@ module('integration/record-data - Custom Cache Implementations', function (hooks
     // @ts-expect-error missing type
 
     owner.unregister('service:store');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('service:store', Store);
     owner.register('adapter:application', class extends JSONAPIAdapter {});
     owner.register('serializer:application', class extends JSONAPISerializer {});

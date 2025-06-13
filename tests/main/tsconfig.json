@@ -26,6 +26,7 @@
     "declaration": true,
     "types": ["ember-source/types"],
     "paths": {
+      "main-test-app/*": ["./app/*"],
       "@ember-data/adapter": ["../../packages/adapter/unstable-preview-types"],
       "@ember-data/adapter/*": ["../../packages/adapter/unstable-preview-types/*"],
       "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],

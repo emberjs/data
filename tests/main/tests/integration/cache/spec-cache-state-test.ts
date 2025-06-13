@@ -1,9 +1,9 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import Store from 'main-test-app/services/store';
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
@@ -235,6 +235,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     owner.register('model:person', Person);
     // @ts-expect-error missing type
     owner.unregister('service:store');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('service:store', Store);
     owner.register('serializer:application', JSONAPISerializer);
   });

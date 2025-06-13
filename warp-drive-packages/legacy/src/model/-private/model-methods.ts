@@ -83,28 +83,32 @@ export function reload<T extends MinimalLegacyRecord>(this: T, options: Record<s
       },
     });
 
-    options.isReloading = true;
-    options.reload = true;
-
-    const identifier = recordIdentifierFor(this);
-    assert(`You cannot reload a record without an ID`, identifier.id);
-
-    this.isReloading = true;
-    const promise = this[RecordStore].request({
-      op: 'findRecord',
-      data: {
-        options,
-        record: identifier,
-      },
-      cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
-    })
-      .then(() => this)
-      .finally(() => {
-        this.isReloading = false;
-      });
-
-    return promise;
+    return _reload.call(this, options) as Promise<T>;
   }
+}
+
+export function _reload<T extends MinimalLegacyRecord>(this: T, options: Record<string, unknown> = {}): Promise<T> {
+  options.isReloading = true;
+  options.reload = true;
+
+  const identifier = recordIdentifierFor(this);
+  assert(`You cannot reload a record without an ID`, identifier.id);
+
+  this.isReloading = true;
+  const promise = this[RecordStore].request({
+    op: 'findRecord',
+    data: {
+      options,
+      record: identifier,
+    },
+    cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
+  })
+    .then(() => this)
+    .finally(() => {
+      this.isReloading = false;
+    });
+
+  return promise;
 }
 
 export function changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash {
@@ -138,17 +142,21 @@ export function save<T extends MinimalLegacyRecord>(this: T, options?: Record<st
       },
     });
 
-    let promise: Promise<T>;
-
-    if (this.currentState.isNew && this.currentState.isDeleted) {
-      promise = Promise.resolve(this);
-    } else {
-      this.errors.clear();
-      promise = this[RecordStore].saveRecord(this, options);
-    }
-
-    return promise;
+    return _save.call(this, options) as Promise<T>;
   }
+}
+
+export function _save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
+  let promise: Promise<T>;
+
+  if (this.currentState.isNew && this.currentState.isDeleted) {
+    promise = Promise.resolve(this);
+  } else {
+    this.errors.clear();
+    promise = this[RecordStore].saveRecord(this, options);
+  }
+
+  return promise;
 }
 
 export function destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
@@ -166,16 +174,20 @@ export function destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: 
       },
     });
 
-    const { isNew } = this.currentState;
-    this.deleteRecord();
-    if (isNew) {
-      return Promise.resolve(this);
-    }
-    return this.save(options).then((_) => {
-      this.unloadRecord();
-      return this;
-    });
+    return _destroyRecord.call(this, options) as Promise<T>;
   }
+}
+
+export function _destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
+  const { isNew } = this.currentState;
+  this.deleteRecord();
+  if (isNew) {
+    return Promise.resolve(this);
+  }
+  return this.save(options).then((_) => {
+    this.unloadRecord();
+    return this;
+  });
 }
 
 export function createSnapshot<T extends MinimalLegacyRecord>(this: T): Snapshot<T> {
