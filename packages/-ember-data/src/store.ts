@@ -1,6 +1,7 @@
 import { deprecate } from '@ember/debug';
 
 import JSONAPICache from '@ember-data/json-api';
+import type { MinimumAdapterInterface } from '@ember-data/legacy-compat';
 import {
   adapterFor,
   cleanup,
@@ -62,7 +63,9 @@ export default class Store extends BaseStore {
     return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
   }
 
-  adapterFor = (...args: Parameters<typeof adapterFor>): ReturnType<typeof adapterFor> => {
+  adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
+  adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
+  adapterFor(this: Store, modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined {
     if (!ENABLE_LEGACY_REQUEST_METHODS) {
       assert(
         `You cannot use store.adapterFor when ENABLE_LEGACY_REQUEST_METHODS is false without explicitly registering the adapterFor hook from @ember-data/legacy-compat or @warp-drive/legacy.`,
@@ -83,9 +86,11 @@ export default class Store extends BaseStore {
           },
         }
       );
-      return adapterFor.call(this, ...args);
+
+      // @ts-expect-error
+      return adapterFor.call(this, modelName, _allowMissing);
     }
-  };
+  }
 
   serializerFor = (...args: Parameters<typeof serializerFor>): ReturnType<typeof serializerFor> => {
     if (!ENABLE_LEGACY_REQUEST_METHODS) {
