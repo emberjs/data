@@ -15,6 +15,10 @@ import { normalizeModelName } from '../-private/utils/normalize-model-name';
 import type { FindAllOptions, FindRecordOptions, LegacyResourceQuery, ModelSchema, QueryOptions } from './-private';
 import { getShimClass, preloadData, RecordReference, resourceIsFullyDeleted } from './-private';
 
+/////////////// IMPORTANT ///////////////////
+///// Move Module Augmentation Into The /////
+///// Legacy Package Once Removed Here  /////
+/////////////////////////////////////////////
 declare module '../-private/store-service' {
   export interface Store {
     /**
