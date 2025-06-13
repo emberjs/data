@@ -1,6 +1,6 @@
+import Store from 'main-test-app/services/store';
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import JSONAPIAdapter from '@ember-data/adapter/json-api';

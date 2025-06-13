@@ -1,5 +1,8 @@
+import { deprecate } from '@ember/debug';
+
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
+import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { peekCache } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
@@ -66,6 +69,25 @@ export function hasMany<T extends MinimalLegacyRecord, K extends MaybeHasManyFie
 }
 
 export function reload<T extends MinimalLegacyRecord>(this: T, options: Record<string, unknown> = {}): Promise<T> {
+  if (!ENABLE_LEGACY_REQUEST_METHODS) {
+    assert(`You cannot use reload() on a record when ENABLE_LEGACY_REQUEST_METHODS is false.`, false);
+  } else {
+    deprecate(`record.reload is deprecated, please use store.request to initiate a request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
+
+    return _reload.call(this, options) as Promise<T>;
+  }
+}
+
+export function _reload<T extends MinimalLegacyRecord>(this: T, options: Record<string, unknown> = {}): Promise<T> {
   options.isReloading = true;
   options.reload = true;
 
@@ -106,6 +128,25 @@ export function deleteRecord<T extends MinimalLegacyRecord>(this: T): void {
 }
 
 export function save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
+  if (!ENABLE_LEGACY_REQUEST_METHODS) {
+    assert(`You cannot use save() on a record when ENABLE_LEGACY_REQUEST_METHODS is false.`, false);
+  } else {
+    deprecate(`record.save is deprecated, please use store.request to initiate a request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
+
+    return _save.call(this, options) as Promise<T>;
+  }
+}
+
+export function _save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
   let promise: Promise<T>;
 
   if (this.currentState.isNew && this.currentState.isDeleted) {
@@ -119,6 +160,25 @@ export function save<T extends MinimalLegacyRecord>(this: T, options?: Record<st
 }
 
 export function destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
+  if (!ENABLE_LEGACY_REQUEST_METHODS) {
+    assert(`You cannot use destroyRecord() on a record when ENABLE_LEGACY_REQUEST_METHODS is false.`, false);
+  } else {
+    deprecate(`record.destroyRecord is deprecated, please use store.request to initiate a request instead.`, false, {
+      id: 'warp-drive:deprecate-legacy-request-methods',
+      until: '6.0',
+      for: '@warp-drive/core',
+      url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+      since: {
+        enabled: '5.6',
+        available: '5.6',
+      },
+    });
+
+    return _destroyRecord.call(this, options) as Promise<T>;
+  }
+}
+
+export function _destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<T> {
   const { isNew } = this.currentState;
   this.deleteRecord();
   if (isNew) {
