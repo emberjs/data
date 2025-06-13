@@ -235,7 +235,6 @@ module('integration/record-data - Custom Cache Implementations', function (hooks
     // @ts-expect-error missing type
 
     owner.unregister('service:store');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('service:store', Store);
     owner.register('adapter:application', class extends JSONAPIAdapter {});
     owner.register('serializer:application', class extends JSONAPISerializer {});
