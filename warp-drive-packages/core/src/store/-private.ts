@@ -1,4 +1,6 @@
-export { Store, storeFor } from './-private/store-service.ts';
+export { Store } from './deprecated/store.ts';
+
+export { storeFor } from './-private/store-service.ts';
 
 export { recordIdentifierFor } from './-private/caches/instance-cache.ts';
 
