@@ -1,16 +1,3 @@
-/**
- * A basic Fetch Handler which converts a request into a
- * `fetch` call presuming the response to be `json`.
- *
- * ```ts
- * import Fetch from '@ember-data/request/fetch';
- *
- * manager.use([Fetch]);
- * ```
- *
- * @module
- */
-
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
@@ -103,16 +90,20 @@ const ERROR_STATUS_CODE_FOR = new Map([
 ]);
 
 /**
- * A basic handler which converts a request into a
+ * ```ts
+ * import { Fetch } from '@warp-drive/core';
+ * ```
+ *
+ * A basic Fetch Handler which converts a request into a
  * `fetch` call presuming the response to be `json`.
  *
  * ```ts
- * import Fetch from '@ember-data/request/fetch';
+ * import { RequestManager, Fetch } from '@warp-drive/core';
  *
- * manager.use([Fetch]);
+ * const manager = new RequestManager()
+ *   .use([Fetch]);
  * ```
  *
- * @class Fetch
  * @public
  */
 const Fetch = {

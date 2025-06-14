@@ -113,6 +113,9 @@ import type { Store } from '@warp-drive/core';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { EmptyResourceDocument, SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { MinimumSerializerInterface } from './compat';
+
 const service = s.service ?? s.inject;
 
 /**
