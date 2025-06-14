@@ -17,44 +17,6 @@ import '@warp-drive/ember/install';
 3. If you have tests, such as unit tests, which make use of WarpDrive directly and not via an app container
    you may also need to add the side-effect import to `tests/test-helper.{js,ts}`
 
-4. If it is installed, remove the package `@ember-data/tracking`.
-5. Change any usage of `untracked`
-
-```ts
-import { untracked } from '@ember-data/tracking'; // [!code --]
-import { untrack as untracked } from '@glimmer/validator'; // [!code ++]
-```
-
-::: tip 💡 @glimmer/validator is a virtual dep
-You do not need to add a dependency on `@glimmer/validator`, this is a virtual package provided by `ember-source`.
-:::
-
-6. Remove the deprecation for use of @ember-data/tracking by setting the deprecation to `false` in your build config:
-
-```ts [ember-cli-build.js]
-'use strict';
-const EmberApp = require('ember-cli/lib/broccoli/ember-app');
-const { compatBuild } = require('@embroider/compat');
-
-module.exports = async function (defaults) {
-  const { setConfig } = await import('@warp-drive/build-config');
-  const { buildOnce } = await import('@embroider/vite');
-  const app = new EmberApp(defaults, {});
-
-  setConfig(app, __dirname, {
-    // this should be the most recent <major>.<minor> version for
-    // which all deprecations have been fully resolved
-    // and should be updated when that changes
-    compatWith: '4.12'
-    deprecations: { // [!code focus:3]
-      DEPRECATE_TRACKING_PACKAGE: false 
-    }
-  });
-
-  return compatBuild(app, buildOnce);
-};
-```
-
 ## Setup Legacy Support
 
 This guide presumes you've already gone through the [setup steps 
