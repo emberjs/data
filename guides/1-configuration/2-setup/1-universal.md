@@ -22,16 +22,43 @@ is done inside of the app's babel configuration file.
 ::: code-group
 
 ```ts [Universal Apps]
+// babel.config.mjs
 import { setConfig } from '@warp-drive/core/build-config';
+import { buildMacros } from '@embroider/macros/babel';
 
-setConfig(context, {
-  // this should be the most recent <major>.<minor> version for
-  // which all deprecations have been fully resolved
-  // and should be updated when that changes
-  // for new apps it should be the version you installed
-  // for universal apps this MUST be at least 5.6
-  compatWith: '5.6'
+const Macros = buildMacros({
+  configure: (config) => {
+    setConfig(config, {
+      // this should be the most recent <major>.<minor> version for
+      // which all deprecations have been fully resolved
+      // and should be updated when that changes
+      // for new apps it should be the version you installed
+      // for universal apps this MUST be at least 5.6
+      compatWith: '5.6'
+    });
+  },
 });
+
+export default {
+  plugins: [
+    // babel-plugin-debug-macros is temporarily needed
+    // to convert deprecation/warn calls into console.warn
+    [
+      'babel-plugin-debug-macros',
+      {
+        flags: [],
+
+        debugTools: {
+          isDebug: true,
+          source: '@ember/debug',
+          assertPredicateIndex: 1,
+        },
+      },
+      'ember-data-specific-macros-stripping-test',
+    ],
+    ...Macros.babelMacros,
+  ],
+};
 ```
 
 ```ts [New Ember Apps]
