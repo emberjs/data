@@ -1,9 +1,9 @@
 import EmberObject from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
+import Store from 'main-test-app/services/store';
 import { module, test } from 'qunit';
 
-import Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
