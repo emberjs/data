@@ -317,7 +317,13 @@ export {
   type ReactiveErrorDocument,
 } from './reactive/-private/document';
 export { getExpensiveRequestSubscription } from './store/-private/new-core-tmp/expensive-subscription.ts';
-export { createRequestSubscription, getRequestState, type RequestState } from './store/-private';
+export {
+  createRequestSubscription,
+  getRequestState,
+  getPaginationState,
+  type RequestState,
+  type PaginationState,
+} from './store/-private';
 
 export {
   getPromiseState,
