@@ -1,10 +1,7 @@
 /**
  * @module @warp-drive/ember
  */
-import { assert } from '@warp-drive/build-config/macros';
-
 import type { Future } from '../../../request.ts';
-import type { StableDocumentIdentifier } from '../../../types/identifier'; 
 import type { StructuredErrorDocument } from '../../../types/request.ts';
 import type { ResourceErrorDocument } from '../../../types/spec/document.ts';
 import type { ReactiveDocument } from '../document';
@@ -12,7 +9,7 @@ import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal';
 import type { RequestCacheRequestState } from './request-state';
 import { getRequestState } from './request-state';
 
-const RequestCache = new WeakMap<StableDocumentIdentifier, PaginationState>();
+const RequestCache = new WeakMap<Future<unknown>, PaginationState>();
 
 type FirstLink<T, RT, E> = {
   prev: null;
@@ -35,15 +32,15 @@ type PlaceholderLink<T, RT, E> = {
   isVirtual: true;
 };
 
-class PaginationState<T = unknown, RT extends ReactiveDocument<T[]> = ReactiveDocument<T[]>, E = unknown> {
-  #pageList!: FirstLink<T, RT, E>;
+export class PaginationState<T = unknown, E = unknown> {
+  #pageList!: FirstLink<T, ReactiveDocument<T[]>, E>;
   declare pages: ReactiveDocument<T[]>[];
   declare data: T[];
   declare _isLoading: boolean;
   declare _isSuccess: boolean;
   declare _isError: boolean;
 
-  constructor(request: Future<RT>) {
+  constructor(request: Future<ReactiveDocument<T[]>>) {
     this.#pageList = {
       prev: null,
       self: getRequestState(request),
@@ -61,9 +58,13 @@ class PaginationState<T = unknown, RT extends ReactiveDocument<T[]> = ReactiveDo
     return !this.isError;
   }
 
-// TODO: pagination-utils Add error state tracking to the ReactiveDocument interface
+  // TODO: pagination-utils Add error state tracking to the ReactiveDocument interface
   get isError(): boolean {
     return this.pages.some((page) => page.isError);
+  }
+
+  get errors(): (object | undefined)[] {
+    return this.pages.flatMap((page) => page.errors);
   }
 
   #addPage(page: ReactiveDocument<T[]>) {
@@ -106,17 +107,14 @@ defineNonEnumerableSignal(PaginationState.prototype, '_isError', false);
  * @param future
  * @return {PaginationState}
  */
-export function getPaginationState<T, RT extends ReactiveDocument<T[]>, E = ResourceErrorDocument>(
-  future: Future<RT>
-): PaginationState<T, RT, E> {
-  const lid = future.lid;
-  assert(`Can only use getPaginationState with a cacheable request`, lid !== null);
-
-  let state = RequestCache.get(lid) as PaginationState<T, RT, E> | undefined;
+export function getPaginationState<T, E = ResourceErrorDocument>(
+  future: Future<ReactiveDocument<T[]>>
+): Readonly<PaginationState<T, E>> {
+  let state = RequestCache.get(future) as PaginationState<T, E> | undefined;
 
   if (!state) {
     state = new PaginationState(future);
-    RequestCache.set(lid, state);
+    RequestCache.set(future, state);
   }
 
   return state;
