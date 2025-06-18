@@ -168,7 +168,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+```ts [New Ember Apps]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
@@ -229,7 +229,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Migration (Ember Only)]
+```ts [Existing Ember Apps]
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 
@@ -373,7 +373,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+```ts [New Ember Apps]
 import Store from '@ember-data/store';
 import type { ModelSchema, SchemaService } from '@ember-data/store/types'; // [!code focus]
 
@@ -403,7 +403,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Migration (Ember Only)]
+```ts [Existing Ember Apps]
 import Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types'; // [!code focus]
 
@@ -533,7 +533,7 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+```ts [New Ember Apps]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
@@ -584,7 +584,7 @@ export default class AppStore extends Store {
 ```
 
 
-```ts [Migration (Ember Only)]
+```ts [Existing Ember Apps]
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 
