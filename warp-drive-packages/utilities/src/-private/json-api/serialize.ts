@@ -90,11 +90,12 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): R
   if (record.relationships) {
     for (const key of Object.keys(record.relationships)) {
       const relationship = record.relationships[key];
-      relationship.data = fixRelData(relationship.data);
       if (Array.isArray(relationship.data)) {
         relationship.data = relationship.data.map((ref) => fixRef(ref));
       } else if (typeof relationship.data === 'object' && relationship.data !== null) {
         relationship.data = fixRef(relationship.data);
+      } else if (Object.keys(relationship ?? {}).length === 0) {
+        delete record.relationships[key];
       }
     }
   }
