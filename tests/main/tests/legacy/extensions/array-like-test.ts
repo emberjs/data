@@ -124,7 +124,6 @@ module('Legacy | Extensions | ArrayLike', function () {
     }
 
     // we should not error since in the schema, nor should we have a type error
-    debugger;
     assert.deepEqual(user1.enemies.toArray(), [user3], 'toArray is usable');
   });
 
