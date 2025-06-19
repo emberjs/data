@@ -30,6 +30,7 @@ export const entryPoints = [
   './src/compat/builders.ts',
   './src/compat/-private.ts',
   './src/compat/utils.ts',
+  './src/compat/extensions.ts',
 
   // model
   './src/model.ts',
