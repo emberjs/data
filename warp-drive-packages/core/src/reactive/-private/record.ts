@@ -17,7 +17,7 @@ import {
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../types/json/raw.ts';
 import { STRUCTURED } from '../../types/request.ts';
-import type { FieldSchema } from '../../types/schema/fields.ts';
+import type { FieldSchema, SchemaArrayField, SchemaObjectField } from '../../types/schema/fields.ts';
 import type { SingleResourceRelationship } from '../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../types/symbols.ts';
 import {
@@ -36,11 +36,11 @@ import {
   peekManagedObject,
 } from './fields/compute.ts';
 import type { SchemaService } from './schema.ts';
-import { Checkout, Destroy, Editable, EmbeddedPath, EmbeddedType, Identifier, Legacy, Parent } from './symbols.ts';
+import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
 export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
-const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, EmbeddedPath, EmbeddedType];
+const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, EmbeddedPath, EmbeddedField];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -83,7 +83,7 @@ export class ReactiveResource {
   /** @internal */
   declare [Parent]: StableRecordIdentifier;
   /** @internal */
-  declare [EmbeddedType]: string | null;
+  declare [EmbeddedField]: SchemaArrayField | SchemaObjectField | null;
   /** @internal */
   declare [EmbeddedPath]: string[] | null;
   /** @internal */
@@ -99,7 +99,7 @@ export class ReactiveResource {
     identifier: StableRecordIdentifier,
     Mode: { [Editable]: boolean; [Legacy]: boolean },
     isEmbedded = false,
-    embeddedType: string | null = null,
+    embeddedField: SchemaArrayField | SchemaObjectField | null = null,
     embeddedPath: string[] | null = null
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -115,14 +115,20 @@ export class ReactiveResource {
 
     const schema = store.schema as unknown as SchemaService;
     const cache = store.cache;
-    const identityField = schema.resource(isEmbedded ? { type: embeddedType as string } : identifier).identity;
+    const identityField = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier).identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
-    this[EmbeddedType] = embeddedType;
+    // prettier-ignore
+    const extensions =
+      !Mode[Legacy] ? null :
+      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!) :
+      schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
+
+    this[EmbeddedField] = embeddedField;
     this[EmbeddedPath] = embeddedPath;
 
     const fields: Map<string, FieldSchema> = isEmbedded
-      ? schema.fields({ type: embeddedType as string })
+      ? schema.fields(embeddedField as SchemaObjectField)
       : schema.fields(identifier);
 
     const signals = withSignalStore(this);
@@ -284,10 +290,29 @@ export class ReactiveResource {
           if (prop === 'constructor') {
             return ReactiveResource;
           }
+
+          if (extensions) {
+            if (typeof prop !== 'number' && extensions.has(prop)) {
+              const desc = extensions.get(prop)!;
+              switch (desc.kind) {
+                case 'method': {
+                  return desc.fn;
+                }
+                case 'readonly-field': {
+                  return desc.get.call(receiver);
+                }
+                default: {
+                  assert(`Unhandled extension kind ${(desc as { kind: string }).kind}`);
+                  return undefined;
+                }
+              }
+            }
+          }
+
           // too many things check for random symbols
           if (typeof prop === 'symbol') return undefined;
 
-          assert(`No field named ${String(prop)} on ${isEmbedded ? embeddedType! : identifier.type}`);
+          assert(`No field named ${String(prop)} on ${isEmbedded ? embeddedField!.type : identifier.type}`);
           return undefined;
         }
 
@@ -402,13 +427,13 @@ export class ReactiveResource {
         receiver: typeof Proxy<ReactiveResource>
       ) {
         if (!IS_EDITABLE) {
-          const type = isEmbedded ? embeddedType : identifier.type;
+          const type = isEmbedded ? embeddedField!.type : identifier.type;
           throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
         }
 
         const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!maybeField) {
-          const type = isEmbedded ? embeddedType! : identifier.type;
+          const type = isEmbedded ? embeddedField!.type : identifier.type;
           throw new Error(`There is no field named ${String(prop)} on ${type}`);
         }
         const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
@@ -763,7 +788,7 @@ export class ReactiveResource {
       return Promise.resolve(editable);
     }
 
-    const embeddedType = this[EmbeddedType];
+    const embeddedType = this[EmbeddedField];
     const embeddedPath = this[EmbeddedPath];
     const isEmbedded = embeddedType !== null && embeddedPath !== null;
 
