@@ -206,7 +206,7 @@ export function computeSchemaObject(
         [Legacy]: legacy,
       },
       true,
-      field.type,
+      field,
       embeddedPath
     );
   }

@@ -97,7 +97,7 @@ type GlobalKey =
   | 'Identifier'
   | 'Editable'
   | 'EmbeddedPath'
-  | 'EmbeddedType'
+  | 'EmbeddedField'
   | 'Parent'
   | 'Checkout'
   | 'Legacy';
