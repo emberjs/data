@@ -2002,7 +2002,7 @@ function getDefaultValue(
     const transform = store.schema.transformation(schema);
 
     if (transform?.defaultValue) {
-      return transform.defaultValue(options || null, identifier);
+      return transform.defaultValue((options as ObjectValue) || null, identifier);
     }
   }
 }
