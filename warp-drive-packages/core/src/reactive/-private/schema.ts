@@ -109,7 +109,7 @@ function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): Proces
 
     assert(`Only readonly fields are supported, ${name} should not have a setter function for ${key}`, !decl.set);
 
-    if (decl.set) {
+    if (decl.get) {
       const { get } = decl as { get: () => unknown };
       features.set(key, {
         kind: 'readonly-field',

@@ -2867,9 +2867,18 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
       broccoli-concat:
         specifier: ^4.2.5
         version: 4.2.5
