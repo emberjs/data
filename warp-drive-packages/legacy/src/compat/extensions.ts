@@ -308,7 +308,7 @@ export const EmberArrayLikeExtension = {
 
 export type WithArrayLike<T> =
   T extends Array<infer U>
-    ? T &
+    ? U &
         Omit<typeof EmberArrayLikeFeatures, 'firstObject' | 'lastObject'> & {
           firstObject: T | undefined;
           lastObject: T | undefined;
