@@ -1,4 +1,4 @@
-import type { ObjectValue, PrimitiveValue } from '../json/raw.ts';
+import type { ObjectValue, PrimitiveValue, Value } from '../json/raw.ts';
 
 /**
  * A generic "field" that can be used to define
@@ -56,8 +56,8 @@ export interface GenericField {
  * Unlike DerivedField, an AliasField may write to its
  * source when a record is in an editable mode.
  *
- * AliasFields may utilize a transform, specified by type,
- * to pre/post process the field.
+ * ~~AliasFields may utilize a transform, specified by type,
+ * to pre/post process the raw data for the field.~~ (not yet implemented)
  *
  * An AliasField may also specify a `kind` via options.
  * `kind` may be any other valid field kind other than
@@ -124,8 +124,8 @@ export interface LegacyAliasField {
  * Unlike DerivedField, an AliasField may write to its
  * source when a record is in an editable mode.
  *
- * AliasFields may utilize a transform, specified by type,
- * to pre/post process the field.
+ * ~~AliasFields may utilize a transform, specified by type,
+ * to pre/post process the raw data for the field.~~ (not yet implemented)
  *
  * An AliasField may also specify a `kind` via options.
  * `kind` may be any other valid field kind other than
@@ -434,7 +434,24 @@ export interface ObjectField {
    *
    * @public
    */
-  options?: ObjectValue;
+  options?: {
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this object should use.
+     *
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousObjectExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to objects to support migrating away from deprecated patterns
+     * like custom getters, computeds, and methods
+     */
+    objectExtensions?: string[];
+
+    [key: string]: Value | undefined;
+  };
 }
 
 /**
@@ -480,6 +497,21 @@ export interface SchemaObjectField {
    * @public
    */
   options?: {
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this object should use.
+     *
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousObjectExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to objects to support migrating away from deprecated patterns
+     * like custom getters, computeds, and methods
+     */
+    objectExtensions?: string[];
+
     /**
      * Whether this SchemaObject is Polymorphic.
      *
@@ -542,7 +574,23 @@ export interface ArrayField {
    *
    * @public
    */
-  options?: ObjectValue;
+  options?: {
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this array is allowed to use.
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousArrayExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to arrays to support migrating away from deprecated behaviors
+     * such as Ember's "ArrayLike" and FragmentArray from ember-data-model-fragments
+     */
+    arrayExtensions?: string[];
+
+    [key: string]: Value | undefined;
+  };
 }
 
 /**
@@ -608,6 +656,34 @@ export interface SchemaArrayField {
    * @public
    */
   options?: {
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this array is allowed to use.
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousArrayExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to arrays to support migrating away from deprecated behaviors
+     * such as Ember's "ArrayLike" and FragmentArray from ember-data-model-fragments
+     */
+    arrayExtensions?: string[];
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this object should use.
+     *
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousObjectExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to objects to support migrating away from deprecated patterns
+     * like custom getters, computeds, and methods
+     */
+    objectExtensions?: string[];
+
     /**
      * Configures how the SchemaArray determines whether
      * an object in the cache is the same as an object
@@ -1264,6 +1340,20 @@ export interface LegacyHasManyField {
    */
   options: {
     /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this array is allowed to use.
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousArrayExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to arrays to support migrating away from deprecated behaviors
+     * such as Ember's "ArrayLike" and FragmentArray from ember-data-model-fragments
+     */
+    arrayExtensions?: string[];
+
+    /**
      * Whether the relationship is async
      *
      * If true, it is expected that the cache
@@ -1407,6 +1497,19 @@ export interface LinksModeHasManyField {
    * @public
    */
   options: {
+    /**
+     * ::: warning ⚠️ Dangerous Feature Ahead
+     * :::
+     *
+     * Configures which extensions this array is allowed to use.
+     * Extensions are registered with the store's schema service
+     * via {@link SchemaService.registerDangerousArrayExtension}
+     *
+     * Extensions should only be used for temporary enhancements
+     * to arrays to support migrating away from deprecated behaviors
+     * such as Ember's "ArrayLike" and FragmentArray from ember-data-model-fragments
+     */
+    arrayExtensions?: string[];
     /**
      * Whether the relationship is async
      *
@@ -1757,6 +1860,21 @@ export interface LegacyResourceSchema {
    * @public
    */
   traits?: string[];
+
+  /**
+   * ::: warning ⚠️ Dangerous Feature Ahead
+   * :::
+   *
+   * Configures which extensions this resource should use.
+   *
+   * Extensions are registered with the store's schema service
+   * via {@link SchemaService.registerDangerousObjectExtension}
+   *
+   * Extensions should only be used for temporary enhancements
+   * to objects to support migrating away from deprecated patterns
+   * like custom getters, computeds, and methods
+   */
+  objectExtensions?: string[];
 }
 
 /**
@@ -1815,6 +1933,21 @@ export interface ObjectSchema {
    * @public
    */
   fields: ObjectFieldSchema[];
+
+  /**
+   * ::: warning ⚠️ Dangerous Feature Ahead
+   * :::
+   *
+   * Configures which extensions this object should use.
+   *
+   * Extensions are registered with the store's schema service
+   * via {@link SchemaService.registerDangerousObjectExtension}
+   *
+   * Extensions should only be used for temporary enhancements
+   * to objects to support migrating away from deprecated patterns
+   * like custom getters, computeds, and methods
+   */
+  objectExtensions?: string[];
 }
 
 export type Schema = ResourceSchema | ObjectSchema;

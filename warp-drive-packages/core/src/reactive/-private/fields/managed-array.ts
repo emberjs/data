@@ -152,6 +152,8 @@ export class ManagedArray {
           // into two separate methods.
           Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
+    const extensions = legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
+
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -230,7 +232,7 @@ export class ManagedArray {
                   recordIdentifier,
                   { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
                   true,
-                  field.type,
+                  field as SchemaArrayField,
                   recordPath
                 );
                 // if mode is not @identity or @index, then access the key path now
@@ -306,6 +308,42 @@ export class ManagedArray {
             boundFns.set(prop, fn);
           }
           return fn;
+        }
+
+        if (extensions) {
+          if (extensions.has(prop)) {
+            const desc = extensions.get(prop)!;
+            switch (desc.kind) {
+              case 'method': {
+                let fn = boundFns.get(prop);
+
+                if (fn === undefined) {
+                  fn = function () {
+                    consumeInternalSignal(_SIGNAL);
+                    transaction = true;
+                    const result = Reflect.apply(desc.fn, receiver, arguments) as unknown;
+                    transaction = false;
+                    return result;
+                  };
+
+                  boundFns.set(prop, fn);
+                }
+
+                return fn;
+              }
+              case 'readonly-field': {
+                consumeInternalSignal(_SIGNAL);
+                transaction = true;
+                const result = Reflect.apply(desc.get, receiver, arguments) as unknown;
+                transaction = false;
+                return result;
+              }
+              default: {
+                assert(`Unhandled extension kind ${(desc as { kind: string }).kind}`);
+                return undefined;
+              }
+            }
+          }
         }
 
         return Reflect.get(target, prop, receiver);

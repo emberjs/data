@@ -42,4 +42,4 @@ export const Checkout = getOrSetGlobal('Checkout', Symbol('Checkout'));
 export const Legacy = getOrSetGlobal('Legacy', Symbol('Legacy'));
 
 export const EmbeddedPath = getOrSetGlobal('EmbeddedPath', Symbol('EmbeddedPath'));
-export const EmbeddedType = getOrSetGlobal('EmbeddedType', Symbol('EmbeddedType'));
+export const EmbeddedField = getOrSetGlobal('EmbeddedField', Symbol('EmbeddedField'));

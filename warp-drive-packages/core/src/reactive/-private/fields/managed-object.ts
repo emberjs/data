@@ -65,6 +65,10 @@ export class ManagedObject {
     this[Parent] = identifier;
     this[EmbeddedPath] = path;
 
+    // prettier-ignore
+    const extensions =
+      !legacy ? null : schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(field);
+
     const proxy = new Proxy(this[SOURCE], {
       ownKeys() {
         return Object.keys(self[SOURCE]);
@@ -110,6 +114,24 @@ export class ManagedObject {
           return function () {
             return structuredClone(self[SOURCE]);
           };
+        }
+
+        if (extensions) {
+          if (typeof prop !== 'number' && extensions.has(prop)) {
+            const desc = extensions.get(prop)!;
+            switch (desc.kind) {
+              case 'method': {
+                return desc.fn;
+              }
+              case 'readonly-field': {
+                return desc.get.call(receiver);
+              }
+              default: {
+                assert(`Unhandled extension kind ${(desc as { kind: string }).kind}`);
+                return undefined;
+              }
+            }
+          }
         }
 
         if (_SIGNAL.isStale) {
