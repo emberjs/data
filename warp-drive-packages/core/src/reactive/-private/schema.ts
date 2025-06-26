@@ -110,7 +110,7 @@ interface ProcessedExtension {
 function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): ProcessedExtension {
   const { kind, name } = extension;
   const features = new Map<string | symbol, ExtensionDef>();
-  for (const key of Object.keys(extension.features)) {
+  for (const key of Object.getOwnPropertyNames(extension.features)) {
     const decl = Object.getOwnPropertyDescriptor(extension.features, key);
     assert(`Expected to find a declaration for ${key} on extension ${name}`, decl);
     if (decl.value) {
@@ -123,7 +123,7 @@ function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): Proces
       continue;
     }
 
-    assert(`Only readonly fields are supported, ${name} should not have a setter function for ${key}`, !decl.set);
+    // assert(`Only readonly fields are supported, ${name} should not have a setter function for ${key}`, !decl.set);
 
     if (decl.get) {
       const { get } = decl as { get: () => unknown };

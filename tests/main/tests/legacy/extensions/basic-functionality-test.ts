@@ -1,3 +1,6 @@
+import { computed } from '@ember/object';
+import { cached } from '@glimmer/tracking';
+
 import { module, test } from 'qunit';
 
 import JSONAPICache from '@ember-data/json-api';
@@ -134,5 +137,91 @@ module('Legacy | Extensions | EmberObject', function () {
       'do-thing-2:Hunter Mill',
       'field extension overrides object-schema extension'
     );
+  });
+
+  test('We can use decorators and getters as well as methods', function (assert) {
+    class Features {
+      sayHello() {
+        return 'hello!';
+      }
+
+      get greeting() {
+        const self = this as unknown as { name: string };
+        return `hello ${self.name}!`;
+      }
+
+      @computed('name')
+      get salutation() {
+        const self = this as unknown as { name: string };
+        return `salutations ${self.name}!`;
+      }
+
+      @cached
+      get helloThere() {
+        const self = this as unknown as { name: string };
+        return `Well Hello There ${self.name}!`;
+      }
+    }
+
+    const store = new TestStore();
+    store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension({
+      kind: 'object',
+      name: 'my-ext',
+      features: Features.prototype as unknown as Record<string, unknown>,
+    });
+
+    type WithExt<T> = T & {
+      sayHello(): string;
+      greeting: string;
+      salutation: string;
+      helloThere: string;
+    };
+
+    store.schema.registerResources([
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            kind: 'field',
+            name: 'name',
+          },
+        ],
+        objectExtensions: ['my-ext'],
+      }),
+    ]);
+    type User = WithExt<{
+      id: string;
+      name: string;
+      [Type]: 'user';
+    }>;
+
+    const user1 = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+
+    // preconditions
+    assert.strictEqual(user1.name, 'Chris');
+
+    // we should not error since in the schema, nor should we have a type error
+    assert.strictEqual(user1.sayHello(), 'hello!', 'methods on class prototypes work');
+    assert.strictEqual(user1.greeting, 'hello Chris!', 'getters on class prototypes work');
+    assert.strictEqual(user1.salutation, 'salutations Chris!', 'computeds on class prototypes work');
+    assert.strictEqual(user1.helloThere, 'Well Hello There Chris!', 'cached fields on class prototypes work');
+
+    user1.name = 'James';
+
+    // precondition, we updated
+    assert.strictEqual(user1.name, 'James');
+
+    // our getters including decorated getters should all update
+    assert.strictEqual(user1.greeting, 'hello James!', 'getters on class prototypes work');
+    assert.strictEqual(user1.salutation, 'salutations James!', 'computeds on class prototypes work');
+    assert.strictEqual(user1.helloThere, 'Well Hello There James!', 'cached fields on class prototypes work');
   });
 });
