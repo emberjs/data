@@ -55,16 +55,58 @@ export type SignalRef = unknown;
  *
  */
 export interface SignalHooks<T = SignalRef> {
+  /**
+   * Create a signal for the given key associated to the given object.
+   */
   createSignal: (obj: object, key: string | symbol) => T;
+  /**
+   * Consume (mark as acccessed) a signal previously created via createSignal.
+   */
   consumeSignal: (signal: T) => void;
+  /**
+   * Alert a signal previously created via createSignal that its associated value has changed.
+   */
   notifySignal: (signal: T) => void;
+  /**
+   * Take the given function and wrap it in signals-based memoization. Analagous
+   * to a Computed in the TC39 spec.
+   *
+   * Should return a function which when run provides the latest value of the original
+   * function.
+   */
   createMemo: <F>(obj: object, key: string | symbol, fn: () => F) => () => F;
+
+  /**
+   * If the signals implementation allows synchronous flushing of watchers, and
+   * has scheduled such a flush (e.g. watchers will run before the current calling
+   * context yields) this should return "true".
+   *
+   * This is generally something that should return false for anything but the few
+   * frameworks that extensively handle their own reactivity => render scheduling.
+   */
   willSyncFlushWatchers: () => boolean;
+
+  /**
+   * An optional method that allows wrapping key promises within WarpDrive
+   * for things like test-waiters.
+   */
   waitFor?: <K>(promise: Promise<K>) => Promise<K>;
 }
 
+/**
+ * Contains information a signal hooks implementation may want
+ * to use, such as the specialized key used for the signal
+ * representing an array's contents / length.
+ */
 export interface HooksOptions {
   wellknown: {
+    /**
+     * The key used when the signal provides reactivity for the
+     * `length` or "contents" of an array.
+     *
+     * Arrays only use a single signal for all accesses, regardless
+     * of index, property or method: this one.
+     */
     Array: symbol | string;
   };
 }
@@ -72,6 +114,12 @@ export interface HooksOptions {
 /**
  * Configures the signals implementation to use. Supports multiple
  * implementations simultaneously.
+ *
+ * See {@link HooksOptions} for the options passed to the provided function
+ * when called.
+ *
+ * See {@link SignalHooks} for the implementation the callback function should
+ * return.
  *
  * @public
  * @param buildConfig - a function that takes options and returns a configuration object
