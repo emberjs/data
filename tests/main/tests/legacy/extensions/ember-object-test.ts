@@ -263,4 +263,122 @@ module('Legacy | Extensions | EmberObject', function () {
     // we should not error since in the schema, nor should we have a type error
     assert.strictEqual(user1.businessAddresses?.at(0)?.get('street'), 'Hunter Mill', 'get works');
   });
+
+  test('We can add ember-object extension to a schema-object via an object-schema', function (assert) {
+    const store = new TestStore();
+    store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectExtension);
+    store.schema.registerResources([
+      {
+        type: 'fragment:address',
+        identity: null,
+        fields: [
+          {
+            kind: 'field',
+            name: 'street',
+          },
+        ],
+        objectExtensions: ['ember-object'],
+      },
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            kind: 'field',
+            name: 'name',
+          },
+          {
+            kind: 'schema-object',
+            name: 'address',
+            type: 'fragment:address',
+          },
+        ],
+      }),
+    ]);
+    interface Address {
+      street: string;
+    }
+    interface User {
+      id: string;
+      name: string;
+      address: WithEmberObject<Address>;
+      [Type]: 'user';
+    }
+    const user1 = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+          address: {
+            street: 'Crowell',
+          },
+        },
+      },
+    });
+
+    // preconditions
+    assert.strictEqual(user1.name, 'Chris');
+
+    // we should not error since in the schema, nor should we have a type error
+    assert.strictEqual(user1.address.get('street'), 'Crowell', 'get works');
+  });
+
+  test('We can add ember-object extension to a resource via a legacy-resource-schema', function (assert) {
+    const store = new TestStore();
+    store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectExtension);
+    store.schema.registerResources([
+      {
+        type: 'fragment:address',
+        identity: null,
+        fields: [
+          {
+            kind: 'field',
+            name: 'street',
+          },
+        ],
+      },
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            kind: 'field',
+            name: 'name',
+          },
+          {
+            kind: 'schema-object',
+            name: 'address',
+            type: 'fragment:address',
+          },
+        ],
+        objectExtensions: ['ember-object'],
+      }),
+    ]);
+    interface Address {
+      street: string;
+    }
+    type User = WithEmberObject<{
+      id: string;
+      name: string;
+      address: Address;
+      [Type]: 'user';
+    }>;
+    const user1 = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+          address: {
+            street: 'Crowell',
+          },
+        },
+      },
+    });
+
+    // preconditions
+    assert.strictEqual(user1.name, 'Chris');
+
+    // we should not error since in the schema, nor should we have a type error
+    assert.strictEqual(user1.get('address').street, 'Crowell', 'get works');
+  });
 });
