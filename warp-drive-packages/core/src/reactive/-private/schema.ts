@@ -68,9 +68,25 @@ function _constructor(record: ReactiveResource) {
 }
 _constructor[Type] = '@constructor';
 
+/**
+ * Extensions allow providing non-schema driven behaviors to
+ * reactive resources and arrays.
+ */
 export interface CAUTION_MEGA_DANGER_ZONE_Extension {
+  /**
+   * Whether this extension extends the behaviors of objects
+   * or of arrays.
+   */
   kind: 'object' | 'array';
+  /**
+   * The name of the extension, to be used when specifying
+   * either `objectExtensions` or `arrayExtensions`
+   */
   name: string;
+  /**
+   * An object with iterable keys whose values are the getters
+   * or methods to expose on the object or array.
+   */
   features: Record<string | symbol, unknown>;
 }
 
@@ -205,7 +221,9 @@ function processExtensions(
   const baseExtensions =
     scenario === 'resource' && hasObjectSchema(field)
       ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
-      : null;
+      : scenario === 'object' && hasObjectSchema(field)
+        ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
+        : null;
 
   if (!baseExtensions && extensions.length === 1) {
     const value = getExt(extCache, type, extensions[0]);
