@@ -53,6 +53,7 @@ export type SignalRef = unknown;
  * method, and consuming the correct one via the correct framework via
  * the `consumeSignal` and `notifySignal` methods.
  *
+ * @public
  */
 export interface SignalHooks<T = SignalRef> {
   /**
@@ -83,6 +84,9 @@ export interface SignalHooks<T = SignalRef> {
    *
    * This is generally something that should return false for anything but the few
    * frameworks that extensively handle their own reactivity => render scheduling.
+   *
+   * For an example, see EmberJS's backburner scheduler which functioned as a microtask
+   * polyfill.
    */
   willSyncFlushWatchers: () => boolean;
 
@@ -94,11 +98,26 @@ export interface SignalHooks<T = SignalRef> {
 }
 
 /**
- * Contains information a signal hooks implementation may want
+ * Contains information a {@link SignalHooks} implementation may want
  * to use, such as the specialized key used for the signal
  * representing an array's contents / length.
+ *
+ * ```ts
+ * interface HooksOptions {
+ *   wellknown: {
+ *     Array: symbol | string;
+ *   }
+ * }
+ * ```
+ *
+ * @public
  */
 export interface HooksOptions {
+  /**
+   * A list of specialized symbols/strings
+   * used by WarpDrive to encapsulate key
+   * reactivity concerns.
+   */
   wellknown: {
     /**
      * The key used when the signal provides reactivity for the

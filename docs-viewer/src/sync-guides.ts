@@ -18,7 +18,7 @@ async function updateApiDocs() {
 }
 
 // ensure directory exists and can be watched
-if (!existsSync(apiDocsPath)) {
+if (!existsSync(apiDocsPath) || process.argv.slice().includes('--force')) {
   await updateApiDocs();
 }
 
