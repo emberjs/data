@@ -73,6 +73,12 @@ export type SignalRef = unknown;
 export interface SignalHooks<T = SignalRef> {
   /**
    * Create a signal for the given key associated to the given object.
+   *
+   * This method does *not* need to cache the signal, it will only be
+   * called once for a given object and key. However, if your framework
+   * will look for a signal cache on the object in a given location or may
+   * have created its own signal on the object for some reason it may be
+   * useful to ensure such cache is properly updated.
    */
   createSignal: (obj: object, key: string | symbol) => T;
   /**
