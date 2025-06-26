@@ -1,4 +1,4 @@
-import { get, set } from '@ember/object';
+import { type default as EmberObject, get, set } from '@ember/object';
 import { compare } from '@ember/utils';
 import Ember from 'ember';
 
@@ -305,6 +305,9 @@ export const EmberArrayLikeExtension = {
   name: 'ember-array-like' as const,
   features: EmberArrayLikeFeatures,
 } satisfies CAUTION_MEGA_DANGER_ZONE_Extension;
+
+export type ArrayType<T> = T extends ReadonlyArray<infer U> ? U : never;
+export type WithEmberObject<T> = T & Pick<T & EmberObject, ArrayType<typeof EmberObjectMethods>>;
 
 export type WithArrayLike<T> =
   T extends Array<infer U>
