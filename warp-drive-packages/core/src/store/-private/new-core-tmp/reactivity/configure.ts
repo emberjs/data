@@ -57,7 +57,9 @@ export type SignalRef = unknown;
  *
  * Unlike many signals implementations, WarpDrive does not wrap values as
  * signals directly, but instead uses signals to alert the reactive layer
- * to changes in the underlying cache.
+ * to changes in the underlying cache. E.g. a signal is associated to a value,
+ * but does not serve as the cache for that value directly. We refer to this as
+ * a "gate", the pattern has also been called "side-signals".
  *
  * A no-op implementation is allowed, though it may lead to performance issues
  * in locations that use createMemo as no memoization would be done. This is
