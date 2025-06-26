@@ -23,6 +23,7 @@ function newFastPush(target, source) {
     target.push(...batch);
   }
   target.push(...source);
+  return target;
 }
 
 function testConcat(iterations, size) {
@@ -180,8 +181,7 @@ function testNewFastPush(iterations, size) {
   for (let i = 0; i < iterations; i++) {
     let arr = arrs[i];
     let result = [];
-    newFastPush(result, arr);
-    results.push(result);
+    results.push(newFastPush(result, arr));
   }
   let end = performance.now();
   return {
@@ -310,4 +310,4 @@ function runTests(count) {
   }
 }
 
-runTests(100);
+runTests(500);
