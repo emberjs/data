@@ -1,6 +1,8 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal, peekTransient, setTransient } from '../../../../types/-private.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type NotificationManager from '../../managers/notification-manager.ts';
 
 export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
 export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
@@ -45,13 +47,24 @@ export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
  */
 export type SignalRef = unknown;
 /**
- * The hooks which MUST be configured in order to use this library,
- * either for framework specfic signals or TC39 signals.
+ * The hooks which MUST be configured in order to use reactive arrays,
+ * resources and documents with framework specfic signals or TC39 signals.
  *
  * Support for multiple frameworks simultaneously can be done via
  * this abstraction by returning multiple signals from the `createSignal`
  * method, and consuming the correct one via the correct framework via
  * the `consumeSignal` and `notifySignal` methods.
+ *
+ * Unlike many signals implementations, WarpDrive does not wrap values as
+ * signals directly, but instead uses signals to alert the reactive layer
+ * to changes in the underlying cache.
+ *
+ * A no-op implementation is allowed, though it may lead to performance issues
+ * in locations that use createMemo as no memoization would be done. This is
+ * typically desirable only when integrating with a framework that does its own
+ * memoization and does not integrate with any signals-like primitive. For these
+ * scenarios you may also be interested in integrating with the {@link NotificationManager}
+ * more directly.
  *
  * @public
  */
