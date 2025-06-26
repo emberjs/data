@@ -224,4 +224,70 @@ module('Legacy | Extensions | ArrayLike', function () {
     assert.strictEqual(user1.businesses.firstObject, hunterMill, 'firstObject is usable');
     assert.strictEqual(user1.businesses.lastObject, mary, 'lastObject is usable');
   });
+
+  test('We can add array-like behaviors to array', function (assert) {
+    const store = new TestStore();
+    store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberArrayLikeExtension);
+    store.schema.registerResources([
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            kind: 'field',
+            name: 'name',
+          },
+          {
+            kind: 'array',
+            name: 'nicknames',
+          },
+          {
+            kind: 'array',
+            name: 'skills',
+            options: {
+              arrayExtensions: ['ember-array-like'],
+            },
+          },
+        ],
+      }),
+    ]);
+
+    interface User {
+      id: string;
+      name: string;
+      nicknames: string[];
+      skills: WithArrayLike<string>;
+      [Type]: 'user';
+    }
+    const user1 = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Chris',
+          nicknames: ['runspired'],
+          skills: ['ultrarunning', 'computering'],
+        },
+      },
+    });
+
+    // preconditions
+    assert.strictEqual(user1.name, 'Chris');
+    assert.strictEqual(user1.nicknames?.at(0), 'runspired');
+    assert.strictEqual(user1.skills?.at(0), 'ultrarunning');
+    assert.strictEqual(user1.skills?.at(-1), 'computering');
+
+    // we expect an error since not in schema
+    try {
+      // @ts-expect-error
+      user1.nicknames.toArray();
+      assert.ok(false, 'we should fail');
+    } catch (e) {
+      assert.strictEqual((e as Error).message, 'user1.nicknames.toArray is not a function');
+    }
+
+    // we should not error since in the schema, nor should we have a type error
+    assert.arrayStrictEquals(user1.skills.toArray(), ['ultrarunning', 'computering'], 'toArray works');
+    assert.strictEqual(user1.skills.firstObject, 'ultrarunning', 'firstObject is usable');
+    assert.strictEqual(user1.skills.lastObject, 'computering', 'lastObject is usable');
+  });
 });
