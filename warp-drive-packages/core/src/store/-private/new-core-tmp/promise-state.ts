@@ -1,3 +1,5 @@
+import { assert } from '@warp-drive/build-config/macros';
+
 import type { Awaitable } from '../../../request.ts';
 import { getPromiseResult, setPromiseResult } from '../../../request.ts';
 import { defineSignal } from './reactivity/signal.ts';
@@ -355,6 +357,7 @@ function getPromise<T, E>(promise: Promise<T> | Awaitable<T, E> | LegacyAwaitabl
 export function getPromiseState<T = unknown, E = unknown>(
   promise: Promise<T> | Awaitable<T, E>
 ): Readonly<PromiseState<T, E>> {
+  assert(`getPromiseState expects to be called with a promise: called with ${String(promise)}`, promise);
   const _promise = getPromise(promise);
   let state = PromiseCache.get(_promise) as PromiseState<T, E> | undefined;
 
