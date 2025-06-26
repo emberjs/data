@@ -9,22 +9,6 @@ import type { SignalHooks } from '@warp-drive/core/store/-private';
 
 type State = Signal['State'];
 
-const CACHE = new WeakMap<object, Map<string | symbol, State>>();
-
-function signalFor(obj: object, key: string | symbol): State {
-  let map = CACHE.get(obj);
-
-  if (!map) map = new Map<string | symbol, State>();
-
-  let signal = map.get(key);
-
-  if (!signal) {
-    signal = new Signal.State(null, { equals: () => false });
-  }
-
-  return signal;
-}
-
 export function buildSignalConfig(options: {
   wellknown: {
     Array: symbol | string;
@@ -32,7 +16,7 @@ export function buildSignalConfig(options: {
 }) {
   return {
     createSignal(obj: object, key: string | symbol): State {
-      return signalFor(obj, key);
+      return new Signal.State(null, { equals: () => false });
     },
     consumeSignal(signal: State) {
       signal.get();
