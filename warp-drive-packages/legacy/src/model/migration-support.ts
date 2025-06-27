@@ -511,24 +511,20 @@ export class DelegatingSchemaService implements SchemaService {
   }
 
   CAUTION_MEGA_DANGER_ZONE_registerExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     this._preferred.CAUTION_MEGA_DANGER_ZONE_registerExtension!(extension);
   }
 
   CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
     resource: StableRecordIdentifier | { type: string }
   ): null | ProcessedExtension['features'] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return this._preferred.CAUTION_MEGA_DANGER_ZONE_resourceExtensions!(resource);
   }
 
   CAUTION_MEGA_DANGER_ZONE_objectExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return this._preferred.CAUTION_MEGA_DANGER_ZONE_objectExtensions!(field);
   }
 
   CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return this._preferred.CAUTION_MEGA_DANGER_ZONE_arrayExtensions!(field);
   }
 
