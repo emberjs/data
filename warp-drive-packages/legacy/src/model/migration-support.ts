@@ -21,6 +21,8 @@ import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
+import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '@warp-drive/core/reactive';
+import type { ExtensibleField } from '@warp-drive/core/reactive/-private/schema.js';
 import { ARRAY_SIGNAL, notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
@@ -506,6 +508,28 @@ export class DelegatingSchemaService implements SchemaService {
   }
   registerHashFn(hashFn: HashFn): void {
     this._preferred.registerHashFn(hashFn);
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_registerExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    this._preferred.CAUTION_MEGA_DANGER_ZONE_registerExtension!(extension);
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
+    resource: StableRecordIdentifier | { type: string }
+  ): null | ProcessedExtension['features'] {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return this._preferred.CAUTION_MEGA_DANGER_ZONE_resourceExtensions!(resource);
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return this._preferred.CAUTION_MEGA_DANGER_ZONE_objectExtensions!(field);
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return this._preferred.CAUTION_MEGA_DANGER_ZONE_arrayExtensions!(field);
   }
 
   /**

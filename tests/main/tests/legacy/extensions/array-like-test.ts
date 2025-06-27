@@ -1,4 +1,4 @@
-import { module, skip, test } from 'qunit';
+import { module, test } from 'qunit';
 
 import JSONAPICache from '@ember-data/json-api';
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
@@ -31,7 +31,7 @@ class TestStore extends Store {
 }
 
 module('Legacy | Extensions | ArrayLike', function () {
-  skip('We can add array-like behaviors to hasMany', function (assert) {
+  test('We can add array-like behaviors to hasMany', function (assert) {
     const store = new TestStore();
     store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberArrayLikeExtension);
     store.schema.registerResource(
@@ -125,6 +125,8 @@ module('Legacy | Extensions | ArrayLike', function () {
 
     // we should not error since in the schema, nor should we have a type error
     assert.deepEqual(user1.enemies.toArray(), [user3], 'toArray is usable');
+    assert.strictEqual(user1.enemies.firstObject, user3, 'firstObject is usable');
+    assert.strictEqual(user1.enemies.lastObject, user3, 'lastObject is usable');
   });
 
   test('We can add array-like behaviors to schema-array', function (assert) {

@@ -124,7 +124,7 @@ export type ExtensionDef =
       set: (value: unknown) => void;
     };
 
-interface ProcessedExtension {
+export interface ProcessedExtension {
   kind: 'object' | 'array';
   name: string;
   features: Map<string | symbol, ExtensionDef>;
@@ -187,8 +187,7 @@ function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): Proces
     features,
   };
 }
-
-interface ExtensibleField {
+export interface ExtensibleField {
   kind: 'schema-object' | 'schema-array' | 'array' | 'object' | 'hasMany';
   options?: {
     objectExtensions?: string[];

@@ -1,3 +1,5 @@
+import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '../../../reactive.ts';
+import type { ExtensibleField } from '../../../reactive/-private/schema.ts';
 import type { RecordIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { Derivation, HashFn, Transformation } from '../../../types/schema/concepts.ts';
@@ -354,4 +356,26 @@ export interface SchemaService {
    * @return {String[]}
    */
   resourceTypes(): Readonly<string[]>;
+
+  /**
+   * Register an extension for either objects or arrays
+   */
+  CAUTION_MEGA_DANGER_ZONE_registerExtension?(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void;
+
+  /**
+   * Retrieve the extension map for a resource
+   */
+  CAUTION_MEGA_DANGER_ZONE_resourceExtensions?(
+    resource: StableRecordIdentifier | { type: string }
+  ): null | ProcessedExtension['features'];
+
+  /**
+   * Retrieve the extension map for an object field
+   */
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
+
+  /**
+   * Retrieve the extension map for an array field
+   */
+  CAUTION_MEGA_DANGER_ZONE_arrayExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
 }

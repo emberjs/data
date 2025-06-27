@@ -2,12 +2,18 @@ import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/core/build-config/depreca
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import {
+  isExtensionProp,
+  performArrayExtensionGet,
+  performExtensionSet,
+} from '../../../reactive/-private/fields/extension.ts';
 import type { BaseFinderOptions } from '../../../types';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { TypeFromInstanceOrString } from '../../../types/record.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
+import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
 import type { Links, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
@@ -83,6 +89,7 @@ export type IdentifierArrayCreateOptions<T = unknown> = {
   store: Store;
   allowMutation: boolean;
   manager: MinimumManager;
+  field?: LegacyHasManyField | LinksModeHasManyField;
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
   identifier?: StableDocumentIdentifier | null;
@@ -155,6 +162,22 @@ export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
     _SIGNAL: WarpDriveSignal
   ): unknown;
 }
+
+// these are "internally" mutable, they should not be mutated by consumers
+// though this is not currently enforced.
+//
+// all of these should become gated by field-type as they shouldn't be available
+// on request results or non-legacy relationships.
+const MUTABLE_PROPS = [
+  '_updatingPromise',
+  'isDestroying',
+  'isDestroyed',
+  'query',
+  'isUpdating',
+  'isLoaded',
+  'meta',
+  'links',
+];
 
 export class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
@@ -229,6 +252,10 @@ export class IdentifierArray<T = unknown> {
     // we track all mutations within the call
     // and forward them as one
     let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
+    const extensions =
+      options.field && this.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions
+        ? this.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(options.field)
+        : null;
 
     const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], {
       get<R extends typeof NativeProxy<StableRecordIdentifier[], T[]>>(
@@ -342,6 +369,18 @@ export class IdentifierArray<T = unknown> {
           return consumeInternalSignal(_SIGNAL), outcome;
         }
 
+        if (isExtensionProp(extensions, prop)) {
+          return performArrayExtensionGet(
+            receiver,
+            extensions!,
+            signals,
+            prop,
+            _SIGNAL,
+            boundFns,
+            (v: boolean) => void (transaction = v)
+          );
+        }
+
         return target[prop as keyof StableRecordIdentifier[]];
       },
 
@@ -352,6 +391,10 @@ export class IdentifierArray<T = unknown> {
         value: unknown,
         receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>
       ): boolean {
+        if (!options.allowMutation && !MUTABLE_PROPS.includes(prop as string)) {
+          assert(`Mutating ${String(prop)} on this Array is not allowed.`, options.allowMutation);
+          return false;
+        }
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
@@ -372,6 +415,11 @@ export class IdentifierArray<T = unknown> {
           PrivateState.meta = (value || null) as Record<string, unknown> | null;
           return true;
         }
+
+        if (isExtensionProp(extensions, prop)) {
+          return performExtensionSet(receiver, extensions!, signals, prop, value);
+        }
+
         const index = convertToInt(prop);
 
         // we do not allow "holey" arrays and so if the index is
@@ -392,11 +440,6 @@ export class IdentifierArray<T = unknown> {
             self[prop] = value;
             return true;
           }
-          return false;
-        }
-
-        if (!options.allowMutation) {
-          assert(`Mutating ${String(prop)} on this Array is not allowed.`, options.allowMutation);
           return false;
         }
 

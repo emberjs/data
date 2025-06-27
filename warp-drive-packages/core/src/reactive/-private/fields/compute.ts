@@ -367,6 +367,7 @@ export function computeHasMany(
       type: field.type,
       identifier,
       cache,
+      field: legacy ? field : undefined,
       // we divorce the reference here because ManyArray mutates the target directly
       // before sending the mutation op to the cache. We may be able to avoid this in the future
       identifiers: rawValue.data?.slice() as StableRecordIdentifier[],
