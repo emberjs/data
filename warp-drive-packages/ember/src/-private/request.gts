@@ -6,10 +6,16 @@ import { cached } from '@glimmer/tracking';
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 import type { ComponentLike } from '@glint/template';
 
-import type { Store, StoreRequestInput } from '@warp-drive/core';
+import type { RequestManager, Store, StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future } from '@warp-drive/core/request';
-import type { RequestLoadingState, RequestState, RequestSubscription } from '@warp-drive/core/store/-private';
+import type {
+  ContentFeatures,
+  RecoveryFeatures,
+  RequestLoadingState,
+  RequestState,
+  RequestSubscription,
+} from '@warp-drive/core/store/-private';
 import { createRequestSubscription, DISPOSE } from '@warp-drive/core/store/-private';
 import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
@@ -39,28 +45,6 @@ type AutorefreshBehaviorCombos =
   | AutorefreshBehaviorType
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
-
-/**
- * Utilities to assist in recovering from the error.
- */
-export interface RecoveryFeatures {
-  isOnline: boolean;
-  isHidden: boolean;
-  retry: () => Promise<void>;
-}
-
-/**
- * Utilities for keeping the request fresh
- */
-export interface ContentFeatures<RT> {
-  isOnline: boolean;
-  isHidden: boolean;
-  isRefreshing: boolean;
-  refresh: () => Promise<void>;
-  reload: () => Promise<void>;
-  abort?: () => void;
-  latestRequest?: Future<RT>;
-}
 
 const DefaultChrome: TOC<{
   Blocks: {
@@ -422,7 +406,7 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
    */
   @consume('store') declare _store: Store;
 
-  get store(): Store {
+  get store(): Store | RequestManager {
     const store = this.args.store || this._store;
     assert(
       moduleExists('ember-provide-consume-context')

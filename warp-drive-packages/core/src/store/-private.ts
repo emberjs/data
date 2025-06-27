@@ -52,14 +52,19 @@ export {
   createLegacyManyArray,
 } from './-private/record-arrays/legacy-many-array.ts';
 
-export { log, logGroup } from './-private/debug/utils';
+export { log, logGroup } from './-private/debug/utils.ts';
 export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';
 
 export {
   DISPOSE,
   createRequestSubscription,
   type SubscriptionArgs,
+  type RequestComponentArgs,
   type RequestSubscription,
+  type ContentFeatures,
+  type RecoveryFeatures,
+  type AutorefreshBehaviorCombos,
+  type AutorefreshBehaviorType,
 } from './-private/new-core-tmp/request-subscription.ts';
 export {
   getRequestState,
