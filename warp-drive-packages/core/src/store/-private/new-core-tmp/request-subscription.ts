@@ -1,10 +1,11 @@
 import type { RequestManager, Store, StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future } from '@warp-drive/core/request';
-import { defineSignal, getRequestState, memoized } from '@warp-drive/core/store/-private';
 import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type { RequestInfo } from '@warp-drive/core/types/request';
 import { EnableHydration } from '@warp-drive/core/types/request';
+
+import { defineSignal, getRequestState, memoized } from '../../-private';
 
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
