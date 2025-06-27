@@ -15,6 +15,7 @@ import type { ObjectField, SchemaObjectField } from '../../../types/schema/field
 import type { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
+import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './extension.ts';
 
 export function notifyObject(obj: ManagedObject) {
   notifyInternalSignal(obj[OBJECT_SIGNAL]);
@@ -110,29 +111,6 @@ export class ManagedObject {
             return '<span>ManagedObject</span>';
           };
         }
-        if (prop === 'toJSON') {
-          return function () {
-            return structuredClone(self[SOURCE]);
-          };
-        }
-
-        if (extensions) {
-          if (typeof prop !== 'number' && extensions.has(prop)) {
-            const desc = extensions.get(prop)!;
-            switch (desc.kind) {
-              case 'method': {
-                return desc.fn;
-              }
-              case 'readonly-field': {
-                return desc.get.call(receiver);
-              }
-              default: {
-                assert(`Unhandled extension kind ${(desc as { kind: string }).kind}`);
-                return undefined;
-              }
-            }
-          }
-        }
 
         if (_SIGNAL.isStale) {
           _SIGNAL.isStale = false;
@@ -146,16 +124,36 @@ export class ManagedObject {
           }
         }
 
+        // toJSON and extensions need to come after we update data if stale
+        if (prop === 'toJSON') {
+          return function () {
+            return structuredClone(self[SOURCE]);
+          };
+        }
+
+        // we always defer to data before extensions
         if (prop in self[SOURCE]) {
           consumeInternalSignal(_SIGNAL);
 
           return (self[SOURCE] as R)[prop];
         }
+
+        if (isExtensionProp(extensions, prop)) {
+          return performObjectExtensionGet(receiver, extensions!, signals, prop);
+        }
+
         return Reflect.get(target, prop, receiver) as R;
       },
 
-      set(target, prop: KeyType, value, receiver) {
+      set(target: object, prop: KeyType, value: unknown, receiver: object) {
         assert(`Cannot set read-only property '${String(prop)}' on ManagedObject`, editable);
+
+        // since objects function as dictionaries, we can't defer to schema/data before extensions
+        // unless the prop is in the existing data.
+        if (!(prop in self[SOURCE]) && isExtensionProp(extensions, prop)) {
+          return performExtensionSet(receiver, extensions!, signals, prop, value);
+        }
+
         const reflect = Reflect.set(target, prop, value, receiver);
         if (!reflect) {
           return false;

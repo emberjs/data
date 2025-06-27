@@ -35,6 +35,8 @@ import {
   peekManagedArray,
   peekManagedObject,
 } from './fields/compute.ts';
+import type { ProxiedMethod } from './fields/extension.ts';
+import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -44,7 +46,6 @@ const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
-type ProxiedMethod = (...args: unknown[]) => unknown;
 
 function isPathMatch(a: string[], b: string[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
@@ -291,22 +292,8 @@ export class ReactiveResource {
             return ReactiveResource;
           }
 
-          if (extensions) {
-            if (typeof prop !== 'number' && extensions.has(prop)) {
-              const desc = extensions.get(prop)!;
-              switch (desc.kind) {
-                case 'method': {
-                  return desc.fn;
-                }
-                case 'readonly-field': {
-                  return desc.get.call(receiver);
-                }
-                default: {
-                  assert(`Unhandled extension kind ${(desc as { kind: string }).kind}`);
-                  return undefined;
-                }
-              }
-            }
+          if (isExtensionProp(extensions, prop)) {
+            return performObjectExtensionGet(receiver, extensions!, signals, prop);
           }
 
           // too many things check for random symbols
@@ -420,6 +407,7 @@ export class ReactiveResource {
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
         }
       },
+
       set(
         target: ReactiveResource,
         prop: string | number | symbol,
@@ -434,7 +422,13 @@ export class ReactiveResource {
         const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
         if (!maybeField) {
           const type = isEmbedded ? embeddedField!.type : identifier.type;
-          throw new Error(`There is no field named ${String(prop)} on ${type}`);
+
+          if (isExtensionProp(extensions, prop)) {
+            return performExtensionSet(receiver, extensions!, signals, prop, value);
+          }
+
+          assert(`There is no settable field named ${String(prop)} on ${type}`);
+          return false;
         }
         const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
         assert(

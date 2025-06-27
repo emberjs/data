@@ -86,19 +86,42 @@ export interface CAUTION_MEGA_DANGER_ZONE_Extension {
   /**
    * An object with iterable keys whose values are the getters
    * or methods to expose on the object or array.
+   *
+   * or
+   *
+   * A constructable such as a Function or Class whose prototype
+   * will be iterated with getOwnPropertyNames.
    */
-  features: Record<string | symbol, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  features: Record<string | symbol, unknown> | Function;
 }
 
-type ExtensionDef =
+export type ExtensionDef =
   | {
       kind: 'method';
       // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
       fn: Function;
     }
   | {
+      kind: 'readonly-value';
+      value: unknown;
+    }
+  | {
+      kind: 'mutable-value';
+      value: unknown;
+    }
+  | {
       kind: 'readonly-field';
       get: () => unknown;
+    }
+  | {
+      kind: 'mutable-field';
+      get: () => unknown;
+      set: (value: unknown) => void;
+    }
+  | {
+      kind: 'writeonly-field';
+      set: (value: unknown) => void;
     };
 
 interface ProcessedExtension {
@@ -107,30 +130,51 @@ interface ProcessedExtension {
   features: Map<string | symbol, ExtensionDef>;
 }
 
+const BannedKeys = ['constructor', '__proto__'];
+
 function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): ProcessedExtension {
   const { kind, name } = extension;
   const features = new Map<string | symbol, ExtensionDef>();
-  for (const key of Object.getOwnPropertyNames(extension.features)) {
-    const decl = Object.getOwnPropertyDescriptor(extension.features, key);
+  const baseFeatures =
+    typeof extension.features === 'function'
+      ? (extension.features.prototype as Record<string | symbol, unknown>)
+      : extension.features;
+  for (const key of Object.getOwnPropertyNames(baseFeatures)) {
+    if (BannedKeys.includes(key)) continue;
+
+    const decl = Object.getOwnPropertyDescriptor(baseFeatures, key);
     assert(`Expected to find a declaration for ${key} on extension ${name}`, decl);
     if (decl.value) {
       const { value } = decl as { value: unknown };
-      assert(`Simple properties are not supported`, typeof value === 'function');
-      features.set(key, {
-        kind: 'method',
-        fn: value,
-      });
+      features.set(
+        key,
+        typeof value === 'function'
+          ? {
+              kind: 'method',
+              fn: value,
+            }
+          : decl.writable
+            ? {
+                kind: 'mutable-value',
+                value,
+              }
+            : {
+                kind: 'readonly-value',
+                value,
+              }
+      );
       continue;
     }
 
-    // assert(`Only readonly fields are supported, ${name} should not have a setter function for ${key}`, !decl.set);
-
-    if (decl.get) {
-      const { get } = decl as { get: () => unknown };
-      features.set(key, {
-        kind: 'readonly-field',
-        get,
-      });
+    if (decl.get || decl.set) {
+      const { get, set } = decl as { get?: () => unknown; set?: (v: unknown) => void };
+      features.set(
+        key,
+        // prettier-ignore
+        get && set ? { kind: 'mutable-field', get, set }
+          : get ? { kind: 'readonly-field', get }
+          : { kind: 'writeonly-field', set: set! }
+      );
       continue;
     }
 
@@ -589,7 +633,7 @@ export class SchemaService implements SchemaServiceInterface {
    * @internal
    */
   _registerMode(mode: string, kinds: KindFns): void {
-    assert(`Mode '${mode}' is already registered`, !this._traits.has(mode));
+    assert(`Mode '${mode}' is already registered`, !this._modes.has(mode));
     this._modes.set(mode, kinds);
   }
 
