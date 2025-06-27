@@ -294,6 +294,9 @@ import type {
 
 export { instantiateRecord, teardownRecord } from './reactive/-private/hooks';
 export {
+  type CAUTION_MEGA_DANGER_ZONE_Extension,
+  type ProcessedExtension,
+  type ExtensionDef,
   type Transformation,
   SchemaService,
   withDefaults,

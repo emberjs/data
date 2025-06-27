@@ -2,6 +2,8 @@ import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
 // FIXME audit this list
 export const externals = [
+  'ember',
+  '@ember/utils',
   '@ember/service', // inject the store to base Adapter
   '@ember/debug',
   '@ember/object', // Adapter base, computed for headers
@@ -28,6 +30,7 @@ export const entryPoints = [
   './src/compat/builders.ts',
   './src/compat/-private.ts',
   './src/compat/utils.ts',
+  './src/compat/extensions.ts',
 
   // model
   './src/model.ts',

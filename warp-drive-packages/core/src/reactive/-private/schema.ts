@@ -23,10 +23,13 @@ import {
   type LegacyBelongsToField,
   type LegacyHasManyField,
   type LegacyRelationshipField,
+  type LegacyResourceSchema,
   type ObjectField,
   type ObjectSchema,
   type PolarisResourceSchema,
   type ResourceSchema,
+  type SchemaArrayField,
+  type SchemaObjectField,
 } from '../../types/schema/fields.ts';
 import { Type } from '../../types/symbols.ts';
 import type { WithPartial } from '../../types/utils.ts';
@@ -64,6 +67,228 @@ function _constructor(record: ReactiveResource) {
   });
 }
 _constructor[Type] = '@constructor';
+
+/**
+ * Extensions allow providing non-schema driven behaviors to
+ * reactive resources and arrays.
+ */
+export interface CAUTION_MEGA_DANGER_ZONE_Extension {
+  /**
+   * Whether this extension extends the behaviors of objects
+   * or of arrays.
+   */
+  kind: 'object' | 'array';
+  /**
+   * The name of the extension, to be used when specifying
+   * either `objectExtensions` or `arrayExtensions`
+   */
+  name: string;
+  /**
+   * An object with iterable keys whose values are the getters
+   * or methods to expose on the object or array.
+   *
+   * or
+   *
+   * A constructable such as a Function or Class whose prototype
+   * will be iterated with getOwnPropertyNames.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  features: Record<string | symbol, unknown> | Function;
+}
+
+export type ExtensionDef =
+  | {
+      kind: 'method';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+      fn: Function;
+    }
+  | {
+      kind: 'readonly-value';
+      value: unknown;
+    }
+  | {
+      kind: 'mutable-value';
+      value: unknown;
+    }
+  | {
+      kind: 'readonly-field';
+      get: () => unknown;
+    }
+  | {
+      kind: 'mutable-field';
+      get: () => unknown;
+      set: (value: unknown) => void;
+    }
+  | {
+      kind: 'writeonly-field';
+      set: (value: unknown) => void;
+    };
+
+export interface ProcessedExtension {
+  kind: 'object' | 'array';
+  name: string;
+  features: Map<string | symbol, ExtensionDef>;
+}
+
+const BannedKeys = ['constructor', '__proto__'];
+
+function processExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): ProcessedExtension {
+  const { kind, name } = extension;
+  const features = new Map<string | symbol, ExtensionDef>();
+  const baseFeatures =
+    typeof extension.features === 'function'
+      ? (extension.features.prototype as Record<string | symbol, unknown>)
+      : extension.features;
+  for (const key of Object.getOwnPropertyNames(baseFeatures)) {
+    if (BannedKeys.includes(key)) continue;
+
+    const decl = Object.getOwnPropertyDescriptor(baseFeatures, key);
+    assert(`Expected to find a declaration for ${key} on extension ${name}`, decl);
+    if (decl.value) {
+      const { value } = decl as { value: unknown };
+      features.set(
+        key,
+        typeof value === 'function'
+          ? {
+              kind: 'method',
+              fn: value,
+            }
+          : decl.writable
+            ? {
+                kind: 'mutable-value',
+                value,
+              }
+            : {
+                kind: 'readonly-value',
+                value,
+              }
+      );
+      continue;
+    }
+
+    if (decl.get || decl.set) {
+      const { get, set } = decl as { get?: () => unknown; set?: (v: unknown) => void };
+      features.set(
+        key,
+        // prettier-ignore
+        get && set ? { kind: 'mutable-field', get, set }
+          : get ? { kind: 'readonly-field', get }
+          : { kind: 'writeonly-field', set: set! }
+      );
+      continue;
+    }
+
+    assert(`The feature ${key} on extension ${name} is of an unknown variety.`);
+  }
+
+  return {
+    kind,
+    name,
+    features,
+  };
+}
+export interface ExtensibleField {
+  kind: 'schema-object' | 'schema-array' | 'array' | 'object' | 'hasMany';
+  options?: {
+    objectExtensions?: string[];
+    arrayExtensions?: string[];
+  };
+}
+
+function getExt(
+  extCache: { object: Map<string | symbol, ProcessedExtension>; array: Map<string | symbol, ProcessedExtension> },
+  type: 'array' | 'object',
+  extName: string | symbol
+): null | ProcessedExtension['features'] {
+  const ext = extCache[type].get(extName);
+  assert(`expected to have an extension named ${String(extName)} available for ${type}s`, ext);
+  return ext?.features ?? null;
+}
+
+function hasObjectSchema(
+  field: ObjectSchema | ResourceSchema | SchemaArrayField | SchemaObjectField | ExtensibleField
+): field is SchemaArrayField | SchemaObjectField {
+  return 'kind' in field && (field.kind === 'schema-array' || field.kind === 'schema-object');
+}
+
+function pretendIsResourceOrObjectSchema(
+  field: ObjectSchema | ResourceSchema | ExtensibleField
+): asserts field is ObjectSchema | LegacyResourceSchema {}
+
+function processExtensions(
+  schema: SchemaService,
+  field: ExtensibleField | ObjectSchema | ResourceSchema,
+  scenario: 'resource' | 'object' | 'array'
+) {
+  // if we're looking up extensions for a resource, there is no
+  // merging required so if we have no objectExtensions
+  // we are done.
+  if (scenario === 'resource') {
+    pretendIsResourceOrObjectSchema(field);
+    if (!('objectExtensions' in field || !field.objectExtensions?.length)) {
+      return null;
+    }
+  }
+
+  const type = scenario === 'resource' ? 'object' : scenario;
+  const extCache = schema._extensions;
+  const fieldCache = schema._cachedFieldExtensionsByField;
+
+  if (fieldCache[type].has(field)) {
+    return fieldCache[type].get(field)!;
+  }
+
+  // prettier-ignore
+  const extensions =
+    (
+      scenario === 'resource' ? (field as { objectExtensions?: string[] }).objectExtensions
+      : scenario === 'object' ? (field as ExtensibleField).options?.objectExtensions
+      : (field as ExtensibleField).options?.arrayExtensions
+    ) || null;
+
+  // if we are a resource scenario, we know from the first check we do have extensions
+  // if we are an object scenario, we can now return the resource scenario.
+  // if we are an array scenario, there is nothing more to process.
+  if (!extensions) {
+    if (scenario === 'array') return null;
+
+    if (!hasObjectSchema(field)) {
+      return null;
+    }
+
+    return schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field);
+  }
+
+  // if we have made it here, we have extensions, lets check if there's
+  // a cached version we can use
+  const baseExtensions =
+    scenario === 'resource' && hasObjectSchema(field)
+      ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
+      : scenario === 'object' && hasObjectSchema(field)
+        ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
+        : null;
+
+  if (!baseExtensions && extensions.length === 1) {
+    const value = getExt(extCache, type, extensions[0]);
+    fieldCache[type].set(field, value);
+    return value;
+  }
+
+  const features = new Map<string | symbol, ExtensionDef>(baseExtensions);
+  for (const extName of extensions) {
+    const value = getExt(extCache, type, extName);
+    if (value) {
+      for (const [feature, desc] of value) {
+        features.set(feature, desc);
+      }
+    }
+  }
+
+  const value = features.size ? features : null;
+  fieldCache[type].set(field, value);
+
+  return value;
+}
 
 /**
  * Utility for constructing a ResourceSchema with the recommended
@@ -239,6 +464,15 @@ export class SchemaService implements SchemaServiceInterface {
   declare _traits: Set<string>;
   /** @internal */
   declare _modes: Map<string, KindFns>;
+  /** @internal */
+  declare _extensions: {
+    object: Map<string, ProcessedExtension>;
+    array: Map<string, ProcessedExtension>;
+  };
+  declare _cachedFieldExtensionsByField: {
+    object: Map<object, ProcessedExtension['features'] | null>;
+    array: Map<object, ProcessedExtension['features'] | null>;
+  };
 
   constructor() {
     this._schemas = new Map();
@@ -247,6 +481,14 @@ export class SchemaService implements SchemaServiceInterface {
     this._derivations = new Map();
     this._traits = new Set();
     this._modes = new Map();
+    this._extensions = {
+      object: new Map(),
+      array: new Map(),
+    };
+    this._cachedFieldExtensionsByField = {
+      object: new Map(),
+      array: new Map(),
+    };
   }
 
   resourceTypes(): Readonly<string[]> {
@@ -355,6 +597,29 @@ export class SchemaService implements SchemaServiceInterface {
     this._derivations.set(derivation[Type], makeCachedDerivation(derivation));
   }
 
+  CAUTION_MEGA_DANGER_ZONE_registerExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void {
+    assert(
+      `an extension named ${extension.name} for ${extension.kind} already exists!`,
+      !this._extensions[extension.kind].has(extension.name)
+    );
+    this._extensions[extension.kind].set(extension.name, processExtension(extension));
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
+    resource: StableRecordIdentifier | { type: string }
+  ): null | ProcessedExtension['features'] {
+    const schema = this.resource(resource);
+    return processExtensions(this, schema, 'resource');
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
+    return processExtensions(this, field, 'object');
+  }
+
+  CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
+    return processExtensions(this, field, 'array');
+  }
+
   /**
    * This is an internal method used to register behaviors for legacy mode.
    * It is not intended for public use.
@@ -367,7 +632,7 @@ export class SchemaService implements SchemaServiceInterface {
    * @internal
    */
   _registerMode(mode: string, kinds: KindFns): void {
-    assert(`Mode '${mode}' is already registered`, !this._traits.has(mode));
+    assert(`Mode '${mode}' is already registered`, !this._modes.has(mode));
     this._modes.set(mode, kinds);
   }
 

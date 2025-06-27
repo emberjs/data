@@ -11,6 +11,7 @@ import type {
   TypeFromInstance,
   TypeFromInstanceOrString,
 } from '../../../types/record.ts';
+import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
 import type { Links, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
@@ -28,7 +29,7 @@ export interface ManyArrayCreateArgs<T> {
   store: Store;
   allowMutation: boolean;
   manager: MinimumManager;
-
+  field?: LegacyHasManyField | LinksModeHasManyField;
   identifier: StableRecordIdentifier;
   cache: Cache;
   meta: Record<string, unknown> | null;

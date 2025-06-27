@@ -1,3 +1,4 @@
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../../index.ts';
@@ -11,6 +12,8 @@ import type { ArrayField, HashField, SchemaArrayField } from '../../../types/sch
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
+import type { ProxiedMethod } from './extension.ts';
+import { isExtensionProp, performArrayExtensionGet, performExtensionSet } from './extension.ts';
 
 type KeyType = string | symbol | number;
 const ARRAY_GETTER_METHODS = new Set<KeyType>([
@@ -61,8 +64,6 @@ function convertToInt(prop: KeyType): number | null {
 
   return num % 1 === 0 ? num : null;
 }
-
-type ProxiedMethod = (...args: unknown[]) => unknown;
 
 type ForEachCB = (record: OpaqueRecordInstance, index: number, context: typeof Proxy<unknown[]>) => void;
 function safeForEach(
@@ -130,10 +131,8 @@ export class ManagedArray {
     const IS_EDITABLE = (this[Editable] = editable ?? false);
     this[Legacy] = legacy;
 
-    // FIXME probably can get rid of the manual ARRAY_SIGNAL storage
-    // FIXME probably the storage should be on the proxy/receiver not this class
     const signals = withSignalStore(this);
-    const _SIGNAL = (this[ARRAY_SIGNAL] = entangleSignal(signals, this, ARRAY_SIGNAL, undefined));
+    let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
     const boundFns = new Map<KeyType, ProxiedMethod>();
     this.identifier = identifier;
     this.path = path;
@@ -152,6 +151,8 @@ export class ManagedArray {
           // into two separate methods.
           Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
+    const extensions = legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
+
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -173,6 +174,11 @@ export class ManagedArray {
             self[SOURCE].push(...(newData as ArrayValue));
           }
         }
+
+        if (prop === 'length') {
+          return consumeInternalSignal(_SIGNAL), target.length;
+        }
+        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
 
         if (index !== null) {
           let val;
@@ -230,7 +236,7 @@ export class ManagedArray {
                   recordIdentifier,
                   { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
                   true,
-                  field.type,
+                  field as SchemaArrayField,
                   recordPath
                 );
                 // if mode is not @identity or @index, then access the key path now
@@ -308,9 +314,21 @@ export class ManagedArray {
           return fn;
         }
 
+        if (isExtensionProp(extensions, prop)) {
+          return performArrayExtensionGet(
+            receiver,
+            extensions!,
+            signals,
+            prop,
+            _SIGNAL,
+            boundFns,
+            (v: boolean) => void (transaction = v)
+          );
+        }
+
         return Reflect.get(target, prop, receiver);
       },
-      set(target, prop: KeyType, value, receiver) {
+      set(target, prop: KeyType, value: unknown, receiver: object) {
         if (!IS_EDITABLE) {
           let errorPath = identifier.type;
           if (path) {
@@ -319,15 +337,18 @@ export class ManagedArray {
           throw new Error(`Cannot set ${String(prop)} on ${errorPath} because the record is not editable`);
         }
         if (prop === 'identifier') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.identifier = value;
+          self.identifier = value as StableRecordIdentifier;
           return true;
         }
         if (prop === 'owner') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          self.owner = value;
+          self.owner = value as ReactiveResource;
           return true;
         }
+
+        if (isExtensionProp(extensions, prop)) {
+          return performExtensionSet(receiver, extensions!, signals, prop, value);
+        }
+
         const reflect = Reflect.set(target, prop, value, receiver);
 
         if (reflect) {
@@ -360,6 +381,28 @@ export class ManagedArray {
       },
     }) as ManagedArray;
 
+    // we entangle the signal on the returned proxy since that is
+    // the object that other code will be interfacing with.
+    _SIGNAL = entangleSignal(signals, proxy, ARRAY_SIGNAL, undefined);
+
     return proxy;
   }
 }
+
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferable to the `meta` override we used
+// before which required importing all of Ember
+const desc = {
+  enumerable: true,
+  configurable: false,
+  get: function () {
+    // here to support computed chains
+    // and {{#each}}
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this;
+    }
+  },
+};
+// compat(desc);
+Object.defineProperty(ManagedArray.prototype, '[]', desc);

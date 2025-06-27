@@ -21,6 +21,7 @@ import type { CollectionRelationship } from '@warp-drive/core/types/cache/relati
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import { EnableHydration } from '@warp-drive/core/types/request';
+import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields.js';
 import type {
   CollectionResourceRelationship,
   InnerRelationshipDocument,
@@ -245,6 +246,7 @@ export class LegacySupport {
           type: definition.type as TypeFromInstanceOrString<T>,
           identifier: this.identifier,
           cache: this.cache,
+          field: this.store.schema.fields(this.identifier).get(key) as LegacyHasManyField,
           identifiers,
           key,
           meta: doc.meta || null,
