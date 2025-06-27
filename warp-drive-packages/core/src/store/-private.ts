@@ -45,6 +45,13 @@ export { RelatedCollection } from './-private/record-arrays/many-array.ts';
 
 export { log, logGroup } from './-private/debug/utils';
 export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';
+
+export {
+  DISPOSE,
+  createRequestSubscription,
+  type SubscriptionArgs,
+  type RequestSubscription,
+} from './-private/new-core-tmp/request-subscription.ts';
 export {
   getRequestState,
   type RequestLoadingState,
