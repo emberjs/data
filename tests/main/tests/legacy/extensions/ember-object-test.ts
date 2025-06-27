@@ -1,6 +1,7 @@
 import { module, test } from 'qunit';
 
 import JSONAPICache from '@ember-data/json-api';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/core/reactive';
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
@@ -174,7 +175,10 @@ module('Legacy | Extensions | EmberObject', function () {
       user1.address.get('street');
       assert.ok(false, 'we should fail');
     } catch (e) {
-      assert.strictEqual((e as Error).message, 'No field named get on fragment:address');
+      assert.strictEqual(
+        (e as Error).message,
+        DEBUG ? 'No field named get on fragment:address' : 'user1.address.get is not a function'
+      );
     }
 
     // we should not error since in the schema, nor should we have a type error
@@ -257,7 +261,10 @@ module('Legacy | Extensions | EmberObject', function () {
       user1.address.get('street');
       assert.ok(false, 'we should fail');
     } catch (e) {
-      assert.strictEqual((e as Error).message, 'No field named get on fragment:address');
+      assert.strictEqual(
+        (e as Error).message,
+        DEBUG ? 'No field named get on fragment:address' : 'user1.address.get is not a function'
+      );
     }
 
     // we should not error since in the schema, nor should we have a type error
