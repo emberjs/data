@@ -177,6 +177,13 @@ const MUTABLE_PROPS = [
   'isLoaded',
   'meta',
   'links',
+  'isAsync',
+  'isPolymorphic',
+  'identifier',
+  'cache',
+  '_inverseIsAsync',
+  'key',
+  'DEPRECATED_CLASS_NAME',
 ];
 
 export class IdentifierArray<T = unknown> {
