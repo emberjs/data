@@ -384,6 +384,7 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
    * @internal
    */
   @consume('store') declare _store: Store;
+
   get store(): Store {
     const store = this.args.store || this._store;
     assert(
@@ -419,19 +420,26 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
   <template>
     {{#if (and this.state.isIdle (has-block "idle"))}}
       {{yield to="idle"}}
+
     {{else if this.state.isIdle}}
       <Throw @error={{IdleBlockMissingError}} />
+
     {{else if this.state.reqState.isLoading}}
       {{yield this.state.reqState.loadingState to="loading"}}
+
     {{else if (and this.state.reqState.isCancelled (has-block "cancelled"))}}
       {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="cancelled"}}
+
     {{else if (and this.state.reqState.isError (has-block "error"))}}
       {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="error"}}
+
     {{else if this.state.reqState.isSuccess}}
       {{yield this.state.result this.state.contentFeatures to="content"}}
+
     {{else if (not this.state.reqState.isCancelled)}}
-      <Throw @error={{(notNull this.state.reqState.error)}} />
+      <Throw @error={{(notNull this.state.reqState.reason)}} />
     {{/if}}
+
     {{yield this.state.reqState to="always"}}
   </template>
 }

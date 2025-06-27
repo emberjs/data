@@ -20,6 +20,9 @@ module.exports = async function (defaults) {
 
   setConfig(app, __dirname, {
     compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
+    deprecations: {
+      DEPRECATE_TRACKING_PACKAGE: false,
+    },
   });
 
   app.import('node_modules/@warp-drive/diagnostic/dist/styles/dom-reporter.css');

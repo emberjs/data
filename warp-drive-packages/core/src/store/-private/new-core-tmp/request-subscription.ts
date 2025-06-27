@@ -1,3 +1,4 @@
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { RequestManager, Store, StoreRequestInput } from '../../../index';
@@ -211,7 +212,9 @@ export class RequestSubscription<RT, T, E> {
   private async _beginPolling() {
     // await the initial request
     try {
-      await this.request;
+      if (!this.isIdle) {
+        await this.request;
+      }
     } catch {
       // ignore errors here, we just want to wait for the request to finish
     } finally {
@@ -630,9 +633,21 @@ export class RequestSubscription<RT, T, E> {
 
   @memoized
   get request(): Future<RT> {
-    const request = this._request;
-    this._updateSubscriptions();
-    return request;
+    if (DEBUG) {
+      try {
+        const request = this._request;
+        this._updateSubscriptions();
+        return request;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+        throw new Error(`Unable to initialize the request`, { cause: e });
+      }
+    } else {
+      const request = this._request;
+      this._updateSubscriptions();
+      return request;
+    }
   }
 
   get reqState() {
