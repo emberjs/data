@@ -1,18 +1,14 @@
-import type Owner from '@ember/owner';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
-import { cached, tracked } from '@glimmer/tracking';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
 import type { Store, StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future } from '@warp-drive/core/request';
-import type { RequestLoadingState, RequestState } from '@warp-drive/core/store/-private';
-import { getRequestState } from '@warp-drive/core/store/-private';
-import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
-import type { RequestInfo, StructuredErrorDocument } from '@warp-drive/core/types/request';
-import { EnableHydration } from '@warp-drive/core/types/request';
+import type { RequestLoadingState, RequestState, RequestSubscription } from '@warp-drive/core/store/-private';
+import { createRequestSubscription, DISPOSE } from '@warp-drive/core/store/-private';
+import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 import { and, Throw } from './await.gts';
 
@@ -24,8 +20,6 @@ function notNull<T>(x: T | null) {
 }
 
 const not = (x: unknown) => !x;
-// default to 30 seconds unavailable before we refresh
-const DEFAULT_DEADLINE = 30_000;
 const IdleBlockMissingError = new Error(
   'No idle block provided for <Request> component, and no query or request was provided.'
 );
@@ -34,10 +28,6 @@ let consume = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   const { consume: contextConsume } = importSync('ember-provide-consume-context') as { consume: typeof service };
   consume = contextConsume;
-}
-
-function isNeverString(val: never): string {
-  return val;
 }
 
 type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
@@ -394,514 +384,6 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
    * @internal
    */
   @consume('store') declare _store: Store;
-
-  /**
-   * Whether the browser reports that the network is online.
-   *
-   * @internal
-   */
-  @tracked isOnline = true;
-
-  /**
-   * Whether the browser reports that the tab is hidden.
-   *
-   * @internal
-   */
-  @tracked isHidden = true;
-
-  /**
-   * Whether the component is currently refreshing the request.
-   *
-   * @internal
-   */
-  @tracked isRefreshing = false;
-
-  /**
-   * The most recent blocking request that was made, typically
-   * the result of a reload.
-   *
-   * This will never be the original request passed as an arg to
-   * the component.
-   *
-   * @internal
-   */
-  @tracked _localRequest: Future<RT> | undefined;
-
-  /**
-   * The most recent request that was made, typically due to either a
-   * reload or a refresh.
-   *
-   * This will never be the original request passed as an arg to
-   * the component.
-   *
-   * @internal
-   */
-  @tracked _latestRequest: Future<RT> | undefined;
-
-  /**
-   * The time at which the network was reported as offline.
-   *
-   * @internal
-   */
-  declare unavailableStart: number | null;
-  declare intervalStart: number | null;
-  declare nextInterval: number | null;
-  declare invalidated: boolean;
-  declare isUpdating: boolean;
-
-  /**
-   * The event listener for network status changes,
-   * cached to use the reference for removal.
-   *
-   * @internal
-   */
-  declare onlineChanged: (event: Event) => void;
-
-  /**
-   * The event listener for visibility status changes,
-   * cached to use the reference for removal.
-   *
-   * @internal
-   */
-  declare backgroundChanged: (event: Event) => void;
-
-  /**
-   * The last request passed as an arg to the component,
-   * cached for comparison.
-   *
-   * @internal
-   */
-  declare _originalRequest: Future<RT> | undefined;
-
-  /**
-   * The last query passed as an arg to the component,
-   * cached for comparison.
-   *
-   * @internal
-   */
-  declare _originalQuery: StoreRequestInput<RT, T> | undefined;
-
-  declare _subscription: object | null;
-  declare _subscribedTo: object | null;
-
-  constructor(owner: Owner, args: RequestSignature<RT, T, E>['Args']) {
-    super(owner, args);
-    this._subscribedTo = null;
-    this._subscription = null;
-    this.intervalStart = null;
-    this.invalidated = false;
-    this.nextInterval = null;
-
-    this.installListeners();
-    void this.beginPolling();
-  }
-
-  async beginPolling() {
-    // await the initial request
-    try {
-      await this.request;
-    } catch {
-      // ignore errors here, we just want to wait for the request to finish
-    } finally {
-      if (!this.isDestroyed) {
-        void this.scheduleInterval();
-      }
-    }
-  }
-
-  @cached
-  get isIdle() {
-    const { request, query } = this.args;
-
-    return Boolean(!request && !query);
-  }
-
-  @cached
-  get autorefreshTypes(): Set<AutorefreshBehaviorType> {
-    const { autorefresh } = this.args;
-    let types: AutorefreshBehaviorType[];
-
-    if (autorefresh === true) {
-      types = ['online', 'invalid'];
-    } else if (typeof autorefresh === 'string') {
-      types = autorefresh.split(',') as AutorefreshBehaviorType[];
-    } else {
-      types = [];
-    }
-
-    return new Set(types);
-  }
-
-  // we only run this function on component creation
-  // and when an update is triggered, so it does not
-  // react to changes in the autorefreshThreshold
-  // or autorefresh args.
-  //
-  // if we need to react to those changes, we can
-  // use a modifier or internal component or some
-  // such to trigger a re-run of this function.
-  async scheduleInterval() {
-    const { autorefreshThreshold } = this.args;
-    const hasValidThreshold = typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0;
-    if (
-      // dont schedule in SSR
-      typeof window === 'undefined' ||
-      // dont schedule without a threshold
-      !hasValidThreshold ||
-      // dont schedule if we weren't told to
-      !this.autorefreshTypes.has('interval') ||
-      // dont schedule if we're already scheduled
-      this.intervalStart !== null
-    ) {
-      return;
-    }
-
-    // if we have a current request, wait for it to finish
-    // before scheduling the next one
-    if (this._latestRequest) {
-      try {
-        await this._latestRequest;
-      } catch {
-        // ignore errors here, we just want to wait for the request to finish
-      }
-
-      if (this.isDestroyed) {
-        return;
-      }
-    }
-
-    // setup the next interval
-    this.intervalStart = Date.now();
-    this.nextInterval = setTimeout(() => {
-      this.maybeUpdate();
-    }, autorefreshThreshold) as unknown as number;
-  }
-
-  clearInterval() {
-    if (this.nextInterval) {
-      clearTimeout(this.nextInterval);
-      this.intervalStart = null;
-    }
-  }
-
-  updateSubscriptions() {
-    if (this.isIdle) {
-      return;
-    }
-    const requestId = this._request.lid;
-
-    // if we're already subscribed to this request, we don't need to do anything
-    if (this._subscribedTo === requestId) {
-      return;
-    }
-
-    // if we're subscribed to a different request, we need to unsubscribe
-    this.removeSubscriptions();
-
-    // if we have a request, we need to subscribe to it
-    if (requestId) {
-      this._subscribedTo = requestId;
-      this._subscription = this.store.notifications.subscribe(
-        requestId,
-        (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
-          // ignore subscription events that occur while our own component's request
-          // is ocurring
-          if (this.isUpdating) {
-            return;
-          }
-          switch (op) {
-            case 'invalidated': {
-              // if we're subscribed to invalidations, we need to update
-              if (this.autorefreshTypes.has('invalid')) {
-                this.invalidated = true;
-                this.maybeUpdate();
-              }
-              break;
-            }
-            case 'state': {
-              const latest = this.store.requestManager._deduped.get(requestId);
-              const priority = latest?.priority;
-              const state = this.reqState;
-              if (!priority) {
-                // if there is no priority, we have completed whatever request
-                // was occurring and so we are no longer refreshing (if we were)
-                this.isRefreshing = false;
-              } else if (priority.blocking && !state.isLoading) {
-                // if we are blocking, there is an active request for this identity
-                // that MUST be fulfilled from network (not cache).
-                // Thus this is not "refreshing" because we should clear out and
-                // block on this request.
-                //
-                // we receive state notifications when either a request initiates
-                // or completes.
-                //
-                // In the completes case: we may receive the state notification
-                // slightly before the request is finalized because the NotificationManager
-                // may sync flush it (and thus deliver it before the microtask completes)
-                //
-                // In the initiates case: we aren't supposed to receive one unless there
-                // is no other request in flight for this identity.
-                //
-                // However, there is a race condition here where the completed
-                // notification can trigger an update that generates a new request
-                // thus giving us an initiated notification before the older request
-                // finalizes.
-                //
-                // When this occurs, if the triggered update happens to have caused
-                // a new request to be made for the same identity AND that request
-                // is the one passed into this component as the @request arg, then
-                // getRequestState will return the state of the new request.
-                // We can detect this by checking if the request state is "loading"
-                // as outside of this case we would have a completed request.
-                //
-                // That is the reason for the `&& !state.isLoading` check above.
-
-                // TODO should we just treat this as refreshing?
-                this.isRefreshing = false;
-                this.maybeUpdate('policy', true);
-              } else {
-                this.isRefreshing = true;
-              }
-            }
-          }
-        }
-      );
-    }
-  }
-
-  removeSubscriptions() {
-    if (this._subscription) {
-      this.store.notifications.unsubscribe(this._subscription);
-      this._subscribedTo = null;
-      this._subscription = null;
-    }
-  }
-
-  /**
-   * Install the event listeners for network and visibility changes.
-   * This is only done in browser environments with a global `window`.
-   *
-   * @internal
-   */
-  installListeners() {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    this.isOnline = window.navigator.onLine;
-    this.unavailableStart = this.isOnline ? null : Date.now();
-    this.isHidden = document.visibilityState === 'hidden';
-
-    this.onlineChanged = (event: Event) => {
-      this.isOnline = event.type === 'online';
-      if (event.type === 'offline' && this.unavailableStart === null) {
-        this.unavailableStart = Date.now();
-      }
-      this.maybeUpdate();
-    };
-    this.backgroundChanged = () => {
-      const isHidden = document.visibilityState === 'hidden';
-      this.isHidden = isHidden;
-
-      if (isHidden && this.unavailableStart === null) {
-        this.unavailableStart = Date.now();
-      }
-
-      this.maybeUpdate();
-    };
-
-    window.addEventListener('online', this.onlineChanged, { passive: true, capture: true });
-    window.addEventListener('offline', this.onlineChanged, { passive: true, capture: true });
-    document.addEventListener('visibilitychange', this.backgroundChanged, { passive: true, capture: true });
-  }
-
-  /**
-   * If the network is online and the tab is visible, either reload or refresh the request
-   * based on the component's configuration and the requested update mode.
-   *
-   * Valid modes are:
-   *
-   * - `'reload'`: Force a reload of the request.
-   * - `'refresh'`: Refresh the request in the background.
-   * - `'policy'`: Make the request, letting the store's configured CachePolicy decide whether to reload, refresh, or do nothing.
-   * - `undefined`: Make the request using the component's autorefreshBehavior setting if the autorefreshThreshold has passed.
-   *
-   * @internal
-   */
-  maybeUpdate(mode?: 'reload' | 'refresh' | 'policy' | 'invalidated', silent?: boolean): void {
-    if (this.isIdle) {
-      return;
-    }
-    const canAttempt = Boolean(this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size));
-
-    if (!canAttempt) {
-      if (!silent && mode && mode !== 'invalidated') {
-        throw new Error(`Reload not available: the network is not online or the tab is hidden`);
-      }
-
-      return;
-    }
-
-    const { autorefreshTypes } = this;
-    let shouldAttempt = this.invalidated || Boolean(mode);
-
-    if (!shouldAttempt && autorefreshTypes.has('online')) {
-      const { unavailableStart } = this;
-      const { autorefreshThreshold } = this.args;
-      const deadline = typeof autorefreshThreshold === 'number' ? autorefreshThreshold : DEFAULT_DEADLINE;
-      shouldAttempt = Boolean(unavailableStart && Date.now() - unavailableStart > deadline);
-    }
-
-    if (!shouldAttempt && autorefreshTypes.has('interval')) {
-      const { intervalStart } = this;
-      const { autorefreshThreshold } = this.args;
-
-      if (intervalStart && typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0) {
-        shouldAttempt = Boolean(Date.now() - intervalStart >= autorefreshThreshold);
-      }
-    }
-
-    this.unavailableStart = null;
-    this.invalidated = false;
-
-    if (shouldAttempt) {
-      this.clearInterval();
-      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT, T>);
-      const realMode = mode === 'invalidated' ? null : mode;
-      const val = realMode ?? this.args.autorefreshBehavior ?? 'policy';
-      switch (val) {
-        case 'reload':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
-          break;
-        case 'refresh':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
-          break;
-        case 'policy':
-          break;
-        default:
-          throw new Error(
-            `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
-          );
-      }
-
-      const wasStoreRequest = request[EnableHydration] === true;
-      assert(
-        `Cannot supply a different store via context than was used to create the request`,
-        !request.store || request.store === this.store
-      );
-
-      this.isUpdating = true;
-      this._latestRequest = wasStoreRequest ? this.store.request(request) : this.store.requestManager.request(request);
-
-      if (val !== 'refresh') {
-        this._localRequest = this._latestRequest;
-      }
-
-      void this.scheduleInterval();
-      void this._latestRequest.finally(() => {
-        this.isUpdating = false;
-      });
-    } else {
-      // TODO probably want this
-      // void this.scheduleInterval();
-    }
-  }
-
-  /**
-   * Retry the request, reloading it from the server.
-   *
-   * @internal
-   */
-  retry = async () => {
-    this.maybeUpdate('reload');
-    await this._localRequest;
-  };
-
-  /**
-   * Refresh the request, updating it in the background.
-   *
-   * @internal
-   */
-  refresh = async () => {
-    this.maybeUpdate('refresh');
-    await this._latestRequest;
-  };
-
-  @cached
-  get errorFeatures() {
-    return {
-      isHidden: this.isHidden,
-      isOnline: this.isOnline,
-      retry: this.retry,
-    };
-  }
-
-  @cached
-  get contentFeatures() {
-    const feat: ContentFeatures<RT> = {
-      isHidden: this.isHidden,
-      isOnline: this.isOnline,
-      reload: this.retry,
-      refresh: this.refresh,
-      isRefreshing: this.isRefreshing,
-      latestRequest: this._latestRequest,
-    };
-
-    if (feat.isRefreshing) {
-      feat.abort = () => {
-        this._latestRequest?.abort();
-      };
-    }
-
-    return feat;
-  }
-
-  willDestroy() {
-    this.removeSubscriptions();
-
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    this.clearInterval();
-
-    window.removeEventListener('online', this.onlineChanged, { passive: true, capture: true } as unknown as boolean);
-    window.removeEventListener('offline', this.onlineChanged, { passive: true, capture: true } as unknown as boolean);
-    document.removeEventListener('visibilitychange', this.backgroundChanged, {
-      passive: true,
-      capture: true,
-    } as unknown as boolean);
-  }
-
-  @cached
-  get _request(): Future<RT> {
-    const { request, query } = this.args;
-    assert(`Cannot use both @request and @query args with the <Request> component`, !request || !query);
-    const { _localRequest, _originalRequest, _originalQuery } = this;
-    const isOriginalRequest = request === _originalRequest && query === _originalQuery;
-
-    if (_localRequest && isOriginalRequest) {
-      return _localRequest;
-    }
-
-    // update state checks for the next time
-    this._originalQuery = query;
-    this._originalRequest = request;
-
-    if (request) {
-      return request;
-    }
-    assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return this.store.request(query);
-  }
-
-  @cached
-  get request(): Future<RT> {
-    const request = this._request;
-    this.updateSubscriptions();
-    return request;
-  }
-
   get store(): Store {
     const store = this.args.store || this._store;
     assert(
@@ -913,30 +395,43 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
     return store;
   }
 
-  get reqState() {
-    return getRequestState<RT, T, E>(this.request);
+  _state: RequestSubscription<RT, T, E> | null = null;
+  get state(): RequestSubscription<RT, T, E> {
+    let { _state } = this;
+    const { store } = this;
+    if (_state && _state.store !== store) {
+      _state[DISPOSE]();
+      _state = null;
+    }
+
+    if (!_state) {
+      this._state = _state = createRequestSubscription(store, this.args);
+    }
+
+    return _state;
   }
 
-  get result() {
-    return this.reqState.result as RT;
+  willDestroy() {
+    this._state![DISPOSE]();
+    this._state = null;
   }
 
   <template>
-    {{#if (and this.isIdle (has-block "idle"))}}
+    {{#if (and this.state.isIdle (has-block "idle"))}}
       {{yield to="idle"}}
-    {{else if this.isIdle}}
+    {{else if this.state.isIdle}}
       <Throw @error={{IdleBlockMissingError}} />
-    {{else if this.reqState.isLoading}}
-      {{yield this.reqState.loadingState to="loading"}}
-    {{else if (and this.reqState.isCancelled (has-block "cancelled"))}}
-      {{yield (notNull this.reqState.error) this.errorFeatures to="cancelled"}}
-    {{else if (and this.reqState.isError (has-block "error"))}}
-      {{yield (notNull this.reqState.error) this.errorFeatures to="error"}}
-    {{else if this.reqState.isSuccess}}
-      {{yield this.result this.contentFeatures to="content"}}
-    {{else if (not this.reqState.isCancelled)}}
-      <Throw @error={{(notNull this.reqState.error)}} />
+    {{else if this.state.reqState.isLoading}}
+      {{yield this.state.reqState.loadingState to="loading"}}
+    {{else if (and this.state.reqState.isCancelled (has-block "cancelled"))}}
+      {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="cancelled"}}
+    {{else if (and this.state.reqState.isError (has-block "error"))}}
+      {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="error"}}
+    {{else if this.state.reqState.isSuccess}}
+      {{yield this.state.result this.state.contentFeatures to="content"}}
+    {{else if (not this.state.reqState.isCancelled)}}
+      <Throw @error={{(notNull this.state.reqState.error)}} />
     {{/if}}
-    {{yield this.reqState to="always"}}
+    {{yield this.state.reqState to="always"}}
   </template>
 }
