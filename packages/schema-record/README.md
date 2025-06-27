@@ -123,7 +123,7 @@ with the following schemas:
 store.schema.registerResources([
   {
     type: 'user',
-    identity: { type: '@id', name: 'id' },
+    identity: { kind: '@id', name: 'id' },
     fields: [
       {
         type: '@identity',
