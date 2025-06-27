@@ -158,10 +158,6 @@ export class ManagedArray {
         if (prop === ARRAY_SIGNAL) {
           return _SIGNAL;
         }
-        if (prop === 'length') {
-          return consumeInternalSignal(_SIGNAL), target.length;
-        }
-        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
         if (prop === 'identifier') {
           return self.identifier;
         }
@@ -178,6 +174,11 @@ export class ManagedArray {
             self[SOURCE].push(...(newData as ArrayValue));
           }
         }
+
+        if (prop === 'length') {
+          return consumeInternalSignal(_SIGNAL), target.length;
+        }
+        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
 
         if (index !== null) {
           let val;

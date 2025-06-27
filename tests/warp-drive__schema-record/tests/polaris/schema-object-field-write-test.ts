@@ -1094,7 +1094,7 @@ module('Writes | schema-object fields', function (hooks) {
     assert.throws(() => {
       //@ts-expect-error
       record.address!.notAField = 'This should throw';
-    }, /There is no field named notAField on address/);
+    }, /There is no settable field named notAField on address/);
     assert.throws(() => {
       record.address = {
         street: '456 Elm Street',
