@@ -4,6 +4,7 @@ import { cached, tracked } from '@glimmer/tracking';
 import { module, test } from 'qunit';
 
 import JSONAPICache from '@ember-data/json-api';
+import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/core/reactive';
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
@@ -385,7 +386,7 @@ module('Legacy | Extensions | EmberObject', function () {
     );
     assert.strictEqual(
       user1.nicknames.salutation,
-      'salutations James!',
+      DEPRECATE_COMPUTED_CHAINS ? 'salutations James!' : 'salutations Chris!',
       'computeds on class prototypes update when underlying value changes'
     );
     assert.strictEqual(
@@ -433,7 +434,7 @@ module('Legacy | Extensions | EmberObject', function () {
     );
     assert.strictEqual(
       user1.nicknames.salutation,
-      'salutations James!',
+      DEPRECATE_COMPUTED_CHAINS ? 'salutations James!' : 'salutations Chris!',
       'computeds on class prototypes update when underlying value changes'
     );
     assert.strictEqual(
