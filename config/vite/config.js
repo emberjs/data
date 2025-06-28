@@ -4,6 +4,8 @@ import { defineConfig } from 'vite';
 // import dts from 'vite-plugin-dts';
 import { FixModuleOutputPlugin } from './fix-module-output-plugin.js';
 // import { CompileTypesPlugin } from './compile-types-plugin.js';
+// vite.config.ts
+import UnpluginIsolatedDecl from 'unplugin-isolated-decl/vite';
 
 export function createConfig(options, resolve) {
   options.srcDir = options.srcDir ?? './src';
@@ -37,6 +39,7 @@ export function createConfig(options, resolve) {
       },
     },
     plugins: [
+      UnpluginIsolatedDecl({}),
       babel(
         options.babelConfigFile
           ? {
