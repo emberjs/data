@@ -87,19 +87,25 @@ function _unsubscribe(
  * This Feature is what allows WarpDrive to create subscriptions that
  * work with any framework or change-notification system.
  *
- * @class NotificationManager
+ * @hideconstructor
  * @public
  */
 export default class NotificationManager {
-  declare store: Store;
-  declare isDestroyed: boolean;
-  declare _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
-  declare _cache: Map<
+  /** @internal */
+  declare private store: Store;
+  /** @internal */
+  declare private isDestroyed: boolean;
+  /** @internal */
+  declare private _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
+  /** @internal */
+  declare private _cache: Map<
     StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
     Array<NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >;
-  declare _hasFlush: boolean;
-  declare _onFlushCB?: () => void;
+  /** @internal */
+  declare private _hasFlush: boolean;
+  /** @internal */
+  declare private _onFlushCB?: () => void;
 
   constructor(store: Store) {
     this.store = store;
@@ -169,9 +175,8 @@ export default class NotificationManager {
    * remove a previous subscription
    *
    * @public
-   * @param {UnsubscribeToken} token
    */
-  unsubscribe(token: UnsubscribeToken) {
+  unsubscribe(token: UnsubscribeToken): void {
     if (!this.isDestroyed) {
       _unsubscribe(token, this._cache);
     }
@@ -180,10 +185,6 @@ export default class NotificationManager {
   /**
    * Custom Caches and Application Code should not call this method directly.
    *
-   * @param identifier
-   * @param value
-   * @param key
-   * @return {Boolean} whether a notification was delivered to any subscribers
    * @private
    */
   notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
@@ -256,11 +257,12 @@ export default class NotificationManager {
     return hasSubscribers;
   }
 
-  _onNextFlush(cb: () => void) {
+  /** @internal */
+  _onNextFlush(cb: () => void): void {
     this._onFlushCB = cb;
   }
 
-  _scheduleNotify(): boolean {
+  private _scheduleNotify(): boolean {
     const asyncFlush = this.store._enableAsyncFlush;
 
     if (this._hasFlush) {
@@ -278,7 +280,8 @@ export default class NotificationManager {
     return true;
   }
 
-  _flush() {
+  /** @internal */
+  _flush(): void {
     const buffered = this._buffered;
     if (buffered.size) {
       this._buffered = new Map();
@@ -295,10 +298,20 @@ export default class NotificationManager {
     this._onFlushCB = undefined;
   }
 
-  _flushNotification(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  _flushNotification(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  _flushNotification(identifier: StableRecordIdentifier | StableDocumentIdentifier, value: CacheOperation): boolean;
-  _flushNotification(
+  private _flushNotification(
+    identifier: StableRecordIdentifier,
+    value: 'attributes' | 'relationships',
+    key?: string
+  ): boolean;
+  private _flushNotification(
+    identifier: StableRecordIdentifier,
+    value: 'errors' | 'meta' | 'identity' | 'state'
+  ): boolean;
+  private _flushNotification(
+    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    value: CacheOperation
+  ): boolean;
+  private _flushNotification(
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     value: NotificationType | CacheOperation,
     key?: string
@@ -338,7 +351,8 @@ export default class NotificationManager {
     return true;
   }
 
-  destroy() {
+  /** @internal */
+  destroy(): void {
     this.isDestroyed = true;
     this._cache.clear();
   }

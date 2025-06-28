@@ -63,7 +63,7 @@ function createSignalDescriptor(key: string | symbol, intialValue: unknown) {
  *
  * @internal
  */
-export function defineSignal<T extends object>(obj: T, key: string, v?: unknown) {
+export function defineSignal<T extends object>(obj: T, key: string, v?: unknown): void {
   Object.defineProperty(obj, key, createSignalDescriptor(key, v));
 }
 
@@ -72,7 +72,7 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
  *
  * @internal
  */
-export function defineNonEnumerableSignal<T extends object>(obj: T, key: string, v?: unknown) {
+export function defineNonEnumerableSignal<T extends object>(obj: T, key: string, v?: unknown): void {
   const desc = createSignalDescriptor(key, v);
   desc.enumerable = false;
   Object.defineProperty(obj, key, desc);
@@ -82,7 +82,7 @@ export function memoized<T extends object, K extends keyof T & string>(
   target: T,
   key: K,
   descriptor: PropertyDescriptor
-) {
+): PropertyDescriptor {
   // Error on `@memoized()`, `@memoized(...args)`, and `@memoized propName = value;`
   assert(
     'You attempted to use @memoized(), which is not necessary nor supported. Remove the parentheses and you will be good to go!',
@@ -119,7 +119,11 @@ export function memoized<T extends object, K extends keyof T & string>(
   return descriptor;
 }
 
-export function gate<T extends object, K extends keyof T & string>(_target: T, key: K, desc: PropertyDescriptor) {
+export function gate<T extends object, K extends keyof T & string>(
+  _target: T,
+  key: K,
+  desc: PropertyDescriptor
+): PropertyDescriptor {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const getter = desc.get as (this: T) => unknown;
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -158,7 +162,7 @@ export function gate<T extends object, K extends keyof T & string>(_target: T, k
   return desc;
 }
 
-export function defineGate<T extends object>(obj: T, key: string, desc: PropertyDescriptor) {
+export function defineGate<T extends object>(obj: T, key: string, desc: PropertyDescriptor): void {
   const options = Object.assign({ enumerable: true, configurable: false }, gate(obj, key as keyof T & string, desc));
   Object.defineProperty(obj, key, options);
 }
