@@ -13,12 +13,12 @@
     title="WarpDrive" />
 </p>
 
-<h3 align="center">:electron: Data utilities for using <em style="color: lightgreen">Warp</em><strong style="color: magenta">Drive</strong> with ⚡️ <em style="color: orange">Vue</em></h3>
+<h3 align="center">:electron: Data utilities for using <em style="color: lightgreen">Warp</em><strong style="color: magenta">Drive</strong> with ⚡️ <em style="color: orange">Svelte</em></h3>
 
 ---
 
 ```cli
-pnpm install -E @warp-drive/vue@latest
+pnpm install -E @warp-drive/svelte@latest
 ```
 
 **Tagged Releases**
@@ -32,21 +32,6 @@ pnpm install -E @warp-drive/vue@latest
 ## About
 
 This library provides reactive utilities that enable you to build robust performant apps with elegant control flow.
-
-```ts
-<script>
-  import { Request } from '@warp-drive/vue';
-  import { store } from './app/store';
-</script>
-
-<Request>
-
-</Request>
-
-
-```
-
-
 
 ---
 
