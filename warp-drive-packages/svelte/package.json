@@ -13,8 +13,8 @@
   "bugs": "https://github.com/emberjs/data/issues",
   "keywords": [],
   "scripts": {
-    "build:pkg": "vite build;",
-    "prepack": "pnpm run build:pkg",
+    "build:pkg": "vite build && npm run prepack",
+    "prepack": "svelte-package",
     "sync": "echo \"syncing\"",
     "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
@@ -29,30 +29,28 @@
   ],
   "exports": {
     ".": {
-      "types": "./declarations/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
     },
-    "./*": {
-      "types": "./declarations/*.d.ts",
-      "default": "./dist/*.js"
+    "./install": {
+      "types": "./dist/install.svelte.d.ts",
+      "svelte": "./dist/install.svelte.js"
     }
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
   "dependencies": {
-    "svelte": "^5.25.12",
     "@warp-drive/core": "workspace:*"
   },
   "peerDependenciesMeta": {},
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.27.0",
-    "@babel/runtime": "^7.27.0",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/package": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^5.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
-    "rollup": "^4.40.0",
+    "svelte": "^5.0.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0"
   },
