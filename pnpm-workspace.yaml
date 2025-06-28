@@ -1,3 +1,4 @@
+# enableGlobalVirtualStore: true
 packages:
   - "packages/*"
   - "warp-drive-packages/*"
