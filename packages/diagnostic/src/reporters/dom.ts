@@ -134,7 +134,7 @@ export class DOMReporter implements Reporter {
     this.scheduleUpdate();
   }
 
-  scheduleUpdate() {
+  scheduleUpdate(): void {
     if (this._pendingUpdate) {
       return;
     }
@@ -144,7 +144,7 @@ export class DOMReporter implements Reporter {
     });
   }
 
-  _updateRender() {
+  _updateRender(): void {
     // render infos
     // render any tests
     let i = 0;

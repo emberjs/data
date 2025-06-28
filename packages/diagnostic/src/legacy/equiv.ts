@@ -2,7 +2,7 @@
 /*
  * The utils below are from QUnit to support deepEqual.
  */
-export function objectType(obj: unknown) {
+export function objectType(obj: unknown): string {
   if (typeof obj === 'undefined') {
     return 'undefined';
   }

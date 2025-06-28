@@ -72,6 +72,6 @@ export function getFetchFunction(): FetchFunction {
   return _fetch();
 }
 
-export function setupFastboot(fastBootRequest: MockRequest) {
+export function setupFastboot(fastBootRequest: MockRequest): void {
   REQUEST = fastBootRequest;
 }

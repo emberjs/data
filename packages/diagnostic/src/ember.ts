@@ -62,7 +62,7 @@ const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default
   ? AbstractTestLoader.default as typeof AbstractTestLoader
   : AbstractTestLoader;
 
-export function setupTest<TC extends TestContext>(hooks: Hooks<TC>, opts?: SetupContextOptions) {
+export function setupTest<TC extends TestContext>(hooks: Hooks<TC>, opts?: SetupContextOptions): void {
   const options = { waitForSettled: false, ...opts };
 
   hooks.beforeEach(async function () {
@@ -88,7 +88,7 @@ function upgradeContext(context: TestContext): asserts context is RenderingTestC
 
 function upgradeOwner(owner: Owner): asserts owner is FullOwner {}
 
-export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, options: SetupContextOptions = {}) {
+export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, options: SetupContextOptions = {}): void {
   const _options = { waitForSettled: false, ...options } as unknown as SetupContextOptions & {
     rootElement: HTMLDivElement;
     waitForSettled: boolean;
@@ -166,7 +166,7 @@ function loadTests() {
   TestLoader.load();
 }
 
-export function configure() {
+export function configure(): void {
   setupGlobalHooks((hooks) => {
     hooks.onSuiteFinish(() => {
       const length = moduleLoadFailures.length;

@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "emitDeclarationOnly": true,
     // Enable faster builds
     // but causes us to not rebuild properly
@@ -33,6 +32,8 @@
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "checkJs": false
   },

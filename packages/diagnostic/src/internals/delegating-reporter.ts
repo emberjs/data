@@ -1,7 +1,7 @@
 import type { Reporter, SuiteReport } from '../-types/report';
 
 const Reporters = new Set<Reporter>();
-export function registerReporter(reporter: Reporter) {
+export function registerReporter(reporter: Reporter): void {
   Reporters.add(reporter);
 }
 

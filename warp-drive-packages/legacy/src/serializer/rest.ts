@@ -1,13 +1,13 @@
 import { warn } from '@ember/debug';
 
-import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
 
 import { coerceId } from './-private/utils.ts';
 import { JSONSerializer } from './json.js';
 
-function makeArray(value) {
+function makeArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [value];
 }
 
@@ -237,10 +237,10 @@ const RESTSerializer = JSONSerializer.extend({
 
     const keys = Object.keys(payload);
 
-    for (var i = 0, length = keys.length; i < length; i++) {
-      var prop = keys[i];
-      var modelName = prop;
-      var forcedSecondary = false;
+    for (let i = 0, length = keys.length; i < length; i++) {
+      const prop = keys[i];
+      let modelName = prop;
+      let forcedSecondary = false;
 
       /*
         If you want to provide sideloaded records of the same type that the
@@ -278,7 +278,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       var isPrimary = !forcedSecondary && this.isPrimaryType(store, type, primaryModelClass);
-      var value = payload[prop];
+      const value = payload[prop];
 
       if (value === null) {
         continue;
@@ -800,6 +800,6 @@ if (DEBUG) {
   });
 }
 
-export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin';
+export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin.js';
 
 export { RESTSerializer };

@@ -23,6 +23,6 @@ are properly installed.
 `;
 
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function about() {
+export async function about(): Promise<void> {
   write(indent(rebalanceLines(color(About)), 1));
 }

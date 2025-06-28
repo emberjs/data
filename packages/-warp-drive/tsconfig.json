@@ -17,7 +17,6 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "composite": true,
-    "types": [],
     "baseUrl": ".",
     "declarationDir": "unstable-preview-types",
     "declarationMap": true,

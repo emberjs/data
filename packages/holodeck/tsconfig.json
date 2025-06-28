@@ -6,7 +6,6 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
     "emitDeclarationOnly": true,
-    "allowJs": true,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -43,6 +42,8 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"
   },

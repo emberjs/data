@@ -14,7 +14,7 @@ export function serializeIntoHash(
   modelClass: ModelSchema,
   snapshot: Snapshot,
   options: { includeId?: boolean } = { includeId: true }
-) {
+): object {
   upgradeStore(store);
   const serializer: SerializerWithSerializeIntoHash | null = store.serializerFor(modelClass.modelName);
 

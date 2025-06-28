@@ -4,6 +4,7 @@ import { recordIdentifierFor, type Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { _deprecatingNormalize } from '@warp-drive/core/store/-private';
 import type { ObjectValue } from '@warp-drive/core/types/json/raw';
+import type { SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw.js';
 
 import { FetchManager, upgradeStore } from './compat/-private.ts';
 import type {
@@ -169,12 +170,11 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
     ```
 
     @public
-    @param {String} modelName The name of the model type for this payload
-    @param {Object} payload
-    @return {Object} The normalized payload
+    @param modelName The name of the model type for this payload
+    @return The normalized payload
   */
 // TODO @runspired @deprecate users should call normalize on the associated serializer directly
-export function normalize(this: Store, modelName: string, payload: ObjectValue) {
+export function normalize(this: Store, modelName: string, payload: ObjectValue): SingleResourceDocument {
   upgradeStore(this);
   assert(
     `Attempted to call store.normalize(), but the store instance has already been destroyed.`,
@@ -280,7 +280,7 @@ export function serializeRecord(this: Store, record: unknown, options?: Serializ
   return this._fetchManager.createSnapshot(recordIdentifierFor(record)).serialize(options);
 }
 
-export function cleanup(this: Store) {
+export function cleanup(this: Store): void {
   upgradeStore(this);
   // enqueue destruction of any adapters/serializers we have created
   for (const adapterName in this._adapterCache) {
