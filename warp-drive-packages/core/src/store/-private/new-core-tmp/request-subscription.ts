@@ -1,12 +1,12 @@
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { RequestManager, Store, StoreRequestInput } from '../../../index';
-import type { Future } from '../../../request';
-import type { StableDocumentIdentifier } from '../../../types/identifier';
-import type { RequestInfo } from '../../../types/request';
-import { EnableHydration } from '../../../types/request';
-import { defineSignal, getRequestState, memoized } from '../../-private';
+import type { RequestManager, Store, StoreRequestInput } from '../../../index.ts';
+import type { Future } from '../../../request.ts';
+import type { StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { RequestInfo } from '../../../types/request.ts';
+import { EnableHydration } from '../../../types/request.ts';
+import { defineSignal, getRequestState, memoized } from '../../-private.ts';
 
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
@@ -16,14 +16,14 @@ function isNeverString(val: never): string {
   return val;
 }
 
-type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
-type AutorefreshBehaviorCombos =
+export type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
+export type AutorefreshBehaviorCombos =
   | boolean
   | AutorefreshBehaviorType
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
 
-type ContentFeatures<RT> = {
+export type ContentFeatures<RT> = {
   isOnline: boolean;
   isHidden: boolean;
   isRefreshing: boolean;
@@ -90,6 +90,18 @@ export interface SubscriptionArgs<RT, T, E> {
    *
    */
   autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
+}
+
+export interface RequestComponentArgs<RT, T, E> extends SubscriptionArgs<RT, T, E> {
+  /**
+   * The store instance to use for making requests. If contexts are available,
+   * the component will default to using the `store` on the context.
+   *
+   * This is required if the store is not available via context or should be
+   * different from the store provided via context.
+   *
+   */
+  store?: Store | RequestManager;
 }
 
 /**

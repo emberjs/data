@@ -3,10 +3,15 @@ import Component from '@glimmer/component';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
-import type { Store, StoreRequestInput } from '@warp-drive/core';
+import type { RequestManager, Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { Future } from '@warp-drive/core/request';
-import type { RequestLoadingState, RequestState, RequestSubscription } from '@warp-drive/core/store/-private';
+import type {
+  ContentFeatures,
+  RequestComponentArgs,
+  RequestLoadingState,
+  RequestState,
+  RequestSubscription,
+} from '@warp-drive/core/store/-private';
 import { createRequestSubscription, DISPOSE } from '@warp-drive/core/store/-private';
 import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
@@ -30,91 +35,8 @@ if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   consume = contextConsume;
 }
 
-type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
-type AutorefreshBehaviorCombos =
-  | boolean
-  | AutorefreshBehaviorType
-  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
-  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
-
-type ContentFeatures<RT> = {
-  isOnline: boolean;
-  isHidden: boolean;
-  isRefreshing: boolean;
-  refresh: () => Promise<void>;
-  reload: () => Promise<void>;
-  abort?: () => void;
-  latestRequest?: Future<RT>;
-};
-
 interface RequestSignature<RT, T, E> {
-  Args: {
-    /**
-     * The request to monitor. This should be a `Future` instance returned
-     * by either the `store.request` or `store.requestManager.request` methods.
-     *
-     */
-    request?: Future<RT>;
-
-    /**
-     * A query to use for the request. This should be an object that can be
-     * passed to `store.request`. Use this in place of `@request` if you would
-     * like the component to also initiate the request.
-     *
-     */
-    query?: StoreRequestInput<RT, T>;
-
-    /**
-     * The store instance to use for making requests. If contexts are available,
-     * the component will default to using the `store` on the context.
-     *
-     * This is required if the store is not available via context or should be
-     * different from the store provided via context.
-     *
-     */
-    store?: Store;
-
-    /**
-     * The autorefresh behavior for the request. This can be a boolean, or any
-     * combination of the following values: `'online'`, `'interval'`, `'invalid'`.
-     *
-     * - `'online'`: Refresh the request when the browser comes back online
-     * - `'interval'`: Refresh the request at a specified interval
-     * - `'invalid'`: Refresh the request when the store emits an invalidation
-     *
-     * If `true`, this is equivalent to `'online,invalid'`.
-     *
-     * Defaults to `false`.
-     *
-     */
-    autorefresh?: AutorefreshBehaviorCombos;
-
-    /**
-     * The number of milliseconds to wait before refreshing the request when the
-     * browser comes back online or the network becomes available.
-     *
-     * This also controls the interval at which the request will be refreshed if
-     * the `interval` autorefresh type is enabled.
-     *
-     * Defaults to `30_000` (30 seconds).
-     *
-     */
-    autorefreshThreshold?: number;
-
-    /**
-     * The behavior of the request initiated by autorefresh. This can be one of
-     * the following values:
-     *
-     * - `'refresh'`: Refresh the request in the background
-     * - `'reload'`: Force a reload of the request
-     * - `'policy'` (**default**): Let the store's configured CachePolicy decide whether to
-     *    reload, refresh, or do nothing.
-     *
-     * Defaults to `'policy'`.
-     *
-     */
-    autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
-  };
+  Args: RequestComponentArgs<RT, T, E>;
   Blocks: {
     /**
      * The block to render when the component is idle and waiting to be given a request.
@@ -385,7 +307,7 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
    */
   @consume('store') declare _store: Store;
 
-  get store(): Store {
+  get store(): Store | RequestManager {
     const store = this.args.store || this._store;
     assert(
       moduleExists('ember-provide-consume-context')
@@ -418,6 +340,7 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
   }
 
   <template>
+    {{yield this.state.reqState to="before"}}
     {{#if (and this.state.isIdle (has-block "idle"))}}
       {{yield to="idle"}}
 
@@ -441,5 +364,6 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
     {{/if}}
 
     {{yield this.state.reqState to="always"}}
+    {{yield this.state.reqState to="after"}}
   </template>
 }

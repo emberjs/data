@@ -43,14 +43,18 @@ export { normalizeModelName as _deprecatingNormalize } from './-private/utils/no
 export type { StoreRequestInput } from './-private/cache-handler/handler.ts';
 export { RelatedCollection } from './-private/record-arrays/many-array.ts';
 
-export { log, logGroup } from './-private/debug/utils';
+export { log, logGroup } from './-private/debug/utils.ts';
 export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';
 
 export {
   DISPOSE,
   createRequestSubscription,
   type SubscriptionArgs,
+  type RequestComponentArgs,
   type RequestSubscription,
+  type ContentFeatures,
+  type AutorefreshBehaviorCombos,
+  type AutorefreshBehaviorType,
 } from './-private/new-core-tmp/request-subscription.ts';
 export {
   getRequestState,
