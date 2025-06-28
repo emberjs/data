@@ -61,7 +61,7 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "packageManager": "pnpm@10.8.1",
+  "packageManager": "pnpm@10.12.4",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
