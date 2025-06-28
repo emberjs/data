@@ -71,11 +71,11 @@ class InternalDocumentStorage {
     });
   }
 
-  _onMessage(_event: MessageEvent) {
+  _onMessage(_event: MessageEvent): void {
     this._invalidated = true;
   }
 
-  async _open(scope: string) {
+  async _open(scope: string): Promise<FileSystemFileHandle> {
     const directoryHandle = await navigator.storage.getDirectory();
     const fileHandle = await directoryHandle.getFileHandle(scope, { create: true });
     return fileHandle;
@@ -120,7 +120,7 @@ class InternalDocumentStorage {
     documentKey: string,
     document: CacheFileDocument,
     updatedResources: Map<string, ExistingResourceObject>
-  ) {
+  ): Promise<void> {
     const fileHandle = await this._fileHandle;
     // secure a lock before getting latest state
     const writable = await fileHandle.createWritable();
@@ -221,7 +221,7 @@ class InternalDocumentStorage {
     document: ResourceDataDocument<ExistingRecordIdentifier>,
     resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject,
     resources: Map<string, ExistingResourceObject> = new Map<string, ExistingResourceObject>()
-  ) {
+  ): Map<string, ExistingResourceObject> {
     if (Array.isArray(document.data)) {
       document.data.forEach((resourceIdentifier) => {
         const resource = resourceCollector(resourceIdentifier);
@@ -245,7 +245,7 @@ class InternalDocumentStorage {
   async putResources(
     document: ResourceDataDocument<ExistingRecordIdentifier>,
     resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
-  ) {
+  ): Promise<void> {
     const fileHandle = await this._fileHandle;
     // secure a lock before getting latest state
     const writable = await fileHandle.createWritable();
@@ -269,7 +269,7 @@ class InternalDocumentStorage {
     this._channel.postMessage({ type: 'patch', key: null, resources: [...updatedResources.keys()] });
   }
 
-  async clear(reset?: boolean) {
+  async clear(reset?: boolean): Promise<void> {
     const fileHandle = await this._fileHandle;
     const writable = await fileHandle.createWritable();
     await writable.write('');
@@ -445,7 +445,7 @@ export class DocumentStorage {
     return this._storage.putResources(document, resourceCollector);
   }
 
-  clear(reset?: boolean) {
+  clear(reset?: boolean): Promise<void> {
     return this._storage.clear(reset);
   }
 }

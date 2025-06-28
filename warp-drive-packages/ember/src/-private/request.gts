@@ -412,7 +412,7 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
     return _state;
   }
 
-  willDestroy() {
+  willDestroy(): void {
     this._state![DISPOSE]();
     this._state = null;
   }
