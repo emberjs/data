@@ -1,9 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { warn } from '@ember/debug';
 
+import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import type { ModelSchema } from '@warp-drive/core/types.js';
+import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields.js';
 import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
 
+import type { MinimumSerializerInterface } from '../compat.ts';
+import type { Snapshot } from '../compat/-private.ts';
 import { coerceId } from './-private/utils.ts';
 import { JSONSerializer } from './json.js';
 
@@ -82,12 +92,8 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @public
-   @param {String} key
-   @param {String} typeClass
-   @param {String} method
-   @return {String} normalized key
   */
-  keyForPolymorphicType(key, typeClass, method) {
+  keyForPolymorphicType(key: string, type: string, method: 'serialize' | 'deserialize'): string {
     const relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
@@ -164,14 +170,9 @@ const RESTSerializer = JSONSerializer.extend({
     Normalizes an array of resource payloads and returns a JSON-API Document
     with primary data and, if any, included data as `{ data, included }`.
 
-    @param {Store} store
-    @param {String} modelName
-    @param {Object} arrayHash
-    @param {String} prop
-    @return {Object}
     @private
   */
-  _normalizeArray(store, modelName, arrayHash, prop) {
+  _normalizeArray(store: Store, modelName: string, arrayHash: unknown, prop: string): object {
     const documentHash = {
       data: [],
       included: [],
@@ -191,14 +192,22 @@ const RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
+  _normalizePolymorphicRecord(
+    store: Store,
+    hash: object,
+    prop: string,
+    primaryModelClass: ModelSchema,
+    primarySerializer: MinimumSerializerInterface
+  ): object {
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
     const primaryHasTypeAttribute = primaryModelClass.fields.has('type');
 
+    // @ts-expect-error all the errors
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships
+      // @ts-expect-error all the errors
       const type = this.modelNameFromPayloadKey(hash.type);
 
       if (store.schema.hasResource({ type })) {
@@ -207,20 +216,21 @@ const RESTSerializer = JSONSerializer.extend({
       }
     }
 
+    // @ts-expect-error all the errors
     return serializer.normalize(modelClass, hash, prop);
   },
 
   /**
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @param {Boolean} isSingle
-    @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string,
+    isSingle: boolean
+  ): object {
     const documentHash = {
       data: null,
       included: [],
@@ -349,7 +359,7 @@ const RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  isPrimaryType(store, modelName, primaryModelClass) {
+  isPrimaryType(store: Store, modelName: string, primaryModelClass: ModelSchema): boolean {
     return dasherize(modelName) === primaryModelClass.modelName;
   },
 
@@ -381,10 +391,8 @@ const RESTSerializer = JSONSerializer.extend({
     that fetches and saves are structured.
 
     @public
-    @param {Store} store
-    @param {Object} payload
   */
-  pushPayload(store, payload) {
+  pushPayload(store: Store, payload: object): void {
     const documentHash = {
       data: [],
       included: [],
@@ -469,10 +477,9 @@ const RESTSerializer = JSONSerializer.extend({
     need to override `modelNameFromPayloadKey` for this purpose.
 
     @public
-    @param {String} key
-    @return {String} the model's modelName
+    @return the model's modelName
   */
-  modelNameFromPayloadKey(key) {
+  modelNameFromPayloadKey(key: string): string {
     return dasherize(singularize(key));
   },
 
@@ -626,11 +633,9 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} options
-    @return {Object} json
   */
-  serialize(snapshot, options) {
+  serialize(snapshot: Snapshot, options: object): object {
+    // @ts-expect-error
     return this._super(...arguments);
   },
 
@@ -655,12 +660,8 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @public
-    @param {Object} hash
-    @param {Model} typeClass
-    @param {Snapshot} snapshot
-    @param {Object} options
   */
-  serializeIntoHash(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash: object, typeClass: ModelSchema, snapshot: Snapshot, options: object): void {
     const normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
@@ -708,10 +709,8 @@ const RESTSerializer = JSONSerializer.extend({
     ```
 
     @public
-    @param {String} modelName
-    @return {String}
   */
-  payloadKeyFromModelName(modelName) {
+  payloadKeyFromModelName(modelName: string): string {
     return camelize(modelName);
   },
 
@@ -721,11 +720,12 @@ const RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} json
-    @param {Object} relationship
   */
-  serializePolymorphicType(snapshot, json, relationship) {
+  serializePolymorphicType(
+    snapshot: Snapshot,
+    json: object,
+    relationship: LegacyHasManyField | LegacyBelongsToField
+  ): void {
     const name = relationship.name;
     const typeKey = this.keyForPolymorphicType(name, relationship.type, 'serialize');
     const belongsTo = snapshot.belongsTo(name);
@@ -747,7 +747,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} relationshipOptions
     @return {Object}
    */
-  extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions) {
+  extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions): object {
     const { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload
@@ -777,7 +777,7 @@ const RESTSerializer = JSONSerializer.extend({
         type: type,
       };
     }
-
+    // @ts-expect-error
     return this._super(...arguments);
   },
 });
