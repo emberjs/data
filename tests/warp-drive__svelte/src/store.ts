@@ -3,6 +3,7 @@ import { instantiateRecord, registerDerivations, SchemaService, teardownRecord }
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
 import { CacheHandler } from '@warp-drive/core';
+import '@warp-drive/svelte/install';
 
 export default class Store extends WarpStore {
   requestManager = new RequestManager().use([Fetch]).useCache(CacheHandler);

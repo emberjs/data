@@ -10,7 +10,7 @@ export function buildSignalConfig(options: HooksOptions) {
   return {
     createSignal: (obj: object, key: string | symbol): Signal => {
       let value = 1;
-      let update: () => void;
+      let update: () => void | null;
 
       const subscribe = createSubscriber((updateFn) => {
         update = updateFn;
@@ -23,7 +23,8 @@ export function buildSignalConfig(options: HooksOptions) {
         },
         set value(new_value) {
           value = new_value;
-          update();
+          // Update will not exist if this hasn't been run inside an effect yet
+          update?.();
         },
       };
 
