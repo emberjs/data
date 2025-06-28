@@ -7,6 +7,7 @@ export const externals = [
   '@ember/array/proxy',
   '@ember/object/promise-proxy-mixin',
   '@ember/object/proxy',
+  '@ember/object/mixin',
   '@ember/application',
   '@ember/owner',
   'qunit',
