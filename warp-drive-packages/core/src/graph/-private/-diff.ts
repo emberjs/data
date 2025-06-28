@@ -444,7 +444,7 @@ export function _add(
   value: StableRecordIdentifier,
   index: number | null,
   isRemote: boolean
-) {
+): boolean {
   return !isRemote
     ? _addLocal(graph, record, relationship, value, index)
     : _addRemote(graph, record, relationship, value, index);
@@ -456,7 +456,7 @@ function _addRemote(
   relationship: CollectionEdge,
   value: StableRecordIdentifier,
   index: number | null
-) {
+): boolean {
   assert(`expected an identifier to add to the collection relationship`, value);
   const { remoteMembers, additions, removals, remoteState } = relationship;
 

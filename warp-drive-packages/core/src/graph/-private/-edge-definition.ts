@@ -20,7 +20,7 @@ export type RelationshipField = LegacyBelongsToField | LegacyHasManyField | Reso
 export type RelationshipFieldKind = RelationshipField['kind'];
 export type CollectionKind = 'hasMany' | 'collection';
 export type ResourceKind = 'belongsTo' | 'resource';
-export const RELATIONSHIP_KINDS = ['belongsTo', 'hasMany', 'resource', 'collection'];
+export const RELATIONSHIP_KINDS: string[] = ['belongsTo', 'hasMany', 'resource', 'collection'];
 
 export function isLegacyField(field: FieldSchema): field is LegacyBelongsToField | LegacyHasManyField {
   return field.kind === 'belongsTo' || field.kind === 'hasMany';
