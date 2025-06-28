@@ -20,8 +20,6 @@
     "start": "vite"
   },
   "files": [
-    "declarations",
-    "addon-main.cjs",
     "dist",
     "README.md",
     "LICENSE.md",
