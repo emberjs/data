@@ -61,19 +61,19 @@ export class ImageFetch {
     }
   }
 
-  cleanupRequest(url: string) {
+  cleanupRequest(url: string): Deferred<string> | undefined {
     const deferred = this.pending.get(url);
     this.pending.delete(url);
 
     return deferred;
   }
 
-  _send(event: RequestEventData) {
+  _send(event: RequestEventData): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.worker instanceof SharedWorker ? this.worker.port.postMessage(event) : this.channel.port1.postMessage(event);
   }
 
-  load(url: string) {
+  load(url: string): Promise<string> {
     if (isServerEnv) {
       return Promise.resolve(url);
     }

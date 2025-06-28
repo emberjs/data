@@ -9,11 +9,11 @@ async function loadImage(url: string): Promise<string> {
 }
 
 export class ImageWorker {
-  declare threads: Map<string, MessagePort>;
-  declare pendingImages: Map<string, Promise<string>>;
-  declare options: { persisted: boolean };
-  declare isSharedWorker: boolean;
-  declare cache: Map<string, string>;
+  declare private threads: Map<string, MessagePort>;
+  declare private pendingImages: Map<string, Promise<string>>;
+  declare private options: { persisted: boolean };
+  declare private isSharedWorker: boolean;
+  declare private cache: Map<string, string>;
 
   constructor(options?: { persisted: boolean }) {
     // disable if running on main thread
@@ -28,7 +28,7 @@ export class ImageWorker {
     this.initialize();
   }
 
-  fetch(url: string): Promise<string> {
+  private fetch(url: string): Promise<string> {
     const objectUrl = this.cache.get(url);
 
     if (objectUrl) {
@@ -47,7 +47,7 @@ export class ImageWorker {
     });
   }
 
-  initialize() {
+  private initialize(): void {
     if (this.isSharedWorker) {
       (globalThis as unknown as { onconnect: typeof globalThis.onmessage }).onconnect = (e) => {
         const port = e.ports[0];
@@ -75,7 +75,7 @@ export class ImageWorker {
     }
   }
 
-  setupThread(thread: string, port: MessagePort) {
+  private setupThread(thread: string, port: MessagePort): void {
     this.threads.set(thread, port);
     port.onmessage = (event: WorkerThreadEvent) => {
       if (event.type === 'close') {
@@ -92,7 +92,7 @@ export class ImageWorker {
     };
   }
 
-  async request(event: RequestEventData) {
+  private async request(event: RequestEventData): Promise<void> {
     const { thread, url } = event;
 
     const objectUrl = await this.fetch(url);
