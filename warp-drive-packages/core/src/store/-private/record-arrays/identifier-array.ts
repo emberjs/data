@@ -67,9 +67,9 @@ function isSelfProp<T extends object>(self: T, prop: KeyType): prop is Exclude<k
   return prop in self;
 }
 
-export const SOURCE = getOrSetGlobal('#source', Symbol('#source'));
-export const MUTATE = getOrSetGlobal('#update', Symbol('#update'));
-const IS_COLLECTION = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
+export const SOURCE: '___(unique) Symbol(#source)' = getOrSetGlobal('#source', Symbol('#source'));
+export const MUTATE: '___(unique) Symbol(#update)' = getOrSetGlobal('#update', Symbol('#update'));
+const IS_COLLECTION: '___(unique) Symbol(IS_COLLECTION)' = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
 
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
@@ -186,6 +186,12 @@ const MUTABLE_PROPS = [
   'DEPRECATED_CLASS_NAME',
 ];
 
+export interface IdentifierArray {
+  [IS_COLLECTION]: boolean;
+  [ARRAY_SIGNAL]: WarpDriveSignal;
+  [SOURCE]: StableRecordIdentifier[];
+}
+
 export class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**
@@ -208,10 +214,6 @@ export class IdentifierArray<T = unknown> {
   _updatingPromise: Promise<IdentifierArray<T>> | null = null;
   readonly identifier: StableDocumentIdentifier | null;
 
-  declare [IS_COLLECTION]: boolean;
-  declare [ARRAY_SIGNAL]: WarpDriveSignal;
-  declare [SOURCE]: StableRecordIdentifier[];
-
   declare links: Links | PaginationLinks | null;
   declare meta: Record<string, unknown> | null;
   declare modelName?: TypeFromInstanceOrString<T>;
@@ -225,7 +227,7 @@ export class IdentifierArray<T = unknown> {
   declare store: Store;
   declare _manager: MinimumManager;
 
-  destroy(clear: boolean) {
+  destroy(clear: boolean): void {
     this.isDestroying = !clear;
     // changing the reference breaks the Proxy
     // this[SOURCE] = [];
@@ -636,7 +638,7 @@ export class Collection<T = unknown> extends IdentifierArray<T> {
     return promise;
   }
 
-  destroy(clear: boolean) {
+  destroy(clear: boolean): void {
     super.destroy(clear);
     this._manager._managed.delete(this);
     this._manager._pending.delete(this);

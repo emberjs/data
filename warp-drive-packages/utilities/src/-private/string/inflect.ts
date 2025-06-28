@@ -26,8 +26,6 @@ const PLURAL_RULES = new Map(defaultRules.plurals.reverse());
  * or singularized.
  *
  * @public
- * @param {String} word
- * @return {void}
  * @since 4.13.0
  */
 export function uncountable(word: string): void {
@@ -39,8 +37,6 @@ export function uncountable(word: string): void {
  * or singularized.
  *
  * @public
- * @param {Array<String>} uncountables
- * @return {void}
  * @since 4.13.0
  */
 export function loadUncountable(uncountables: string[]): void {
@@ -54,9 +50,6 @@ export function loadUncountable(uncountables: string[]): void {
  * pluralization and singularization rules.
  *
  * @public
- * @param {String} single
- * @param {String} plur
- * @return {void}
  * @since 4.13.0
  */
 export function irregular(single: string, plur: string): void {
@@ -74,8 +67,6 @@ export function irregular(single: string, plur: string): void {
  * pluralization and singularization rules.
  *
  * @public
- * @param {Array<Array<String>>} irregularPairs
- * @return {void}
  * @since 4.13.0
  */
 export function loadIrregular(irregularPairs: Array<[string, string]>): void {
@@ -95,7 +86,6 @@ loadIrregular(defaultRules.irregularPairs);
  * Clears the caches for singularize and pluralize.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
 export function clear(): void {
@@ -107,7 +97,6 @@ export function clear(): void {
  * Resets the inflection rules to the defaults.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
 export function resetToDefaults(): void {
@@ -123,7 +112,6 @@ export function resetToDefaults(): void {
  * and resets the caches for singularize and pluralize.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
 export function clearRules(): void {
@@ -140,8 +128,6 @@ export function clearRules(): void {
  * Singularizes a word.
  *
  * @public
- * @param {String} word
- * @return {String}
  * @since 4.13.0
  */
 export function singularize(word: string): string {
@@ -154,8 +140,6 @@ export function singularize(word: string): string {
  * Pluralizes a word.
  *
  * @public
- * @param {String} word
- * @return {String}
  * @since 4.13.0
  */
 export function pluralize(word: string): string {
@@ -177,9 +161,6 @@ function unshiftMap<K, V>(v: [K, V], map: Map<K, V>) {
  * Adds a pluralization rule.
  *
  * @public
- * @param {RegExp} regex
- * @param {String} string
- * @return {void}
  * @since 4.13.0
  */
 export function plural(regex: RegExp, string: string): void {
@@ -196,9 +177,6 @@ export function plural(regex: RegExp, string: string): void {
  * Adds a singularization rule.
  *
  * @public
- * @param {RegExp} regex
- * @param {String} string
- * @return {void}
  * @since 4.13.0
  */
 export function singular(regex: RegExp, string: string): void {
