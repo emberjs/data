@@ -178,7 +178,8 @@
       "qunit": "2.19.4",
       "ember-compatibility-helpers": "^1.2.7",
       "testem": "~3.11.0",
-      "typescript": "5.8.3"
+      "typescript": "5.8.3",
+      "vite": "npm:rolldown-vite@latest"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
