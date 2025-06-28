@@ -5,7 +5,7 @@ import jsonToAst from 'json-to-ast';
 
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { CacheCapabilitiesManager, SchemaService } from '@warp-drive/core/types';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -81,7 +81,7 @@ export function isSimpleObject(obj: unknown): obj is Record<string, unknown> {
   return false;
 }
 
-export const RELATIONSHIP_FIELD_KINDS = ['belongsTo', 'hasMany', 'resource', 'collection'];
+export const RELATIONSHIP_FIELD_KINDS: string[] = ['belongsTo', 'hasMany', 'resource', 'collection'];
 export type PathLike = Array<string | number>;
 interface ErrorReport {
   path: PathLike;
@@ -118,7 +118,7 @@ export class Reporter {
   }
 
   declare _typeFilter: Fuse<string> | undefined;
-  searchTypes(type: string) {
+  searchTypes(type: string): FuseResult<string>[] {
     if (!this._typeFilter) {
       const allTypes = this.schema.resourceTypes();
       this._typeFilter = new Fuse(allTypes);
@@ -128,7 +128,7 @@ export class Reporter {
   }
 
   _fieldFilters: Map<string, Fuse<string>> = new Map();
-  searchFields(type: string, field: string) {
+  searchFields(type: string, field: string): FuseResult<string>[] {
     if (!this._fieldFilters.has(type)) {
       const allFields = this.schema.fields({ type });
       const attrs = Array.from(allFields.values())
@@ -140,7 +140,7 @@ export class Reporter {
     return result;
   }
 
-  get schema() {
+  get schema(): SchemaService {
     return this.capabilities.schema;
   }
 
@@ -211,26 +211,26 @@ export class Reporter {
     return node.loc!;
   }
 
-  error(path: PathLike, message: string, kind: 'key' | 'value' = 'key') {
+  error(path: PathLike, message: string, kind: 'key' | 'value' = 'key'): void {
     const loc = this.getLocation(path, kind);
     this.errors.push({ path, message, loc, type: 'error', kind });
   }
 
-  warn(path: PathLike, message: string, kind: 'key' | 'value' = 'key') {
+  warn(path: PathLike, message: string, kind: 'key' | 'value' = 'key'): void {
     const loc = this.getLocation(path, kind);
     this.errors.push({ path, message, loc, type: 'warning', kind });
   }
 
-  info(path: PathLike, message: string, kind: 'key' | 'value' = 'key') {
+  info(path: PathLike, message: string, kind: 'key' | 'value' = 'key'): void {
     const loc = this.getLocation(path, kind);
     this.errors.push({ path, message, loc, type: 'info', kind });
   }
 
-  hasExtension(extensionName: string) {
+  hasExtension(extensionName: string): boolean {
     return REGISTERED_EXTENSIONS.has(extensionName);
   }
 
-  getExtension(extensionName: string) {
+  getExtension(extensionName: string): ReporterFn | undefined {
     return REGISTERED_EXTENSIONS.get(extensionName);
   }
 
@@ -381,7 +381,7 @@ function isRemoteField(v: FieldSchema): boolean {
   return !(v.kind === '@local' || v.kind === 'alias' || v.kind === 'derived');
 }
 
-export function getRemoteField(fields: Map<string, FieldSchema>, key: string) {
+export function getRemoteField(fields: Map<string, FieldSchema>, key: string): FieldSchema | undefined {
   const field = fields.get(key);
   if (!field) {
     return undefined;

@@ -10,7 +10,10 @@ import { validateDocumentResources } from './1.1/7.2_resource-objects';
 import { validateLinks } from './1.1/links';
 import { isErrorDocument, isMetaDocument, isPushedDocument, Reporter } from './utils';
 
-export function validateDocument(capabilities: CacheCapabilitiesManager, doc: StructuredDocument<ResourceDocument>) {
+export function validateDocument(
+  capabilities: CacheCapabilitiesManager,
+  doc: StructuredDocument<ResourceDocument>
+): void {
   assert(
     `Expected a JSON:API Document as the content provided to the cache, received ${typeof doc.content}`,
     doc instanceof Error || (typeof doc.content === 'object' && doc.content !== null)

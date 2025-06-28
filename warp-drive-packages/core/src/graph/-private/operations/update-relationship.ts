@@ -23,7 +23,7 @@ type IdentifierCache = Store['identifierCache'];
 export default function updateRelationshipOperation(
   graph: Graph,
   op: UpdateRelationshipOperation | UpdateResourceRelationshipOperation
-) {
+): void {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const { definition, state, identifier } = relationship;
