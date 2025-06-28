@@ -101,7 +101,7 @@ export function buildSignalConfig(options: {
       }
       return tagForProperty(obj, key);
     },
-    consumeSignal(signal: Tag | [Tag, Tag, Tag]) {
+    consumeSignal(signal: Tag | [Tag, Tag, Tag]): void {
       if (DEPRECATE_COMPUTED_CHAINS) {
         if (Array.isArray(signal)) {
           consumeTag(signal[0]);
@@ -112,7 +112,7 @@ export function buildSignalConfig(options: {
       }
       consumeTag(signal);
     },
-    notifySignal(signal: Tag | [Tag, Tag, Tag]) {
+    notifySignal(signal: Tag | [Tag, Tag, Tag]): void {
       if (DEPRECATE_COMPUTED_CHAINS) {
         if (Array.isArray(signal)) {
           emberDirtyTag(signal[0]);
@@ -143,7 +143,7 @@ export function buildSignalConfig(options: {
         return () => getValue(memo);
       }
     },
-    willSyncFlushWatchers: () => {
+    willSyncFlushWatchers: (): boolean => {
       //@ts-expect-error
       return !!_backburner.currentInstance && _backburner._autorun !== true;
     },
