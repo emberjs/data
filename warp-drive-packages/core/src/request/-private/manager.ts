@@ -292,7 +292,7 @@ export class RequestManager {
    *
    * @private
    */
-  static create(options?: GenericCreateArgs) {
+  static create(options?: GenericCreateArgs): RequestManager {
     return new this(options);
   }
 }

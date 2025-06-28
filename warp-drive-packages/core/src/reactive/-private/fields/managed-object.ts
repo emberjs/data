@@ -17,7 +17,7 @@ import type { SchemaService } from '../schema.ts';
 import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './extension.ts';
 
-export function notifyObject(obj: ManagedObject) {
+export function notifyObject(obj: ManagedObject): void {
   notifyInternalSignal(obj[OBJECT_SIGNAL]);
 }
 
@@ -37,14 +37,17 @@ export interface ManagedObject {
   ): unknown;
 }
 
-export class ManagedObject {
-  declare [SOURCE]: object;
-  declare [Parent]: StableRecordIdentifier;
-  declare [EmbeddedPath]: string[];
-  declare [OBJECT_SIGNAL]: WarpDriveSignal;
-  declare [Editable]: boolean;
-  declare [Legacy]: boolean;
+export interface ManagedObject {
+  [SOURCE]: object;
+  [Parent]: StableRecordIdentifier;
+  [EmbeddedPath]: string[];
+  [OBJECT_SIGNAL]: WarpDriveSignal;
+  [Editable]: boolean;
+  [Legacy]: boolean;
+}
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class ManagedObject {
   constructor(
     schema: SchemaService,
     cache: Cache,

@@ -101,17 +101,18 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
     args: unknown[],
     _SIGNAL: WarpDriveSignal
   ): unknown;
+
+  [SOURCE]: unknown[];
+  identifier: StableRecordIdentifier;
+  path: string[];
+  owner: ReactiveResource;
+  [ARRAY_SIGNAL]: WarpDriveSignal;
+  [Editable]: boolean;
+  [Legacy]: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ManagedArray {
-  [SOURCE]: unknown[];
-  declare identifier: StableRecordIdentifier;
-  declare path: string[];
-  declare owner: ReactiveResource;
-  declare [ARRAY_SIGNAL]: WarpDriveSignal;
-  declare [Editable]: boolean;
-  declare [Legacy]: boolean;
-
   constructor(
     store: Store,
     schema: SchemaService,

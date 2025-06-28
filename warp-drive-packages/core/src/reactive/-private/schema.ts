@@ -317,6 +317,19 @@ export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identit
   return schema as PolarisResourceSchema;
 }
 
+interface FromIdentityDerivation {
+  (record: ReactiveResource, options: { key: 'lid' } | { key: 'type' }, key: string): string;
+  (record: ReactiveResource, options: { key: 'id' }, key: string): string | null;
+  (record: ReactiveResource, options: { key: '^' }, key: string): StableRecordIdentifier;
+  (record: ReactiveResource, options: null, key: string): asserts options;
+  (
+    record: ReactiveResource,
+    options: { key: 'id' | 'lid' | 'type' | '^' } | null,
+    key: string
+  ): StableRecordIdentifier | string | null;
+  [Type]: '@identity';
+}
+
 /**
  * A derivation that computes its value from the
  * record's identity.
@@ -338,15 +351,11 @@ export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identit
  *
  * @public
  */
-export function fromIdentity(record: ReactiveResource, options: { key: 'lid' } | { key: 'type' }, key: string): string;
-export function fromIdentity(record: ReactiveResource, options: { key: 'id' }, key: string): string | null;
-export function fromIdentity(record: ReactiveResource, options: { key: '^' }, key: string): StableRecordIdentifier;
-export function fromIdentity(record: ReactiveResource, options: null, key: string): asserts options;
-export function fromIdentity(
+export const fromIdentity = ((
   record: ReactiveResource,
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
   key: string
-): StableRecordIdentifier | string | null {
+): StableRecordIdentifier | string | null => {
   const identifier = record[Identifier];
   assert(`Cannot compute @identity for a record without an identifier`, identifier);
   assert(
@@ -355,7 +364,7 @@ export function fromIdentity(
   );
 
   return options.key === '^' ? identifier : identifier[options.key];
-}
+}) as unknown as FromIdentityDerivation;
 fromIdentity[Type] = '@identity';
 
 /**
@@ -369,7 +378,7 @@ fromIdentity[Type] = '@identity';
  * @public
  * @param {SchemaService} schema
  */
-export function registerDerivations(schema: SchemaServiceInterface) {
+export function registerDerivations(schema: SchemaServiceInterface): void {
   schema.registerDerivation(fromIdentity);
   schema.registerDerivation(_constructor);
 }

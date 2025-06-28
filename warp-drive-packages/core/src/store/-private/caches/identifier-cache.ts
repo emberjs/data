@@ -363,7 +363,7 @@ if (DEBUG) {
 }
 
 /**
- * Each instance of {Store} receives a unique instance of a IdentifierCache.
+ * Each instance of {@link Store} receives a unique instance of a IdentifierCache.
  *
  * This cache is responsible for assigning or retrieving the unique identify
  * for arbitrary resource data encountered by the store. Data representing
@@ -372,18 +372,19 @@ if (DEBUG) {
  *
  * It can be configured by consuming applications.
  *
- * @class IdentifierCache
-   @public
+ * @hideconstructor
+ * @public
  */
 export class IdentifierCache {
+  /** @internal */
   declare _cache: StableCache;
-  declare _generate: GenerationMethod;
-  declare _update: UpdateMethod;
-  declare _forget: ForgetMethod;
-  declare _reset: ResetMethod;
-  declare _merge: MergeMethod;
-  declare _keyInfoForResource: KeyInfoMethod;
-  declare _id: number;
+  declare private _generate: GenerationMethod;
+  declare private _update: UpdateMethod;
+  declare private _forget: ForgetMethod;
+  declare private _reset: ResetMethod;
+  declare private _merge: MergeMethod;
+  declare private _keyInfoForResource: KeyInfoMethod;
+  declare private _id: number;
 
   constructor() {
     // we cache the user configuredGenerationMethod at init because it must
@@ -413,10 +414,11 @@ export class IdentifierCache {
    *
    * @private
    */
-  __configureMerge(method: MergeMethod | null) {
+  __configureMerge(method: MergeMethod | null): void {
     this._merge = method || defaultMergeMethod;
   }
 
+  /** @internal */
   upgradeIdentifier(resource: { type: string; id: string | null; lid?: string }): StableRecordIdentifier {
     return this._getRecordIdentifier(resource, 2);
   }
@@ -424,13 +426,13 @@ export class IdentifierCache {
   /**
    * @private
    */
-  _getRecordIdentifier(
+  private _getRecordIdentifier(
     resource: { type: string; id: string | null; lid?: string },
     shouldGenerate: 2
   ): StableRecordIdentifier;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 1): StableRecordIdentifier;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 0): StableRecordIdentifier | undefined;
-  _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): StableRecordIdentifier | undefined {
+  private _getRecordIdentifier(resource: unknown, shouldGenerate: 1): StableRecordIdentifier;
+  private _getRecordIdentifier(resource: unknown, shouldGenerate: 0): StableRecordIdentifier | undefined;
+  private _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): StableRecordIdentifier | undefined {
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
       console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
@@ -504,8 +506,6 @@ export class IdentifierCache {
    * useful for the "create" case when we need to see if
    * we are accidentally overwritting something
    *
-   * @param resource
-   * @return {StableRecordIdentifier | undefined}
    * @private
    */
   peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): StableRecordIdentifier | undefined {
@@ -516,8 +516,6 @@ export class IdentifierCache {
     Returns the DocumentIdentifier for the given Request, creates one if it does not yet exist.
     Returns `null` if the request does not have a `cacheKey` or `url`.
 
-    @param request
-    @return {StableDocumentIdentifier | null}
     @public
   */
   getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
@@ -555,8 +553,6 @@ export class IdentifierCache {
       `id` + `type` or `lid` will return the same `lid` value)
     - this referential stability of the object itself is guaranteed
 
-    @param resource
-    @return {StableRecordIdentifier}
     @public
   */
   getOrCreateRecordIdentifier<T>(resource: T): NarrowIdentifierIfPossible<T> {
@@ -571,8 +567,6 @@ export class IdentifierCache {
    Delegates generation to the user supplied `GenerateMethod` if one has been provided
    with the signature `generateMethod({ type }, 'record')`.
 
-   @param data
-   @return {StableRecordIdentifier}
    @public
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
@@ -616,9 +610,6 @@ export class IdentifierCache {
     provided identifier. In this case the abandoned identifier will go through the usual
     `forgetRecordIdentifier` codepaths.
 
-    @param identifierObject
-    @param data
-    @return {StableRecordIdentifier}
     @public
   */
   updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): StableRecordIdentifier {
@@ -741,7 +732,6 @@ export class IdentifierCache {
    we do not care about the record anymore. Especially useful when an `id` of a
    deleted record might be reused later for a new record.
 
-   @param identifierObject
    @public
   */
   forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
@@ -774,7 +764,8 @@ export class IdentifierCache {
     }
   }
 
-  destroy() {
+  /** @internal */
+  destroy(): void {
     NEW_IDENTIFIERS.clear();
     this._cache.documents.forEach((identifier) => {
       DOCUMENTS.delete(identifier);
