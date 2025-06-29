@@ -351,11 +351,10 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
  * import { withDefaults } from '@ember-data/model/migration-support';
  * ```
  *
- * @param {SchemaService} schema The schema service to register the derivations with.
- * @return {void}
+ * @param schema The schema service to register the derivations with.
  * @public
  */
-export function registerDerivations(schema: SchemaService) {
+export function registerDerivations(schema: SchemaService): void {
   schema.registerDerivation(legacySupport);
   // @ts-expect-error
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call

@@ -2,7 +2,7 @@ function includes(message: string, search: string) {
   return message.includes ? message.includes(search) : message.includes(search);
 }
 
-export function checkMatcher(message: string, matcher: string | RegExp) {
+export function checkMatcher(message: string, matcher: string | RegExp): boolean {
   if (typeof matcher === 'string') {
     return includes(message, matcher);
   } else if (matcher instanceof RegExp) {

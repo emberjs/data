@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { assert } from '@warp-drive/core/build-config/macros';
+import type { JsonApiError } from '@warp-drive/core/store/-types/q/record-data-json-api';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 
 /**
@@ -67,17 +70,21 @@ import { getOrSetGlobal } from '@warp-drive/core/types/-private';
   @class AdapterError
   @public
 */
-function _AdapterError(errors, message = 'Adapter operation failed') {
+function _AdapterError(this: AdapterRequestError, errors: JsonApiError[], message = 'Adapter operation failed') {
   this.isAdapterError = true;
   const error = Error.call(this, message);
 
   if (error) {
     this.stack = error.stack;
+    // @ts-expect-error untyped
     this.description = error.description;
+    // @ts-expect-error untyped
     this.fileName = error.fileName;
+    // @ts-expect-error untyped
     this.lineNumber = error.lineNumber;
     this.message = error.message;
     this.name = error.name;
+    // @ts-expect-error untyped
     this.number = error.number;
   }
 
@@ -89,27 +96,46 @@ function _AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
+export interface AdapterRequestError<T extends string = string> extends Error {
+  isAdapterError: true;
+  code: T;
+  errors: JsonApiError[];
+}
+export interface AdapterRequestErrorConstructor<Instance extends AdapterRequestError = AdapterRequestError> {
+  new (errors?: unknown[], message?: string): Instance;
+  extend(options: { message: string }): AdapterRequestErrorConstructor;
+}
+
 _AdapterError.prototype = Object.create(Error.prototype);
+
 _AdapterError.prototype.code = 'AdapterError';
-_AdapterError.extend = extendFn(_AdapterError);
+_AdapterError.extend = extendFn(_AdapterError as unknown as AdapterRequestErrorConstructor);
 
-export const AdapterError = getOrSetGlobal('AdapterError', _AdapterError);
-
-function extendFn(ErrorClass) {
-  return function ({ message: defaultMessage } = {}) {
+export type AdapterError = AdapterRequestError<'AdapterError'>;
+export const AdapterError: AdapterRequestErrorConstructor<AdapterError> = getOrSetGlobal(
+  'AdapterError',
+  _AdapterError as unknown as AdapterRequestErrorConstructor<AdapterError>
+);
+type ErrorExtender = (opts: { message?: string }) => AdapterRequestErrorConstructor;
+function extendFn(ErrorClass: AdapterRequestErrorConstructor): ErrorExtender {
+  return function ({ message: defaultMessage }: { message?: string } = {}) {
     return extend(ErrorClass, defaultMessage);
   };
 }
 
-function extend(ParentErrorClass, defaultMessage) {
-  const ErrorClass = function (errors, message) {
+function extend<Final extends AdapterRequestError>(
+  ParentErrorClass: AdapterRequestErrorConstructor,
+  defaultMessage?: string
+): AdapterRequestErrorConstructor<Final> {
+  const ErrorClass = function (this: AdapterRequestError, errors: JsonApiError[], message?: string) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
-  ErrorClass.extend = extendFn(ErrorClass);
+  ErrorClass.extend = extendFn(ErrorClass as unknown as AdapterRequestErrorConstructor);
 
-  return ErrorClass;
+  return ErrorClass as unknown as AdapterRequestErrorConstructor<Final>;
 }
 
 /**
@@ -172,9 +198,10 @@ function extend(ParentErrorClass, defaultMessage) {
   @public
 */
 // TODO @deprecate extractError documentation
-export const InvalidError = getOrSetGlobal(
+export type InvalidError = AdapterRequestError<'InvalidError'>;
+export const InvalidError: AdapterRequestErrorConstructor<InvalidError> = getOrSetGlobal(
   'InvalidError',
-  extend(AdapterError, 'The adapter rejected the commit because it was invalid')
+  extend<InvalidError>(AdapterError, 'The adapter rejected the commit because it was invalid')
 );
 InvalidError.prototype.code = 'InvalidError';
 
@@ -206,7 +233,11 @@ InvalidError.prototype.code = 'InvalidError';
   @class TimeoutError
   @public
 */
-export const TimeoutError = getOrSetGlobal('TimeoutError', extend(AdapterError, 'The adapter operation timed out'));
+export type TimeoutError = AdapterRequestError<'TimeoutError'>;
+export const TimeoutError: AdapterRequestErrorConstructor<TimeoutError> = getOrSetGlobal(
+  'TimeoutError',
+  extend(AdapterError, 'The adapter operation timed out')
+);
 TimeoutError.prototype.code = 'TimeoutError';
 
 /**
@@ -218,7 +249,11 @@ TimeoutError.prototype.code = 'TimeoutError';
   @class AbortError
   @public
 */
-export const AbortError = getOrSetGlobal('AbortError', extend(AdapterError, 'The adapter operation was aborted'));
+export type AbortError = AdapterRequestError<'AbortError'>;
+export const AbortError: AdapterRequestErrorConstructor<AbortError> = getOrSetGlobal(
+  'AbortError',
+  extend(AdapterError, 'The adapter operation was aborted')
+);
 AbortError.prototype.code = 'AbortError';
 
 /**
@@ -250,7 +285,8 @@ AbortError.prototype.code = 'AbortError';
   @class UnauthorizedError
   @public
 */
-export const UnauthorizedError = getOrSetGlobal(
+export type UnauthorizedError = AdapterRequestError<'UnauthorizedError'>;
+export const UnauthorizedError: AdapterRequestErrorConstructor<UnauthorizedError> = getOrSetGlobal(
   'UnauthorizedError',
   extend(AdapterError, 'The adapter operation is unauthorized')
 );
@@ -266,7 +302,8 @@ UnauthorizedError.prototype.code = 'UnauthorizedError';
   @class ForbiddenError
   @public
 */
-export const ForbiddenError = getOrSetGlobal(
+export type ForbiddenError = AdapterRequestError<'ForbiddenError'>;
+export const ForbiddenError: AdapterRequestErrorConstructor<ForbiddenError> = getOrSetGlobal(
   'ForbiddenError',
   extend(AdapterError, 'The adapter operation is forbidden')
 );
@@ -304,7 +341,8 @@ ForbiddenError.prototype.code = 'ForbiddenError';
   @class NotFoundError
   @public
 */
-export const NotFoundError = getOrSetGlobal(
+export type NotFoundError = AdapterRequestError<'NotFoundError'>;
+export const NotFoundError: AdapterRequestErrorConstructor<NotFoundError> = getOrSetGlobal(
   'NotFoundError',
   extend(AdapterError, 'The adapter could not find the resource')
 );
@@ -320,7 +358,8 @@ NotFoundError.prototype.code = 'NotFoundError';
   @class ConflictError
   @public
 */
-export const ConflictError = getOrSetGlobal(
+export type ConflictError = AdapterRequestError<'ConflictError'>;
+export const ConflictError: AdapterRequestErrorConstructor<ConflictError> = getOrSetGlobal(
   'ConflictError',
   extend(AdapterError, 'The adapter operation failed due to a conflict')
 );
@@ -334,7 +373,8 @@ ConflictError.prototype.code = 'ConflictError';
   @class ServerError
   @public
 */
-export const ServerError = getOrSetGlobal(
+export type ServerError = AdapterRequestError<'ServerError'>;
+export const ServerError: AdapterRequestErrorConstructor<ServerError> = getOrSetGlobal(
   'ServerError',
   extend(AdapterError, 'The adapter operation failed due to a server error')
 );

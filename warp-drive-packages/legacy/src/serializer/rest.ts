@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { warn } from '@ember/debug';
+import type EmberObject from '@ember/object';
 
 import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
@@ -71,7 +72,8 @@ function makeArray(value: unknown): unknown[] {
   @class RESTSerializer
   @public
 */
-const RESTSerializer = JSONSerializer.extend({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const RESTSerializer: any = (JSONSerializer as typeof EmberObject).extend({
   /**
    `keyForPolymorphicType` can be used to define a custom key when
    serializing and deserializing a polymorphic type. By default, the
@@ -94,6 +96,7 @@ const RESTSerializer = JSONSerializer.extend({
     @public
   */
   keyForPolymorphicType(key: string, type: string, method: 'serialize' | 'deserialize'): string {
+    // @ts-expect-error
     const relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
@@ -182,7 +185,9 @@ const RESTSerializer = JSONSerializer.extend({
     const serializer = store.serializerFor(modelName);
 
     makeArray(arrayHash).forEach((hash) => {
+      // @ts-expect-error
       const { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+      // @ts-expect-error
       documentHash.data.push(data);
       if (included) {
         documentHash.included = documentHash.included.concat(included);
@@ -235,13 +240,13 @@ const RESTSerializer = JSONSerializer.extend({
       data: null,
       included: [],
     };
-
+    // @ts-expect-error
     const meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
       assert(
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
         typeof meta === 'object'
-      );
+      ); // @ts-expect-error
       documentHash.meta = meta;
     }
 
@@ -280,6 +285,7 @@ const RESTSerializer = JSONSerializer.extend({
       const type = this.modelNameFromPayloadKey(modelName);
       if (!store.schema.hasResource({ type })) {
         if (DEBUG) {
+          // @ts-expect-error
           warn(this.warnMessageNoModelForKey(modelName, type), false, {
             id: 'ds.serializer.model-for-key-missing',
           });
@@ -287,6 +293,7 @@ const RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
+      // eslint-disable-next-line no-var
       var isPrimary = !forcedSecondary && this.isPrimaryType(store, type, primaryModelClass);
       const value = payload[prop];
 
@@ -311,6 +318,7 @@ const RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && !Array.isArray(value)) {
+        // @ts-expect-error
         const { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
@@ -318,7 +326,7 @@ const RESTSerializer = JSONSerializer.extend({
         }
         continue;
       }
-
+      // @ts-expect-error
       const { data, included } = this._normalizeArray(store, type, value, prop);
 
       if (included) {
@@ -326,6 +334,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
         data.forEach((resource) => {
           /*
             Figures out if this is the primary record or not.
@@ -342,6 +351,7 @@ const RESTSerializer = JSONSerializer.extend({
           if (isFirstCreatedRecord || isUpdatedRecord) {
             documentHash.data = resource;
           } else {
+            // @ts-expect-error
             documentHash.included.push(resource);
           }
         });
@@ -402,6 +412,7 @@ const RESTSerializer = JSONSerializer.extend({
       const type = this.modelNameFromPayloadKey(prop);
       if (!store.schema.hasResource({ type })) {
         if (DEBUG) {
+          // @ts-expect-error
           warn(this.warnMessageNoModelForKey(prop, type), false, {
             id: 'ds.serializer.model-for-key-missing',
           });
@@ -413,6 +424,7 @@ const RESTSerializer = JSONSerializer.extend({
 
       makeArray(payload[prop]).forEach((hash) => {
         const { data, included } = typeSerializer.normalize(ModelSchema, hash, prop);
+        // @ts-expect-error
         documentHash.data.push(data);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -733,6 +745,7 @@ const RESTSerializer = JSONSerializer.extend({
     if (!belongsTo) {
       json[typeKey] = null;
     } else {
+      // @ts-expect-error
       json[typeKey] = camelize(belongsTo.modelName);
     }
   },
@@ -747,7 +760,12 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} relationshipOptions
     @return {Object}
    */
-  extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions): object {
+  extractPolymorphicRelationship(
+    relationshipType: string,
+    relationshipHash: object,
+    relationshipOptions?: object
+  ): object {
+    // @ts-expect-error
     const { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload

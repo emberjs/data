@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -6,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
+import type Owner from '@ember/owner';
 
 import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -101,7 +101,8 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @class JSONSerializer
   @public
 */
-const JSONSerializer = Serializer.extend({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const JSONSerializer: any = Serializer.extend({
   /**
     The `primaryKey` is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
@@ -208,14 +209,14 @@ const JSONSerializer = Serializer.extend({
   applyTransforms(typeClass: ModelSchema, data: object): object {
     const attributes = typeClass.attributes;
 
-    typeClass.eachTransformedAttribute((key, typeClass) => {
+    typeClass.eachTransformedAttribute((key, type) => {
       if (data[key] === undefined) {
         return;
       }
 
-      const transform = this.transformFor(typeClass);
+      const transform = this.transformFor(type!);
       const transformMeta = attributes.get(key);
-      data[key] = transform.deserialize(data[key], transformMeta.options);
+      data[key] = transform.deserialize(data[key], transformMeta!.options);
     });
 
     return data;
@@ -546,19 +547,24 @@ const JSONSerializer = Serializer.extend({
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
         typeof meta === 'object'
       );
+      // @ts-expect-error untyped
       documentHash.meta = meta;
     }
 
     if (isSingle) {
+      // @ts-expect-error untyped
       const { data, included } = this.normalize(primaryModelClass, payload);
       documentHash.data = data;
       if (included) {
         documentHash.included = included;
       }
     } else {
+      // @ts-expect-error untyped
       const ret = new Array(payload.length);
+      // @ts-expect-error untyped
       for (let i = 0, l = payload.length; i < l; i++) {
         const item = payload[i];
+        // @ts-expect-error untyped
         const { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -566,6 +572,7 @@ const JSONSerializer = Serializer.extend({
         ret[i] = data;
       }
 
+      // @ts-expect-error untyped
       documentHash.data = ret;
     }
 
@@ -618,10 +625,13 @@ const JSONSerializer = Serializer.extend({
 
     if (resourceHash) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
+      // @ts-expect-error untyped
       if (typeof resourceHash.links === 'object') {
+        // @ts-expect-error untyped
         this.normalizeUsingDeclaredMapping(modelClass, resourceHash.links);
       }
 
+      // @ts-expect-error untyped
       data = {
         id: this.extractId(modelClass, resourceHash),
         type: modelClass.modelName,
@@ -629,10 +639,13 @@ const JSONSerializer = Serializer.extend({
         relationships: this.extractRelationships(modelClass, resourceHash),
       };
 
+      // @ts-expect-error untyped
       if (resourceHash.lid) {
+        // @ts-expect-error untyped
         data.lid = resourceHash.lid;
       }
 
+      // @ts-expect-error untyped
       this.applyTransforms(modelClass, data.attributes);
     }
 
@@ -680,11 +693,8 @@ const JSONSerializer = Serializer.extend({
     http://jsonapi.org/format/#document-resource-object-relationships
 
     @public
-    @param {Object} relationshipModelName
-    @param {Object} relationshipHash
-    @return {Object}
   */
-  extractRelationship(relationshipModelName, relationshipHash): object {
+  extractRelationship(relationshipModelName: string, relationshipHash: object): object | null {
     if (!relationshipHash) {
       return null;
     }
@@ -694,19 +704,26 @@ const JSONSerializer = Serializer.extend({
       EmbeddedRecordsMixin has be able to process.
     */
     if (relationshipHash && typeof relationshipHash === 'object' && !Array.isArray(relationshipHash)) {
+      // @ts-expect-error untyped
       if (relationshipHash.id) {
+        // @ts-expect-error untyped
         relationshipHash.id = coerceId(relationshipHash.id);
       }
 
       // @ts-expect-error store is dynamically injected
       const modelClass = this.store.modelFor(relationshipModelName);
+      // @ts-expect-error untyped
       if (relationshipHash.type && !modelClass.fields.has('type')) {
+        // @ts-expect-error untyped
         relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
 
       return relationshipHash;
     }
-    return { id: coerceId(relationshipHash), type: dasherize(singularize(relationshipModelName)) };
+    return {
+      id: coerceId(relationshipHash as unknown as string | number | null),
+      type: dasherize(singularize(relationshipModelName)),
+    };
   },
 
   /**
@@ -723,12 +740,12 @@ const JSONSerializer = Serializer.extend({
       - `relationshipMeta` meta information about the relationship
 
     @public
-    @param {Object} relationshipModelName
-    @param {Object} relationshipHash
-    @param {Object} relationshipOptions
-    @return {Object}
   */
-  extractPolymorphicRelationship(relationshipModelName, relationshipHash, relationshipOptions): object {
+  extractPolymorphicRelationship(
+    relationshipModelName: string,
+    relationshipHash: object,
+    relationshipOptions?: object
+  ): object | null {
     return this.extractRelationship(relationshipModelName, relationshipHash);
   },
 
@@ -754,20 +771,24 @@ const JSONSerializer = Serializer.extend({
             // than the type and the hash (which might only be an id) for the
             // relationship, hence we pass the key, resource and
             // relationshipMeta too
+            // @ts-expect-error untyped
             data = this.extractPolymorphicRelationship(relationshipMeta.type, relationshipHash, {
               key,
               resourceHash,
               relationshipMeta,
             });
           } else {
+            // @ts-expect-error untyped
             data = this.extractRelationship(relationshipMeta.type, relationshipHash);
           }
         } else if (relationshipMeta.kind === 'hasMany') {
           if (relationshipHash) {
+            // @ts-expect-error untyped
             data = new Array(relationshipHash.length);
             if (relationshipMeta.options.polymorphic) {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
                 const item = relationshipHash[i];
+                // @ts-expect-error untyped
                 data[i] = this.extractPolymorphicRelationship(relationshipMeta.type, item, {
                   key,
                   resourceHash,
@@ -777,18 +798,24 @@ const JSONSerializer = Serializer.extend({
             } else {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
                 const item = relationshipHash[i];
+                // @ts-expect-error untyped
                 data[i] = this.extractRelationship(relationshipMeta.type, item);
               }
             }
           }
         }
+        // @ts-expect-error untyped
         relationship = { data };
       }
 
       const linkKey = this.keyForLink(key, relationshipMeta.kind);
+      // @ts-expect-error untyped
       if (resourceHash.links && resourceHash.links[linkKey] !== undefined) {
+        // @ts-expect-error untyped
         const related = resourceHash.links[linkKey];
+        // @ts-expect-error untyped
         relationship = relationship || {};
+        // @ts-expect-error untyped
         relationship.links = { related };
       }
 

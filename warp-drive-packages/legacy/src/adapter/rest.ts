@@ -950,6 +950,7 @@ class RESTAdapter extends AdapterWithBuildURLMixin {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
+      // @ts-expect-error needs cast to JsonApiError
       return new InvalidError(typeof payload === 'object' && 'errors' in payload ? payload.errors : undefined);
     }
 

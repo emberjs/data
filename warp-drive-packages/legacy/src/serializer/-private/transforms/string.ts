@@ -1,5 +1,8 @@
-import { TransformName } from '@warp-drive/core/types/symbols';
+import type { TransformName } from '@warp-drive/core/types/symbols';
 
+export interface StringTransform {
+  [TransformName]: 'string';
+}
 /**
   The `StringTransform` class is used to serialize and deserialize
   string attributes on Ember Data record objects. This transform is
@@ -18,7 +21,6 @@ import { TransformName } from '@warp-drive/core/types/symbols';
   }
   ```
 
-  @class StringTransform
   @public
  */
 export class StringTransform {
@@ -29,9 +31,7 @@ export class StringTransform {
     return !deserialized && deserialized !== '' ? null : String(deserialized);
   }
 
-  [TransformName] = 'string' as const;
-
-  static create() {
+  static create(): StringTransform {
     return new this();
   }
 }

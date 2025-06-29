@@ -20,7 +20,7 @@ export default function notifyChanges(
   key: string | undefined,
   record: Model,
   store: Store
-) {
+): void {
   switch (value) {
     case 'added':
     case 'attributes':

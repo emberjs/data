@@ -226,9 +226,7 @@ module('integration/record-data Custom Cache (v2) Errors', function (hooks) {
     }
     class TestAdapter extends EmberObject {
       updateRecord() {
-        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         return Promise.reject(
-          // @ts-expect-error Constructor of class 'InvalidError' is private
           new InvalidError([
             {
               title: 'Invalid Attribute',

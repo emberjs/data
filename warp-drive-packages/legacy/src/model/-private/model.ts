@@ -12,7 +12,7 @@ import {
   memoized,
   withSignalStore,
 } from '@warp-drive/core/store/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core/types';
+import type { ModelSchema, StableRecordIdentifier } from '@warp-drive/core/types';
 import type { Cache, ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
 import { RecordStore } from '@warp-drive/core/types/symbols';
@@ -95,6 +95,18 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
  * @noInheritDoc
  */
 interface Model {
+  // set during create by the store
+  /**
+   * The store service instance which created this record instance
+   */
+  store: Store;
+  /** @internal */
+  ___recordState: RecordState;
+  /** @internal */
+  ___private_notifications: object;
+  /** @internal */
+  [RecordStore]: Store;
+
   /**
     Create a JSON representation of the record, using the serialization
     strategy of the store's adapter.
@@ -491,20 +503,8 @@ interface Model {
  * @noInheritDoc
  */
 class Model extends EmberObject implements MinimalLegacyRecord {
-  // set during create by the store
-  /**
-   * The store service instance which created this record instance
-   */
-  declare store: Store;
   /** @internal */
-  declare ___recordState: RecordState;
-  /** @internal */
-  declare ___private_notifications: object;
-  /** @internal */
-  declare [RecordStore]: Store;
-
-  /** @internal */
-  init(options: ModelCreateArgs) {
+  init(options: ModelCreateArgs): void {
     if (DEBUG) {
       if (!options?._secretInit && !options?._createProps) {
         throw new Error(
@@ -881,7 +881,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   // TODO we can probably make this a computeOnce
   // we likely do not need to notify the currentState root anymore
   @gate
-  get currentState() {
+  get currentState(): RecordState {
     // descriptors are called with the wrong `this` context during mergeMixins
     // when using legacy/classic ember classes. Basically: lazy in prod and eager in dev.
     // so we do this to try to steer folks to the nicer "dont user currentState"
@@ -970,7 +970,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     @public
   */
   @memoized
-  get adapterError() {
+  get adapterError(): unknown {
     return this.currentState.adapterError;
   }
   set adapterError(v) {
@@ -993,7 +993,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   /** @internal */
-  attr() {
+  attr(): void {
     assert(
       'The `attr` method is not available on Model, a Snapshot was probably expected. Are you passing a Model instead of a Snapshot to your serializer?',
       false
@@ -1063,7 +1063,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     return (this.constructor as typeof Model).relationshipsByName.get(name);
   }
 
-  inverseFor(name: string) {
+  inverseFor(name: string): LegacyRelationshipField | null {
     return (this.constructor as typeof Model).inverseFor(name, storeFor(this)!);
   }
 
@@ -1151,7 +1151,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {store} store an instance of Store
    @return {Model} the type of the relationship, or undefined
    */
-  static typeForRelationship(name: string, store: Store) {
+  static typeForRelationship(name: string, store: Store): ModelSchema | undefined {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1356,7 +1356,10 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readonly
    */
   @computeOnce
-  static get relationshipNames() {
+  static get relationshipNames(): {
+    hasMany: string[];
+    belongsTo: string[];
+  } {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1609,7 +1612,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  static eachRelatedType<T>(callback: (this: T | undefined, type: string) => void, binding?: T) {
+  static eachRelatedType<T>(callback: (this: T | undefined, type: string) => void, binding?: T): void {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName
@@ -1756,7 +1759,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    @readonly
    */
   @computeOnce
-  static get transformedAttributes() {
+  static get transformedAttributes(): Map<string, string> {
     assert(
       `Accessing schema information on Models without looking up the model via the store is disallowed.`,
       this.modelName

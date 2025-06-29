@@ -1,5 +1,8 @@
-import { TransformName } from '@warp-drive/core/types/symbols';
+import type { TransformName } from '@warp-drive/core/types/symbols';
 
+export interface DateTransform {
+  [TransformName]: 'date';
+}
 /**
  The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
@@ -17,12 +20,11 @@ import { TransformName } from '@warp-drive/core/types/symbols';
   }
  ```
 
- @class DateTransform
   @public
  */
 
 export class DateTransform {
-  deserialize(serialized: string | number | null, _options?: Record<string, unknown>) {
+  deserialize(serialized: string | number | null, _options?: Record<string, unknown>): Date | null {
     if (typeof serialized === 'string') {
       let offset = serialized.indexOf('+');
 
@@ -51,9 +53,7 @@ export class DateTransform {
     }
   }
 
-  [TransformName] = 'date' as const;
-
-  static create() {
+  static create(): DateTransform {
     return new this();
   }
 }
