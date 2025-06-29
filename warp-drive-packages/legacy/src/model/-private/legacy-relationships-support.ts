@@ -21,7 +21,7 @@ import type { CollectionRelationship } from '@warp-drive/core/types/cache/relati
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import { EnableHydration } from '@warp-drive/core/types/request';
-import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields.js';
+import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import type {
   CollectionResourceRelationship,
   InnerRelationshipDocument,

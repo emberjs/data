@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
 import { defineSignal, memoized } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
-import type { Links } from '@warp-drive/core/types/spec/json-api-raw.js';
+import type { Links } from '@warp-drive/core/types/spec/json-api-raw';
 
 import { LegacyPromiseProxy } from './promise-belongs-to.ts';
 

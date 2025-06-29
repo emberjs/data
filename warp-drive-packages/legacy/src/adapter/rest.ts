@@ -36,7 +36,7 @@ import {
   ServerError,
   TimeoutError,
   UnauthorizedError,
-} from './error.js';
+} from './error';
 
 type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 

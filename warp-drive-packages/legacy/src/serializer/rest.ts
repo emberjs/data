@@ -9,14 +9,14 @@ import type EmberObject from '@ember/object';
 import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { ModelSchema } from '@warp-drive/core/types.js';
-import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields.js';
+import type { ModelSchema } from '@warp-drive/core/types';
+import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
 
 import type { MinimumSerializerInterface } from '../compat.ts';
 import type { Snapshot } from '../compat/-private.ts';
 import { coerceId } from './-private/utils.ts';
-import { JSONSerializer } from './json.js';
+import { JSONSerializer } from './json.ts';
 
 function makeArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [value];
@@ -818,6 +818,6 @@ if (DEBUG) {
   });
 }
 
-export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin.js';
+export { EmbeddedRecordsMixin } from './-private/embedded-records-mixin.ts';
 
 export { RESTSerializer };

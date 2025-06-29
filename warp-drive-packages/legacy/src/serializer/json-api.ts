@@ -10,7 +10,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { dasherize, pluralize, singularize } from '@warp-drive/utilities/string';
 
-import { JSONSerializer } from './json.js';
+import { JSONSerializer } from './json';
 
 /**
  * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">

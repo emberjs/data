@@ -4,7 +4,7 @@ import { recordIdentifierFor, type Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { _deprecatingNormalize } from '@warp-drive/core/store/-private';
 import type { ObjectValue } from '@warp-drive/core/types/json/raw';
-import type { SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw.js';
+import type { SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
 
 import { FetchManager, upgradeStore } from './compat/-private.ts';
 import type {
