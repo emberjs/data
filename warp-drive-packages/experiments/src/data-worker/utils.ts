@@ -9,7 +9,7 @@ import type {
 } from '@warp-drive/core/types/request';
 import type { ApiError } from '@warp-drive/core/types/spec/error';
 
-export const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+export const MUTATION_OPS: Set<string> = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 /**
  * In a Worker, any time we are asked to make a request, data needs to be returned.
@@ -62,7 +62,7 @@ function isAggregateError(error: Error & { errors?: ApiError[] }): error is Aggr
 type RobustError = Error & { error: string | object; errors?: ApiError[]; content?: unknown };
 
 // TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
-export function cloneError(error: RobustError) {
+export function cloneError(error: RobustError): RobustError {
   const isAggregate = isAggregateError(error);
 
   const cloned = (

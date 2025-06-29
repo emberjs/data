@@ -120,7 +120,7 @@ export default class BelongsToReference<
     // TODO inverse
   }
 
-  destroy() {
+  destroy(): void {
     // TODO @feature we need the notification manager often enough
     // we should potentially just expose it fully public
     this.store.notifications.unsubscribe(this.___token);
@@ -683,7 +683,7 @@ export default class BelongsToReference<
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
-  reload(options?: Record<string, unknown>) {
+  reload(options?: Record<string, unknown>): Promise<Related | null> {
     const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
       this.___identifier
     )!;

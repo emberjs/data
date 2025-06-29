@@ -4,7 +4,7 @@ interface FastbootCrypto {
 
 type UUIDv4 = `${string}-${string}-${string}-${string}-${string}`;
 
-export default function installPolyfill() {
+export default function installPolyfill(): void {
   const isFastBoot = typeof FastBoot !== 'undefined';
   const CRYPTO: Crypto = isFastBoot ? (FastBoot.require('crypto') as Crypto) : globalThis.crypto;
 

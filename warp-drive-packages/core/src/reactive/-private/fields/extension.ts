@@ -8,7 +8,7 @@ import {
 import type { ExtensionDef } from '../schema';
 
 export type ProxiedMethod = (...args: unknown[]) => unknown;
-export function expectNever(value: never) {}
+export function expectNever(value: never): void {}
 
 export function isExtensionProp(
   extensions: Map<string | symbol, ExtensionDef> | null,
@@ -22,7 +22,7 @@ export function performObjectExtensionGet(
   extensions: Map<string | symbol, ExtensionDef>,
   signals: SignalStore,
   prop: string | symbol
-) {
+): unknown {
   const desc = extensions.get(prop)!;
   switch (desc.kind) {
     case 'method': {
@@ -95,7 +95,7 @@ export function performArrayExtensionGet(
   _SIGNAL: WarpDriveSignal,
   boundFns: Map<string | symbol | number, ProxiedMethod>,
   transaction: (v: boolean) => void
-) {
+): unknown {
   const desc = extensions.get(prop)!;
   switch (desc.kind) {
     case 'method': {

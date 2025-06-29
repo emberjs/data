@@ -77,7 +77,7 @@ function buildCommandDoc(command: Command, index: number): string {
   return color(lines.join('\n'));
 }
 
-export function printDocs(config: BinConfig) {
+export function printDocs(config: BinConfig): void {
   const commands = Object.values(config.commands);
   const Help = `
 

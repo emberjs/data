@@ -13,7 +13,7 @@ const VALID_TOP_LEVEL_MEMBERS = ['data', 'included', 'meta', 'jsonapi', 'links']
  *
  * @internal
  */
-export function validateTopLevelDocumentMembers(reporter: Reporter, doc: ResourceDocument) {
+export function validateTopLevelDocumentMembers(reporter: Reporter, doc: ResourceDocument): void {
   const keys = Object.keys(doc);
 
   for (const key of keys) {

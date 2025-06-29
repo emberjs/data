@@ -36,6 +36,8 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "checkJs": false
   },
   "references": [

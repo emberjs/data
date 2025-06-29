@@ -137,7 +137,7 @@ function verifyNoDeprecation(filter?: (deprecation: FoundDeprecation) => boolean
   };
 }
 
-export function configureDeprecationHandler(assert: Assert) {
+export function configureDeprecationHandler(assert: Assert): void {
   if (!HAS_REGISTERED) {
     registerDeprecationHandler(function (message, options /*, next*/) {
       if (DEPRECATIONS_FOR_TEST && options) {

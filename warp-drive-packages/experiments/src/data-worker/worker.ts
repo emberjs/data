@@ -28,7 +28,7 @@ export class DataWorker {
     this.initialize();
   }
 
-  initialize() {
+  initialize(): void {
     // enable the CacheHandler to access the worker
     (this.store as unknown as { _worker: DataWorker })._worker = this;
     if (this.options.persisted) {
@@ -62,7 +62,7 @@ export class DataWorker {
     }
   }
 
-  setupThread(thread: string, port: MessagePort) {
+  setupThread(thread: string, port: MessagePort): void {
     this.threads.set(thread, port);
     this.pending.set(thread, new Map());
     port.onmessage = (event: WorkerThreadEvent) => {
@@ -83,7 +83,7 @@ export class DataWorker {
     };
   }
 
-  abortRequest(event: AbortEventData) {
+  abortRequest(event: AbortEventData): void {
     const { thread, id } = event;
     const future = this.pending.get(thread)!.get(id);
 
@@ -93,7 +93,7 @@ export class DataWorker {
     }
   }
 
-  async request(event: RequestEventData) {
+  async request(event: RequestEventData): Promise<void> {
     const { thread, id, data } = event;
 
     try {

@@ -129,7 +129,7 @@ export default class HasManyReference<
    *
    * @internal
    */
-  destroy() {
+  destroy(): void {
     this.store.notifications.unsubscribe(this.___token);
     this.___relatedTokenMap.forEach((token) => {
       this.store.notifications.unsubscribe(token);
@@ -537,7 +537,7 @@ export default class HasManyReference<
     if (!skipFetch) return this.load();
   }
 
-  _isLoaded() {
+  _isLoaded(): boolean {
     const hasRelationshipDataProperty = this.hasManyRelationship.state.hasReceivedData;
     if (!hasRelationshipDataProperty) {
       return false;
@@ -545,9 +545,11 @@ export default class HasManyReference<
 
     const relationship = this.graph.getData(this.hasManyRelationship.identifier, this.key) as CollectionRelationship;
 
-    return relationship.data?.every((identifier) => {
-      return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
-    });
+    return relationship.data
+      ? relationship.data.every((identifier) => {
+          return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
+        })
+      : false;
   }
 
   /**

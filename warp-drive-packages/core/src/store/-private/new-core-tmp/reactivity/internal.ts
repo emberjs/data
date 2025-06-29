@@ -141,7 +141,7 @@ export interface WarpDriveSignal {
  *
  * @internal
  */
-export const Signals = getOrSetGlobal('Signals', Symbol('Signals'));
+export const Signals: '___(unique) Symbol(Signals)' = getOrSetGlobal('Signals', Symbol('Signals'));
 export type SignalStore = Map<string | symbol, WarpDriveSignal>;
 
 /**
@@ -158,7 +158,7 @@ export function upgradeWithSignals<T extends object>(obj: T): asserts obj is T &
  *
  * @internal
  */
-export function withSignalStore<T extends object>(obj: T) {
+export function withSignalStore<T extends object>(obj: T): SignalStore {
   upgradeWithSignals(obj);
   if (obj[Signals] === undefined) {
     initializeSignalStore(obj);
@@ -220,11 +220,11 @@ export function peekInternalSignal(
   return signals?.get(key);
 }
 
-export function consumeInternalSignal(signal: WarpDriveSignal) {
+export function consumeInternalSignal(signal: WarpDriveSignal): void {
   consumeSignal(signal.signal);
 }
 
-export function notifyInternalSignal(signal: WarpDriveSignal | undefined) {
+export function notifyInternalSignal(signal: WarpDriveSignal | undefined): void {
   if (signal) {
     signal.isStale = true;
     notifySignal(signal.signal);

@@ -3,11 +3,11 @@ import JSONC from 'comment-json';
 import fs from 'fs';
 import path from 'path';
 
-import { exec, getInfo, getPackageManagerFromLockfile, getTags } from '../../shared/npm';
-import type { ParsedFlags } from '../../shared/parse-args';
-import { ALL, DefinitelyTyped, Main, Mirror, Types } from '../../shared/the-big-list';
-import { getPkgJson, getTypePathFor, write, writePkgJson } from '../../shared/utils';
-import { TS_CONFIG } from './default-ts-config';
+import { exec, getInfo, getPackageManagerFromLockfile, getTags } from '../../shared/npm.ts';
+import type { ParsedFlags } from '../../shared/parse-args.ts';
+import { ALL, DefinitelyTyped, Main, Mirror, Types } from '../../shared/the-big-list.ts';
+import { getPkgJson, getTypePathFor, write, writePkgJson } from '../../shared/utils.ts';
+import { TS_CONFIG } from './default-ts-config.ts';
 
 function assertIsString<T extends string = string>(value: unknown): asserts value is T {
   if (!value || typeof value !== 'string') {
@@ -17,7 +17,7 @@ function assertIsString<T extends string = string>(value: unknown): asserts valu
 
 type RetrofitTypes = 'types' | 'mirror';
 
-export async function retrofit(flags: ParsedFlags) {
+export async function retrofit(flags: ParsedFlags): Promise<void> {
   const fit = flags.full.get('fit');
   assertIsString<RetrofitTypes>(fit);
 
@@ -366,7 +366,7 @@ async function retrofitTypesForProject(
 
   if (!hasTsConfig) {
     write(chalk.yellow(`\t⚠️  No tsconfig.json found in the current working directory`));
-    const tsConfig = structuredClone(TS_CONFIG) as { compilerOptions: { types: string[] } };
+    const tsConfig = structuredClone(TS_CONFIG) as unknown as { compilerOptions: { types: string[] } };
     tsConfig.compilerOptions.types = ['ember-source/types'];
     for (const [pkgName, details] of toInstall) {
       if (Types.includes(pkgName)) {

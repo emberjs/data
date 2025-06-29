@@ -184,11 +184,13 @@ export default class RecordState {
     );
   }
 
-  destroy() {
+  /** @internal */
+  destroy(): void {
     storeFor(this.record)!.notifications.unsubscribe(this.handler);
   }
 
-  notify(key: keyof this & string) {
+  /** @internal */
+  notify(key: keyof this & string): void {
     const signals = withSignalStore(this);
     const signal = peekInternalSignal(signals, key);
     if (signal) {
@@ -196,7 +198,8 @@ export default class RecordState {
     }
   }
 
-  updateInvalidErrors(errors: Errors) {
+  /** @internal */
+  updateInvalidErrors(errors: Errors): void {
     assert(
       `Expected the Cache instance for ${this.identifier.lid}  to implement getErrors(identifier)`,
       typeof this.cache.getErrors === 'function'
@@ -227,7 +230,8 @@ export default class RecordState {
     }
   }
 
-  cleanErrorRequests() {
+  /** @internal */
+  cleanErrorRequests(): void {
     this.notify('isValid');
     this.notify('isError');
     this.notify('adapterError');
@@ -238,12 +242,12 @@ export default class RecordState {
   declare isSaving: boolean;
 
   @gate
-  get isLoading() {
+  get isLoading(): boolean {
     return !this.isLoaded && this.pendingCount > 0 && this.fulfilledCount === 0;
   }
 
   @gate
-  get isLoaded() {
+  get isLoaded(): boolean {
     if (this.isNew) {
       return true;
     }
@@ -251,7 +255,7 @@ export default class RecordState {
   }
 
   @gate
-  get isSaved() {
+  get isSaved(): boolean {
     const rd = this.cache;
     if (this.isDeleted) {
       assert(`Expected Cache to implement isDeletionCommitted()`, typeof rd.isDeletionCommitted === 'function');
@@ -264,7 +268,7 @@ export default class RecordState {
   }
 
   @gate
-  get isEmpty() {
+  get isEmpty(): boolean {
     const rd = this.cache;
     // TODO this is not actually an RFC'd concept. Determine the
     // correct heuristic to replace this with.
@@ -273,26 +277,26 @@ export default class RecordState {
   }
 
   @gate
-  get isNew() {
+  get isNew(): boolean {
     const rd = this.cache;
     assert(`Expected Cache to implement isNew()`, typeof rd.isNew === 'function');
     return rd.isNew(this.identifier);
   }
 
   @gate
-  get isDeleted() {
+  get isDeleted(): boolean {
     const rd = this.cache;
     assert(`Expected Cache to implement isDeleted()`, typeof rd.isDeleted === 'function');
     return rd.isDeleted(this.identifier);
   }
 
   @gate
-  get isValid() {
+  get isValid(): boolean {
     return this.record.errors.length === 0;
   }
 
   @gate
-  get isDirty() {
+  get isDirty(): boolean {
     const rd = this.cache;
     if (this.isEmpty || rd.isDeletionCommitted(this.identifier) || (this.isDeleted && this.isNew)) {
       return false;
@@ -301,7 +305,7 @@ export default class RecordState {
   }
 
   @gate
-  get isError() {
+  get isError(): boolean {
     const errorReq = this._errorRequests[this._errorRequests.length - 1];
     if (!errorReq) {
       return false;
@@ -311,7 +315,7 @@ export default class RecordState {
   }
 
   @gate
-  get adapterError() {
+  get adapterError(): unknown {
     const request = this._lastError;
     if (!request) {
       return null;
@@ -320,12 +324,25 @@ export default class RecordState {
   }
 
   @memoized
-  get isPreloaded() {
+  get isPreloaded(): boolean {
     return !this.isEmpty && this.isLoading;
   }
 
   @memoized
-  get stateName() {
+  get stateName():
+    | 'root.loading'
+    | 'root.empty'
+    | 'root.deleted.inFlight'
+    | 'root.deleted.saved'
+    | 'root.deleted.invalid'
+    | 'root.deleted.uncommitted'
+    | 'root.loaded.created.inFlight'
+    | 'root.loaded.created.invalid'
+    | 'root.loaded.created.uncommitted'
+    | 'root.loaded.updated.inFlight'
+    | 'root.loaded.updated.invalid'
+    | 'root.loaded.updated.uncommitted'
+    | 'root.loaded.saved' {
     // we might be empty while loading so check this first
     if (this.isLoading) {
       return 'root.loading';
@@ -371,7 +388,7 @@ export default class RecordState {
   }
 
   @memoized
-  get dirtyType() {
+  get dirtyType(): '' | 'deleted' | 'created' | 'updated' {
     // we might be empty while loading so check this first
     if (this.isLoading || this.isEmpty) {
       return '';

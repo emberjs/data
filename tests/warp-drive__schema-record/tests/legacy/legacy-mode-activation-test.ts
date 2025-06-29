@@ -442,9 +442,7 @@ module('Legacy Mode', function (hooks) {
     );
     const store = this.owner.lookup('service:store') as Store;
 
-    // @ts-expect-error
     store.serializerFor = serializerFor;
-    // @ts-expect-error
     store.serializeRecord = function () {
       assert.step('serializeRecord');
       // @ts-expect-error
@@ -511,9 +509,7 @@ module('Legacy Mode', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    // @ts-expect-error
     store.adapterFor = adapterFor;
-    // @ts-expect-error
     store.serializerFor = serializerFor;
     store.requestManager = new RequestManager();
     store.requestManager.useCache(CacheHandler);
@@ -615,9 +611,7 @@ module('Legacy Mode', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    // @ts-expect-error
     store.adapterFor = adapterFor;
-    // @ts-expect-error
     store.serializerFor = serializerFor;
     store.requestManager = new RequestManager();
     store.requestManager.useCache(CacheHandler);
@@ -681,9 +675,7 @@ module('Legacy Mode', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    // @ts-expect-error
     store.adapterFor = adapterFor;
-    // @ts-expect-error
     store.serializerFor = serializerFor;
     store.requestManager = new RequestManager();
     store.requestManager.useCache(CacheHandler);

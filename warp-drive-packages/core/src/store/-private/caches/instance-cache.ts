@@ -86,7 +86,7 @@ export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: St
   RecordCache.set(record, identifier);
 }
 
-export const StoreMap = getOrSetGlobal('StoreMap', new Map<OpaqueRecordInstance, Store>());
+export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<OpaqueRecordInstance, Store>());
 
 /**
  * We may eventually make this public, but its likely better for this to be killed off
@@ -233,7 +233,7 @@ export class InstanceCache {
     return record;
   }
 
-  getReference(identifier: StableRecordIdentifier) {
+  getReference(identifier: StableRecordIdentifier): RecordReference {
     const cache = this.__instances.reference;
     let reference = cache.get(identifier);
 
@@ -244,7 +244,7 @@ export class InstanceCache {
     return reference;
   }
 
-  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted = false) {
+  recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted = false): boolean {
     const cache = this.cache;
     if (!cache) {
       return false;
@@ -266,7 +266,7 @@ export class InstanceCache {
     return filterDeleted && cache.isDeletionCommitted(identifier) ? false : !isEmpty;
   }
 
-  disconnect(identifier: StableRecordIdentifier) {
+  disconnect(identifier: StableRecordIdentifier): void {
     const record = this.__instances.record.get(identifier);
     assert(
       'Cannot destroy record while it is still materialized',
@@ -283,7 +283,7 @@ export class InstanceCache {
     }
   }
 
-  unloadRecord(identifier: StableRecordIdentifier) {
+  unloadRecord(identifier: StableRecordIdentifier): void {
     if (DEBUG) {
       const requests = this.store.getRequestStateService().getPendingRequestsForRecord(identifier);
       if (
@@ -338,7 +338,7 @@ export class InstanceCache {
     });
   }
 
-  clear(type?: string) {
+  clear(type?: string): void {
     const cache = this.store.identifierCache._cache;
     if (type === undefined) {
       // it would be cool if we could just de-ref cache here
@@ -361,7 +361,7 @@ export class InstanceCache {
   }
 
   // TODO this should move into something coordinating operations
-  setRecordId(identifier: StableRecordIdentifier, id: string) {
+  setRecordId(identifier: StableRecordIdentifier, id: string): void {
     const { type, lid } = identifier;
     const oldId = identifier.id;
 
@@ -431,7 +431,7 @@ export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier:
     models.
   */
 type PreloadRelationshipValue = OpaqueRecordInstance | string;
-export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>) {
+export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>): void {
   const jsonPayload: Partial<ExistingResourceObject> = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.schema;
@@ -488,7 +488,7 @@ function _convertPreloadRelationshipToJSON(
   return recordIdentifierFor(value) as ExistingResourceIdentifierObject;
 }
 
-export function _clearCaches() {
+export function _clearCaches(): void {
   RecordCache.clear();
   StoreMap.clear();
   CacheForIdentifierCache.clear();

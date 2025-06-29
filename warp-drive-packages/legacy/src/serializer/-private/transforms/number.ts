@@ -1,7 +1,11 @@
-import { TransformName } from '@warp-drive/core/types/symbols';
+import type { TransformName } from '@warp-drive/core/types/symbols';
 
 function isNumber(value: number) {
   return value === value && value !== Infinity && value !== -Infinity;
+}
+
+export interface NumberTransform {
+  [TransformName]: 'number';
 }
 
 /**
@@ -22,7 +26,6 @@ function isNumber(value: number) {
   }
   ```
 
-  @class NumberTransform
   @public
  */
 export class NumberTransform {
@@ -46,9 +49,7 @@ export class NumberTransform {
     }
   }
 
-  [TransformName] = 'number' as const;
-
-  static create() {
+  static create(): NumberTransform {
     return new this();
   }
 }

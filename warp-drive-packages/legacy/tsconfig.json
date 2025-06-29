@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
-    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "emitDeclarationOnly": true,
@@ -28,7 +27,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "composite": true,
     "incremental": true,
     "rootDir": "src",
@@ -38,7 +36,6 @@
     "declarationDir": "declarations",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "erasableSyntaxOnly": true,
     "types": ["ember-source/types", "@types/jquery"],
     "paths": {
       "@warp-drive/core": ["../core/declarations"],
@@ -47,7 +44,9 @@
       "@warp-drive/utilities/*": ["../utilities/declarations/*"]
     },
     "checkJs": false,
-    "isolatedDeclarations": false
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true
   },
   "references": [
     {

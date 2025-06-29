@@ -6,7 +6,7 @@ function initializeStore(application: Application) {
   application.registerOptionsForType('adapter', { singleton: false });
 }
 
-export default function setupContainer(application: Application) {
+export default function setupContainer(application: Application): void {
   initializeStore(application);
 }
 

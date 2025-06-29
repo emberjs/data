@@ -2,9 +2,9 @@ import type Owner from '@ember/owner';
 import Component from '@glimmer/component';
 
 import type { Awaitable } from '@warp-drive/core/request';
-import { getPromiseState } from '@warp-drive/core/store/-private';
+import { getPromiseState, type PromiseState } from '@warp-drive/core/store/-private';
 
-export const and = (x: unknown, y: unknown) => Boolean(x && y);
+export const and = (x: unknown, y: unknown): boolean => Boolean(x && y);
 interface ThrowSignature<E = Error | string | object> {
   Args: {
     error: E;
@@ -82,7 +82,7 @@ interface AwaitSignature<T, E = Error | string | object> {
  * @public
  */
 export class Await<T, E> extends Component<AwaitSignature<T, E>> {
-  get state() {
+  get state(): Readonly<PromiseState<T, E>> {
     return getPromiseState<T, E>(this.args.promise);
   }
 

@@ -64,6 +64,50 @@ function isNonEnumerableProp(prop: string | number | symbol) {
 }
 
 const Editables = new WeakMap<ReactiveResource, ReactiveResource>();
+
+export interface ReactiveResource {
+  [Symbol.toStringTag]: `ReactiveResource<${string}>`;
+
+  /** @internal */
+  [RecordStore]: Store;
+  /** @internal */
+  [Identifier]: StableRecordIdentifier;
+  /** @internal */
+  [Parent]: StableRecordIdentifier;
+  /** @internal */
+  [EmbeddedField]: SchemaArrayField | SchemaObjectField | null;
+  /** @internal */
+  [EmbeddedPath]: string[] | null;
+  /** @internal */
+  [Editable]: boolean;
+  /** @internal */
+  [Legacy]: boolean;
+  /** @internal */
+  ___notifications: object;
+
+  /** @internal */
+  [Destroy](): void;
+
+  /**
+   * Create an editable copy of the record
+   *
+   * ReactiveResource instances are not editable by default. This method creates an editable copy of the record. To use,
+   * import the `Checkout` symbol from `@warp-drive/schema-record` and call it on the record.
+   *
+   * ```ts
+   * import { Checkout } from '@warp-drive/schema-record';
+   *
+   * const record = store.peekRecord('user', '1');
+   * const editableRecord = await record[Checkout]();
+   * ```
+   *
+   * @returns a promise that resolves to the editable record
+   * @throws if the record is already editable or if the record is embedded
+   *
+   */
+  [Checkout]<T>(): Promise<T>;
+}
+
 /**
  * A class that uses a the ResourceSchema for a ResourceType
  * and a ResouceKey to transform data from the cache into a rich, reactive
@@ -76,25 +120,8 @@ const Editables = new WeakMap<ReactiveResource, ReactiveResource>();
  * @hideconstructor
  * @public
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ReactiveResource {
-  /** @internal */
-  declare [RecordStore]: Store;
-  /** @internal */
-  declare [Identifier]: StableRecordIdentifier;
-  /** @internal */
-  declare [Parent]: StableRecordIdentifier;
-  /** @internal */
-  declare [EmbeddedField]: SchemaArrayField | SchemaObjectField | null;
-  /** @internal */
-  declare [EmbeddedPath]: string[] | null;
-  /** @internal */
-  declare [Editable]: boolean;
-  /** @internal */
-  declare [Legacy]: boolean;
-  declare [Symbol.toStringTag]: `ReactiveResource<${string}>`;
-  /** @internal */
-  declare ___notifications: object;
-
   constructor(
     store: Store,
     identifier: StableRecordIdentifier,
@@ -204,6 +231,12 @@ export class ReactiveResource {
 
       get(target: ReactiveResource, prop: string | number | symbol, receiver: typeof Proxy<ReactiveResource>) {
         if (RecordSymbols.has(prop as RecordSymbol)) {
+          if (prop === Destroy) {
+            return () => _DESTROY(receiver as unknown as ReactiveResource);
+          }
+          if (prop === Checkout) {
+            return () => _CHECKOUT(receiver as unknown as ReactiveResource);
+          }
           return target[prop as keyof ReactiveResource];
         }
         if (prop === Signals) {
@@ -742,66 +775,48 @@ export class ReactiveResource {
 
     return proxy;
   }
+}
 
-  /** @internal */
-  [Destroy](): void {
-    if (this[Legacy]) {
-      // @ts-expect-error
-      this.isDestroying = true;
-      // @ts-expect-error
-      this.isDestroyed = true;
-    }
-    this[RecordStore].notifications.unsubscribe(this.___notifications);
+function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
+  // IF we are already the editable record, throw an error
+  if (record[Editable]) {
+    throw new Error(`Cannot checkout an already editable record`);
   }
 
-  /**
-   * Create an editable copy of the record
-   *
-   * ReactiveResource instances are not editable by default. This method creates an editable copy of the record. To use,
-   * import the `Checkout` symbol from `@warp-drive/schema-record` and call it on the record.
-   *
-   * ```ts
-   * import { Checkout } from '@warp-drive/schema-record';
-   *
-   * const record = store.peekRecord('user', '1');
-   * const editableRecord = await record[Checkout]();
-   * ```
-   *
-   * @returns a promise that resolves to the editable record
-   * @throws if the record is already editable or if the record is embedded
-   *
-   */
-  [Checkout](): Promise<ReactiveResource> {
-    // IF we are already the editable record, throw an error
-    if (this[Editable]) {
-      throw new Error(`Cannot checkout an already editable record`);
-    }
-
-    const editable = Editables.get(this);
-    if (editable) {
-      return Promise.resolve(editable);
-    }
-
-    const embeddedType = this[EmbeddedField];
-    const embeddedPath = this[EmbeddedPath];
-    const isEmbedded = embeddedType !== null && embeddedPath !== null;
-
-    if (isEmbedded) {
-      throw new Error(`Cannot checkout an embedded record (yet)`);
-    }
-
-    const editableRecord = new ReactiveResource(
-      this[RecordStore],
-      this[Identifier],
-      {
-        [Editable]: true,
-        [Legacy]: this[Legacy],
-      },
-      isEmbedded,
-      embeddedType,
-      embeddedPath
-    );
-    setRecordIdentifier(editableRecord, recordIdentifierFor(this));
-    return Promise.resolve(editableRecord);
+  const editable = Editables.get(record);
+  if (editable) {
+    return Promise.resolve(editable);
   }
+
+  const embeddedType = record[EmbeddedField];
+  const embeddedPath = record[EmbeddedPath];
+  const isEmbedded = embeddedType !== null && embeddedPath !== null;
+
+  if (isEmbedded) {
+    throw new Error(`Cannot checkout an embedded record (yet)`);
+  }
+
+  const editableRecord = new ReactiveResource(
+    record[RecordStore],
+    record[Identifier],
+    {
+      [Editable]: true,
+      [Legacy]: record[Legacy],
+    },
+    isEmbedded,
+    embeddedType,
+    embeddedPath
+  );
+  setRecordIdentifier(editableRecord, recordIdentifierFor(record));
+  return Promise.resolve(editableRecord);
+}
+
+function _DESTROY(record: ReactiveResource): void {
+  if (record[Legacy]) {
+    // @ts-expect-error
+    record.isDestroying = true;
+    // @ts-expect-error
+    record.isDestroyed = true;
+  }
+  record[RecordStore].notifications.unsubscribe(record.___notifications);
 }

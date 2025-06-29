@@ -51,7 +51,7 @@ const SLICE_BATCH_SIZE = 1200;
  * @param target the array to push into
  * @param source the items to push into target
  */
-export function fastPush<T>(target: T[], source: T[]) {
+export function fastPush<T>(target: T[], source: T[]): void {
   let startLength = 0;
   const newLength = source.length;
   while (newLength - startLength > SLICE_BATCH_SIZE) {
@@ -123,7 +123,7 @@ export class RecordArrayManager {
     );
   }
 
-  _syncArray(array: IdentifierArray | Collection) {
+  _syncArray(array: IdentifierArray | Collection): void {
     const pending = this._pending.get(array);
     const isRequestArray = isCollection(array);
 
@@ -308,7 +308,7 @@ export class RecordArrayManager {
     array: Collection,
     identifiers: StableRecordIdentifier[],
     payload: CollectionResourceDocument | null
-  ) {
+  ): void {
     this._pending.delete(array);
     const source = array[SOURCE];
     assert(
@@ -379,7 +379,7 @@ export class RecordArrayManager {
     }
   }
 
-  clear(isClear = true) {
+  clear(isClear = true): void {
     this._live.forEach((array) => array.destroy(isClear));
     this._managed.forEach((array) => array.destroy(isClear));
     this._managed.clear();
@@ -389,7 +389,7 @@ export class RecordArrayManager {
     this._visibilitySet.clear();
   }
 
-  destroy() {
+  destroy(): void {
     this.isDestroying = true;
     this.clear(false);
     this._live.clear();
@@ -428,7 +428,7 @@ export function disassociateIdentifier(
   ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
   array: Collection,
   identifier: StableRecordIdentifier
-) {
+): void {
   const cache = ArraysCache.get(identifier);
   if (cache) {
     cache.delete(array);

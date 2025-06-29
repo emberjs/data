@@ -39,7 +39,7 @@ function verifyNoAssertion(message: string | undefined, label?: string): AssertN
   };
 }
 
-export function configureAssertionHandler(assert: Assert) {
+export function configureAssertionHandler(assert: Assert): void {
   assert.expectAssertion = expectAssertion;
   assert.expectNoAssertion = expectNoAssertion;
 }

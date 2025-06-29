@@ -16,7 +16,7 @@ export function buildSignalConfig(options: {
   wellknown: {
     Array: symbol | string;
   };
-}) {
+}): SignalHooks {
   const ARRAY_SIGNAL = options.wellknown.Array;
 
   return {

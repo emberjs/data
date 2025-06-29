@@ -2,7 +2,7 @@ import { getTestMetadata, setupContext, SetupContextOptions, teardownContext, Te
 
 import type { EmberHooks } from '@warp-drive/diagnostic';
 
-export function setupTest(hooks: EmberHooks<TestContext>, opts?: SetupContextOptions) {
+export function setupTest(hooks: EmberHooks<TestContext>, opts?: SetupContextOptions): void {
   const options = { waitForSettled: false, ...opts };
 
   hooks.beforeEach(async function () {

@@ -2,6 +2,46 @@ import EmberObject from '@ember/object';
 
 import type { LegacyAttributeField } from '@warp-drive/core/types/schema/fields';
 
+export interface Transform {
+  /**
+    When given a deserialized value from a record attribute this
+    method must return the serialized value.
+
+    Example
+
+    ```javascript
+    serialize(deserialized, options) {
+      return deserialized ? null : Number(deserialized);
+    }
+    ```
+
+    @public
+    @param deserialized The deserialized value
+    @param options hash of options passed to `attr`
+    @return The serialized value
+  */
+  serialize(value: unknown, options: LegacyAttributeField['options']): unknown;
+
+  /**
+    When given a serialized value from a JSON object this method must
+    return the deserialized value for the record attribute.
+
+    Example
+
+    ```javascript
+    deserialize(serialized, options) {
+      return empty(serialized) ? null : Number(serialized);
+    }
+    ```
+
+    @public
+    @param serialized The serialized value
+    @param options hash of options passed to `attr`
+    @return The deserialized value
+  */
+  deserialize(value: unknown, options: LegacyAttributeField['options']): unknown;
+}
+
 /**
   The `Transform` class is used to serialize and deserialize model
   attributes when they are saved or loaded from an
@@ -79,42 +119,4 @@ import type { LegacyAttributeField } from '@warp-drive/core/types/schema/fields'
   @class Transform
   @public
  */
-/**
-  When given a deserialized value from a record attribute this
-  method must return the serialized value.
-
-  Example
-
-  ```javascript
-  serialize(deserialized, options) {
-    return deserialized ? null : Number(deserialized);
-  }
-  ```
-
-  @public
-  @param deserialized The deserialized value
-  @param options hash of options passed to `attr`
-  @return The serialized value
-*/
-/**
-  When given a serialized value from a JSON object this method must
-  return the deserialized value for the record attribute.
-
-  Example
-
-  ```javascript
-  deserialize(serialized, options) {
-    return empty(serialized) ? null : Number(serialized);
-  }
-  ```
-
-  @public
-  @param serialized The serialized value
-  @param options hash of options passed to `attr`
-  @return The deserialized value
-*/
-export interface Transform {
-  serialize(value: unknown, options: LegacyAttributeField['options']): unknown;
-  deserialize(value: unknown, options: LegacyAttributeField['options']): unknown;
-}
-export const Transform = EmberObject;
+export const Transform: typeof EmberObject = EmberObject;

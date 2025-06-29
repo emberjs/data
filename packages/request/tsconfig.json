@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "declarationDir": "unstable-preview-types",
     "emitDeclarationOnly": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -39,6 +39,8 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"

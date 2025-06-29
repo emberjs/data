@@ -139,7 +139,7 @@ export function getCurrentModule<TC extends TestContext>(): ModuleInfo<TC> {
   return currentModule;
 }
 
-export function setCurrentModule<TC extends TestContext>(module: ModuleInfo<TC>) {
+export function setCurrentModule<TC extends TestContext>(module: ModuleInfo<TC>): void {
   // @ts-expect-error TS poorly handles subtype constraints
   currentModule = module;
 }
@@ -210,7 +210,22 @@ export function configure(options: Partial<ConfigOptions>): void {
   Object.assign(Config.params, options.params);
 }
 
-export function getSettings() {
+export function getSettings(): {
+  useTestem: boolean;
+  useDiagnostic: boolean;
+  concurrency: number;
+  params: {
+    concurrency: ParamConfig;
+    tryCatch: ParamConfig;
+    instrument: ParamConfig;
+    hideReport: ParamConfig;
+    memory: ParamConfig;
+    groupLogs: ParamConfig;
+    debug: ParamConfig;
+    container: ParamConfig;
+    search: ParamConfig;
+  };
+} {
   return {
     useTestem: Config.useTestem,
     useDiagnostic: Config.useDiagnostic,
@@ -223,7 +238,7 @@ export function instrument() {
   return (Config.params.instrument.value || null) as unknown as PerformanceMark;
 }
 
-export function groupLogs() {
+export function groupLogs(): string | boolean {
   return Config.params.groupLogs.value;
 }
 
@@ -232,5 +247,5 @@ export function groupLogs() {
 // 2 - back
 // 3 - forward
 // 4 - restart
-export function updateSuiteState(value: number) {}
-export function updateConfigValue(key: string, value: boolean) {}
+export function updateSuiteState(value: number): void {}
+export function updateConfigValue(key: string, value: boolean): void {}

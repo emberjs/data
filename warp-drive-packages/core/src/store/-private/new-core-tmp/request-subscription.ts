@@ -4,8 +4,9 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RequestManager, Store, StoreRequestInput } from '../../../index';
 import type { Future } from '../../../request';
 import type { StableDocumentIdentifier } from '../../../types/identifier';
-import type { RequestInfo } from '../../../types/request';
+import type { RequestInfo, StructuredErrorDocument } from '../../../types/request';
 import { EnableHydration } from '../../../types/request';
+import type { RequestState } from '../../-private';
 import { defineSignal, getRequestState, memoized } from '../../-private';
 
 // default to 30 seconds unavailable before we refresh
@@ -14,6 +15,12 @@ export const DISPOSE = (Symbol.dispose || Symbol.for('dispose')) as unknown as '
 
 function isNeverString(val: never): string {
   return val;
+}
+
+interface ErrorFeatures {
+  isHidden: boolean;
+  isOnline: boolean;
+  retry: () => Promise<void>;
 }
 
 type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
@@ -90,6 +97,15 @@ export interface SubscriptionArgs<RT, T, E> {
    *
    */
   autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface RequestSubscription<RT, T, E> {
+  /**
+   * The method to call when the component this subscription is attached to
+   * unmounts.
+   */
+  [DISPOSE](): void;
 }
 
 /**
@@ -201,6 +217,7 @@ export class RequestSubscription<RT, T, E> {
     this._invalidated = false;
     this._nextInterval = null;
     this.isDestroyed = false;
+    this[DISPOSE] = _DISPOSE;
 
     this._installListeners();
     void this._beginPolling();
@@ -225,7 +242,7 @@ export class RequestSubscription<RT, T, E> {
   }
 
   @memoized
-  get isIdle() {
+  get isIdle(): boolean {
     const { request, query } = this._args;
 
     return Boolean(!request && !query);
@@ -535,7 +552,7 @@ export class RequestSubscription<RT, T, E> {
   /**
    * Retry the request, reloading it from the server.
    */
-  retry = async () => {
+  retry = async (): Promise<void> => {
     this._maybeUpdate('reload');
     await this._localRequest;
   };
@@ -543,7 +560,7 @@ export class RequestSubscription<RT, T, E> {
   /**
    * Refresh the request, updating it in the background.
    */
-  refresh = async () => {
+  refresh = async (): Promise<void> => {
     this._maybeUpdate('refresh');
     await this._latestRequest;
   };
@@ -552,7 +569,7 @@ export class RequestSubscription<RT, T, E> {
    * features to yield to the error slot of a component
    */
   @memoized
-  get errorFeatures() {
+  get errorFeatures(): ErrorFeatures {
     return {
       isHidden: this.isHidden,
       isOnline: this.isOnline,
@@ -564,7 +581,7 @@ export class RequestSubscription<RT, T, E> {
    * features to yield to the content slot of a component
    */
   @memoized
-  get contentFeatures() {
+  get contentFeatures(): ContentFeatures<RT> {
     const feat: ContentFeatures<RT> = {
       isHidden: this.isHidden,
       isOnline: this.isOnline,
@@ -581,28 +598,6 @@ export class RequestSubscription<RT, T, E> {
     }
 
     return feat;
-  }
-
-  /**
-   * The method to call when the component this subscription is attached to
-   * unmounts.
-   */
-  [DISPOSE]() {
-    this.isDestroyed = true;
-    this._removeSubscriptions();
-
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    this._clearInterval();
-
-    window.removeEventListener('online', this._onlineChanged, { passive: true, capture: true } as unknown as boolean);
-    window.removeEventListener('offline', this._onlineChanged, { passive: true, capture: true } as unknown as boolean);
-    document.removeEventListener('visibilitychange', this._backgroundChanged, {
-      passive: true,
-      capture: true,
-    } as unknown as boolean);
   }
 
   /**
@@ -650,7 +645,7 @@ export class RequestSubscription<RT, T, E> {
     }
   }
 
-  get reqState() {
+  get reqState(): RequestState<RT, T, StructuredErrorDocument<E>> {
     return getRequestState<RT, T, E>(this.request);
   }
 
@@ -669,6 +664,40 @@ function isStore(store: Store | RequestManager): store is Store {
   return 'requestManager' in store;
 }
 
-export function createRequestSubscription<RT, T, E>(store: Store | RequestManager, args: SubscriptionArgs<RT, T, E>) {
+export function createRequestSubscription<RT, T, E>(
+  store: Store | RequestManager,
+  args: SubscriptionArgs<RT, T, E>
+): RequestSubscription<RT, T, E> {
   return new RequestSubscription(store, args);
+}
+
+interface PrivateRequestSubscription {
+  isDestroyed: boolean;
+  _removeSubscriptions(): void;
+  _clearInterval(): void;
+  _onlineChanged: () => void;
+  _backgroundChanged: () => void;
+}
+
+function upgradeSubscription(sub: unknown): PrivateRequestSubscription {
+  return sub as PrivateRequestSubscription;
+}
+
+function _DISPOSE<RT, T, E>(this: RequestSubscription<RT, T, E>) {
+  const self = upgradeSubscription(this);
+  self.isDestroyed = true;
+  self._removeSubscriptions();
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  self._clearInterval();
+
+  window.removeEventListener('online', self._onlineChanged, { passive: true, capture: true } as unknown as boolean);
+  window.removeEventListener('offline', self._onlineChanged, { passive: true, capture: true } as unknown as boolean);
+  document.removeEventListener('visibilitychange', self._backgroundChanged, {
+    passive: true,
+    capture: true,
+  } as unknown as boolean);
 }

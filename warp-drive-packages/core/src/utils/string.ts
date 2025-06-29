@@ -44,7 +44,7 @@ export class LRUCache<T, V> {
     }
   }
 
-  get(key: T) {
+  get(key: T): V {
     const value = this.state.get(key);
     if (value) {
       if (DEBUG) {
@@ -63,7 +63,7 @@ export class LRUCache<T, V> {
     return newValue;
   }
 
-  set(key: T, value: V) {
+  set(key: T, value: V): void {
     if (this.state.size === this.size) {
       for (const [k] of this.state) {
         if (DEBUG) {
@@ -76,7 +76,7 @@ export class LRUCache<T, V> {
     this.state.set(key, value);
   }
 
-  clear() {
+  clear(): void {
     this.state.clear();
     if (DEBUG) {
       this._hits = 0;
@@ -88,7 +88,7 @@ export class LRUCache<T, V> {
 
 const STRING_DASHERIZE_REGEXP = /[ _]/g;
 const STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
-export const STRING_DASHERIZE_CACHE = new LRUCache<string, string>((key: string) =>
+export const STRING_DASHERIZE_CACHE: LRUCache<string, string> = new LRUCache<string, string>((key: string) =>
   key.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase().replace(STRING_DASHERIZE_REGEXP, '-')
 );
 

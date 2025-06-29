@@ -33,7 +33,7 @@ type SerializerWithParseErrors = MinimumSerializerInterface & {
   extractErrors?(store: Store, modelClass: ModelSchema, error: AdapterErrors, recordId: string | null): unknown;
 };
 
-export const SaveOp = getOrSetGlobal('SaveOp', Symbol('SaveOp'));
+export const SaveOp: '___(unique) Symbol(SaveOp)' = getOrSetGlobal('SaveOp', Symbol('SaveOp'));
 
 export type FetchMutationOptions = FindRecordOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
@@ -222,7 +222,10 @@ export class FetchManager {
     return promise;
   }
 
-  getPendingFetch(identifier: StableExistingRecordIdentifier, options: FindRecordOptions) {
+  getPendingFetch(
+    identifier: StableExistingRecordIdentifier,
+    options: FindRecordOptions
+  ): Promise<StableExistingRecordIdentifier> | undefined {
     const pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
@@ -234,7 +237,7 @@ export class FetchManager {
     }
   }
 
-  flushAllPendingFetches() {
+  flushAllPendingFetches(): void {
     if (this.isDestroyed) {
       return;
     }
@@ -246,7 +249,7 @@ export class FetchManager {
 
   fetchDataIfNeededForIdentifier(
     identifier: StableExistingRecordIdentifier,
-    options: FindRecordOptions = {},
+    options: FindRecordOptions | undefined = {},
     request: ImmutableRequestInfo
   ): Promise<StableExistingRecordIdentifier> {
     // pre-loading will change the isEmpty value
@@ -273,7 +276,7 @@ export class FetchManager {
     return promise;
   }
 
-  destroy() {
+  destroy(): void {
     this.isDestroyed = true;
   }
 }

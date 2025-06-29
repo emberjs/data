@@ -3,12 +3,18 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
 import { defineSignal, memoized } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
+import type { Links } from '@warp-drive/core/types/spec/json-api-raw';
 
 import { LegacyPromiseProxy } from './promise-belongs-to.ts';
 
 export interface HasManyProxyCreateArgs<T = unknown> {
   promise: Promise<ManyArray<T>>;
   content?: ManyArray<T>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface PromiseManyArray<T> {
+  [LegacyPromiseProxy]: true;
 }
 
 /**
@@ -35,6 +41,7 @@ export class PromiseManyArray<T = unknown> {
   constructor(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
     this._update(promise, content);
     this.isDestroyed = false;
+    this[LegacyPromiseProxy] = true;
   }
 
   /**
@@ -58,7 +65,7 @@ export class PromiseManyArray<T = unknown> {
   // which is preferrable to the `meta` override we used
   // before which required importing all of Ember
   @memoized
-  get '[]'() {
+  get '[]'(): 0 | ManyArray<T> | undefined {
     // ember-source < 3.23 (e.g. 3.20 lts)
     // requires that the tag `'[]'` be notified
     // on the ArrayProxy in order for `{{#each}}`
@@ -75,7 +82,7 @@ export class PromiseManyArray<T = unknown> {
    * @return
    * @private
    */
-  forEach(cb: (item: T, index: number, array: T[]) => void) {
+  forEach(cb: (item: T, index: number, array: T[]) => void): void {
     if (this.content && this.length) {
       this.content.forEach(cb);
     }
@@ -87,7 +94,7 @@ export class PromiseManyArray<T = unknown> {
    * @param options
    * @return
    */
-  reload(options: Omit<BaseFinderOptions, ''>) {
+  reload(options: Omit<BaseFinderOptions, ''>): this {
     assert('You are trying to reload an async manyArray before it has been created', this.content);
     void this.content.reload(options);
     return this;
@@ -132,12 +139,12 @@ export class PromiseManyArray<T = unknown> {
    * chain this promise
    *
    * @public
-   * @param success
-   * @param fail
-   * @return {Promise}
    */
-  then(s: Parameters<Promise<ManyArray<T>>['then']>[0], f?: Parameters<Promise<ManyArray<T>>['then']>[1]) {
-    return this.promise!.then(s, f);
+  then(
+    success: Parameters<Promise<ManyArray<T>>['then']>[0],
+    rejected?: Parameters<Promise<ManyArray<T>>['then']>[1]
+  ): Promise<unknown> {
+    return this.promise!.then(success, rejected);
   }
 
   /**
@@ -146,7 +153,7 @@ export class PromiseManyArray<T = unknown> {
    * @param callback
    * @return {Promise}
    */
-  catch(cb: Parameters<Promise<ManyArray<T>>['catch']>[0]) {
+  catch(cb: Parameters<Promise<ManyArray<T>>['catch']>[0]): Promise<unknown> {
     return this.promise!.catch(cb);
   }
 
@@ -157,13 +164,13 @@ export class PromiseManyArray<T = unknown> {
    * @param callback
    * @return {Promise}
    */
-  finally(cb: Parameters<Promise<ManyArray<T>>['finally']>[0]) {
+  finally(cb: Parameters<Promise<ManyArray<T>>['finally']>[0]): Promise<unknown> {
     return this.promise!.finally(cb);
   }
 
   //---- Methods on EmberObject that we should keep
 
-  destroy() {
+  destroy(): void {
     this.isDestroyed = true;
     this.content = null;
     this.promise = null;
@@ -177,7 +184,7 @@ export class PromiseManyArray<T = unknown> {
    * @public
    */
   @memoized
-  get links() {
+  get links(): Links | null | undefined {
     return this.content ? this.content.links : undefined;
   }
 
@@ -187,13 +194,14 @@ export class PromiseManyArray<T = unknown> {
    * @public
    */
   @memoized
-  get meta() {
+  get meta(): Record<string, unknown> | null | undefined {
     return this.content ? this.content.meta : undefined;
   }
 
   //---- Our own stuff
 
-  _update(promise: Promise<ManyArray<T>>, content?: ManyArray<T>) {
+  /** @internal */
+  _update(promise: Promise<ManyArray<T>>, content?: ManyArray<T>): void {
     if (content !== undefined) {
       this.content = content;
     }
@@ -204,8 +212,6 @@ export class PromiseManyArray<T = unknown> {
   static create<T>({ promise, content }: HasManyProxyCreateArgs<T>): PromiseManyArray<T> {
     return new this(promise, content);
   }
-
-  [LegacyPromiseProxy] = true as const;
 }
 defineSignal(PromiseManyArray.prototype, 'content', null);
 defineSignal(PromiseManyArray.prototype, 'isPending', false);

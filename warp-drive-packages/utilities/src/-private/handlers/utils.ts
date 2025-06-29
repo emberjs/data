@@ -31,11 +31,11 @@ function getTabId() {
  * useful for observability/tracing and deduping
  * across multiple tabs.
  */
-export const TAB_ID = getTabId();
+export const TAB_ID: string = getTabId();
 /**
  * The epoch seconds at which the tab id was generated
  */
-export const TAB_ASSIGNED = Math.floor(Date.now() / 1000);
+export const TAB_ASSIGNED: number = Math.floor(Date.now() / 1000);
 
 /**
  * Adds the `X-Amzn-Trace-Id` header to support observability
@@ -46,7 +46,7 @@ export const TAB_ASSIGNED = Math.floor(Date.now() / 1000);
  *
  * Follows the template: `Root=1-${now}-${uuidv4};TabId=1-${epochSeconds}-${tab-uuid}`
  */
-export function addTraceHeader(headers: Headers) {
+export function addTraceHeader(headers: Headers): Headers {
   const now = Math.floor(Date.now() / 1000);
   headers.set('X-Amzn-Trace-Id', `Root=1-${now}-${crypto.randomUUID()};TabId=1-${TAB_ASSIGNED}-${TAB_ID}`);
 
@@ -65,7 +65,7 @@ export const MAX_URL_LENGTH = 8192;
  *
  * See also {@link MAX_URL_LENGTH}
  */
-export function assertInvalidUrlLength(url: string | undefined) {
+export function assertInvalidUrlLength(url: string | undefined): void {
   assert(
     `URL length ${url?.length} exceeds the maximum URL length of ${MAX_URL_LENGTH} bytes.\n\nConsider converting this request query a \`/query\` endpoint instead of a GET, or upgrade the current endpoint to be able to receive a POST request directly (ideally specifying the header HTTP-Method-Override: QUERY)\n\nThe Invalid URL is:\n\n${url}`,
     !url || url.length <= MAX_URL_LENGTH

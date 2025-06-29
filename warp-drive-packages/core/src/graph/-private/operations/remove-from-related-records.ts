@@ -15,7 +15,7 @@ export default function removeFromRelatedRecords(
   graph: Graph,
   op: RemoveFromResourceRelationshipOperation | RemoveFromResourceRelationshipMutation,
   isRemote: boolean
-) {
+): void {
   const { record, value } = op;
   const relationship = graph.get(record, op.field);
 

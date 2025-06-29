@@ -179,7 +179,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
   /**
     @private
   */
-  unknownProperty(attribute: string) {
+  unknownProperty(attribute: string): NativeArray<ValidationError> | undefined {
     const errors = this.errorsFor(attribute);
     if (errors.length === 0) {
       return undefined;
@@ -303,7 +303,7 @@ export class Errors extends ArrayProxyWithCustomOverrides<ValidationError> {
     @public
    @param {String} member - the property name of an attribute or relationship
    */
-  remove(attribute: string) {
+  remove(attribute: string): void {
     if (this.isEmpty) {
       return;
     }

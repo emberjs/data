@@ -13,7 +13,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
   an app to incrementally migrate to tests that render async
   relationships in stages with potential for tests in between.
 */
-export async function render(template: object) {
+export async function render(template: object): Promise<void> {
   await renderTemplate(template);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const owner = QUnit.config.current.testEnvironment.owner as Owner;

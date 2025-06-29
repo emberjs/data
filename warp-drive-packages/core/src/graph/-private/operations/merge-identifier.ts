@@ -5,7 +5,7 @@ import type { ImplicitEdge } from '../edges/implicit.ts';
 import type { ResourceEdge } from '../edges/resource.ts';
 import type { Graph, GraphEdge } from '../graph.ts';
 
-export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>) {
+export function mergeIdentifier(graph: Graph, op: MergeOperation, relationships: Record<string, GraphEdge>): void {
   Object.keys(relationships).forEach((key) => {
     const rel = relationships[key];
     if (!rel) {

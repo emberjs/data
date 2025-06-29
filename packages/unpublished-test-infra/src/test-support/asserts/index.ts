@@ -117,7 +117,7 @@ function upgradeHooks(hooks: NestedHooks): ExpandedHooks {
   return upgraded;
 }
 
-export default function configureAsserts(hooks: NestedHooks) {
+export default function configureAsserts(hooks: NestedHooks): void {
   const upgraded = upgradeHooks(hooks);
 
   upgraded.beforeEach(function (this: TestContext, assert) {

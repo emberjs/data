@@ -24,19 +24,19 @@ EmberObjectMethods.forEach((method) => {
     return (Ember[method] as (...args: unknown[]) => unknown)(this, ...args);
   };
 });
-export const EmberObjectArrayExtension = {
+export const EmberObjectArrayExtension: CAUTION_MEGA_DANGER_ZONE_Extension = {
   kind: 'array',
   name: 'ember-object' as const,
   features: EmberObjectFeatures,
-} satisfies CAUTION_MEGA_DANGER_ZONE_Extension;
-export const EmberObjectExtension = {
+};
+export const EmberObjectExtension: CAUTION_MEGA_DANGER_ZONE_Extension = {
   kind: 'object',
   name: 'ember-object' as const,
   features: EmberObjectFeatures,
-} satisfies CAUTION_MEGA_DANGER_ZONE_Extension;
+};
 
 const EmberArrayLikeFeatures = {
-  addObject<T>(this: T[], obj: T) {
+  addObject<T>(this: T[], obj: T): T[] {
     const index = this.indexOf(obj);
     if (index === -1) {
       this.push(obj);
@@ -44,7 +44,7 @@ const EmberArrayLikeFeatures = {
     return this;
   },
 
-  addObjects<T>(this: T[], objs: T[]) {
+  addObjects<T>(this: T[], objs: T[]): T[] {
     objs.forEach((obj: T) => {
       const index = this.indexOf(obj);
       if (index === -1) {
@@ -54,58 +54,58 @@ const EmberArrayLikeFeatures = {
     return this;
   },
 
-  popObject<T>(this: T[]) {
+  popObject<T>(this: T[]): T | undefined {
     return this.pop();
   },
 
-  pushObject<T>(this: T[], obj: T) {
+  pushObject<T>(this: T[], obj: T): T {
     this.push(obj);
     return obj;
   },
 
-  pushObjects<T>(this: T[], objs: T[]) {
+  pushObjects<T>(this: T[], objs: T[]): T[] {
     this.push(...objs);
     return this;
   },
 
-  shiftObject<T>(this: T[]) {
+  shiftObject<T>(this: T[]): NonNullable<T> {
     return this.shift()!;
   },
 
-  unshiftObject<T>(this: T[], obj: T) {
+  unshiftObject<T>(this: T[], obj: T): T {
     this.unshift(obj);
     return obj;
   },
 
-  unshiftObjects<T>(this: T[], objs: T[]) {
+  unshiftObjects<T>(this: T[], objs: T[]): T[] {
     this.unshift(...objs);
     return this;
   },
 
-  objectAt<T>(this: T[], index: number) {
+  objectAt<T>(this: T[], index: number): T {
     //For negative index values go back from the end of the array
     const arrIndex = Math.sign(index) === -1 ? this.length + index : index;
 
     return this[arrIndex];
   },
 
-  objectsAt<T>(this: T[], indices: number[]) {
+  objectsAt<T>(this: T[], indices: number[]): T[] {
     // @ts-expect-error adding MutableArray method
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return indices.map((index) => this.objectAt(index)!);
   },
 
-  removeAt<T>(this: T[], index: number) {
+  removeAt<T>(this: T[], index: number): T[] {
     this.splice(index, 1);
     return this;
   },
 
-  insertAt<T>(this: T[], index: number, obj: T) {
+  insertAt<T>(this: T[], index: number, obj: T): T[] {
     this.splice(index, 0, obj);
     return this;
   },
 
-  removeObject<T>(this: T[], obj: T) {
+  removeObject<T>(this: T[], obj: T): T[] {
     const index = this.indexOf(obj);
     if (index !== -1) {
       this.splice(index, 1);
@@ -113,7 +113,7 @@ const EmberArrayLikeFeatures = {
     return this;
   },
 
-  removeObjects<T>(this: T[], objs: T[]) {
+  removeObjects<T>(this: T[], objs: T[]): T[] {
     objs.forEach((obj) => {
       const index = this.indexOf(obj);
       if (index !== -1) {
@@ -123,11 +123,11 @@ const EmberArrayLikeFeatures = {
     return this;
   },
 
-  toArray<T>(this: T[]) {
+  toArray<T>(this: T[]): T[] {
     return this.slice();
   },
 
-  replace<T>(this: T[], idx: number, amt: number, objects?: T[]) {
+  replace<T>(this: T[], idx: number, amt: number, objects?: T[]): void {
     if (objects) {
       this.splice(idx, amt, ...objects);
     } else {
@@ -135,29 +135,28 @@ const EmberArrayLikeFeatures = {
     }
   },
 
-  clear<T>(this: T[]) {
+  clear<T>(this: T[]): T[] {
     this.splice(0, this.length);
     return this;
   },
 
-  setObjects<T>(this: T[], objects: T[]) {
+  setObjects<T>(this: T[], objects: T[]): T[] {
     assert(`setObjects expects to receive an array as its argument`, Array.isArray(objects));
     this.splice(0, this.length);
     this.push(...objects);
     return this;
   },
 
-  reverseObjects<T>(this: T[]) {
+  reverseObjects<T>(this: T[]): T[] {
     this.reverse();
     return this;
   },
 
-  compact<T>(this: T[]) {
+  compact<T>(this: T[]): (T & {})[] {
     return this.filter((v) => v !== null && v !== undefined);
   },
 
-  any<T>(this: T[], callback, target) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  any<T>(this: T[], callback: Parameters<Array<T>['some']>[0], target?: unknown): boolean {
     return this.some(callback, target);
   },
 
@@ -175,15 +174,15 @@ const EmberArrayLikeFeatures = {
     );
   },
 
-  getEach<T>(this: T[], key: string) {
+  getEach<T>(this: T[], key: string): unknown[] {
     return this.map((value) => get(value, key));
   },
 
-  mapBy<T>(this: T[], key: string) {
+  mapBy<T>(this: T[], key: string): unknown[] {
     return this.map((value) => get(value, key));
   },
 
-  findBy<T>(this: T[], key: string, value?: unknown) {
+  findBy<T>(this: T[], key: string, value?: unknown): T | undefined {
     if (arguments.length === 2) {
       return this.find((val) => {
         return get(val, key) === value;
@@ -193,7 +192,7 @@ const EmberArrayLikeFeatures = {
     }
   },
 
-  filterBy<T>(this: T[], key: string, value?: unknown) {
+  filterBy<T>(this: T[], key: string, value?: unknown): T[] {
     if (arguments.length === 2) {
       return this.filter((record) => {
         return get(record, key) === value;
@@ -205,7 +204,7 @@ const EmberArrayLikeFeatures = {
     });
   },
 
-  sortBy<T>(this: T[], ...sortKeys: string[]) {
+  sortBy<T>(this: T[], ...sortKeys: string[]): T[] {
     return this.slice().sort((a, b) => {
       for (let i = 0; i < sortKeys.length; i++) {
         const key = sortKeys[i];
@@ -224,30 +223,29 @@ const EmberArrayLikeFeatures = {
     });
   },
 
-  invoke<T>(this: T[], key: string, ...args: unknown[]) {
+  invoke<T>(this: T[], key: string, ...args: unknown[]): unknown[] {
     return (this as unknown as Array<Record<string, unknown>>).map((value) =>
       (value[key] as (...args: unknown[]) => unknown)(...args)
     );
   },
 
-  addArrayObserver<T>(this: T[]) {},
+  addArrayObserver<T>(this: T[]): void {},
 
-  removeArrayObserver<T>(this: T[]) {},
+  removeArrayObserver<T>(this: T[]): void {},
 
-  arrayContentWillChange<T>(this: T[]) {},
+  arrayContentWillChange<T>(this: T[]): void {},
 
-  arrayContentDidChange<T>(this: T[]) {},
+  arrayContentDidChange<T>(this: T[]): void {},
 
-  reject<T>(this: T[], callback, target?: unknown) {
+  reject<T>(this: T[], callback: Parameters<Array<T>['filter']>[0], target?: unknown): T[] {
     assert('`reject` expects a function as first argument.', typeof callback === 'function');
 
     return this.filter((...args) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return !callback.apply(target, args);
     });
   },
 
-  rejectBy<T>(this: T[], key: string, value?: unknown) {
+  rejectBy<T>(this: T[], key: string, value?: unknown): T[] {
     if (arguments.length === 2) {
       return this.filter((record) => {
         return get(record, key) !== value;
@@ -259,15 +257,15 @@ const EmberArrayLikeFeatures = {
     });
   },
 
-  setEach<T>(this: T[], key: string, value: unknown) {
+  setEach<T>(this: T[], key: string, value: unknown): void {
     (this as unknown as Array<Record<string, unknown>>).forEach((item) => set(item, key, value));
   },
 
-  uniq<T>(this: T[]) {
+  uniq<T>(this: T[]): T[] {
     return Array.from(new Set(this));
   },
 
-  uniqBy<T>(this: T[], key: string) {
+  uniqBy<T>(this: T[], key: string): T[] {
     const seen = new Set();
     const result: T[] = [];
     this.forEach((item) => {
@@ -281,7 +279,7 @@ const EmberArrayLikeFeatures = {
     return result;
   },
 
-  without<T>(this: T[], value: T) {
+  without<T>(this: T[], value: T): T[] {
     const newArr = this.slice();
     const index = this.indexOf(value);
     if (index !== -1) {
@@ -291,20 +289,20 @@ const EmberArrayLikeFeatures = {
     return newArr;
   },
 
-  get firstObject() {
+  get firstObject(): unknown {
     return (this as unknown as unknown[]).at(0);
   },
 
-  get lastObject() {
+  get lastObject(): unknown {
     return (this as unknown as unknown[]).at(-1);
   },
 };
 
-export const EmberArrayLikeExtension = {
+export const EmberArrayLikeExtension: CAUTION_MEGA_DANGER_ZONE_Extension = {
   kind: 'array',
   name: 'ember-array-like' as const,
   features: EmberArrayLikeFeatures,
-} satisfies CAUTION_MEGA_DANGER_ZONE_Extension;
+};
 
 export type ArrayType<T> = T extends ReadonlyArray<infer U> ? U : never;
 export type WithEmberObject<T> = T & Pick<T & EmberObject, ArrayType<typeof EmberObjectMethods>>;

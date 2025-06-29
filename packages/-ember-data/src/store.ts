@@ -44,7 +44,7 @@ export default class Store extends BaseStore {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>) {
+  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 
@@ -58,13 +58,13 @@ export default class Store extends BaseStore {
     return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
   }
 
-  adapterFor = adapterFor;
-  serializerFor = serializerFor;
-  pushPayload = pushPayload;
-  normalize = normalize;
-  serializeRecord = serializeRecord;
+  adapterFor: typeof adapterFor = adapterFor;
+  serializerFor: typeof serializerFor = serializerFor;
+  pushPayload: typeof pushPayload = pushPayload;
+  normalize: typeof normalize = normalize;
+  serializeRecord: typeof serializeRecord = serializeRecord;
 
-  destroy() {
+  destroy(): void {
     cleanup.call(this);
     super.destroy();
   }

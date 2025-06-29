@@ -15,7 +15,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "emitDeclarationOnly": true,
     "noEmitOnError": false,
     "noImplicitOverride": false,
@@ -46,6 +45,8 @@
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "checkJs": false
   },

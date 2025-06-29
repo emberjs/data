@@ -23,4 +23,4 @@ export const TS_CONFIG = {
     declaration: false,
     types: [],
   },
-};
+} as const;

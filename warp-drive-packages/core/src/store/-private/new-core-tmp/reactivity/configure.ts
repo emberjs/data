@@ -4,8 +4,8 @@ import { getOrSetGlobal, peekTransient, setTransient } from '../../../../types/-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type NotificationManager from '../../managers/notification-manager.ts';
 
-export const ARRAY_SIGNAL = getOrSetGlobal('#[]', Symbol('#[]'));
-export const OBJECT_SIGNAL = getOrSetGlobal('#{}', Symbol('#{}'));
+export const ARRAY_SIGNAL: '___(unique) Symbol(#[])' = getOrSetGlobal('#[]', Symbol('#[]'));
+export const OBJECT_SIGNAL: '___(unique) Symbol(#{})' = getOrSetGlobal('#{}', Symbol('#{}'));
 
 /**
  * Requirements:
@@ -164,7 +164,7 @@ export interface HooksOptions {
  * @public
  * @param buildConfig - a function that takes options and returns a configuration object
  */
-export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>) {
+export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHooks<T>): void {
   // We want to assert this but can't because too many package manager
   // and bundler bugs exist that cause this to be called multiple times
   // for what should be a single call.
@@ -193,7 +193,7 @@ export function createSignal(obj: object, key: string | symbol): SignalRef {
  *
  * @internal
  */
-export function consumeSignal(signal: SignalRef) {
+export function consumeSignal(signal: SignalRef): void {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
 
   assert(`Signal hooks not configured`, signalHooks);
@@ -205,7 +205,7 @@ export function consumeSignal(signal: SignalRef) {
  *
  * @internal
  */
-export function notifySignal(signal: SignalRef) {
+export function notifySignal(signal: SignalRef): void {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
   assert(`Signal hooks not configured`, signalHooks);
   return signalHooks.notifySignal(signal);

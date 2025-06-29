@@ -2,7 +2,7 @@ import type { AdapterPayload } from './minimum-adapter-interface.ts';
 
 type IteratorCB<T> = ((o: T, index: number) => T) | ((o: T) => T);
 
-export function iterateData<T>(data: T[] | T, fn: IteratorCB<T>) {
+export function iterateData<T>(data: T[] | T, fn: IteratorCB<T>): T | T[] {
   if (Array.isArray(data)) {
     return data.map(fn);
   } else {

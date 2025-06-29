@@ -21,7 +21,7 @@ import type { CollectionRelationship } from '@warp-drive/core/types/cache/relati
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import { EnableHydration } from '@warp-drive/core/types/request';
-import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields.js';
+import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import type {
   CollectionResourceRelationship,
   InnerRelationshipDocument,
@@ -39,7 +39,7 @@ import HasManyReference from './references/has-many.ts';
 
 type PromiseBelongsToFactory<T = unknown> = { create(args: BelongsToProxyCreateArgs<T>): PromiseBelongsTo<T> };
 
-export const LEGACY_SUPPORT = getOrSetGlobal(
+export const LEGACY_SUPPORT: Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport> = getOrSetGlobal(
   'LEGACY_SUPPORT',
   new Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport>()
 );
@@ -91,7 +91,7 @@ export class LegacySupport {
     this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
-  _syncArray(array: LiveArray) {
+  _syncArray(array: LiveArray): void {
     // It’s possible the parent side of the relationship may have been destroyed by this point
     if (this.isDestroyed || this.isDestroying) {
       return;
@@ -198,7 +198,7 @@ export class LegacySupport {
     }
   }
 
-  setDirtyBelongsTo(key: string, value: OpaqueRecordInstance | null) {
+  setDirtyBelongsTo(key: string, value: OpaqueRecordInstance | null): void {
     return this.cache.mutate(
       {
         op: 'replaceRelatedRecord',
@@ -630,7 +630,7 @@ export class LegacySupport {
     return Promise.resolve(null);
   }
 
-  destroy() {
+  destroy(): void {
     this.isDestroying = true;
 
     let cache: Record<string, { destroy(): void } | undefined> = this._manyArrayCache;

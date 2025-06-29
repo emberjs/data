@@ -36,6 +36,7 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
     "isolatedDeclarations": true,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "checkJs": false
   },

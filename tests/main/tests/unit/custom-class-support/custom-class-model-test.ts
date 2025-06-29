@@ -59,6 +59,8 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
         createRecord = () => Promise.reject();
       }
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('serializer:application', JSONAPISerializer);
     // @ts-expect-error missing type
     owner.unregister('service:store');

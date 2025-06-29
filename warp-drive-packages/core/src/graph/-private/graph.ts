@@ -40,7 +40,10 @@ import updateRelationshipOperation from './operations/update-relationship.ts';
 
 export type GraphEdge = ImplicitEdge | CollectionEdge | ResourceEdge;
 
-export const Graphs = getOrSetGlobal('Graphs', new Map<CacheCapabilitiesManager, Graph>());
+export const Graphs: Map<CacheCapabilitiesManager, Graph> = getOrSetGlobal(
+  'Graphs',
+  new Map<CacheCapabilitiesManager, Graph>()
+);
 
 type PendingOps = {
   belongsTo?: Map<string, Map<string, RemoteRelationshipOperation[]>>;
@@ -241,7 +244,7 @@ export class Graph {
     return true;
   }
 
-  unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean) {
+  unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: unload ${String(identifier)}`);
@@ -365,7 +368,7 @@ export class Graph {
     return changed;
   }
 
-  remove(identifier: StableRecordIdentifier) {
+  remove(identifier: StableRecordIdentifier): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: remove ${String(identifier)}`);
@@ -380,7 +383,7 @@ export class Graph {
   /*
    * Remote state changes
    */
-  push(op: RemoteRelationshipOperation) {
+  push(op: RemoteRelationshipOperation): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: push ${String(op.record)}`, op);
@@ -476,7 +479,7 @@ export class Graph {
     }
   }
 
-  _scheduleLocalSync(relationship: CollectionEdge) {
+  _scheduleLocalSync(relationship: CollectionEdge): void {
     this._updatedRelationships.add(relationship);
     if (!this._willSyncLocal) {
       this._willSyncLocal = true;
@@ -484,7 +487,7 @@ export class Graph {
     }
   }
 
-  _flushRemoteQueue() {
+  _flushRemoteQueue(): void {
     if (!this._willSyncRemote) {
       return;
     }
@@ -522,7 +525,7 @@ export class Graph {
     }
   }
 
-  _addToTransaction(relationship: CollectionEdge | ResourceEdge) {
+  _addToTransaction(relationship: CollectionEdge | ResourceEdge): void {
     assert(`expected a transaction`, this._transaction !== null);
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
@@ -531,7 +534,7 @@ export class Graph {
     relationship.transactionRef = this._transaction;
   }
 
-  _flushLocalQueue() {
+  _flushLocalQueue(): void {
     if (!this._willSyncLocal) {
       return;
     }
@@ -548,7 +551,7 @@ export class Graph {
     updated.forEach((rel) => notifyChange(this, rel));
   }
 
-  destroy() {
+  destroy(): void {
     Graphs.delete(this.store);
 
     if (DEBUG) {

@@ -15,7 +15,29 @@ function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
 }
 
-async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoadingState): Promise<void> {
+interface PrivateLoadingState {
+  _sizeHint: number;
+  _bytesLoaded: number;
+  _startTime: number;
+  _endTime: number;
+  _lastPacketTime: number;
+  _isPending: boolean;
+  _isStarted: boolean;
+  _isComplete: boolean;
+  _isCancelled: boolean;
+  _isErrored: boolean;
+  _error: Error | null;
+  _stream: TransformStream | null;
+  _future: Future<unknown>;
+  _triggered: boolean;
+}
+
+function upgradeLoadingState(state: unknown): PrivateLoadingState {
+  return state as PrivateLoadingState;
+}
+
+async function watchStream(stream: ReadableStream<Uint8Array>, loadingState: RequestLoadingState): Promise<void> {
+  const state = upgradeLoadingState(loadingState);
   const reader = stream.getReader();
   let bytesLoaded = 0;
   let shouldForward = state._stream !== null && state._stream.readable.locked;
@@ -78,22 +100,22 @@ async function watchStream(stream: ReadableStream<Uint8Array>, state: RequestLoa
  *
  */
 export class RequestLoadingState {
-  declare _sizeHint: number;
-  declare _bytesLoaded: number;
-  declare _startTime: number;
-  declare _endTime: number;
-  declare _lastPacketTime: number;
-  declare _isPending: boolean;
-  declare _isStarted: boolean;
-  declare _isComplete: boolean;
-  declare _isCancelled: boolean;
-  declare _isErrored: boolean;
-  declare _error: Error | null;
+  declare private _sizeHint: number;
+  declare private _bytesLoaded: number;
+  declare private _startTime: number;
+  declare private _endTime: number;
+  declare private _lastPacketTime: number;
+  declare private _isPending: boolean;
+  declare private _isStarted: boolean;
+  declare private _isComplete: boolean;
+  declare private _isCancelled: boolean;
+  declare private _isErrored: boolean;
+  declare private _error: Error | null;
 
-  _stream: TransformStream | null = null;
-  _future: Future<unknown>;
-  _triggered = false;
-  _trigger() {
+  private _stream: TransformStream | null = null;
+  private _future: Future<unknown>;
+  private _triggered = false;
+  private _trigger() {
     if (this._triggered) {
       return;
     }

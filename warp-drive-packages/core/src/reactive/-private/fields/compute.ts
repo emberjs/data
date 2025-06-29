@@ -34,11 +34,11 @@ import { ManagedArray } from './managed-array.ts';
 import { ManagedObject } from './managed-object.ts';
 import { ManyArrayManager } from './many-array-manager.ts';
 
-export const ManagedArrayMap = getOrSetGlobal(
+export const ManagedArrayMap: Map<ReactiveResource, Map<string, ManagedArray | ManyArray>> = getOrSetGlobal(
   'ManagedArrayMap',
   new Map<ReactiveResource, Map<string, ManagedArray | ManyArray>>()
 );
-export const ManagedObjectMap = getOrSetGlobal(
+export const ManagedObjectMap: Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>> = getOrSetGlobal(
   'ManagedObjectMap',
   new Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>>()
 );
@@ -96,7 +96,7 @@ export function computeArray(
   path: string[],
   editable: boolean,
   legacy: boolean
-) {
+): ManagedArray | null {
   const isSchemaArray = field.kind === 'schema-array';
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
@@ -147,14 +147,14 @@ export function computeObject(
   path: string[],
   editable: boolean,
   legacy: boolean
-) {
+): ManagedObject | null {
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
   if (managedObjectMapForRecord) {
     managedObject = managedObjectMapForRecord.get(field.name);
   }
   if (managedObject) {
-    return managedObject;
+    return managedObject as ManagedObject;
   } else {
     let rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as object;
     if (!rawValue) {
@@ -184,14 +184,14 @@ export function computeSchemaObject(
   path: string[],
   legacy: boolean,
   editable: boolean
-) {
+): ReactiveResource | null {
   const schemaObjectMapForRecord = ManagedObjectMap.get(record);
   let schemaObject;
   if (schemaObjectMapForRecord) {
     schemaObject = schemaObjectMapForRecord.get(field.name);
   }
   if (schemaObject) {
-    return schemaObject;
+    return schemaObject as ReactiveResource;
   } else {
     const rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as object;
     if (!rawValue) {
@@ -237,18 +237,20 @@ export function computeDerivation(
   return schema.derivation(field)(record, field.options ?? null, prop);
 }
 
+interface ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
+  lid: string;
+  [Parent]: ReactiveResource;
+  [RecordStore]: Store;
+  name: string;
+
+  data: T | null;
+  links: Links;
+  meta: Record<string, unknown>;
+}
+
 // TODO probably this should just be a Document
 // but its separate until we work out the lid situation
 class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
-  declare lid: string;
-  declare [Parent]: ReactiveResource;
-  declare [RecordStore]: Store;
-  declare name: string;
-
-  declare data: T | null;
-  declare links: Links;
-  declare meta: Record<string, unknown>;
-
   constructor(
     store: Store,
     cache: Cache,
@@ -343,7 +345,7 @@ export function computeHasMany(
   path: string[],
   editable: boolean,
   legacy: boolean
-) {
+): ManyArray | null {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value

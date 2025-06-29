@@ -1,1 +1,1 @@
-export async function eject() {}
+export async function eject(): Promise<void> {}

@@ -1,10 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { warn } from '@ember/debug';
+import type EmberObject from '@ember/object';
 
-import { dasherize, pluralize, singularize } from '@warp-drive/utilities/string';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { dasherize, pluralize, singularize } from '@warp-drive/utilities/string';
 
-import { JSONSerializer } from './json.js';
+import { JSONSerializer } from './json';
 
 /**
  * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
@@ -129,7 +135,8 @@ import { JSONSerializer } from './json.js';
   @class JSONAPISerializer
   @public
 */
-const JSONAPISerializer = JSONSerializer.extend({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   /**
     @param {Object} documentHash
     @return {Object}
@@ -150,11 +157,12 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     if (Array.isArray(documentHash.included)) {
-      const ret = new Array();
+      const ret = [];
       for (let i = 0; i < documentHash.included.length; i++) {
         const included = documentHash.included[i];
         const normalized = this._normalizeResourceHelper(included);
         if (normalized !== null) {
+          // @ts-expect-error untyped
           // can be null when unknown type is encountered
           ret.push(normalized);
         }
@@ -183,12 +191,15 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper(resourceHash) {
+    // @ts-expect-error untyped
     assert(this.warnMessageForUndefinedType(), resourceHash.type);
 
     const type = this.modelNameFromPayloadKey(resourceHash.type);
 
+    // @ts-expect-error store is dynamically added
     if (!this.store.schema.hasResource({ type })) {
       if (DEBUG) {
+        // @ts-expect-error untyped
         warn(this.warnMessageNoModelForType(type, resourceHash.type, 'modelNameFromPayloadKey'), false, {
           id: 'ds.serializer.model-for-type-missing',
         });
@@ -196,7 +207,9 @@ const JSONAPISerializer = JSONSerializer.extend({
       return null;
     }
 
+    // @ts-expect-error store is dynamically added
     const modelClass = this.store.modelFor(type);
+    // @ts-expect-error store is dynamically added
     const serializer = this.store.serializerFor(type);
     const { data } = serializer.normalize(modelClass, resourceHash);
     return data;
@@ -230,6 +243,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   normalizeQueryRecordResponse() {
+    // @ts-expect-error untyped
     const normalized = this._super(...arguments);
 
     assert(
@@ -367,14 +381,17 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   normalize(modelClass, resourceHash) {
     if (resourceHash.attributes) {
+      // @ts-expect-error untyped
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.attributes);
     }
 
     if (resourceHash.relationships) {
+      // @ts-expect-error untyped
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.relationships);
     }
 
     const data = {
+      // @ts-expect-error untyped
       id: this.extractId(modelClass, resourceHash),
       type: this._extractType(modelClass, resourceHash),
       attributes: this.extractAttributes(modelClass, resourceHash),
@@ -382,9 +399,11 @@ const JSONAPISerializer = JSONSerializer.extend({
     };
 
     if (resourceHash.lid) {
+      // @ts-expect-error untyped
       data.lid = resourceHash.lid;
     }
 
+    // @ts-expect-error untyped
     this.applyTransforms(modelClass, data.attributes);
 
     return { data };
@@ -621,6 +640,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object} json
   */
   serialize(snapshot, options) {
+    // @ts-expect-error untyped
     const data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
 
@@ -630,16 +650,20 @@ const JSONAPISerializer = JSONSerializer.extend({
   serializeAttribute(snapshot, json, key, attribute) {
     const type = attribute.type;
 
+    // @ts-expect-error untyped
     if (this._canSerialize(key)) {
       json.attributes = json.attributes || {};
 
       let value = snapshot.attr(key);
       if (type) {
+        // @ts-expect-error untyped
         const transform = this.transformFor(type);
         value = transform.serialize(value, attribute.options);
       }
 
+      // @ts-expect-error store is dynamically added
       const schema = this.store.modelFor(snapshot.modelName);
+      // @ts-expect-error untyped
       let payloadKey = this._getMappedKey(key, schema);
 
       if (payloadKey === key) {
@@ -653,6 +677,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   serializeBelongsTo(snapshot, json, relationship) {
     const name = relationship.name;
 
+    // @ts-expect-error untyped
     if (this._canSerialize(name)) {
       const belongsTo = snapshot.belongsTo(name);
       const belongsToIsNotNew = belongsTo && !belongsTo.isNew;
@@ -660,7 +685,9 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
+        // @ts-expect-error store is dynamically added
         const schema = this.store.modelFor(snapshot.modelName);
+        // @ts-expect-error untyped
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name) {
           payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
@@ -670,6 +697,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         if (belongsTo) {
           const payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
 
+          // @ts-expect-error untyped
           data = {
             type: payloadType,
             id: belongsTo.id,
@@ -684,12 +712,15 @@ const JSONAPISerializer = JSONSerializer.extend({
   serializeHasMany(snapshot, json, relationship) {
     const name = relationship.name;
 
+    // @ts-expect-error untyped
     if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
       const hasMany = snapshot.hasMany(name);
       if (hasMany !== undefined) {
         json.relationships = json.relationships || {};
 
+        // @ts-expect-error store is dynamically added
         const schema = this.store.modelFor(snapshot.modelName);
+        // @ts-expect-error untyped
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(name, 'hasMany', 'serialize');

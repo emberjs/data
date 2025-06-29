@@ -233,8 +233,13 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.false(requestComplete, 'The request is not yet complete');
 
     const loadingState = requestState.loadingState;
+    // @ts-expect-error _triggered is private
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     assert.false(loadingState._triggered, 'The loadingstate has not triggered (and thus is lazy)');
     assert.true(loadingState.isPending, 'loading has not yet started');
+
+    // @ts-expect-error _triggered is private
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     assert.true(loadingState._triggered, 'The loadingstate was triggered by accessing isPending (and thus is lazy)');
     assert.false(loadingState.isStarted, 'loading has not yet started');
     assert.false(loadingState.isComplete, 'loading has not yet finished');

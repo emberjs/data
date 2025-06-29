@@ -23,7 +23,7 @@ const SINGULAR_OPS = ['createRecord', 'updateRecord', 'deleteRecord', 'findRecor
  *
  * @internal
  */
-export function validateDocumentResources(reporter: Reporter, doc: ResourceDocument) {
+export function validateDocumentResources(reporter: Reporter, doc: ResourceDocument): void {
   if ('data' in doc) {
     // scan for common mistakes of single vs multiple resource objects
     const op = reporter.contextDocument.request?.op;

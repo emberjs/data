@@ -11,7 +11,7 @@ import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
+import { Editable, Identifier, Legacy, Parent, SOURCE } from '../symbols.ts';
 import type { ProxiedMethod } from './extension.ts';
 import { isExtensionProp, performArrayExtensionGet, performExtensionSet } from './extension.ts';
 
@@ -94,24 +94,17 @@ function safeForEach(
 }
 
 export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
-  [MUTATE]?(
-    target: unknown[],
-    receiver: typeof Proxy<unknown[]>,
-    prop: string,
-    args: unknown[],
-    _SIGNAL: WarpDriveSignal
-  ): unknown;
+  [SOURCE]: unknown[];
+  identifier: StableRecordIdentifier;
+  path: string[];
+  owner: ReactiveResource;
+  [ARRAY_SIGNAL]: WarpDriveSignal;
+  [Editable]: boolean;
+  [Legacy]: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ManagedArray {
-  [SOURCE]: unknown[];
-  declare identifier: StableRecordIdentifier;
-  declare path: string[];
-  declare owner: ReactiveResource;
-  declare [ARRAY_SIGNAL]: WarpDriveSignal;
-  declare [Editable]: boolean;
-  declare [Legacy]: boolean;
-
   constructor(
     store: Store,
     schema: SchemaService,

@@ -207,8 +207,12 @@ export const COMMANDS: CommandConfig = {
   },
 };
 
-export const Bin = {
+export const Bin: {
+  name: string;
+  alt: string[];
+  commands: CommandConfig;
+} = {
   name: 'warp-drive',
-  alt: ['warpdrive', 'wd'],
+  alt: ['warpdrive', 'wd'] as const,
   commands: COMMANDS,
 };

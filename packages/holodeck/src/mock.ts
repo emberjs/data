@@ -50,8 +50,8 @@ export function GET(
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
-export function POST() {}
-export function PUT() {}
-export function PATCH() {}
-export function DELETE() {}
-export function QUERY() {}
+export function POST(): void {}
+export function PUT(): void {}
+export function PATCH(): void {}
+export function DELETE(): void {}
+export function QUERY(): void {}

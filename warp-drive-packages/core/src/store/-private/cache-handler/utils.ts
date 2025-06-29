@@ -10,7 +10,7 @@ import type { ResourceDataDocument, ResourceErrorDocument } from '../../../types
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { Store } from '../store-service.ts';
 
-export const MUTATION_OPS = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
+export const MUTATION_OPS: Set<string> = new Set(['createRecord', 'updateRecord', 'deleteRecord']);
 
 export function calcShouldFetch(
   store: Store,
@@ -71,7 +71,7 @@ export function isAggregateError(
 export type RobustError = Error & { error: string | object; errors?: ApiError[]; content?: unknown };
 
 // TODO @runspired, consider if we should deep freeze errors (potentially only in debug) vs cloning them
-export function cloneError(error: RobustError) {
+export function cloneError(error: RobustError): RobustError {
   const isAggregate = isAggregateError(error);
 
   const cloned = (
@@ -96,7 +96,7 @@ export function getPriority(
   identifier: StableDocumentIdentifier | null,
   deduped: Map<StableDocumentIdentifier, { priority: { blocking: boolean } }>,
   priority: { blocking: boolean }
-) {
+): { blocking: boolean } {
   if (identifier) {
     const existing = deduped.get(identifier);
     if (existing) {

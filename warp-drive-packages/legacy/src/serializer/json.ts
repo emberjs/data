@@ -1,11 +1,25 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 
-import { dasherize, singularize } from '@warp-drive/utilities/string';
+import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
+import type { ModelSchema } from '@warp-drive/core/types';
+import type {
+  LegacyAttributeField,
+  LegacyBelongsToField,
+  LegacyHasManyField,
+} from '@warp-drive/core/types/schema/fields';
+import { dasherize, singularize } from '@warp-drive/utilities/string';
 
+import type { Snapshot } from '../compat/-private.ts';
 import { Serializer } from '../serializer.ts';
 import { coerceId } from './-private/utils.ts';
+import type { Transform } from './transform.ts';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -86,7 +100,8 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @class JSONSerializer
   @public
 */
-const JSONSerializer = Serializer.extend({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const JSONSerializer: any = Serializer.extend({
   /**
     The `primaryKey` is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
@@ -189,21 +204,18 @@ const JSONSerializer = Serializer.extend({
    serializer's `normalize` method.
 
    @private
-   @param {Model} typeClass
-   @param {Object} data The data to transform
-   @return {Object} data The transformed data object
   */
-  applyTransforms(typeClass, data) {
+  applyTransforms(typeClass: ModelSchema, data: object): object {
     const attributes = typeClass.attributes;
 
-    typeClass.eachTransformedAttribute((key, typeClass) => {
+    typeClass.eachTransformedAttribute((key, type) => {
       if (data[key] === undefined) {
         return;
       }
 
-      const transform = this.transformFor(typeClass);
+      const transform = this.transformFor(type!);
       const transformMeta = attributes.get(key);
-      data[key] = transform.deserialize(data[key], transformMeta.options);
+      data[key] = transform.deserialize(data[key], transformMeta!.options);
     });
 
     return data;
@@ -237,34 +249,45 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: string | null,
+    requestType: string
+    // @ts-expect-error
+  ): object {
     switch (requestType) {
       case 'findRecord':
+        // @ts-expect-error
         return this.normalizeFindRecordResponse(...arguments);
       case 'queryRecord':
+        // @ts-expect-error
         return this.normalizeQueryRecordResponse(...arguments);
       case 'findAll':
+        // @ts-expect-error
         return this.normalizeFindAllResponse(...arguments);
       case 'findBelongsTo':
+        // @ts-expect-error
         return this.normalizeFindBelongsToResponse(...arguments);
       case 'findHasMany':
+        // @ts-expect-error
         return this.normalizeFindHasManyResponse(...arguments);
       case 'findMany':
+        // @ts-expect-error
         return this.normalizeFindManyResponse(...arguments);
       case 'query':
+        // @ts-expect-error
         return this.normalizeQueryResponse(...arguments);
       case 'createRecord':
+        // @ts-expect-error
         return this.normalizeCreateRecordResponse(...arguments);
       case 'deleteRecord':
+        // @ts-expect-error
         return this.normalizeDeleteRecordResponse(...arguments);
       case 'updateRecord':
+        // @ts-expect-error
         return this.normalizeUpdateRecordResponse(...arguments);
     }
   },
@@ -275,14 +298,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindRecordResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: string,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -292,14 +316,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryRecordResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -309,14 +334,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeFindAllResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindAllResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -326,14 +352,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeFindBelongsToResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindBelongsToResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -343,14 +370,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeFindHasManyResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindHasManyResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -360,14 +388,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeFindManyResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindManyResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -377,14 +406,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -394,14 +424,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeCreateRecordResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: unknown,
+    id: string,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -411,14 +442,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeDeleteRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeDeleteRecordResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -428,14 +460,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeUpdateRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeUpdateRecordResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -445,14 +478,15 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeSaveResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeSaveResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string
+  ): object {
+    // @ts-expect-error
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -462,14 +496,14 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeSingleResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeSingleResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string
+  ): object {
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, true);
   },
 
@@ -479,28 +513,28 @@ const JSONSerializer = Serializer.extend({
 
     @since 1.13.0
     @public
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @return {Object} JSON-API Document
   */
-  normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeArrayResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string
+  ): object {
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, false);
   },
 
   /**
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @param {Boolean} isSingle
-    @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(
+    store: Store,
+    primaryModelClass: ModelSchema,
+    payload: object,
+    id: string | null,
+    requestType: string,
+    isSingle: boolean
+  ): object {
     const documentHash = {
       data: null,
       included: [],
@@ -512,19 +546,24 @@ const JSONSerializer = Serializer.extend({
         'The `meta` returned from `extractMeta` has to be an object, not "' + typeof meta + '".',
         typeof meta === 'object'
       );
+      // @ts-expect-error untyped
       documentHash.meta = meta;
     }
 
     if (isSingle) {
+      // @ts-expect-error untyped
       const { data, included } = this.normalize(primaryModelClass, payload);
       documentHash.data = data;
       if (included) {
         documentHash.included = included;
       }
     } else {
+      // @ts-expect-error untyped
       const ret = new Array(payload.length);
+      // @ts-expect-error untyped
       for (let i = 0, l = payload.length; i < l; i++) {
         const item = payload[i];
+        // @ts-expect-error untyped
         const { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
           documentHash.included = documentHash.included.concat(included);
@@ -532,6 +571,7 @@ const JSONSerializer = Serializer.extend({
         ret[i] = data;
       }
 
+      // @ts-expect-error untyped
       documentHash.data = ret;
     }
 
@@ -579,15 +619,18 @@ const JSONSerializer = Serializer.extend({
     @param {Object} hash
     @return {Object}
   */
-  normalize(modelClass, resourceHash) {
+  normalize(modelClass: ModelSchema, resourceHash: object): object {
     let data = null;
 
     if (resourceHash) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
+      // @ts-expect-error untyped
       if (typeof resourceHash.links === 'object') {
+        // @ts-expect-error untyped
         this.normalizeUsingDeclaredMapping(modelClass, resourceHash.links);
       }
 
+      // @ts-expect-error untyped
       data = {
         id: this.extractId(modelClass, resourceHash),
         type: modelClass.modelName,
@@ -595,10 +638,13 @@ const JSONSerializer = Serializer.extend({
         relationships: this.extractRelationships(modelClass, resourceHash),
       };
 
+      // @ts-expect-error untyped
       if (resourceHash.lid) {
+        // @ts-expect-error untyped
         data.lid = resourceHash.lid;
       }
 
+      // @ts-expect-error untyped
       this.applyTransforms(modelClass, data.attributes);
     }
 
@@ -609,14 +655,11 @@ const JSONSerializer = Serializer.extend({
     Returns the resource's ID.
 
     @public
-    @param {Object} modelClass
-    @param {Object} resourceHash
-    @return {String}
   */
-  extractId(modelClass, resourceHash) {
+  extractId(modelClass: ModelSchema, resourceHash: object): string {
     const primaryKey = this.primaryKey;
     const id = resourceHash[primaryKey];
-    return coerceId(id);
+    return coerceId(id) as string;
   },
 
   /**
@@ -629,7 +672,7 @@ const JSONSerializer = Serializer.extend({
     @param {Object} resourceHash
     @return {Object}
   */
-  extractAttributes(modelClass, resourceHash) {
+  extractAttributes(modelClass: ModelSchema, resourceHash: object): object {
     let attributeKey;
     const attributes = {};
 
@@ -649,11 +692,8 @@ const JSONSerializer = Serializer.extend({
     http://jsonapi.org/format/#document-resource-object-relationships
 
     @public
-    @param {Object} relationshipModelName
-    @param {Object} relationshipHash
-    @return {Object}
   */
-  extractRelationship(relationshipModelName, relationshipHash) {
+  extractRelationship(relationshipModelName: string, relationshipHash: object): object | null {
     if (!relationshipHash) {
       return null;
     }
@@ -663,18 +703,26 @@ const JSONSerializer = Serializer.extend({
       EmbeddedRecordsMixin has be able to process.
     */
     if (relationshipHash && typeof relationshipHash === 'object' && !Array.isArray(relationshipHash)) {
+      // @ts-expect-error untyped
       if (relationshipHash.id) {
+        // @ts-expect-error untyped
         relationshipHash.id = coerceId(relationshipHash.id);
       }
 
+      // @ts-expect-error store is dynamically injected
       const modelClass = this.store.modelFor(relationshipModelName);
+      // @ts-expect-error untyped
       if (relationshipHash.type && !modelClass.fields.has('type')) {
+        // @ts-expect-error untyped
         relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
 
       return relationshipHash;
     }
-    return { id: coerceId(relationshipHash), type: dasherize(singularize(relationshipModelName)) };
+    return {
+      id: coerceId(relationshipHash as unknown as string | number | null),
+      type: dasherize(singularize(relationshipModelName)),
+    };
   },
 
   /**
@@ -691,12 +739,12 @@ const JSONSerializer = Serializer.extend({
       - `relationshipMeta` meta information about the relationship
 
     @public
-    @param {Object} relationshipModelName
-    @param {Object} relationshipHash
-    @param {Object} relationshipOptions
-    @return {Object}
   */
-  extractPolymorphicRelationship(relationshipModelName, relationshipHash, relationshipOptions) {
+  extractPolymorphicRelationship(
+    relationshipModelName: string,
+    relationshipHash: object,
+    relationshipOptions?: object
+  ): object | null {
     return this.extractRelationship(relationshipModelName, relationshipHash);
   },
 
@@ -706,11 +754,8 @@ const JSONSerializer = Serializer.extend({
     http://jsonapi.org/format/#document-resource-object-relationships
 
     @public
-    @param {Object} modelClass
-    @param {Object} resourceHash
-    @return {Object}
   */
-  extractRelationships(modelClass, resourceHash) {
+  extractRelationships(modelClass: ModelSchema, resourceHash: object): object {
     const relationships = {};
 
     modelClass.eachRelationship((key, relationshipMeta) => {
@@ -725,20 +770,24 @@ const JSONSerializer = Serializer.extend({
             // than the type and the hash (which might only be an id) for the
             // relationship, hence we pass the key, resource and
             // relationshipMeta too
+            // @ts-expect-error untyped
             data = this.extractPolymorphicRelationship(relationshipMeta.type, relationshipHash, {
               key,
               resourceHash,
               relationshipMeta,
             });
           } else {
+            // @ts-expect-error untyped
             data = this.extractRelationship(relationshipMeta.type, relationshipHash);
           }
         } else if (relationshipMeta.kind === 'hasMany') {
           if (relationshipHash) {
+            // @ts-expect-error untyped
             data = new Array(relationshipHash.length);
             if (relationshipMeta.options.polymorphic) {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
                 const item = relationshipHash[i];
+                // @ts-expect-error untyped
                 data[i] = this.extractPolymorphicRelationship(relationshipMeta.type, item, {
                   key,
                   resourceHash,
@@ -748,18 +797,24 @@ const JSONSerializer = Serializer.extend({
             } else {
               for (let i = 0, l = relationshipHash.length; i < l; i++) {
                 const item = relationshipHash[i];
+                // @ts-expect-error untyped
                 data[i] = this.extractRelationship(relationshipMeta.type, item);
               }
             }
           }
         }
+        // @ts-expect-error untyped
         relationship = { data };
       }
 
       const linkKey = this.keyForLink(key, relationshipMeta.kind);
+      // @ts-expect-error untyped
       if (resourceHash.links && resourceHash.links[linkKey] !== undefined) {
+        // @ts-expect-error untyped
         const related = resourceHash.links[linkKey];
+        // @ts-expect-error untyped
         relationship = relationship || {};
+        // @ts-expect-error untyped
         relationship.links = { related };
       }
 
@@ -778,14 +833,14 @@ const JSONSerializer = Serializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey(key) {
+  modelNameFromPayloadKey(key: string): string {
     return dasherize(singularize(key));
   },
 
   /**
     @private
   */
-  normalizeRelationships(typeClass, hash) {
+  normalizeRelationships(typeClass: ModelSchema, hash: object): void {
     let payloadKey;
 
     if (this.keyForRelationship) {
@@ -807,7 +862,8 @@ const JSONSerializer = Serializer.extend({
   /**
     @private
   */
-  normalizeUsingDeclaredMapping(modelClass, hash) {
+  normalizeUsingDeclaredMapping(modelClass: ModelSchema, hash: object): void {
+    // @ts-expect-error attrs is dynamically injected
     const attrs = this.attrs;
     let normalizedKey;
     let payloadKey;
@@ -841,10 +897,8 @@ const JSONSerializer = Serializer.extend({
     passed to the serializer.
 
     @private
-    @param {String} key
-    @return {String} key
   */
-  _getMappedKey(key, modelClass) {
+  _getMappedKey(key: string, modelClass: ModelSchema): string {
     warn(
       'There is no attribute or relationship with the name `' +
         key +
@@ -856,7 +910,7 @@ const JSONSerializer = Serializer.extend({
         id: 'ds.serializer.no-mapped-attrs-key',
       }
     );
-
+    // @ts-expect-error attrs is dynamically injected
     const attrs = this.attrs;
     let mappedKey;
     if (attrs && attrs[key]) {
@@ -879,10 +933,10 @@ const JSONSerializer = Serializer.extend({
     can be serialized
 
     @private
-    @param {String} key
-    @return {Boolean} true if the key can be serialized
+    @return true if the key can be serialized
   */
-  _canSerialize(key) {
+  _canSerialize(key: string): boolean {
+    // @ts-expect-error no idea what attrs is here
     const attrs = this.attrs;
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
@@ -894,10 +948,10 @@ const JSONSerializer = Serializer.extend({
     attribute/relationship will be serialized
 
     @private
-    @param {String} key
-    @return {Boolean} true if the key must be serialized
+    @return true if the key must be serialized
   */
-  _mustSerialize(key) {
+  _mustSerialize(key: string): boolean {
+    // @ts-expect-error no idea what attrs is here
     const attrs = this.attrs;
 
     return attrs && attrs[key] && attrs[key].serialize === true;
@@ -910,13 +964,16 @@ const JSONSerializer = Serializer.extend({
     This could be configured per relationship by Serializer's `attrs` object.
 
     @public
-    @param {Snapshot} snapshot
-    @param {String} key
-    @param {RelationshipSchema} relationship
-    @return {Boolean} true if the hasMany relationship should be serialized
+    @return true if the hasMany relationship should be serialized
   */
-  shouldSerializeHasMany(snapshot, key, relationship) {
+  shouldSerializeHasMany(
+    snapshot: Snapshot,
+    key: string,
+    relationship: LegacyBelongsToField | LegacyHasManyField
+  ): boolean {
+    // @ts-expect-error store is dynamically injected
     const schema = this.store.modelFor(snapshot.modelName);
+    // @ts-expect-error store is dynamically injected
     const relationshipType = schema.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
@@ -1073,13 +1130,11 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} options
-    @return {Object} json
   */
-  serialize(snapshot, options) {
+  serialize(snapshot: Snapshot, options: object): object {
     const json = {};
 
+    // @ts-expect-error super loose typing here right now
     if (options && options.includeId) {
       const id = snapshot.id;
       if (id) {
@@ -1125,12 +1180,8 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Object} hash
-    @param {Model} typeClass
-    @param {Snapshot} snapshot
-    @param {Object} options
   */
-  serializeIntoHash(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash: object, typeClass: ModelSchema, snapshot: Snapshot, options: object): void {
     Object.assign(hash, this.serialize(snapshot, options));
   },
 
@@ -1154,14 +1205,11 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} json
-    @param {String} key
-    @param {Object} attribute
   */
-  serializeAttribute(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot: Snapshot, json: object, key: string, attribute: LegacyAttributeField): void {
     if (this._canSerialize(key)) {
       const type = attribute.type;
+      // @ts-expect-error we don't know what is on the snapshot
       let value = snapshot.attr(key);
       if (type) {
         const transform = this.transformFor(type);
@@ -1170,6 +1218,7 @@ const JSONSerializer = Serializer.extend({
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
+      // @ts-expect-error store added dynamically
       const schema = this.store.modelFor(snapshot.modelName);
       let payloadKey = this._getMappedKey(key, schema);
 
@@ -1203,11 +1252,8 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} json
-    @param {Object} relationship
   */
-  serializeBelongsTo(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot: Snapshot, json: object, relationship: LegacyHasManyField | LegacyBelongsToField): void {
     const name = relationship.name;
 
     if (this._canSerialize(name)) {
@@ -1215,6 +1261,7 @@ const JSONSerializer = Serializer.extend({
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
+      // @ts-expect-error store added dynamically
       const schema = this.store.modelFor(snapshot.modelName);
       let payloadKey = this._getMappedKey(name, schema);
       if (payloadKey === name && this.keyForRelationship) {
@@ -1256,11 +1303,8 @@ const JSONSerializer = Serializer.extend({
    ```
 
     @public
-   @param {Snapshot} snapshot
-   @param {Object} json
-   @param {Object} relationship
   */
-  serializeHasMany(snapshot, json, relationship) {
+  serializeHasMany(snapshot: Snapshot, json: object, relationship: LegacyBelongsToField | LegacyHasManyField): void {
     const name = relationship.name;
 
     if (this.shouldSerializeHasMany(snapshot, name, relationship)) {
@@ -1268,6 +1312,7 @@ const JSONSerializer = Serializer.extend({
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
         // the serializer
+        // @ts-expect-error store added dynamically
         const schema = this.store.modelFor(snapshot.modelName);
         let payloadKey = this._getMappedKey(name, schema);
         if (payloadKey === name && this.keyForRelationship) {
@@ -1308,11 +1353,12 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} json
-    @param {Object} relationship
   */
-  serializePolymorphicType() {},
+  serializePolymorphicType(
+    snapshot: Snapshot,
+    json: object,
+    relationship: LegacyBelongsToField | LegacyHasManyField
+  ): void {},
 
   /**
     `extractMeta` is used to deserialize any meta information in the
@@ -1336,13 +1382,12 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {Store} store
-    @param {Model} modelClass
-    @param {Object} payload
   */
-  extractMeta(store, modelClass, payload) {
+  extractMeta(store: Store, modelClass: ModelSchema, payload: object): object | undefined {
     if (payload && payload['meta'] !== undefined) {
+      // @ts-expect-error
       const meta = payload.meta;
+      // @ts-expect-error
       delete payload.meta;
       return meta;
     }
@@ -1433,11 +1478,13 @@ const JSONSerializer = Serializer.extend({
     @param {(String|Number)} id
     @return {Object} json The deserialized errors
   */
-  extractErrors(store, typeClass, payload, id) {
+  extractErrors(store: Store, typeClass: ModelSchema, payload: object, id: string | null): object {
+    // @ts-expect-error
     if (payload && typeof payload === 'object' && payload.errors) {
       // the default assumption is that errors is already in JSON:API format
       const extracted = {};
 
+      // @ts-expect-error
       payload.errors.forEach((error) => {
         if (error.source && error.source.pointer) {
           let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
@@ -1500,11 +1547,8 @@ const JSONSerializer = Serializer.extend({
     ```
 
     @public
-    @param {String} key
-    @param {String} method
-    @return {String} normalized key
   */
-  keyForAttribute(key, method) {
+  keyForAttribute(key: string, method: string): string {
     return key;
   },
 
@@ -1527,12 +1571,8 @@ const JSONSerializer = Serializer.extend({
       ```
 
     @public
-    @param {String} key
-    @param {String} typeClass
-    @param {String} method
-    @return {String} normalized key
   */
-  keyForRelationship(key, typeClass, method) {
+  keyForRelationship(key: string, typeClass: ModelSchema | string, method?: string): string {
     return key;
   },
 
@@ -1541,11 +1581,8 @@ const JSONSerializer = Serializer.extend({
    properties.
 
     @public
-   @param {String} key
-   @param {String} kind `belongsTo` or `hasMany`
-   @return {String} normalized key
   */
-  keyForLink(key, kind) {
+  keyForLink(key: string, kind: 'belongsTo' | 'hasMany'): string {
     return key;
   },
 
@@ -1553,16 +1590,13 @@ const JSONSerializer = Serializer.extend({
 
   /**
    @private
-   @param {String} attributeType
-   @param {Boolean} skipAssertion
-   @return {Transform} transform
   */
-  transformFor(attributeType, skipAssertion) {
-    const transform = getOwner(this).lookup('transform:' + attributeType);
+  transformFor(attributeType: string, skipAssertion?: boolean): Transform {
+    const transform = getOwner(this)!.lookup(`transform:${attributeType}`) as Transform | undefined;
 
     assert(`Unable to find the transform for \`attr('${attributeType}')\``, skipAssertion || !!transform);
 
-    return transform;
+    return transform!;
   },
 });
 

@@ -10,7 +10,7 @@ import { DOMReporter } from '../reporters/dom';
  *
  * {@link ConfigOptions}
  */
-export async function start(config?: Partial<ConfigOptions>) {
+export async function start(config?: Partial<ConfigOptions>): Promise<void> {
   if (config) {
     configure(config);
   }

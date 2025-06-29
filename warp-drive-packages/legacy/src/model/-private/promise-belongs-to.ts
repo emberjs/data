@@ -22,7 +22,7 @@ export interface BelongsToProxyCreateArgs<T = unknown> {
   _belongsToState: BelongsToProxyMeta<T>;
 }
 
-export const LegacyPromiseProxy = Symbol.for('LegacyPromiseProxy');
+export const LegacyPromiseProxy: unique symbol = Symbol.for('LegacyPromiseProxy');
 
 interface PromiseObjectType<T> extends PromiseProxyMixin<T | null>, ObjectProxy<T> {
   // eslint-disable-next-line @typescript-eslint/no-misused-new
@@ -33,6 +33,11 @@ declare class PromiseObjectType<T> {}
 
 const Extended: PromiseObjectType<OpaqueRecordInstance> =
   PromiseObject as unknown as PromiseObjectType<OpaqueRecordInstance>;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface PromiseBelongsTo<T> {
+  [LegacyPromiseProxy]: true;
+}
 
 /**
   A PromiseBelongsTo is a PromiseObject that also proxies certain method calls
@@ -57,7 +62,7 @@ class PromiseBelongsTo<T = unknown> extends Extended<T> {
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
   @computed()
-  get meta() {
+  get meta(): void {
     // eslint-disable-next-line no-constant-condition
     if (1) {
       assert(
@@ -76,8 +81,7 @@ class PromiseBelongsTo<T = unknown> extends Extended<T> {
     await legacySupport.reloadBelongsTo(key, options);
     return this;
   }
-
-  [LegacyPromiseProxy] = true as const;
 }
+PromiseBelongsTo.prototype[LegacyPromiseProxy] = true as const;
 
 export { PromiseBelongsTo };

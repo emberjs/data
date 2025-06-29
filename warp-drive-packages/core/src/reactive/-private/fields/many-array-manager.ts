@@ -31,7 +31,7 @@ export class ManyArrayManager {
     this.editable = editable;
   }
 
-  _syncArray(array: ManyArray) {
+  _syncArray(array: ManyArray): void {
     const method = this.editable ? 'getRelationship' : 'getRemoteRelationship';
     const rawValue = this.store.cache[method](this.identifier, array.key) as CollectionRelationship;
 

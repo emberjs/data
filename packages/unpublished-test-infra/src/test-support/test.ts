@@ -43,7 +43,7 @@ export function createDeprecatedTestFn<TC extends TestContext, T extends Limited
       refactor?: boolean;
     },
     testCallback: (this: TC, assert: T) => void | Promise<void>
-  ) {
+  ): void {
     // '4.0'
     if (typeof deprecation.until !== 'string' || deprecation.until.length < 3) {
       throw new Error(`deprecatedTest expects { until } to be a version.`);

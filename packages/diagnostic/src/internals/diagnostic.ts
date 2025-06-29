@@ -9,11 +9,11 @@ class InternalCompat<TC extends TestContext> {
     this._diagnostic = diagnostic;
   }
 
-  get testId() {
+  get testId(): string {
     return this._diagnostic.__currentTest.id;
   }
 
-  get expected() {
+  get expected(): number | null {
     return this._diagnostic.expected;
   }
   set expected(value) {

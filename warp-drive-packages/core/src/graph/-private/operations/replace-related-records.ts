@@ -74,7 +74,11 @@ function count(label: string) {
     artificial (implicit) inverses, replacing a value results in 2 discrete value transitions.
     This is because a Many:? relationship is effectively Many:Many.
   */
-export default function replaceRelatedRecords(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
+export default function replaceRelatedRecords(
+  graph: Graph,
+  op: ReplaceRelatedRecordsOperation,
+  isRemote: boolean
+): void {
   if (isRemote) {
     replaceRelatedRecordsRemote(graph, op, isRemote);
   } else {
@@ -349,7 +353,7 @@ export function addToInverse(
   key: string,
   value: StableRecordIdentifier,
   isRemote: boolean
-) {
+): void {
   const relationship = graph.get(identifier, key);
   const { type } = relationship.definition;
 
@@ -431,7 +435,7 @@ export function notifyInverseOfPotentialMaterialization(
   key: string,
   value: StableRecordIdentifier,
   isRemote: boolean
-) {
+): void {
   const relationship = graph.get(identifier, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
     notifyChange(graph, relationship);
@@ -444,7 +448,7 @@ export function removeFromInverse(
   key: string,
   value: StableRecordIdentifier,
   isRemote: boolean
-) {
+): void {
   const relationship = graph.get(identifier, key);
 
   if (isBelongsTo(relationship)) {

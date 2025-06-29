@@ -11,7 +11,7 @@ import type {
 export function validateDocumentFields(
   schema: SchemaService,
   jsonApiDoc: SingleResourceDocument | CollectionResourceDocument
-) {
+): void {
   const { data, included } = jsonApiDoc;
   if (data === null) {
     return;

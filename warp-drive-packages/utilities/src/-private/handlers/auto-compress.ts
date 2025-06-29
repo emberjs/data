@@ -6,7 +6,7 @@ function isCompressibleMethod(method?: HTTPMethod): boolean {
   return method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
 }
 
-export const SupportsRequestStreams = (() => {
+export const SupportsRequestStreams: boolean = (() => {
   let duplexAccessed = false;
 
   const hasContentType = new Request('', {

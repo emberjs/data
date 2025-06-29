@@ -59,7 +59,7 @@ function shouldSkipModule<TC extends TestContext>(module: ModuleInfo<TC>): boole
   return !found;
 }
 
-export async function start() {
+export async function start(): Promise<void> {
   const report: SuiteReport = {
     totals: Object.assign({}, Config.totals),
     passed: 0,

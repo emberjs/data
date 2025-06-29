@@ -56,7 +56,7 @@ const CONFIG: BuildURLConfig = getOrSetGlobal('CONFIG', {
  *
  * @public
  */
-export function setBuildURLConfig(config: BuildURLConfig) {
+export function setBuildURLConfig(config: BuildURLConfig): void {
   assert(`setBuildURLConfig: You must pass a config object`, config);
   assert(
     `setBuildURLConfig: You must pass a config object with a 'host' or 'namespace' property`,

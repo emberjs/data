@@ -27,7 +27,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "composite": true,
     "incremental": true,
     "rootDir": "src",
@@ -37,10 +36,12 @@
     "declarationDir": "declarations",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "erasableSyntaxOnly": true,
     "paths": {},
     "checkJs": false,
-    "isolatedDeclarations": true
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true
   },
   "references": []
 }

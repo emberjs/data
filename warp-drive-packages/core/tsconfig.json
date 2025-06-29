@@ -27,7 +27,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "composite": true,
     "incremental": true,
     "rootDir": "src",
@@ -38,13 +37,15 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "types": ["ember-source/types"],
     "paths": {
       "@warp-drive/build-config": ["../build-config/declarations"],
       "@warp-drive/build-config/*": ["../build-config/declarations/*"]
     },
-    "checkJs": false,
-    "isolatedDeclarations": false
+    "checkJs": false
+    // "allowJs": false
   },
   "references": [
     {

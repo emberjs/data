@@ -11,7 +11,7 @@ import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
 import type { Graph } from '../graph.ts';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records.ts';
 
-export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false) {
+export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRecordOperation, isRemote = false): void {
   const relationship = graph.get(op.record, op.field);
   assert(
     `You can only '${op.op}' on a belongsTo relationship. ${op.record.type}.${op.field} is a ${relationship.definition.kind}`,

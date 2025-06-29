@@ -6,8 +6,8 @@ import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { FindRecordOptions } from '../../-types/q/store.ts';
 import type { Store } from '../store-service.ts';
 
-const Touching = getOrSetGlobal('Touching', Symbol('touching'));
-export const RequestPromise = getOrSetGlobal('RequestPromise', Symbol('promise'));
+const Touching: '___(unique) Symbol(Touching)' = getOrSetGlobal('Touching', Symbol('touching'));
+export const RequestPromise: '___(unique) Symbol(RequestPromise)' = getOrSetGlobal('RequestPromise', Symbol('promise'));
 const EMPTY_ARR: RequestCacheRequestState[] = DEBUG ? (Object.freeze([]) as unknown as RequestCacheRequestState[]) : [];
 
 export interface Operation {
@@ -59,24 +59,25 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
  * The RequestStateService is used to track the state of requests
  * for fetching or updating known resource identifies that are inflight.
  *
- * @class RequestStateService
+ * @hideconstructor
  * @public
  */
 export class RequestStateService {
+  /** @internal */
   _pending: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
-  _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();
-  _toFlush: InternalRequest[] = [];
-  _store: Store;
+  private _done: Map<StableRecordIdentifier, InternalRequest[]> = new Map();
+  private _subscriptions: Map<StableRecordIdentifier, RequestSubscription[]> = new Map();
+  private _toFlush: InternalRequest[] = [];
+  private _store: Store;
 
   constructor(store: Store) {
     this._store = store;
   }
-
-  _clearEntries(identifier: StableRecordIdentifier) {
+  /** @internal */
+  _clearEntries(identifier: StableRecordIdentifier): void {
     this._done.delete(identifier);
   }
-
+  /** @internal */
   _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T> {
     const query = queryRequest.data[0];
     if (hasRecordIdentifier(query)) {
@@ -126,7 +127,7 @@ export class RequestStateService {
     assert(`Expected a well formed  query`);
   }
 
-  _triggerSubscriptions(req: InternalRequest): void {
+  private _triggerSubscriptions(req: InternalRequest): void {
     if (req.state === 'pending') {
       this._flushRequest(req);
       return;
@@ -140,14 +141,14 @@ export class RequestStateService {
     }
   }
 
-  _flush(): void {
+  private _flush(): void {
     this._toFlush.forEach((req) => {
       this._flushRequest(req);
     });
     this._toFlush = [];
   }
 
-  _flushRequest(req: InternalRequest): void {
+  private _flushRequest(req: InternalRequest): void {
     req[Touching].forEach((identifier: StableRecordIdentifier) => {
       const subscriptions = this._subscriptions.get(identifier);
       if (subscriptions) {
@@ -156,7 +157,7 @@ export class RequestStateService {
     });
   }
 
-  _dequeue(identifier: StableRecordIdentifier, request: InternalRequest) {
+  private _dequeue(identifier: StableRecordIdentifier, request: InternalRequest): void {
     const pending = this._pending.get(identifier)!;
     this._pending.set(
       identifier,
@@ -164,7 +165,7 @@ export class RequestStateService {
     );
   }
 
-  _addDone(request: InternalRequest) {
+  private _addDone(request: InternalRequest): void {
     request[Touching].forEach((identifier) => {
       // TODO add support for multiple
       const requestDataOp = request.request.data[0].op;
@@ -216,7 +217,7 @@ export class RequestStateService {
    * @param {StableRecordIdentifier} identifier
    * @param {(state: RequestCacheRequestState) => void} callback
    */
-  subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription) {
+  subscribeForRecord(identifier: StableRecordIdentifier, callback: RequestSubscription): void {
     let subscriptions = this._subscriptions.get(identifier);
     if (!subscriptions) {
       subscriptions = [];

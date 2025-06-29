@@ -43,9 +43,9 @@ export interface ModelSchemaProvider {
   doesTypeExist(type: string): boolean;
 }
 export class ModelSchemaProvider implements SchemaService {
-  declare store: ModelStore;
-  declare _schemas: Map<string, InternalSchema>;
-  declare _typeMisses: Set<string>;
+  declare private store: ModelStore;
+  declare private _schemas: Map<string, InternalSchema>;
+  declare private _typeMisses: Set<string>;
 
   constructor(store: ModelStore) {
     this.store = store;
@@ -98,7 +98,7 @@ export class ModelSchemaProvider implements SchemaService {
   registerHashFn(hashFn: HashFn): void {
     assert(`registerHashFn is not available with @ember-data/model's SchemaService`);
   }
-  _loadModelSchema(type: string) {
+  private _loadModelSchema(type: string): InternalSchema {
     const modelClass = this.store.modelFor(type) as typeof Model;
     const attributeMap = modelClass.attributes;
 
@@ -195,10 +195,13 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     });
     const type = normalizeModelName(resource.type);
 
+    // @ts-expect-error intentional use of internal API
     if (!this._schemas.has(type)) {
+      // @ts-expect-error intentional use of internal API
       this._loadModelSchema(type);
     }
 
+    // @ts-expect-error intentional use of internal API
     return this._schemas.get(type)!.attributes;
   };
 
@@ -216,10 +219,13 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     });
     const type = normalizeModelName(resource.type);
 
+    // @ts-expect-error intentional use of internal API
     if (!this._schemas.has(type)) {
+      // @ts-expect-error intentional use of internal API
       this._loadModelSchema(type);
     }
 
+    // @ts-expect-error intentional use of internal API
     return this._schemas.get(type)!.relationships;
   };
 }
