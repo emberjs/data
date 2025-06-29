@@ -11,7 +11,7 @@ import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Editable, Identifier, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
+import { Editable, Identifier, Legacy, Parent, SOURCE } from '../symbols.ts';
 import type { ProxiedMethod } from './extension.ts';
 import { isExtensionProp, performArrayExtensionGet, performExtensionSet } from './extension.ts';
 
@@ -94,14 +94,6 @@ function safeForEach(
 }
 
 export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
-  [MUTATE]?(
-    target: unknown[],
-    receiver: typeof Proxy<unknown[]>,
-    prop: string,
-    args: unknown[],
-    _SIGNAL: WarpDriveSignal
-  ): unknown;
-
   [SOURCE]: unknown[];
   identifier: StableRecordIdentifier;
   path: string[];

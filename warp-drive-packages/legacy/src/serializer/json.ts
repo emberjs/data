@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
-import type Owner from '@ember/owner';
 
 import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';

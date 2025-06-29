@@ -14,7 +14,7 @@ import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
 import type { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Editable, EmbeddedPath, Legacy, MUTATE, Parent, SOURCE } from '../symbols.ts';
+import { Editable, EmbeddedPath, Legacy, Parent, SOURCE } from '../symbols.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './extension.ts';
 
 export function notifyObject(obj: ManagedObject): void {
@@ -26,17 +26,6 @@ const ObjectSymbols = new Set<ObjectSymbol>([OBJECT_SIGNAL, Parent, SOURCE, Edit
 
 type KeyType = string | symbol | number;
 // const ignoredGlobalFields = new Set<string>(['setInterval', 'nodeType', 'nodeName', 'length', 'document', STRUCTURED]);
-
-export interface ManagedObject {
-  [MUTATE]?(
-    target: unknown[],
-    receiver: typeof Proxy<unknown[]>,
-    prop: string,
-    args: unknown[],
-    _SIGNAL: WarpDriveSignal
-  ): unknown;
-}
-
 export interface ManagedObject {
   [SOURCE]: object;
   [Parent]: StableRecordIdentifier;

@@ -93,6 +93,13 @@ export type IdentifierArrayCreateOptions<T = unknown> = {
   links?: Links | PaginationLinks | null;
   meta?: Record<string, unknown> | null;
   identifier?: StableDocumentIdentifier | null;
+  [MUTATE]?(
+    target: StableRecordIdentifier[],
+    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
+    prop: string,
+    args: unknown[],
+    _SIGNAL: WarpDriveSignal
+  ): unknown;
 };
 
 interface PrivateState {
@@ -154,13 +161,9 @@ export type MinimumManager = {
   @public
 */
 export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
-  [MUTATE]?(
-    target: StableRecordIdentifier[],
-    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
-    prop: string,
-    args: unknown[],
-    _SIGNAL: WarpDriveSignal
-  ): unknown;
+  [IS_COLLECTION]: boolean;
+  [ARRAY_SIGNAL]: WarpDriveSignal;
+  [SOURCE]: StableRecordIdentifier[];
 }
 
 // these are "internally" mutable, they should not be mutated by consumers
@@ -185,13 +188,6 @@ const MUTABLE_PROPS = [
   'key',
   'DEPRECATED_CLASS_NAME',
 ];
-
-export interface IdentifierArray {
-  [IS_COLLECTION]: boolean;
-  [ARRAY_SIGNAL]: WarpDriveSignal;
-  [SOURCE]: StableRecordIdentifier[];
-}
-
 export class IdentifierArray<T = unknown> {
   declare DEPRECATED_CLASS_NAME: string;
   /**
@@ -342,7 +338,7 @@ export class IdentifierArray<T = unknown> {
               const args: unknown[] = Array.prototype.slice.call(arguments);
               assert(`Cannot start a new array transaction while a previous transaction is underway`, !transaction);
               transaction = true;
-              const result = self[MUTATE]!(target, receiver, prop as string, args, _SIGNAL);
+              const result = options[MUTATE]!(target, receiver, prop as string, args, _SIGNAL);
               transaction = false;
               return result;
             };
@@ -407,7 +403,7 @@ export class IdentifierArray<T = unknown> {
         if (prop === 'length') {
           if (!transaction && value === 0) {
             transaction = true;
-            self[MUTATE]!(target, receiver, 'length 0', [], _SIGNAL);
+            options[MUTATE]!(target, receiver, 'length 0', [], _SIGNAL);
             transaction = false;
             return true;
           } else if (transaction) {
@@ -472,7 +468,7 @@ export class IdentifierArray<T = unknown> {
         // a transaction.
         // while "arr[arr.length] = newVal;" is handled by this replace cell code path.
         if (!transaction) {
-          self[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier], _SIGNAL);
+          options[MUTATE]!(target, receiver, 'replace cell', [index, original, newIdentifier], _SIGNAL);
         } else {
           target[index] = newIdentifier;
         }

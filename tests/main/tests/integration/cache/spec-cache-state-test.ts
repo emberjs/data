@@ -236,6 +236,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     // @ts-expect-error missing type
     owner.unregister('service:store');
     owner.register('service:store', Store);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('serializer:application', JSONAPISerializer);
   });
 

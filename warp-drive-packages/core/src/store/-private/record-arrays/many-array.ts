@@ -24,30 +24,30 @@ import type { NativeProxy } from './native-proxy-type-fix.ts';
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
 
 function _MUTATE<T>(
-  this: RelatedCollection<T>,
   target: StableRecordIdentifier[],
   receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
   prop: string,
   args: unknown[],
   _SIGNAL: WarpDriveSignal
 ): unknown {
+  const collection = receiver as unknown as RelatedCollection<T>;
   switch (prop) {
     case 'length 0': {
       Reflect.set(target, 'length', 0);
-      mutateReplaceRelatedRecords(this, [], _SIGNAL);
+      mutateReplaceRelatedRecords(collection, [], _SIGNAL);
       return true;
     }
     case 'replace cell': {
       const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
       target[index] = value;
-      mutateReplaceRelatedRecord(this, { value, prior, index }, _SIGNAL);
+      mutateReplaceRelatedRecord(collection, { value, prior, index }, _SIGNAL);
       return true;
     }
     case 'push': {
       const newValues = extractIdentifiersFromRecords(args);
 
       assertNoDuplicates(
-        this,
+        collection,
         target,
         (currentState) => currentState.push(...newValues),
         `Cannot push duplicates to a hasMany's state.`
@@ -70,7 +70,7 @@ function _MUTATE<T>(
         const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
         if (newArgs.length) {
-          mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
+          mutateAddToRelatedRecords(collection, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
         }
         return result;
       }
@@ -78,7 +78,7 @@ function _MUTATE<T>(
       // else, no dedupe, error on duplicates
       const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
       if (newValues.length) {
-        mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
+        mutateAddToRelatedRecords(collection, { value: newValues }, _SIGNAL);
       }
       return result;
     }
@@ -86,7 +86,11 @@ function _MUTATE<T>(
     case 'pop': {
       const result: unknown = Reflect.apply(target[prop], receiver, args);
       if (result) {
-        mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as OpaqueRecordInstance) }, _SIGNAL);
+        mutateRemoveFromRelatedRecords(
+          collection,
+          { value: recordIdentifierFor(result as OpaqueRecordInstance) },
+          _SIGNAL
+        );
       }
       return result;
     }
@@ -95,7 +99,7 @@ function _MUTATE<T>(
       const newValues = extractIdentifiersFromRecords(args);
 
       assertNoDuplicates(
-        this,
+        collection,
         target,
         (currentState) => currentState.unshift(...newValues),
         `Cannot unshift duplicates to a hasMany's state.`
@@ -118,7 +122,7 @@ function _MUTATE<T>(
         const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
 
         if (newArgs.length) {
-          mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _SIGNAL);
+          mutateAddToRelatedRecords(collection, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _SIGNAL);
         }
         return result;
       }
@@ -126,7 +130,7 @@ function _MUTATE<T>(
       // else, no dedupe, error on duplicates
       const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
       if (newValues.length) {
-        mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
+        mutateAddToRelatedRecords(collection, { value: newValues, index: 0 }, _SIGNAL);
       }
       return result;
     }
@@ -136,7 +140,7 @@ function _MUTATE<T>(
 
       if (result) {
         mutateRemoveFromRelatedRecords(
-          this,
+          collection,
           { value: recordIdentifierFor(result as OpaqueRecordInstance), index: 0 },
           _SIGNAL
         );
@@ -146,7 +150,7 @@ function _MUTATE<T>(
 
     case 'sort': {
       const result: unknown = Reflect.apply(target[prop], receiver, args);
-      mutateSortRelatedRecords(this, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
+      mutateSortRelatedRecords(collection, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
       return result;
     }
 
@@ -154,11 +158,11 @@ function _MUTATE<T>(
       const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
       // detect a full replace
-      if (start === 0 && deleteCount === this[SOURCE].length) {
+      if (start === 0 && deleteCount === collection[SOURCE].length) {
         const newValues = extractIdentifiersFromRecords(adds);
 
         assertNoDuplicates(
-          this,
+          collection,
           target,
           (currentState) => currentState.splice(start, deleteCount, ...newValues),
           `Cannot replace a hasMany's state with a new state that contains duplicates.`
@@ -172,19 +176,19 @@ function _MUTATE<T>(
 
           const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
-          mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
+          mutateReplaceRelatedRecords(collection, extractIdentifiersFromRecords(unique), _SIGNAL);
           return result;
         }
 
         // else, no dedupe, error on duplicates
         const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
-        mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
+        mutateReplaceRelatedRecords(collection, newValues, _SIGNAL);
         return result;
       }
 
       const newValues = extractIdentifiersFromRecords(adds);
       assertNoDuplicates(
-        this,
+        collection,
         target,
         (currentState) => currentState.splice(start, deleteCount, ...newValues),
         `Cannot splice a hasMany's state with a new state that contains duplicates.`
@@ -209,11 +213,15 @@ function _MUTATE<T>(
         const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
 
         if (deleteCount > 0) {
-          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
+          mutateRemoveFromRelatedRecords(collection, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
         }
 
         if (unique.length > 0) {
-          mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _SIGNAL);
+          mutateAddToRelatedRecords(
+            collection,
+            { value: extractIdentifiersFromRecords(unique), index: start },
+            _SIGNAL
+          );
         }
 
         return result;
@@ -222,10 +230,10 @@ function _MUTATE<T>(
       // else, no dedupe, error on duplicates
       const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
       if (deleteCount > 0) {
-        mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
+        mutateRemoveFromRelatedRecords(collection, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
       }
       if (newValues.length > 0) {
-        mutateAddToRelatedRecords(this, { value: newValues, index: start }, _SIGNAL);
+        mutateAddToRelatedRecords(collection, { value: newValues, index: start }, _SIGNAL);
       }
       return result;
     }
@@ -370,14 +378,13 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
   constructor(options: ManyArrayCreateArgs<T>) {
+    (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
     super(options as unknown as IdentifierArrayCreateOptions);
     this.isLoaded = options.isLoaded || false;
     this.isAsync = options.isAsync || false;
     this.isPolymorphic = options.isPolymorphic || false;
     this.identifier = options.identifier;
     this.key = options.key;
-
-    this[MUTATE] = _MUTATE;
   }
 
   notify(): void {
