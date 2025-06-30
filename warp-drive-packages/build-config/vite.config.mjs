@@ -12,7 +12,7 @@ export const entryPoints = [
   './src/canary-features.ts',
 ];
 
-export default createConfig(
+const config = createConfig(
   {
     entryPoints,
     flatten: true,
@@ -21,3 +21,5 @@ export default createConfig(
   },
   import.meta.resolve
 );
+
+export default config;

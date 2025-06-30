@@ -10,7 +10,10 @@ export default createConfig(
     format: 'cjs',
     externals,
     explicitExternalsOnly: true,
-    babelConfigFile: import.meta.resolve('./babel.config-standalone.mjs').slice(7),
+    babelConfigFile: import.meta
+      .resolve('./babel.config-standalone.mjs')
+      .slice(7)
+      .replace('/node_modules/.vite-temp/', '/'),
     target: ['esnext', 'firefox121', 'node18'],
     emptyOutDir: false,
     fixModule: false,
