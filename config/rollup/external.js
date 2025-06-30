@@ -16,7 +16,9 @@ export function entryPoints(globs, resolve, options) {
     glob.includes('*') || glob.includes('{') ? files.push(...globSync(glob)) : files.push(glob);
   });
 
-  const srcDir = resolve(options.srcDir.startsWith('.') ? options.srcDir : './' + options.srcDir).slice(7) + '/';
+  const srcDir = fixViteHijack(
+    resolve(options.srcDir.startsWith('.') ? options.srcDir : './' + options.srcDir).slice(7) + '/'
+  );
 
   // resolve all files to full paths
   const allFiles = files.map((v) => {
@@ -24,7 +26,7 @@ export function entryPoints(globs, resolve, options) {
       v = './' + v;
     }
 
-    const file = resolve(v);
+    const file = fixViteHijack(resolve(v));
     if (file.startsWith('file://')) {
       return file.slice(7);
     }
@@ -46,6 +48,10 @@ export function entryPoints(globs, resolve, options) {
   });
   // console.log({ srcDir, fileMap });
   return fileMap;
+}
+
+function fixViteHijack(filePath) {
+  return filePath.replace('/node_modules/.vite-temp/', '/');
 }
 
 export function external(manual = []) {

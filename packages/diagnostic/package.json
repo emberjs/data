@@ -104,7 +104,7 @@
     "@glimmer/component": "^2.0.0",
     "ember-cli-test-loader": "^3.1.0",
     "typescript": "^5.8.3",
-    "vite": "^5.4.15"
+    "vite": "^7.0.0"
   },
   "volta": {
     "extends": "../../package.json"

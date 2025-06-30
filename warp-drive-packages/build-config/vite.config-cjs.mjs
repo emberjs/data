@@ -17,7 +17,7 @@ export default createConfig(
     flatten: true,
     format: 'cjs',
     externals,
-    target: ['esnext', 'firefox121', 'node18'],
+    target: ['esnext', 'firefox121', 'node22'],
     emptyOutDir: false,
     fixModule: false,
     compileTypes: false,
