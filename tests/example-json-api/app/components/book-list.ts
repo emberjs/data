@@ -30,8 +30,8 @@ class AsyncContent<T> {
 export default class BookListComponent extends Component<BookListSignature> {
   @service declare store: Store;
   @tracked currentUrl: string | null = null;
-  links = new PaginationLinks();
-  dataWrapper = new AsyncContent<Document<Book[]>>();
+  links: PaginationLinks = new PaginationLinks();
+  dataWrapper: AsyncContent<Document<Book[]>> = new AsyncContent<Document<Book[]>>();
 
   // we use this to detect inbound data changes
   _firstPageOptions: { url: string } | null = null;
@@ -46,7 +46,7 @@ export default class BookListComponent extends Component<BookListSignature> {
   }
 
   @cached
-  get currentPage() {
+  get currentPage(): AsyncContent<Document<Book[]>> {
     const _firstPageOptions = this._firstPageOptions;
     const firstPageOptions = this.firstPageOptions;
     const currentUrl = this.currentUrl;
@@ -63,7 +63,7 @@ export default class BookListComponent extends Component<BookListSignature> {
     return this.currentPage.content || null;
   }
 
-  fetchPage(options: { url: string }) {
+  fetchPage(options: { url: string }): AsyncContent<Document<Book[]>> {
     const dataWrapper = this.dataWrapper;
     const future = this.store.request<Document<Book[]>>(options);
 
@@ -75,7 +75,7 @@ export default class BookListComponent extends Component<BookListSignature> {
     return dataWrapper;
   }
 
-  updatePage = (url: string) => {
+  updatePage = (url: string): void => {
     this.currentUrl = url;
   };
 }

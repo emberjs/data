@@ -22,7 +22,7 @@ export class PaginationLinks {
   declare _pages: string[];
   @tracked declare pages: string[];
 
-  addPage(page: ApiPage) {
+  addPage(page: ApiPage): void {
     let { _pages } = this;
     const { pagesTotal, currentPage } = page.meta;
 
@@ -53,7 +53,10 @@ export class PaginationLinks {
     this.pages = pages;
   }
 
-  get filteredPages() {
+  get filteredPages(): {
+    index: number;
+    link: string;
+  }[] {
     const { pages } = this;
     const filtered: { index: number; link: string }[] = [];
 

@@ -1,5 +1,9 @@
 import Model, { attr } from '@ember-data/model';
-import { Type } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core-types/symbols';
+
+export default interface Book {
+  [Type]: 'book';
+}
 
 export default class Book extends Model {
   @attr declare title: string;
@@ -7,6 +11,4 @@ export default class Book extends Model {
   @attr declare publicationDate: string;
   @attr declare author: string;
   @attr declare genre: string;
-
-  [Type] = 'book' as const;
 }

@@ -23,7 +23,7 @@ class Pages<T> {
     this.data = page.slice();
   }
 
-  addPage(page: CollectionRecordArray<T>) {
+  addPage(page: CollectionRecordArray<T>): void {
     this.pages.push(page);
     this.data = this.data.concat(page);
   }
@@ -31,13 +31,13 @@ class Pages<T> {
 
 export default class InfiniteBookComponent extends Component<InfiniteBookSignature> {
   @service declare store: Store;
-  pageCollection = new Pages(this.args.allBooks);
+  pageCollection: Pages<Book> = new Pages(this.args.allBooks);
 
   get books(): Book[] {
     return this.pageCollection.data;
   }
 
-  next = async () => {
+  next = async (): Promise<void> => {
     const meta = this.pageCollection.pages.at(-1)?.query as { page: number; pageSize: number };
     if (!meta) {
       return;

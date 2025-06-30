@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
     "baseUrl": ".",
     "noImplicitOverride": false,
     "experimentalDecorators": true,
@@ -46,7 +45,9 @@
       "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
       "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
       "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
-      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"]
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
@@ -54,6 +55,8 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "rootDir": ".",
