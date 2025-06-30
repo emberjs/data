@@ -22,6 +22,9 @@ import { Errors } from './errors.ts';
 import { LEGACY_SUPPORT } from './legacy-relationships-support.ts';
 import type { MinimalLegacyRecord } from './model-methods.ts';
 import {
+  _destroyRecord,
+  _reload,
+  _save,
   belongsTo,
   changedAttributes,
   createSnapshot,
@@ -1917,6 +1920,14 @@ Model.prototype.deleteRecord = deleteRecord;
 Model.prototype.changedAttributes = changedAttributes;
 Model.prototype.rollbackAttributes = rollbackAttributes;
 Model.prototype.reload = reload;
+
+export function restoreDeprecatedModelRequestBehaviors(ModelKlass: typeof Model): void {
+  // @ts-expect-error TS doesn't know how to do `this` function overloads
+  ModelKlass.prototype.save = _save;
+  // @ts-expect-error TS doesn't know how to do `this` function overloads
+  ModelKlass.prototype.destroyRecord = _destroyRecord;
+  ModelKlass.prototype.reload = _reload;
+}
 
 defineSignal(Model.prototype, 'isReloading', false);
 

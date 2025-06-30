@@ -44,6 +44,9 @@ export const entryPoints = [
   './src/serializer/json.ts',
   './src/serializer/json-api.ts',
   './src/serializer/rest.ts',
+
+  // store
+  './src/store.ts',
 ];
 
 export default createConfig(

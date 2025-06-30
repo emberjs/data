@@ -51,6 +51,7 @@ export function configureAssertAllDeprecations(hooks: ExpandedHooks): void {
             id.includes('ds.') ||
             id.includes('emberdata') ||
             id.includes('ember-data') ||
+            id.includes('warp-drive') ||
             id.includes('mismatched-inverse-relationship-data-from-payload');
 
           if (!isEmberDataDeprecation) {
