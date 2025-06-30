@@ -1,4 +1,4 @@
-const { ImportUtil } = require('babel-import-util');
+import { ImportUtil } from 'babel-import-util';
 
 const Utils = new Set(['assert']);
 
