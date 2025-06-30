@@ -673,4 +673,4 @@ const mixinProps: BuildURLMixin = {
   pathForType,
 };
 
-export const BuildURLMixin = Mixin.create(mixinProps);
+export const BuildURLMixin: Mixin = Mixin.create(mixinProps);

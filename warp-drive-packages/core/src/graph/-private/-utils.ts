@@ -35,7 +35,7 @@ export function expandingSet<T>(cache: Record<string, Record<string, T>>, key1: 
 export function assertValidRelationshipPayload(
   graph: Graph,
   op: UpdateRelationshipOperation | UpdateResourceRelationshipOperation
-) {
+): void {
   const relationship = graph.get(op.record, op.field);
   assert(`Cannot update an implicit relationship`, isHasMany(relationship) || isBelongsTo(relationship));
   const payload = op.value;
@@ -232,7 +232,7 @@ export function assertRelationshipData(
   identifier: StableRecordIdentifier,
   data: ResourceIdentifierObject,
   meta: UpgradedMeta
-) {
+): void {
   assert(
     `A ${identifier.type} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
       data

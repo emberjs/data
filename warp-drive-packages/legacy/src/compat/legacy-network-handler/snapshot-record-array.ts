@@ -159,9 +159,9 @@ export class SnapshotRecordArray {
     ```
 
     @public
-    @return {Array} Array of snapshots
+    @return Array of snapshots
   */
-  snapshots() {
+  snapshots(): Snapshot[] {
     if (this._snapshots !== null) {
       return this._snapshots;
     }

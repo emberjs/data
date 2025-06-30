@@ -35,7 +35,7 @@ export function validateLinks(
   doc: ResourceDocument | ResourceObject | SingleResourceRelationship | CollectionResourceRelationship,
   type: 'collection-document' | 'resource-document' | 'resource' | 'resource-relationship' | 'collection-relationship',
   path: PathLike = ['links']
-) {
+): void {
   if (!('links' in doc)) {
     return;
   }

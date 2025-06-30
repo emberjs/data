@@ -5,7 +5,7 @@ import DataStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
-import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/schema-record';
+import { instantiateRecord, type SchemaRecord, SchemaService, teardownRecord } from '@warp-drive/schema-record';
 
 export default class Store extends DataStore {
   constructor(args: unknown) {
@@ -16,7 +16,7 @@ export default class Store extends DataStore {
     manager.useCache(CacheHandler);
   }
 
-  createSchemaService() {
+  createSchemaService(): SchemaService {
     return new SchemaService();
   }
 
@@ -24,7 +24,7 @@ export default class Store extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>) {
+  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): SchemaRecord {
     return instantiateRecord(this, identifier, createArgs);
   }
 

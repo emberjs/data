@@ -10,7 +10,7 @@ import type { OpaqueRecordInstance } from '../../-types/q/record-instance';
  * Model or Identifier
  */
 
-export const CacheForIdentifierCache = getOrSetGlobal(
+export const CacheForIdentifierCache: Map<unknown, Cache> = getOrSetGlobal(
   'CacheForIdentifierCache',
   new Map<StableRecordIdentifier | OpaqueRecordInstance, Cache>()
 );

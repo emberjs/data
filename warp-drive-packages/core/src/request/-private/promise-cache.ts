@@ -8,20 +8,23 @@ export type Awaitable<T = unknown, E = unknown> = {
   finally: (onFinally: () => unknown) => unknown;
 };
 
-export const PromiseCache = getOrSetUniversal('PromiseCache', new WeakMap<Awaitable, CacheResult>());
-export const RequestMap = getOrSetUniversal('RequestMap', new Map<number, CacheResult>());
+export const PromiseCache: WeakMap<Awaitable, CacheResult> = getOrSetUniversal(
+  'PromiseCache',
+  new WeakMap<Awaitable, CacheResult>()
+);
+export const RequestMap: Map<number, CacheResult> = getOrSetUniversal('RequestMap', new Map<number, CacheResult>());
 
-export function setRequestResult(requestId: number, result: CacheResult) {
+export function setRequestResult(requestId: number, result: CacheResult): void {
   RequestMap.set(requestId, result);
 }
-export function clearRequestResult(requestId: number) {
+export function clearRequestResult(requestId: number): void {
   RequestMap.delete(requestId);
 }
 export function getRequestResult(requestId: number): CacheResult | undefined {
   return RequestMap.get(requestId);
 }
 
-export function setPromiseResult(promise: Promise<unknown> | Awaitable, result: CacheResult) {
+export function setPromiseResult(promise: Promise<unknown> | Awaitable, result: CacheResult): void {
   PromiseCache.set(promise, result);
 }
 

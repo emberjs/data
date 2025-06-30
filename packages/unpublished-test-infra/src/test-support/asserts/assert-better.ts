@@ -11,7 +11,7 @@ function getRefForItem<T>(map: Map<T, string>, item: T, index: number): string {
   return ref;
 }
 
-export function configureBetterAsserts(assert: Assert) {
+export function configureBetterAsserts(assert: Assert): void {
   assert.arrayStrictEquals = arrayStrictEquals;
 }
 

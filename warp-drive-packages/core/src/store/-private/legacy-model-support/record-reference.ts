@@ -11,16 +11,15 @@ import type { Store } from '../store-service.ts';
    A `RecordReference` is a low-level API that allows users and
    addon authors to perform meta-operations on a record.
 
-   @class RecordReference
+   @hideconstructor
    @public
 */
 export default class RecordReference {
-  declare store: Store;
+  declare private store: Store;
   // unsubscribe token given to us by the notification manager
-  ___token!: object;
-  ___identifier: StableRecordIdentifier;
-
-  declare _ref: number;
+  declare private ___token: object;
+  declare private ___identifier: StableRecordIdentifier;
+  declare private _ref: number;
 
   constructor(store: Store, identifier: StableRecordIdentifier) {
     this.store = store;
@@ -35,7 +34,8 @@ export default class RecordReference {
     );
   }
 
-  destroy() {
+  /** @internal */
+  destroy(): void {
     this.store.notifications.unsubscribe(this.___token);
   }
 
@@ -58,9 +58,8 @@ export default class RecordReference {
      ```
 
     @public
-     @return {String} The id of the record.
   */
-  id() {
+  id(): string | null {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this._ref; // consume the tracked prop
     return this.___identifier.id;
@@ -81,7 +80,6 @@ export default class RecordReference {
      ```
 
     @public
-     @return {String} The identifier of the record.
   */
   identifier(): StableRecordIdentifier {
     return this.___identifier;
@@ -101,7 +99,6 @@ export default class RecordReference {
      ```
 
      @public
-     @return {String} 'identity'
   */
   remoteType(): 'identity' {
     return 'identity';
@@ -166,7 +163,6 @@ export default class RecordReference {
      ```
 
     @public
-     @return {Model} the record for this RecordReference
   */
   value(): OpaqueRecordInstance | null {
     return this.store.peekRecord(this.___identifier);
@@ -186,9 +182,8 @@ export default class RecordReference {
      ```
 
     @public
-     @return {Promise<record>} the record for this RecordReference
   */
-  load() {
+  load(): Promise<OpaqueRecordInstance> {
     const id = this.id();
     if (id !== null) {
       return this.store.findRecord(this.type, id);
@@ -210,9 +205,8 @@ export default class RecordReference {
      ```
 
     @public
-     @return {Promise<record>} the record for this RecordReference
   */
-  reload() {
+  reload(): Promise<OpaqueRecordInstance> {
     const id = this.id();
     if (id !== null) {
       return this.store.findRecord(this.type, id, { reload: true });

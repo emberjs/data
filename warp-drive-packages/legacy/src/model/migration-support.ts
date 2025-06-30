@@ -22,7 +22,7 @@ import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '@warp-drive/core/reactive';
-import type { ExtensibleField } from '@warp-drive/core/reactive/-private/schema.js';
+import type { ExtensibleField } from '@warp-drive/core/reactive/-private/schema';
 import { ARRAY_SIGNAL, notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
@@ -351,11 +351,10 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
  * import { withDefaults } from '@ember-data/model/migration-support';
  * ```
  *
- * @param {SchemaService} schema The schema service to register the derivations with.
- * @return {void}
+ * @param schema The schema service to register the derivations with.
  * @public
  */
-export function registerDerivations(schema: SchemaService) {
+export function registerDerivations(schema: SchemaService): void {
   schema.registerDerivation(legacySupport);
   // @ts-expect-error
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call

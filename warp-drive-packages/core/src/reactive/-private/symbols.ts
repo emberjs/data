@@ -31,15 +31,21 @@ import { getOrSetGlobal } from '../../types/-private';
 // Note that none of these symbols are part of the public API, these are used for
 // debugging DX and as a safe way to provide an intimate contract on public objects.
 
-export const SOURCE = getOrSetGlobal('SOURCE', Symbol('#source'));
-export const MUTATE = getOrSetGlobal('MUTATE', Symbol('#update'));
+export const SOURCE: '___(unique) Symbol(SOURCE)' = getOrSetGlobal('SOURCE', Symbol('#source'));
+export const MUTATE: '___(unique) Symbol(MUTATE)' = getOrSetGlobal('MUTATE', Symbol('#update'));
 
-export const Destroy = getOrSetGlobal('Destroy', Symbol('Destroy'));
-export const Identifier = getOrSetGlobal('Identifier', Symbol('Identifier'));
-export const Editable = getOrSetGlobal('Editable', Symbol('Editable'));
-export const Parent = getOrSetGlobal('Parent', Symbol('Parent'));
-export const Checkout = getOrSetGlobal('Checkout', Symbol('Checkout'));
-export const Legacy = getOrSetGlobal('Legacy', Symbol('Legacy'));
+export const Destroy: '___(unique) Symbol(Destroy)' = getOrSetGlobal(
+  'Destroy',
+  Symbol.dispose || Symbol.for('Dispose')
+);
+export const Identifier: '___(unique) Symbol(Identifier)' = getOrSetGlobal('Identifier', Symbol('Identifier'));
+export const Editable: '___(unique) Symbol(Editable)' = getOrSetGlobal('Editable', Symbol('Editable'));
+export const Parent: '___(unique) Symbol(Parent)' = getOrSetGlobal('Parent', Symbol('Parent'));
+export const Checkout: '___(unique) Symbol(Checkout)' = getOrSetGlobal('Checkout', Symbol('Checkout'));
+export const Legacy: '___(unique) Symbol(Legacy)' = getOrSetGlobal('Legacy', Symbol('Legacy'));
 
-export const EmbeddedPath = getOrSetGlobal('EmbeddedPath', Symbol('EmbeddedPath'));
-export const EmbeddedField = getOrSetGlobal('EmbeddedField', Symbol('EmbeddedField'));
+export const EmbeddedPath: '___(unique) Symbol(EmbeddedPath)' = getOrSetGlobal('EmbeddedPath', Symbol('EmbeddedPath'));
+export const EmbeddedField: '___(unique) Symbol(EmbeddedField)' = getOrSetGlobal(
+  'EmbeddedField',
+  Symbol('EmbeddedField')
+);

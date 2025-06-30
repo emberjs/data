@@ -23,6 +23,225 @@ import type { NativeProxy } from './native-proxy-type-fix.ts';
 
 type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
 
+function _MUTATE<T>(
+  target: StableRecordIdentifier[],
+  receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
+  prop: string,
+  args: unknown[],
+  _SIGNAL: WarpDriveSignal
+): unknown {
+  const collection = receiver as unknown as RelatedCollection<T>;
+  switch (prop) {
+    case 'length 0': {
+      Reflect.set(target, 'length', 0);
+      mutateReplaceRelatedRecords(collection, [], _SIGNAL);
+      return true;
+    }
+    case 'replace cell': {
+      const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
+      target[index] = value;
+      mutateReplaceRelatedRecord(collection, { value, prior, index }, _SIGNAL);
+      return true;
+    }
+    case 'push': {
+      const newValues = extractIdentifiersFromRecords(args);
+
+      assertNoDuplicates(
+        collection,
+        target,
+        (currentState) => currentState.push(...newValues),
+        `Cannot push duplicates to a hasMany's state.`
+      );
+
+      if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+        // dedupe
+        const seen = new Set(target);
+        const unique = new Set<OpaqueRecordInstance>();
+
+        args.forEach((item) => {
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
+            unique.add(item);
+          }
+        });
+
+        const newArgs = Array.from(unique);
+        const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
+
+        if (newArgs.length) {
+          mutateAddToRelatedRecords(collection, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
+        }
+        return result;
+      }
+
+      // else, no dedupe, error on duplicates
+      const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
+      if (newValues.length) {
+        mutateAddToRelatedRecords(collection, { value: newValues }, _SIGNAL);
+      }
+      return result;
+    }
+
+    case 'pop': {
+      const result: unknown = Reflect.apply(target[prop], receiver, args);
+      if (result) {
+        mutateRemoveFromRelatedRecords(
+          collection,
+          { value: recordIdentifierFor(result as OpaqueRecordInstance) },
+          _SIGNAL
+        );
+      }
+      return result;
+    }
+
+    case 'unshift': {
+      const newValues = extractIdentifiersFromRecords(args);
+
+      assertNoDuplicates(
+        collection,
+        target,
+        (currentState) => currentState.unshift(...newValues),
+        `Cannot unshift duplicates to a hasMany's state.`
+      );
+
+      if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+        // dedupe
+        const seen = new Set(target);
+        const unique = new Set<OpaqueRecordInstance>();
+
+        args.forEach((item) => {
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
+            unique.add(item);
+          }
+        });
+
+        const newArgs = Array.from(unique);
+        const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
+
+        if (newArgs.length) {
+          mutateAddToRelatedRecords(collection, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _SIGNAL);
+        }
+        return result;
+      }
+
+      // else, no dedupe, error on duplicates
+      const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
+      if (newValues.length) {
+        mutateAddToRelatedRecords(collection, { value: newValues, index: 0 }, _SIGNAL);
+      }
+      return result;
+    }
+
+    case 'shift': {
+      const result: unknown = Reflect.apply(target[prop], receiver, args);
+
+      if (result) {
+        mutateRemoveFromRelatedRecords(
+          collection,
+          { value: recordIdentifierFor(result as OpaqueRecordInstance), index: 0 },
+          _SIGNAL
+        );
+      }
+      return result;
+    }
+
+    case 'sort': {
+      const result: unknown = Reflect.apply(target[prop], receiver, args);
+      mutateSortRelatedRecords(collection, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
+      return result;
+    }
+
+    case 'splice': {
+      const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
+
+      // detect a full replace
+      if (start === 0 && deleteCount === collection[SOURCE].length) {
+        const newValues = extractIdentifiersFromRecords(adds);
+
+        assertNoDuplicates(
+          collection,
+          target,
+          (currentState) => currentState.splice(start, deleteCount, ...newValues),
+          `Cannot replace a hasMany's state with a new state that contains duplicates.`
+        );
+
+        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+          // dedupe
+          const current = new Set(adds);
+          const unique = Array.from(current);
+          const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
+
+          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
+
+          mutateReplaceRelatedRecords(collection, extractIdentifiersFromRecords(unique), _SIGNAL);
+          return result;
+        }
+
+        // else, no dedupe, error on duplicates
+        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
+        mutateReplaceRelatedRecords(collection, newValues, _SIGNAL);
+        return result;
+      }
+
+      const newValues = extractIdentifiersFromRecords(adds);
+      assertNoDuplicates(
+        collection,
+        target,
+        (currentState) => currentState.splice(start, deleteCount, ...newValues),
+        `Cannot splice a hasMany's state with a new state that contains duplicates.`
+      );
+
+      if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
+        // dedupe
+        const currentState = target.slice();
+        currentState.splice(start, deleteCount);
+
+        const seen = new Set(currentState);
+        const unique: OpaqueRecordInstance[] = [];
+        adds.forEach((item) => {
+          const identifier = recordIdentifierFor(item);
+          if (!seen.has(identifier)) {
+            seen.add(identifier);
+            unique.push(item);
+          }
+        });
+
+        const newArgs = [start, deleteCount, ...unique];
+        const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
+
+        if (deleteCount > 0) {
+          mutateRemoveFromRelatedRecords(collection, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
+        }
+
+        if (unique.length > 0) {
+          mutateAddToRelatedRecords(
+            collection,
+            { value: extractIdentifiersFromRecords(unique), index: start },
+            _SIGNAL
+          );
+        }
+
+        return result;
+      }
+
+      // else, no dedupe, error on duplicates
+      const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
+      if (deleteCount > 0) {
+        mutateRemoveFromRelatedRecords(collection, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
+      }
+      if (newValues.length > 0) {
+        mutateAddToRelatedRecords(collection, { value: newValues, index: start }, _SIGNAL);
+      }
+      return result;
+    }
+    default:
+      assert(`unable to convert ${prop} into a transaction that updates the cache state for this record array`);
+  }
+}
+
 export interface ManyArrayCreateArgs<T> {
   identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
   type: TypeFromInstanceOrString<T>;
@@ -159,6 +378,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
   constructor(options: ManyArrayCreateArgs<T>) {
+    (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
     super(options as unknown as IdentifierArrayCreateOptions);
     this.isLoaded = options.isLoaded || false;
     this.isAsync = options.isAsync || false;
@@ -167,217 +387,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     this.key = options.key;
   }
 
-  [MUTATE](
-    target: StableRecordIdentifier[],
-    receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
-    prop: string,
-    args: unknown[],
-    _SIGNAL: WarpDriveSignal
-  ): unknown {
-    switch (prop) {
-      case 'length 0': {
-        Reflect.set(target, 'length', 0);
-        mutateReplaceRelatedRecords(this, [], _SIGNAL);
-        return true;
-      }
-      case 'replace cell': {
-        const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
-        target[index] = value;
-        mutateReplaceRelatedRecord(this, { value, prior, index }, _SIGNAL);
-        return true;
-      }
-      case 'push': {
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.push(...newValues),
-          `Cannot push duplicates to a hasMany's state.`
-        );
-
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe
-          const seen = new Set(target);
-          const unique = new Set<OpaqueRecordInstance>();
-
-          args.forEach((item) => {
-            const identifier = recordIdentifierFor(item);
-            if (!seen.has(identifier)) {
-              seen.add(identifier);
-              unique.add(item);
-            }
-          });
-
-          const newArgs = Array.from(unique);
-          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
-
-          if (newArgs.length) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs) }, _SIGNAL);
-          }
-          return result;
-        }
-
-        // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
-        if (newValues.length) {
-          mutateAddToRelatedRecords(this, { value: newValues }, _SIGNAL);
-        }
-        return result;
-      }
-
-      case 'pop': {
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
-        if (result) {
-          mutateRemoveFromRelatedRecords(this, { value: recordIdentifierFor(result as OpaqueRecordInstance) }, _SIGNAL);
-        }
-        return result;
-      }
-
-      case 'unshift': {
-        const newValues = extractIdentifiersFromRecords(args);
-
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.unshift(...newValues),
-          `Cannot unshift duplicates to a hasMany's state.`
-        );
-
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe
-          const seen = new Set(target);
-          const unique = new Set<OpaqueRecordInstance>();
-
-          args.forEach((item) => {
-            const identifier = recordIdentifierFor(item);
-            if (!seen.has(identifier)) {
-              seen.add(identifier);
-              unique.add(item);
-            }
-          });
-
-          const newArgs = Array.from(unique);
-          const result: unknown = Reflect.apply(target[prop], receiver, newArgs);
-
-          if (newArgs.length) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(newArgs), index: 0 }, _SIGNAL);
-          }
-          return result;
-        }
-
-        // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
-        if (newValues.length) {
-          mutateAddToRelatedRecords(this, { value: newValues, index: 0 }, _SIGNAL);
-        }
-        return result;
-      }
-
-      case 'shift': {
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
-
-        if (result) {
-          mutateRemoveFromRelatedRecords(
-            this,
-            { value: recordIdentifierFor(result as OpaqueRecordInstance), index: 0 },
-            _SIGNAL
-          );
-        }
-        return result;
-      }
-
-      case 'sort': {
-        const result: unknown = Reflect.apply(target[prop], receiver, args);
-        mutateSortRelatedRecords(this, (result as OpaqueRecordInstance[]).map(recordIdentifierFor), _SIGNAL);
-        return result;
-      }
-
-      case 'splice': {
-        const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
-
-        // detect a full replace
-        if (start === 0 && deleteCount === this[SOURCE].length) {
-          const newValues = extractIdentifiersFromRecords(adds);
-
-          assertNoDuplicates(
-            this,
-            target,
-            (currentState) => currentState.splice(start, deleteCount, ...newValues),
-            `Cannot replace a hasMany's state with a new state that contains duplicates.`
-          );
-
-          if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-            // dedupe
-            const current = new Set(adds);
-            const unique = Array.from(current);
-            const newArgs = ([start, deleteCount] as unknown[]).concat(unique);
-
-            const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
-
-            mutateReplaceRelatedRecords(this, extractIdentifiersFromRecords(unique), _SIGNAL);
-            return result;
-          }
-
-          // else, no dedupe, error on duplicates
-          const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
-          mutateReplaceRelatedRecords(this, newValues, _SIGNAL);
-          return result;
-        }
-
-        const newValues = extractIdentifiersFromRecords(adds);
-        assertNoDuplicates(
-          this,
-          target,
-          (currentState) => currentState.splice(start, deleteCount, ...newValues),
-          `Cannot splice a hasMany's state with a new state that contains duplicates.`
-        );
-
-        if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
-          // dedupe
-          const currentState = target.slice();
-          currentState.splice(start, deleteCount);
-
-          const seen = new Set(currentState);
-          const unique: OpaqueRecordInstance[] = [];
-          adds.forEach((item) => {
-            const identifier = recordIdentifierFor(item);
-            if (!seen.has(identifier)) {
-              seen.add(identifier);
-              unique.push(item);
-            }
-          });
-
-          const newArgs = [start, deleteCount, ...unique];
-          const result = Reflect.apply(target[prop], receiver, newArgs) as OpaqueRecordInstance[];
-
-          if (deleteCount > 0) {
-            mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
-          }
-
-          if (unique.length > 0) {
-            mutateAddToRelatedRecords(this, { value: extractIdentifiersFromRecords(unique), index: start }, _SIGNAL);
-          }
-
-          return result;
-        }
-
-        // else, no dedupe, error on duplicates
-        const result = Reflect.apply(target[prop], receiver, args) as OpaqueRecordInstance[];
-        if (deleteCount > 0) {
-          mutateRemoveFromRelatedRecords(this, { value: result.map(recordIdentifierFor), index: start }, _SIGNAL);
-        }
-        if (newValues.length > 0) {
-          mutateAddToRelatedRecords(this, { value: newValues, index: start }, _SIGNAL);
-        }
-        return result;
-      }
-      default:
-        assert(`unable to convert ${prop} into a transaction that updates the cache state for this record array`);
-    }
-  }
-
-  notify() {
+  notify(): void {
     notifyInternalSignal(this[ARRAY_SIGNAL]);
   }
 
@@ -450,7 +460,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
   declare save: () => Promise<IdentifierArray<T>>;
 
   /** @internal */
-  destroy() {
+  destroy(): void {
     super.destroy(false);
   }
 }

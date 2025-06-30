@@ -29,7 +29,7 @@ export function getShimClass<T>(
 
 // Mimics the static apis of @ember-data/model
 export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
-  declare __store: Store;
+  declare private __store: Store;
   declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
   constructor(store: Store, modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string) {
     this.__store = store;
@@ -75,7 +75,10 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
     return rels;
   }
 
-  eachAttribute<K extends KeyOrString<T>>(callback: (key: K, attribute: LegacyAttributeField) => void, binding?: T) {
+  eachAttribute<K extends KeyOrString<T>>(
+    callback: (key: K, attribute: LegacyAttributeField) => void,
+    binding?: T
+  ): void {
     this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
       if (schema.kind === 'attribute') {
         callback.call(binding, key as K, schema);
@@ -86,7 +89,7 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
   eachRelationship<K extends KeyOrString<T>>(
     callback: (key: K, relationship: LegacyRelationshipField) => void,
     binding?: T
-  ) {
+  ): void {
     this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
       if (schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
         callback.call(binding, key as K, schema);
@@ -94,7 +97,10 @@ export default class ShimModelClass<T = unknown> implements ModelSchema<T> {
     });
   }
 
-  eachTransformedAttribute<K extends KeyOrString<T>>(callback: (key: K, type: string | null) => void, binding?: T) {
+  eachTransformedAttribute<K extends KeyOrString<T>>(
+    callback: (key: K, type: string | null) => void,
+    binding?: T
+  ): void {
     this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
       if (schema.kind === 'attribute') {
         const type = schema.type;

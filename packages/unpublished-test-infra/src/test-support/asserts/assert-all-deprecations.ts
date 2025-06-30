@@ -19,7 +19,7 @@ function pushDeprecation(deprecation: string) {
 
 type Socket = { emit(type: string, name: string, data: unknown): void };
 
-export function configureAssertAllDeprecations(hooks: ExpandedHooks) {
+export function configureAssertAllDeprecations(hooks: ExpandedHooks): void {
   if (DEBUG) {
     // @ts-expect-error Testem not typed
     if (window.Testem) {

@@ -1,4 +1,4 @@
-export const Main = [
+export const Main: string[] = [
   '@ember-data/active-record',
   '@ember-data/adapter',
   '@ember-data/codemods',
@@ -25,9 +25,9 @@ export const Main = [
   'eslint-plugin-ember-data',
   'eslint-plugin-warp-drive',
   'warp-drive',
-];
+] as const;
 
-export const Types = [
+export const Types: string[] = [
   '@ember-data-types/active-record',
   '@ember-data-types/adapter',
   '@ember-data-types/graph',
@@ -42,9 +42,9 @@ export const Types = [
   '@ember-data-types/tracking',
   '@warp-drive-types/core-types',
   'ember-data-types',
-];
+] as const;
 
-export const Mirror = [
+export const Mirror: string[] = [
   '@ember-data-mirror/active-record',
   '@ember-data-mirror/adapter',
   '@ember-data-mirror/graph',
@@ -61,9 +61,9 @@ export const Mirror = [
   '@warp-drive-mirror/core-types',
   '@warp-drive-mirror/schema-record',
   'ember-data-mirror',
-];
+] as const;
 
-export const DefinitelyTyped = [
+export const DefinitelyTyped: string[] = [
   '@types/ember',
   '@types/ember-data',
   '@types/ember-data__adapter',
@@ -89,6 +89,6 @@ export const DefinitelyTyped = [
   '@types/ember__template',
   '@types/ember__test',
   '@types/ember__utils',
-];
+] as const;
 
-export const ALL = ([] as string[]).concat(Main, Types, Mirror);
+export const ALL: string[] = ([] as string[]).concat(Main, Types, Mirror);

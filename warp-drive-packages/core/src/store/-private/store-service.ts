@@ -279,8 +279,10 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
     ? MaybeHasId & Partial<FilteredKeys<T>>
     : MaybeHasId & Record<string, unknown>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ConstructorFunction = new (...args: any[]) => any;
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-const EmptyClass = class {
+const EmptyClass: ConstructorFunction = class {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(args?: unknown) {}
 };
@@ -290,7 +292,7 @@ const _BaseClass = macroCondition(dependencySatisfies('ember-source', '*'))
     : EmptyClass
   : EmptyClass;
 
-const BaseClass = (_BaseClass as unknown as { default?: typeof EmptyClass }).default
+const BaseClass: typeof EmptyClass = (_BaseClass as unknown as { default?: typeof EmptyClass }).default
   ? ((_BaseClass as unknown as { default?: typeof EmptyClass }).default as typeof EmptyClass)
   : _BaseClass;
 
@@ -732,7 +734,7 @@ export class Store extends BaseClass {
   }
 
   /** @internal */
-  _run(cb: () => void) {
+  _run(cb: () => void): void {
     assert(`WarpDrive should never encounter a nested run`, !this._cbs);
     const _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } = (this._cbs = {});
     if (DEBUG) {
@@ -2465,7 +2467,7 @@ export class Store extends BaseClass {
     this.isDestroyed = true;
   }
 
-  static create(args?: Record<string, unknown>) {
+  static create(args?: Record<string, unknown>): Store {
     return new this(args);
   }
 }

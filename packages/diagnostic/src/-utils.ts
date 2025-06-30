@@ -52,7 +52,7 @@ export function getChain<TC extends TestContext>(
   return chain;
 }
 
-export function generateHash(str: string) {
+export function generateHash(str: string): string {
   let hash = 0;
 
   for (let i = 0; i < str.length; i++) {

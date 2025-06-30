@@ -26,11 +26,9 @@ const PLURAL_RULES = new Map(defaultRules.plurals.reverse());
  * or singularized.
  *
  * @public
- * @param {String} word
- * @return {void}
  * @since 4.13.0
  */
-export function uncountable(word: string) {
+export function uncountable(word: string): void {
   UNCOUNTABLE.add(word.toLowerCase());
 }
 
@@ -39,11 +37,9 @@ export function uncountable(word: string) {
  * or singularized.
  *
  * @public
- * @param {Array<String>} uncountables
- * @return {void}
  * @since 4.13.0
  */
-export function loadUncountable(uncountables: string[]) {
+export function loadUncountable(uncountables: string[]): void {
   uncountables.forEach((word) => {
     uncountable(word);
   });
@@ -54,12 +50,9 @@ export function loadUncountable(uncountables: string[]) {
  * pluralization and singularization rules.
  *
  * @public
- * @param {String} single
- * @param {String} plur
- * @return {void}
  * @since 4.13.0
  */
-export function irregular(single: string, plur: string) {
+export function irregular(single: string, plur: string): void {
   //pluralizing
   IRREGULAR.set(single.toLowerCase(), plur);
   IRREGULAR.set(plur.toLowerCase(), plur);
@@ -74,11 +67,9 @@ export function irregular(single: string, plur: string) {
  * pluralization and singularization rules.
  *
  * @public
- * @param {Array<Array<String>>} irregularPairs
- * @return {void}
  * @since 4.13.0
  */
-export function loadIrregular(irregularPairs: Array<[string, string]>) {
+export function loadIrregular(irregularPairs: Array<[string, string]>): void {
   irregularPairs.forEach((pair) => {
     //pluralizing
     IRREGULAR.set(pair[0].toLowerCase(), pair[1]);
@@ -95,10 +86,9 @@ loadIrregular(defaultRules.irregularPairs);
  * Clears the caches for singularize and pluralize.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
-export function clear() {
+export function clear(): void {
   SINGULARS.clear();
   PLURALS.clear();
 }
@@ -107,10 +97,9 @@ export function clear() {
  * Resets the inflection rules to the defaults.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
-export function resetToDefaults() {
+export function resetToDefaults(): void {
   clearRules();
   defaultRules.uncountable.forEach((v) => UNCOUNTABLE.add(v));
   defaultRules.singular.forEach((v) => SINGULAR_RULES.set(v[0], v[1]));
@@ -123,10 +112,9 @@ export function resetToDefaults() {
  * and resets the caches for singularize and pluralize.
  *
  * @public
- * @return {void}
  * @since 4.13.0
  */
-export function clearRules() {
+export function clearRules(): void {
   SINGULARS.clear();
   PLURALS.clear();
   UNCOUNTABLE.clear();
@@ -140,11 +128,9 @@ export function clearRules() {
  * Singularizes a word.
  *
  * @public
- * @param {String} word
- * @return {String}
  * @since 4.13.0
  */
-export function singularize(word: string) {
+export function singularize(word: string): string {
   assert(`singularize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
   return SINGULARS.get(word);
@@ -154,11 +140,9 @@ export function singularize(word: string) {
  * Pluralizes a word.
  *
  * @public
- * @param {String} word
- * @return {String}
  * @since 4.13.0
  */
-export function pluralize(word: string) {
+export function pluralize(word: string): string {
   assert(`pluralize expects to receive a non-empty string`, typeof word === 'string' && word.length > 0);
   if (!word) return '';
   return PLURALS.get(word);
@@ -177,12 +161,9 @@ function unshiftMap<K, V>(v: [K, V], map: Map<K, V>) {
  * Adds a pluralization rule.
  *
  * @public
- * @param {RegExp} regex
- * @param {String} string
- * @return {void}
  * @since 4.13.0
  */
-export function plural(regex: RegExp, string: string) {
+export function plural(regex: RegExp, string: string): void {
   // rule requires reordering if exists, so remove it first
   if (PLURAL_RULES.has(regex)) {
     PLURAL_RULES.delete(regex);
@@ -196,12 +177,9 @@ export function plural(regex: RegExp, string: string) {
  * Adds a singularization rule.
  *
  * @public
- * @param {RegExp} regex
- * @param {String} string
- * @return {void}
  * @since 4.13.0
  */
-export function singular(regex: RegExp, string: string) {
+export function singular(regex: RegExp, string: string): void {
   // rule requires reordering if exists, so remove it first
   if (SINGULAR_RULES.has(regex)) {
     SINGULAR_RULES.delete(regex);

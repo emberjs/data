@@ -1,6 +1,15 @@
 import type { ReactiveResource } from '@warp-drive/core/reactive';
 import { Type } from '@warp-drive/core/types/symbols';
 
+interface ConcatDerivation {
+  (
+    record: ReactiveResource & { [key: string]: unknown },
+    options: Record<string, unknown> | null,
+    _prop: string
+  ): string;
+  [Type]: 'concat';
+}
+
 /**
  * A derivation for use by {@link ReactiveResource} that joins the given fields
  * with the optional separator (or '' if no separator is provided).
@@ -18,11 +27,11 @@ import { Type } from '@warp-drive/core/types/symbols';
  *   },
  * }
  */
-export function concat(
+export const concat: ConcatDerivation = (
   record: ReactiveResource & { [key: string]: unknown },
   options: Record<string, unknown> | null,
   _prop: string
-): string {
+) => {
   if (!options) {
     throw new Error(`options is required`);
   }
@@ -30,5 +39,5 @@ export function concat(
   // SAFETY: but provide the more general signature to the schema service
   const opts = options as { fields: string[]; separator?: string };
   return opts.fields.map((field) => record[field]).join(opts.separator ?? '');
-}
+};
 concat[Type] = 'concat';

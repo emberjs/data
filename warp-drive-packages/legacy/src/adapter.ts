@@ -251,7 +251,6 @@ const service = s.service ?? s.inject;
   For an example of the implementation, see `RESTAdapter`, the
   included REST adapter.
 
-  @class Adapter
   @public
 */
 export class Adapter extends EmberObject implements MinimumAdapterInterface {
@@ -286,11 +285,6 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Store} store
-    @param {Model} type
-    @param {String} id
-    @param {Snapshot} snapshot
-    @return {Promise} promise
     @public
   */
   // @ts-expect-error
@@ -323,11 +317,7 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Store} store
-    @param {Model} type
-    @param {null} neverSet a value is never provided to this argument
-    @param {SnapshotRecordArray} snapshotRecordArray
-    @return {Promise} promise
+    @param neverSet a value is never provided to this argument
     @public
   */
   findAll(
@@ -365,16 +355,10 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Store} store
-    @param {Model} type
-    @param {Object} query
-    @param {Collection} recordArray
-    @param {Object} adapterOptions
-    @return {Promise} promise
     @public
   */
   // @ts-expect-error
-  query(store: Store, type: ModelSchema, query): Promise<AdapterPayload> {
+  query(store: Store, type: ModelSchema, query: Record<string, unknown>): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a query override');
     }
@@ -403,15 +387,15 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Store} store
-    @param {subclass of Model} type
-    @param {Object} query
-    @param {Object} adapterOptions
-    @return {Promise} promise
     @public
   */
-  // @ts-expect-error
-  queryRecord(store: Store, type: ModelSchema, query, adapterOptions): Promise<AdapterPayload> {
+  queryRecord(
+    store: Store,
+    type: ModelSchema,
+    query: Record<string, unknown>,
+    adapterOptions: object
+    // @ts-expect-error
+  ): Promise<AdapterPayload> {
     if (DEBUG) {
       throw new Error('You subclassed the Adapter class but missing a queryRecord override');
     }
@@ -468,9 +452,6 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Snapshot} snapshot
-    @param {Object}   options
-    @return {Object} serialized snapshot
     @public
   */
   serialize(snapshot: Snapshot, options: SerializerOptions): Record<string, unknown> {
@@ -516,10 +497,6 @@ export class Adapter extends EmberObject implements MinimumAdapterInterface {
     }
     ```
 
-    @param {Store} store
-    @param {Model} type   the Model class of the record
-    @param {Snapshot} snapshot
-    @return {Promise} promise
     @public
   */
   // @ts-expect-error

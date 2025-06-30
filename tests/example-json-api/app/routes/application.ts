@@ -4,6 +4,8 @@ import { service } from '@ember/service';
 import { query } from '@ember-data/json-api/request';
 import type Store from '@ember-data/store';
 import type { Document } from '@ember-data/store';
+import type { CollectionRecordArray, LiveArray } from '@ember-data/store/-private';
+import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import type Author from '../models/author';
 import type Book from '../models/book';
@@ -12,7 +14,13 @@ import type Genre from '../models/genre';
 export default class ApplicationRoute extends Route {
   @service declare store: Store;
 
-  override async model() {
+  override async model(): Promise<{
+    genres: Genre[];
+    authors: Author[];
+    allBooks: CollectionResourceDataDocument<Book>;
+    oldBooks: LiveArray;
+    oldBooksPaginated: CollectionRecordArray;
+  }> {
     const genres = this.store.request<Document<Genre[]>>({ url: '/api/books/genres' });
     const authors = this.store.request<Document<Author[]>>({ url: '/api/books/authors' });
 

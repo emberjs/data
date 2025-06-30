@@ -25,19 +25,19 @@ export default class BookListComponent extends Component<BookSearchSignature> {
   _lastSort2Direction = 'asc';
 
   @cached
-  get sortOptions() {
+  get sortOptions(): string[] {
     const fields = this.store.schema.fields({ type: 'book' });
     return Array.from(fields.keys()).filter((key) => fields.get(key)!.kind === 'attribute');
   }
 
   @cached
-  get sortQuery() {
+  get sortQuery(): string {
     const sort1 = this.sort ? `${this.sort}:${this.sortDirection}` : '';
     const sort2 = sort1 && this.sort2 ? `${this.sort2}:${this.sort2Direction}` : '';
     return sort2 ? `${sort1},${sort2}` : sort1;
   }
 
-  update = (event: InputEvent & { target: HTMLInputElement }) => {
+  update = (event: InputEvent & { target: HTMLInputElement }): void => {
     event.preventDefault();
     const name = event.target.id as SearchKeys;
     this[name] = event.target.value;

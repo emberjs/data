@@ -5,11 +5,11 @@ import type { ScaffoldGenerator } from './mock';
 const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number }>();
 
 let HOST = 'https://localhost:1135/';
-export function setConfig({ host }: { host: string }) {
+export function setConfig({ host }: { host: string }): void {
   HOST = host.endsWith('/') ? host : `${host}/`;
 }
 
-export function setTestId(context: object, str: string | null) {
+export function setTestId(context: object, str: string | null): void {
   if (str && TEST_IDS.has(context)) {
     throw new Error(`MockServerHandler is already configured with a testId.`);
   }
@@ -21,10 +21,10 @@ export function setTestId(context: object, str: string | null) {
 }
 
 let IS_RECORDING = false;
-export function setIsRecording(value: boolean) {
+export function setIsRecording(value: boolean): void {
   IS_RECORDING = Boolean(value);
 }
-export function getIsRecording() {
+export function getIsRecording(): boolean {
   return IS_RECORDING;
 }
 
@@ -66,7 +66,7 @@ export class MockServerHandler implements Handler {
   }
 }
 
-export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean) {
+export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean): Promise<void> {
   const test = TEST_IDS.get(owner);
   if (!test) {
     throw new Error(`Cannot call "mock" before configuring a testId. Use setTestId to set the testId for each test`);

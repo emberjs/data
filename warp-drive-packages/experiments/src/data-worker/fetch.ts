@@ -38,13 +38,18 @@ function cloneError(error: RobustError, stack: string) {
   return cloned;
 }
 
+interface PendingItem {
+  context: Context;
+  signal: AbortSignal | null;
+  abortFn: () => void;
+  deferred: Deferred<unknown>;
+  stack: string;
+}
+
 export class WorkerFetch {
   declare worker: Worker | SharedWorker;
   declare threadId: string;
-  declare pending: Map<
-    number,
-    { context: Context; signal: AbortSignal | null; abortFn: () => void; deferred: Deferred<unknown>; stack: string }
-  >;
+  declare pending: Map<number, PendingItem>;
   declare channel: MessageChannel;
 
   constructor(worker: Worker | SharedWorker | null) {
@@ -99,7 +104,7 @@ export class WorkerFetch {
     }
   }
 
-  cleanupRequest(id: number) {
+  cleanupRequest(id: number): PendingItem | undefined {
     const info = this.pending.get(id);
     this.pending.delete(id);
 
@@ -110,7 +115,7 @@ export class WorkerFetch {
     return info;
   }
 
-  send(event: RequestEventData | AbortEventData) {
+  send(event: RequestEventData | AbortEventData): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.worker instanceof SharedWorker ? this.worker.port.postMessage(event) : this.channel.port1.postMessage(event);
   }
@@ -157,7 +162,7 @@ export class WorkerFetch {
   }
 }
 
-export function enhanceReason(reason?: string) {
+export function enhanceReason(reason?: string): DOMException {
   return new DOMException(reason || 'The user aborted a request.', 'AbortError');
 }
 

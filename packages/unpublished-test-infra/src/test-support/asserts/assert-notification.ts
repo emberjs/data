@@ -91,7 +91,7 @@ function setupNotifications(context: TestContext, store: Store) {
   };
 }
 
-export function configureNotificationsAssert(this: TestContext, assert: Assert) {
+export function configureNotificationsAssert(this: TestContext, assert: Assert): void {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const context = this;
 

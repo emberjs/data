@@ -5,6 +5,8 @@
 import { getOwner } from '@ember/application';
 import { warn } from '@ember/debug';
 import { computed } from '@ember/object';
+import type Mixin from '@ember/object/mixin';
+import type Owner from '@ember/owner';
 
 import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
@@ -34,7 +36,7 @@ import {
   ServerError,
   TimeoutError,
   UnauthorizedError,
-} from './error.js';
+} from './error';
 
 type Payload = Error | Record<string, unknown> | unknown[] | string | undefined;
 
@@ -69,6 +71,9 @@ type ResponseData = {
 };
 
 declare const jQuery: JQueryStatic | undefined;
+
+const AdapterWithBuildURLMixin: Readonly<typeof Adapter> & (new (owner?: Owner) => Adapter) & Mixin =
+  Adapter.extend(BuildURLMixin);
 
 /**
  * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
@@ -297,7 +302,7 @@ declare const jQuery: JQueryStatic | undefined;
   @constructor
   @uses BuildURLMixin
 */
-class RESTAdapter extends Adapter.extend(BuildURLMixin) {
+class RESTAdapter extends AdapterWithBuildURLMixin {
   declare _fastboot: FastBoot;
   declare _coalesceFindRequests: boolean;
   declare host: string | null;
@@ -749,13 +754,8 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @public
-    @param {Store} store
-    @param {Snapshot} snapshot
-    @param {String} url
-    @param {Object} relationship meta object describing the relationship
-    @return {Promise} promise
   */
-  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship): Promise<AdapterPayload> {
+  findBelongsTo(store: Store, snapshot: Snapshot, url: string, relationship: unknown): Promise<AdapterPayload> {
     const id = snapshot.id;
     const type = snapshot.modelName;
 
@@ -950,6 +950,7 @@ class RESTAdapter extends Adapter.extend(BuildURLMixin) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
+      // @ts-expect-error needs cast to JsonApiError
       return new InvalidError(typeof payload === 'object' && 'errors' in payload ? payload.errors : undefined);
     }
 

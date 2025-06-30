@@ -30,7 +30,7 @@ export interface MinimalLegacyRecord {
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
 }
 
-export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T) {
+export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void {
   const { currentState } = this;
   const { isNew } = currentState;
 
@@ -44,7 +44,7 @@ export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T) {
   });
 }
 
-export function unloadRecord<T extends MinimalLegacyRecord>(this: T) {
+export function unloadRecord<T extends MinimalLegacyRecord>(this: T): void {
   if (this.currentState.isNew && (this.isDestroyed || this.isDestroying)) {
     return;
   }

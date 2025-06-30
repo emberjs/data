@@ -5,7 +5,7 @@ import { Config, groupLogs, instrument } from './config';
 import { DelegatingReporter } from './delegating-reporter';
 import { Diagnostic } from './diagnostic';
 
-export const PublicTestInfo = Symbol('TestInfo');
+export const PublicTestInfo: unique symbol = Symbol('TestInfo');
 
 function cancellable(promise: Promise<void>, timeout: number): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ export async function runTest<TC extends TestContext>(
   beforeChain: HooksCallback<TC>[],
   test: TestInfo<TC>,
   afterChain: HooksCallback<TC>[]
-) {
+): Promise<void> {
   if (Config.tests.size && !Config.tests.has(test.id)) {
     return;
   }
@@ -137,7 +137,7 @@ export async function runModule<TC extends TestContext>(
   module: ModuleInfo<TC>,
   parents: ModuleInfo<TC>[] | null,
   promises: Promise<void>[]
-) {
+): Promise<void> {
   if (module.skipped) {
     return;
   }

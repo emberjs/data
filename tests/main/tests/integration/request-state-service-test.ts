@@ -24,6 +24,7 @@ module('integration/request-state-service - Request State Service', function (ho
   hooks.beforeEach(function () {
     const { owner } = this;
     owner.register('model:person', Person);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     owner.register('serializer:application', JSONSerializer);
     store = owner.lookup('service:store') as Store;
   });

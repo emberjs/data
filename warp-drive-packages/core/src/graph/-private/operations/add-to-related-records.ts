@@ -15,7 +15,7 @@ export default function addToRelatedRecords(
   graph: Graph,
   op: AddToResourceRelationshipOperation | AddToResourceRelationshipMutation,
   isRemote: boolean
-) {
+): void {
   const { record, value, index } = op;
   const relationship = graph.get(record, op.field);
 

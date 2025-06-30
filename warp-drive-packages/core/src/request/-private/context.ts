@@ -109,11 +109,11 @@ export class ContextOwner {
     this.hasSubscribers = true;
     return this.stream.promise;
   }
-  abort(reason: DOMException) {
+  abort(reason: DOMException): void {
     this.controller.abort(reason);
   }
 
-  setStream(stream: ReadableStream | Promise<ReadableStream | null> | null) {
+  setStream(stream: ReadableStream | Promise<ReadableStream | null> | null): void {
     if (!this.hasSetStream) {
       this.hasSetStream = true;
 
@@ -125,11 +125,11 @@ export class ContextOwner {
     }
   }
 
-  resolveStream() {
+  resolveStream(): void {
     this.setStream(this.nextCalled === 1 ? this.god.stream : null);
   }
 
-  setResponse(response: ResponseInfo | Response | null) {
+  setResponse(response: ResponseInfo | Response | null): void {
     if (this.hasSetResponse) {
       if (DEBUG) {
         throw new Error(`Cannot setResponse when a response has already been set`);
@@ -169,14 +169,14 @@ export class Context {
     this._isCacheHandler = isCacheHandler;
     this._finalized = false;
   }
-  setStream(stream: ReadableStream | Promise<ReadableStream | null>) {
+  setStream(stream: ReadableStream | Promise<ReadableStream | null>): void {
     this.#owner.setStream(stream);
   }
-  setResponse(response: ResponseInfo | Response | null) {
+  setResponse(response: ResponseInfo | Response | null): void {
     this.#owner.setResponse(response);
   }
 
-  setIdentifier(identifier: StableDocumentIdentifier) {
+  setIdentifier(identifier: StableDocumentIdentifier): void {
     assert(
       `setIdentifier may only be used synchronously from a CacheHandler`,
       identifier && this._isCacheHandler && !this._finalized
@@ -184,11 +184,11 @@ export class Context {
     this.#owner.god.identifier = identifier;
   }
 
-  get hasRequestedStream() {
+  get hasRequestedStream(): boolean {
     return this.#owner.hasRequestedStream;
   }
 
-  _finalize() {
+  _finalize(): void {
     this._finalized = true;
   }
 }

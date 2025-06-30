@@ -13,6 +13,7 @@ export const externals = [
   '@ember/object/internals',
   '@ember/object/promise-proxy-mixin',
   '@ember/object/proxy',
+  '@ember/owner',
   '@ember/array',
   '@ember/array/proxy',
   '@ember/polyfills',
@@ -20,7 +21,7 @@ export const externals = [
 export const entryPoints = [
   // adapter
   './src/adapter.ts',
-  './src/adapter/error.js',
+  './src/adapter/error.ts',
   './src/adapter/json-api.ts',
   './src/adapter/rest.ts',
   './src/adapter/-private.ts',
@@ -40,9 +41,9 @@ export const entryPoints = [
   // serializer
   './src/serializer.ts',
   './src/serializer/transform.ts',
-  './src/serializer/json.js',
-  './src/serializer/json-api.js',
-  './src/serializer/rest.js',
+  './src/serializer/json.ts',
+  './src/serializer/json-api.ts',
+  './src/serializer/rest.ts',
 ];
 
 export default createConfig(

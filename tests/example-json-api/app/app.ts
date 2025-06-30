@@ -15,9 +15,9 @@ setBuildURLConfig({
 });
 
 class App extends Application {
-  modulePrefix = config.modulePrefix;
-  podModulePrefix = config.podModulePrefix;
-  override Resolver = Resolver;
+  modulePrefix: string = config.modulePrefix;
+  podModulePrefix: string = config.podModulePrefix;
+  Resolver: typeof Resolver = Resolver;
 }
 
 loadInitializers(App, config.modulePrefix);

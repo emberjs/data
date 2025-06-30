@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { warn } from '@ember/debug';
 import Mixin from '@ember/object/mixin';
 
@@ -97,7 +102,7 @@ import { camelize } from '@warp-drive/utilities/string';
   @class EmbeddedRecordsMixin
   @public
 */
-export const EmbeddedRecordsMixin = Mixin.create({
+export const EmbeddedRecordsMixin: Mixin = Mixin.create({
   /**
     Normalize the record and recursively normalize/extract all the embedded records
     while pushing them into the store as they are encountered
@@ -605,6 +610,7 @@ export const EmbeddedRecordsMixin = Mixin.create({
     const relationship = { data: belongsTo };
 
     if (data.lid) {
+      // @ts-expect-error
       belongsTo.lid = data.lid;
     }
 

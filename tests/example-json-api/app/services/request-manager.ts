@@ -14,7 +14,7 @@ const TestHandler: Handler = {
 };
 
 export default {
-  create() {
+  create(): RequestManager {
     return new RequestManager().use([LegacyNetworkHandler, TestHandler, Fetch]);
   },
 };

@@ -27,7 +27,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.identifierCache;
   }
 
-  _scheduleNotification(identifier: StableRecordIdentifier, key: string) {
+  _scheduleNotification(identifier: StableRecordIdentifier, key: string): void {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
@@ -88,11 +88,11 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     this._store.notifications.notify(identifier, namespace, key);
   }
 
-  get schema() {
+  get schema(): SchemaService {
     return this._store.schema;
   }
 
-  setRecordId(identifier: StableRecordIdentifier, id: string) {
+  setRecordId(identifier: StableRecordIdentifier, id: string): void {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
     this._store._instanceCache.setRecordId(identifier, id);
   }

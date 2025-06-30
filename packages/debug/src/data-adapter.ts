@@ -125,7 +125,6 @@ function typesMapFor(store: Store): Map<string, boolean> {
   Implements `@ember/debug/data-adapter` with for EmberData
   integration with the ember-inspector.
 
-  @class InspectorDataAdapter
   @private
 */
 class InspectorDataAdapter extends DataAdapter<Model> {
@@ -137,10 +136,10 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     property with a key for every name in the returned array
 
     @private
-    @return {Array} List of objects defining filters
+    @return List of objects defining filters
      The object should have a `name` and `desc` property
   */
-  getFilters() {
+  getFilters(): Array<{ name: string; desc: string }> {
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
@@ -148,7 +147,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     ];
   }
 
-  _nameToClass(type: string) {
+  _nameToClass(type: string): ModelSchema {
     return this.store.modelFor(type);
   }
 
@@ -157,13 +156,13 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Maintains the list of model types without needing the Model package for detection.
 
     @private
-    @param {Function} typesAdded Callback to call to add types.
+    @param typesAdded Callback to call to add types.
     Takes an array of objects containing wrapped types (returned from `wrapModelType`).
-    @param {Function} typesUpdated Callback to call when a type has changed.
+    @param typesUpdated Callback to call when a type has changed.
     Takes an array of objects containing wrapped types.
-    @return {Function} Method to call to remove all observers
+    @return Method to call to remove all observers
   */
-  watchModelTypes(typesAdded: WrappedTypeCallback, typesUpdated: WrappedTypeCallback) {
+  watchModelTypes(typesAdded: WrappedTypeCallback, typesUpdated: WrappedTypeCallback): () => void {
     const { store } = this;
 
     const discoveredTypes = typesMapFor(store);
@@ -206,12 +205,6 @@ class InspectorDataAdapter extends DataAdapter<Model> {
    * Loop over the discovered types and use the callbacks from watchModelTypes to notify
    * the consumer of this adapter about the mdoels.
    *
-   * @param {store} store
-   * @param {Map} discoveredTypes
-   * @param {String} type
-   * @param {Function} typesAdded
-   * @param {Function} typesUpdated
-   * @param {Array} releaseMethods
    * @private
    */
   watchTypeIfUnseen(
@@ -221,7 +214,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     typesAdded: WrappedTypeCallback,
     typesUpdated: WrappedTypeCallback,
     releaseMethods: Array<() => void>
-  ) {
+  ): void {
     if (discoveredTypes.get(type) !== true) {
       const klass = store.modelFor(type);
       installDebugInfo(klass as typeof Model);
@@ -236,10 +229,10 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Creates a human readable string used for column headers
 
     @private
-    @param {String} name The attribute name
-    @return {String} Human readable string based on the attribute name
+    @param name The attribute name
+    @return Human readable string based on the attribute name
   */
-  columnNameToDesc(name: string) {
+  columnNameToDesc(name: string): string {
     return capitalize(underscore(name).replace(/_/g, ' ').trim());
   }
 
@@ -247,12 +240,11 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Get the columns for a given model type
 
     @private
-    @param {Model} typeClass
-    @return {Array} An array of columns of the following format:
+    @return An array of columns of the following format:
      name: {String} The name of the column
      desc: {String} Humanized description (what would show in a table column name)
   */
-  columnsForType(typeClass: ModelSchema) {
+  columnsForType(typeClass: ModelSchema): Array<{ name: string; desc: string }> {
     const columns = [
       {
         name: 'id',
@@ -274,9 +266,9 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Fetches all loaded records for a given type
 
     @private
-    @param {Model} modelClass of the record
-    @param {String} modelName of the record
-    @return {Array} An array of Model records
+    @param modelClass of the record
+    @param modelName of the record
+    @return An array of Model records
      This array will be observed for changes,
      so it should update when new records are added/removed
   */
@@ -300,10 +292,10 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     This is the attribute values for a given record
 
     @private
-    @param {Model} record to get values from
-    @return {Object} Keys should match column names defined by the model type
+    @param record to get values from
+    @return Keys should match column names defined by the model type
   */
-  getRecordColumnValues<T extends Model>(record: T) {
+  getRecordColumnValues<T extends Model>(record: T): Record<string, unknown> {
     let count = 0;
     const columnValues: Record<string, unknown> = { id: record.id };
 
@@ -320,8 +312,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Returns keywords to match when searching records
 
     @private
-    @param {Model} record
-    @return {Array} Relevant keywords for search based on the record's attribute values
+    @return Relevant keywords for search based on the record's attribute values
   */
   getRecordKeywords<T extends Model>(record: T): NativeArray<unknown> {
     const keywords: unknown[] = [record.id];
@@ -340,10 +331,9 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     These reflect the state of the record
 
     @private
-    @param {Model} record
-    @return {Object} The record state filter values
+    @return The record state filter values
   */
-  getRecordFilterValues(record: Model) {
+  getRecordFilterValues(record: Model): { isNew: boolean; isModified: boolean; isClean: boolean } {
     return {
       isNew: record.isNew,
       isModified: record.hasDirtyAttributes && !record.isNew,
@@ -356,10 +346,9 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     Possible colors: black, blue, green
 
     @private
-    @param {Model} record
-    @return {String} The record color
+    @return The record color
   */
-  getRecordColor(record: Model) {
+  getRecordColor(record: Model): RecordColor {
     let color = 'black';
     if (record.isNew) {
       color = 'green';
@@ -374,11 +363,11 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     when a change occurs
 
     @private
-    @param {Model} record
-    @param {Function} recordUpdated Callback used to notify changes
-    @return {Function} The function to call to remove all observers
+    @param record
+    @param recordUpdated Callback used to notify changes
+    @return The function to call to remove all observers
   */
-  observeRecord(record: Model, recordUpdated: (record: WrappedRecord<Model>) => void) {
+  observeRecord(record: Model, recordUpdated: (record: WrappedRecord<Model>) => void): () => void {
     const releaseMethods: Array<() => void> = [];
     const keysToObserve = ['id', 'isNew', 'hasDirtyAttributes'];
 
@@ -402,8 +391,10 @@ class InspectorDataAdapter extends DataAdapter<Model> {
   }
 }
 
-export default macroCondition(
+const Exported: typeof InspectorDataAdapter | null = macroCondition(
   getGlobalConfig<{ WarpDrive: { includeDataAdapter: boolean } }>().WarpDrive.includeDataAdapter
 )
   ? InspectorDataAdapter
   : null;
+
+export default Exported;

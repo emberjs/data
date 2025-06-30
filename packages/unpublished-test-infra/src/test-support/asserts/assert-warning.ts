@@ -101,7 +101,7 @@ function verifyNoWarning(label?: string): AssertNoneResult {
   };
 }
 
-export function configureWarningHandler(assert: Assert) {
+export function configureWarningHandler(assert: Assert): void {
   if (HAS_REGISTERED !== true) {
     registerWarnHandler(function (message, options /*, next*/) {
       if (WARNINGS_FOR_TEST && options) {

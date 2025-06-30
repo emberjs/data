@@ -35,11 +35,9 @@ const CAPITALIZE_CACHE = new LRUCache<string, string>((str: string) =>
  * ```
  *
  * @public
- * @param {String} str
- * @return {String}
  * @since 4.13.0
  */
-export const dasherize = internalDasherize;
+export const dasherize: (str: string) => string = internalDasherize;
 
 /**
  * Returns the lowerCamelCase form of a string.
@@ -56,8 +54,6 @@ export const dasherize = internalDasherize;
  * ```
  *
  * @public
- * @param {String} str
- * @return {String}
  * @since 4.13.0
  */
 export function camelize(str: string): string {
@@ -78,8 +74,6 @@ export function camelize(str: string): string {
  * ```
  *
  * @public
- * @param {String} str
- * @return {String}
  * @since 4.13.0
  */
 export function underscore(str: string): string {
@@ -100,8 +94,6 @@ export function underscore(str: string): string {
  * ```
  *
  * @public
- * @param {String} str
- * @return {String}
  * @since 4.13.0
  */
 export function capitalize(str: string): string {
@@ -113,11 +105,9 @@ export function capitalize(str: string): string {
  * The default size is 10,000.
  *
  * @public
- * @param {Number} size
- * @return {void}
  * @since 4.13.0
  */
-export function setMaxLRUCacheSize(size: number) {
+export function setMaxLRUCacheSize(size: number): void {
   CAMELIZE_CACHE.size = size;
   UNDERSCORE_CACHE.size = size;
   CAPITALIZE_CACHE.size = size;
