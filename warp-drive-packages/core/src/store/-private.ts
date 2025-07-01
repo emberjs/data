@@ -66,6 +66,7 @@ export {
   gate,
   entangleSignal,
   defineSignal,
+  defineGate,
   defineNonEnumerableSignal,
 } from './-private/new-core-tmp/reactivity/signal.ts';
 export {

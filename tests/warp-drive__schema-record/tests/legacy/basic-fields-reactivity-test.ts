@@ -7,7 +7,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacy,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacy,
 } from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';

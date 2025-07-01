@@ -6,7 +6,7 @@ import { setupTest } from 'ember-qunit';
 
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacy,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacy,
 } from '@ember-data/model/migration-support';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { StableRecordIdentifier } from '@warp-drive/core-types';

@@ -17,6 +17,8 @@
  *
  * @module
  */
+import { deprecate } from '@ember/debug';
+
 import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
@@ -51,6 +53,9 @@ import type { Snapshot } from '../compat/-private.ts';
 import { Errors, lookupLegacySupport } from './-private.ts';
 import type { MinimalLegacyRecord } from './-private/model-methods.ts';
 import {
+  _destroyRecord,
+  _reload,
+  _save,
   belongsTo,
   changedAttributes,
   createSnapshot,
@@ -191,11 +196,14 @@ function legacySupport(record: MinimalLegacyRecord, options: ObjectValue | null,
     state = {};
     LegacySupport.set(record, state);
   }
+  const suppressDeprecation = Boolean(options && options.suppressDeprecation);
 
   switch (prop) {
     case '_createSnapshot':
+      // FIXME should be deprecated too?
       return createSnapshot;
     case 'adapterError':
+      // FIXME should be deprecated too?
       return record.currentState.adapterError;
     case 'belongsTo':
       return belongsTo;
@@ -212,10 +220,11 @@ function legacySupport(record: MinimalLegacyRecord, options: ObjectValue | null,
     case 'deleteRecord':
       return deleteRecord;
     case 'destroyRecord':
-      return destroyRecord;
+      return suppressDeprecation ? _destroyRecord : destroyRecord;
     case 'dirtyType':
       return record.currentState.dirtyType;
     case 'errors':
+      // FIXME should be deprecated too?
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       return (state.errors = state.errors || Errors.create({ __record: record }));
@@ -240,12 +249,13 @@ function legacySupport(record: MinimalLegacyRecord, options: ObjectValue | null,
     case 'isValid':
       return record.currentState.isValid;
     case 'reload':
-      return reload;
+      return suppressDeprecation ? _reload : reload;
     case 'rollbackAttributes':
       return rollbackAttributes;
     case 'save':
-      return save;
+      return suppressDeprecation ? _save : save;
     case 'serialize':
+      // FIXME should be deprecated too? (is somewhat deprecated via store.serializeRecord)
       return serialize;
     case 'unloadRecord':
       return unloadRecord;
@@ -318,6 +328,42 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
       type: '@legacy',
       name: field,
       kind: 'derived',
+    });
+  });
+  schema.fields.push({
+    name: '_isReloading',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
+  });
+  schema.fields.push({
+    name: 'isDestroying',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
+  });
+  schema.fields.push({
+    name: 'isDestroyed',
+    kind: '@local',
+    type: 'boolean',
+    options: { defaultValue: false },
+  });
+  schema.objectExtensions = ['deprecated-model-behaviors'];
+  return schema as LegacyResourceSchema;
+}
+
+export function withRestoredDeprecatedModelRequestBehaviors(
+  schema: WithPartial<LegacyResourceSchema, 'legacy' | 'identity'>
+): LegacyResourceSchema {
+  schema.legacy = true;
+  schema.identity = { kind: '@id', name: 'id' };
+
+  LegacyFields.forEach((field) => {
+    schema.fields.push({
+      type: '@legacy',
+      name: field,
+      kind: 'derived',
+      options: { suppressDeprecation: true },
     });
   });
   schema.fields.push({
@@ -399,6 +445,39 @@ export function registerDerivations(schema: SchemaService): void {
         }
 
         return false;
+      },
+    },
+  });
+
+  schema.CAUTION_MEGA_DANGER_ZONE_registerExtension!({
+    name: 'deprecated-model-behaviors',
+    kind: 'object',
+    features: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      get isReloading() {
+        deprecate(
+          `record.isReloading is deprecated, please use store.request and either <Request> or getRequuestState to keep track of the request state instead.`,
+          false,
+          {
+            id: 'warp-drive:deprecate-legacy-request-methods',
+            until: '6.0',
+            for: '@warp-drive/core',
+            url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+            since: {
+              enabled: '5.6',
+              available: '5.6',
+            },
+          }
+        );
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._isReloading;
+      },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      set isReloading(v) {
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this._isReloading = v;
       },
     },
   });

@@ -1,3 +1,4 @@
+import { deprecate } from '@ember/debug';
 import EmberObject from '@ember/object';
 
 import type { NotificationType, Store } from '@warp-drive/core';
@@ -6,6 +7,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import {
   coerceId,
+  defineGate,
   defineSignal,
   entangleSignal,
   gate,
@@ -107,6 +109,8 @@ interface Model {
   ___recordState: RecordState;
   /** @internal */
   ___private_notifications: object;
+  /** @internal */
+  _isReloading: boolean;
   /** @internal */
   [RecordStore]: Store;
 
@@ -1921,15 +1925,46 @@ Model.prototype.changedAttributes = changedAttributes;
 Model.prototype.rollbackAttributes = rollbackAttributes;
 Model.prototype.reload = reload;
 
+defineGate(Model.prototype, 'isReloading', {
+  get(this: Model): boolean {
+    deprecate(
+      `record.isReloading is deprecated, please use store.request and either <Request> or getRequuestState to keep track of the request state instead.`,
+      false,
+      {
+        id: 'warp-drive:deprecate-legacy-request-methods',
+        until: '6.0',
+        for: '@warp-drive/core',
+        url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
+        since: {
+          enabled: '5.6',
+          available: '5.6',
+        },
+      }
+    );
+    return this._isReloading ?? false;
+  },
+  set(this: Model, v: boolean) {
+    this._isReloading = v;
+  },
+  configurable: true,
+});
+
 export function restoreDeprecatedModelRequestBehaviors(ModelKlass: typeof Model): void {
   // @ts-expect-error TS doesn't know how to do `this` function overloads
   ModelKlass.prototype.save = _save;
   // @ts-expect-error TS doesn't know how to do `this` function overloads
   ModelKlass.prototype.destroyRecord = _destroyRecord;
   ModelKlass.prototype.reload = _reload;
-}
 
-defineSignal(Model.prototype, 'isReloading', false);
+  defineGate(Model.prototype, 'isReloading', {
+    get(this: Model): boolean {
+      return this._isReloading ?? false;
+    },
+    set(this: Model, v: boolean) {
+      this._isReloading = v;
+    },
+  });
+}
 
 // this is required to prevent `init` from passing
 // the values initialized during create to `setUnknownProperty`

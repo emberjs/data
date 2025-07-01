@@ -7,7 +7,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Model from '@ember-data/model';
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacyFields,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacyFields,
 } from '@ember-data/model/migration-support';
 import RequestManager from '@ember-data/request';
 import type Store from '@ember-data/store';

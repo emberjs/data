@@ -8,7 +8,7 @@ import type { PromiseManyArray } from '@ember-data/model/-private';
 import { PromiseBelongsTo } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacy,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacy,
 } from '@ember-data/model/migration-support';
 import type { Type } from '@warp-drive/core-types/symbols';
 
