@@ -1,13 +1,19 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { JSONAPICache } from '@warp-drive/json-api';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord,
+  withDefaults,
+} from '@warp-drive/core/reactive';
 import type { Handler, NextFn } from '@warp-drive/core/request';
 import { createDeferred } from '@warp-drive/core/request';
-import { buildBaseURL } from '@warp-drive/utilities';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
-import { Store, Fetch, RequestManager, CacheHandler } from '@warp-drive/core';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { RequestContext } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
@@ -16,14 +22,8 @@ import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnosti
 import { Request } from '@warp-drive/ember';
 import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import {
-  instantiateRecord,
-  registerDerivations,
-  SchemaService,
-  teardownRecord,
-  withDefaults,
-} from '@warp-drive/core/reactive';
-import type { RequestContext } from '@warp-drive/core/types/request';
+import { JSONAPICache } from '@warp-drive/json-api';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 type User = {
   id: string;

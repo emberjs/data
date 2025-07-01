@@ -5,11 +5,11 @@ import { click, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';
 
-import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
-import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
-import { buildBaseURL } from '@warp-drive/utilities';
 import type { Store } from '@warp-drive/core';
-import { Fetch, RequestManager, CacheHandler as StoreHandler } from '@warp-drive/core';
+import { CacheHandler as StoreHandler, Fetch, RequestManager } from '@warp-drive/core';
+import { registerDerivations, withDefaults } from '@warp-drive/core/reactive';
+import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
+import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
@@ -17,7 +17,7 @@ import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnosti
 import { getRequestState, Request } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
-import { registerDerivations, withDefaults } from '@warp-drive/core/reactive';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 // our tests use a rendering test context and add manager to it
 interface LocalTestContext extends RenderingTestContext {
