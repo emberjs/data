@@ -1660,33 +1660,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.27.0
         version: 7.27.1
-      '@ember-data/debug':
-        specifier: workspace:*
-        version: file:packages/debug(e7fba9ce712190523c875e105ace6f67)
-      '@ember-data/graph':
-        specifier: workspace:*
-        version: file:packages/graph(@babel/core@7.27.1)
-      '@ember-data/json-api':
-        specifier: workspace:*
-        version: file:packages/json-api(@babel/core@7.27.1)
-      '@ember-data/legacy-compat':
-        specifier: workspace:*
-        version: file:packages/legacy-compat(@babel/core@7.27.1)
-      '@ember-data/model':
-        specifier: workspace:*
-        version: file:packages/model(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(d5197230415c7a1fc4fd5ad0fddeb631)
+        version: file:packages/unpublished-test-infra(879a3ecaf2195012ec0847fc803fc407)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1708,15 +1684,9 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/diagnostic':
         specifier: workspace:*
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
@@ -1726,9 +1696,15 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
       '@warp-drive/legacy':
         specifier: workspace:*
-        version: file:warp-drive-packages/legacy(1de66b2f75e72c94246e46fd9714e1be)
+        version: file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -3360,33 +3336,6 @@ importers:
       '@babel/runtime':
         specifier: ^7.27.0
         version: 7.27.1
-      '@ember-data/debug':
-        specifier: workspace:*
-        version: file:packages/debug(e7fba9ce712190523c875e105ace6f67)
-      '@ember-data/graph':
-        specifier: workspace:*
-        version: file:packages/graph(@babel/core@7.27.1)
-      '@ember-data/json-api':
-        specifier: workspace:*
-        version: file:packages/json-api(@babel/core@7.27.1)
-      '@ember-data/legacy-compat':
-        specifier: workspace:*
-        version: file:packages/legacy-compat(@babel/core@7.27.1)
-      '@ember-data/model':
-        specifier: workspace:*
-        version: file:packages/model(@babel/core@7.27.1)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.27.1)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.27.1)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:*
-        version: file:packages/unpublished-test-infra(d5197230415c7a1fc4fd5ad0fddeb631)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3417,15 +3366,9 @@ importers:
       '@glint/template':
         specifier: unstable
         version: 1.4.1-unstable.d17c1f1
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.27.1)
       '@warp-drive/diagnostic':
         specifier: workspace:*
         version: file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
@@ -3434,13 +3377,16 @@ importers:
         version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
-      '@warp-drive/internal-config':
+        version: file:packages/holodeck
+      '@warp-drive/json-api':
         specifier: workspace:*
-        version: file:config
-      '@warp-drive/schema-record':
+        version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
+      '@warp-drive/legacy':
         specifier: workspace:*
-        version: file:packages/schema-record(@babel/core@7.27.1)
+        version: file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -15288,6 +15234,19 @@ snapshots:
       - '@babel/core'
       - supports-color
 
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(879a3ecaf2195012ec0847fc803fc407)':
+    dependencies:
+      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
+      chalk: 4.1.2
+      semver: 7.7.2
+    optionalDependencies:
+      '@warp-drive/diagnostic': file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)':
     dependencies:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -17866,6 +17825,12 @@ snapshots:
       - '@babel/core'
       - supports-color
 
+  '@warp-drive/holodeck@file:packages/holodeck':
+    dependencies:
+      '@hono/node-server': 1.14.1(hono@4.7.9)
+      chalk: 5.4.1
+      hono: 4.7.9
+
   '@warp-drive/holodeck@file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)':
     dependencies:
       '@ember-data/request': file:packages/request(@babel/core@7.27.1)
@@ -18189,14 +18154,6 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       fuse.js: 7.1.0
       json-to-ast: 2.1.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@warp-drive/legacy@file:warp-drive-packages/legacy(1de66b2f75e72c94246e46fd9714e1be)':
-    dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color

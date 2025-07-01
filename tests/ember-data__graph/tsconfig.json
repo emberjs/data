@@ -21,28 +21,8 @@
     "declaration": true,
     "paths": {
       "ember-data__graph/*": ["./app/*"],
-      "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],
-      "@ember-data/debug/*": ["../../packages/debug/unstable-preview-types/*"],
-      "@ember-data/graph": ["../../packages/graph/unstable-preview-types"],
-      "@ember-data/graph/*": ["../../packages/graph/unstable-preview-types/*"],
-      "@ember-data/json-api": ["../../packages/json-api/unstable-preview-types"],
-      "@ember-data/json-api/*": ["../../packages/json-api/unstable-preview-types/*"],
-      "@ember-data/legacy-compat": ["../../packages/legacy-compat/unstable-preview-types"],
-      "@ember-data/legacy-compat/*": ["../../packages/legacy-compat/unstable-preview-types/*"],
-      "@ember-data/model": ["../../packages/model/unstable-preview-types"],
-      "@ember-data/model/*": ["../../packages/model/unstable-preview-types/*"],
-      "@ember-data/request": ["../../packages/request/unstable-preview-types"],
-      "@ember-data/request/*": ["../../packages/request/unstable-preview-types/*"],
-      "@ember-data/request-utils": ["../../packages/request-utils/unstable-preview-types"],
-      "@ember-data/request-utils/*": ["../../packages/request-utils/unstable-preview-types/*"],
-      "@ember-data/store": ["../../packages/store/unstable-preview-types"],
-      "@ember-data/store/*": ["../../packages/store/unstable-preview-types/*"],
       "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
       "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
-      "@warp-drive/build-config": ["../../warp-drive-packages/build-config/declarations"],
-      "@warp-drive/build-config/*": ["../../warp-drive-packages/build-config/declarations/*"],
-      "@warp-drive/core-types": ["../../packages/core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../../packages/core-types/unstable-preview-types/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
       "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
@@ -50,7 +30,11 @@
       "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
       "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
       "@warp-drive/legacy": ["../../warp-drive-packages/legacy/declarations"],
-      "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"]
+      "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"],
+      "@warp-drive/json-api": ["../../warp-drive-packages/json-api/declarations"],
+      "@warp-drive/json-api/*": ["../../warp-drive-packages/json-api/declarations/*"],
+      "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"]
     },
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
@@ -66,43 +50,25 @@
   },
   "references": [
     {
-      "path": "../../warp-drive-packages/build-config"
-    },
-    {
-      "path": "../../packages/debug"
-    },
-    {
-      "path": "../../packages/graph"
-    },
-    {
-      "path": "../../packages/json-api"
-    },
-    {
-      "path": "../../packages/legacy-compat"
-    },
-    {
-      "path": "../../packages/model"
-    },
-    {
-      "path": "../../packages/request"
-    },
-    {
-      "path": "../../packages/request-utils"
-    },
-    {
-      "path": "../../packages/store"
-    },
-    {
       "path": "../../packages/unpublished-test-infra"
-    },
-    {
-      "path": "../../packages/core-types"
     },
     {
       "path": "../../packages/diagnostic"
     },
     {
       "path": "../../warp-drive-packages/ember"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
+    },
+    {
+      "path": "../../warp-drive-packages/legacy"
+    },
+    {
+      "path": "../../warp-drive-packages/utilities"
+    },
+    {
+      "path": "../../warp-drive-packages/json-api"
     }
   ]
 }

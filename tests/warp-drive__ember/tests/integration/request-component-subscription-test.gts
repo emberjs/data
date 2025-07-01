@@ -1,15 +1,15 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import JSONAPICache from '@ember-data/json-api';
-import type { Handler, NextFn, RequestContext } from '@ember-data/request';
-import RequestManager, { createDeferred } from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { Type } from '@warp-drive/core-types/symbols';
+import { JSONAPICache } from '@warp-drive/json-api';
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import { createDeferred } from '@warp-drive/core/request';
+import { buildBaseURL } from '@warp-drive/utilities';
+import { DefaultCachePolicy } from '@warp-drive/core/store';
+import { Store, Fetch, RequestManager, CacheHandler } from '@warp-drive/core';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import type { Type } from '@warp-drive/core/types/symbols';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 import type { RenderingTestContext, TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
@@ -22,7 +22,8 @@ import {
   SchemaService,
   teardownRecord,
   withDefaults,
-} from '@warp-drive/schema-record';
+} from '@warp-drive/core/reactive';
+import type { RequestContext } from '@warp-drive/core/types/request';
 
 type User = {
   id: string;
@@ -90,7 +91,7 @@ class TestStore extends Store {
     return logger;
   }
 
-  lifetimes = new CachePolicy({
+  lifetimes = new DefaultCachePolicy({
     apiCacheHardExpires: 5000,
     apiCacheSoftExpires: 1000,
   });

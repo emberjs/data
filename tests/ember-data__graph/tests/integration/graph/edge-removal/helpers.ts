@@ -1,9 +1,9 @@
 // Remove this disable once @belongsTo is typed
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
+import { recordIdentifierFor } from '@warp-drive/core';
+import type { StableRecordIdentifier } from '@warp-drive/core/types';
+import type { CollectionResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
+import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 import type { Context, UserRecord } from './setup';
 import { stateOf } from './setup';

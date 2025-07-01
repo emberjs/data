@@ -1,5 +1,5 @@
-import { graphFor } from '@ember-data/graph/-private';
-import Store from '@ember-data/store';
+import { Store } from '@warp-drive/core';
+import { graphFor } from '@warp-drive/core/graph/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 

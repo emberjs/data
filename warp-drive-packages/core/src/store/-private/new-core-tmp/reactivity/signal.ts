@@ -128,6 +128,7 @@ export function gate<T extends object, K extends keyof T & string>(
   const getter = desc.get as (this: T) => unknown;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const setter = desc.set as (this: T, v: unknown) => void;
+  const isLocal = (desc as unknown as { isLocal?: boolean }).isLocal;
 
   desc.get = function (this: T) {
     const signals = withSignalStore(this);
@@ -157,6 +158,11 @@ export function gate<T extends object, K extends keyof T & string>(
       setter.call(this, v);
       // when a gate is set, we do not notify the signal
       // as its update is controlled externally.
+      // unless it specifically sets itself to be locally managed
+      if (isLocal) {
+        signal.isStale = true;
+        notifyInternalSignal(signal);
+      }
     };
   }
   return desc;

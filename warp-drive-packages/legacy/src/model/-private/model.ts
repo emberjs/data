@@ -1939,6 +1939,8 @@ defineGate(Model.prototype, 'isReloading', {
     this._isReloading = v;
   },
   configurable: true,
+  // @ts-expect-error specially handled prop
+  isLocal: true,
 });
 
 export function restoreDeprecatedModelRequestBehaviors(ModelKlass: typeof Model): void {
@@ -1955,6 +1957,8 @@ export function restoreDeprecatedModelRequestBehaviors(ModelKlass: typeof Model)
     set(this: Model, v: boolean) {
       this._isReloading = v;
     },
+    // @ts-expect-error specially handled prop
+    isLocal: true,
   });
 }
 

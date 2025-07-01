@@ -1,8 +1,8 @@
-import { graphFor } from '@ember-data/graph/-private';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import type Store from '@ember-data/store';
+import type { Store } from '@warp-drive/core';
+import { graphFor } from '@warp-drive/core/graph/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 class App extends Model {
   @attr declare name: string;

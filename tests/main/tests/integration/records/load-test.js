@@ -265,6 +265,7 @@ module('integration/load - Loading Records', function (hooks) {
     assert.strictEqual(bestFriend, shen, 'Precond: bestFriend is correct');
     assert.strictEqual(trueBestFriend, record, 'Precond: bestFriend of bestFriend is correct');
 
+    debugger;
     recordPromise = record.reload();
 
     // test that during a reload our state is correct

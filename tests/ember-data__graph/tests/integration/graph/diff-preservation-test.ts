@@ -1,10 +1,10 @@
 // Remove once @hasMany is typed
-import { graphFor } from '@ember-data/graph/-private';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import type Store from '@ember-data/store';
-import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/build-config/deprecations';
+import type { Store } from '@warp-drive/core';
+import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/core/build-config/deprecations';
+import { graphFor } from '@warp-drive/core/graph/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 import { deprecatedTest } from '../../setup-test';
 

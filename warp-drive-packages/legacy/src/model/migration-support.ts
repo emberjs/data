@@ -348,7 +348,8 @@ export function withDefaults(schema: WithPartial<LegacyResourceSchema, 'legacy' 
     type: 'boolean',
     options: { defaultValue: false },
   });
-  schema.objectExtensions = ['deprecated-model-behaviors'];
+  schema.objectExtensions = schema.objectExtensions || [];
+  schema.objectExtensions.push('deprecated-model-behaviors');
   return schema as LegacyResourceSchema;
 }
 

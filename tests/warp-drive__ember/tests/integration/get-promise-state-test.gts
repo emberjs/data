@@ -1,6 +1,6 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import { type Awaitable, createDeferred, setPromiseResult } from '@ember-data/request';
+import { type Awaitable, createDeferred, setPromiseResult } from '@warp-drive/core/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import { getPromiseState } from '@warp-drive/ember';

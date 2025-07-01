@@ -1,4 +1,8 @@
-import JSONAPICache from '@ember-data/json-api';
+import { CacheHandler, Fetch, RequestManager, Store as BaseStore } from '@warp-drive/core';
+import type { CacheCapabilitiesManager, ModelSchema } from '@warp-drive/core/types';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { TypeFromInstance } from '@warp-drive/core/types/record';
+import { JSONAPICache } from '@warp-drive/json-api';
 import {
   adapterFor,
   cleanup,
@@ -7,15 +11,9 @@ import {
   pushPayload,
   serializeRecord,
   serializerFor,
-} from '@ember-data/legacy-compat';
-import type Model from '@ember-data/model';
-import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import BaseStore, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+} from '@warp-drive/legacy/compat';
+import type Model from '@warp-drive/legacy/model';
+import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@warp-drive/legacy/model';
 
 export default class Store extends BaseStore {
   constructor(args: unknown) {
