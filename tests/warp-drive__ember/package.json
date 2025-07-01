@@ -37,6 +37,7 @@
     "@glint/environment-ember-loose": "unstable",
     "@glint/environment-ember-template-imports": "unstable",
     "@glint/template": "unstable",
+    "@ember-data/unpublished-test-infra": "workspace:*",
     "@warp-drive/ember": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/legacy": "workspace:*",
