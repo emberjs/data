@@ -2179,7 +2179,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(41d0cb42daba7e43464e6deec8933cd7)
+        version: file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2249,6 +2249,9 @@ importers:
       qunit-dom:
         specifier: ^3.4.0
         version: 3.4.0
+      testem:
+        specifier: ~3.11.0
+        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
