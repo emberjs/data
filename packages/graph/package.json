@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/graph",
-  "version": "5.6.0-alpha.16",
+  "version": "5.6.0-alpha.17",
   "description": "Provides a normalized graph for managing relationships between resources",
   "keywords": [
     "ember-addon"
