@@ -283,11 +283,11 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
       const newImportPath = path.join(moduleDir, importPath);
       lines[i] = line.replace(importPath, newImportPath);
     } else if (line.startsWith('import ')) {
-      if (!line.includes(`'`)) {
+      if (!line.includes(`'`) && !line.includes(`"`)) {
         throw new Error(`Unhandled Import in ${relativePath}`);
       }
-      if (line.includes(`'.`)) {
-        const importPath = line.match(/'([^']+)'/)![1];
+      if (line.includes(`'.`) || line.includes(`".`)) {
+        const importPath = line.match(/['"]([^'"]+)['"]/)![1];
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
       }
@@ -301,8 +301,8 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
       if (!line.includes('}')) {
         throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
-      if (line.includes(`'.`)) {
-        const importPath = line.match(/'([^']+)'/)![1];
+      if (line.includes(`'.`) || line.includes(`".`)) {
+        const importPath = line.match(/['"]([^'"]+)['"]/)![1];
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
       }
@@ -313,11 +313,11 @@ async function convertFileToModule(fileData: string, relativePath: string, pkgNa
 
     // fix * re-exports
     else if (line.startsWith('export * from')) {
-      if (!line.includes(`'`)) {
+      if (!line.includes(`'`) && !line.includes(`"`)) {
         throw new Error(`Unhandled Re-export in ${relativePath}`);
       }
-      if (line.includes(`'.`)) {
-        const importPath = line.match(/'([^']+)'/)![1];
+      if (line.includes(`'.`) || line.includes(`".`)) {
+        const importPath = line.match(/['"]([^'"]+)['"]/)![1];
         const newImportPath = path.join(moduleDir, importPath);
         lines[i] = line.replace(importPath, newImportPath);
       }
