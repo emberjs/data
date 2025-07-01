@@ -1726,6 +1726,9 @@ importers:
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(1de66b2f75e72c94246e46fd9714e1be)
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -18186,6 +18189,14 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       fuse.js: 7.1.0
       json-to-ast: 2.1.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@warp-drive/legacy@file:warp-drive-packages/legacy(1de66b2f75e72c94246e46fd9714e1be)':
+    dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color

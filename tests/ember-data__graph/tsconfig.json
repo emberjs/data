@@ -46,7 +46,11 @@
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
       "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
-      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"]
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/legacy": ["../../warp-drive-packages/legacy/declarations"],
+      "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"]
     },
     "types": ["ember-source/types"],
     "allowImportingTsExtensions": true,
