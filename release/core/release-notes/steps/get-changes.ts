@@ -33,6 +33,10 @@ function packagesBySubPath(strategy: STRATEGY, packages: Map<string, Package>): 
       subPathMap.set('root', pkg);
       continue;
     }
+    if (pkg.pkgData.name === '@ember-data/json-api') {
+      // we push everything to @warp-drive/json-api
+      continue;
+    }
     let relative = path.dirname(path.relative(process.cwd(), pkg.filePath));
     for (const root of changelogPaths) {
       if (relative.startsWith(root + '/')) {
