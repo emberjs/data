@@ -179,12 +179,21 @@ importers:
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.27.1)(rollup@4.40.2)
+      '@types/debug':
+        specifier: 4.1.12
+        version: 4.1.12
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.30.1
         version: 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser':
         specifier: ^8.30.1
         version: 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json:
+        specifier: ^4.2.5
+        version: 4.2.5
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.0
       ember-eslint-parser:
         specifier: ^0.5.9
         version: 0.5.9(a376bbfae0f7680138cf62f12e924883)
@@ -17870,8 +17879,11 @@ snapshots:
       '@embroider/addon-dev': 7.1.4(rollup@4.40.2)
       '@eslint/js': 9.26.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.27.1)(rollup@4.40.2)
+      '@types/debug': 4.1.12
       '@typescript-eslint/eslint-plugin': 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json: 4.2.5
+      debug: 4.4.0
       ember-eslint-parser: 0.5.9(a376bbfae0f7680138cf62f12e924883)
       eslint: 9.26.0
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
@@ -17916,8 +17928,11 @@ snapshots:
       '@embroider/addon-dev': 7.1.4(rollup@4.40.2)
       '@eslint/js': 9.26.0
       '@rollup/plugin-babel': 6.0.4(3fd35a0170c2f8b842edd6c7603b86b1)
+      '@types/debug': 4.1.12
       '@typescript-eslint/eslint-plugin': 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json: 4.2.5
+      debug: 4.4.0
       ember-eslint-parser: 0.5.9(a376bbfae0f7680138cf62f12e924883)
       eslint: 9.26.0
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
@@ -17962,8 +17977,11 @@ snapshots:
       '@embroider/addon-dev': 7.1.4(rollup@4.40.2)
       '@eslint/js': 9.26.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.27.1)(rollup@4.40.2)
+      '@types/debug': 4.1.12
       '@typescript-eslint/eslint-plugin': 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json: 4.2.5
+      debug: 4.4.0
       ember-eslint-parser: 0.5.9(a376bbfae0f7680138cf62f12e924883)
       eslint: 9.26.0
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
@@ -18008,8 +18026,11 @@ snapshots:
       '@embroider/addon-dev': 7.1.4(rollup@4.40.2)
       '@eslint/js': 9.26.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.27.1)(rollup@4.40.2)
+      '@types/debug': 4.1.12
       '@typescript-eslint/eslint-plugin': 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json: 4.2.5
+      debug: 4.4.0
       ember-eslint-parser: 0.5.9(a376bbfae0f7680138cf62f12e924883)
       eslint: 9.26.0
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
@@ -18054,8 +18075,11 @@ snapshots:
       '@embroider/addon-dev': 7.1.4(rollup@4.40.2)
       '@eslint/js': 9.26.0
       '@rollup/plugin-babel': 6.0.4(@babel/core@7.27.1)(rollup@4.40.2)
+      '@types/debug': 4.1.12
       '@typescript-eslint/eslint-plugin': 8.32.1(84face20ac4974c8bdb040da1ff85a08)
       '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
+      comment-json: 4.2.5
+      debug: 4.4.0
       ember-eslint-parser: 0.5.9(a376bbfae0f7680138cf62f12e924883)
       eslint: 9.26.0
       eslint-config-prettier: 10.1.5(eslint@9.26.0)

@@ -9,8 +9,7 @@
   },
   "scripts": {
     "takeoff": "FORCE_COLOR=2 pnpm install --prefer-offline --reporter=append-only",
-    "prepare": "export TURBO_FORCE=true; turbo run build:pkg;",
-    "prepare:types": "export TURBO_FORCE=true; glint --build --force",
+    "prepare": "export TURBO_FORCE=true; turbo run build:pkg --log-order=stream --concurrency=23;",
     "release": "./release/index.ts",
     "build": "turbo run build:pkg --log-order=stream --concurrency=10;",
     "sync": "pnpm --filter './packages/*' run --parallel --if-present sync",

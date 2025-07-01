@@ -6,6 +6,7 @@ import { FixModuleOutputPlugin } from './fix-module-output-plugin.js';
 // import { CompileTypesPlugin } from './compile-types-plugin.js';
 // vite.config.ts
 import UnpluginIsolatedDecl from 'unplugin-isolated-decl/vite';
+import { MoveTypesToDestination } from './move-types.js';
 
 export function createConfig(options, resolve) {
   options.srcDir = options.srcDir ?? './src';
@@ -22,7 +23,7 @@ export function createConfig(options, resolve) {
       emptyOutDir: options.emptyOutDir ?? true,
       target: options.target ?? ['esnext', 'firefox121'],
       minify: false,
-      sourcemap: true,
+      sourceMap: true,
       lib: {
         entry: entryPoints(options.entryPoints, resolve, options),
         formats: options.format ? [options.format] : ['es'],
@@ -39,7 +40,16 @@ export function createConfig(options, resolve) {
       },
     },
     plugins: [
-      UnpluginIsolatedDecl({}),
+      options.compileTypes
+        ? UnpluginIsolatedDecl({
+            include: `${options.srcDir}/**/*.{ts,gts}`,
+            extraOutdir: 'declarations',
+            transformerOptions: {
+              stripInternal: true,
+              sourcemap: true,
+            },
+          })
+        : null,
       babel(
         options.babelConfigFile
           ? {
@@ -52,6 +62,7 @@ export function createConfig(options, resolve) {
               extensions: ['.js', '.ts', '.gjs', '.gts'],
             }
       ),
+      options.compileTypes ? MoveTypesToDestination(options, resolve) : null,
       // options.compileTypes === true && options.rollupTypes === true
       //   ? dts({
       //       rollupTypes: true,

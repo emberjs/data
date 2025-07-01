@@ -19,6 +19,7 @@
     "allowJs": true,
     "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
+    "disableReferencedProjectLoad": true,
     "baseUrl": ".",
     "noImplicitOverride": false,
     "incremental": true,
