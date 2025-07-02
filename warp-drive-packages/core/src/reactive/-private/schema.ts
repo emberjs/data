@@ -1,6 +1,6 @@
 import { deprecate } from '@ember/debug';
 
-import { DEBUG } from '@warp-drive/build-config/env.js';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
