@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -70,16 +68,16 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)
+        version: 2.0.1-unstable.ab0ac20(typescript@5.8.3)
       '@glint/environment-ember-loose':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(f131941ec730e42aca2cc6cd505435ba)
+        version: 2.0.1-unstable.ab0ac20(7a528acbc6081cfc1d23c7d7254a9645)
       '@glint/environment-ember-template-imports':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(77b3fa966b7843dd358f757c73c95bee)
+        version: 2.0.1-unstable.ab0ac20(322b2dd40735b7c90be13e743418d0c2)
       '@glint/template':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1
+        version: 1.6.1-unstable.ab0ac20
       '@types/semver':
         specifier: ^7.7.0
         version: 7.7.0
@@ -210,8 +208,8 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0(eslint@9.26.0)
       eslint-plugin-n:
-        specifier: ^17.16.2
-        version: 17.18.0(eslint@9.26.0)
+        specifier: ^17.20.0
+        version: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit:
         specifier: ^8.1.2
         version: 8.1.2(eslint@9.26.0)
@@ -2836,16 +2834,16 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)
+        version: 2.0.1-unstable.ab0ac20(typescript@5.8.3)
       '@glint/environment-ember-loose':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)
+        version: 2.0.1-unstable.ab0ac20(b8bbd04bbd275c58a7be0f8e7bf4468a)
       '@glint/environment-ember-template-imports':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(e67361b5fdf1122d3bc9532c815c006b)
+        version: 2.0.1-unstable.ab0ac20(956f6d1f2283cdc057d9fefb9cdfd01e)
       '@glint/template':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1
+        version: 1.6.1-unstable.ab0ac20
       '@types/qunit':
         specifier: 2.19.10
         version: 2.19.10
@@ -3288,8 +3286,8 @@ importers:
         specifier: ^12.5.0
         version: 12.5.0(a376bbfae0f7680138cf62f12e924883)
       eslint-plugin-n:
-        specifier: ^17.16.2
-        version: 17.18.0(eslint@9.26.0)
+        specifier: ^17.20.0
+        version: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-prettier:
         specifier: ^5.2.6
         version: 5.4.0(6ae2055b934097545a351d31376fafb8)
@@ -3362,16 +3360,16 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)
+        version: 2.0.1-unstable.ab0ac20(typescript@5.8.3)
       '@glint/environment-ember-loose':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)
+        version: 2.0.1-unstable.ab0ac20(b8bbd04bbd275c58a7be0f8e7bf4468a)
       '@glint/environment-ember-template-imports':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(e67361b5fdf1122d3bc9532c815c006b)
+        version: 2.0.1-unstable.ab0ac20(956f6d1f2283cdc057d9fefb9cdfd01e)
       '@glint/template':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1
+        version: 1.6.1-unstable.ab0ac20
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -3664,16 +3662,16 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)
+        version: 2.0.1-unstable.ab0ac20(typescript@5.8.3)
       '@glint/environment-ember-loose':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)
+        version: 2.0.1-unstable.ab0ac20(b8bbd04bbd275c58a7be0f8e7bf4468a)
       '@glint/environment-ember-template-imports':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(e67361b5fdf1122d3bc9532c815c006b)
+        version: 2.0.1-unstable.ab0ac20(956f6d1f2283cdc057d9fefb9cdfd01e)
       '@glint/template':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1
+        version: 1.6.1-unstable.ab0ac20
       '@types/qunit':
         specifier: 2.19.10
         version: 2.19.10
@@ -3883,16 +3881,16 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(typescript@5.8.3)
+        version: 2.0.1-unstable.ab0ac20(typescript@5.8.3)
       '@glint/environment-ember-loose':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(f131941ec730e42aca2cc6cd505435ba)
+        version: 2.0.1-unstable.ab0ac20(7a528acbc6081cfc1d23c7d7254a9645)
       '@glint/environment-ember-template-imports':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1(77b3fa966b7843dd358f757c73c95bee)
+        version: 2.0.1-unstable.ab0ac20(322b2dd40735b7c90be13e743418d0c2)
       '@glint/template':
         specifier: unstable
-        version: 1.4.1-unstable.d17c1f1
+        version: 1.6.1-unstable.ab0ac20
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -5525,18 +5523,18 @@ packages:
   '@glimmer/wire-format@0.94.8':
     resolution: {integrity: sha512-A+Cp5m6vZMAEu0Kg/YwU2dJZXyYxVJs2zI57d3CP6NctmX7FsT8WjViiRUmt5abVmMmRH5b8BUovqY6GSMAdrw==}
 
-  '@glint/core@1.4.1-unstable.d17c1f1':
-    resolution: {integrity: sha512-UmGqWB+rQUXdDy0rIIdnL2bMZeQPrH/k8k24SaEZNPL97+CeoEo8oi+gyGab/cwNBf+/plwqlesLnLYSVWuSTA==}
+  '@glint/core@2.0.1-unstable.ab0ac20':
+    resolution: {integrity: sha512-lhSVjQ6bNgsxzfi4FX+MpYQlmHEvEn0WF6dgfss8jeHrzD73/QwDE8ixs2srf7nbnlwGegLu6iAxWF2AOyOqdA==}
     hasBin: true
     peerDependencies:
       typescript: 5.8.3
 
-  '@glint/environment-ember-loose@1.4.1-unstable.d17c1f1':
-    resolution: {integrity: sha512-ATLTHSTBHn4Rf/Cn/WB+hcHo66wgHVv7xUJ8uLIRrBGIHjlb1LeTtLuqdo5u3lQ1MhZvp2o3GkpgqM+Q+roTsQ==}
+  '@glint/environment-ember-loose@2.0.1-unstable.ab0ac20':
+    resolution: {integrity: sha512-z0xW2ypjAySlJrgquQqNzOiL1zyNiKzI1jwuMxx/x8YECpR2Kvdy2XO43TwxWCxA070x8HXfIip1Q7vrCCatKQ==}
     peerDependencies:
       '@glimmer/component': '>=1.1.2'
-      '@glint/core': 1.4.1-unstable.d17c1f1
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/core': 2.0.1-unstable.ab0ac20
+      '@glint/template': 1.6.1-unstable.ab0ac20
       ember-cli-htmlbars: ^6.3.0
       ember-modifier: ^3.2.7 || ^4.0.0
     peerDependenciesMeta:
@@ -5545,15 +5543,15 @@ packages:
       ember-modifier:
         optional: true
 
-  '@glint/environment-ember-template-imports@1.4.1-unstable.d17c1f1':
-    resolution: {integrity: sha512-ZHsDaPN2abdxyprlNGE4hL0le7izY2tsDyNwSyRqcmDkeLlTAcRgvZJ93JW/dYlvuBlGPEy15cZTNDe9Z9K9tA==}
+  '@glint/environment-ember-template-imports@2.0.1-unstable.ab0ac20':
+    resolution: {integrity: sha512-b+LN/qAnZXIBeqmGXfTYBUXtNjEwCQszKyE1HBgUN65aHGtKifJGblHxssAL71vi/C02JArPqnFCoh6M1HzuJA==}
     peerDependencies:
-      '@glint/core': 1.4.1-unstable.d17c1f1
-      '@glint/environment-ember-loose': 1.4.1-unstable.d17c1f1
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/core': 2.0.1-unstable.ab0ac20
+      '@glint/environment-ember-loose': 2.0.1-unstable.ab0ac20
+      '@glint/template': 1.6.1-unstable.ab0ac20
 
-  '@glint/template@1.4.1-unstable.d17c1f1':
-    resolution: {integrity: sha512-qmqQ9EkUlXV15gUVLZRr/lqfCUDdtrjj4Tu8lBbeO2hT19/b5i9Z3viuVlCxAtfGAJg8uMRJ/2weuKiBrxmsBg==}
+  '@glint/template@1.6.1-unstable.ab0ac20':
+    resolution: {integrity: sha512-OEXQoOHXTZrMkqgQ+8jgE0mGnwEqpK9kO6mdzkP4ODv5Avh5H4GYAdDWEad7ekKB5f69GJQqGqjf3pTZN7dr5Q==}
 
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
@@ -8942,8 +8940,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-n@17.18.0:
-    resolution: {integrity: sha512-hvZ/HusueqTJ7VDLoCpjN0hx4N4+jHIWTXD4TMLHy9F23XkDagR9v+xQWRWR57yY55GPF8NnD4ox9iGTxirY8A==}
+  eslint-plugin-n@17.20.0:
+    resolution: {integrity: sha512-IRSoatgB/NQJZG5EeTbv/iAx1byOGdbbyhQrNvWdCfTnmPxUT0ao9/eGOeG7ljD8wJBsxwE8f6tES5Db0FRKEw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: '>=8.23.0'
@@ -12847,6 +12845,11 @@ packages:
     peerDependencies:
       typescript: 5.8.3
 
+  ts-declaration-location@1.0.7:
+    resolution: {integrity: sha512-EDyGAwH1gO0Ausm9gV6T2nUvBgXT5kGoCMJPllOaooZ+4VvJiKBdZE7wK18N1deEowhcUptS+5GXZK8U/fvpwA==}
+    peerDependencies:
+      typescript: 5.8.3
+
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
 
@@ -15676,7 +15679,7 @@ snapshots:
   '@embroider/macros@1.16.13(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 2.9.0
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.ab0ac20
       assert-never: 1.4.0
       babel-import-util: 2.1.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -15691,7 +15694,7 @@ snapshots:
   '@embroider/macros@1.17.0-alpha.8(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 3.0.0-alpha.5
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.ab0ac20
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -15706,7 +15709,7 @@ snapshots:
   '@embroider/macros@1.17.1-unstable.f9c81e9(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 3.0.1-unstable.f9c81e9
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.ab0ac20
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -15721,7 +15724,7 @@ snapshots:
   '@embroider/macros@1.17.3(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 3.0.0
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.ab0ac20
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -16365,7 +16368,7 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.6
 
-  '@glint/core@1.4.1-unstable.d17c1f1(typescript@5.8.3)':
+  '@glint/core@2.0.1-unstable.ab0ac20(typescript@5.8.3)':
     dependencies:
       '@glimmer/syntax': 0.94.9
       '@volar/kit': 2.4.12(typescript@5.8.3)
@@ -16390,35 +16393,35 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/environment-ember-loose@1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)':
+  '@glint/environment-ember-loose@2.0.1-unstable.ab0ac20(7a528acbc6081cfc1d23c7d7254a9645)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 1.4.1-unstable.d17c1f1(typescript@5.8.3)
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/core': 2.0.1-unstable.ab0ac20(typescript@5.8.3)
+      '@glint/template': 1.6.1-unstable.ab0ac20
+
+  '@glint/environment-ember-loose@2.0.1-unstable.ab0ac20(b8bbd04bbd275c58a7be0f8e7bf4468a)':
+    dependencies:
+      '@glimmer/component': 2.0.0
+      '@glint/core': 2.0.1-unstable.ab0ac20(typescript@5.8.3)
+      '@glint/template': 1.6.1-unstable.ab0ac20
     optionalDependencies:
       ember-cli-htmlbars: 6.3.0
 
-  '@glint/environment-ember-loose@1.4.1-unstable.d17c1f1(f131941ec730e42aca2cc6cd505435ba)':
+  '@glint/environment-ember-template-imports@2.0.1-unstable.ab0ac20(322b2dd40735b7c90be13e743418d0c2)':
     dependencies:
-      '@glimmer/component': 2.0.0
-      '@glint/core': 1.4.1-unstable.d17c1f1(typescript@5.8.3)
-      '@glint/template': 1.4.1-unstable.d17c1f1
-
-  '@glint/environment-ember-template-imports@1.4.1-unstable.d17c1f1(77b3fa966b7843dd358f757c73c95bee)':
-    dependencies:
-      '@glint/core': 1.4.1-unstable.d17c1f1(typescript@5.8.3)
-      '@glint/environment-ember-loose': 1.4.1-unstable.d17c1f1(f131941ec730e42aca2cc6cd505435ba)
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/core': 2.0.1-unstable.ab0ac20(typescript@5.8.3)
+      '@glint/environment-ember-loose': 2.0.1-unstable.ab0ac20(7a528acbc6081cfc1d23c7d7254a9645)
+      '@glint/template': 1.6.1-unstable.ab0ac20
       content-tag: 3.1.3
 
-  '@glint/environment-ember-template-imports@1.4.1-unstable.d17c1f1(e67361b5fdf1122d3bc9532c815c006b)':
+  '@glint/environment-ember-template-imports@2.0.1-unstable.ab0ac20(956f6d1f2283cdc057d9fefb9cdfd01e)':
     dependencies:
-      '@glint/core': 1.4.1-unstable.d17c1f1(typescript@5.8.3)
-      '@glint/environment-ember-loose': 1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/core': 2.0.1-unstable.ab0ac20(typescript@5.8.3)
+      '@glint/environment-ember-loose': 2.0.1-unstable.ab0ac20(b8bbd04bbd275c58a7be0f8e7bf4468a)
+      '@glint/template': 1.6.1-unstable.ab0ac20
       content-tag: 3.1.3
 
-  '@glint/template@1.4.1-unstable.d17c1f1': {}
+  '@glint/template@1.6.1-unstable.ab0ac20': {}
 
   '@gwhitney/detect-indent@7.0.1': {}
 
@@ -17866,7 +17869,7 @@ snapshots:
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
       eslint-plugin-import: 2.31.0(7cbb3b3411a9ce33772e08441ff03271)
       eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
-      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-n: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
       glob: 11.0.2
@@ -17915,7 +17918,7 @@ snapshots:
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
       eslint-plugin-import: 2.31.0(7cbb3b3411a9ce33772e08441ff03271)
       eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
-      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-n: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
       glob: 11.0.2
@@ -17964,7 +17967,7 @@ snapshots:
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
       eslint-plugin-import: 2.31.0(7cbb3b3411a9ce33772e08441ff03271)
       eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
-      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-n: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
       glob: 11.0.2
@@ -18013,7 +18016,7 @@ snapshots:
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
       eslint-plugin-import: 2.31.0(7cbb3b3411a9ce33772e08441ff03271)
       eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
-      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-n: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
       glob: 11.0.2
@@ -18062,7 +18065,7 @@ snapshots:
       eslint-config-prettier: 10.1.5(eslint@9.26.0)
       eslint-plugin-import: 2.31.0(7cbb3b3411a9ce33772e08441ff03271)
       eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
-      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-n: 17.20.0(eslint@9.26.0)(typescript@5.8.3)
       eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
       eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
       glob: 11.0.2
@@ -21447,9 +21450,10 @@ snapshots:
       globals: 13.24.0
       rambda: 7.5.0
 
-  eslint-plugin-n@17.18.0(eslint@9.26.0):
+  eslint-plugin-n@17.20.0(eslint@9.26.0)(typescript@5.8.3):
     dependencies:
       '@eslint-community/eslint-utils': 4.7.0(eslint@9.26.0)
+      '@typescript-eslint/utils': 8.32.1(eslint@9.26.0)(typescript@5.8.3)
       enhanced-resolve: 5.18.1
       eslint: 9.26.0
       eslint-plugin-es-x: 7.8.0(eslint@9.26.0)
@@ -21458,6 +21462,10 @@ snapshots:
       ignore: 5.3.2
       minimatch: 9.0.5
       semver: 7.7.2
+      ts-declaration-location: 1.0.7(typescript@5.8.3)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   eslint-plugin-prettier@5.4.0(6ae2055b934097545a351d31376fafb8):
     dependencies:
@@ -26285,6 +26293,11 @@ snapshots:
 
   ts-api-utils@2.1.0(typescript@5.8.3):
     dependencies:
+      typescript: 5.8.3
+
+  ts-declaration-location@1.0.7(typescript@5.8.3):
+    dependencies:
+      picomatch: 4.0.2
       typescript: 5.8.3
 
   tsconfig-paths@3.15.0:
