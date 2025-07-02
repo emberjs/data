@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/tracking",
   "description": "DEPRECATED - Use @warp-drive/ember",
-  "version": "5.7.0-alpha.2",
+  "version": "5.7.0-alpha.3",
   "deprecated": "Use @warp-drive/ember",
   "private": false,
   "license": "MIT",
