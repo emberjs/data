@@ -1,14 +1,14 @@
 import { rerender, settled } from '@ember/test-helpers';
 
-import type { CacheHandler, Future, NextFn, RequestContext, StructuredDataDocument } from '@ember-data/request';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { buildBaseURL } from '@ember-data/request-utils';
+import { Fetch, RequestManager } from '@warp-drive/core';
+import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
+import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState } from '@warp-drive/ember';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 type RequestState<T, RT, E> = ReturnType<typeof getRequestState<RT, T, E>>;
 type UserResource = {

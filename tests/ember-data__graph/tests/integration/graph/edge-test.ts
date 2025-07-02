@@ -1,12 +1,12 @@
-import type { Graph } from '@ember-data/graph/-private';
-import { graphFor } from '@ember-data/graph/-private';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import type Store from '@ember-data/store';
-import { recordIdentifierFor } from '@ember-data/store';
-import { peekCache } from '@ember-data/store/-private';
-import { Type } from '@warp-drive/core-types/symbols';
+import type { Store } from '@warp-drive/core';
+import { recordIdentifierFor } from '@warp-drive/core';
+import type { Graph } from '@warp-drive/core/graph/-private';
+import { graphFor } from '@warp-drive/core/graph/-private';
+import { peekCache } from '@warp-drive/core/store/-private';
+import { Type } from '@warp-drive/core/types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 import { stateOf } from './edge-removal/setup';
 

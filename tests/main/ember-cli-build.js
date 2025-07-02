@@ -6,7 +6,43 @@ function isEnabled(flag) {
   return flag === true || flag === 'true' || flag === '1';
 }
 
+function logSystem() {
+  const args = process.argv.slice(2);
+  const env = Object.assign({}, process.env);
+  const known = [
+    'WARP_DRIVE_FEATURE_OVERRIDE',
+    'NODE_ENV',
+    'CI',
+    'EMBER_ENV',
+    'IS_TESTING',
+    'EMBER_CLI_TEST_COMMAND',
+    'IS_RECORDING',
+    'ASSERT_ALL_DEPRECATIONS',
+    'EMBER_DATA_FULL_COMPAT',
+    'HOLODECK_SSL_CERT_PATH',
+    'HOLODECK_SSL_KEY_PATH',
+  ];
+
+  const knownEnv = {};
+  const otherEnv = {};
+
+  Object.keys(env).forEach((key) => {
+    if (known.includes(key)) {
+      knownEnv[key] = env[key];
+    } else {
+      otherEnv[key] = env[key];
+    }
+  });
+
+  console.log({
+    knownEnv,
+    // otherEnv,
+    args,
+  });
+}
+
 module.exports = async function (defaults) {
+  logSystem();
   const { setConfig } = await import('@warp-drive/build-config');
   const { macros } = await import('@warp-drive/build-config/babel-macros');
 

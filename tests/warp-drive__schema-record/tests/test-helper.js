@@ -1,3 +1,6 @@
+import { Model, restoreDeprecatedModelRequestBehaviors } from '@warp-drive/legacy/model';
+import { restoreDeprecatedStoreBehaviors } from '@warp-drive/legacy/store';
+import { Store } from '@warp-drive/core';
 import { setApplication } from '@ember/test-helpers';
 
 import * as QUnit from 'qunit';
@@ -9,6 +12,9 @@ import configureAsserts from '@ember-data/unpublished-test-infra/test-support/as
 
 import Application from '../app';
 import config from '../config/environment';
+
+restoreDeprecatedStoreBehaviors(Store);
+restoreDeprecatedModelRequestBehaviors(Model);
 
 QUnit.dump.maxDepth = 6;
 QUnit.config.testTimeout = 2000;

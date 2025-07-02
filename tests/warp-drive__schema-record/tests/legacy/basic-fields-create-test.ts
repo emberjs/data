@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacy,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacy,
 } from '@ember-data/model/migration-support';
 
 import type Store from 'warp-drive__schema-record/services/store';

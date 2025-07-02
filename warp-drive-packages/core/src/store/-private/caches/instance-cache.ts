@@ -8,21 +8,12 @@ import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
-import type { Value } from '../../../types/json/raw.ts';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '../../../types/record.ts';
-import type { LegacyRelationshipField as RelationshipSchema } from '../../../types/schema/fields.ts';
-import type {
-  ExistingResourceIdentifierObject,
-  ExistingResourceObject,
-  InnerRelationshipDocument,
-} from '../../../types/spec/json-api-raw.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { log, logGroup } from '../debug/utils.ts';
-import RecordReference from '../legacy-model-support/record-reference.ts';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager.ts';
 import type { CacheManager } from '../managers/cache-manager.ts';
 import type { CreateRecordProperties, Store } from '../store-service.ts';
-import { ensureStringId } from '../utils/coerce-id.ts';
 import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils.ts';
 
 type Destroyable = {
@@ -102,9 +93,8 @@ export function storeFor(record: OpaqueRecordInstance): Store | undefined {
   return store;
 }
 
-type Caches = {
+export type Caches = {
   record: Map<StableRecordIdentifier, OpaqueRecordInstance>;
-  reference: WeakMap<StableRecordIdentifier, RecordReference>;
   document: Map<
     StableDocumentIdentifier,
     ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
@@ -123,7 +113,6 @@ export class InstanceCache {
     this.store = store;
     this.__instances = {
       record: new Map(),
-      reference: new WeakMap(),
       document: new Map(),
     };
 
@@ -231,17 +220,6 @@ export class InstanceCache {
     }
 
     return record;
-  }
-
-  getReference(identifier: StableRecordIdentifier): RecordReference {
-    const cache = this.__instances.reference;
-    let reference = cache.get(identifier);
-
-    if (!reference) {
-      reference = new RecordReference(this.store, identifier);
-      cache.set(identifier, reference);
-    }
-    return reference;
   }
 
   recordIsLoaded(identifier: StableRecordIdentifier, filterDeleted = false): boolean {
@@ -408,84 +386,6 @@ export class InstanceCache {
     // TODO handle consequences of identifier merge for notifications
     this.store.notifications.notify(identifier, 'identity');
   }
-}
-
-function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
-  return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
-}
-
-export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
-  const cache = instanceCache.cache;
-  return !cache || _resourceIsFullDeleted(identifier, cache);
-}
-
-/*
-    When a find request is triggered on the store, the user can optionally pass in
-    attributes and relationships to be preloaded. These are meant to behave as if they
-    came back from the server, except the user obtained them out of band and is informing
-    the store of their existence. The most common use case is for supporting client side
-    nested URLs, such as `/posts/1/comments/2` so the user can do
-    `store.findRecord('comment', 2, { preload: { post: 1 } })` without having to fetch the post.
-
-    Preloaded data can be attributes and relationships passed in either as IDs or as actual
-    models.
-  */
-type PreloadRelationshipValue = OpaqueRecordInstance | string;
-export function preloadData(store: Store, identifier: StableRecordIdentifier, preload: Record<string, Value>): void {
-  const jsonPayload: Partial<ExistingResourceObject> = {};
-  //TODO(Igor) consider the polymorphic case
-  const schemas = store.schema;
-  const fields = schemas.fields(identifier);
-  Object.keys(preload).forEach((key) => {
-    const preloadValue = preload[key];
-
-    const field = fields.get(key);
-    if (field && (field.kind === 'hasMany' || field.kind === 'belongsTo')) {
-      if (!jsonPayload.relationships) {
-        jsonPayload.relationships = {};
-      }
-      jsonPayload.relationships[key] = preloadRelationship(field, preloadValue);
-    } else {
-      if (!jsonPayload.attributes) {
-        jsonPayload.attributes = {};
-      }
-      jsonPayload.attributes[key] = preloadValue;
-    }
-  });
-  const cache = store.cache;
-  const hasRecord = Boolean(store._instanceCache.peek(identifier));
-  cache.upsert(identifier, jsonPayload, hasRecord);
-}
-
-function preloadRelationship(
-  schema: RelationshipSchema,
-  preloadValue: PreloadRelationshipValue | null | Array<PreloadRelationshipValue>
-): InnerRelationshipDocument<ExistingResourceIdentifierObject> {
-  const relatedType = schema.type;
-
-  if (schema.kind === 'hasMany') {
-    assert('You need to pass in an array to set a hasMany property on a record', Array.isArray(preloadValue));
-    return { data: preloadValue.map((value) => _convertPreloadRelationshipToJSON(value, relatedType)) };
-  }
-
-  assert('You should not pass in an array to set a belongsTo property on a record', !Array.isArray(preloadValue));
-  return { data: preloadValue ? _convertPreloadRelationshipToJSON(preloadValue, relatedType) : null };
-}
-
-/*
-  findRecord('user', '1', { preload: { friends: ['1'] }});
-  findRecord('user', '1', { preload: { friends: [record] }});
-*/
-function _convertPreloadRelationshipToJSON(
-  value: OpaqueRecordInstance | string,
-  type: string
-): ExistingResourceIdentifierObject {
-  if (typeof value === 'string' || typeof value === 'number') {
-    return { type, id: ensureStringId(value) };
-  }
-  // TODO if not a record instance assert it's an identifier
-  // and allow identifiers to be used
-  return recordIdentifierFor(value) as ExistingResourceIdentifierObject;
 }
 
 export function _clearCaches(): void {

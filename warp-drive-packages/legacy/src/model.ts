@@ -39,7 +39,7 @@
 export { attr } from './model/-private/attr';
 export { belongsTo } from './model/-private/belongs-to';
 export { hasMany } from './model/-private/has-many';
-export { Model } from './model/-private/model';
+export { Model, restoreDeprecatedModelRequestBehaviors } from './model/-private/model';
 export { Model as default } from './model/-private/model';
 
 export type { PromiseBelongsTo as AsyncBelongsTo } from './model/-private/promise-belongs-to';

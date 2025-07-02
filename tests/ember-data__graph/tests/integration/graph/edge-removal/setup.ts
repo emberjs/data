@@ -1,14 +1,14 @@
-import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@ember-data/graph/-private';
-import { graphFor } from '@ember-data/graph/-private';
-import type Model from '@ember-data/model';
-import type Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { CollectionRelationship } from '@warp-drive/core-types/cache/relationship';
-import type { Type } from '@warp-drive/core-types/symbols';
+import type { Store } from '@warp-drive/core';
+import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
+import { graphFor } from '@warp-drive/core/graph/-private';
+import type { ModelSchema } from '@warp-drive/core/types';
+import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { Type } from '@warp-drive/core/types/symbols';
 import type { Hooks } from '@warp-drive/diagnostic/-types';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import type Model from '@warp-drive/legacy/model';
 
 class AbstractMap {
   declare private store: Store;

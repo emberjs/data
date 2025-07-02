@@ -87,8 +87,11 @@
         // + V2-Addon convention
         "src/**",
         "tests/**",
+        "app/**",
+        "ember-cli-build.js",
         "addon-main.*",
         "tsconfig.json",
+        "package.json",
         "babel.*",
         "vite.config.*"
       ],
@@ -120,8 +123,11 @@
         // + V2-Addon convention
         "src/**",
         "tests/**",
+        "app/**",
         "ember-cli-build.js",
         "addon-main.*",
+        "tsconfig.json",
+        "package.json",
         "babel.*",
         "vite.config.*"
       ],
@@ -132,7 +138,8 @@
         // V2-Addon convention
         "dist/**",
         "dist-test/**",
-        "declarations/**"
+        "declarations/**",
+        "unstable-preview-types/**"
       ],
       "dependsOn": ["^build:pkg"],
       "env": [

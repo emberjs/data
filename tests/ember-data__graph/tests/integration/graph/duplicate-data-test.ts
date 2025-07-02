@@ -1,10 +1,10 @@
-import { graphFor } from '@ember-data/graph/-private';
-import Model, { attr, hasMany } from '@ember-data/model';
-import type Store from '@ember-data/store';
-import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/build-config/deprecations';
-import { DEBUG } from '@warp-drive/build-config/env';
+import type { Store } from '@warp-drive/core';
+import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/core/build-config/deprecations';
+import { DEBUG } from '@warp-drive/core/build-config/env';
+import { graphFor } from '@warp-drive/core/graph/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import Model, { attr, hasMany } from '@warp-drive/legacy/model';
 
 import { deprecatedTest } from '../../setup-test';
 

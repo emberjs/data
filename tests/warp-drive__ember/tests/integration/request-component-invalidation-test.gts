@@ -1,28 +1,28 @@
 import { rerender } from '@ember/test-helpers';
 
-import JSONAPICache from '@ember-data/json-api';
-import type { Handler, NextFn, RequestContext } from '@ember-data/request';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
-import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { Type } from '@warp-drive/core-types/symbols';
-import type { Diagnostic } from '@warp-drive/diagnostic/-types';
-import type { RenderingTestContext, TestContext } from '@warp-drive/diagnostic/ember';
-import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
-import { Request } from '@warp-drive/ember';
-import { MockServerHandler } from '@warp-drive/holodeck';
-import { GET } from '@warp-drive/holodeck/mock';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
   registerDerivations,
   SchemaService,
   teardownRecord,
   withDefaults,
-} from '@warp-drive/schema-record';
+} from '@warp-drive/core/reactive';
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import { DefaultCachePolicy } from '@warp-drive/core/store';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { RequestContext } from '@warp-drive/core/types/request';
+import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import type { Type } from '@warp-drive/core/types/symbols';
+import type { Diagnostic } from '@warp-drive/diagnostic/-types';
+import type { RenderingTestContext, TestContext } from '@warp-drive/diagnostic/ember';
+import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
+import { Request } from '@warp-drive/ember';
+import { MockServerHandler } from '@warp-drive/holodeck';
+import { GET } from '@warp-drive/holodeck/mock';
+import { JSONAPICache } from '@warp-drive/json-api';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 function trim(str?: string | null): string {
   if (!str) {
@@ -61,7 +61,7 @@ class TestStore extends Store {
       .useCache(CacheHandler);
   }
 
-  lifetimes = new CachePolicy({
+  lifetimes = new DefaultCachePolicy({
     apiCacheHardExpires: 5000,
     apiCacheSoftExpires: 1000,
     disableTestOptimization: true,

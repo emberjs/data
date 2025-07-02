@@ -7,8 +7,8 @@ import { setupTest } from 'ember-qunit';
 import { PromiseBelongsTo, PromiseManyArray } from '@ember-data/model/-private';
 import {
   registerDerivations as registerLegacyDerivations,
-  withDefaults as withLegacy,
   type WithLegacyDerivations,
+  withRestoredDeprecatedModelRequestBehaviors as withLegacy,
 } from '@ember-data/model/migration-support';
 import type { Handler, NextFn } from '@ember-data/request';
 import RequestManager from '@ember-data/request';

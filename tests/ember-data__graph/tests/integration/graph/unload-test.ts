@@ -1,10 +1,10 @@
-import type { Graph, ResourceEdge } from '@ember-data/graph/-private';
-import { graphFor } from '@ember-data/graph/-private';
-import Model, { attr, belongsTo } from '@ember-data/model';
-import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { Store } from '@warp-drive/core';
+import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
+import { graphFor } from '@warp-drive/core/graph/-private';
+import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
+import Model, { attr, belongsTo } from '@warp-drive/legacy/model';
 
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);

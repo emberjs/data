@@ -513,6 +513,19 @@ export const DEPRECATE_EMBER_INFLECTOR: boolean = true;
 export const DEPRECATE_TRACKING_PACKAGE: boolean = true;
 
 /**
+ * <Badge type="warning" text="warp-drive:deprecate-legacy-request-methods" />
+ *
+ * Deprecates all the non request-manager mechanisms of making requests.
+ *
+ * FIXME link the big guide
+ *
+ * @since 5.6
+ * @until 6.0
+ * @public
+ */
+export const ENABLE_LEGACY_REQUEST_METHODS: boolean = true;
+
+/**
  * This is a special flag that can be used to opt-in early to receiving deprecations introduced in 6.x
  * which have had their infra backported to 5.x versions of ***Warp*Drive**.
  *
