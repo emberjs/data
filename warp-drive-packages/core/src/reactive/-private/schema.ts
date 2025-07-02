@@ -1,5 +1,7 @@
-import { deprecate } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 
+import { ENFORCE_STRICT_RESOURCE_FINALIZATION } from '@warp-drive/build-config/canary-features';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
@@ -30,6 +32,7 @@ import {
   type ResourceSchema,
   type SchemaArrayField,
   type SchemaObjectField,
+  type Trait,
 } from '../../types/schema/fields.ts';
 import { Type } from '../../types/symbols.ts';
 import type { WithPartial } from '../../types/utils.ts';
@@ -385,6 +388,7 @@ export function registerDerivations(schema: SchemaServiceInterface): void {
 
 interface InternalSchema {
   original: ResourceSchema | ObjectSchema;
+  finalized: boolean;
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
   attributes: Record<string, LegacyAttributeField>;
@@ -453,6 +457,13 @@ export interface SchemaService {
   relationshipsDefinitionFor(identifier: { type: string }): InternalSchema['relationships'];
 }
 
+interface InternalTrait {
+  name: string;
+  mode: 'legacy' | 'polaris';
+  fields: Map<string, FieldSchema>;
+  traits: string[];
+}
+
 /**
  * A SchemaService designed to work with dynamically registered schemas.
  *
@@ -470,7 +481,7 @@ export class SchemaService implements SchemaServiceInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   declare _derivations: Map<string, Derivation<any, any, any>>;
   /** @internal */
-  declare _traits: Set<string>;
+  declare _traits: Map<string, InternalTrait>;
   /** @internal */
   declare _modes: Map<string, KindFns>;
   /** @internal */
@@ -488,7 +499,7 @@ export class SchemaService implements SchemaServiceInterface {
     this._transforms = new Map();
     this._hashFns = new Map();
     this._derivations = new Map();
-    this._traits = new Set();
+    this._traits = new Map();
     this._modes = new Map();
     this._extensions = {
       object: new Map(),
@@ -575,7 +586,7 @@ export class SchemaService implements SchemaServiceInterface {
     const relationships: Record<string, LegacyRelationshipField> = {};
     const attributes: Record<string, LegacyAttributeField> = {};
 
-    schema.fields.forEach((field) => {
+    for (const field of schema.fields) {
       assert(
         `${field.kind} is not valid inside a ResourceSchema's fields.`,
         // @ts-expect-error we are checking for mistakes at runtime
@@ -587,15 +598,48 @@ export class SchemaService implements SchemaServiceInterface {
       } else if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
         relationships[field.name] = field;
       }
-    });
+    }
 
     const traits = new Set<string>(isResourceSchema(schema) ? schema.traits : []);
-    traits.forEach((trait) => {
-      this._traits.add(trait);
-    });
-
-    const internalSchema: InternalSchema = { original: schema, fields, relationships, attributes, traits };
+    const finalized = traits.size === 0;
+    const internalSchema: InternalSchema = { original: schema, finalized, fields, relationships, attributes, traits };
     this._schemas.set(schema.type, internalSchema);
+  }
+
+  /**
+   * Registers a {@link Trait} for use by resource schemas.
+   *
+   * Traits are re-usable collections of fields that can be composed to
+   * build up a resource schema. Often they represent polymorphic behaviors
+   * a resource should exhibit.
+   *
+   * When we finalize a resource, we walk its traits and apply their fields
+   * to the resource's fields. All specified traits must be registered by
+   * this time or an error will be thrown.
+   *
+   * Traits are applied left-to-right, with traits of traits being applied in the same
+   * way. Thus for the most part, application of traits is a post-order graph traversal
+   * problem.
+   *
+   * A trait is only ever processed once. If multiple traits (A, B, C) have the same
+   * trait (D) as a dependency, D will be included only once when first encountered by
+   * A.
+   *
+   * If a cycle exists such that trait A has trait B which has Trait A, trait A will
+   * be applied *after* trait B in production. In development a cycle error will be thrown.
+   *
+   * Fields are finalized on a "last wins principle". Thus traits appearing higher in
+   * the tree and further to the right of a traits array take precedence, with the
+   * resource's fields always being applied last and winning out.
+   *
+   * @public
+   */
+  registerTrait(trait: Trait): void {
+    const internalTrait = Object.assign({}, trait, { fields: new Map() }) as InternalTrait;
+    for (const field of trait.fields) {
+      internalTrait.fields.set(field.name, field);
+    }
+    this._traits.set(trait.name, internalTrait);
   }
 
   registerTransformation<T extends Value = string, PT = unknown>(transformation: Transformation<T, PT>): void {
@@ -673,9 +717,10 @@ export class SchemaService implements SchemaServiceInterface {
 
   fields({ type }: { type: string }): InternalSchema['fields'] {
     const schema = this._schemas.get(type);
+    assert(`No schema defined for ${type}`, schema);
 
-    if (!schema) {
-      throw new Error(`No schema defined for ${type}`);
+    if (!schema.finalized) {
+      finalizeResource(this, schema);
     }
 
     return schema.fields;
@@ -745,4 +790,100 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     });
     return this._schemas.has(type);
   };
+}
+
+/**
+ * When we finalize a resource, we walk its traits and apply their fields
+ * to the resource's fields.
+ *
+ * Traits are applied left-to-right, with traits of traits being applied in the same
+ * way. Thus for the most part, application of traits is a post-order graph traversal
+ * problem.
+ *
+ * A trait is only ever processed once. If multiple traits (A, B, C) have the same
+ * trait (D) as a dependency, D will be included only once when first encountered by
+ * A.
+ *
+ * If a cycle exists such that trait A has trait B which has Trait A, trait A will
+ * be applied *after* trait B in production. In development a cycle error will be thrown.
+ *
+ * Fields are finalized on a "last wins principle". Thus traits appearing higher in
+ * the tree and further to the right of a traits array take precedence, with the
+ * resource's fields always being applied last and winning out.
+ */
+function finalizeResource(schema: SchemaService, resource: InternalSchema): void {
+  const fields: Map<string, FieldSchema> = new Map();
+  const seen: Set<InternalTrait> = new Set();
+
+  for (const traitName of resource.traits) {
+    const trait = schema._traits.get(traitName);
+    assert(
+      `The trait ${traitName} MUST be supplied before the resource ${resource.original.type} can be finalized for use.`,
+      trait
+    );
+
+    walkTrait(schema, trait, fields, seen, resource.original.type, DEBUG ? [] : null);
+  }
+
+  mergeMap(fields, resource.fields);
+  resource.fields = fields;
+  resource.finalized = true;
+}
+
+function walkTrait(
+  schema: SchemaService,
+  trait: InternalTrait,
+  fields: Map<string, FieldSchema>,
+  seen: Set<InternalTrait>,
+  type: string,
+  debugPath: string[] | null
+): void {
+  if (seen.has(trait)) {
+    // if the trait is in the current path, we throw a cycle error in dev.
+    if (DEBUG) {
+      if (debugPath!.includes(trait.name)) {
+        throw new Error(
+          `CycleError: The Trait '${trait.name}' utilized by the Resource '${type}' includes the following circular reference "${debugPath!.join(' > ')} > ${trait.name}"`
+        );
+      }
+    }
+    return;
+  }
+  const ownPath = DEBUG ? [...debugPath!, trait.name] : null;
+
+  // immediately mark as seen to prevent cycles
+  // further down the tree from looping back
+  seen.add(trait);
+
+  // first apply any child traits
+  if (trait.traits?.length) {
+    for (const traitName of trait.traits) {
+      const subtrait = schema._traits.get(traitName);
+      if (ENFORCE_STRICT_RESOURCE_FINALIZATION) {
+        assert(
+          `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
+          subtrait
+        );
+      } else {
+        warn(
+          `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
+          !!subtrait,
+          {
+            id: 'warp-drive:missing-trait-schema-for-resource',
+          }
+        );
+      }
+      if (!subtrait) continue;
+      walkTrait(schema, subtrait, fields, seen, type, ownPath);
+    }
+  }
+
+  // then apply our own fields
+  mergeMap(fields, trait.fields);
+}
+
+function mergeMap(base: Map<string, unknown>, toApply: Map<string, unknown>) {
+  for (const [key, value] of toApply) {
+    base.set(key, value);
+  }
 }

@@ -136,3 +136,15 @@ export const SAMPLE_FEATURE_FLAG: boolean | null = null;
  * @public
  */
 export const JSON_API_CACHE_VALIDATION_ERRORS: boolean | null = false;
+
+/**
+ * This upcoming feature adds a validation step when `schema.fields({ type })`
+ * is called for the first time for a resource.
+ *
+ * When active, if any trait specified by the resource or one of its traits is
+ * missing an error will be thrown in development.
+ *
+ * @since 5.7
+ * @public
+ */
+export const ENFORCE_STRICT_RESOURCE_FINALIZATION: boolean | null = false;

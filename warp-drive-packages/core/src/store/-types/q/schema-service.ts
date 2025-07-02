@@ -13,6 +13,7 @@ import type {
   LegacyRelationshipField,
   ObjectField,
   Schema,
+  Trait,
 } from '../../../types/schema/fields.ts';
 
 export type AttributesSchema = Record<string, LegacyAttributeField>;
@@ -221,6 +222,36 @@ export interface SchemaService {
    * @param {HashFn} hashfn
    */
   registerHashFn(hashFn: HashFn): void;
+
+  /**
+   * Registers a {@link Trait} for use by resource schemas.
+   *
+   * Traits are re-usable collections of fields that can be composed to
+   * build up a resource schema. Often they represent polymorphic behaviors
+   * a resource should exhibit.
+   *
+   * When we finalize a resource, we walk its traits and apply their fields
+   * to the resource's fields. All specified traits must be registered by
+   * this time or an error will be thrown.
+   *
+   * Traits are applied left-to-right, with traits of traits being applied in the same
+   * way. Thus for the most part, application of traits is a post-order graph traversal
+   * problem.
+   *
+   * A trait is only ever processed once. If multiple traits (A, B, C) have the same
+   * trait (D) as a dependency, D will be included only once when first encountered by
+   * A.
+   *
+   * If a cycle exists such that trait A has trait B which has Trait A, trait A will
+   * be applied *after* trait B in production. In development a cycle error will be thrown.
+   *
+   * Fields are finalized on a "last wins principle". Thus traits appearing higher in
+   * the tree and further to the right of a traits array take precedence, with the
+   * resource's fields always being applied last and winning out.
+   *
+   * @public
+   */
+  registerTrait?(trait: Trait): void;
 
   /**
    * DEPRECATED - use `fields` instead

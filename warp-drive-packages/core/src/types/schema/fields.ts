@@ -1952,6 +1952,22 @@ export interface ObjectSchema {
 
 export type Schema = ResourceSchema | ObjectSchema;
 
+export interface PolarisTrait {
+  name: string;
+  mode: 'polaris';
+  fields: PolarisModeFieldSchema[];
+  traits?: string[];
+}
+
+export interface LegacyTrait {
+  name: string;
+  mode: 'legacy';
+  fields: LegacyModeFieldSchema[];
+  traits?: string[];
+}
+
+export type Trait = LegacyTrait | PolarisTrait;
+
 /**
  * A no-op type utility that enables type-checking resource schema
  * definitions.
