@@ -629,6 +629,10 @@ export class SchemaService implements SchemaServiceInterface {
     return processExtensions(this, field, 'array');
   }
 
+  CAUTION_MEGA_DANGER_ZONE_hasExtension(ext: { kind: 'object' | 'array'; name: string }): boolean {
+    return this._extensions[ext.kind].has(ext.name);
+  }
+
   /**
    * This is an internal method used to register behaviors for legacy mode.
    * It is not intended for public use.
