@@ -1,7 +1,6 @@
 import type { Value } from '../../../types/json/raw.ts';
 import type {
   CollectionResourceRelationship,
-  Link,
   Links,
   Meta,
   SingleResourceRelationship,
@@ -17,24 +16,6 @@ export interface JsonApiResource {
   relationships?: Record<string, SingleResourceRelationship | CollectionResourceRelationship>;
   meta?: Meta;
   links?: Links;
-}
-
-export interface JsonApiError {
-  id?: string;
-  title?: string;
-  detail?: string;
-  links?: {
-    about?: Link;
-    type?: Link;
-  };
-  status?: string;
-  code?: string;
-  source?: {
-    pointer: string;
-    parameter?: string;
-    header?: string;
-  };
-  meta?: Meta;
 }
 
 export type JsonApiRelationship = SingleResourceRelationship | CollectionResourceRelationship;

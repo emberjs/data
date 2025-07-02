@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "bun ./src/sync-guides.ts",
-    "build": "bun src/prepare-website.ts; typedoc; vitepress build docs.warp-drive.io",
+    "build": "bun ./src/sync-guides.ts --build --force",
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {

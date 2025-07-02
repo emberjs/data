@@ -508,8 +508,6 @@ export interface Cache {
    * Query the cache for any validation errors applicable to the given resource.
    *
    * @public
-   * @param identifier
-   * @return {JsonApiError[]}
    */
   getErrors(identifier: StableRecordIdentifier): ApiError[];
 

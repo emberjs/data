@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { JsonApiError } from '@warp-drive/core/store/-types/q/record-data-json-api';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
+import type { ApiError } from '@warp-drive/core/types/spec/error';
 
 /**
   ## Overview
@@ -70,7 +70,7 @@ import { getOrSetGlobal } from '@warp-drive/core/types/-private';
   @class AdapterError
   @public
 */
-function _AdapterError(this: AdapterRequestError, errors: JsonApiError[], message = 'Adapter operation failed') {
+function _AdapterError(this: AdapterRequestError, errors: ApiError[], message = 'Adapter operation failed') {
   this.isAdapterError = true;
   const error = Error.call(this, message);
 
@@ -99,7 +99,7 @@ function _AdapterError(this: AdapterRequestError, errors: JsonApiError[], messag
 export interface AdapterRequestError<T extends string = string> extends Error {
   isAdapterError: true;
   code: T;
-  errors: JsonApiError[];
+  errors: ApiError[];
 }
 export interface AdapterRequestErrorConstructor<Instance extends AdapterRequestError = AdapterRequestError> {
   new (errors?: unknown[], message?: string): Instance;
@@ -127,7 +127,7 @@ function extend<Final extends AdapterRequestError>(
   ParentErrorClass: AdapterRequestErrorConstructor,
   defaultMessage?: string
 ): AdapterRequestErrorConstructor<Final> {
-  const ErrorClass = function (this: AdapterRequestError, errors: JsonApiError[], message?: string) {
+  const ErrorClass = function (this: AdapterRequestError, errors: ApiError[], message?: string) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };

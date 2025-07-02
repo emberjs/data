@@ -17,6 +17,8 @@ async function updateApiDocs() {
   postProcessApiDocs();
 }
 
+const build = process.argv.slice().includes('--build');
+
 // ensure directory exists and can be watched
 if (!existsSync(apiDocsPath) || process.argv.slice().includes('--force')) {
   await updateApiDocs();
@@ -37,65 +39,71 @@ for (const packagePath of readdirSync(newPackages)) {
 let debounce: ReturnType<typeof setTimeout> | null = null;
 let packageDebounce: ReturnType<typeof setTimeout> | null = null;
 
-for (const packagePath of Packages) {
+if (!build) {
+  for (const packagePath of Packages) {
+    watch(
+      packagePath,
+      {
+        recursive: true,
+      },
+      () => {
+        console.log('package changed', packagePath);
+        if (packageDebounce) {
+          console.log('debounced');
+          clearTimeout(packageDebounce);
+        }
+        debounce = setTimeout(() => {
+          console.log('rebuilding');
+          updateApiDocs();
+          debounce = null;
+        }, 1000);
+      }
+    );
+  }
+
+  // @ts-expect-error missing from Bun types
   watch(
-    packagePath,
+    guidesPath,
     {
       recursive: true,
     },
-    () => {
-      console.log('package changed', packagePath);
-      if (packageDebounce) {
+    (eventName: 'rename' | 'change', fileName: string) => {
+      console.log('triggered', eventName, fileName);
+      if (debounce) {
         console.log('debounced');
-        clearTimeout(packageDebounce);
+        clearTimeout(debounce);
       }
       debounce = setTimeout(() => {
         console.log('rebuilding');
-        updateApiDocs();
+        main();
         debounce = null;
-      }, 1000);
+      }, 100);
+    }
+  );
+
+  // @ts-expect-error missing from Bun types
+  watch(
+    contributingPath,
+    {
+      recursive: true,
+    },
+    (eventName: 'rename' | 'change', fileName: string) => {
+      console.log('triggered', eventName, fileName);
+      if (debounce) {
+        console.log('debounced');
+        clearTimeout(debounce);
+      }
+      debounce = setTimeout(() => {
+        console.log('rebuilding');
+        main();
+        debounce = null;
+      }, 100);
     }
   );
 }
 
-// @ts-expect-error missing from Bun types
-watch(
-  guidesPath,
-  {
-    recursive: true,
-  },
-  (eventName: 'rename' | 'change', fileName: string) => {
-    console.log('triggered', eventName, fileName);
-    if (debounce) {
-      console.log('debounced');
-      clearTimeout(debounce);
-    }
-    debounce = setTimeout(() => {
-      console.log('rebuilding');
-      main();
-      debounce = null;
-    }, 100);
-  }
-);
-
-// @ts-expect-error missing from Bun types
-watch(
-  contributingPath,
-  {
-    recursive: true,
-  },
-  (eventName: 'rename' | 'change', fileName: string) => {
-    console.log('triggered', eventName, fileName);
-    if (debounce) {
-      console.log('debounced');
-      clearTimeout(debounce);
-    }
-    debounce = setTimeout(() => {
-      console.log('rebuilding');
-      main();
-      debounce = null;
-    }, 100);
-  }
-);
-
-await $`vitepress dev docs.warp-drive.io`;
+if (build) {
+  await $`vitepress build docs.warp-drive.io`;
+} else {
+  await $`vitepress dev docs.warp-drive.io`;
+}
