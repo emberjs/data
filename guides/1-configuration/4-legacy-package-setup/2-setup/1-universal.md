@@ -189,12 +189,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+	  headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+	  }
     }
   });
 
@@ -246,12 +248,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+	  headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+	  }
     }
   });
 
@@ -313,12 +317,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+	  headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+	  }
     }
   });
 
@@ -757,12 +763,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({ // [!code focus:9]
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+	  headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+	  }
     }
   });
 
