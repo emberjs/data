@@ -66,7 +66,7 @@ const { content } = await store.request(getUser('1')); // [!code focus]
 
 ```glimmer-ts
 import { Request } from '@warp-drive/ember';
-import { findRecord } from '@ember-data/json-api/request';
+import { findRecord } from '@warp-drive/utilities/json-api';
 import { Spinner } from './spinner';
 
 export default <template>
@@ -175,10 +175,10 @@ const NormalizeKeysHandler = {
 
 ## Completely Customizable {#customization}
 
-If using an app-specific cache format would work better for the demands of your API, the [cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) the store should use is customizable:
+If using an app-specific cache format would work better for the demands of your API, the [cache](/api/@warp-drive/core/types/cache/interfaces/Cache) the store should use is customizable:
 
 ```ts
-import Store from '@ember-data/store';
+import { Store } from '@warp-drive/core';
 import { CustomCache } from './my-custom-cache';
 
 class AppStore extends Store {
