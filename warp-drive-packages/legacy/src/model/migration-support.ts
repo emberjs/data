@@ -408,21 +408,25 @@ export function registerDerivations(schema: SchemaService): void {
   schema._registerMode('@legacy', {
     belongsTo: {
       get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField) {
+        // FIXME field.name here should likely be field.sourceKey || field.name
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
       },
       set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField, value: unknown) {
         store._join(() => {
+          // FIXME field.name here should likely be field.sourceKey || field.name
           lookupLegacySupport(record as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
         });
       },
     },
     hasMany: {
       get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField) {
+        // FIXME field.name here should likely be field.sourceKey || field.name
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getHasMany(field.name);
       },
       set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField, value: unknown[]) {
         store._join(() => {
           const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
+          // FIXME field.name here should likely be field.sourceKey || field.name
           const manyArray = support.getManyArray(field.name);
 
           manyArray.splice(0, manyArray.length, ...value);
@@ -430,6 +434,7 @@ export function registerDerivations(schema: SchemaService): void {
       },
       notify(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField): boolean {
         const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
+        // FIXME field.name here should likely be field.sourceKey || field.name
         const manyArray = support && support._manyArrayCache[field.name];
         const hasPromise = support && (support._relationshipPromisesCache[field.name] as Promise<unknown> | undefined);
 

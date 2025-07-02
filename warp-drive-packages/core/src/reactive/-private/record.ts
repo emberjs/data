@@ -37,6 +37,7 @@ import {
 } from './fields/compute.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
+import { getFieldCacheKey, getFieldCacheKeyStrict } from './fields/get-field-key.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -344,8 +345,9 @@ export class ReactiveResource {
         const propArray = isEmbedded ? embeddedPath!.slice() : [];
         // we use the field.name instead of prop here because we want to use the cache-path not
         // the record path.
-        propArray.push(field.name as string);
-        // propArray.push(prop as string);
+        // SAFETY: we lie as string here because if we were to get null
+        // we would be in a field kind that won't use the propArray below.
+        propArray.push(getFieldCacheKey(field) as string);
 
         switch (field.kind) {
           case '@id':
@@ -362,10 +364,10 @@ export class ReactiveResource {
             return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
             entangleSignal(signals, receiver, field.name, null);
-            return computeAttribute(cache, identifier, prop as string, IS_EDITABLE);
+            return computeAttribute(cache, identifier, propArray, IS_EDITABLE);
           case 'resource':
             entangleSignal(signals, receiver, field.name, null);
-            return computeResource(store, cache, target, identifier, field, prop as string, IS_EDITABLE);
+            return computeResource(store, cache, target, identifier, field, getFieldCacheKeyStrict(field), IS_EDITABLE);
           case 'derived':
             return computeDerivation(
               schema,
@@ -408,8 +410,11 @@ export class ReactiveResource {
             if (field.options.linksMode) {
               entangleSignal(signals, receiver, field.name, null);
               const rawValue = IS_EDITABLE
-                ? (cache.getRelationship(identifier, field.name) as SingleResourceRelationship)
-                : (cache.getRemoteRelationship(identifier, field.name) as SingleResourceRelationship);
+                ? (cache.getRelationship(identifier, getFieldCacheKeyStrict(field)) as SingleResourceRelationship)
+                : (cache.getRemoteRelationship(
+                    identifier,
+                    getFieldCacheKeyStrict(field)
+                  ) as SingleResourceRelationship);
 
               // eslint-disable-next-line @typescript-eslint/no-unsafe-return
               return rawValue.data ? store.peekRecord(rawValue.data) : null;

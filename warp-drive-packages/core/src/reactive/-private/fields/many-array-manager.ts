@@ -33,6 +33,7 @@ export class ManyArrayManager {
 
   _syncArray(array: ManyArray): void {
     const method = this.editable ? 'getRelationship' : 'getRemoteRelationship';
+    // FIXME field needs to use sourceKey
     const rawValue = this.store.cache[method](this.identifier, array.key) as CollectionRelationship;
 
     if (rawValue.meta) {
@@ -55,6 +56,7 @@ export class ManyArrayManager {
   }
 
   reloadHasMany<T>(key: string, options?: FindHasManyOptions): Promise<ManyArray<T>> {
+    // FIXME field needs to use sourceKey
     const field = this.store.schema.fields(this.identifier).get(key);
     assert(`Expected a hasMany field for ${key}`, field?.kind === 'hasMany');
 
