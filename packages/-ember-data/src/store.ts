@@ -81,8 +81,8 @@ export default class Store extends BaseStore {
           for: '@warp-drive/core',
           url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
           since: {
-            enabled: '5.6',
-            available: '5.6',
+            enabled: '5.7',
+            available: '5.7',
           },
         }
       );
@@ -108,8 +108,8 @@ export default class Store extends BaseStore {
           for: '@warp-drive/core',
           url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
           since: {
-            enabled: '5.6',
-            available: '5.6',
+            enabled: '5.7',
+            available: '5.7',
           },
         }
       );
@@ -133,8 +133,8 @@ export default class Store extends BaseStore {
           for: '@warp-drive/core',
           url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
           since: {
-            enabled: '5.6',
-            available: '5.6',
+            enabled: '5.7',
+            available: '5.7',
           },
         }
       );
@@ -158,8 +158,8 @@ export default class Store extends BaseStore {
           for: '@warp-drive/core',
           url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
           since: {
-            enabled: '5.6',
-            available: '5.6',
+            enabled: '5.7',
+            available: '5.7',
           },
         }
       );
@@ -183,8 +183,8 @@ export default class Store extends BaseStore {
           for: '@warp-drive/core',
           url: 'https://docs.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS',
           since: {
-            enabled: '5.6',
-            available: '5.6',
+            enabled: '5.7',
+            available: '5.7',
           },
         }
       );
