@@ -10,6 +10,7 @@ export const entryPoints = [
   './src/json-api.ts',
   './src/active-record.ts',
   './src/rest.ts',
+  './src/derivations.ts',
 ];
 
 export default createConfig(
