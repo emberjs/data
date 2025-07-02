@@ -118,6 +118,18 @@ how to cache it, and what sort of reactive objects to create for that data.
 Here's an example final configuration. Below we'll show each bit in parts and
 discuss what each does.
 
+::: tip 💡 TIP
+In frameworks that do DI via contexts, you will want to provide
+the store via context near the application root.
+
+In frameworks like [emberjs](https://emberjs.com) which use a
+service injection pattern you will want to place the store file
+in the appropriate location such as `<app>/services/store.ts`
+
+In other frameworks you will want to create a singleton
+store in module state that you will import and use when needed.
+:::
+
 ::: code-group
 
 ```ts [Universal]
