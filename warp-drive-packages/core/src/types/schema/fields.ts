@@ -1956,14 +1956,14 @@ export interface PolarisTrait {
   name: string;
   mode: 'polaris';
   fields: PolarisModeFieldSchema[];
-  traits: string[];
+  traits?: string[];
 }
 
 export interface LegacyTrait {
   name: string;
   mode: 'legacy';
   fields: LegacyModeFieldSchema[];
-  traits: string[];
+  traits?: string[];
 }
 
 export type Trait = LegacyTrait | PolarisTrait;

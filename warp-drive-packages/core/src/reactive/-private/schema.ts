@@ -1,6 +1,6 @@
 import { deprecate, warn } from '@ember/debug';
 
-import { ENFORCE_STRICT_RESOURCE_FINALIZATION } from '@warp-drive/build-config/canary-features.js';
+import { ENFORCE_STRICT_RESOURCE_FINALIZATION } from '@warp-drive/build-config/canary-features';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -867,7 +867,10 @@ function walkTrait(
       } else {
         warn(
           `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
-          !!subtrait
+          !!subtrait,
+          {
+            id: 'warp-drive:missing-trait-schema-for-resource',
+          }
         );
       }
       if (!subtrait) continue;
