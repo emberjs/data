@@ -409,4 +409,9 @@ export interface SchemaService {
    * Retrieve the extension map for an array field
    */
   CAUTION_MEGA_DANGER_ZONE_arrayExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
+
+  /**
+   * Check if a specific extension has been registered previously
+   */
+  CAUTION_MEGA_DANGER_ZONE_hasExtension?(ext: { kind: 'object' | 'array'; name: string }): boolean;
 }
