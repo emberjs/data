@@ -1,5 +1,6 @@
-import { deprecate } from '@ember/debug';
+import { deprecate, warn } from '@ember/debug';
 
+import { ENFORCE_STRICT_RESOURCE_FINALIZATION } from '@warp-drive/build-config/canary-features.js';
 import { DEBUG } from '@warp-drive/build-config/env';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -858,10 +859,18 @@ function walkTrait(
   if (trait.traits?.length) {
     for (const traitName of trait.traits) {
       const subtrait = schema._traits.get(traitName);
-      assert(
-        `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
-        subtrait
-      );
+      if (ENFORCE_STRICT_RESOURCE_FINALIZATION) {
+        assert(
+          `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
+          subtrait
+        );
+      } else {
+        warn(
+          `The trait ${traitName} used by the trait ${trait.name} MUST be supplied before the resource ${type} can be finalized for use.`,
+          !!subtrait
+        );
+      }
+      if (!subtrait) continue;
       walkTrait(schema, subtrait, fields, seen, type, ownPath);
     }
   }
