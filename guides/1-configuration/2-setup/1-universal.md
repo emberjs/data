@@ -140,7 +140,7 @@ import {
   SchemaService,
   teardownRecord
 } from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core/store';
+import { CacheHandler, CachePolicy } from '@warp-drive/core';
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
 
@@ -151,12 +151,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+	  headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+	  }
     }
   });
 
@@ -208,12 +210,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+      headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+      }
     }
   });
 
@@ -275,12 +279,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+      headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+      }
     }
   });
 
@@ -471,7 +477,7 @@ import {
   registerDerivations,
   SchemaService,
 } from '@warp-drive/core/reactive';
-import { CacheHandler } from '@warp-drive/core/store'; // [!code focus:5]
+import { CacheHandler } from '@warp-drive/core'; // [!code focus:5]
 import type {
   CacheCapabilitiesManager
 } from '@warp-drive/core/types';
@@ -506,7 +512,7 @@ in the cache while preventing accidental or unsafe mutation in your app.
 
 ```ts [ReactiveResource]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
-import { CacheHandler } from '@warp-drive/core/store';
+import { CacheHandler } from '@warp-drive/core';
 import type {
   CacheCapabilitiesManager,
   ResourceKey // [!code focus]
@@ -691,7 +697,7 @@ import {
   SchemaService,
   teardownRecord
 } from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core/store'; // [!code focus]
+import { CacheHandler, CachePolicy } from '@warp-drive/core'; // [!code focus]
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
 
@@ -703,12 +709,14 @@ export default class AppStore extends Store {
     .useCache(CacheHandler);
 
   lifetimes = new CachePolicy({ // [!code focus:9]
-    apiHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiSoftExpires: 1 * 30 * 1000, // 30 seconds
+    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
+    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
-      'X-WarpDrive-Expires': true,
-      'Cache-Control': true,
-      'Expires': true,
+      headers: {
+        'X-WarpDrive-Expires': true,
+        'Cache-Control': true,
+        'Expires': true,
+      }
     }
   });
 
