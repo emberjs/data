@@ -9,6 +9,7 @@ import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
+import type { ModeInfo } from '../default-mode.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, Parent, SOURCE } from '../symbols.ts';
@@ -115,14 +116,13 @@ export class ManagedArray {
     path: string | string[],
     owner: ReactiveResource,
     isSchemaArray: boolean,
-    editable: boolean,
-    legacy: boolean
+    modeInfo: ModeInfo
   ) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = data?.slice();
-    const IS_EDITABLE = (this[Editable] = editable ?? false);
-    this[Legacy] = legacy;
+    const IS_EDITABLE = (this[Editable] = modeInfo.editable ?? false);
+    this[Legacy] = modeInfo.legacy;
 
     const signals = withSignalStore(this);
     let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
@@ -144,7 +144,7 @@ export class ManagedArray {
           // into two separate methods.
           Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
-    const extensions = legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
+    const extensions = modeInfo.legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
     const basePath = Array.isArray(path) ? path : [path];
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
@@ -227,7 +227,7 @@ export class ManagedArray {
                 record = new ReactiveResource(
                   store,
                   recordIdentifier,
-                  { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
+                  modeInfo,
                   true,
                   field as SchemaArrayField,
                   recordPath

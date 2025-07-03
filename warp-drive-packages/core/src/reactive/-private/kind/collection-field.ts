@@ -13,8 +13,7 @@ export function getCollectionField(
   path: string | string[],
   mode: ModeInfo
 ): unknown {
-  const { cache } = store;
-  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  assert(`Accessing collection fields is not yet implemented`);
 }
 
 export function setCollectionField(

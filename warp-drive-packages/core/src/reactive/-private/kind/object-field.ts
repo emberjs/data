@@ -32,7 +32,7 @@ export function getObjectField(
     }
     if (field.type) {
       const transform = schema.transformation(field);
-      rawValue = transform.hydrate(rawValue as ObjectValue, field.options ?? null, record) as object;
+      rawValue = transform.hydrate(rawValue as ObjectValue, (field.options as ObjectValue) ?? null, record) as object;
     }
     managedObject = new ManagedObject(
       schema as SchemaService,
@@ -85,7 +85,7 @@ export function setObjectField(
   }
 
   const transform = schema.transformation(field);
-  const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
+  const rawValue = transform.serialize({ ...(value as ObjectValue) }, (field.options as ObjectValue) ?? null, record);
 
   cache.setAttr(resourceKey, path, rawValue);
   const peeked = peekManagedObject(record, field);

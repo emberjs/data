@@ -25,10 +25,11 @@ import type {
 import { RecordStore } from '../../types/symbols.ts';
 import type { ModeName } from './default-mode.ts';
 import { DefaultMode } from './default-mode.ts';
-import { computeHasMany, peekManagedArray, peekManagedObject } from './fields/compute.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
 import { getFieldCacheKey } from './fields/get-field-key.ts';
+import { peekManagedObject } from './fields/managed-object.ts';
+import { peekManagedArray } from './kind/array-field.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -134,7 +135,6 @@ export class ReactiveResource {
     this[Legacy] = mode.legacy ?? false;
 
     const schema = store.schema as unknown as SchemaService;
-    const cache = store.cache;
     const ResourceSchema = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier);
     const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
@@ -388,6 +388,8 @@ export class ReactiveResource {
           case 'object':
           case 'resource':
           case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
             entangleSignal(signals, receiver, fieldCacheKey, null);
             return DefaultMode[field.kind as 'field'].get(
               store,
@@ -398,27 +400,8 @@ export class ReactiveResource {
               mode
             );
 
-          case 'hasMany':
-            if (field.options.linksMode) {
-              entangleSignal(signals, receiver, fieldCacheKey, null);
-
-              return computeHasMany(
-                store,
-                schema,
-                cache,
-                target,
-                identifier,
-                field,
-                propArray,
-                mode.editable,
-                mode.legacy
-              );
-            }
-            assert(`Can only use hasMany fields when the resource is in legacy mode`, mode.legacy);
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return schema._kind('@legacy', 'hasMany').get(store, receiver, identifier, field);
           default:
-            throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
+            assertNeverField(identifier, field, propArray);
         }
       },
 
@@ -505,7 +488,7 @@ export class ReactiveResource {
             );
 
           default:
-            return assertNeverField(field);
+            return assertNeverField(identifier, field, propArray);
         }
       },
     });
@@ -691,7 +674,9 @@ function _DESTROY(record: ReactiveResource): void {
   record[RecordStore].notifications.unsubscribe(record.___notifications);
 }
 
-function assertNeverField(field: never): false {
-  assert(`Cannot use unknown field kind ${(field as FieldSchema).kind}`);
+function assertNeverField(identifier: StableRecordIdentifier, field: never, path: string | string[]): false {
+  assert(
+    `Cannot use unknown field kind ${(field as FieldSchema).kind} on <${identifier.type}>.${Array.isArray(path) ? path.join('.') : path}`
+  );
   return false;
 }

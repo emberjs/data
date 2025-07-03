@@ -43,7 +43,7 @@ class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
     // @ts-expect-error we need to give relationship documents a lid
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
-    this.data = rawValue.data ? store.peekRecord<T>(rawValue.data) : null;
+    this.data = rawValue.data ? (store.peekRecord(rawValue.data) as T) : null;
     this.name = name;
 
     if (DEBUG) {

@@ -64,8 +64,7 @@ export function getArrayField(
       path,
       record,
       isSchemaArray,
-      mode.editable,
-      mode.legacy
+      mode
     );
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
@@ -112,7 +111,5 @@ export function setArrayField(
     const arrSignal = peeked[ARRAY_SIGNAL];
     arrSignal.isStale = true;
   }
-  return true;
-
   return true;
 }
