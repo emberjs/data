@@ -342,12 +342,35 @@ export class ReactiveResource {
           `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
           maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
         );
+        /**
+         * Prop Array is the path from a resource to the field including
+         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
+         *
+         * E.g. in the following
+         *
+         * ```
+         * const user = {
+         *   addresses: [{
+         *     street: 'Sunset Blvd',
+         *     zip: 90210
+         *   }]
+         * }
+         * ```
+         *
+         * The propArray for "street" is ['addresses', 0, 'street']
+         *
+         * Prop Array follows the `cache` path to the value, not the ui path.
+         * Thus, if `addresses` has a sourceKey of `user_addresses` and
+         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
+         * ['user_addresses', 0, 'zip_code']
+         */
         const propArray = isEmbedded ? embeddedPath!.slice() : [];
         // we use the field.name instead of prop here because we want to use the cache-path not
         // the record path.
         // SAFETY: we lie as string here because if we were to get null
         // we would be in a field kind that won't use the propArray below.
-        propArray.push(getFieldCacheKey(field) as string);
+        const fieldCacheKey = getFieldCacheKey(field) as string;
+        propArray.push(fieldCacheKey);
 
         switch (field.kind) {
           case '@id':
@@ -360,13 +383,13 @@ export class ReactiveResource {
             return computeLocal(receiver, field, prop as string);
           }
           case 'field':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
           case 'attribute':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeAttribute(cache, identifier, propArray, IS_EDITABLE);
           case 'resource':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeResource(store, cache, target, identifier, field, getFieldCacheKeyStrict(field), IS_EDITABLE);
           case 'derived':
             return computeDerivation(
@@ -378,7 +401,7 @@ export class ReactiveResource {
             );
           case 'schema-array':
           case 'array':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeArray(
               store,
               schema,
@@ -391,10 +414,10 @@ export class ReactiveResource {
               Mode[Legacy]
             );
           case 'object':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             // run transform, then use that value as the object to manage
             return computeSchemaObject(
               store,
@@ -408,7 +431,7 @@ export class ReactiveResource {
             );
           case 'belongsTo':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name, null);
+              entangleSignal(signals, receiver, fieldCacheKey, null);
               const rawValue = IS_EDITABLE
                 ? (cache.getRelationship(identifier, getFieldCacheKeyStrict(field)) as SingleResourceRelationship)
                 : (cache.getRemoteRelationship(
@@ -420,11 +443,11 @@ export class ReactiveResource {
               return rawValue.data ? store.peekRecord(rawValue.data) : null;
             }
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return schema._kind('@legacy', 'belongsTo').get(store, receiver, identifier, field);
           case 'hasMany':
             if (field.options.linksMode) {
-              entangleSignal(signals, receiver, field.name, null);
+              entangleSignal(signals, receiver, fieldCacheKey, null);
 
               return computeHasMany(
                 store,
@@ -439,7 +462,7 @@ export class ReactiveResource {
               );
             }
             assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, field.name, null);
+            entangleSignal(signals, receiver, fieldCacheKey, null);
             return schema._kind('@legacy', 'hasMany').get(store, receiver, identifier, field);
           default:
             throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
@@ -473,11 +496,35 @@ export class ReactiveResource {
           `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
           maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
         );
+        /**
+         * Prop Array is the path from a resource to the field including
+         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
+         *
+         * E.g. in the following
+         *
+         * ```
+         * const user = {
+         *   addresses: [{
+         *     street: 'Sunset Blvd',
+         *     zip: 90210
+         *   }]
+         * }
+         * ```
+         *
+         * The propArray for "street" is ['addresses', 0, 'street']
+         *
+         * Prop Array follows the `cache` path to the value, not the ui path.
+         * Thus, if `addresses` has a sourceKey of `user_addresses` and
+         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
+         * ['user_addresses', 0, 'zip_code']
+         */
         const propArray = isEmbedded ? embeddedPath!.slice() : [];
         // we use the field.name instead of prop here because we want to use the cache-path not
         // the record path.
-        propArray.push(field.name as string);
-        // propArray.push(prop as string);
+        // SAFETY: we lie as string here because if we were to get null
+        // we would be in a field kind that won't use the propArray below.
+        const fieldCacheKey = getFieldCacheKey(field) as string;
+        propArray.push(fieldCacheKey);
 
         switch (field.kind) {
           case '@id': {

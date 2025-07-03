@@ -5,8 +5,14 @@ import type { CacheableFieldSchema, FieldSchema, HashField, IdentityField } from
 const InvalidKinds = ['alias', 'derived', '@local'] as const;
 type InvalidKind = 'alias' | 'derived' | '@local';
 
-function isInvalidKind(kind: string): kind is InvalidKind {
+export function isInvalidKind(kind: string): kind is InvalidKind {
   return InvalidKinds.includes(kind as InvalidKind);
+}
+
+export function isNonIdentityCacheableField(
+  field: FieldSchema | IdentityField | HashField
+): field is Exclude<CacheableFieldSchema, IdentityField> {
+  return !isInvalidKind(field.kind) && field.kind !== '@id' && field.kind !== '@hash';
 }
 
 export function getFieldCacheKeyStrict(field: CacheableFieldSchema): string {

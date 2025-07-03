@@ -1394,4 +1394,74 @@ module('Writes | schema-object fields', function (hooks) {
       'the cache values are correct for a nested object field'
     );
   });
+
+  test('we can update a single value in the object with sourceKeys', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+    schema.registerResource({
+      identity: null,
+      type: 'address',
+      fields: [
+        {
+          name: 'zip',
+          sourceKey: 'zip_code',
+          kind: 'field',
+        },
+      ],
+    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'address',
+            sourceKey: 'user_address',
+            kind: 'schema-object',
+            type: 'address',
+          },
+        ],
+      })
+    );
+    const immutableRecord = store.push<User>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Rey Pupatine',
+          user_address: { zip_code: 90219 },
+        },
+      },
+    });
+    const record = await immutableRecord[Checkout]();
+    assert.propEqual(
+      record.address,
+      {
+        zip: 90219,
+      },
+      'We have the correct address object'
+    );
+    const address = record.address;
+    record.address!.zip = 90210;
+    assert.propEqual(
+      record.address,
+      {
+        zip: 90210,
+      },
+      'We have the correct address object'
+    );
+    assert.strictEqual(address, record.address, 'Object reference does not change');
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+    assert.deepEqual(
+      cachedResourceData?.attributes?.user_address,
+      { zip_code: 90210 },
+      'the cache values are correctly updated'
+    );
+  });
 });

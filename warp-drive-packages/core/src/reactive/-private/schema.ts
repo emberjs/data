@@ -15,6 +15,7 @@ import type { ObjectValue, Value } from '../../types/json/raw.ts';
 import type { Derivation, HashFn } from '../../types/schema/concepts.ts';
 import {
   type ArrayField,
+  type CacheableFieldSchema,
   type DerivedField,
   type FieldSchema,
   type GenericField,
@@ -36,6 +37,7 @@ import {
 } from '../../types/schema/fields.ts';
 import { Type } from '../../types/symbols.ts';
 import type { WithPartial } from '../../types/utils.ts';
+import { getFieldCacheKeyStrict, isNonIdentityCacheableField } from './fields/get-field-key.ts';
 import type { ReactiveResource } from './record.ts';
 import { Identifier } from './symbols.ts';
 
@@ -391,6 +393,7 @@ interface InternalSchema {
   finalized: boolean;
   traits: Set<string>;
   fields: Map<string, FieldSchema>;
+  cacheFields: Map<string, Exclude<CacheableFieldSchema, IdentityField>>;
   attributes: Record<string, LegacyAttributeField>;
   relationships: Record<string, LegacyRelationshipField>;
 }
@@ -600,9 +603,23 @@ export class SchemaService implements SchemaServiceInterface {
       }
     }
 
+    const cacheFields = null as unknown as Map<string, Exclude<CacheableFieldSchema, IdentityField>>;
     const traits = new Set<string>(isResourceSchema(schema) ? schema.traits : []);
     const finalized = traits.size === 0;
-    const internalSchema: InternalSchema = { original: schema, finalized, fields, relationships, attributes, traits };
+    const internalSchema: InternalSchema = {
+      original: schema,
+      finalized,
+      fields,
+      cacheFields,
+      relationships,
+      attributes,
+      traits,
+    };
+
+    if (traits.size === 0) {
+      internalSchema.cacheFields = getCacheFields(internalSchema);
+    }
+
     this._schemas.set(schema.type, internalSchema);
   }
 
@@ -726,6 +743,17 @@ export class SchemaService implements SchemaServiceInterface {
     return schema.fields;
   }
 
+  cacheFields({ type }: { type: string }): InternalSchema['cacheFields'] {
+    const schema = this._schemas.get(type);
+    assert(`No schema defined for ${type}`, schema);
+
+    if (!schema.finalized) {
+      finalizeResource(this, schema);
+    }
+
+    return schema.cacheFields;
+  }
+
   hasResource(resource: { type: string }): boolean {
     return this._schemas.has(resource.type);
   }
@@ -827,7 +855,24 @@ function finalizeResource(schema: SchemaService, resource: InternalSchema): void
 
   mergeMap(fields, resource.fields);
   resource.fields = fields;
+  resource.cacheFields = getCacheFields(resource);
   resource.finalized = true;
+}
+
+function getCacheFields(resource: InternalSchema) {
+  const { fields } = resource;
+  const cacheFields = new Map<string, Exclude<CacheableFieldSchema, IdentityField>>();
+  for (const [key, value] of fields) {
+    if (isNonIdentityCacheableField(value)) {
+      assert(
+        `The sourceKey '${value.sourceKey}' for the field '${key}' on ${resource.original.type} is invalid because it matches the name of an existing field`,
+        !value.sourceKey || value.sourceKey === key || !fields.has(value.sourceKey)
+      );
+      const cacheKey = getFieldCacheKeyStrict(value);
+      cacheFields.set(cacheKey, value);
+    }
+  }
+  return cacheFields;
 }
 
 function walkTrait(
