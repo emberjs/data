@@ -30,6 +30,7 @@ import { RecordStore } from '../../../types/symbols.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, Parent } from '../symbols.ts';
+import { getFieldCacheKeyStrict } from './get-field-key.ts';
 import { ManagedArray } from './managed-array.ts';
 import { ManagedObject } from './managed-object.ts';
 import { ManyArrayManager } from './many-array-manager.ts';
@@ -221,7 +222,7 @@ export function computeSchemaObject(
 export function computeAttribute(
   cache: Cache,
   identifier: StableRecordIdentifier,
-  prop: string,
+  prop: string | string[],
   editable: boolean
 ): unknown {
   return editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
@@ -355,12 +356,12 @@ export function computeHasMany(
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   let managedArray: ManyArray | undefined;
   if (managedArrayMapForRecord) {
-    managedArray = managedArrayMapForRecord.get(field.name) as ManyArray | undefined;
+    managedArray = managedArrayMapForRecord.get(getFieldCacheKeyStrict(field)) as ManyArray | undefined;
   }
   if (managedArray) {
     return managedArray;
   } else {
-    const rawValue = cache.getRelationship(identifier, field.name) as CollectionResourceRelationship;
+    const rawValue = cache.getRelationship(identifier, getFieldCacheKeyStrict(field)) as CollectionResourceRelationship;
     if (!rawValue) {
       return null;
     }

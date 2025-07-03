@@ -5,10 +5,12 @@ import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { Derivation, HashFn, Transformation } from '../../../types/schema/concepts.ts';
 import type {
   ArrayField,
+  CacheableFieldSchema,
   DerivedField,
   FieldSchema,
   GenericField,
   HashField,
+  IdentityField,
   LegacyAttributeField,
   LegacyRelationshipField,
   ObjectField,
@@ -70,7 +72,6 @@ interface ObjectWithStringTypeProperty {
  * }
  * ```
  *
- * @class (Interface) SchemaService
  * @public
  */
 export interface SchemaService {
@@ -81,8 +82,6 @@ export interface SchemaService {
    *
    * @public
    * @deprecated
-   * @param {String} type
-   * @return {Boolean}
    */
   doesTypeExist?(type: string): boolean;
 
@@ -90,8 +89,6 @@ export interface SchemaService {
    * Queries whether the SchemaService recognizes `type` as a resource type
    *
    * @public
-   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
-   * @return {Boolean}
    */
   hasResource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): boolean;
 
@@ -99,8 +96,6 @@ export interface SchemaService {
    * Queries whether the SchemaService recognizes `type` as a resource trait
    *
    * @public
-   * @param {String} type
-   * @return {Boolean}
    */
   hasTrait(type: string): boolean;
 
@@ -108,9 +103,6 @@ export interface SchemaService {
    * Queries whether the given resource has the given trait
    *
    * @public
-   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
-   * @param {String} trait
-   * @return {Boolean}
    */
   resourceHasTrait(resource: ObjectWithStringTypeProperty | StableRecordIdentifier, trait: string): boolean;
 
@@ -120,18 +112,25 @@ export interface SchemaService {
    * Should error if the resource type is not recognized.
    *
    * @public
-   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
-   * @return {Map<string, FieldSchema>}
    */
   fields(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Map<string, FieldSchema>;
+
+  /**
+   * Queries for the fields of a given resource type or resource identity.
+   *
+   * Should error if the resource type is not recognized.
+   *
+   * @public
+   */
+  cacheFields?(
+    resource: ObjectWithStringTypeProperty | StableRecordIdentifier
+  ): Map<string, Exclude<CacheableFieldSchema, IdentityField>>;
 
   /**
    * Returns the transformation registered with the name provided
    * by `field.type`. Validates that the field is a valid transformable.
    *
    * @public
-   * @param {TransformableField|ObjectWithStringTypeProperty} field
-   * @return {Transformation}
    */
   transformation(field: GenericField | ObjectField | ArrayField | ObjectWithStringTypeProperty): Transformation;
 
@@ -140,8 +139,6 @@ export interface SchemaService {
    * by `field.type`. Validates that the field is a valid HashField.
    *
    * @public
-   * @param {HashField|ObjectWithStringTypeProperty} field
-   * @return {HashFn}
    */
   hashFn(field: HashField | ObjectWithStringTypeProperty): HashFn;
 
@@ -150,8 +147,6 @@ export interface SchemaService {
    * by `field.type`. Validates that the field is a valid DerivedField.
    *
    * @public
-   * @param {DerivedField|ObjectWithStringTypeProperty} field
-   * @return {Derivation}
    */
   derivation(field: DerivedField | ObjectWithStringTypeProperty): Derivation;
 
@@ -159,8 +154,6 @@ export interface SchemaService {
    * Returns the schema for the provided resource type.
    *
    * @public
-   * @param {StableRecordIdentifier|ObjectWithStringTypeProperty} resource
-   * @return {ResourceSchema}
    */
   resource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Schema;
 
@@ -172,7 +165,6 @@ export interface SchemaService {
    * or other sources just-in-time.
    *
    * @public
-   * @param {Schema[]} schemas
    */
   registerResources(schemas: Schema[]): void;
 
@@ -186,7 +178,6 @@ export interface SchemaService {
    * or other sources just-in-time.
    *
    * @public
-   * @param {Schema} schema
    */
   registerResource(schema: Schema): void;
 
@@ -197,7 +188,6 @@ export interface SchemaService {
    * attached to it's `[Type]` property.
    *
    * @public
-   * @param {Transformation} transform
    */
   registerTransformation(transform: Transformation): void;
 
@@ -208,7 +198,6 @@ export interface SchemaService {
    * attached to it's `[Type]` property.
    *
    * @public
-   * @param {Derivation} derivation
    */
   registerDerivation<R, T, FM extends ObjectValue | null>(derivation: Derivation<R, T, FM>): void;
 
@@ -219,7 +208,6 @@ export interface SchemaService {
    * attached to it's `[Type]` property.
    *
    * @public
-   * @param {HashFn} hashfn
    */
   registerHashFn(hashFn: HashFn): void;
 
@@ -293,8 +281,6 @@ export interface SchemaService {
    *
    * @public
    * @deprecated
-   * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
-   * @return {AttributesSchema}
    */
   attributesDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): AttributesSchema;
 
@@ -375,8 +361,6 @@ export interface SchemaService {
    *
    * @public
    * @deprecated
-   * @param {RecordIdentifier|ObjectWithStringTypeProperty} identifier
-   * @return {RelationshipsSchema}
    */
   relationshipsDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): RelationshipsSchema;
 
@@ -384,17 +368,20 @@ export interface SchemaService {
    * Returns all known resource types
    *
    * @public
-   * @return {String[]}
    */
   resourceTypes(): Readonly<string[]>;
 
   /**
    * Register an extension for either objects or arrays
+   *
+   * @public
    */
   CAUTION_MEGA_DANGER_ZONE_registerExtension?(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void;
 
   /**
    * Retrieve the extension map for a resource
+   *
+   * @public
    */
   CAUTION_MEGA_DANGER_ZONE_resourceExtensions?(
     resource: StableRecordIdentifier | { type: string }
@@ -402,16 +389,22 @@ export interface SchemaService {
 
   /**
    * Retrieve the extension map for an object field
+   *
+   * @public
    */
   CAUTION_MEGA_DANGER_ZONE_objectExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
 
   /**
    * Retrieve the extension map for an array field
+   *
+   * @public
    */
   CAUTION_MEGA_DANGER_ZONE_arrayExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
 
   /**
    * Check if a specific extension has been registered previously
+   *
+   * @public
    */
   CAUTION_MEGA_DANGER_ZONE_hasExtension?(ext: { kind: 'object' | 'array'; name: string }): boolean;
 }

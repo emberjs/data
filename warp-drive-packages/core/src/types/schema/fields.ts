@@ -1,5 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Cache } from '../cache.ts';
 import type { ObjectValue, PrimitiveValue, Value } from '../json/raw.ts';
-
 /**
  * A generic "field" that can be used to define
  * primitive value fields.
@@ -30,6 +31,30 @@ export interface GenericField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link GenericField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * the name of the transform to use, if any
@@ -271,6 +296,28 @@ export interface IdentityField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link IdentityField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   entityUrn: '324523-sadf34-345'
+   * }
+   * ```
+   *
+   * But the app desires to use `record.id; // '324523-sadf34-345'`
+   *
+   * Then `name` would be set to `'id'` and
+   * `sourceKey` would be set to `'entityUrn'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 }
 
 /**
@@ -419,6 +466,30 @@ export interface ObjectField {
   name: string;
 
   /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link ObjectField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
+
+  /**
    * The name of a transform to pass the entire object
    * through before displaying or serializing it.
    *
@@ -478,6 +549,30 @@ export interface SchemaObjectField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link SchemaObjectField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * The name of the ObjectSchema that describes the
@@ -558,6 +653,30 @@ export interface ArrayField {
   name: string;
 
   /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link ArrayField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
+
+  /**
    * The name of a transform to pass each item
    * in the array through before displaying or
    * or serializing it.
@@ -617,6 +736,30 @@ export interface SchemaArrayField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link SchemaArrayField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * The name of the ObjectSchema that describes the
@@ -815,6 +958,30 @@ export interface ResourceField {
   name: string;
 
   /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link ResourceField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
+
+  /**
    * The name of the resource that this field
    * refers to. In the case of a polymorphic
    * relationship, this should be the trait
@@ -902,6 +1069,30 @@ export interface CollectionField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link CollectionField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * The name of the resource that this field
@@ -1009,6 +1200,31 @@ export interface LegacyAttributeField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link LegacyAttributeField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
+
   /**
    * The name of the transform to use, if any
    *
@@ -1050,6 +1266,30 @@ export interface LegacyBelongsToField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link LegacyBelongsToField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * The name of the resource that this field
@@ -1191,6 +1431,30 @@ export interface LinksModeBelongsToField {
   name: string;
 
   /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link LinksModeBelongsToField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
+
+  /**
    * The name of the resource that this field
    * refers to. In the case of a polymorphic
    * relationship, this should be the trait
@@ -1322,6 +1586,30 @@ export interface LegacyHasManyField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link LegacyHasManyField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * the name of the resource that this field
@@ -1480,6 +1768,30 @@ export interface LinksModeHasManyField {
    * @public
    */
   name: string;
+
+  /**
+   * The name of the field as returned by the API
+   * and inserted into the {@link Cache} if it differs
+   * from {@link LinksModeHasManyField.name}
+   *
+   * For instance, if the API returns:
+   *
+   * ```ts
+   * {
+   *   attributes: {
+   *     'first-name': 'Chris'
+   *   }
+   * }
+   * ```
+   *
+   * But the app desires to use `record.firstName; // 'Chris'`
+   *
+   * Then `name` would be set to `'firstName'` and
+   * `sourceKey` would be set to `'first-name'`.
+   *
+   * This option is only needed when the value differs from name.
+   */
+  sourceKey?: string;
 
   /**
    * the name of the resource that this field
@@ -1713,12 +2025,38 @@ export type FieldSchema =
   | LinksModeHasManyField;
 
 /**
+ * A union of all possible LegacyMode and PolarisMode
+ * field schemas that represent data that could be in
+ * the cache.
+ *
+ * In other words this will not include types like alias
+ * fields, local fields, or derived fields.
+ *
+ * @public
+ */
+export type CacheableFieldSchema =
+  | IdentityField
+  | GenericField
+  | ObjectField
+  | SchemaObjectField
+  | ArrayField
+  | SchemaArrayField
+  | ResourceField
+  | CollectionField
+  | LegacyAttributeField
+  | LegacyBelongsToField
+  | LegacyHasManyField
+  | LinksModeBelongsToField
+  | LinksModeHasManyField;
+
+/**
  * A union of all possible field schemas that can be
  * used in an ObjectSchema.
  *
  * @public
  */
 export type ObjectFieldSchema =
+  | LegacyAttributeField
   | GenericField
   | ObjectAliasField
   | LocalField

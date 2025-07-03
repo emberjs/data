@@ -38,8 +38,10 @@ import type {
   StructuredErrorDocument,
 } from '@warp-drive/core/types/request';
 import type {
+  CacheableFieldSchema,
   CollectionField,
   FieldSchema,
+  IdentityField,
   LegacyHasManyField,
   LegacyRelationshipField,
   ResourceField,
@@ -581,11 +583,8 @@ export class JSONAPICache implements Cache {
 
       upgradeCapabilities(this._capabilities);
       const store = this._capabilities._store;
-      const attrs = this._capabilities.schema.fields(identifier);
+      const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
-        if (attr.kind === 'alias') {
-          return;
-        }
         if (key in attributes && attributes[key] !== undefined) {
           return;
         }
@@ -649,7 +648,7 @@ export class JSONAPICache implements Cache {
 
       upgradeCapabilities(this._capabilities);
       const store = this._capabilities._store;
-      const attrs = this._capabilities.schema.fields(identifier);
+      const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
         if (key in attributes && attributes[key] !== undefined) {
           return;
@@ -851,8 +850,7 @@ export class JSONAPICache implements Cache {
     const createOptions: Record<string, unknown> = {};
 
     if (options !== undefined) {
-      const storeWrapper = this._capabilities;
-      const fields = storeWrapper.schema.fields(identifier);
+      const fields = getCacheFields(this, identifier);
       const graph = this.__graph;
       const propertyNames = Object.keys(options);
 
@@ -953,7 +951,7 @@ export class JSONAPICache implements Cache {
     if (DEBUG) {
       if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
         // save off info about saved relationships
-        const fields = this._capabilities.schema.fields(identifier);
+        const fields = getCacheFields(this, identifier);
         fields.forEach((schema, name) => {
           if (schema.kind === 'belongsTo') {
             if (this.__graph._isDirty(identifier, name)) {
@@ -1031,7 +1029,7 @@ export class JSONAPICache implements Cache {
       }
     }
 
-    const fields = this._capabilities.schema.fields(identifier);
+    const fields = getCacheFields(this, identifier);
     cached.isNew = false;
     let newCanonicalAttributes: ExistingResourceObject['attributes'];
     if (data) {
@@ -1259,7 +1257,7 @@ export class JSONAPICache implements Cache {
       } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
         return cached.defaultAttrs[attribute];
       } else {
-        const attrSchema = this._capabilities.schema.fields(identifier).get(attribute);
+        const attrSchema = getCacheFields(this, identifier).get(attribute);
 
         upgradeCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
@@ -1328,7 +1326,7 @@ export class JSONAPICache implements Cache {
       } else if (cached.defaultAttrs && attribute in cached.defaultAttrs) {
         return cached.defaultAttrs[attribute];
       } else {
-        const attrSchema = this._capabilities.schema.fields(identifier).get(attribute);
+        const attrSchema = getCacheFields(this, identifier).get(attribute);
 
         upgradeCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
@@ -1956,7 +1954,7 @@ function getRemoteState(rel: CollectionEdge | ResourceEdge) {
   return rel.remoteState;
 }
 
-function schemaHasLegacyDefaultValueFn(schema: FieldSchema | undefined): boolean {
+function schemaHasLegacyDefaultValueFn(schema: Exclude<CacheableFieldSchema, IdentityField> | undefined): boolean {
   if (!schema) return false;
   return hasLegacyDefaultValueFn(schema.options);
 }
@@ -1966,12 +1964,10 @@ function hasLegacyDefaultValueFn(options: object | undefined): options is { defa
 }
 
 function getDefaultValue(
-  schema: FieldSchema | undefined,
+  schema: Exclude<CacheableFieldSchema, IdentityField> | undefined,
   identifier: StableRecordIdentifier,
   store: Store
 ): Value | undefined {
-  assert(`AliasFields should not be directly accessed from the cache`, schema?.kind !== 'alias');
-
   const options = schema?.options;
 
   if (!schema || (!options && !schema.type)) {
@@ -2384,7 +2380,7 @@ function cacheUpsert(
     cache._capabilities.notifyChange(identifier, 'state', null);
   }
 
-  const fields = cache._capabilities.schema.fields(identifier);
+  const fields = getCacheFields(cache, identifier);
 
   // if no cache entry existed, no record exists / property has been accessed
   // and thus we do not need to notify changes to any properties.
@@ -2465,7 +2461,7 @@ function patchCache(Cache: JSONAPICache, op: Operation): void {
     case 'update': {
       if (isRecord) {
         if ('field' in op) {
-          const field = Cache._capabilities.schema.fields(op.record).get(op.field);
+          const field = getCacheFields(Cache, op.record).get(op.field);
           assert(`Expected ${op.field} to be a field on ${op.record.type}`, field);
           if (isRelationship(field)) {
             asOp<UpdateResourceRelationshipOperation>(op);
@@ -2555,4 +2551,19 @@ function patchCache(Cache: JSONAPICache, op: Operation): void {
     // eslint-disable-next-line no-console
     console.groupEnd();
   }
+}
+
+function getCacheFields(
+  cache: JSONAPICache,
+  identifier: StableRecordIdentifier
+): Map<string, Exclude<CacheableFieldSchema, IdentityField>> {
+  if (cache._capabilities.schema.cacheFields) {
+    return cache._capabilities.schema.cacheFields(identifier);
+  }
+
+  // the model schema service cannot process fields that are not cache fields
+  return cache._capabilities.schema.fields(identifier) as unknown as Map<
+    string,
+    Exclude<CacheableFieldSchema, IdentityField>
+  >;
 }

@@ -550,6 +550,7 @@ function mutateAddToRelatedRecords<T>(
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -567,6 +568,7 @@ function mutateRemoveFromRelatedRecords<T>(
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -588,6 +590,7 @@ function mutateReplaceRelatedRecord<T>(
   },
   _SIGNAL: WarpDriveSignal
 ) {
+  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -605,6 +608,7 @@ function mutateReplaceRelatedRecords<T>(
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -622,6 +626,7 @@ function mutateSortRelatedRecords<T>(
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
