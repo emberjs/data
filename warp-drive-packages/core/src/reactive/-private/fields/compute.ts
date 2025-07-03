@@ -2,13 +2,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 
 import type { Store, StoreRequestInput } from '../../../index.ts';
 import type { Future } from '../../../request.ts';
-import {
-  consumeInternalSignal,
-  defineSignal,
-  getOrCreateInternalSignal,
-  RelatedCollection as ManyArray,
-  withSignalStore,
-} from '../../../store/-private.ts';
+import { defineSignal, RelatedCollection as ManyArray } from '../../../store/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { ResourceRelationship as SingleResourceRelationship } from '../../../types/cache/relationship.ts';
@@ -16,11 +10,8 @@ import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
 import type {
   ArrayField,
-  DerivedField,
   FieldSchema,
-  GenericField,
   LegacyHasManyField,
-  LocalField,
   ObjectField,
   SchemaArrayField,
   SchemaObjectField,
@@ -44,13 +35,6 @@ export const ManagedObjectMap: Map<ReactiveResource, Map<string, ManagedObject |
   new Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>>()
 );
 
-export function computeLocal(record: typeof Proxy<ReactiveResource>, field: LocalField, prop: string): unknown {
-  const signals = withSignalStore(record);
-  const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
-  consumeInternalSignal(signal);
-  return signal.value;
-}
-
 export function peekManagedArray(record: ReactiveResource, field: FieldSchema): ManyArray | ManagedArray | undefined {
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   if (managedArrayMapForRecord) {
@@ -68,23 +52,6 @@ export function peekManagedObject(
   if (managedObjectMapForRecord) {
     return managedObjectMapForRecord.get(field.name);
   }
-}
-
-export function computeField(
-  schema: SchemaService,
-  cache: Cache,
-  record: ReactiveResource,
-  identifier: StableRecordIdentifier,
-  field: GenericField,
-  prop: string | string[],
-  editable: boolean
-): unknown {
-  const rawValue = editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
-  if (!field.type) {
-    return rawValue;
-  }
-  const transform = schema.transformation(field);
-  return transform.hydrate(rawValue, field.options ?? null, record);
 }
 
 export function computeArray(
@@ -217,25 +184,6 @@ export function computeSchemaObject(
     schemaObjectMapForRecord.set(field.name, schemaObject);
   }
   return schemaObject;
-}
-
-export function computeAttribute(
-  cache: Cache,
-  identifier: StableRecordIdentifier,
-  prop: string | string[],
-  editable: boolean
-): unknown {
-  return editable ? cache.getAttr(identifier, prop) : cache.getRemoteAttr(identifier, prop);
-}
-
-export function computeDerivation(
-  schema: SchemaService,
-  record: ReactiveResource,
-  identifier: StableRecordIdentifier,
-  field: DerivedField,
-  prop: string
-): unknown {
-  return schema.derivation(field)(record, field.options ?? null, prop);
 }
 
 interface ResourceRelationship<T extends ReactiveResource = ReactiveResource> {

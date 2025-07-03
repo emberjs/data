@@ -6,7 +6,6 @@ import type { RelatedCollection as ManyArray } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
-  getOrCreateInternalSignal,
   notifyInternalSignal,
   OBJECT_SIGNAL,
   recordIdentifierFor,
@@ -20,13 +19,10 @@ import { STRUCTURED } from '../../types/request.ts';
 import type { FieldSchema, SchemaArrayField, SchemaObjectField } from '../../types/schema/fields.ts';
 import type { SingleResourceRelationship } from '../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../types/symbols.ts';
+import { DefaultMode } from './default-mode.ts';
 import {
   computeArray,
-  computeAttribute,
-  computeDerivation,
-  computeField,
   computeHasMany,
-  computeLocal,
   computeObject,
   computeResource,
   computeSchemaObject,
@@ -375,30 +371,29 @@ export class ReactiveResource {
         switch (field.kind) {
           case '@id':
             entangleSignal(signals, receiver, '@identity', null);
-            return identifier.id;
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
           case '@hash':
-            // TODO pass actual cache value not {}
-            return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
-          case '@local': {
-            return computeLocal(receiver, field, prop as string);
-          }
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
+          case '@local':
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
           case 'field':
             entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
           case 'attribute':
             entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeAttribute(cache, identifier, propArray, IS_EDITABLE);
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
           case 'resource':
             entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeResource(store, cache, target, identifier, field, getFieldCacheKeyStrict(field), IS_EDITABLE);
+
           case 'derived':
-            return computeDerivation(
-              schema,
-              receiver as unknown as ReactiveResource,
-              identifier,
-              field,
-              prop as string
-            );
+            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+
           case 'schema-array':
           case 'array':
             entangleSignal(signals, receiver, fieldCacheKey, null);
@@ -527,48 +522,19 @@ export class ReactiveResource {
         propArray.push(fieldCacheKey);
 
         switch (field.kind) {
-          case '@id': {
-            assert(`Expected to receive a string id`, typeof value === 'string' && value.length);
-            const normalizedId = String(value);
-            const didChange = normalizedId !== identifier.id;
-            assert(
-              `Cannot set ${identifier.type} record's id to ${normalizedId}, because id is already ${identifier.id}`,
-              !didChange || identifier.id === null
-            );
+          case '@id':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
+          case '@hash':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
+          case '@local':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
+          case 'field':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
+          case 'attribute':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
+          case 'derived':
+            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
 
-            if (normalizedId !== null && didChange) {
-              store._instanceCache.setRecordId(identifier, normalizedId);
-              store.notifications.notify(identifier, 'identity');
-            }
-            return true;
-          }
-          case '@local': {
-            const signal = getOrCreateInternalSignal(
-              signals,
-              receiver,
-              prop as string | symbol,
-              field.options?.defaultValue ?? null
-            );
-            if (signal.value !== value) {
-              signal.value = value;
-              notifyInternalSignal(signal);
-            }
-            return true;
-          }
-          case 'field': {
-            if (!field.type) {
-              cache.setAttr(identifier, propArray, value as Value);
-              return true;
-            }
-            const transform = schema.transformation(field);
-            const rawValue = transform.serialize(value, field.options ?? null, target);
-            cache.setAttr(identifier, propArray, rawValue);
-            return true;
-          }
-          case 'attribute': {
-            cache.setAttr(identifier, propArray, value as Value);
-            return true;
-          }
           case 'array': {
             if (!field.type) {
               cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
@@ -674,9 +640,6 @@ export class ReactiveResource {
             //   objSignal.isStale = true;
             // }
             return true;
-          }
-          case 'derived': {
-            throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
           }
           case 'belongsTo':
             assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
