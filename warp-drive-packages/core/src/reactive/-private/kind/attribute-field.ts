@@ -2,6 +2,7 @@ import type { Store } from '../../../store/-private';
 import type { StableRecordIdentifier } from '../../../types';
 import type { Value } from '../../../types/json/raw';
 import type { LegacyAttributeField } from '../../../types/schema/fields';
+import type { ModeInfo } from '../default-mode';
 
 export function getAttributeField(
   store: Store,
@@ -9,10 +10,10 @@ export function getAttributeField(
   resourceKey: StableRecordIdentifier,
   field: LegacyAttributeField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { cache } = store;
-  return editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
 }
 
 export function setAttributeField(
@@ -21,6 +22,7 @@ export function setAttributeField(
   resourceKey: StableRecordIdentifier,
   field: LegacyAttributeField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   const { cache } = store;

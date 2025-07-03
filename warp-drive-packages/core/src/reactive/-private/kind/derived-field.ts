@@ -3,6 +3,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { DerivedField } from '../../../types/schema/fields.ts';
+import type { ModeInfo } from '../default-mode.ts';
 
 export function getDerivedField(
   store: Store,
@@ -10,7 +11,7 @@ export function getDerivedField(
   resourceKey: StableRecordIdentifier,
   field: DerivedField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { schema } = store;
   const prop = Array.isArray(path) ? path.at(-1)! : path;
@@ -23,6 +24,7 @@ export function setDerivedField(
   resourceKey: StableRecordIdentifier,
   field: DerivedField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   assert(

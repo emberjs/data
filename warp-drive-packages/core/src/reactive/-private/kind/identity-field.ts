@@ -3,6 +3,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { IdentityField } from '../../../types/schema/fields.ts';
+import type { ModeInfo } from '../default-mode.ts';
 
 export function getIdentityField(
   store: Store,
@@ -10,7 +11,7 @@ export function getIdentityField(
   resourceKey: StableRecordIdentifier,
   field: IdentityField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   return resourceKey.id;
 }
@@ -21,6 +22,7 @@ export function setIdentityField(
   resourceKey: StableRecordIdentifier,
   field: IdentityField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   assert(`Expected to receive a string id`, typeof value === 'string' && value.length);

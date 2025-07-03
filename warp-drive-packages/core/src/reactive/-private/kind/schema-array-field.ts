@@ -4,8 +4,9 @@ import { ARRAY_SIGNAL, type Store } from '../../../store/-private';
 import type { StableRecordIdentifier } from '../../../types';
 import type { ArrayValue } from '../../../types/json/raw';
 import type { SchemaArrayField } from '../../../types/schema/fields';
-import { ManagedArrayMap, peekManagedArray } from '../fields/compute';
+import type { ModeInfo } from '../default-mode';
 import type { ReactiveResource } from '../record';
+import { ManagedArrayMap, peekManagedArray } from './array-field.ts';
 
 export { getArrayField as getSchemaArrayField } from './array-field';
 
@@ -15,6 +16,7 @@ export function setSchemaArrayField(
   resourceKey: StableRecordIdentifier,
   field: SchemaArrayField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   const { cache } = store;

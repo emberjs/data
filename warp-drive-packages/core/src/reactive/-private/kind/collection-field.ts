@@ -1,6 +1,9 @@
+import { assert } from '@warp-drive/build-config/macros';
+
 import type { Store } from '../../../store/-private';
 import type { StableRecordIdentifier } from '../../../types';
 import type { CollectionField } from '../../../types/schema/fields';
+import type { ModeInfo } from '../default-mode';
 
 export function getCollectionField(
   store: Store,
@@ -8,10 +11,10 @@ export function getCollectionField(
   resourceKey: StableRecordIdentifier,
   field: CollectionField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { cache } = store;
-  return editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
 }
 
 export function setCollectionField(
@@ -20,9 +23,9 @@ export function setCollectionField(
   resourceKey: StableRecordIdentifier,
   field: CollectionField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
-  const { cache } = store;
-
-  return true;
+  assert(`Setting collection fields is not yet implemented`);
+  return false;
 }

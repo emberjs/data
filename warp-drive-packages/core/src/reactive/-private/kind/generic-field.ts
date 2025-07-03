@@ -2,6 +2,7 @@ import type { Store } from '../../../store/-private';
 import type { StableRecordIdentifier } from '../../../types';
 import type { Value } from '../../../types/json/raw';
 import type { GenericField } from '../../../types/schema/fields';
+import type { ModeInfo } from '../default-mode';
 
 export function getGenericField(
   store: Store,
@@ -9,10 +10,10 @@ export function getGenericField(
   resourceKey: StableRecordIdentifier,
   field: GenericField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { cache, schema } = store;
-  const rawValue = editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  const rawValue = mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
 
   if (!field.type) {
     return rawValue;
@@ -28,6 +29,7 @@ export function setGenericField(
   resourceKey: StableRecordIdentifier,
   field: GenericField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   const { cache, schema } = store;

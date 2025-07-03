@@ -1,6 +1,7 @@
 import type { Store } from '../../../store/-private';
 import type { StableRecordIdentifier } from '../../../types';
 import type { LegacyAliasField, ObjectAliasField, PolarisAliasField } from '../../../types/schema/fields';
+import type { ModeInfo } from '../default-mode';
 
 export function getAliasField(
   store: Store,
@@ -8,10 +9,10 @@ export function getAliasField(
   resourceKey: StableRecordIdentifier,
   field: LegacyAliasField | PolarisAliasField | ObjectAliasField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { cache } = store;
-  return editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
 }
 
 export function setAliasField(
@@ -20,6 +21,7 @@ export function setAliasField(
   resourceKey: StableRecordIdentifier,
   field: LegacyAliasField | ObjectAliasField | PolarisAliasField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   const { cache } = store;

@@ -8,6 +8,7 @@ import {
   type WarpDriveSignal,
   withSignalStore,
 } from '../../../store/-private.ts';
+import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
@@ -165,5 +166,22 @@ export class ManagedObject {
     }) as ManagedObject;
 
     return proxy;
+  }
+}
+
+export const ManagedObjectMap: Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>> = getOrSetGlobal(
+  'ManagedObjectMap',
+  new Map<ReactiveResource, Map<string, ManagedObject | ReactiveResource>>()
+);
+
+export function peekManagedObject(record: ReactiveResource, field: ObjectField): ManagedObject | undefined;
+export function peekManagedObject(record: ReactiveResource, field: SchemaObjectField): ReactiveResource | undefined;
+export function peekManagedObject(
+  record: ReactiveResource,
+  field: ObjectField | SchemaObjectField
+): ManagedObject | ReactiveResource | undefined {
+  const managedObjectMapForRecord = ManagedObjectMap.get(record);
+  if (managedObjectMapForRecord) {
+    return managedObjectMapForRecord.get(field.name);
   }
 }

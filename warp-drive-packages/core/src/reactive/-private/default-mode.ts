@@ -18,6 +18,14 @@ import { getSchemaArrayField, setSchemaArrayField } from './kind/schema-array-fi
 import { getSchemaObjectField, setSchemaObjectField } from './kind/schema-object-field.ts';
 import type { ReactiveResource } from './record.ts';
 
+export type PathLike = string | symbol | Array<string | symbol>;
+
+export type ModeName = 'polaris' | 'legacy';
+export interface ModeInfo {
+  name: ModeName;
+  legacy: boolean;
+  editable: boolean;
+}
 export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
   get: (
     store: Store,
@@ -25,7 +33,7 @@ export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
     resourceKey: StableRecordIdentifier,
     field: T,
     path: string | string[],
-    editable: boolean
+    mode: ModeInfo
   ) => unknown;
   set: (
     store: Store,
@@ -33,6 +41,7 @@ export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
     resourceKey: StableRecordIdentifier,
     field: T,
     path: string | string[],
+    mode: ModeInfo,
     value: unknown
   ) => boolean;
 }

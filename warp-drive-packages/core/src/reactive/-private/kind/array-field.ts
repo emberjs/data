@@ -1,13 +1,27 @@
 import { assert } from '@warp-drive/build-config/macros';
 
 import { ARRAY_SIGNAL, type Store } from '../../../store/-private';
+import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types';
+import { getOrSetGlobal } from '../../../types/-private';
 import type { ArrayValue, ObjectValue } from '../../../types/json/raw';
-import type { ArrayField, SchemaArrayField } from '../../../types/schema/fields';
-import { ManagedArrayMap, peekManagedArray } from '../fields/compute';
+import type { ArrayField, FieldSchema, SchemaArrayField } from '../../../types/schema/fields';
+import type { ModeInfo } from '../default-mode';
 import { ManagedArray } from '../fields/managed-array';
-import { Legacy, type ReactiveResource } from '../record';
+import type { ReactiveResource } from '../record';
 import type { SchemaService } from '../schema';
+
+export const ManagedArrayMap: Map<ReactiveResource, Map<string, ManagedArray | ManyArray>> = getOrSetGlobal(
+  'ManagedArrayMap',
+  new Map<ReactiveResource, Map<string, ManagedArray | ManyArray>>()
+);
+
+export function peekManagedArray(record: ReactiveResource, field: FieldSchema): ManyArray | ManagedArray | undefined {
+  const managedArrayMapForRecord = ManagedArrayMap.get(record);
+  if (managedArrayMapForRecord) {
+    return managedArrayMapForRecord.get(field.name);
+  }
+}
 
 export function getArrayField(
   store: Store,
@@ -15,10 +29,9 @@ export function getArrayField(
   resourceKey: StableRecordIdentifier,
   field: ArrayField | SchemaArrayField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { cache, schema } = store;
-  const legacy = record[Legacy];
 
   const isSchemaArray = field.kind === 'schema-array';
   // the thing we hand out needs to know its owner and path in a private manner
@@ -36,7 +49,7 @@ export function getArrayField(
     return managedArray;
   } else {
     const rawValue = (
-      editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
+      mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as unknown[];
     if (!rawValue) {
       return null;
@@ -51,8 +64,8 @@ export function getArrayField(
       path,
       record,
       isSchemaArray,
-      editable,
-      legacy
+      mode.editable,
+      mode.legacy
     );
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
@@ -69,6 +82,7 @@ export function setArrayField(
   resourceKey: StableRecordIdentifier,
   field: ArrayField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   const { cache, schema } = store;

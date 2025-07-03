@@ -3,6 +3,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import type { Store } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { HashField } from '../../../types/schema/fields.ts';
+import type { ModeInfo } from '../default-mode.ts';
 
 export function getHashField(
   store: Store,
@@ -10,12 +11,12 @@ export function getHashField(
   resourceKey: StableRecordIdentifier,
   field: HashField,
   path: string | string[],
-  editable: boolean
+  mode: ModeInfo
 ): unknown {
   const { schema, cache } = store;
   assert(`Cannot use a ${field.kind} directly on a resource.`, Array.isArray(path) && path.length > 1);
   const realPath = path.slice(0, -1);
-  const rawData = editable ? cache.getAttr(resourceKey, realPath) : cache.getRemoteAttr(resourceKey, realPath);
+  const rawData = mode.editable ? cache.getAttr(resourceKey, realPath) : cache.getRemoteAttr(resourceKey, realPath);
   return schema.hashFn(field)(rawData as object, field.options ?? null, field.name ?? null);
 }
 
@@ -25,6 +26,7 @@ export function setHashField(
   resourceKey: StableRecordIdentifier,
   field: HashField,
   path: string | string[],
+  mode: ModeInfo,
   value: unknown
 ): boolean {
   assert(
