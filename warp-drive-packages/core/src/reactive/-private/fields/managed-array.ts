@@ -96,7 +96,7 @@ function safeForEach(
 export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
   [SOURCE]: unknown[];
   identifier: StableRecordIdentifier;
-  path: string[];
+  path: string | string[];
   owner: ReactiveResource;
   [ARRAY_SIGNAL]: WarpDriveSignal;
   [Editable]: boolean;
@@ -112,7 +112,7 @@ export class ManagedArray {
     field: ArrayField | SchemaArrayField,
     data: unknown[],
     identifier: StableRecordIdentifier,
-    path: string[],
+    path: string | string[],
     owner: ReactiveResource,
     isSchemaArray: boolean,
     editable: boolean,
@@ -145,7 +145,7 @@ export class ManagedArray {
           Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
     const extensions = legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
-
+    const basePath = Array.isArray(path) ? path : [path];
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -214,7 +214,7 @@ export class ManagedArray {
               let record = recordRef?.deref();
 
               if (!record) {
-                const recordPath = path.slice();
+                const recordPath = basePath.slice();
                 // this is a dirty lie since path is string[] but really we
                 // should change the types for paths to `Array<string | number>`
                 // TODO we should allow the schema for the field to define a "key"

@@ -16,11 +16,12 @@ import { getObjectField, setObjectField } from './kind/object-field.ts';
 import { getResourceField, setResourceField } from './kind/resource-field.ts';
 import { getSchemaArrayField, setSchemaArrayField } from './kind/schema-array-field.ts';
 import { getSchemaObjectField, setSchemaObjectField } from './kind/schema-object-field.ts';
+import type { ReactiveResource } from './record.ts';
 
 export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
   get: (
     store: Store,
-    record: object,
+    record: ReactiveResource,
     resourceKey: StableRecordIdentifier,
     field: T,
     path: string | string[],
@@ -28,7 +29,7 @@ export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
   ) => unknown;
   set: (
     store: Store,
-    record: object,
+    record: ReactiveResource,
     resourceKey: StableRecordIdentifier,
     field: T,
     path: string | string[],

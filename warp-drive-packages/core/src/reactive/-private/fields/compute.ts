@@ -8,21 +8,14 @@ import type { Cache } from '../../../types/cache.ts';
 import type { ResourceRelationship as SingleResourceRelationship } from '../../../types/cache/relationship.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
-import type {
-  ArrayField,
-  FieldSchema,
-  LegacyHasManyField,
-  ObjectField,
-  SchemaArrayField,
-  SchemaObjectField,
-} from '../../../types/schema/fields.ts';
+import type { FieldSchema, LegacyHasManyField, ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
 import type { CollectionResourceRelationship, Link, Links } from '../../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../../types/symbols.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, Identifier, Legacy, Parent } from '../symbols.ts';
 import { getFieldCacheKeyStrict } from './get-field-key.ts';
-import { ManagedArray } from './managed-array.ts';
+import type { ManagedArray } from './managed-array.ts';
 import { ManagedObject } from './managed-object.ts';
 import { ManyArrayManager } from './many-array-manager.ts';
 
@@ -52,58 +45,6 @@ export function peekManagedObject(
   if (managedObjectMapForRecord) {
     return managedObjectMapForRecord.get(field.name);
   }
-}
-
-export function computeArray(
-  store: Store,
-  schema: SchemaService,
-  cache: Cache,
-  record: ReactiveResource,
-  identifier: StableRecordIdentifier,
-  field: ArrayField | SchemaArrayField,
-  path: string[],
-  editable: boolean,
-  legacy: boolean
-): ManagedArray | null {
-  const isSchemaArray = field.kind === 'schema-array';
-  // the thing we hand out needs to know its owner and path in a private manner
-  // its "address" is the parent identifier (identifier) + field name (field.name)
-  //  in the nested object case field name here is the full dot path from root resource to this value
-  // its "key" is the field on the parent record
-  // its "owner" is the parent record
-
-  const managedArrayMapForRecord = ManagedArrayMap.get(record);
-  let managedArray: ManagedArray | undefined;
-  if (managedArrayMapForRecord) {
-    managedArray = managedArrayMapForRecord.get(field.name) as ManagedArray | undefined;
-  }
-  if (managedArray) {
-    return managedArray;
-  } else {
-    const rawValue = (editable ? cache.getAttr(identifier, path) : cache.getRemoteAttr(identifier, path)) as unknown[];
-    if (!rawValue) {
-      return null;
-    }
-    managedArray = new ManagedArray(
-      store,
-      schema,
-      cache,
-      field,
-      rawValue,
-      identifier,
-      path,
-      record,
-      isSchemaArray,
-      editable,
-      legacy
-    );
-    if (!managedArrayMapForRecord) {
-      ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
-    } else {
-      managedArrayMapForRecord.set(field.name, managedArray);
-    }
-  }
-  return managedArray;
 }
 
 export function computeObject(

@@ -14,19 +14,23 @@ import {
   withSignalStore,
 } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
-import type { ArrayValue, ObjectValue, Value } from '../../types/json/raw.ts';
+import type { ObjectValue, Value } from '../../types/json/raw.ts';
 import { STRUCTURED } from '../../types/request.ts';
-import type { FieldSchema, SchemaArrayField, SchemaObjectField } from '../../types/schema/fields.ts';
+import type {
+  FieldSchema,
+  GenericField,
+  IdentityField,
+  SchemaArrayField,
+  SchemaObjectField,
+} from '../../types/schema/fields.ts';
 import type { SingleResourceRelationship } from '../../types/spec/json-api-raw.ts';
 import { RecordStore } from '../../types/symbols.ts';
 import { DefaultMode } from './default-mode.ts';
 import {
-  computeArray,
   computeHasMany,
   computeObject,
   computeResource,
   computeSchemaObject,
-  ManagedArrayMap,
   ManagedObjectMap,
   peekManagedArray,
   peekManagedObject,
@@ -371,43 +375,37 @@ export class ReactiveResource {
         switch (field.kind) {
           case '@id':
             entangleSignal(signals, receiver, '@identity', null);
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
-
+          // eslint-disable-next-line no-fallthrough
           case '@hash':
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
-
           case '@local':
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+          case 'derived':
+            return DefaultMode[field.kind as '@id'].get(
+              store,
+              receiver as unknown as ReactiveResource,
+              identifier,
+              field as IdentityField,
+              propArray,
+              IS_EDITABLE
+            );
 
           case 'field':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
-
           case 'attribute':
+          case 'schema-array':
+          case 'array':
             entangleSignal(signals, receiver, fieldCacheKey, null);
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
+            return DefaultMode[field.kind as 'field'].get(
+              store,
+              receiver as unknown as ReactiveResource,
+              identifier,
+              field as GenericField,
+              propArray,
+              IS_EDITABLE
+            );
 
           case 'resource':
             entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeResource(store, cache, target, identifier, field, getFieldCacheKeyStrict(field), IS_EDITABLE);
 
-          case 'derived':
-            return DefaultMode[field.kind].get(store, receiver, identifier, field, propArray, IS_EDITABLE);
-
-          case 'schema-array':
-          case 'array':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeArray(
-              store,
-              schema,
-              cache,
-              target,
-              identifier,
-              field,
-              propArray,
-              Mode[Editable],
-              Mode[Legacy]
-            );
           case 'object':
             entangleSignal(signals, receiver, fieldCacheKey, null);
             return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
@@ -523,72 +521,22 @@ export class ReactiveResource {
 
         switch (field.kind) {
           case '@id':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
           case '@hash':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
           case '@local':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
           case 'field':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
           case 'attribute':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
           case 'derived':
-            return DefaultMode[field.kind].set(store, receiver, identifier, field, propArray, value);
-
-          case 'array': {
-            if (!field.type) {
-              cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
-              const peeked = peekManagedArray(self, field);
-              if (peeked) {
-                assert(
-                  `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                  ARRAY_SIGNAL in peeked
-                );
-                const arrSignal = peeked[ARRAY_SIGNAL];
-                arrSignal.isStale = true;
-              }
-              if (!Array.isArray(value)) {
-                ManagedArrayMap.delete(target);
-              }
-              return true;
-            }
-
-            const transform = schema.transformation(field);
-            const rawValue = (value as ArrayValue).map((item) =>
-              transform.serialize(item, field.options ?? null, target)
+          case 'array':
+          case 'schema-array':
+            return DefaultMode[field.kind as '@id'].set(
+              store,
+              receiver as unknown as ReactiveResource,
+              identifier,
+              field as unknown as IdentityField,
+              propArray,
+              value
             );
-            cache.setAttr(identifier, propArray, rawValue);
-            const peeked = peekManagedArray(self, field);
-            if (peeked) {
-              assert(
-                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                ARRAY_SIGNAL in peeked
-              );
-              const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.isStale = true;
-            }
-            return true;
-          }
-          case 'schema-array': {
-            const arrayValue = (value as ArrayValue)?.slice();
-            if (!Array.isArray(arrayValue)) {
-              ManagedArrayMap.delete(target);
-            }
-            cache.setAttr(identifier, propArray, arrayValue);
-            const peeked = peekManagedArray(self, field);
-            if (peeked) {
-              assert(
-                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                ARRAY_SIGNAL in peeked
-              );
-              const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.isStale = true;
-            }
-            if (!Array.isArray(value)) {
-              ManagedArrayMap.delete(target);
-            }
-            return true;
-          }
+
           case 'object': {
             if (!field.type) {
               let newValue = value;
