@@ -1182,7 +1182,7 @@ module('Reads | schema-object fields', function (hooks) {
       { type: 'business', name: 'AuditBoard Inc.', zip: '12345' },
       'we can access address object'
     );
-    assert.notStrictEqual(record.address, originalAddress, 'We changed the object reference');
+    assert.strictEqual(record.address, originalAddress, 'The object reference remains the same');
     assert.strictEqual(record.address?.type === 'business' && record.address.zip, '12345', 'we can access zip');
     assert.step('^^ new payload with same values ^^');
 
@@ -1206,7 +1206,7 @@ module('Reads | schema-object fields', function (hooks) {
       { type: 'business', name: 'AuditBoard Inc.', zip: '54321' },
       'we can access address object'
     );
-    assert.notStrictEqual(record.address, originalAddress, 'We changed object references');
+    assert.strictEqual(record.address, originalAddress, 'The object reference remains the same');
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
     assert.strictEqual(record.address?.type === 'business' && record.address.zip, '54321', 'we can access zip');
     const lastBusinessAddress = record.address;
