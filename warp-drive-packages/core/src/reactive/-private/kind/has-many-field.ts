@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import { RelatedCollection as ManyArray } from '../../../store/-private.ts';
+import { entangleSignal, RelatedCollection as ManyArray } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { LegacyHasManyField } from '../../../types/schema/fields.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
@@ -11,6 +11,7 @@ import type { SchemaService } from '../schema.ts';
 import { ManagedArrayMap } from './array-field.ts';
 
 export function getHasManyField(context: KindContext<LegacyHasManyField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   const { store, field } = context;
   if (field.options.linksMode) {
     const { record } = context;

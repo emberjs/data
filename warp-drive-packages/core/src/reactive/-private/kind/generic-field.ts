@@ -1,8 +1,10 @@
+import { entangleSignal } from '../../../store/-private';
 import type { Value } from '../../../types/json/raw';
 import type { GenericField } from '../../../types/schema/fields';
 import type { KindContext } from '../default-mode';
 
 export function getGenericField(context: KindContext<GenericField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   const { cache, schema } = context.store;
   const rawValue = context.editable
     ? cache.getAttr(context.resourceKey, context.path)

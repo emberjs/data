@@ -1,5 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
+import { entangleSignal } from '../../../store/-private';
 import type { LegacyBelongsToField } from '../../../types/schema/fields';
 import type { SingleResourceRelationship } from '../../../types/spec/json-api-raw';
 import type { KindContext } from '../default-mode';
@@ -7,6 +8,7 @@ import { getFieldCacheKeyStrict } from '../fields/get-field-key';
 import type { SchemaService } from '../schema';
 
 export function getBelongsToField(context: KindContext<LegacyBelongsToField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   const { field, resourceKey, store } = context;
   const { schema, cache } = store;
   if (field.options.linksMode) {

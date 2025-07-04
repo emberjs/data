@@ -364,24 +364,9 @@ export class ReactiveResource {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, receiver, '@identity', null);
-          // eslint-disable-next-line no-fallthrough
           case '@hash':
           case '@local':
           case 'derived':
-            return DefaultMode[field.kind as '@id'].get({
-              store,
-              resourceKey: identifier,
-              modeName: context.modeName,
-              legacy: context.legacy,
-              editable: context.editable,
-              path: propArray,
-              field: field as IdentityField,
-              record: receiver as unknown as ReactiveResource,
-              signals,
-              value: null,
-            });
-
           case 'field':
           case 'attribute':
           case 'schema-array':
@@ -392,7 +377,6 @@ export class ReactiveResource {
           case 'belongsTo':
           case 'hasMany':
           case 'collection':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
             return DefaultMode[field.kind as 'field'].get({
               store,
               resourceKey: identifier,

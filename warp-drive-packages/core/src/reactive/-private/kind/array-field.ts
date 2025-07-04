@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import { ARRAY_SIGNAL } from '../../../store/-private';
+import { ARRAY_SIGNAL, entangleSignal } from '../../../store/-private';
 import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private';
 import type { ArrayValue, ObjectValue } from '../../../types/json/raw';
@@ -22,6 +22,7 @@ export function peekManagedArray(record: ReactiveResource, field: FieldSchema): 
 }
 
 export function getArrayField(context: KindContext<ArrayField | SchemaArrayField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value

@@ -2,7 +2,7 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
 import type { Future } from '../../../request';
-import { defineSignal, type Store, type StoreRequestInput } from '../../../store/-private';
+import { defineSignal, entangleSignal, type Store, type StoreRequestInput } from '../../../store/-private';
 import type { ResourceField } from '../../../types/schema/fields';
 import type { Link, Links, SingleResourceRelationship } from '../../../types/spec/json-api-raw';
 import { RecordStore } from '../../../types/symbols';
@@ -89,6 +89,7 @@ function getHref(link?: Link | null): string | null {
 }
 
 export function getResourceField(context: KindContext<ResourceField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   return new ResourceRelationship(context);
 }
 

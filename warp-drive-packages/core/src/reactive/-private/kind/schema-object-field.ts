@@ -1,5 +1,6 @@
 import { assert } from '@warp-drive/build-config/macros';
 
+import { entangleSignal } from '../../../store/-private';
 import type { ObjectValue, Value } from '../../../types/json/raw';
 import type { SchemaObjectField } from '../../../types/schema/fields';
 import type { KindContext } from '../default-mode';
@@ -7,6 +8,7 @@ import { ManagedObjectMap } from '../fields/managed-object';
 import { ReactiveResource } from '../record';
 
 export function getSchemaObjectField(context: KindContext<SchemaObjectField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   const { record, field } = context;
   const schemaObjectMapForRecord = ManagedObjectMap.get(record);
   let schemaObject;

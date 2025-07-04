@@ -1,10 +1,11 @@
-import { OBJECT_SIGNAL } from '../../../store/-private';
+import { entangleSignal, OBJECT_SIGNAL } from '../../../store/-private';
 import type { ObjectValue, Value } from '../../../types/json/raw';
 import type { ObjectField } from '../../../types/schema/fields';
 import type { KindContext } from '../default-mode';
 import { ManagedObject, ManagedObjectMap, peekManagedObject } from '../fields/managed-object';
 
 export function getObjectField(context: KindContext<ObjectField>): unknown {
+  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
   const { record, field } = context;
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
