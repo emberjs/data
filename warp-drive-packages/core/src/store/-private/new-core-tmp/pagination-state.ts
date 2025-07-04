@@ -1,10 +1,10 @@
 /**
  * @module @warp-drive/ember
  */
+import type { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { Future } from '../../../request.ts';
 import type { StructuredErrorDocument } from '../../../types/request.ts';
 import type { ResourceErrorDocument } from '../../../types/spec/document.ts';
-import type { ReactiveDocument } from '../document';
 import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal';
 import type { RequestCacheRequestState } from './request-state';
 import { getRequestState } from './request-state';
@@ -74,7 +74,7 @@ export class PaginationState<T = unknown, E = unknown> {
     }
   }
 
-  async next() {
+  async next(): Promise<void> {
     const page = this.pages.at(-1);
     const result = await page?.next();
     if (result) {
