@@ -23,7 +23,7 @@ import type {
   SchemaObjectField,
 } from '../../types/schema/fields.ts';
 import { RecordStore } from '../../types/symbols.ts';
-import type { ModeName } from './default-mode.ts';
+import type { ObjectContext, ResourceContext } from './default-mode.ts';
 import { DefaultMode } from './default-mode.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
@@ -115,24 +115,22 @@ export interface ReactiveResource {
  */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ReactiveResource {
-  constructor(
-    store: Store,
-    identifier: StableRecordIdentifier,
-    mode: { name: ModeName; editable: boolean; legacy: boolean },
-    isEmbedded = false,
-    embeddedField: SchemaArrayField | SchemaObjectField | null = null,
-    embeddedPath: string[] | null = null
-  ) {
+  constructor(context: ResourceContext | ObjectContext) {
+    const { store } = context;
+    const identifier = context.resourceKey;
+    const embeddedField = context.field;
+    const embeddedPath = context.path;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
+    const isEmbedded = context.field !== null;
     this[RecordStore] = store;
     if (isEmbedded) {
       this[Parent] = identifier;
     } else {
       this[Identifier] = identifier;
     }
-    const IS_EDITABLE = (this[Editable] = mode.editable ?? false);
-    this[Legacy] = mode.legacy ?? false;
+    const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    this[Legacy] = context.legacy ?? false;
 
     const schema = store.schema as unknown as SchemaService;
     const ResourceSchema = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier);
@@ -141,7 +139,7 @@ export class ReactiveResource {
 
     // prettier-ignore
     const extensions =
-      !mode.legacy ? null :
+      !context.legacy ? null :
       isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!) :
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
@@ -372,12 +370,16 @@ export class ReactiveResource {
           case '@local':
           case 'derived':
             return DefaultMode[field.kind as '@id'].get(
-              store,
-              receiver as unknown as ReactiveResource,
-              identifier,
-              field as IdentityField,
-              propArray,
-              mode
+              {
+                store,
+                resourceKey: identifier,
+                modeName: context.modeName,
+                legacy: context.legacy,
+                editable: context.editable,
+                path: propArray,
+                field: field as IdentityField,
+              },
+              receiver as unknown as ReactiveResource
             );
 
           case 'field':
@@ -392,12 +394,16 @@ export class ReactiveResource {
           case 'collection':
             entangleSignal(signals, receiver, fieldCacheKey, null);
             return DefaultMode[field.kind as 'field'].get(
-              store,
-              receiver as unknown as ReactiveResource,
-              identifier,
-              field as GenericField,
-              propArray,
-              mode
+              {
+                store,
+                resourceKey: identifier,
+                modeName: context.modeName,
+                legacy: context.legacy,
+                editable: context.editable,
+                path: propArray,
+                field: field as GenericField,
+              },
+              receiver as unknown as ReactiveResource
             );
 
           default:
@@ -478,12 +484,16 @@ export class ReactiveResource {
           case 'hasMany':
           case 'collection':
             return DefaultMode[field.kind as '@id'].set(
-              store,
+              {
+                store,
+                resourceKey: identifier,
+                modeName: context.modeName,
+                legacy: context.legacy,
+                editable: context.editable,
+                path: propArray,
+                field: field as IdentityField,
+              },
               receiver as unknown as ReactiveResource,
-              identifier,
-              field as unknown as IdentityField,
-              propArray,
-              mode,
               value
             );
 
@@ -586,7 +596,7 @@ export class ReactiveResource {
                     return;
                   }
 
-                  assert(`Can only use hasMany fields when the resource is in legacy mode`, mode.legacy);
+                  assert(`Can only use hasMany fields when the resource is in legacy mode`, context.legacy);
 
                   if (schema._kind('@legacy', 'hasMany').notify(store, proxy, identifier, field)) {
                     assert(`Expected options to exist on relationship meta`, field.options);
@@ -648,18 +658,15 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
   }
 
   const legacy = record[Legacy];
-  const editableRecord = new ReactiveResource(
-    record[RecordStore],
-    record[Identifier],
-    {
-      name: legacy ? 'legacy' : 'polaris',
-      editable: true,
-      legacy: record[Legacy],
-    },
-    isEmbedded,
-    embeddedType,
-    embeddedPath
-  );
+  const editableRecord = new ReactiveResource({
+    store: record[RecordStore],
+    resourceKey: record[Identifier],
+    modeName: legacy ? 'legacy' : 'polaris',
+    legacy: legacy,
+    editable: true,
+    path: embeddedPath!,
+    field: embeddedType!,
+  });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
   return Promise.resolve(editableRecord);
 }

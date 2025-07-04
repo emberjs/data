@@ -1,30 +1,21 @@
-import type { Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
+import { assert } from '@warp-drive/build-config/macros';
+
 import type { LegacyAliasField, ObjectAliasField, PolarisAliasField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
+import type { ReactiveResource } from '../record';
 
 export function getAliasField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LegacyAliasField | PolarisAliasField | ObjectAliasField,
-  path: string | string[],
-  mode: ModeInfo
+  context: KindContext<LegacyAliasField | ObjectAliasField | PolarisAliasField>,
+  record: ReactiveResource
 ): unknown {
-  const { cache } = store;
-  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+  assert(`Alias field access is not implemented`);
 }
 
 export function setAliasField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LegacyAliasField | ObjectAliasField | PolarisAliasField,
-  path: string | string[],
-  mode: ModeInfo,
+  context: KindContext<LegacyAliasField | ObjectAliasField | PolarisAliasField>,
+  record: ReactiveResource,
   value: unknown
 ): boolean {
-  const { cache } = store;
-
-  return true;
+  assert(`Alias field setting is not implemented`);
+  return false;
 }

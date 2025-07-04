@@ -1,6 +1,12 @@
 import type { Store } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types.ts';
-import type { FieldSchema, HashField, IdentityField } from '../../types/schema/fields.ts';
+import type {
+  FieldSchema,
+  HashField,
+  IdentityField,
+  SchemaArrayField,
+  SchemaObjectField,
+} from '../../types/schema/fields.ts';
 import { getAliasField, setAliasField } from './kind/alias-field.ts';
 import { getArrayField, setArrayField } from './kind/array-field.ts';
 import { getAttributeField, setAttributeField } from './kind/attribute-field.ts';
@@ -26,24 +32,61 @@ export interface ModeInfo {
   legacy: boolean;
   editable: boolean;
 }
+
+export interface BaseContext {
+  store: Store;
+  resourceKey: StableRecordIdentifier;
+  modeName: ModeName;
+  legacy: boolean;
+  editable: boolean;
+}
+
+export interface ResourceContext extends BaseContext {
+  path: null;
+  field: null;
+}
+export interface ObjectContext extends BaseContext {
+  path: string[];
+  field: SchemaObjectField | SchemaArrayField;
+}
+export interface KindContext<T extends FieldSchema | IdentityField | HashField> extends BaseContext {
+  path: string[];
+  field: T;
+}
+
 export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
-  get: (
-    store: Store,
-    record: ReactiveResource,
-    resourceKey: StableRecordIdentifier,
-    field: T,
-    path: string | string[],
-    mode: ModeInfo
-  ) => unknown;
-  set: (
-    store: Store,
-    record: ReactiveResource,
-    resourceKey: StableRecordIdentifier,
-    field: T,
-    path: string | string[],
-    mode: ModeInfo,
-    value: unknown
-  ) => boolean;
+  /**
+   * A function which produces the value for the field when invoked.
+   */
+  get: (context: KindContext<T>, record: ReactiveResource) => unknown;
+  /**
+   * A function which updates the value for the field when invoked.
+   *
+   * This will never be invoked when the record is in a non-editable mode.
+   *
+   * This should assert in dev and return false if mutation is not allowed.
+   */
+  set: (context: KindContext<T>, record: ReactiveResource, value: unknown) => boolean;
+  /**
+   * Whether this field is ever mutable (writable). This should be
+   * if there is ever a scenario in which the field can be written
+   * and false only if the field can never be written to.
+   */
+  mutable: boolean;
+  /**
+   * Whether this field's of this kind should be included in the
+   * enumerated (iterable) keys of the record/object instance.
+   *
+   * This should generally be true except for fields that are not
+   * producing a value backed by the cache. For instance, locals
+   * should not be enumerable, as their value is not tied to the
+   * cache at all.
+   */
+  enumerable: boolean;
+  /**
+   *
+   */
+  serializable: boolean;
 }
 
 type Mode = {
@@ -54,61 +97,106 @@ export const DefaultMode: Mode = {
   '@hash': {
     get: getHashField,
     set: setHashField,
+    mutable: false,
+    enumerable: false,
+    serializable: false,
   },
   '@id': {
     get: getIdentityField,
     set: setIdentityField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   '@local': {
     get: getLocalField,
     set: setLocalField,
+    mutable: true,
+    enumerable: false,
+    serializable: false,
   },
   alias: {
     get: getAliasField,
     set: setAliasField,
+    mutable: true,
+    enumerable: true,
+    serializable: false,
   },
   array: {
     get: getArrayField,
     set: setArrayField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   attribute: {
     get: getAttributeField,
     set: setAttributeField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   belongsTo: {
     get: getBelongsToField,
     set: setBelongsToField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   collection: {
     get: getCollectionField,
     set: setCollectionField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   derived: {
     get: getDerivedField,
     set: setDerivedField,
+    mutable: true,
+    enumerable: true,
+    serializable: false,
   },
   field: {
     get: getGenericField,
     set: setGenericField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   hasMany: {
     get: getHasManyField,
     set: setHasManyField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   object: {
     get: getObjectField,
     set: setObjectField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   resource: {
     get: getResourceField,
     set: setResourceField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   'schema-array': {
     get: getSchemaArrayField,
     set: setSchemaArrayField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
   'schema-object': {
     get: getSchemaObjectField,
     set: setSchemaObjectField,
+    mutable: true,
+    enumerable: true,
+    serializable: true,
   },
 };

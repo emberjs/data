@@ -1,15 +1,13 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import { ARRAY_SIGNAL, type Store } from '../../../store/-private';
+import { ARRAY_SIGNAL } from '../../../store/-private';
 import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
-import type { StableRecordIdentifier } from '../../../types';
 import { getOrSetGlobal } from '../../../types/-private';
 import type { ArrayValue, ObjectValue } from '../../../types/json/raw';
 import type { ArrayField, FieldSchema, SchemaArrayField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
 import { ManagedArray } from '../fields/managed-array';
 import type { ReactiveResource } from '../record';
-import type { SchemaService } from '../schema';
 
 export const ManagedArrayMap: Map<ReactiveResource, Map<string, ManagedArray | ManyArray>> = getOrSetGlobal(
   'ManagedArrayMap',
@@ -23,23 +21,13 @@ export function peekManagedArray(record: ReactiveResource, field: FieldSchema): 
   }
 }
 
-export function getArrayField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: ArrayField | SchemaArrayField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { cache, schema } = store;
-
-  const isSchemaArray = field.kind === 'schema-array';
+export function getArrayField(context: KindContext<ArrayField | SchemaArrayField>, record: ReactiveResource): unknown {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value
   // its "key" is the field on the parent record
   // its "owner" is the parent record
-
+  const { field } = context;
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   let managedArray: ManagedArray | undefined;
   if (managedArrayMapForRecord) {
@@ -48,24 +36,15 @@ export function getArrayField(
   if (managedArray) {
     return managedArray;
   } else {
+    const { store, resourceKey, path } = context;
+    const { cache } = store;
     const rawValue = (
-      mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
+      context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as unknown[];
     if (!rawValue) {
       return null;
     }
-    managedArray = new ManagedArray(
-      store,
-      schema as SchemaService,
-      cache,
-      field,
-      rawValue,
-      resourceKey,
-      path,
-      record,
-      isSchemaArray,
-      mode
-    );
+    managedArray = new ManagedArray(context, record, rawValue);
     if (!managedArrayMapForRecord) {
       ManagedArrayMap.set(record, new Map([[field.name, managedArray]]));
     } else {
@@ -76,18 +55,15 @@ export function getArrayField(
 }
 
 export function setArrayField(
-  store: Store,
+  context: KindContext<ArrayField | SchemaArrayField>,
   record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: ArrayField,
-  path: string | string[],
-  mode: ModeInfo,
   value: unknown
 ): boolean {
-  const { cache, schema } = store;
+  const { field } = context;
+  const { cache, schema } = context.store;
 
   if (!field.type) {
-    cache.setAttr(resourceKey, path, (value as ArrayValue)?.slice());
+    cache.setAttr(context.resourceKey, context.path, (value as ArrayValue)?.slice());
     const peeked = peekManagedArray(record, field);
     if (peeked) {
       assert(`Expected the peekManagedArray for ${field.kind} to return a ManagedArray`, ARRAY_SIGNAL in peeked);
@@ -104,7 +80,7 @@ export function setArrayField(
   const rawValue = (value as ArrayValue).map((item) =>
     transform.serialize(item, (field.options as ObjectValue) ?? null, record)
   );
-  cache.setAttr(resourceKey, path, rawValue);
+  cache.setAttr(context.resourceKey, context.path, rawValue);
   const peeked = peekManagedArray(record, field);
   if (peeked) {
     assert(`Expected the peekManagedArray for ${field.kind} to return a ManagedArray`, ARRAY_SIGNAL in peeked);

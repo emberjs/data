@@ -1,32 +1,22 @@
-import type { Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
 import type { Value } from '../../../types/json/raw';
 import type { LegacyAttributeField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
+import type { ReactiveResource } from '../record';
 
-export function getAttributeField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LegacyAttributeField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { cache } = store;
-  return mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+export function getAttributeField(context: KindContext<LegacyAttributeField>, record: ReactiveResource): unknown {
+  const { cache } = context.store;
+  return context.editable
+    ? cache.getAttr(context.resourceKey, context.path)
+    : cache.getRemoteAttr(context.resourceKey, context.path);
 }
 
 export function setAttributeField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LegacyAttributeField,
-  path: string | string[],
-  mode: ModeInfo,
+  context: KindContext<LegacyAttributeField>,
+  record: ReactiveResource,
   value: unknown
 ): boolean {
-  const { cache } = store;
+  const { cache } = context.store;
 
-  cache.setAttr(resourceKey, path, value as Value);
+  cache.setAttr(context.resourceKey, context.path, value as Value);
   return true;
 }
