@@ -4,7 +4,6 @@ import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
-import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
@@ -124,7 +123,7 @@ module('Reads | schema-array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<ResourceObject>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.notStrictEqual(
       cachedResourceData?.attributes?.addresses,
@@ -268,7 +267,7 @@ module('Reads | schema-array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<ResourceObject>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.notStrictEqual(
       cachedResourceData?.attributes?.businesses,

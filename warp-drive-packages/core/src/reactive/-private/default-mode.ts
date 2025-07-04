@@ -45,17 +45,19 @@ export interface BaseContext {
 export interface ResourceContext extends BaseContext {
   path: null;
   field: null;
+  value: null;
 }
 export interface ObjectContext extends BaseContext {
   path: string[];
   field: SchemaObjectField | SchemaArrayField;
+  value: string;
 }
 export interface KindContext<T extends FieldSchema | IdentityField | HashField> extends BaseContext {
   path: string[];
   field: T;
+  value: unknown;
   record: ReactiveResource;
   signals: SignalStore;
-  value: unknown;
 }
 
 export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {

@@ -14,7 +14,6 @@ import {
   withSignalStore,
 } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
-import type { ObjectValue } from '../../types/json/raw.ts';
 import { STRUCTURED } from '../../types/request.ts';
 import type {
   FieldSchema,
@@ -29,8 +28,8 @@ import { DefaultMode } from './default-mode.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
 import { getFieldCacheKey } from './fields/get-field-key.ts';
+import type { ManagedArray } from './fields/managed-array.ts';
 import { peekManagedObject } from './fields/managed-object.ts';
-import { peekManagedArray } from './kind/array-field.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -132,40 +131,8 @@ export class ReactiveResource {
     const schema = store.schema as unknown as SchemaService;
     this[Legacy] = context.legacy ?? false;
 
-    let objectType: string;
-    if (isEmbedded) {
-      const { field } = context;
-      if (field.options?.polymorphic) {
-        const rawValue = (
-          context.editable
-            ? store.cache.getAttr(context.resourceKey, context.path)
-            : store.cache.getRemoteAttr(context.resourceKey, context.path)
-        ) as object;
-
-        const typePath = field.options.type ?? 'type';
-        // if we are polymorphic, then context.field.options.type will
-        // either specify a path on the rawValue to use as the type, defaulting to "type" or
-        // the special string "@hash" which tells us to treat field.type as a hashFn name with which
-        // to calc the type.
-        if (typePath === '@hash') {
-          assert(`Expected the field to define a hashFn as its type`, field.type);
-          const hashFn = schema.hashFn({ type: field.type });
-          // TODO consider if there are better options and name args we could provide.
-          objectType = hashFn(rawValue, null, null);
-        } else {
-          objectType = (rawValue as ObjectValue)[typePath] as string;
-          assert(
-            `Expected the type path for the field to be a value on the raw object`,
-            typePath && objectType && typeof objectType === 'string'
-          );
-        }
-      } else {
-        assert(`A non-polymorphic SchemaObjectField must provide a SchemaObject type in its definition`, field.type);
-        objectType = field.type;
-      }
-    }
-
-    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType! } : identifier);
+    const objectType = isEmbedded ? context.value : identifier.type;
+    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType } : identifier);
     const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
@@ -178,9 +145,8 @@ export class ReactiveResource {
     this[EmbeddedField] = embeddedField;
     this[EmbeddedPath] = embeddedPath;
 
-    const fields: Map<string, FieldSchema> = isEmbedded
-      ? schema.fields({ type: objectType! })
-      : schema.fields(identifier);
+    const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
+    const cacheFields = isEmbedded ? schema.cacheFields({ type: objectType }) : schema.cacheFields(identifier);
 
     const signals = withSignalStore(this);
 
@@ -561,9 +527,9 @@ export class ReactiveResource {
                 if (signal) {
                   notifyInternalSignal(signal);
                 }
-                const field = fields.get(key);
+                const field = cacheFields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
-                  const peeked = peekManagedArray(proxy, field);
+                  const peeked = signal?.value as ManagedArray | undefined;
                   if (peeked) {
                     assert(
                       `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
@@ -590,7 +556,7 @@ export class ReactiveResource {
               } else {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
-                const field = fields.get(key);
+                const field = cacheFields.get(key);
                 assert(`Expected relationship ${key} to be the name of a field`, field);
                 if (field.kind === 'belongsTo') {
                   // TODO determine what LOGGING flag to wrap this in if any
@@ -604,9 +570,12 @@ export class ReactiveResource {
                   // FIXME
                 } else if (field.kind === 'hasMany') {
                   if (field.options.linksMode) {
-                    const peeked = peekManagedArray(proxy, field) as ManyArray | undefined;
-                    if (peeked) {
-                      notifyInternalSignal(peeked[ARRAY_SIGNAL]);
+                    const signal = signals.get(key);
+                    if (signal) {
+                      const peeked = signal.value as ManyArray | undefined;
+                      if (peeked) {
+                        notifyInternalSignal(peeked[ARRAY_SIGNAL]);
+                      }
                     }
                     return;
                   }
@@ -679,8 +648,9 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     modeName: legacy ? 'legacy' : 'polaris',
     legacy: legacy,
     editable: true,
-    path: embeddedPath!,
-    field: embeddedType!,
+    path: null,
+    field: null,
+    value: null,
   });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
   return Promise.resolve(editableRecord);
@@ -694,6 +664,9 @@ function _DESTROY(record: ReactiveResource): void {
     record.isDestroyed = true;
   }
   record[RecordStore].notifications.unsubscribe(record.___notifications);
+
+  // FIXME we need a way to also unsubscribe all SchemaObjects when the primary
+  // resource is destroyed.
 }
 
 function assertNeverField(identifier: StableRecordIdentifier, field: never, path: string | string[]): false {

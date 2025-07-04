@@ -6,6 +6,7 @@ import type { ObjectSchema, SchemaObjectField } from '../../../types/schema/fiel
 import type { KindContext } from '../default-mode';
 import { ManagedObjectMap } from '../fields/managed-object';
 import { ReactiveResource } from '../record';
+import { Destroy } from '../symbols';
 
 type MemoizedSchemaObject = {
   type: string;
@@ -22,8 +23,14 @@ export function getSchemaObjectField(context: KindContext<SchemaObjectField>): u
   ) as object;
 
   if (!rawValue) {
-    // TODO ensure the ReactiveResource runs its destroy/cleanup
-    signal.value = null;
+    if (signal.value) {
+      const value = signal.value as MemoizedSchemaObject;
+      // TODO if we had idle scheduling this should be done there.
+      void Promise.resolve().then(() => {
+        value.value[Destroy]();
+      });
+      signal.value = null;
+    }
     return null;
   }
 
@@ -64,7 +71,10 @@ export function getSchemaObjectField(context: KindContext<SchemaObjectField>): u
     if (cachedSchemaObject.type === objectType && cachedSchemaObject.identity === identity) {
       return cachedSchemaObject.value;
     } else {
-      // TODO cleanup/destroy the existing value.
+      // TODO if we had idle scheduling this should be done there.
+      void Promise.resolve().then(() => {
+        cachedSchemaObject.value[Destroy]();
+      });
     }
   }
 
@@ -76,6 +86,7 @@ export function getSchemaObjectField(context: KindContext<SchemaObjectField>): u
     editable: context.editable,
     path: context.path,
     field: context.field,
+    value: objectType,
   });
 
   signal.value = {
