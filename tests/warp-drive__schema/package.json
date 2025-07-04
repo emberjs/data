@@ -1,6 +1,6 @@
 {
   "name": "warp-drive__schema",
-  "version": "5.7.0-alpha.3",
+  "version": "5.7.0-alpha.4",
   "private": true,
   "description": "Tests for the @warp-drive/schema package",
   "keywords": [],
