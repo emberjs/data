@@ -120,8 +120,6 @@ export class ReactiveResource {
     const identifier = context.resourceKey;
     const embeddedField = context.field;
     const embeddedPath = context.path;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this;
     const isEmbedded = context.field !== null;
     this[RecordStore] = store;
     if (isEmbedded) {
@@ -513,25 +511,25 @@ export class ReactiveResource {
                   // TODO we should likely handle this notification here
                   // also we should add a LOGGING flag
                   // eslint-disable-next-line no-console
-                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, self);
+                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, proxy);
                   return;
                 }
 
                 // TODO we should add a LOGGING flag
-                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, self);
+                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, proxy);
                 // deep notify the key path
               } else {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
                 // TODO determine what LOGGING flag to wrap this in if any
-                // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                // console.log(`Notification for ${key} on ${identifier.type}`, proxy);
                 const signal = signals.get(key);
                 if (signal) {
                   notifyInternalSignal(signal);
                 }
                 const field = fields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
-                  const peeked = peekManagedArray(self, field);
+                  const peeked = peekManagedArray(proxy, field);
                   if (peeked) {
                     assert(
                       `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
@@ -542,7 +540,7 @@ export class ReactiveResource {
                   }
                 }
                 if (field?.kind === 'object') {
-                  const peeked = peekManagedObject(self, field);
+                  const peeked = peekManagedObject(proxy, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
                     notifyInternalSignal(objSignal);
@@ -559,10 +557,10 @@ export class ReactiveResource {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
                 const field = fields.get(key);
-                assert(`Expected relationshp ${key} to be the name of a field`, field);
+                assert(`Expected relationship ${key} to be the name of a field`, field);
                 if (field.kind === 'belongsTo') {
                   // TODO determine what LOGGING flag to wrap this in if any
-                  // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                  // console.log(`Notification for ${key} on ${identifier.type}`, proxy);
                   const signal = signals.get(key);
                   if (signal) {
                     notifyInternalSignal(signal);
@@ -572,7 +570,7 @@ export class ReactiveResource {
                   // FIXME
                 } else if (field.kind === 'hasMany') {
                   if (field.options.linksMode) {
-                    const peeked = peekManagedArray(self, field) as ManyArray | undefined;
+                    const peeked = peekManagedArray(proxy, field) as ManyArray | undefined;
                     if (peeked) {
                       notifyInternalSignal(peeked[ARRAY_SIGNAL]);
                     }

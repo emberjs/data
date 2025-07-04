@@ -135,7 +135,6 @@ export class ManagedArray {
           Map<object, WeakRef<ReactiveResource>>;
     const ManagedRecordRefs = context.field.kind === 'schema-array' ? new RefStorage() : null;
     const extensions = context.legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(context.field) : null;
-    const basePath = Array.isArray(context.path) ? context.path : [context.path];
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -204,7 +203,7 @@ export class ManagedArray {
               let record = recordRef?.deref();
 
               if (!record) {
-                const recordPath = basePath.slice();
+                const recordPath = context.path.slice();
                 // this is a dirty lie since path is string[] but really we
                 // should change the types for paths to `Array<string | number>`
                 // TODO we should allow the schema for the field to define a "key"
