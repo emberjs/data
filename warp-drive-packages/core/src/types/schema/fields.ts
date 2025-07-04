@@ -2083,8 +2083,6 @@ export interface PolarisResourceSchema {
    *
    * for schema-objects, this should be either a HashField or null
    *
-   * @property identity
-   * @type {IdentityField}
    * @public
    */
   identity: IdentityField;

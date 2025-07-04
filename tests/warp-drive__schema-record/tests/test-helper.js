@@ -1,3 +1,5 @@
+import '@warp-drive/ember/install';
+
 import { Model, restoreDeprecatedModelRequestBehaviors } from '@warp-drive/legacy/model';
 import { restoreDeprecatedStoreBehaviors } from '@warp-drive/legacy/store';
 import { Store } from '@warp-drive/core';

@@ -4,14 +4,14 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '../../../index.ts';
 import type { WarpDriveSignal } from '../../../store/-private.ts';
 import { ARRAY_SIGNAL, consumeInternalSignal, entangleSignal, withSignalStore } from '../../../store/-private.ts';
-import type { Cache } from '../../../types/cache.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
+import type { KindContext } from '../default-mode.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Editable, Identifier, Legacy, Parent, SOURCE } from '../symbols.ts';
+import { Editable, Legacy, SOURCE } from '../symbols.ts';
 import type { ProxiedMethod } from './extension.ts';
 import { isExtensionProp, performArrayExtensionGet, performExtensionSet } from './extension.ts';
 
@@ -96,7 +96,7 @@ function safeForEach(
 export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
   [SOURCE]: unknown[];
   identifier: StableRecordIdentifier;
-  path: string[];
+  path: string | string[];
   owner: ReactiveResource;
   [ARRAY_SIGNAL]: WarpDriveSignal;
   [Editable]: boolean;
@@ -105,34 +105,24 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ManagedArray {
-  constructor(
-    store: Store,
-    schema: SchemaService,
-    cache: Cache,
-    field: ArrayField | SchemaArrayField,
-    data: unknown[],
-    identifier: StableRecordIdentifier,
-    path: string[],
-    owner: ReactiveResource,
-    isSchemaArray: boolean,
-    editable: boolean,
-    legacy: boolean
-  ) {
+  constructor(context: KindContext<SchemaArrayField | ArrayField>, owner: ReactiveResource, data: unknown[]) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = data?.slice();
-    const IS_EDITABLE = (this[Editable] = editable ?? false);
-    this[Legacy] = legacy;
+    const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    this[Legacy] = context.legacy;
+    const schema = context.store.schema as SchemaService;
+    const cache = context.store.cache;
 
     const signals = withSignalStore(this);
     let _SIGNAL: WarpDriveSignal = null as unknown as WarpDriveSignal;
     const boundFns = new Map<KeyType, ProxiedMethod>();
-    this.identifier = identifier;
-    this.path = path;
+    this.identifier = context.resourceKey;
+    this.path = context.path;
     this.owner = owner;
     let transaction = false;
     type StorageKlass = typeof WeakMap<object, WeakRef<ReactiveResource>>;
-    const mode = (field as SchemaArrayField).options?.key ?? '@identity';
+    const mode = (context.field as SchemaArrayField).options?.key ?? '@identity';
     const RefStorage: StorageKlass =
       mode === '@identity'
         ? (WeakMap as unknown as StorageKlass)
@@ -143,9 +133,8 @@ export class ManagedArray {
           // internal to a method like ours without us duplicating the code
           // into two separate methods.
           Map<object, WeakRef<ReactiveResource>>;
-    const ManagedRecordRefs = isSchemaArray ? new RefStorage() : null;
-    const extensions = legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field) : null;
-
+    const ManagedRecordRefs = context.field.kind === 'schema-array' ? new RefStorage() : null;
+    const extensions = context.legacy ? schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(context.field) : null;
     const proxy = new Proxy(this[SOURCE], {
       get<R extends typeof Proxy<unknown[]>>(target: unknown[], prop: keyof R, receiver: R) {
         if (prop === ARRAY_SIGNAL) {
@@ -161,7 +150,7 @@ export class ManagedArray {
         const index = convertToInt(prop);
         if (_SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
           _SIGNAL.isStale = false;
-          const newData = cache.getAttr(identifier, path);
+          const newData = cache.getAttr(context.resourceKey, context.path);
           if (newData && newData !== self[SOURCE]) {
             self[SOURCE].length = 0;
             self[SOURCE].push(...(newData as ArrayValue));
@@ -177,7 +166,7 @@ export class ManagedArray {
           let val;
           if (mode === '@hash') {
             val = target[index];
-            const hashField = schema.resource({ type: field.type! }).identity as HashField;
+            const hashField = schema.resource({ type: context.field.type! }).identity as HashField;
             const hashFn = schema.hashFn(hashField);
             val = hashFn(val as object, null, null);
           } else {
@@ -189,7 +178,7 @@ export class ManagedArray {
             // the field is anything other than a GenericField or LegacyAttributeField.
             if (mode !== '@identity' && mode !== '@index') {
               assert('mode must be a string', typeof mode === 'string');
-              const modeField = schema.resource({ type: field.type! }).fields.find((f) => f.name === mode);
+              const modeField = schema.resource({ type: context.field.type! }).fields.find((f) => f.name === mode);
               assert('field must exist in schema', modeField);
               assert(
                 'field must be a GenericField or LegacyAttributeField',
@@ -204,7 +193,7 @@ export class ManagedArray {
                   : (target[index] as ObjectValue)[mode];
           }
 
-          if (isSchemaArray) {
+          if (context.field.kind === 'schema-array') {
             if (!transaction) {
               consumeInternalSignal(_SIGNAL);
             }
@@ -214,7 +203,7 @@ export class ManagedArray {
               let record = recordRef?.deref();
 
               if (!record) {
-                const recordPath = path.slice();
+                const recordPath = context.path.slice();
                 // this is a dirty lie since path is string[] but really we
                 // should change the types for paths to `Array<string | number>`
                 // TODO we should allow the schema for the field to define a "key"
@@ -222,16 +211,17 @@ export class ManagedArray {
                 // same object reference from cache should result in same ReactiveResource
                 // embedded object.
                 recordPath.push(index as unknown as string);
-                const recordIdentifier = self.owner[Identifier] || self.owner[Parent];
 
-                record = new ReactiveResource(
-                  store,
-                  recordIdentifier,
-                  { [Editable]: self.owner[Editable], [Legacy]: self.owner[Legacy] },
-                  true,
-                  field as SchemaArrayField,
-                  recordPath
-                );
+                record = new ReactiveResource({
+                  store: context.store,
+                  resourceKey: context.resourceKey,
+                  modeName: context.modeName,
+                  legacy: context.legacy,
+                  editable: context.editable,
+                  path: recordPath,
+                  field: context.field,
+                });
+
                 // if mode is not @identity or @index, then access the key path now
                 // to determine the key value.
                 // chris says we can implement this as a special kind `@hash` which
@@ -251,9 +241,9 @@ export class ManagedArray {
           if (!transaction) {
             consumeInternalSignal(_SIGNAL);
           }
-          if (field.type) {
-            const transform = schema.transformation(field);
-            return transform.hydrate(val as Value, field.options ?? null, self.owner);
+          if (context.field.type) {
+            const transform = schema.transformation(context.field);
+            return transform.hydrate(val as Value, context.field.options ?? null, self.owner);
           }
           return val;
         }
@@ -266,7 +256,7 @@ export class ManagedArray {
               fn = function () {
                 consumeInternalSignal(_SIGNAL);
                 transaction = true;
-                const result = safeForEach(receiver, target, store, arguments[0] as ForEachCB, arguments[1]);
+                const result = safeForEach(receiver, target, context.store, arguments[0] as ForEachCB, arguments[1]);
                 transaction = false;
                 return result;
               };
@@ -323,9 +313,9 @@ export class ManagedArray {
       },
       set(target, prop: KeyType, value: unknown, receiver: object) {
         if (!IS_EDITABLE) {
-          let errorPath = identifier.type;
-          if (path) {
-            errorPath = path[path.length - 1];
+          let errorPath = context.resourceKey.type;
+          if (context.path) {
+            errorPath = context.path[context.path.length - 1];
           }
           throw new Error(`Cannot set ${String(prop)} on ${errorPath} because the record is not editable`);
         }
@@ -345,23 +335,25 @@ export class ManagedArray {
         const reflect = Reflect.set(target, prop, value, receiver);
 
         if (reflect) {
-          if (!field.type) {
-            cache.setAttr(identifier, path, self[SOURCE] as Value);
+          if (!context.field.type) {
+            cache.setAttr(context.resourceKey, context.path, self[SOURCE] as Value);
             _SIGNAL.isStale = true;
             return true;
           }
 
           let rawValue = self[SOURCE] as ArrayValue;
-          if (!isSchemaArray) {
-            const transform = schema.transformation(field);
+          if (context.field.kind !== 'schema-array') {
+            const transform = schema.transformation(context.field);
             if (!transform) {
-              throw new Error(`No '${field.type}' transform defined for use by ${identifier.type}.${String(prop)}`);
+              throw new Error(
+                `No '${context.field.type}' transform defined for use by ${context.resourceKey.type}.${String(prop)}`
+              );
             }
             rawValue = (self[SOURCE] as ArrayValue).map((item) =>
-              transform.serialize(item, field.options ?? null, self.owner)
+              transform.serialize(item, context.field.options ?? null, self.owner)
             );
           }
-          cache.setAttr(identifier, path, rawValue as Value);
+          cache.setAttr(context.resourceKey, context.path, rawValue as Value);
           _SIGNAL.isStale = true;
         }
         return reflect;

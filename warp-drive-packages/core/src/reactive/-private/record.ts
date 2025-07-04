@@ -6,7 +6,6 @@ import type { RelatedCollection as ManyArray } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
-  getOrCreateInternalSignal,
   notifyInternalSignal,
   OBJECT_SIGNAL,
   recordIdentifierFor,
@@ -15,29 +14,22 @@ import {
   withSignalStore,
 } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
-import type { ArrayValue, ObjectValue, Value } from '../../types/json/raw.ts';
 import { STRUCTURED } from '../../types/request.ts';
-import type { FieldSchema, SchemaArrayField, SchemaObjectField } from '../../types/schema/fields.ts';
-import type { SingleResourceRelationship } from '../../types/spec/json-api-raw.ts';
+import type {
+  FieldSchema,
+  GenericField,
+  IdentityField,
+  SchemaArrayField,
+  SchemaObjectField,
+} from '../../types/schema/fields.ts';
 import { RecordStore } from '../../types/symbols.ts';
-import {
-  computeArray,
-  computeAttribute,
-  computeDerivation,
-  computeField,
-  computeHasMany,
-  computeLocal,
-  computeObject,
-  computeResource,
-  computeSchemaObject,
-  ManagedArrayMap,
-  ManagedObjectMap,
-  peekManagedArray,
-  peekManagedObject,
-} from './fields/compute.ts';
+import type { ObjectContext, ResourceContext } from './default-mode.ts';
+import { DefaultMode } from './default-mode.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
-import { getFieldCacheKey, getFieldCacheKeyStrict } from './fields/get-field-key.ts';
+import { getFieldCacheKey } from './fields/get-field-key.ts';
+import { peekManagedObject } from './fields/managed-object.ts';
+import { peekManagedArray } from './kind/array-field.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -123,33 +115,29 @@ export interface ReactiveResource {
  */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ReactiveResource {
-  constructor(
-    store: Store,
-    identifier: StableRecordIdentifier,
-    Mode: { [Editable]: boolean; [Legacy]: boolean },
-    isEmbedded = false,
-    embeddedField: SchemaArrayField | SchemaObjectField | null = null,
-    embeddedPath: string[] | null = null
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this;
+  constructor(context: ResourceContext | ObjectContext) {
+    const { store } = context;
+    const identifier = context.resourceKey;
+    const embeddedField = context.field;
+    const embeddedPath = context.path;
+    const isEmbedded = context.field !== null;
     this[RecordStore] = store;
     if (isEmbedded) {
       this[Parent] = identifier;
     } else {
       this[Identifier] = identifier;
     }
-    const IS_EDITABLE = (this[Editable] = Mode[Editable] ?? false);
-    this[Legacy] = Mode[Legacy] ?? false;
+    const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    this[Legacy] = context.legacy ?? false;
 
     const schema = store.schema as unknown as SchemaService;
-    const cache = store.cache;
-    const identityField = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier).identity;
+    const ResourceSchema = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier);
+    const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
     // prettier-ignore
     const extensions =
-      !Mode[Legacy] ? null :
+      !context.legacy ? null :
       isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!) :
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
@@ -374,98 +362,34 @@ export class ReactiveResource {
 
         switch (field.kind) {
           case '@id':
-            entangleSignal(signals, receiver, '@identity', null);
-            return identifier.id;
           case '@hash':
-            // TODO pass actual cache value not {}
-            return schema.hashFn(field)({}, field.options ?? null, field.name ?? null);
-          case '@local': {
-            return computeLocal(receiver, field, prop as string);
-          }
-          case 'field':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeField(schema, cache, target, identifier, field, propArray, IS_EDITABLE);
-          case 'attribute':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeAttribute(cache, identifier, propArray, IS_EDITABLE);
-          case 'resource':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeResource(store, cache, target, identifier, field, getFieldCacheKeyStrict(field), IS_EDITABLE);
+          case '@local':
           case 'derived':
-            return computeDerivation(
-              schema,
-              receiver as unknown as ReactiveResource,
-              identifier,
-              field,
-              prop as string
-            );
+          case 'field':
+          case 'attribute':
           case 'schema-array':
           case 'array':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeArray(
-              store,
-              schema,
-              cache,
-              target,
-              identifier,
-              field,
-              propArray,
-              Mode[Editable],
-              Mode[Legacy]
-            );
-          case 'object':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return computeObject(schema, cache, target, identifier, field, propArray, Mode[Editable], Mode[Legacy]);
           case 'schema-object':
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            // run transform, then use that value as the object to manage
-            return computeSchemaObject(
-              store,
-              cache,
-              target,
-              identifier,
-              field,
-              propArray,
-              Mode[Legacy],
-              Mode[Editable]
-            );
+          case 'object':
+          case 'resource':
           case 'belongsTo':
-            if (field.options.linksMode) {
-              entangleSignal(signals, receiver, fieldCacheKey, null);
-              const rawValue = IS_EDITABLE
-                ? (cache.getRelationship(identifier, getFieldCacheKeyStrict(field)) as SingleResourceRelationship)
-                : (cache.getRemoteRelationship(
-                    identifier,
-                    getFieldCacheKeyStrict(field)
-                  ) as SingleResourceRelationship);
-
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-              return rawValue.data ? store.peekRecord(rawValue.data) : null;
-            }
-            assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return schema._kind('@legacy', 'belongsTo').get(store, receiver, identifier, field);
           case 'hasMany':
-            if (field.options.linksMode) {
-              entangleSignal(signals, receiver, fieldCacheKey, null);
+          case 'collection':
+            return DefaultMode[field.kind as 'field'].get({
+              store,
+              resourceKey: identifier,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as GenericField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value: null,
+            });
 
-              return computeHasMany(
-                store,
-                schema,
-                cache,
-                target,
-                identifier,
-                field,
-                propArray,
-                Mode[Editable],
-                Mode[Legacy]
-              );
-            }
-            assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
-            entangleSignal(signals, receiver, fieldCacheKey, null);
-            return schema._kind('@legacy', 'hasMany').get(store, receiver, identifier, field);
           default:
-            throw new Error(`Field '${String(prop)}' on '${identifier.type}' has the unknown kind '${field.kind}'`);
+            assertNeverField(identifier, field, propArray);
         }
       },
 
@@ -527,169 +451,35 @@ export class ReactiveResource {
         propArray.push(fieldCacheKey);
 
         switch (field.kind) {
-          case '@id': {
-            assert(`Expected to receive a string id`, typeof value === 'string' && value.length);
-            const normalizedId = String(value);
-            const didChange = normalizedId !== identifier.id;
-            assert(
-              `Cannot set ${identifier.type} record's id to ${normalizedId}, because id is already ${identifier.id}`,
-              !didChange || identifier.id === null
-            );
-
-            if (normalizedId !== null && didChange) {
-              store._instanceCache.setRecordId(identifier, normalizedId);
-              store.notifications.notify(identifier, 'identity');
-            }
-            return true;
-          }
-          case '@local': {
-            const signal = getOrCreateInternalSignal(
-              signals,
-              receiver,
-              prop as string | symbol,
-              field.options?.defaultValue ?? null
-            );
-            if (signal.value !== value) {
-              signal.value = value;
-              notifyInternalSignal(signal);
-            }
-            return true;
-          }
-          case 'field': {
-            if (!field.type) {
-              cache.setAttr(identifier, propArray, value as Value);
-              return true;
-            }
-            const transform = schema.transformation(field);
-            const rawValue = transform.serialize(value, field.options ?? null, target);
-            cache.setAttr(identifier, propArray, rawValue);
-            return true;
-          }
-          case 'attribute': {
-            cache.setAttr(identifier, propArray, value as Value);
-            return true;
-          }
-          case 'array': {
-            if (!field.type) {
-              cache.setAttr(identifier, propArray, (value as ArrayValue)?.slice());
-              const peeked = peekManagedArray(self, field);
-              if (peeked) {
-                assert(
-                  `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                  ARRAY_SIGNAL in peeked
-                );
-                const arrSignal = peeked[ARRAY_SIGNAL];
-                arrSignal.isStale = true;
-              }
-              if (!Array.isArray(value)) {
-                ManagedArrayMap.delete(target);
-              }
-              return true;
-            }
-
-            const transform = schema.transformation(field);
-            const rawValue = (value as ArrayValue).map((item) =>
-              transform.serialize(item, field.options ?? null, target)
-            );
-            cache.setAttr(identifier, propArray, rawValue);
-            const peeked = peekManagedArray(self, field);
-            if (peeked) {
-              assert(
-                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                ARRAY_SIGNAL in peeked
-              );
-              const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.isStale = true;
-            }
-            return true;
-          }
-          case 'schema-array': {
-            const arrayValue = (value as ArrayValue)?.slice();
-            if (!Array.isArray(arrayValue)) {
-              ManagedArrayMap.delete(target);
-            }
-            cache.setAttr(identifier, propArray, arrayValue);
-            const peeked = peekManagedArray(self, field);
-            if (peeked) {
-              assert(
-                `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
-                ARRAY_SIGNAL in peeked
-              );
-              const arrSignal = peeked[ARRAY_SIGNAL];
-              arrSignal.isStale = true;
-            }
-            if (!Array.isArray(value)) {
-              ManagedArrayMap.delete(target);
-            }
-            return true;
-          }
-          case 'object': {
-            if (!field.type) {
-              let newValue = value;
-              if (value !== null) {
-                newValue = { ...(value as ObjectValue) };
-              } else {
-                ManagedObjectMap.delete(target);
-              }
-
-              cache.setAttr(identifier, propArray, newValue as Value);
-
-              const peeked = peekManagedObject(self, field);
-              if (peeked) {
-                const objSignal = peeked[OBJECT_SIGNAL];
-                objSignal.isStale = true;
-              }
-              return true;
-            }
-
-            const transform = schema.transformation(field);
-            const rawValue = transform.serialize({ ...(value as ObjectValue) }, field.options ?? null, target);
-
-            cache.setAttr(identifier, propArray, rawValue);
-            const peeked = peekManagedObject(self, field);
-            if (peeked) {
-              const objSignal = peeked[OBJECT_SIGNAL];
-              objSignal.isStale = true;
-            }
-            return true;
-          }
-          case 'schema-object': {
-            let newValue = value;
-            if (value !== null) {
-              assert(`Expected value to be an object`, typeof value === 'object');
-              newValue = { ...(value as ObjectValue) };
-              const schemaFields = schema.fields({ type: field.type });
-              for (const key of Object.keys(newValue as ObjectValue)) {
-                if (!schemaFields.has(key)) {
-                  throw new Error(`Field ${key} does not exist on schema object ${field.type}`);
-                }
-              }
-            } else {
-              ManagedObjectMap.delete(target);
-            }
-            cache.setAttr(identifier, propArray, newValue as Value);
-            // const peeked = peekManagedObject(self, field);
-            // if (peeked) {
-            //   const objSignal = peeked[OBJECT_SIGNAL];
-            //   objSignal.isStale = true;
-            // }
-            return true;
-          }
-          case 'derived': {
-            throw new Error(`Cannot set ${String(prop)} on ${identifier.type} because it is derived`);
-          }
+          case '@id':
+          case '@hash':
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'derived':
+          case 'array':
+          case 'schema-array':
+          case 'schema-object':
+          case 'object':
+          case 'resource':
           case 'belongsTo':
-            assert(`Can only use belongsTo fields when the resource is in legacy mode`, Mode[Legacy]);
-            schema._kind('@legacy', 'belongsTo').set(store, receiver, identifier, field, value);
-            return true;
           case 'hasMany':
-            assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
-            assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(value));
-            schema._kind('@legacy', 'hasMany').set(store, receiver, identifier, field, value);
-            return true;
+          case 'collection':
+            return DefaultMode[field.kind as '@id'].set({
+              store,
+              resourceKey: identifier,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as IdentityField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value,
+            });
 
           default:
-            throw new Error(`Unknown field kind ${field.kind}`);
+            return assertNeverField(identifier, field, propArray);
         }
       },
     });
@@ -721,25 +511,25 @@ export class ReactiveResource {
                   // TODO we should likely handle this notification here
                   // also we should add a LOGGING flag
                   // eslint-disable-next-line no-console
-                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, self);
+                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, proxy);
                   return;
                 }
 
                 // TODO we should add a LOGGING flag
-                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, self);
+                // console.log(`Deep notification skipped for ${key.join('.')} on ${identifier.type}`, proxy);
                 // deep notify the key path
               } else {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
                 // TODO determine what LOGGING flag to wrap this in if any
-                // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                // console.log(`Notification for ${key} on ${identifier.type}`, proxy);
                 const signal = signals.get(key);
                 if (signal) {
                   notifyInternalSignal(signal);
                 }
                 const field = fields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
-                  const peeked = peekManagedArray(self, field);
+                  const peeked = peekManagedArray(proxy, field);
                   if (peeked) {
                     assert(
                       `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
@@ -750,7 +540,7 @@ export class ReactiveResource {
                   }
                 }
                 if (field?.kind === 'object') {
-                  const peeked = peekManagedObject(self, field);
+                  const peeked = peekManagedObject(proxy, field);
                   if (peeked) {
                     const objSignal = peeked[OBJECT_SIGNAL];
                     notifyInternalSignal(objSignal);
@@ -767,10 +557,10 @@ export class ReactiveResource {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
                 const field = fields.get(key);
-                assert(`Expected relationshp ${key} to be the name of a field`, field);
+                assert(`Expected relationship ${key} to be the name of a field`, field);
                 if (field.kind === 'belongsTo') {
                   // TODO determine what LOGGING flag to wrap this in if any
-                  // console.log(`Notification for ${key} on ${identifier.type}`, self);
+                  // console.log(`Notification for ${key} on ${identifier.type}`, proxy);
                   const signal = signals.get(key);
                   if (signal) {
                     notifyInternalSignal(signal);
@@ -780,14 +570,14 @@ export class ReactiveResource {
                   // FIXME
                 } else if (field.kind === 'hasMany') {
                   if (field.options.linksMode) {
-                    const peeked = peekManagedArray(self, field) as ManyArray | undefined;
+                    const peeked = peekManagedArray(proxy, field) as ManyArray | undefined;
                     if (peeked) {
                       notifyInternalSignal(peeked[ARRAY_SIGNAL]);
                     }
                     return;
                   }
 
-                  assert(`Can only use hasMany fields when the resource is in legacy mode`, Mode[Legacy]);
+                  assert(`Can only use hasMany fields when the resource is in legacy mode`, context.legacy);
 
                   if (schema._kind('@legacy', 'hasMany').notify(store, proxy, identifier, field)) {
                     assert(`Expected options to exist on relationship meta`, field.options);
@@ -848,17 +638,16 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     throw new Error(`Cannot checkout an embedded record (yet)`);
   }
 
-  const editableRecord = new ReactiveResource(
-    record[RecordStore],
-    record[Identifier],
-    {
-      [Editable]: true,
-      [Legacy]: record[Legacy],
-    },
-    isEmbedded,
-    embeddedType,
-    embeddedPath
-  );
+  const legacy = record[Legacy];
+  const editableRecord = new ReactiveResource({
+    store: record[RecordStore],
+    resourceKey: record[Identifier],
+    modeName: legacy ? 'legacy' : 'polaris',
+    legacy: legacy,
+    editable: true,
+    path: embeddedPath!,
+    field: embeddedType!,
+  });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
   return Promise.resolve(editableRecord);
 }
@@ -871,4 +660,11 @@ function _DESTROY(record: ReactiveResource): void {
     record.isDestroyed = true;
   }
   record[RecordStore].notifications.unsubscribe(record.___notifications);
+}
+
+function assertNeverField(identifier: StableRecordIdentifier, field: never, path: string | string[]): false {
+  assert(
+    `Cannot use unknown field kind ${(field as FieldSchema).kind} on <${identifier.type}>.${Array.isArray(path) ? path.join('.') : path}`
+  );
+  return false;
 }
