@@ -5,7 +5,7 @@ import type { StableRecordIdentifier } from '../../types.ts';
 import { isResourceSchema } from '../../types/schema/fields.ts';
 import { ReactiveResource } from './record.ts';
 import type { SchemaService } from './schema.ts';
-import { Destroy, Editable, Legacy } from './symbols.ts';
+import { Destroy } from './symbols.ts';
 
 export function instantiateRecord(
   store: Store,
@@ -15,11 +15,16 @@ export function instantiateRecord(
   const schema = store.schema as unknown as SchemaService;
   const resourceSchema = schema.resource(identifier);
   assert(`Expected a resource schema`, isResourceSchema(resourceSchema));
-  const isLegacy = resourceSchema?.legacy ?? false;
-  const isEditable = isLegacy || store.cache.isNew(identifier);
-  const record = new ReactiveResource(store, identifier, {
-    [Editable]: isEditable,
-    [Legacy]: isLegacy,
+  const legacy = resourceSchema?.legacy ?? false;
+  const editable = legacy || store.cache.isNew(identifier);
+  const record = new ReactiveResource({
+    store,
+    resourceKey: identifier,
+    modeName: legacy ? 'legacy' : 'polaris',
+    legacy: legacy,
+    editable: editable,
+    path: null,
+    field: null,
   });
 
   if (createArgs) {
