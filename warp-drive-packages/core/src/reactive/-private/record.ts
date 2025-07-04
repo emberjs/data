@@ -14,6 +14,7 @@ import {
   withSignalStore,
 } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ObjectValue } from '../../types/json/raw.ts';
 import { STRUCTURED } from '../../types/request.ts';
 import type {
   FieldSchema,
@@ -128,10 +129,43 @@ export class ReactiveResource {
       this[Identifier] = identifier;
     }
     const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    const schema = store.schema as unknown as SchemaService;
     this[Legacy] = context.legacy ?? false;
 
-    const schema = store.schema as unknown as SchemaService;
-    const ResourceSchema = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier);
+    let objectType: string;
+    if (isEmbedded) {
+      const { field } = context;
+      if (field.options?.polymorphic) {
+        const rawValue = (
+          context.editable
+            ? store.cache.getAttr(context.resourceKey, context.path)
+            : store.cache.getRemoteAttr(context.resourceKey, context.path)
+        ) as object;
+
+        const typePath = field.options.type ?? 'type';
+        // if we are polymorphic, then context.field.options.type will
+        // either specify a path on the rawValue to use as the type, defaulting to "type" or
+        // the special string "@hash" which tells us to treat field.type as a hashFn name with which
+        // to calc the type.
+        if (typePath === '@hash') {
+          assert(`Expected the field to define a hashFn as its type`, field.type);
+          const hashFn = schema.hashFn({ type: field.type });
+          // TODO consider if there are better options and name args we could provide.
+          objectType = hashFn(rawValue, null, null);
+        } else {
+          objectType = (rawValue as ObjectValue)[typePath] as string;
+          assert(
+            `Expected the type path for the field to be a value on the raw object`,
+            typePath && objectType && typeof objectType === 'string'
+          );
+        }
+      } else {
+        assert(`A non-polymorphic SchemaObjectField must provide a SchemaObject type in its definition`, field.type);
+        objectType = field.type;
+      }
+    }
+
+    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType! } : identifier);
     const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
@@ -145,7 +179,7 @@ export class ReactiveResource {
     this[EmbeddedPath] = embeddedPath;
 
     const fields: Map<string, FieldSchema> = isEmbedded
-      ? schema.fields(embeddedField as SchemaObjectField)
+      ? schema.fields({ type: objectType! })
       : schema.fields(identifier);
 
     const signals = withSignalStore(this);

@@ -1,4 +1,5 @@
 import { DEPRECATE_COMPUTED_CHAINS } from '@warp-drive/build-config/deprecations';
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../../index.ts';
@@ -122,9 +123,11 @@ export class ManagedArray {
     this.owner = owner;
     let transaction = false;
     type StorageKlass = typeof WeakMap<object, WeakRef<ReactiveResource>>;
-    const mode = (context.field as SchemaArrayField).options?.key ?? '@identity';
+    const KeyMode = (context.field as SchemaArrayField).options?.key ?? '@identity';
+    // FIXME @runspired ReactiveResource needs to use GC finalization to remove its notification
+    // listener.
     const RefStorage: StorageKlass =
-      mode === '@identity'
+      KeyMode === '@identity'
         ? (WeakMap as unknown as StorageKlass)
         : // CAUTION CAUTION CAUTION
           // this is a pile of lies
@@ -163,12 +166,19 @@ export class ManagedArray {
         if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
 
         if (index !== null) {
-          let val;
-          if (mode === '@hash') {
-            val = target[index];
+          let schemaObjectKeyValue: string | number | object;
+
+          /**
+           * When KeyMode=@hash the ReactiveResource is keyed into
+           * ManagedRecordRefs by the return value of @hash on the rawValue.
+           *
+           * This means that we could find a way to only recompute the identity
+           * when ARRAY_SIGNAL is dirty if hash performance becomes a bottleneck.
+           */
+          if (KeyMode === '@hash') {
             const hashField = schema.resource({ type: context.field.type! }).identity as HashField;
             const hashFn = schema.hashFn(hashField);
-            val = hashFn(val as object, null, null);
+            schemaObjectKeyValue = hashFn(target[index] as object, hashField.options ?? null, hashField.name);
           } else {
             // if mode is not @identity or @index, then access the key path.
             // we should assert that `mode` is a string
@@ -176,21 +186,24 @@ export class ManagedArray {
             // and, we likely should lookup the associated field and throw an error IF
             // the given field does not exist OR
             // the field is anything other than a GenericField or LegacyAttributeField.
-            if (mode !== '@identity' && mode !== '@index') {
-              assert('mode must be a string', typeof mode === 'string');
-              const modeField = schema.resource({ type: context.field.type! }).fields.find((f) => f.name === mode);
-              assert('field must exist in schema', modeField);
-              assert(
-                'field must be a GenericField or LegacyAttributeField',
-                modeField.kind === 'field' || modeField.kind === 'attribute'
-              );
+            if (DEBUG) {
+              const isPathKeyMode = KeyMode !== '@identity' && KeyMode !== '@index';
+              if (isPathKeyMode) {
+                assert('mode must be a string', typeof KeyMode === 'string' && KeyMode !== '');
+                const modeField = schema.fields({ type: context.field.type! }).get(KeyMode);
+                assert('field must exist in schema', modeField);
+                assert(
+                  'field must be a GenericField or LegacyAttributeField',
+                  modeField.kind === 'field' || modeField.kind === 'attribute'
+                );
+              }
             }
-            val =
-              mode === '@identity'
-                ? target[index]
-                : mode === '@index'
-                  ? '@index'
-                  : (target[index] as ObjectValue)[mode];
+            schemaObjectKeyValue =
+              KeyMode === '@identity'
+                ? (target[index] as object)
+                : KeyMode === '@index'
+                  ? index
+                  : ((target[index] as ObjectValue)[KeyMode] as string | number | object);
           }
 
           if (context.field.kind === 'schema-array') {
@@ -198,18 +211,14 @@ export class ManagedArray {
               consumeInternalSignal(_SIGNAL);
             }
 
-            if (val) {
-              const recordRef = ManagedRecordRefs!.get(val);
+            if (schemaObjectKeyValue) {
+              const recordRef = ManagedRecordRefs!.get(schemaObjectKeyValue as object);
               let record = recordRef?.deref();
 
               if (!record) {
                 const recordPath = context.path.slice();
                 // this is a dirty lie since path is string[] but really we
                 // should change the types for paths to `Array<string | number>`
-                // TODO we should allow the schema for the field to define a "key"
-                // for stability. Default should be `@identity` which means that
-                // same object reference from cache should result in same ReactiveResource
-                // embedded object.
                 recordPath.push(index as unknown as string);
 
                 record = new ReactiveResource({
@@ -222,20 +231,14 @@ export class ManagedArray {
                   field: context.field,
                 });
 
-                // if mode is not @identity or @index, then access the key path now
-                // to determine the key value.
-                // chris says we can implement this as a special kind `@hash` which
-                // would be a function that only has access to the cache value and not
-                // the record itself, so derivation is possible but intentionally limited
-                // and non-reactive?
-                ManagedRecordRefs!.set(val, new WeakRef(record));
+                ManagedRecordRefs!.set(schemaObjectKeyValue as object, new WeakRef(record));
               } else {
                 // TODO update embeddedPath if required
               }
               return record;
             }
 
-            return val;
+            return schemaObjectKeyValue;
           }
 
           if (!transaction) {
@@ -243,9 +246,9 @@ export class ManagedArray {
           }
           if (context.field.type) {
             const transform = schema.transformation(context.field);
-            return transform.hydrate(val as Value, context.field.options ?? null, self.owner);
+            return transform.hydrate(schemaObjectKeyValue as Value, context.field.options ?? null, self.owner);
           }
-          return val;
+          return schemaObjectKeyValue;
         }
 
         if (isArrayGetter(prop)) {

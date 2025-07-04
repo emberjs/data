@@ -449,7 +449,13 @@ module('Reads | schema-object fields', function (hooks) {
       street: string;
     };
 
-    type Address = HomeAddress | BusinessAddress;
+    type CondoAddress = {
+      type: 'condominium-home';
+      street: string;
+      unit: number;
+    };
+
+    type Address = HomeAddress | BusinessAddress | CondoAddress;
 
     interface UserWithSourceKeys {
       id: string | null;
@@ -463,7 +469,7 @@ module('Reads | schema-object fields', function (hooks) {
     registerDerivations(schema);
 
     schema.registerResource({
-      identity: null,
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
       type: 'fragment:address:business',
       fields: [
         {
@@ -481,7 +487,7 @@ module('Reads | schema-object fields', function (hooks) {
       ],
     });
     schema.registerResource({
-      identity: null,
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
       type: 'fragment:address:single-family-home',
       fields: [
         {
@@ -490,6 +496,24 @@ module('Reads | schema-object fields', function (hooks) {
         },
         {
           name: 'street',
+          kind: 'field',
+        },
+      ],
+    });
+    schema.registerResource({
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
+      type: 'fragment:address:condominium-home',
+      fields: [
+        {
+          name: 'type',
+          kind: 'field',
+        },
+        {
+          name: 'street',
+          kind: 'field',
+        },
+        {
+          name: 'unit',
           kind: 'field',
         },
       ],
@@ -519,13 +543,13 @@ module('Reads | schema-object fields', function (hooks) {
       const newData = data as Address;
       return newData.type === 'business' ? newData.zip : newData.street;
     }
-
     hashAddressIdentity[Type] = '@computeAddressIdentity';
     function hashAddressType<T extends object>(data: T, options: ObjectValue | null, prop: string | null): string {
       const newData = data as Address;
-      return newData.type === 'business' ? 'fragment:address:business' : 'fragment:address:single-family-home';
+      return `fragment:address:${newData.type}`;
     }
     hashAddressType[Type] = '@computeAddressType';
+    schema.registerHashFn(hashAddressIdentity);
     schema.registerHashFn(hashAddressType);
 
     const record = store.push<UserWithSourceKeys>({
@@ -534,7 +558,7 @@ module('Reads | schema-object fields', function (hooks) {
         id: '1',
         attributes: {
           name: 'Rey Skybarker',
-          address: {
+          user_address: {
             type: 'business',
             name: 'AuditBoard',
             zip: '12345',
@@ -546,6 +570,8 @@ module('Reads | schema-object fields', function (hooks) {
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+    assert.step('^^ precursors ^^');
+
     assert.propEqual(
       record.address,
       { type: 'business', name: 'AuditBoard', zip: '12345' },
@@ -559,7 +585,7 @@ module('Reads | schema-object fields', function (hooks) {
     const cachedResourceData = store.cache.peek(identifier);
 
     assert.deepEqual(
-      cachedResourceData?.attributes?.address,
+      cachedResourceData?.attributes?.user_address,
       {
         type: 'business',
         name: 'AuditBoard',
@@ -567,6 +593,7 @@ module('Reads | schema-object fields', function (hooks) {
       },
       'the cache values are correct for the field'
     );
+    assert.step('^^ initial stability ^^');
 
     const originalAddress = record.address;
 
@@ -576,7 +603,7 @@ module('Reads | schema-object fields', function (hooks) {
         type: 'user',
         id: '1',
         attributes: {
-          address: {
+          user_address: {
             type: 'business',
             name: 'AuditBoard Inc.',
             zip: '12345',
@@ -592,6 +619,7 @@ module('Reads | schema-object fields', function (hooks) {
     );
     assert.strictEqual(record.address, originalAddress, 'We have a stable object reference');
     assert.strictEqual(record.address?.type === 'business' && record.address.zip, '12345', 'we can access zip');
+    assert.step('^^ new payload with same values ^^');
 
     // check what happens when we DO "change identity"
     store.push<UserWithSourceKeys>({
@@ -599,7 +627,7 @@ module('Reads | schema-object fields', function (hooks) {
         type: 'user',
         id: '1',
         attributes: {
-          address: {
+          user_address: {
             type: 'business',
             name: 'AuditBoard Inc.',
             zip: '54321',
@@ -617,6 +645,7 @@ module('Reads | schema-object fields', function (hooks) {
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
     assert.strictEqual(record.address?.type === 'business' && record.address.zip, '54321', 'we can access zip');
     const lastBusinessAddress = record.address;
+    assert.step('^^ new payload with new identity ^^');
 
     // check what happens when we change type, we should change references
     store.push<UserWithSourceKeys>({
@@ -624,7 +653,7 @@ module('Reads | schema-object fields', function (hooks) {
         type: 'user',
         id: '1',
         attributes: {
-          address: {
+          user_address: {
             type: 'single-family-home',
             street: 'Sunset Hills',
           },
@@ -641,8 +670,49 @@ module('Reads | schema-object fields', function (hooks) {
     assert.strictEqual(record.address, record.address, 'We have a stable object reference');
     assert.strictEqual(
       record.address?.type === 'single-family-home' && record.address.street,
-      '54321',
-      'we can access zip'
+      'Sunset Hills',
+      'we can access street'
     );
+    assert.step('^^ new payload with new identity and new type ^^');
+
+    const lastHomeAddress = record.address;
+
+    // check what happens when we change type but have the same identity calc output, we should still change references
+    store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          user_address: {
+            type: 'condominium-home',
+            street: 'Sunset Hills',
+            unit: 5,
+          },
+        },
+      },
+    });
+
+    assert.propEqual(
+      record.address,
+      { type: 'condominium-home', street: 'Sunset Hills', unit: 5 },
+      'we can access address object'
+    );
+    assert.notStrictEqual(record.address, lastHomeAddress, 'We changed object references');
+    assert.strictEqual(record.address, record.address, 'We have a stable object reference');
+    assert.strictEqual(
+      record.address?.type === 'condominium-home' && record.address.street,
+      'Sunset Hills',
+      'we can access street'
+    );
+    assert.step('^^ new payload with new type same identity ^^');
+
+    assert.verifySteps([
+      '^^ precursors ^^',
+      '^^ initial stability ^^',
+      '^^ new payload with same values ^^',
+      '^^ new payload with new identity ^^',
+      '^^ new payload with new identity and new type ^^',
+      '^^ new payload with new type same identity ^^',
+    ]);
   });
 });
