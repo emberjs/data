@@ -1,21 +1,13 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
 import type { ObjectValue, Value } from '../../../types/json/raw';
 import type { SchemaObjectField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
 import { ManagedObjectMap } from '../fields/managed-object';
 import { ReactiveResource } from '../record';
 
-export function getSchemaObjectField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: SchemaObjectField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
+export function getSchemaObjectField(context: KindContext<SchemaObjectField>): unknown {
+  const { record, field } = context;
   const schemaObjectMapForRecord = ManagedObjectMap.get(record);
   let schemaObject;
   if (schemaObjectMapForRecord) {
@@ -24,15 +16,23 @@ export function getSchemaObjectField(
   if (schemaObject) {
     return schemaObject as ReactiveResource;
   } else {
+    const { store, resourceKey, path } = context;
     const { cache } = store;
     const rawValue = (
-      mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
+      context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as object;
     if (!rawValue) {
       return null;
     }
-    const embeddedPath = path.slice();
-    schemaObject = new ReactiveResource(store, resourceKey, mode, true, field, embeddedPath);
+    schemaObject = new ReactiveResource({
+      store: context.store,
+      resourceKey: context.resourceKey,
+      modeName: context.modeName,
+      legacy: context.legacy,
+      editable: context.editable,
+      path: context.path,
+      field: context.field,
+    });
   }
   if (!schemaObjectMapForRecord) {
     ManagedObjectMap.set(record, new Map([[field.name, schemaObject]]));
@@ -42,30 +42,22 @@ export function getSchemaObjectField(
   return schemaObject;
 }
 
-export function setSchemaObjectField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: SchemaObjectField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
-  const { cache, schema } = store;
+export function setSchemaObjectField(context: KindContext<SchemaObjectField>): boolean {
+  const { store, value } = context;
   let newValue = value as Value;
   if (value !== null) {
     assert(`Expected value to be an object`, typeof value === 'object');
     newValue = { ...(value as ObjectValue) };
-    const schemaFields = schema.fields({ type: field.type });
+    const schemaFields = store.schema.fields({ type: context.field.type });
     for (const key of Object.keys(newValue)) {
       if (!schemaFields.has(key)) {
-        throw new Error(`Field ${key} does not exist on schema object ${field.type}`);
+        throw new Error(`Field ${key} does not exist on schema object ${context.field.type}`);
       }
     }
   } else {
-    ManagedObjectMap.delete(record);
+    ManagedObjectMap.delete(context.record);
   }
-  cache.setAttr(resourceKey, path, newValue);
+  store.cache.setAttr(context.resourceKey, context.path, newValue);
   // const peeked = peekManagedObject(self, field);
   // if (peeked) {
   //   const objSignal = peeked[OBJECT_SIGNAL];

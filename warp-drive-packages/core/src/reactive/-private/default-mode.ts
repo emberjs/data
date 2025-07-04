@@ -1,4 +1,5 @@
 import type { Store } from '../../store/-private.ts';
+import type { SignalStore } from '../../store/-private/new-core-tmp/reactivity/internal.ts';
 import type { StableRecordIdentifier } from '../../types.ts';
 import type {
   FieldSchema,
@@ -52,13 +53,16 @@ export interface ObjectContext extends BaseContext {
 export interface KindContext<T extends FieldSchema | IdentityField | HashField> extends BaseContext {
   path: string[];
   field: T;
+  record: ReactiveResource;
+  signals: SignalStore;
+  value: unknown;
 }
 
 export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
   /**
    * A function which produces the value for the field when invoked.
    */
-  get: (context: KindContext<T>, record: ReactiveResource) => unknown;
+  get: (context: KindContext<T>) => unknown;
   /**
    * A function which updates the value for the field when invoked.
    *
@@ -66,7 +70,7 @@ export interface KindImpl<T extends FieldSchema | IdentityField | HashField> {
    *
    * This should assert in dev and return false if mutation is not allowed.
    */
-  set: (context: KindContext<T>, record: ReactiveResource, value: unknown) => boolean;
+  set: (context: KindContext<T>) => boolean;
   /**
    * Whether this field is ever mutable (writable). This should be
    * if there is ever a scenario in which the field can be written

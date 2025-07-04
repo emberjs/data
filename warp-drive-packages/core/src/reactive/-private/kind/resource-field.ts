@@ -3,12 +3,11 @@ import { assert } from '@warp-drive/build-config/macros';
 
 import type { Future } from '../../../request';
 import { defineSignal, type Store, type StoreRequestInput } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
-import type { Cache } from '../../../types/cache';
-import type { FieldSchema, ResourceField } from '../../../types/schema/fields';
+import type { ResourceField } from '../../../types/schema/fields';
 import type { Link, Links, SingleResourceRelationship } from '../../../types/spec/json-api-raw';
 import { RecordStore } from '../../../types/symbols';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
+import { getFieldCacheKeyStrict } from '../fields/get-field-key';
 import type { ReactiveResource } from '../record';
 import { Identifier, Parent } from '../symbols';
 
@@ -26,23 +25,18 @@ interface ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
 // TODO probably this should just be a Document
 // but its separate until we work out the lid situation
 class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
-  constructor(
-    store: Store,
-    cache: Cache,
-    parent: ReactiveResource,
-    identifier: StableRecordIdentifier,
-    field: FieldSchema,
-    name: string,
-    editable: boolean
-  ) {
+  constructor(context: KindContext<ResourceField>) {
+    const { store, resourceKey } = context;
+    const { cache } = store;
+    const name = getFieldCacheKeyStrict(context.field);
     const rawValue = (
-      editable ? cache.getRelationship(identifier, name) : cache.getRemoteRelationship(identifier, name)
+      context.editable ? cache.getRelationship(resourceKey, name) : cache.getRemoteRelationship(resourceKey, name)
     ) as SingleResourceRelationship;
 
     // TODO setup true lids for relationship documents
     // @ts-expect-error we need to give relationship documents a lid
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${identifier.lid}.${name}`;
+    this.lid = rawValue.lid ?? rawValue.links?.self ?? `relationship:${resourceKey.lid}.${name}`;
     this.data = rawValue.data ? (store.peekRecord(rawValue.data) as T) : null;
     this.name = name;
 
@@ -55,7 +49,7 @@ class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
     }
 
     this[RecordStore] = store;
-    this[Parent] = parent;
+    this[Parent] = context.record;
   }
 
   fetch(options?: StoreRequestInput<T, T>): Future<T> {
@@ -94,27 +88,11 @@ function getHref(link?: Link | null): string | null {
   return link.href;
 }
 
-export function getResourceField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: ResourceField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { cache } = store;
-  return new ResourceRelationship(store, cache, record, resourceKey, field, path, mode.editable);
+export function getResourceField(context: KindContext<ResourceField>): unknown {
+  return new ResourceRelationship(context);
 }
 
-export function setResourceField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: ResourceField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
+export function setResourceField(context: KindContext<ResourceField>): boolean {
   assert(`setting resource relationships is not yet supported`);
   return false;
 }

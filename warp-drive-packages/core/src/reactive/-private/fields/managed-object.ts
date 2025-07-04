@@ -9,10 +9,10 @@ import {
   withSignalStore,
 } from '../../../store/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
-import type { Cache } from '../../../types/cache.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
+import type { KindContext } from '../default-mode.ts';
 import type { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Editable, EmbeddedPath, Legacy, Parent, SOURCE } from '../symbols.ts';
@@ -38,30 +38,23 @@ export interface ManagedObject {
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ManagedObject {
-  constructor(
-    schema: SchemaService,
-    cache: Cache,
-    field: ObjectField | SchemaObjectField,
-    data: object,
-    identifier: StableRecordIdentifier,
-    path: string[],
-    owner: ReactiveResource,
-    editable: boolean,
-    legacy: boolean
-  ) {
+  constructor(context: KindContext<ObjectField>) {
+    const { field, path } = context;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-    this[SOURCE] = { ...data };
+    this[SOURCE] = Object.assign({}, context.value);
     const signals = withSignalStore(this);
     const _SIGNAL = (this[OBJECT_SIGNAL] = entangleSignal(signals, this, OBJECT_SIGNAL, undefined));
-    this[Editable] = editable;
-    this[Legacy] = legacy;
-    this[Parent] = identifier;
+    this[Editable] = context.editable;
+    this[Legacy] = context.legacy;
+    this[Parent] = context.resourceKey;
     this[EmbeddedPath] = path;
+    const identifier = context.resourceKey;
+    const { cache, schema } = context.store;
 
     // prettier-ignore
     const extensions =
-      !legacy ? null : schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(field);
+      !context.legacy ? null : (schema as SchemaService).CAUTION_MEGA_DANGER_ZONE_objectExtensions(field);
 
     const proxy = new Proxy(this[SOURCE], {
       ownKeys() {
@@ -74,7 +67,7 @@ export class ManagedObject {
 
       getOwnPropertyDescriptor(target, prop) {
         return {
-          writable: editable,
+          writable: context.editable,
           enumerable: true,
           configurable: true,
         };
@@ -111,9 +104,13 @@ export class ManagedObject {
           if (newData && newData !== self[SOURCE]) {
             if (field.type) {
               const transform = schema.transformation(field);
-              newData = transform.hydrate(newData as ObjectValue, field.options ?? null, owner) as ObjectValue;
+              newData = transform.hydrate(
+                newData as ObjectValue,
+                (field.options as ObjectValue) ?? null,
+                context.record
+              ) as ObjectValue;
             }
-            self[SOURCE] = { ...(newData as ObjectValue) }; // Add type assertion for newData
+            self[SOURCE] = Object.assign({}, newData) as ObjectValue; // Add type assertion for newData
           }
         }
 
@@ -139,7 +136,7 @@ export class ManagedObject {
       },
 
       set(target: object, prop: KeyType, value: unknown, receiver: object) {
-        assert(`Cannot set read-only property '${String(prop)}' on ManagedObject`, editable);
+        assert(`Cannot set read-only property '${String(prop)}' on ManagedObject`, context.editable);
 
         // since objects function as dictionaries, we can't defer to schema/data before extensions
         // unless the prop is in the existing data.
@@ -156,7 +153,7 @@ export class ManagedObject {
           cache.setAttr(identifier, path, self[SOURCE] as Value);
         } else {
           const transform = schema.transformation(field);
-          const val = transform.serialize(self[SOURCE], field.options ?? null, owner);
+          const val = transform.serialize(self[SOURCE], (field.options as ObjectValue) ?? null, context.record);
           cache.setAttr(identifier, path, val);
         }
 

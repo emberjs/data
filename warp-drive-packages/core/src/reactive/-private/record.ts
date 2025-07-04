@@ -369,18 +369,18 @@ export class ReactiveResource {
           case '@hash':
           case '@local':
           case 'derived':
-            return DefaultMode[field.kind as '@id'].get(
-              {
-                store,
-                resourceKey: identifier,
-                modeName: context.modeName,
-                legacy: context.legacy,
-                editable: context.editable,
-                path: propArray,
-                field: field as IdentityField,
-              },
-              receiver as unknown as ReactiveResource
-            );
+            return DefaultMode[field.kind as '@id'].get({
+              store,
+              resourceKey: identifier,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as IdentityField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value: null,
+            });
 
           case 'field':
           case 'attribute':
@@ -393,18 +393,18 @@ export class ReactiveResource {
           case 'hasMany':
           case 'collection':
             entangleSignal(signals, receiver, fieldCacheKey, null);
-            return DefaultMode[field.kind as 'field'].get(
-              {
-                store,
-                resourceKey: identifier,
-                modeName: context.modeName,
-                legacy: context.legacy,
-                editable: context.editable,
-                path: propArray,
-                field: field as GenericField,
-              },
-              receiver as unknown as ReactiveResource
-            );
+            return DefaultMode[field.kind as 'field'].get({
+              store,
+              resourceKey: identifier,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as GenericField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value: null,
+            });
 
           default:
             assertNeverField(identifier, field, propArray);
@@ -483,19 +483,18 @@ export class ReactiveResource {
           case 'belongsTo':
           case 'hasMany':
           case 'collection':
-            return DefaultMode[field.kind as '@id'].set(
-              {
-                store,
-                resourceKey: identifier,
-                modeName: context.modeName,
-                legacy: context.legacy,
-                editable: context.editable,
-                path: propArray,
-                field: field as IdentityField,
-              },
-              receiver as unknown as ReactiveResource,
-              value
-            );
+            return DefaultMode[field.kind as '@id'].set({
+              store,
+              resourceKey: identifier,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as IdentityField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value,
+            });
 
           default:
             return assertNeverField(identifier, field, propArray);

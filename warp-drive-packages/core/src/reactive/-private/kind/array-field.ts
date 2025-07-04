@@ -21,13 +21,13 @@ export function peekManagedArray(record: ReactiveResource, field: FieldSchema): 
   }
 }
 
-export function getArrayField(context: KindContext<ArrayField | SchemaArrayField>, record: ReactiveResource): unknown {
+export function getArrayField(context: KindContext<ArrayField | SchemaArrayField>): unknown {
   // the thing we hand out needs to know its owner and path in a private manner
   // its "address" is the parent identifier (identifier) + field name (field.name)
   //  in the nested object case field name here is the full dot path from root resource to this value
   // its "key" is the field on the parent record
   // its "owner" is the parent record
-  const { field } = context;
+  const { field, record } = context;
   const managedArrayMapForRecord = ManagedArrayMap.get(record);
   let managedArray: ManagedArray | undefined;
   if (managedArrayMapForRecord) {
@@ -54,12 +54,8 @@ export function getArrayField(context: KindContext<ArrayField | SchemaArrayField
   return managedArray;
 }
 
-export function setArrayField(
-  context: KindContext<ArrayField | SchemaArrayField>,
-  record: ReactiveResource,
-  value: unknown
-): boolean {
-  const { field } = context;
+export function setArrayField(context: KindContext<ArrayField | SchemaArrayField>): boolean {
+  const { field, record, value } = context;
   const { cache, schema } = context.store;
 
   if (!field.type) {

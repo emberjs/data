@@ -1,41 +1,22 @@
-import {
-  consumeInternalSignal,
-  getOrCreateInternalSignal,
-  notifyInternalSignal,
-  type Store,
-  withSignalStore,
-} from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
+import { consumeInternalSignal, getOrCreateInternalSignal, notifyInternalSignal } from '../../../store/-private';
 import type { LocalField } from '../../../types/schema/fields';
-import type { ModeInfo, PathLike } from '../default-mode';
+import type { KindContext } from '../default-mode';
 
-export function getLocalField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LocalField,
-  path: PathLike,
-  mode: ModeInfo
-): unknown {
-  const signals = withSignalStore(record);
-  const prop = Array.isArray(path) ? path.at(-1)! : path;
-  const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
+export function getLocalField(context: KindContext<LocalField>): unknown {
+  const { field } = context;
+  const signal = getOrCreateInternalSignal(
+    context.signals,
+    context.record,
+    field.name,
+    field.options?.defaultValue ?? null
+  );
   consumeInternalSignal(signal);
   return signal.value;
 }
 
-export function setLocalField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: LocalField,
-  path: PathLike,
-  mode: ModeInfo,
-  value: unknown
-): boolean {
-  const signals = withSignalStore(record);
-  const prop = Array.isArray(path) ? path.at(-1)! : path;
-  const signal = getOrCreateInternalSignal(signals, record, prop, field.options?.defaultValue ?? null);
+export function setLocalField(context: KindContext<LocalField>): boolean {
+  const { value } = context;
+  const signal = getOrCreateInternalSignal(context.signals, context.record, context.field.name, value);
   if (signal.value !== value) {
     signal.value = value;
     notifyInternalSignal(signal);

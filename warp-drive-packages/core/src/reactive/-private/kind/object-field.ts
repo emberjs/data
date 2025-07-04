@@ -1,21 +1,11 @@
-import { OBJECT_SIGNAL, type Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
+import { OBJECT_SIGNAL } from '../../../store/-private';
 import type { ObjectValue, Value } from '../../../types/json/raw';
 import type { ObjectField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
 import { ManagedObject, ManagedObjectMap, peekManagedObject } from '../fields/managed-object';
-import type { ReactiveResource } from '../record';
-import type { SchemaService } from '../schema';
 
-export function getObjectField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: ObjectField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { cache, schema } = store;
+export function getObjectField(context: KindContext<ObjectField>): unknown {
+  const { record, field } = context;
   const managedObjectMapForRecord = ManagedObjectMap.get(record);
   let managedObject;
   if (managedObjectMapForRecord) {
@@ -24,8 +14,10 @@ export function getObjectField(
   if (managedObject) {
     return managedObject as ManagedObject;
   } else {
+    const { store, resourceKey, path } = context;
+    const { cache, schema } = store;
     let rawValue = (
-      mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
+      context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as object;
     if (!rawValue) {
       return null;
@@ -34,17 +26,19 @@ export function getObjectField(
       const transform = schema.transformation(field);
       rawValue = transform.hydrate(rawValue as ObjectValue, (field.options as ObjectValue) ?? null, record) as object;
     }
-    managedObject = new ManagedObject(
-      schema as SchemaService,
-      cache,
-      field,
-      rawValue,
+
+    managedObject = new ManagedObject({
+      store,
       resourceKey,
+      modeName: context.modeName,
+      legacy: context.legacy,
+      editable: context.editable,
       path,
+      field,
       record,
-      mode.editable,
-      mode.legacy
-    );
+      signals: context.signals,
+      value: rawValue,
+    });
 
     if (!managedObjectMapForRecord) {
       ManagedObjectMap.set(record, new Map([[field.name, managedObject]]));
@@ -55,16 +49,9 @@ export function getObjectField(
   return managedObject;
 }
 
-export function setObjectField(
-  store: Store,
-  record: ReactiveResource,
-  resourceKey: StableRecordIdentifier,
-  field: ObjectField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
-  const { cache, schema } = store;
+export function setObjectField(context: KindContext<ObjectField>): boolean {
+  const { field, value, record } = context;
+  const { cache, schema } = context.store;
 
   if (!field.type) {
     let newValue = value as Value;
@@ -74,7 +61,7 @@ export function setObjectField(
       ManagedObjectMap.delete(record);
     }
 
-    cache.setAttr(resourceKey, path, newValue);
+    cache.setAttr(context.resourceKey, context.path, newValue);
 
     const peeked = peekManagedObject(record, field);
     if (peeked) {
@@ -87,7 +74,7 @@ export function setObjectField(
   const transform = schema.transformation(field);
   const rawValue = transform.serialize({ ...(value as ObjectValue) }, (field.options as ObjectValue) ?? null, record);
 
-  cache.setAttr(resourceKey, path, rawValue);
+  cache.setAttr(context.resourceKey, context.path, rawValue);
   const peeked = peekManagedObject(record, field);
   if (peeked) {
     const objSignal = peeked[OBJECT_SIGNAL];

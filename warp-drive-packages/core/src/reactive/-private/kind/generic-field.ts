@@ -1,47 +1,34 @@
-import type { Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
 import type { Value } from '../../../types/json/raw';
 import type { GenericField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
 
-export function getGenericField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: GenericField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { cache, schema } = store;
-  const rawValue = mode.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path);
+export function getGenericField(context: KindContext<GenericField>): unknown {
+  const { cache, schema } = context.store;
+  const rawValue = context.editable
+    ? cache.getAttr(context.resourceKey, context.path)
+    : cache.getRemoteAttr(context.resourceKey, context.path);
 
+  const { field } = context;
   if (!field.type) {
     return rawValue;
   }
 
   const transform = schema.transformation(field);
-  return transform.hydrate(rawValue, field.options ?? null, record);
+  return transform.hydrate(rawValue, field.options ?? null, context.record);
 }
 
-export function setGenericField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: GenericField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
-  const { cache, schema } = store;
+export function setGenericField(context: KindContext<GenericField>): boolean {
+  const { cache, schema } = context.store;
+  const { field } = context;
 
   if (!field.type) {
-    cache.setAttr(resourceKey, path, value as Value);
+    cache.setAttr(context.resourceKey, context.path, context.value as Value);
     return true;
   }
 
   const transform = schema.transformation(field);
-  const rawValue = transform.serialize(value, field.options ?? null, record);
+  const rawValue = transform.serialize(context.value, field.options ?? null, context.record);
 
-  cache.setAttr(resourceKey, path, rawValue);
+  cache.setAttr(context.resourceKey, context.path, rawValue);
   return true;
 }

@@ -1,34 +1,16 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { Store } from '../../../store/-private.ts';
-import type { StableRecordIdentifier } from '../../../types.ts';
 import type { DerivedField } from '../../../types/schema/fields.ts';
-import type { ModeInfo } from '../default-mode.ts';
+import type { KindContext } from '../default-mode.ts';
 
-export function getDerivedField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: DerivedField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  const { schema } = store;
-  const prop = Array.isArray(path) ? path.at(-1)! : path;
-  return schema.derivation(field)(record, field.options ?? null, prop);
+export function getDerivedField(context: KindContext<DerivedField>): unknown {
+  const { schema } = context.store;
+  return schema.derivation(context.field)(context.record, context.field.options ?? null, context.field.name);
 }
 
-export function setDerivedField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: DerivedField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
+export function setDerivedField(context: KindContext<DerivedField>): boolean {
   assert(
-    `ILLEGAL SET: Cannot set '${Array.isArray(path) ? path.join('.') : path}' on '${resourceKey.type}' as ${field.kind} fields are not mutable`
+    `ILLEGAL SET: Cannot set '${context.path.join('.')}' on '${context.resourceKey.type}' as ${context.field.kind} fields are not mutable`
   );
   return false;
 }

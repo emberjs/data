@@ -1,30 +1,13 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { Store } from '../../../store/-private';
-import type { StableRecordIdentifier } from '../../../types';
 import type { CollectionField } from '../../../types/schema/fields';
-import type { ModeInfo } from '../default-mode';
+import type { KindContext } from '../default-mode';
 
-export function getCollectionField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: CollectionField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
+export function getCollectionField(context: KindContext<CollectionField>): unknown {
   assert(`Accessing collection fields is not yet implemented`);
 }
 
-export function setCollectionField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: CollectionField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
+export function setCollectionField(context: KindContext<CollectionField>): boolean {
   assert(`Setting collection fields is not yet implemented`);
   return false;
 }

@@ -1,30 +1,16 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { Store } from '../../../store/-private.ts';
-import type { StableRecordIdentifier } from '../../../types.ts';
+import { entangleSignal } from '../../../store/-private.ts';
 import type { IdentityField } from '../../../types/schema/fields.ts';
-import type { ModeInfo } from '../default-mode.ts';
+import type { KindContext } from '../default-mode.ts';
 
-export function getIdentityField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: IdentityField,
-  path: string | string[],
-  mode: ModeInfo
-): unknown {
-  return resourceKey.id;
+export function getIdentityField(context: KindContext<IdentityField>): unknown {
+  entangleSignal(context.signals, context.record, '@identity', null);
+  return context.resourceKey.id;
 }
 
-export function setIdentityField(
-  store: Store,
-  record: object,
-  resourceKey: StableRecordIdentifier,
-  field: IdentityField,
-  path: string | string[],
-  mode: ModeInfo,
-  value: unknown
-): boolean {
+export function setIdentityField(context: KindContext<IdentityField>): boolean {
+  const { value, resourceKey, store } = context;
   assert(`Expected to receive a string id`, typeof value === 'string' && value.length);
   const normalizedId = String(value);
   const didChange = normalizedId !== resourceKey.id;
