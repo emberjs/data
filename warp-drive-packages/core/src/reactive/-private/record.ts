@@ -146,7 +146,8 @@ export class ReactiveResource {
     this[EmbeddedPath] = embeddedPath;
 
     const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
-    const cacheFields = isEmbedded ? schema.cacheFields({ type: objectType }) : schema.cacheFields(identifier);
+    const method = typeof schema.cacheFields === 'function' ? 'cacheFields' : 'fields';
+    const cacheFields = isEmbedded ? schema[method]({ type: objectType }) : schema[method](identifier);
 
     const signals = withSignalStore(this);
 
