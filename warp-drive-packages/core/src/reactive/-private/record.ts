@@ -139,7 +139,7 @@ export class ReactiveResource {
     // prettier-ignore
     const extensions =
       !context.legacy ? null :
-      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!) :
+      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!, objectType) :
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
     this[EmbeddedField] = embeddedField;
