@@ -54,7 +54,7 @@ export class ManagedObject {
 
     // prettier-ignore
     const extensions =
-      !context.legacy ? null : (schema as SchemaService).CAUTION_MEGA_DANGER_ZONE_objectExtensions(field);
+      !context.legacy ? null : (schema as SchemaService).CAUTION_MEGA_DANGER_ZONE_objectExtensions(field, null);
 
     const proxy = new Proxy(this[SOURCE], {
       ownKeys() {

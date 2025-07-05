@@ -2,11 +2,12 @@ import { module, test } from 'qunit';
 
 import { setupTest } from 'ember-qunit';
 
-import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
-import type { Type } from '@warp-drive/core-types/symbols';
+import type { ObjectValue } from '@warp-drive/core-types/json/raw';
+import { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
+
+import type Store from 'warp-drive__schema-record/services/store';
 
 interface address {
   street: string;
@@ -122,7 +123,7 @@ module('Reads | schema-array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<ResourceObject>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.notStrictEqual(
       cachedResourceData?.attributes?.addresses,
@@ -266,7 +267,7 @@ module('Reads | schema-array fields', function (hooks) {
 
     // test that the data entered the cache properly
     const identifier = recordIdentifierFor(record);
-    const cachedResourceData = store.cache.peek<ResourceObject>(identifier);
+    const cachedResourceData = store.cache.peek(identifier);
 
     assert.notStrictEqual(
       cachedResourceData?.attributes?.businesses,
@@ -297,5 +298,309 @@ module('Reads | schema-array fields', function (hooks) {
       ],
       'the cache values are correct for the array field'
     );
+  });
+
+  test('we can use schema-objects in schema-arrays with identity and type hash functions', function (assert) {
+    type BusinessAddress = {
+      type: 'business';
+      name: string;
+      zip: string;
+    };
+
+    type HomeAddress = {
+      type: 'single-family-home';
+      street: string;
+    };
+
+    type CondoAddress = {
+      type: 'condominium-home';
+      street: string;
+      unit: number;
+    };
+
+    type Address = HomeAddress | BusinessAddress | CondoAddress;
+
+    interface UserWithSourceKeys {
+      id: string | null;
+      $type: 'user';
+      name: string | null;
+      addresses: Address[];
+      [Type]: 'user';
+    }
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource({
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
+      type: 'fragment:address:business',
+      fields: [
+        {
+          name: 'type',
+          kind: 'field',
+        },
+        {
+          name: 'name',
+          kind: 'field',
+        },
+        {
+          name: 'zip',
+          kind: 'field',
+        },
+      ],
+    });
+    schema.registerResource({
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
+      type: 'fragment:address:single-family-home',
+      fields: [
+        {
+          name: 'type',
+          kind: 'field',
+        },
+        {
+          name: 'street',
+          kind: 'field',
+        },
+      ],
+    });
+    schema.registerResource({
+      identity: { kind: '@hash', type: '@computeAddressIdentity', name: null },
+      type: 'fragment:address:condominium-home',
+      fields: [
+        {
+          name: 'type',
+          kind: 'field',
+        },
+        {
+          name: 'street',
+          kind: 'field',
+        },
+        {
+          name: 'unit',
+          kind: 'field',
+        },
+      ],
+    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'addresses',
+            sourceKey: 'user_addresses',
+            type: '@computeAddressType',
+            kind: 'schema-array',
+            options: {
+              polymorphic: true,
+              key: '@hash',
+              type: '@hash',
+            },
+          },
+        ],
+      })
+    );
+    function hashAddressIdentity<T extends object>(data: T, options: ObjectValue | null, prop: string | null): string {
+      const newData = data as Address;
+      return newData.type === 'business' ? newData.zip : newData.street;
+    }
+    hashAddressIdentity[Type] = '@computeAddressIdentity';
+    function hashAddressType<T extends object>(data: T, options: ObjectValue | null, prop: string | null): string {
+      const newData = data as Address;
+      return `fragment:address:${newData.type}`;
+    }
+    hashAddressType[Type] = '@computeAddressType';
+    schema.registerHashFn(hashAddressIdentity);
+    schema.registerHashFn(hashAddressType);
+
+    const record = store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Rey Skybarker',
+          user_addresses: [
+            {
+              type: 'business',
+              name: 'AuditBoard',
+              zip: '12345',
+            },
+          ],
+        },
+      },
+    });
+
+    assert.strictEqual(record.id, '1', 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+    assert.step('^^ precursors ^^');
+
+    assert.propEqual(
+      record.addresses[0],
+      { type: 'business', name: 'AuditBoard', zip: '12345' },
+      'we can access address object'
+    );
+    assert.strictEqual(record.addresses[0], record.addresses[0], 'We have a stable object reference');
+    assert.strictEqual(
+      record.addresses[0].type === 'business' && record.addresses[0]?.zip,
+      '12345',
+      'we can access zip'
+    );
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.deepEqual(
+      cachedResourceData?.attributes?.user_addresses,
+      [
+        {
+          type: 'business',
+          name: 'AuditBoard',
+          zip: '12345',
+        },
+      ],
+      'the cache values are correct for the field'
+    );
+    assert.step('^^ initial stability ^^');
+
+    const originalAddress = record.addresses[0];
+
+    // check what happens when we don't "change identity"
+    store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          user_addresses: [
+            {
+              type: 'business',
+              name: 'AuditBoard Inc.',
+              zip: '12345',
+            },
+          ],
+        },
+      },
+    });
+
+    assert.propEqual(
+      record.addresses[0],
+      { type: 'business', name: 'AuditBoard Inc.', zip: '12345' },
+      'we can access address object'
+    );
+    assert.strictEqual(record.addresses[0], originalAddress, 'We have a stable object reference');
+    assert.strictEqual(
+      record.addresses[0].type === 'business' && record.addresses[0].zip,
+      '12345',
+      'we can access zip'
+    );
+    assert.step('^^ new payload with same values ^^');
+
+    // check what happens when we DO "change identity"
+    store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          user_addresses: [
+            {
+              type: 'business',
+              name: 'AuditBoard Inc.',
+              zip: '54321',
+            },
+          ],
+        },
+      },
+    });
+
+    assert.propEqual(
+      record.addresses[0],
+      { type: 'business', name: 'AuditBoard Inc.', zip: '54321' },
+      'we can access address object'
+    );
+    assert.notStrictEqual(record.addresses[0], originalAddress, 'We changed object references');
+    assert.strictEqual(record.addresses[0], record.addresses[0], 'We have a stable object reference');
+    assert.strictEqual(
+      record.addresses[0].type === 'business' && record.addresses[0].zip,
+      '54321',
+      'we can access zip'
+    );
+    const lastBusinessAddress = record.addresses[0];
+    assert.step('^^ new payload with new identity ^^');
+
+    // check what happens when we change type, we should change references
+    store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          user_addresses: [
+            {
+              type: 'single-family-home',
+              street: 'Sunset Hills',
+            },
+          ],
+        },
+      },
+    });
+
+    assert.propEqual(
+      record.addresses[0],
+      { type: 'single-family-home', street: 'Sunset Hills' },
+      'we can access address object'
+    );
+    assert.notStrictEqual(record.addresses[0], lastBusinessAddress, 'We changed object references');
+    assert.strictEqual(record.addresses[0], record.addresses[0], 'We have a stable object reference');
+    assert.strictEqual(
+      record.addresses[0].type === 'single-family-home' && record.addresses[0].street,
+      'Sunset Hills',
+      'we can access street'
+    );
+    assert.step('^^ new payload with new identity and new type ^^');
+
+    const lastHomeAddress = record.addresses[0];
+
+    // check what happens when we change type but have the same identity calc output, we should still change references
+    store.push<UserWithSourceKeys>({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          user_addresses: [
+            {
+              type: 'condominium-home',
+              street: 'Sunset Hills',
+              unit: 5,
+            },
+          ],
+        },
+      },
+    });
+
+    assert.propEqual(
+      record.addresses[0],
+      { type: 'condominium-home', street: 'Sunset Hills', unit: 5 },
+      'we can access address object'
+    );
+    assert.notStrictEqual(record.addresses[0], lastHomeAddress, 'We changed object references');
+    assert.strictEqual(record.addresses[0], record.addresses[0], 'We have a stable object reference');
+    assert.strictEqual(
+      record.addresses[0].type === 'condominium-home' && record.addresses[0].street,
+      'Sunset Hills',
+      'we can access street'
+    );
+    assert.step('^^ new payload with new type same identity ^^');
+
+    assert.verifySteps([
+      '^^ precursors ^^',
+      '^^ initial stability ^^',
+      '^^ new payload with same values ^^',
+      '^^ new payload with new identity ^^',
+      '^^ new payload with new identity and new type ^^',
+      '^^ new payload with new type same identity ^^',
+    ]);
   });
 });

@@ -392,7 +392,10 @@ export interface SchemaService {
    *
    * @public
    */
-  CAUTION_MEGA_DANGER_ZONE_objectExtensions?(field: ExtensibleField): null | ProcessedExtension['features'];
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions?(
+    field: ExtensibleField,
+    resolvedType: string | null
+  ): null | ProcessedExtension['features'];
 
   /**
    * Retrieve the extension map for an array field

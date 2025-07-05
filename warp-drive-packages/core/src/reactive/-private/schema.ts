@@ -223,7 +223,8 @@ function pretendIsResourceOrObjectSchema(
 function processExtensions(
   schema: SchemaService,
   field: ExtensibleField | ObjectSchema | ResourceSchema,
-  scenario: 'resource' | 'object' | 'array'
+  scenario: 'resource' | 'object' | 'array',
+  resolvedType: string | null
 ) {
   // if we're looking up extensions for a resource, there is no
   // merging required so if we have no objectExtensions
@@ -261,16 +262,20 @@ function processExtensions(
       return null;
     }
 
-    return schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field);
+    return schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
+      resolvedType ? { type: resolvedType } : (field as { type: string })
+    );
   }
 
   // if we have made it here, we have extensions, lets check if there's
   // a cached version we can use
   const baseExtensions =
     scenario === 'resource' && hasObjectSchema(field)
-      ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
+      ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field as { type: string })
       : scenario === 'object' && hasObjectSchema(field)
-        ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(field)
+        ? schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
+            resolvedType ? { type: resolvedType } : (field as { type: string })
+          )
         : null;
 
   if (!baseExtensions && extensions.length === 1) {
@@ -679,15 +684,18 @@ export class SchemaService implements SchemaServiceInterface {
     resource: StableRecordIdentifier | { type: string }
   ): null | ProcessedExtension['features'] {
     const schema = this.resource(resource);
-    return processExtensions(this, schema, 'resource');
+    return processExtensions(this, schema, 'resource', null);
   }
 
-  CAUTION_MEGA_DANGER_ZONE_objectExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
-    return processExtensions(this, field, 'object');
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions(
+    field: ExtensibleField,
+    resolvedType: string | null
+  ): null | ProcessedExtension['features'] {
+    return processExtensions(this, field, 'object', resolvedType);
   }
 
   CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
-    return processExtensions(this, field, 'array');
+    return processExtensions(this, field, 'array', null);
   }
 
   CAUTION_MEGA_DANGER_ZONE_hasExtension(ext: { kind: 'object' | 'array'; name: string }): boolean {

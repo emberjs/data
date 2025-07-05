@@ -335,7 +335,7 @@ export interface IdentityField {
  * perform those itself.
  *
  * A schema-array can declare its "key" value to be `@hash` if
- * a schema-object has such a field.
+ * the schema-objects it contains have such a field.
  *
  * Only one hash field is permittable per schema-object, and
  * it should be placed in the `ResourceSchema`'s `@id` field
@@ -528,10 +528,12 @@ export interface ObjectField {
 /**
  * Represents a field whose value is an object
  * with a well-defined structure described by
- * a non-resource schema.
+ * a schema-object (a non-resource schema).
  *
  * If the object's structure is not well-defined,
  * use 'object' instead.
+ *
+ * By default, a SchemaObject within
  *
  * @public
  */
@@ -575,12 +577,19 @@ export interface SchemaObjectField {
   sourceKey?: string;
 
   /**
+   * If the field is not polymorphic:
+   *
    * The name of the ObjectSchema that describes the
    * structure of the object.
    *
+   * If the field is polymorphic:
+   *
+   * The name of the hashFn to use to extract
+   * the type from the contained value or null.
+   *
    * @public
    */
-  type: string;
+  type: string | null;
 
   /**
    * Options for configuring the behavior of the
@@ -620,7 +629,15 @@ export interface SchemaObjectField {
      * If the SchemaObject is Polymorphic, the key on the raw cache data to use
      * as the "resource-type" value for the schema-object.
      *
-     * Defaults to "type".
+     * The default is `'type'`.
+     *
+     * Valid options are:
+     *
+     * - `'@hash'`                : will lookup the `@hash` function specified by
+     *       SchemaObjectField.type and use it to calculate the type for each value.
+     * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+     *       Are valid field names for this purpose. The cache state without transforms applied will be
+     *       used when comparing values.
      *
      * @public
      */
@@ -762,12 +779,19 @@ export interface SchemaArrayField {
   sourceKey?: string;
 
   /**
+   * If the SchemaArray is not polymorphic:
+   *
    * The name of the ObjectSchema that describes the
    * structure of the objects in the array.
    *
+   * If the SchemaArray is polymorphic:
+   *
+   * The name of the hashFn to use to extract
+   * the type from contained members or null.
+   *
    * @public
    */
-  type: string;
+  type: string | null;
 
   /**
    * Options for configuring the behavior of the
@@ -782,13 +806,13 @@ export interface SchemaArrayField {
    *
    * Valid options are:
    *
-   * - `'@identity'` (default) : the cached object's referential identity will be used.
+   * - `'@identity'`(default)  : the cached object's referential identity will be used.
    *       This may result in significant instability when resource data is updated from the API
    * - `'@index'`              : the cached object's index in the array will be used.
    *       This is only a good choice for arrays that rarely if ever change membership
    * - `'@hash'`               : will lookup the `@hash` function supplied in the ResourceSchema for
    *       The contained schema-object and use the computed result to determine and compare identity.
-   * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+   * - \<field-name> (string)  : the name of a field to use as the key, only GenericFields (kind `field`)
    *       Are valid field names for this purpose. The cache state without transforms applied will be
    *       used when comparing values. The field value should be unique enough to guarantee two schema-objects
    *       of the same type will not collide.
@@ -863,8 +887,15 @@ export interface SchemaArrayField {
      * If the SchemaArray is Polymorphic, the key on the raw cache data to use
      * as the "resource-type" value for the schema-object.
      *
-     * Defaults to "type".
+     * The default is `'type'`.
      *
+     * Valid options are:
+     *
+     * - `'@hash'`                : will lookup the `@hash` function specified by
+     *       SchemaArrayField.type and use it to calculate the type for each value.
+     * - \<field-name> (string)   : the name of a field to use as the key, only GenericFields (kind `field`)
+     *       Are valid field names for this purpose. The cache state without transforms applied will be
+     *       used when comparing values.
      */
     type?: string;
   };

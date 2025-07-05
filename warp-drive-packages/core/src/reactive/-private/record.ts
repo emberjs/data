@@ -28,8 +28,8 @@ import { DefaultMode } from './default-mode.ts';
 import type { ProxiedMethod } from './fields/extension.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './fields/extension.ts';
 import { getFieldCacheKey } from './fields/get-field-key.ts';
+import type { ManagedArray } from './fields/managed-array.ts';
 import { peekManagedObject } from './fields/managed-object.ts';
-import { peekManagedArray } from './kind/array-field.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
 
@@ -128,25 +128,26 @@ export class ReactiveResource {
       this[Identifier] = identifier;
     }
     const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    const schema = store.schema as unknown as SchemaService;
     this[Legacy] = context.legacy ?? false;
 
-    const schema = store.schema as unknown as SchemaService;
-    const ResourceSchema = schema.resource(isEmbedded ? (embeddedField as SchemaObjectField) : identifier);
+    const objectType = isEmbedded ? context.value : identifier.type;
+    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType } : identifier);
     const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
     // prettier-ignore
     const extensions =
       !context.legacy ? null :
-      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!) :
+      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!, objectType) :
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
     this[EmbeddedField] = embeddedField;
     this[EmbeddedPath] = embeddedPath;
 
-    const fields: Map<string, FieldSchema> = isEmbedded
-      ? schema.fields(embeddedField as SchemaObjectField)
-      : schema.fields(identifier);
+    const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
+    const method = typeof schema.cacheFields === 'function' ? 'cacheFields' : 'fields';
+    const cacheFields = isEmbedded ? schema[method]({ type: objectType }) : schema[method](identifier);
 
     const signals = withSignalStore(this);
 
@@ -527,9 +528,9 @@ export class ReactiveResource {
                 if (signal) {
                   notifyInternalSignal(signal);
                 }
-                const field = fields.get(key);
+                const field = cacheFields.get(key);
                 if (field?.kind === 'array' || field?.kind === 'schema-array') {
-                  const peeked = peekManagedArray(proxy, field);
+                  const peeked = signal?.value as ManagedArray | undefined;
                   if (peeked) {
                     assert(
                       `Expected the peekManagedArray for ${field.kind} to return a ManagedArray`,
@@ -556,7 +557,7 @@ export class ReactiveResource {
               } else {
                 if (isEmbedded) return; // base paths never apply to embedded records
 
-                const field = fields.get(key);
+                const field = cacheFields.get(key);
                 assert(`Expected relationship ${key} to be the name of a field`, field);
                 if (field.kind === 'belongsTo') {
                   // TODO determine what LOGGING flag to wrap this in if any
@@ -570,9 +571,12 @@ export class ReactiveResource {
                   // FIXME
                 } else if (field.kind === 'hasMany') {
                   if (field.options.linksMode) {
-                    const peeked = peekManagedArray(proxy, field) as ManyArray | undefined;
-                    if (peeked) {
-                      notifyInternalSignal(peeked[ARRAY_SIGNAL]);
+                    const signal = signals.get(key);
+                    if (signal) {
+                      const peeked = signal.value as ManyArray | undefined;
+                      if (peeked) {
+                        notifyInternalSignal(peeked[ARRAY_SIGNAL]);
+                      }
                     }
                     return;
                   }
@@ -645,8 +649,9 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     modeName: legacy ? 'legacy' : 'polaris',
     legacy: legacy,
     editable: true,
-    path: embeddedPath!,
-    field: embeddedType!,
+    path: null,
+    field: null,
+    value: null,
   });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
   return Promise.resolve(editableRecord);
@@ -660,6 +665,9 @@ function _DESTROY(record: ReactiveResource): void {
     record.isDestroyed = true;
   }
   record[RecordStore].notifications.unsubscribe(record.___notifications);
+
+  // FIXME we need a way to also unsubscribe all SchemaObjects when the primary
+  // resource is destroyed.
 }
 
 function assertNeverField(identifier: StableRecordIdentifier, field: never, path: string | string[]): false {

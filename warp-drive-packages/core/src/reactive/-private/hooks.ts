@@ -25,6 +25,7 @@ export function instantiateRecord(
     editable: editable,
     path: null,
     field: null,
+    value: null,
   });
 
   if (createArgs) {

@@ -604,8 +604,11 @@ export class DelegatingSchemaService implements SchemaService {
     return this._preferred.CAUTION_MEGA_DANGER_ZONE_resourceExtensions!(resource);
   }
 
-  CAUTION_MEGA_DANGER_ZONE_objectExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
-    return this._preferred.CAUTION_MEGA_DANGER_ZONE_objectExtensions!(field);
+  CAUTION_MEGA_DANGER_ZONE_objectExtensions(
+    field: ExtensibleField,
+    resolvedType: string | null
+  ): null | ProcessedExtension['features'] {
+    return this._preferred.CAUTION_MEGA_DANGER_ZONE_objectExtensions!(field, resolvedType);
   }
 
   CAUTION_MEGA_DANGER_ZONE_arrayExtensions(field: ExtensibleField): null | ProcessedExtension['features'] {
