@@ -28,7 +28,7 @@ export function instantiateRecord(
     value: null,
   });
 
-  if (createArgs) {
+  if (createArgs && editable) {
     Object.assign(record, createArgs);
   }
 

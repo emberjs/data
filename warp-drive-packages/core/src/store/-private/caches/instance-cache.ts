@@ -5,10 +5,13 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { ReactiveDocument } from '../../../reactive/-private/document.ts';
+import type { ReactiveResource } from '../../../reactive/-private/record.ts';
+import { _CHECKOUT } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '../../../types/record.ts';
+import type { ResourceSchema } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { log, logGroup } from '../debug/utils.ts';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager.ts';
@@ -192,31 +195,54 @@ export class InstanceCache {
     return doc as ReactiveDocument<T>;
   }
 
-  getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): OpaqueRecordInstance {
+  getNewRecord(identifier: StableRecordIdentifier, properties: CreateRecordProperties): OpaqueRecordInstance {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
-      assert(
-        `Cannot create a new record instance while the store is being destroyed`,
-        !this.store.isDestroying && !this.store.isDestroyed
-      );
-      const cache = this.store.cache;
-      setCacheFor(identifier, cache);
+      record = this._createRecord(identifier, properties);
 
-      record = this.store.instantiateRecord(identifier, properties || {});
-
-      setRecordIdentifier(record, identifier);
-      setCacheFor(record, cache);
-      StoreMap.set(record, this.store);
-      this.__instances.record.set(identifier, record);
-
-      if (LOG_INSTANCE_CACHE) {
-        logGroup('reactive-ui', '', identifier.type, identifier.lid, 'created', '');
-        // eslint-disable-next-line no-console
-        console.log({ properties });
-        // eslint-disable-next-line no-console
-        console.groupEnd();
+      // this is a work around until we introduce a new async createRecord API
+      const schema = this.store.schema.resource(identifier) as ResourceSchema;
+      if (!schema.legacy) {
+        const editable = _CHECKOUT(record as ReactiveResource);
+        if (properties) {
+          Object.assign(editable, properties);
+        }
+        return editable;
       }
+    }
+
+    return record;
+  }
+
+  _createRecord(identifier: StableRecordIdentifier, properties: CreateRecordProperties): OpaqueRecordInstance {
+    assert(
+      `Cannot create a new record instance while the store is being destroyed`,
+      !this.store.isDestroying && !this.store.isDestroyed
+    );
+    const cache = this.store.cache;
+    setCacheFor(identifier, cache);
+
+    const record = this.store.instantiateRecord(identifier, properties);
+
+    setRecordIdentifier(record, identifier);
+    StoreMap.set(record, this.store);
+    this.__instances.record.set(identifier, record);
+
+    if (LOG_INSTANCE_CACHE) {
+      logGroup('reactive-ui', '', identifier.type, identifier.lid, 'created', '');
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+
+    return record;
+  }
+
+  getRecord(identifier: StableRecordIdentifier): OpaqueRecordInstance {
+    let record = this.__instances.record.get(identifier);
+
+    if (!record) {
+      record = this._createRecord(identifier, {});
     }
 
     return record;
@@ -287,7 +313,6 @@ export class InstanceCache {
         this.__instances.record.delete(identifier);
         StoreMap.delete(record);
         RecordCache.delete(record);
-        removeRecordDataFor(record);
 
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
