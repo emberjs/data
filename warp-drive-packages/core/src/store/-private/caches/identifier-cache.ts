@@ -569,7 +569,7 @@ export class IdentifierCache {
 
    @public
   */
-  createIdentifierForNewRecord(data: { type: string; id?: string | null }): StableRecordIdentifier {
+  createIdentifierForNewRecord(data: { type: string; id?: string | null; lid?: string }): StableRecordIdentifier {
     const newLid = this._generate(data, 'record');
     const identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
       { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },

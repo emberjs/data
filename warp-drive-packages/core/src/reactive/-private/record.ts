@@ -225,7 +225,7 @@ export class ReactiveResource {
             return () => _DESTROY(receiver as unknown as ReactiveResource);
           }
           if (prop === Checkout) {
-            return () => _CHECKOUT(receiver as unknown as ReactiveResource);
+            return () => Promise.resolve(_CHECKOUT(receiver as unknown as ReactiveResource));
           }
           return target[prop as keyof ReactiveResource];
         }
@@ -623,7 +623,7 @@ export class ReactiveResource {
   }
 }
 
-function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
+export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
   // IF we are already the editable record, throw an error
   if (record[Editable]) {
     throw new Error(`Cannot checkout an already editable record`);
@@ -631,7 +631,7 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
 
   const editable = Editables.get(record);
   if (editable) {
-    return Promise.resolve(editable);
+    return editable;
   }
 
   const embeddedType = record[EmbeddedField];
@@ -654,7 +654,7 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     value: null,
   });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
-  return Promise.resolve(editableRecord);
+  return editableRecord;
 }
 
 function _DESTROY(record: ReactiveResource): void {

@@ -3,9 +3,8 @@ import { computed } from '@ember/object';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { peekCache } from '@warp-drive/core/store/-private';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core/types/json/raw';
-import type { TransformName } from '@warp-drive/core/types/symbols';
+import { RecordStore, type TransformName } from '@warp-drive/core/types/symbols';
 
 import type { Model } from './model.ts';
 import type { DecoratorPropertyDescriptor } from './util.ts';
@@ -76,7 +75,8 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions) {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
-      return peekCache(this).getAttr(recordIdentifierFor(this), key);
+      const cache = this[RecordStore].cache;
+      return cache.getAttr(recordIdentifierFor(this), key);
     },
     set(this: Model, key: string, value: Value) {
       if (DEBUG) {
@@ -91,7 +91,7 @@ function _attr(type?: string | AttrOptions, options?: AttrOptions) {
         `Attempted to set '${key}' on the deleted record ${identifier.type}:${identifier.id} (${identifier.lid})`,
         !this.currentState.isDeleted
       );
-      const cache = peekCache(this);
+      const cache = this[RecordStore].cache;
 
       const currentValue = cache.getAttr(identifier, key);
       if (currentValue !== value) {
