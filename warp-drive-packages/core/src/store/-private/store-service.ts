@@ -42,7 +42,13 @@ import type { SchemaService } from '../-types/q/schema-service.ts';
 import type { StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';
 import { IdentifierCache } from './caches/identifier-cache.ts';
-import { InstanceCache, peekRecordIdentifier, recordIdentifierFor, storeFor } from './caches/instance-cache.ts';
+import {
+  getNewRecord,
+  InstanceCache,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  storeFor,
+} from './caches/instance-cache.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
@@ -1074,7 +1080,7 @@ export class Store extends BaseClass {
       const createOptions = normalizeProperties(this, identifier, properties);
       const resultProps = cache.clientDidCreate(identifier, createOptions);
 
-      record = this._instanceCache.getNewRecord(identifier, resultProps);
+      record = getNewRecord(this._instanceCache, identifier, resultProps);
     });
     return record;
   }
