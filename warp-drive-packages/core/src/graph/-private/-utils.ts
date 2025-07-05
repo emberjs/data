@@ -4,7 +4,7 @@ import { LOG_GRAPH } from '@warp-drive/core/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../store/-private.ts';
-import { peekCache } from '../../store/-private.ts';
+import { peekCache } from '../../store/-private/caches/cache-utils.ts';
 import type { CacheCapabilitiesManager } from '../../types.ts';
 import type { UpdateResourceRelationshipOperation } from '../../types/cache/operations.ts';
 import type { UpdateRelationshipOperation } from '../../types/graph.ts';
