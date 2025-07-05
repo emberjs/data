@@ -1458,7 +1458,7 @@ export class Store extends BaseClass {
     if (!cache) {
       cache = this._instanceCache.cache = this.createCache(this._instanceCache._storeWrapper);
       if (DEBUG) {
-        cache = new CacheManager(cache);
+        cache = this._instanceCache.cache = new CacheManager(cache);
       }
     }
 
