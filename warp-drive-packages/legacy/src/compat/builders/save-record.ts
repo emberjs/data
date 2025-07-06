@@ -47,7 +47,7 @@ export function saveRecordBuilder<T extends TypedRecordInstance>(
   record: T,
   options: Record<string, unknown> = {}
 ): SaveRecordRequestInput<TypeFromInstance<T>, T> {
-  const store = storeFor(record);
+  const store = storeFor(record, true);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
   const identifier = recordIdentifierFor<T>(record);
 

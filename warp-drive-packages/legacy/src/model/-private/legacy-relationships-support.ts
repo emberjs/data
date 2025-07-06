@@ -75,7 +75,7 @@ export class LegacySupport {
 
   constructor(record: MinimalLegacyRecord) {
     this.record = record;
-    this.store = storeFor(record)!;
+    this.store = storeFor(record, false)!;
     this.identifier = recordIdentifierFor(record);
     this.cache = this.store.cache;
 

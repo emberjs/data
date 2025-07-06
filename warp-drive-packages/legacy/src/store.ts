@@ -209,7 +209,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       `Attempted to call store.saveRecord(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
     );
-    assert(`Unable to initiate save for a record in a disconnected state`, storeFor(record));
+    assert(`Unable to initiate save for a record in a disconnected state`, storeFor(record, true));
     const identifier = recordIdentifierFor(record);
     const cache = this.cache;
 

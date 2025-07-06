@@ -2,18 +2,12 @@ import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import type { Graph } from '@warp-drive/core/graph/-private';
 import { graphFor } from '@warp-drive/core/graph/-private';
-import { storeFor } from '@warp-drive/core/store/-private';
-import type { Cache } from '@warp-drive/core/types/cache';
 import { Type } from '@warp-drive/core/types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 import { stateOf } from './edge-removal/setup';
-
-function getCache(instance: object): Cache | null {
-  return storeFor(instance)?.cache ?? null;
-}
 
 module('Integration | Graph | Edges', function (hooks) {
   setupTest(hooks);
@@ -26,10 +20,10 @@ module('Integration | Graph | Edges', function (hooks) {
     graph = graphFor(store);
   });
 
-  module('Lazy instantiation of RecordData', function () {
+  module('Lazy Instantiation of Cache Entry', function () {
     /**
      * Tests in this module affirm that the relationship graph does not
-     * unnecessarily force materialization of RecordData instances. This
+     * unnecessarily force materialization of cache entries. This
      * allows for us to manage the state of a relationship purely from
      * knowledge derived from it's inverses.
      */
@@ -49,7 +43,7 @@ module('Integration | Graph | Edges', function (hooks) {
       const bestFriend = graph.get(identifier, 'bestFriend');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We have no record data instance afer accessing the relationships for this identifier'
       );
@@ -57,7 +51,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.ok(bestFriend, 'We can access a specific relationship');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after accessing a named relationship'
       );
@@ -72,7 +66,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after push of only an identifier within a relationship'
       );
@@ -90,7 +84,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier)?.getAttr(identifier, 'name'),
+        store.cache?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -121,7 +115,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -145,7 +139,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -163,7 +157,11 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
-      assert.equal(getCache(identifier), null, 'We still have no record data instance after updating the local state');
+      assert.equal(
+        store.cache.peek(identifier),
+        null,
+        'We still have no record data instance after updating the local state'
+      );
 
       store.push({
         data: {
@@ -174,7 +172,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier)?.getAttr(identifier, 'name'),
+        store.cache?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -203,7 +201,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -227,7 +225,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier3], 'Our current state is correct after canonical update');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -245,7 +243,11 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier3], 'Our canonical state is correct after local update');
       assert.deepEqual(state.local, [identifier2], 'Our current state is correct after local update');
 
-      assert.equal(getCache(identifier), null, 'We still have no record data instance after updating the local state');
+      assert.equal(
+        store.cache.peek(identifier),
+        null,
+        'We still have no record data instance after updating the local state'
+      );
 
       store.push({
         data: {
@@ -256,7 +258,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier)?.getAttr(identifier, 'name'),
+        store.cache?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -290,7 +292,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -317,7 +319,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2, identifier3], 'Our current state is correct after canonical update');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -340,7 +342,11 @@ module('Integration | Graph | Edges', function (hooks) {
         'Our current state is correct after local update'
       );
 
-      assert.equal(getCache(identifier), null, 'We still have no record data instance after updating the local state');
+      assert.equal(
+        store.cache.peek(identifier),
+        null,
+        'We still have no record data instance after updating the local state'
+      );
 
       store.push({
         data: {
@@ -351,7 +357,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier)?.getAttr(identifier, 'name'),
+        store.cache?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );
@@ -385,7 +391,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We have no record data instance after push of only an identifier within a relationship'
       );
@@ -412,7 +418,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.local, [identifier2, identifier3], 'Our current state is correct after canonical update');
 
       assert.equal(
-        getCache(identifier),
+        store.cache.peek(identifier),
         null,
         'We still have no record data instance after updating the canonical state'
       );
@@ -435,7 +441,11 @@ module('Integration | Graph | Edges', function (hooks) {
         'Our current state is correct after local update'
       );
 
-      assert.equal(getCache(identifier), null, 'We still have no record data instance after updating the local state');
+      assert.equal(
+        store.cache.peek(identifier),
+        null,
+        'We still have no record data instance after updating the local state'
+      );
 
       store.push({
         data: {
@@ -446,7 +456,7 @@ module('Integration | Graph | Edges', function (hooks) {
       });
 
       assert.equal(
-        getCache(identifier)?.getAttr(identifier, 'name'),
+        store.cache?.getAttr(identifier, 'name'),
         'Chris',
         'We lazily associate the correct record data instance'
       );

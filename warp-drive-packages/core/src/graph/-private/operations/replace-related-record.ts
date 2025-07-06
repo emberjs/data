@@ -6,7 +6,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
-import { isBelongsTo, isNew, notifyChange } from '../-utils.ts';
+import { checkIfNew, isBelongsTo, notifyChange } from '../-utils.ts';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
 import type { Graph } from '../graph.ts';
 import { addToInverse, notifyInverseOfPotentialMaterialization, removeFromInverse } from './replace-related-records.ts';
@@ -78,7 +78,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
     if (isRemote) {
       const { localState } = relationship;
       // don't sync if localState is a new record and our remoteState is null
-      if (localState && isNew(localState) && !existingState) {
+      if (localState && checkIfNew(graph._realStore, localState) && !existingState) {
         return;
       }
       if (existingState && localState === existingState) {
@@ -148,7 +148,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
 
   if (isRemote) {
     const { localState, remoteState } = relationship;
-    if (localState && isNew(localState) && !remoteState) {
+    if (localState && checkIfNew(graph._realStore, localState) && !remoteState) {
       return;
     }
     // when localState does not match the new remoteState and

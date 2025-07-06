@@ -7,7 +7,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { coerceId, defineGate, entangleSignal, gate, memoized, withSignalStore } from '@warp-drive/core/store/-private';
 import type { ModelSchema, StableRecordIdentifier } from '@warp-drive/core/types';
-import type { Cache, ChangedAttributesHash } from '@warp-drive/core/types/cache';
+import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
@@ -48,9 +48,8 @@ export type ModelCreateArgs = {
   // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
   _secretInit: {
     identifier: StableRecordIdentifier;
-    cache: Cache;
     store: Store;
-    cb: (record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store) => void;
+    cb: (record: Model, identifier: StableRecordIdentifier, store: Store) => void;
   };
 };
 
@@ -522,7 +521,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     this[RecordStore] = store;
 
     const identity = _secretInit.identifier;
-    _secretInit.cb(this, _secretInit.cache, identity, _secretInit.store);
+    _secretInit.cb(this, identity, _secretInit.store);
 
     this.___recordState = DEBUG
       ? new RecordState(this as unknown as MinimalLegacyRecord)
@@ -544,7 +543,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   destroy(): this {
     const identifier = recordIdentifierFor(this);
     this.___recordState?.destroy();
-    const store = storeFor(this)!;
+    const store = storeFor(this, false)!;
     store.notifications.unsubscribe(this.___private_notifications);
 
     LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
@@ -1063,7 +1062,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
   }
 
   inverseFor(name: string): LegacyRelationshipField | null {
-    return (this.constructor as typeof Model).inverseFor(name, storeFor(this)!);
+    return (this.constructor as typeof Model).inverseFor(name, storeFor(this, false)!);
   }
 
   eachAttribute<T>(

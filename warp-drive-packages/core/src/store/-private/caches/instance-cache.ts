@@ -16,7 +16,6 @@ import { log, logGroup } from '../debug/utils.ts';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager.ts';
 import type { CacheManager } from '../managers/cache-manager.ts';
 import type { CreateRecordProperties, Store } from '../store-service.ts';
-import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils.ts';
 
 type Destroyable = {
   isDestroyed: boolean;
@@ -85,14 +84,14 @@ export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<
  * We may eventually make this public, but its likely better for this to be killed off
  * @internal
  */
-export function storeFor(record: OpaqueRecordInstance): Store | undefined {
+export function storeFor(record: OpaqueRecordInstance, ignoreMissing: boolean): Store | null {
   const store = StoreMap.get(record);
 
   assert(
     `A record in a disconnected state cannot utilize the store. This typically means the record has been destroyed, most commonly by unloading it.`,
-    store
+    ignoreMissing || store
   );
-  return store;
+  return store ?? null;
 }
 
 export type Caches = {
@@ -236,7 +235,7 @@ export class InstanceCache {
     this.store._graph?.remove(identifier);
 
     this.store.identifierCache.forgetRecordIdentifier(identifier);
-    removeRecordDataFor(identifier);
+    StoreMap.delete(identifier);
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
       log('reactive-ui', '', identifier.type, identifier.lid, 'disconnected', '');
@@ -278,7 +277,7 @@ export class InstanceCache {
 
       if (cache) {
         cache.unloadRecord(identifier);
-        removeRecordDataFor(identifier);
+        StoreMap.delete(identifier);
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
           console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
@@ -404,8 +403,6 @@ function _createRecord(
     `Cannot create a new record instance while the store is being destroyed`,
     !instances.store.isDestroying && !instances.store.isDestroyed
   );
-  const cache = instances.store.cache;
-  setCacheFor(identifier, cache);
 
   const record = instances.store.instantiateRecord(identifier, properties);
 
@@ -425,5 +422,4 @@ function _createRecord(
 export function _clearCaches(): void {
   RecordCache.clear();
   StoreMap.clear();
-  CacheForIdentifierCache.clear();
 }
