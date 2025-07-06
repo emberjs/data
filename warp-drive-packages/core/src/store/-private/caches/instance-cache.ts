@@ -5,8 +5,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { ReactiveDocument } from '../../../reactive/-private/document.ts';
-import type { ReactiveResource } from '../../../reactive/-private/record.ts';
-import { _CHECKOUT } from '../../../reactive/-private/record.ts';
+import { _CHECKOUT, ReactiveResource } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
@@ -380,14 +379,16 @@ export function getNewRecord(
   if (!record) {
     record = _createRecord(instances, identifier, properties);
 
-    // this is a work around until we introduce a new async createRecord API
-    const schema = instances.store.schema.resource(identifier) as ResourceSchema;
-    if (!schema.legacy) {
-      const editable = _CHECKOUT(record as ReactiveResource);
-      if (properties) {
-        Object.assign(editable, properties);
+    if (record instanceof ReactiveResource && instances.store.schema.resource) {
+      // this is a work around until we introduce a new async createRecord API
+      const schema = instances.store.schema.resource(identifier) as ResourceSchema;
+      if (!schema.legacy) {
+        const editable = _CHECKOUT(record);
+        if (properties) {
+          Object.assign(editable, properties);
+        }
+        return editable;
       }
-      return editable;
     }
   }
 
