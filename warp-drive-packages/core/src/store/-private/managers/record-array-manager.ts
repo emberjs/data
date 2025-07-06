@@ -12,7 +12,7 @@ import type { Store } from '../store-service.ts';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager.ts';
 
 const FAKE_ARR = getOrSetGlobal('FAKE_ARR', {});
-const SLICE_BATCH_SIZE = 1200;
+const SLICE_BATCH_SIZE = 4761;
 /**
  * This is a clever optimization.
  *
