@@ -12,7 +12,7 @@ import type { Store } from '../store-service.ts';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager.ts';
 
 const FAKE_ARR = getOrSetGlobal('FAKE_ARR', {});
-const SLICE_BATCH_SIZE = 1200;
+const SLICE_BATCH_SIZE = 4761;
 /**
  * This is a clever optimization.
  *
@@ -52,15 +52,12 @@ const SLICE_BATCH_SIZE = 1200;
  * @param source the items to push into target
  */
 export function fastPush<T>(target: T[], source: T[]): void {
-  let startLength = 0;
-  const newLength = source.length;
-  while (newLength - startLength > SLICE_BATCH_SIZE) {
-    // eslint-disable-next-line prefer-spread
-    target.push.apply(target, source.slice(startLength, startLength + SLICE_BATCH_SIZE));
-    startLength += SLICE_BATCH_SIZE;
+  let batch;
+  while (source.length > SLICE_BATCH_SIZE) {
+    batch = source.splice(0, SLICE_BATCH_SIZE);
+    target.push(...batch);
   }
-  // eslint-disable-next-line prefer-spread
-  target.push.apply(target, source.slice(startLength));
+  target.push(...source);
 }
 
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
