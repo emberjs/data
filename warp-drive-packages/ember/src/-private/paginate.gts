@@ -10,12 +10,6 @@ import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 import { and, Throw } from './await.gts';
 
-function notNull(x: null): never;
-function notNull<T>(x: T): Exclude<T, null>;
-function notNull<T>(x: T | null) {
-  assert('Expected a non-null value, but got null', x !== null);
-  return x;
-}
 const IdleBlockMissingError = new Error(
   'No idle block provided for <Paginate> component, and no query or request was provided.'
 );
@@ -296,12 +290,12 @@ export class Paginate<T, E> extends Component<RequestSignature<T, E>> {
     return Boolean(!request);
   }
 
-  get pageState() {
+  get pageState(): Readonly<PaginationState<T, E>> {
     assert('The `request` argument is required for the <Paginate> component.', this.args.request);
     return getPaginationState<T, E>(this.args.request);
   }
 
-  get result() {
+  get result(): ReactiveDocument<T[]>[] {
     return this.pageState?.pages;
   }
 
