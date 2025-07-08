@@ -305,3 +305,4 @@ export {
 } from './reactive/-private/schema';
 export { type ReactiveResource } from './reactive/-private/record';
 export { Checkout } from './reactive/-private/symbols';
+export { type ReactiveDocument } from './reactive/-private/document';
