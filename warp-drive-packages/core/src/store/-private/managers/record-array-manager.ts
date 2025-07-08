@@ -107,6 +107,8 @@ export class RecordArrayManager {
     this._subscription = this.store.notifications.subscribe(
       'resource',
       (identifier: StableRecordIdentifier, type: CacheOperation) => {
+        // TODO if the identifier is associated to a PolarisMode schema
+        // and is in the `isNew` state, it should not appear in any record arrays.
         if (type === 'added') {
           this._visibilitySet.set(identifier, true);
           this.identifierAdded(identifier);

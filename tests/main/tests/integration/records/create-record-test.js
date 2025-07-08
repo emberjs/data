@@ -7,6 +7,7 @@ import { setupTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -201,5 +202,13 @@ module('Store.createRecord() coverage', function (hooks) {
     // check that the relationship has remained established
     assert.strictEqual(bestHuman, chris, 'Shen bestHuman is still Chris');
     assert.strictEqual(bestDog, shen, 'Chris still has Shen as bestDog');
+  });
+
+  test('we can create a new record with a pre-set lid', async function (assert) {
+    const store = this.owner.lookup('service:store');
+    const lid = '@test/lid:pet-shen-asdf-1234';
+    const record = store.createRecord('pet', { name: 'Shen' }, { lid: '@test/lid:pet-shen-asdf-1234' });
+    const identifier = recordIdentifierFor(record);
+    assert.strictEqual(identifier.lid, lid, 'we used the custom lid');
   });
 });
