@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/unpublished-test-infra",
-  "version": "5.7.0-alpha.5",
+  "version": "5.7.0-alpha.6",
   "private": true,
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [
