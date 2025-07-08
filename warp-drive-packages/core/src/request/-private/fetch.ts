@@ -4,6 +4,8 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { cloneResponseProperties, type Context } from './context';
 import type { HttpErrorProps } from './utils';
 
+export type { HttpErrorProps };
+
 interface FastbootRequest extends Request {
   protocol: string;
   host: string;
