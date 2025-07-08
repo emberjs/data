@@ -371,7 +371,7 @@ applications.
 
 ::: code-group
 
-```ts [Unniversal]
+```ts [Universal]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {  // [!code focus:4]
   registerDerivations,
