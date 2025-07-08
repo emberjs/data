@@ -9,3 +9,5 @@ export { PromiseManyArray } from './-private/promise-many-array.ts';
 
 // // Used by tests, migration support
 export { lookupLegacySupport, LEGACY_SUPPORT } from './-private/legacy-relationships-support.ts';
+
+export type { MaybeHasManyFields, MaybeBelongsToFields, MaybeRelationshipFields } from './-private/type-utils.ts';
