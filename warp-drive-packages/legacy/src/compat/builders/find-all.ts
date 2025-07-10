@@ -16,7 +16,7 @@ type FindAllRequestInput<T extends string = string, RT = unknown[]> = StoreReque
   [RequestSignature]?: RT;
 };
 
-type FindAllBuilderOptions<T = unknown> = FindAllOptions<T>;
+type FindAllBuilderOptions = FindAllOptions;
 
 /**
   This function builds a request config to perform a `findAll` request for the given type.
@@ -36,7 +36,7 @@ type FindAllBuilderOptions<T = unknown> = FindAllOptions<T>;
 */
 export function findAllBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  options?: FindAllBuilderOptions<T>
+  options?: FindAllBuilderOptions
 ): FindAllRequestInput<TypeFromInstance<T>, T[]>;
 export function findAllBuilder(type: string, options?: FindAllBuilderOptions): FindAllRequestInput;
 export function findAllBuilder(type: string, options: FindAllBuilderOptions = {}): FindAllRequestInput {

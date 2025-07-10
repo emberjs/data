@@ -103,7 +103,8 @@ export function setSchemaObjectField(context: KindContext<SchemaObjectField>): b
   if (value !== null) {
     assert(`Expected value to be an object`, typeof value === 'object');
     newValue = { ...(value as ObjectValue) };
-    const schemaFields = store.schema.fields({ type: context.field.type });
+    // FIXME the case of field.type to string here is likely incorrect
+    const schemaFields = store.schema.fields({ type: context.field.type as string });
     for (const key of Object.keys(newValue)) {
       if (!schemaFields.has(key)) {
         throw new Error(`Field ${key} does not exist on schema object ${context.field.type}`);

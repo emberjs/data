@@ -374,11 +374,11 @@ declare module '../-private/store-service' {
     @param id - optional object with options for the request only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved
     @param options - if the first param is a string this will be the optional options for the request. See examples for available options.
   */
-    findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions<T>): Promise<T>;
+    findRecord<T>(type: TypeFromInstance<T>, id: string | number, options?: FindRecordOptions): Promise<T>;
     /** @deprecated */
     findRecord(type: string, id: string | number, options?: FindRecordOptions): Promise<unknown>;
     /** @deprecated */
-    findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions<T>): Promise<T>;
+    findRecord<T>(resource: ResourceIdentifierObject<TypeFromInstance<T>>, options?: FindRecordOptions): Promise<T>;
     /** @deprecated */
     findRecord(resource: ResourceIdentifierObject, options?: FindRecordOptions): Promise<unknown>;
 
@@ -560,7 +560,7 @@ declare module '../-private/store-service' {
     @param type the name of the resource
     @param options
   */
-    findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions<T>): Promise<LiveArray<T>>;
+    findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<LiveArray<T>>;
     /** @deprecated */
     findAll(type: string, options?: FindAllOptions): Promise<LiveArray>;
 
@@ -617,7 +617,7 @@ declare module '../-private/store-service' {
   */
     query<T>(
       type: TypeFromInstance<T>,
-      query: LegacyResourceQuery<T>,
+      query: LegacyResourceQuery,
       options?: QueryOptions
     ): Promise<CollectionRecordArray<T>>;
     /** @deprecated */
@@ -722,7 +722,7 @@ declare module '../-private/store-service' {
     @param options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return promise which resolves with the found record or `null`
   */
-    queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery<T>, options?: QueryOptions): Promise<T | null>;
+    queryRecord<T>(type: TypeFromInstance<T>, query: LegacyResourceQuery, options?: QueryOptions): Promise<T | null>;
     /** @deprecated */
     queryRecord(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<unknown | null>;
 

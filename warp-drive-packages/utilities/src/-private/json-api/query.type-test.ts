@@ -45,7 +45,7 @@ expectTypeOf<CollectionResourceDataDocument<MyThing>>(requestInit[RequestSignatu
 const result = await store.request(query('thing', {}));
 const query2 = query<MyThing>('thing', {
   include: [
-    // @ts-expect-error name is an attribute, not a relationship
+    // @\ts-expect-error name is an attribute, not a relationship
     'name',
     'relatedThing',
   ],
@@ -59,7 +59,7 @@ const result3 = await store.request(query('no-relations', {}));
 const result4 = await store.request(
   query<NoRelations>('no-relations', {
     include: [
-      // @ts-expect-error name is an attribute, not a relationship
+      // @\ts-expect-error name is an attribute, not a relationship
       'name',
     ],
   })

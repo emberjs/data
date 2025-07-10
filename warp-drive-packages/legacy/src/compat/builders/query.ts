@@ -37,7 +37,7 @@ type QueryBuilderOptions = QueryOptions;
 */
 export function queryBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  query: LegacyResourceQuery<T>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRequestInput<TypeFromInstance<T>, T[]>;
 export function queryBuilder(
@@ -96,7 +96,7 @@ type QueryRecordRequestInput<T extends string = string, RT = unknown> = StoreReq
 */
 export function queryRecordBuilder<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  query: LegacyResourceQuery<T>,
+  query: LegacyResourceQuery,
   options?: QueryBuilderOptions
 ): QueryRecordRequestInput<TypeFromInstance<T>, T | null>;
 export function queryRecordBuilder(

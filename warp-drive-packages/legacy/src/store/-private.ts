@@ -5,12 +5,7 @@ import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { StableNewRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
-import type {
-  Includes,
-  OpaqueRecordInstance,
-  TypedRecordInstance,
-  TypeFromInstance,
-} from '@warp-drive/core/types/record';
+import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   LegacyAttributeField,
   LegacyRelationshipField,
@@ -94,13 +89,13 @@ function _convertPreloadRelationshipToJSON(
   return recordIdentifierFor(value) as ExistingResourceIdentifierObject;
 }
 
-export interface BaseFinderOptions<T = unknown> {
+export interface BaseFinderOptions {
   reload?: boolean;
   backgroundReload?: boolean;
-  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
+  include?: string | string[];
   adapterOptions?: Record<string, unknown>;
 }
-export interface FindRecordOptions<T = unknown> extends BaseFinderOptions<T> {
+export interface FindRecordOptions extends BaseFinderOptions {
   /**
    * Data to preload into the store before the request is made.
    * This feature is *highly* discouraged and has no corresponding
@@ -123,9 +118,9 @@ export type QueryOptions = {
   [K in string | 'adapterOptions']?: K extends 'adapterOptions' ? Record<string, unknown> : unknown;
 };
 
-export type FindAllOptions<T = unknown> = BaseFinderOptions<T>;
-export type LegacyResourceQuery<T = unknown> = {
-  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
+export type FindAllOptions = BaseFinderOptions;
+export type LegacyResourceQuery = {
+  include?: string | string[];
   [key: string]: Value | undefined;
 };
 

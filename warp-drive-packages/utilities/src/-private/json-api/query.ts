@@ -65,7 +65,7 @@ import { ACCEPT_HEADER_VALUE } from './-utils.ts';
  */
 export function query<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
-  query?: QueryParamsSource<T>,
+  query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
 ): QueryRequestOptions<CollectionResourceDataDocument<T>, T>;
 export function query(
