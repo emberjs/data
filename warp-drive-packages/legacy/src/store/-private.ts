@@ -5,12 +5,7 @@ import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { StableNewRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
-import type {
-  Includes,
-  OpaqueRecordInstance,
-  TypedRecordInstance,
-  TypeFromInstance,
-} from '@warp-drive/core/types/record';
+import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   LegacyAttributeField,
   LegacyRelationshipField,
