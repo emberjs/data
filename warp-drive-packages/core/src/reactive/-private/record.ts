@@ -2,7 +2,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { NotificationType } from '../../index.ts';
-import type { RelatedCollection as ManyArray } from '../../store/-private.ts';
+import type { RelatedCollection as ManyArray, Store } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
@@ -56,6 +56,9 @@ export interface ReactiveResource {
 
   /** @internal */
   [Context]: ObjectContext | ResourceContext;
+
+  /** @internal */
+  [RecordStore]: Store;
 
   /** @internal */
   ___notifications: object;
@@ -118,6 +121,7 @@ export class ReactiveResource {
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
     this[Context] = context;
+    this[RecordStore] = context.store;
 
     const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
     const method = typeof schema.cacheFields === 'function' ? 'cacheFields' : 'fields';
