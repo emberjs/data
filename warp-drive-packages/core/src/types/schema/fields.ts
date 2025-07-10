@@ -1,6 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
 import type { ObjectValue, PrimitiveValue, Value } from '../json/raw.ts';
+
+/**
+ * Options signature for Legacy Attributes.
+ */
+export interface AttrOptions {
+  /**
+   * A primitive value or a function which produces a value.
+   */
+  defaultValue?: PrimitiveValue | (() => Value);
+  [key: string]: Value | (() => Value) | undefined;
+}
+
 /**
  * A generic "field" that can be used to define
  * primitive value fields.
@@ -1286,8 +1298,9 @@ export interface LegacyAttributeField {
    * Must comply to the specific transform's options
    * schema.
    *
+   * See {@link AttrOptions} for more info.
    */
-  options?: ObjectValue;
+  options?: AttrOptions;
 }
 
 /**

@@ -490,10 +490,9 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       fields: [
         {
           name: 'name',
-          kind: 'attribute',
+          kind: 'attribute' as const,
           type: null,
           options: {
-            // @ts-expect-error functions are not allowed in schema
             defaultValue: () => {
               i++;
               return `Name ${i}`;
