@@ -83,7 +83,12 @@
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",
-    "version": 2
+    "version": 2,
+    "externals": [
+      "@ember/-internals",
+      "@ember/-internals/metal",
+      "@glimmer/validator"
+    ]
   },
   "ember": {
     "edition": "octane"
