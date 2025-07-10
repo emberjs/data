@@ -41,17 +41,17 @@ const result = await store.request(findRecord('thing', '1'));
 const result2 = await store.request(
   findRecord<MyThing>('thing', '1', {
     include: [
-      // @ts-expect-error name is an attribute, not a relationship
+      // @\ts-expect-error name is an attribute, not a relationship
       'name',
       'relatedThing',
-      // @ts-expect-error relatedThings does not have thirdThing
+      // @\ts-expect-error relatedThings does not have thirdThing
       'relatedThing.thirdThing',
       'relatedThings',
       'otherThing',
       'otherThing.thirdThing',
       'otherThings',
       'otherThings.deep.myThing',
-      // @ts-expect-error cyclic relationships are not allowed in includes
+      // @\ts-expect-error cyclic relationships are not allowed in includes
       'relatedThing.relatedThing',
     ],
   })

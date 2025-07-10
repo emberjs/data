@@ -160,7 +160,7 @@ export type RemotelyAccessibleIdentifier<T extends string = string> = {
   lid?: string;
 };
 
-export type ConstrainedRequestOptions = {
+export interface ConstrainedRequestOptions {
   reload?: boolean;
   backgroundReload?: boolean;
   host?: string;
@@ -169,8 +169,8 @@ export type ConstrainedRequestOptions = {
   urlParamsSettings?: QueryParamsSerializationOptions;
 };
 
-export type FindRecordOptions<T = unknown> = ConstrainedRequestOptions & {
-  include?: T extends TypedRecordInstance ? Includes<T>[] : string | string[];
+export interface FindRecordOptions extends ConstrainedRequestOptions {
+  include?: string | string[];
 };
 
 export interface StructuredDataDocument<T> {

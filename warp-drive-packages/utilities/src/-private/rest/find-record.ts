@@ -69,7 +69,7 @@ export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'd
 
 export function findRecord<T>(
   identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
-  options?: FindRecordOptions<T>
+  options?: FindRecordOptions
 ): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
@@ -78,7 +78,7 @@ export function findRecord(
 export function findRecord<T>(
   type: TypeFromInstance<T>,
   id: string,
-  options?: FindRecordOptions<T>
+  options?: FindRecordOptions
 ): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
 export function findRecord<T>(
