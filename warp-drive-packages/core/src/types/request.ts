@@ -167,11 +167,11 @@ export interface ConstrainedRequestOptions {
   namespace?: string;
   resourcePath?: string;
   urlParamsSettings?: QueryParamsSerializationOptions;
-};
+}
 
 export interface FindRecordOptions extends ConstrainedRequestOptions {
   include?: string | string[];
-};
+}
 
 export interface StructuredDataDocument<T> {
   [STRUCTURED]?: true;

@@ -5,8 +5,5 @@ export type QueryParamsSerializationOptions = {
 };
 
 export type QueryParamsSource =
-  | ({ include?: string | string[] } & Record<
-      Exclude<string, 'include'>,
-      Serializable
-    >)
+  | ({ include?: string | string[] } & Record<Exclude<string, 'include'>, Serializable>)
   | URLSearchParams;
