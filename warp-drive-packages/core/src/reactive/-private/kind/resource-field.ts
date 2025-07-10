@@ -2,20 +2,18 @@ import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/build-config/macros';
 
 import type { Future } from '../../../request';
-import { defineSignal, entangleSignal, type Store, type StoreRequestInput } from '../../../store/-private';
+import { defineSignal, entangleSignal, type StoreRequestInput } from '../../../store/-private';
 import type { ResourceField } from '../../../types/schema/fields';
 import type { Link, Links, SingleResourceRelationship } from '../../../types/spec/json-api-raw';
-import { RecordStore } from '../../../types/symbols';
 import type { KindContext } from '../default-mode';
 import { getFieldCacheKeyStrict } from '../fields/get-field-key';
 import type { ReactiveResource } from '../record';
-import { Identifier, Parent } from '../symbols';
+import { Context } from '../symbols';
 
 interface ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
   lid: string;
-  [Parent]: ReactiveResource;
-  [RecordStore]: Store;
   name: string;
+  [Context]: KindContext<ResourceField>;
 
   data: T | null;
   links: Links;
@@ -48,8 +46,7 @@ class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
       this.meta = rawValue.meta ?? {};
     }
 
-    this[RecordStore] = store;
-    this[Parent] = context.record;
+    this[Context] = context;
   }
 
   fetch(options?: StoreRequestInput<T, T>): Future<T> {
@@ -57,7 +54,7 @@ class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
 
     if (!url) {
       throw new Error(
-        `Cannot ${options?.method ?? 'fetch'} ${this[Parent][Identifier].type}.${String(
+        `Cannot ${options?.method ?? 'fetch'} ${this[Context].resourceKey.type}.${String(
           this.name
         )} because it has no related link`
       );
@@ -70,7 +67,7 @@ class ResourceRelationship<T extends ReactiveResource = ReactiveResource> {
       options
     );
 
-    return this[RecordStore].request<T>(request);
+    return this[Context].store.request<T>(request);
   }
 }
 

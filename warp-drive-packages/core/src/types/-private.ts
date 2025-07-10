@@ -100,6 +100,7 @@ type GlobalKey =
   | 'EmbeddedField'
   | 'Parent'
   | 'Checkout'
+  | 'Context'
   | 'Legacy';
 
 type ModuleScopedCaches = Record<GlobalKey, unknown>;

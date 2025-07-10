@@ -9,9 +9,8 @@ import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { CacheOptions } from '../../../types/request.ts';
 import { EnableHydration } from '../../../types/request.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
-import { RecordStore } from '../../../types/symbols.ts';
 import type { ReactiveResource } from '../record.ts';
-import { Identifier } from '../symbols.ts';
+import { Context } from '../symbols.ts';
 
 export interface FindHasManyOptions {
   reload?: boolean;
@@ -25,9 +24,10 @@ export class ManyArrayManager {
   declare editable: boolean;
 
   constructor(record: ReactiveResource, editable: boolean) {
+    const context = record[Context];
     this.record = record;
-    this.store = record[RecordStore];
-    this.identifier = record[Identifier];
+    this.store = context.store;
+    this.identifier = context.resourceKey;
     this.editable = editable;
   }
 

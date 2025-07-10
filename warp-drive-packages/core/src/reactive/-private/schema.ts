@@ -39,7 +39,7 @@ import { Type } from '../../types/symbols.ts';
 import type { WithPartial } from '../../types/utils.ts';
 import { getFieldCacheKeyStrict, isNonIdentityCacheableField } from './fields/get-field-key.ts';
 import type { ReactiveResource } from './record.ts';
-import { Identifier } from './symbols.ts';
+import { Context } from './symbols.ts';
 
 const Support = getOrSetGlobal('Support', new WeakMap<WeakKey, Record<string, unknown>>());
 
@@ -366,7 +366,8 @@ export const fromIdentity = ((
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
   key: string
 ): StableRecordIdentifier | string | null => {
-  const identifier = record[Identifier];
+  const context = record[Context];
+  const identifier = context.resourceKey;
   assert(`Cannot compute @identity for a record without an identifier`, identifier);
   assert(
     `Expected to receive a key to compute @identity, but got ${String(options)}`,

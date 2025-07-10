@@ -1,1 +1,1 @@
-export { Editable, Legacy, Parent, EmbeddedPath, EmbeddedField } from '@warp-drive/core/reactive/-private';
+export { Context } from '@warp-drive/core/reactive/-private';
