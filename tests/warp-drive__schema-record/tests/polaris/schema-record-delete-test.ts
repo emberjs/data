@@ -7,13 +7,10 @@ import { setupTest } from 'ember-qunit';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
-import type { Editable, Legacy } from '@warp-drive/schema-record/-private';
 
 import type Store from 'warp-drive__schema-record/services/store';
 
 interface User {
-  [Editable]: boolean;
-  [Legacy]?: boolean;
   id: string | null;
   $type: 'user';
   name: string;
