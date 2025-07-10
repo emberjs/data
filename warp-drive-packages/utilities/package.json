@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/utilities",
-  "version": "5.7.0-alpha.9",
+  "version": "5.7.0-alpha.10",
   "description": "Utilities package for WarpDrive | Things your app might find useful",
   "keywords": [
     "ember-addon"
