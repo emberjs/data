@@ -16,11 +16,15 @@ type MemoizedSchemaObject = {
 
 export function getSchemaObjectField(context: KindContext<SchemaObjectField>): unknown {
   const signal = entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
-  const { store, resourceKey, path } = context;
+  const { store, resourceKey, path, field } = context;
   const { cache } = store;
-  const rawValue = (
+  let rawValue = (
     context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
   ) as object;
+
+  if (!rawValue && !field.options?.polymorphic && field.options?.defaultValue) {
+    rawValue = {};
+  }
 
   if (!rawValue) {
     if (signal.value) {
@@ -34,7 +38,6 @@ export function getSchemaObjectField(context: KindContext<SchemaObjectField>): u
     return null;
   }
 
-  const { field } = context;
   const { schema } = store;
   let objectType: string;
 

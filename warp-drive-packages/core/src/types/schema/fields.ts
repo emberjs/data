@@ -57,7 +57,7 @@ export interface GenericField {
   sourceKey?: string;
 
   /**
-   * the name of the transform to use, if any
+   * the name of the {@link Transformation} to use, if any
    *
    * @public
    */
@@ -602,6 +602,16 @@ export interface SchemaObjectField {
    */
   options?: {
     /**
+     * If true, if no value for this field exists in the cache,
+     * an empty `{}` will be used as the source for a new SchemaObject
+     * of the associated schema type, as opposed to the field's
+     * value being `null`.
+     *
+     * If `polymorphic` is `true`, defaultValue will be considered `false`.
+     */
+    defaultValue?: boolean;
+
+    /**
      * ::: warning ⚠️ Dangerous Feature Ahead
      * :::
      *
@@ -823,6 +833,14 @@ export interface SchemaArrayField {
    * @public
    */
   options?: {
+    /**
+     * If true, if no value for this field exists in the cache,
+     * an empty `[]` will be used as the value of the field,
+     * as opposed to the field's value being `null`.
+     *
+     */
+    defaultValue?: boolean;
+
     /**
      * ::: warning ⚠️ Dangerous Feature Ahead
      * :::
