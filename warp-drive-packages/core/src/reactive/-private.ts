@@ -1,1 +1,1 @@
-export { Editable, Legacy } from './-private/symbols';
+export { Editable, Legacy, Parent, EmbeddedPath, EmbeddedField } from './-private/symbols';
