@@ -111,7 +111,7 @@ export class RecordArrayManager {
         // If we are a polaris mode schema
         // and we are in the `isNew` state, we are kept hidden from
         // record arrays.
-        if ((schema && !('legacy' in schema)) || !schema?.legacy) {
+        if (schema && (!('legacy' in schema) || !schema.legacy)) {
           if (this.store.cache.isNew(identifier)) {
             return;
           }
