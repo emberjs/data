@@ -250,7 +250,10 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
 
     assert.verifySteps(['TestSchema:registerResource'], 'initial population of schema');
     const person = store.createRecord('person', { name: 'chris' }) as Person;
-    assert.verifySteps(['TestSchema:fields', 'TestSchema:fields'], 'population of record on create');
+    assert.verifySteps(
+      ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:resource'],
+      'population of record on create'
+    );
     await person.save();
     assert.verifySteps(
       DEBUG
@@ -261,8 +264,15 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             'TestSchema:fields',
             'TestSchema:fields',
             'TestSchema:fields',
+            'TestSchema:resource',
           ]
-        : ['TestSchema:hasResource', 'TestSchema:fields', 'TestSchema:fields', 'TestSchema:fields'],
+        : [
+            'TestSchema:hasResource',
+            'TestSchema:fields',
+            'TestSchema:fields',
+            'TestSchema:fields',
+            'TestSchema:resource',
+          ],
       'update of record on save completion'
     );
   });
