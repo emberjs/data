@@ -1,0 +1,64 @@
+{
+  "name": "@warp-drive/tc39-proposal-signals",
+  "description": "Data bindings and utilities for the prototype TC39 Signals implementation",
+  "version": "5.6.0-alpha.14",
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "warp-drive-packages/tc39-proposal-signals"
+  },
+  "homepage": "https://github.com/emberjs/data",
+  "bugs": "https://github.com/emberjs/data/issues",
+  "keywords": [
+  ],
+  "scripts": {
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
+    "sync": "echo \"syncing\"",
+    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
+    "start": "vite"
+  },
+  "files": [
+    "declarations",
+    "addon-main.cjs",
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "logos"
+  ],
+  "exports": {
+    ".": {
+      "types": "./declarations/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./declarations/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "peerDependencies": {
+  },
+  "dependencies": {
+    "signal-polyfill": "0.2.2",
+    "@warp-drive/core": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.27.0",
+    "@babel/runtime": "^7.27.0",
+    "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive/core": "workspace:*",
+    "rollup": "^4.40.0",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.15"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
