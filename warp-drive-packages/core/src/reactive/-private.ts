@@ -1,1 +1,1 @@
-export { Editable, Legacy } from './-private/symbols';
+export { Context } from './-private/symbols';

@@ -1,8 +1,8 @@
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { NotificationType, Store } from '../../index.ts';
-import type { RelatedCollection as ManyArray } from '../../store/-private.ts';
+import type { NotificationType } from '../../index.ts';
+import type { RelatedCollection as ManyArray, Store } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
@@ -15,13 +15,7 @@ import {
 } from '../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
 import { STRUCTURED } from '../../types/request.ts';
-import type {
-  FieldSchema,
-  GenericField,
-  IdentityField,
-  SchemaArrayField,
-  SchemaObjectField,
-} from '../../types/schema/fields.ts';
+import type { FieldSchema, GenericField, IdentityField } from '../../types/schema/fields.ts';
 import { RecordStore } from '../../types/symbols.ts';
 import type { ObjectContext, ResourceContext } from './default-mode.ts';
 import { DefaultMode } from './default-mode.ts';
@@ -31,11 +25,10 @@ import { getFieldCacheKey } from './fields/get-field-key.ts';
 import type { ManagedArray } from './fields/managed-array.ts';
 import { peekManagedObject } from './fields/managed-object.ts';
 import type { SchemaService } from './schema.ts';
-import { Checkout, Destroy, Editable, EmbeddedField, EmbeddedPath, Identifier, Legacy, Parent } from './symbols.ts';
+import { Checkout, Context, Destroy } from './symbols.ts';
 
-export { Editable, Legacy, Checkout } from './symbols';
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
-const symbolList = [Destroy, RecordStore, Identifier, Editable, Parent, Checkout, Legacy, EmbeddedPath, EmbeddedField];
+const symbolList = [Context, Destroy, RecordStore, Checkout];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -62,19 +55,11 @@ export interface ReactiveResource {
   [Symbol.toStringTag]: `ReactiveResource<${string}>`;
 
   /** @internal */
+  [Context]: ObjectContext | ResourceContext;
+
+  /** @internal */
   [RecordStore]: Store;
-  /** @internal */
-  [Identifier]: StableRecordIdentifier;
-  /** @internal */
-  [Parent]: StableRecordIdentifier;
-  /** @internal */
-  [EmbeddedField]: SchemaArrayField | SchemaObjectField | null;
-  /** @internal */
-  [EmbeddedPath]: string[] | null;
-  /** @internal */
-  [Editable]: boolean;
-  /** @internal */
-  [Legacy]: boolean;
+
   /** @internal */
   ___notifications: object;
 
@@ -121,15 +106,8 @@ export class ReactiveResource {
     const embeddedField = context.field;
     const embeddedPath = context.path;
     const isEmbedded = context.field !== null;
-    this[RecordStore] = store;
-    if (isEmbedded) {
-      this[Parent] = identifier;
-    } else {
-      this[Identifier] = identifier;
-    }
-    const IS_EDITABLE = (this[Editable] = context.editable ?? false);
+    const IS_EDITABLE = context.editable ?? false;
     const schema = store.schema as unknown as SchemaService;
-    this[Legacy] = context.legacy ?? false;
 
     const objectType = isEmbedded ? context.value : identifier.type;
     const ResourceSchema = schema.resource(isEmbedded ? { type: objectType } : identifier);
@@ -142,8 +120,8 @@ export class ReactiveResource {
       isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!, objectType) :
       schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
 
-    this[EmbeddedField] = embeddedField;
-    this[EmbeddedPath] = embeddedPath;
+    this[Context] = context;
+    this[RecordStore] = context.store;
 
     const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
     const method = typeof schema.cacheFields === 'function' ? 'cacheFields' : 'fields';
@@ -624,8 +602,10 @@ export class ReactiveResource {
 }
 
 function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
+  const context = record[Context];
+
   // IF we are already the editable record, throw an error
-  if (record[Editable]) {
+  if (context.editable) {
     throw new Error(`Cannot checkout an already editable record`);
   }
 
@@ -634,20 +614,16 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     return Promise.resolve(editable);
   }
 
-  const embeddedType = record[EmbeddedField];
-  const embeddedPath = record[EmbeddedPath];
-  const isEmbedded = embeddedType !== null && embeddedPath !== null;
-
+  const isEmbedded = context.field !== null && context.path !== null;
   if (isEmbedded) {
     throw new Error(`Cannot checkout an embedded record (yet)`);
   }
 
-  const legacy = record[Legacy];
   const editableRecord = new ReactiveResource({
-    store: record[RecordStore],
-    resourceKey: record[Identifier],
-    modeName: legacy ? 'legacy' : 'polaris',
-    legacy: legacy,
+    store: context.store,
+    resourceKey: context.resourceKey,
+    modeName: context.legacy ? 'legacy' : 'polaris',
+    legacy: context.legacy,
     editable: true,
     path: null,
     field: null,
@@ -658,13 +634,13 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
 }
 
 function _DESTROY(record: ReactiveResource): void {
-  if (record[Legacy]) {
+  if (record[Context].legacy) {
     // @ts-expect-error
     record.isDestroying = true;
     // @ts-expect-error
     record.isDestroyed = true;
   }
-  record[RecordStore].notifications.unsubscribe(record.___notifications);
+  record[Context].store.notifications.unsubscribe(record.___notifications);
 
   // FIXME we need a way to also unsubscribe all SchemaObjects when the primary
   // resource is destroyed.

@@ -9,31 +9,27 @@ import {
   withSignalStore,
 } from '../../../store/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { ObjectField, SchemaObjectField } from '../../../types/schema/fields.ts';
 import type { KindContext } from '../default-mode.ts';
 import type { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Editable, EmbeddedPath, Legacy, Parent, SOURCE } from '../symbols.ts';
+import { Context, SOURCE } from '../symbols.ts';
 import { isExtensionProp, performExtensionSet, performObjectExtensionGet } from './extension.ts';
 
 export function notifyObject(obj: ManagedObject): void {
   notifyInternalSignal(obj[OBJECT_SIGNAL]);
 }
 
-type ObjectSymbol = typeof OBJECT_SIGNAL | typeof Parent | typeof SOURCE | typeof Editable | typeof EmbeddedPath;
-const ObjectSymbols = new Set<ObjectSymbol>([OBJECT_SIGNAL, Parent, SOURCE, Editable, EmbeddedPath]);
+type ObjectSymbol = typeof OBJECT_SIGNAL | typeof SOURCE | typeof Context;
+const ObjectSymbols = new Set<ObjectSymbol>([OBJECT_SIGNAL, Context, SOURCE]);
 
 type KeyType = string | symbol | number;
 // const ignoredGlobalFields = new Set<string>(['setInterval', 'nodeType', 'nodeName', 'length', 'document', STRUCTURED]);
 export interface ManagedObject {
   [SOURCE]: object;
-  [Parent]: StableRecordIdentifier;
-  [EmbeddedPath]: string[];
+  [Context]: KindContext<ObjectField>;
   [OBJECT_SIGNAL]: WarpDriveSignal;
-  [Editable]: boolean;
-  [Legacy]: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -45,10 +41,7 @@ export class ManagedObject {
     this[SOURCE] = Object.assign({}, context.value);
     const signals = withSignalStore(this);
     const _SIGNAL = (this[OBJECT_SIGNAL] = entangleSignal(signals, this, OBJECT_SIGNAL, undefined));
-    this[Editable] = context.editable;
-    this[Legacy] = context.legacy;
-    this[Parent] = context.resourceKey;
-    this[EmbeddedPath] = path;
+    this[Context] = context;
     const identifier = context.resourceKey;
     const { cache, schema } = context.store;
 

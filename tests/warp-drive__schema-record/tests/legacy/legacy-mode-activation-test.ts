@@ -14,14 +14,13 @@ import type Store from '@ember-data/store';
 import { CacheHandler } from '@ember-data/store';
 import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
-import { Editable, Legacy } from '@warp-drive/schema-record/-private';
+import { Context } from '@warp-drive/schema-record/-private';
 
 type Errors = Model['errors'];
 type RecordState = Model['currentState'];
 
 interface User {
-  [Legacy]: boolean;
-  [Editable]: boolean;
+  [Context]: { editable: boolean; legacy: boolean };
   hasDirtyAttributes: boolean;
   isDeleted: boolean;
   isEmpty: boolean;
@@ -89,8 +88,8 @@ module('Legacy Mode', function (hooks) {
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, 'Rey Pupatine', 'name is accessible');
-    assert.true(record[Legacy], 'record is in legacy mode');
-    assert.true(record[Editable], 'record is editable');
+    assert.true(record[Context].legacy, 'record is in legacy mode');
+    assert.true(record[Context].editable, 'record is editable');
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -126,7 +125,7 @@ module('Legacy Mode', function (hooks) {
       },
     });
 
-    assert.false(record[Legacy], 'record is in legacy mode');
+    assert.false(record[Context].legacy, 'record is in legacy mode');
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -168,7 +167,7 @@ module('Legacy Mode', function (hooks) {
       },
     });
 
-    assert.true(record[Legacy], 'record is in legacy mode');
+    assert.true(record[Context].legacy, 'record is in legacy mode');
     assert.strictEqual(
       (record.constructor as { modelName?: string }).modelName,
       'user',

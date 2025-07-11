@@ -1,1 +1,1 @@
-export { Editable, Legacy } from '@warp-drive/core/reactive/-private';
+export { Context } from '@warp-drive/core/reactive/-private';

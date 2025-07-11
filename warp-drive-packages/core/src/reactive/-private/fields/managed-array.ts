@@ -12,7 +12,7 @@ import type { ArrayField, HashField, SchemaArrayField } from '../../../types/sch
 import type { KindContext, ObjectContext } from '../default-mode.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
-import { Destroy, Editable, Legacy, SOURCE } from '../symbols.ts';
+import { Context, Destroy, SOURCE } from '../symbols.ts';
 import type { ProxiedMethod } from './extension.ts';
 import { isExtensionProp, performArrayExtensionGet, performExtensionSet } from './extension.ts';
 
@@ -108,8 +108,7 @@ export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
   path: string | string[];
   owner: ReactiveResource;
   [ARRAY_SIGNAL]: WarpDriveSignal;
-  [Editable]: boolean;
-  [Legacy]: boolean;
+  [Context]: KindContext<SchemaArrayField | ArrayField>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -118,8 +117,8 @@ export class ManagedArray {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     this[SOURCE] = data?.slice();
-    const IS_EDITABLE = (this[Editable] = context.editable ?? false);
-    this[Legacy] = context.legacy;
+    const IS_EDITABLE = context.editable ?? false;
+    this[Context] = context;
     const schema = context.store.schema as SchemaService;
     const cache = context.store.cache;
     const { field } = context;

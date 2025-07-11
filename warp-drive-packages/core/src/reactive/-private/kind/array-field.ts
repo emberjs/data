@@ -19,11 +19,16 @@ export function getArrayField(context: KindContext<ArrayField | SchemaArrayField
   if (managedArray) {
     return managedArray;
   } else {
-    const { store, resourceKey, path } = context;
+    const { store, resourceKey, path, field } = context;
     const { cache } = store;
-    const rawValue = (
+    let rawValue = (
       context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as unknown[];
+
+    if (!rawValue && field.kind === 'schema-array' && field.options?.defaultValue) {
+      rawValue = [];
+    }
+
     if (!rawValue) {
       return null;
     }

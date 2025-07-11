@@ -94,13 +94,8 @@ type GlobalKey =
   | 'SOURCE'
   | 'MUTATE'
   | 'Destroy'
-  | 'Identifier'
-  | 'Editable'
-  | 'EmbeddedPath'
-  | 'EmbeddedField'
-  | 'Parent'
   | 'Checkout'
-  | 'Legacy';
+  | 'Context';
 
 type ModuleScopedCaches = Record<GlobalKey, unknown>;
 

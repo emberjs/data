@@ -1,6 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
 import type { ObjectValue, PrimitiveValue, Value } from '../json/raw.ts';
+
+/**
+ * Options signature for Legacy Attributes.
+ */
+export interface AttrOptions {
+  /**
+   * A primitive value or a function which produces a value.
+   */
+  defaultValue?: PrimitiveValue | (() => Value);
+  [key: string]: Value | (() => Value) | undefined;
+}
+
 /**
  * A generic "field" that can be used to define
  * primitive value fields.
@@ -57,7 +69,7 @@ export interface GenericField {
   sourceKey?: string;
 
   /**
-   * the name of the transform to use, if any
+   * the name of the {@link Transformation} to use, if any
    *
    * @public
    */
@@ -602,6 +614,16 @@ export interface SchemaObjectField {
    */
   options?: {
     /**
+     * If true, if no value for this field exists in the cache,
+     * an empty `{}` will be used as the source for a new SchemaObject
+     * of the associated schema type, as opposed to the field's
+     * value being `null`.
+     *
+     * If `polymorphic` is `true`, defaultValue will be considered `false`.
+     */
+    defaultValue?: boolean;
+
+    /**
      * ::: warning ⚠️ Dangerous Feature Ahead
      * :::
      *
@@ -823,6 +845,14 @@ export interface SchemaArrayField {
    * @public
    */
   options?: {
+    /**
+     * If true, if no value for this field exists in the cache,
+     * an empty `[]` will be used as the value of the field,
+     * as opposed to the field's value being `null`.
+     *
+     */
+    defaultValue?: boolean;
+
     /**
      * ::: warning ⚠️ Dangerous Feature Ahead
      * :::
@@ -1268,8 +1298,9 @@ export interface LegacyAttributeField {
    * Must comply to the specific transform's options
    * schema.
    *
+   * See {@link AttrOptions} for more info.
    */
-  options?: ObjectValue;
+  options?: AttrOptions;
 }
 
 /**

@@ -38,14 +38,5 @@ export const Destroy: '___(unique) Symbol(Destroy)' = getOrSetGlobal(
   'Destroy',
   Symbol.dispose || Symbol.for('Dispose')
 );
-export const Identifier: '___(unique) Symbol(Identifier)' = getOrSetGlobal('Identifier', Symbol('Identifier'));
-export const Editable: '___(unique) Symbol(Editable)' = getOrSetGlobal('Editable', Symbol('Editable'));
-export const Parent: '___(unique) Symbol(Parent)' = getOrSetGlobal('Parent', Symbol('Parent'));
 export const Checkout: '___(unique) Symbol(Checkout)' = getOrSetGlobal('Checkout', Symbol('Checkout'));
-export const Legacy: '___(unique) Symbol(Legacy)' = getOrSetGlobal('Legacy', Symbol('Legacy'));
-
-export const EmbeddedPath: '___(unique) Symbol(EmbeddedPath)' = getOrSetGlobal('EmbeddedPath', Symbol('EmbeddedPath'));
-export const EmbeddedField: '___(unique) Symbol(EmbeddedField)' = getOrSetGlobal(
-  'EmbeddedField',
-  Symbol('EmbeddedField')
-);
+export const Context: '___(unique) Symbol(Context)' = getOrSetGlobal('Context', Symbol('Context'));
