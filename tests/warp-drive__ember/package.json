@@ -1,6 +1,6 @@
 {
   "name": "warp-drive__ember",
-  "version": "5.7.0-alpha.10",
+  "version": "5.7.0-alpha.11",
   "description": "Provides tests for @warp-drive/ember",
   "private": true,
   "keywords": [],
