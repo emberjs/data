@@ -102,377 +102,30 @@ export interface ReactiveResource {
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ReactiveResource {
   constructor(context: ResourceContext | ObjectContext) {
-    const { store } = context;
-    const identifier = context.resourceKey;
-    const embeddedField = context.field;
-    const embeddedPath = context.path;
-    const isEmbedded = context.field !== null;
-    const IS_EDITABLE = context.editable ?? false;
-    const schema = store.schema as unknown as SchemaService;
-
-    const objectType = isEmbedded ? context.value : identifier.type;
-    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType } : identifier);
+    const resourceKey = context.resourceKey;
+    const isEmbedded = context.path !== null;
+    const schema = context.store.schema as unknown as SchemaService;
+    const objectType = isEmbedded ? context.value : resourceKey.type;
+    const ResourceSchema = schema.resource(isEmbedded ? { type: objectType } : resourceKey);
     const identityField = ResourceSchema.identity;
     const BoundFns = new Map<string | symbol, ProxiedMethod>();
 
     // prettier-ignore
     const extensions =
-      !context.legacy ? null :
-      isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(embeddedField!, objectType) :
-      schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(identifier);
+      !context.legacy ? null
+      : isEmbedded ? schema.CAUTION_MEGA_DANGER_ZONE_objectExtensions(context.field, objectType)
+      : schema.CAUTION_MEGA_DANGER_ZONE_resourceExtensions(resourceKey);
 
     this[Context] = context;
     this[RecordStore] = context.store;
 
-    const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(identifier);
+    const fields = isEmbedded ? schema.fields({ type: objectType }) : schema.fields(resourceKey);
     const method = typeof schema.cacheFields === 'function' ? 'cacheFields' : 'fields';
-    const cacheFields = isEmbedded ? schema[method]({ type: objectType }) : schema[method](identifier);
+    const cacheFields = isEmbedded ? schema[method]({ type: objectType }) : schema[method](resourceKey);
 
     const signals = withSignalStore(this);
-
-    const proxy = new Proxy(this, {
-      ownKeys() {
-        const identityKey = identityField?.name;
-        const keys = Array.from(fields.keys());
-        if (identityKey) {
-          keys.unshift(identityKey);
-        }
-        return keys;
-      },
-
-      has(target: ReactiveResource, prop: string | number | symbol) {
-        if (prop === Destroy || prop === Checkout) {
-          return true;
-        }
-        return fields.has(prop as string);
-      },
-
-      getOwnPropertyDescriptor(target, prop) {
-        const schemaForField = prop === identityField?.name ? identityField : fields.get(prop as string)!;
-        assert(`No field named ${String(prop)} on ${identifier.type}`, schemaForField);
-
-        if (isNonEnumerableProp(prop)) {
-          return {
-            writable: false,
-            enumerable: false,
-            configurable: true,
-          };
-        }
-
-        switch (schemaForField.kind) {
-          case 'derived':
-            return {
-              writable: false,
-              enumerable: true,
-              configurable: true,
-            };
-          case '@id':
-            return {
-              writable: identifier.id === null,
-              enumerable: true,
-              configurable: true,
-            };
-          case '@local':
-          case 'field':
-          case 'attribute':
-          case 'resource':
-          case 'alias':
-          case 'belongsTo':
-          case 'hasMany':
-          case 'collection':
-          case 'schema-array':
-          case 'array':
-          case 'schema-object':
-          case 'object':
-            return {
-              writable: IS_EDITABLE,
-              enumerable: true,
-              configurable: true,
-            };
-          default:
-            return {
-              writable: false,
-              enumerable: false,
-              configurable: false,
-            };
-        }
-      },
-
-      get(target: ReactiveResource, prop: string | number | symbol, receiver: typeof Proxy<ReactiveResource>) {
-        if (RecordSymbols.has(prop as RecordSymbol)) {
-          if (prop === Destroy) {
-            return () => _DESTROY(receiver as unknown as ReactiveResource);
-          }
-          if (prop === Checkout) {
-            return () => Promise.resolve(_CHECKOUT(receiver as unknown as ReactiveResource));
-          }
-          return target[prop as keyof ReactiveResource];
-        }
-        if (prop === Signals) {
-          return signals;
-        }
-
-        // TODO make this a symbol
-        if (prop === '___notifications') {
-          return target.___notifications;
-        }
-
-        // ReactiveResource reserves use of keys that begin with these characters
-        // for its own usage.
-        // _, @, $, *
-
-        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
-        if (!maybeField) {
-          if (IgnoredGlobalFields.has(prop as string)) {
-            return undefined;
-          }
-
-          /////////////////////////////////////////////////////////////
-          //// Note these bound function behaviors are essentially ////
-          //// built-in but overrideable derivations.              ////
-          ////                                                     ////
-          //// The bar for this has to be "basic expectations of   ////
-          ///  an object" – very, very high                        ////
-          /////////////////////////////////////////////////////////////
-
-          if (prop === Symbol.toStringTag || prop === 'toString') {
-            let fn = BoundFns.get('toString');
-            if (!fn) {
-              fn = function () {
-                entangleSignal(signals, receiver, '@identity', null);
-                return `Record<${identifier.type}:${identifier.id} (${identifier.lid})>`;
-              };
-              BoundFns.set(prop, fn);
-            }
-            return fn;
-          }
-
-          if (prop === 'toHTML') {
-            let fn = BoundFns.get('toHTML');
-            if (!fn) {
-              fn = function () {
-                entangleSignal(signals, receiver, '@identity', null);
-                return `<span>Record<${identifier.type}:${identifier.id} (${identifier.lid})></span>`;
-              };
-              BoundFns.set(prop, fn);
-            }
-            return fn;
-          }
-
-          if (prop === 'toJSON') {
-            let fn = BoundFns.get('toJSON');
-            if (!fn) {
-              fn = function () {
-                const json: Record<string, unknown> = {};
-                for (const key in receiver) {
-                  json[key] = receiver[key as keyof typeof receiver];
-                }
-
-                return json;
-              };
-              BoundFns.set(prop, fn);
-            }
-            return fn;
-          }
-
-          if (prop === Symbol.toPrimitive) return () => null;
-
-          if (prop === Symbol.iterator) {
-            let fn = BoundFns.get(Symbol.iterator);
-            if (!fn) {
-              fn = function* () {
-                for (const key in receiver) {
-                  yield [key, receiver[key as keyof typeof receiver]];
-                }
-              };
-              BoundFns.set(Symbol.iterator, fn);
-            }
-            return fn;
-          }
-
-          if (prop === 'constructor') {
-            return ReactiveResource;
-          }
-
-          if (isExtensionProp(extensions, prop)) {
-            return performObjectExtensionGet(receiver, extensions!, signals, prop);
-          }
-
-          // too many things check for random symbols
-          if (typeof prop === 'symbol') return undefined;
-
-          assert(`No field named ${String(prop)} on ${isEmbedded ? embeddedField!.type : identifier.type}`);
-          return undefined;
-        }
-
-        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
-        assert(
-          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
-          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
-        );
-        /**
-         * Prop Array is the path from a resource to the field including
-         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
-         *
-         * E.g. in the following
-         *
-         * ```
-         * const user = {
-         *   addresses: [{
-         *     street: 'Sunset Blvd',
-         *     zip: 90210
-         *   }]
-         * }
-         * ```
-         *
-         * The propArray for "street" is ['addresses', 0, 'street']
-         *
-         * Prop Array follows the `cache` path to the value, not the ui path.
-         * Thus, if `addresses` has a sourceKey of `user_addresses` and
-         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
-         * ['user_addresses', 0, 'zip_code']
-         */
-        const propArray = isEmbedded ? embeddedPath!.slice() : [];
-        // we use the field.name instead of prop here because we want to use the cache-path not
-        // the record path.
-        // SAFETY: we lie as string here because if we were to get null
-        // we would be in a field kind that won't use the propArray below.
-        const fieldCacheKey = getFieldCacheKey(field) as string;
-        propArray.push(fieldCacheKey);
-
-        switch (field.kind) {
-          case '@id':
-          case '@hash':
-          case '@local':
-          case 'derived':
-          case 'field':
-          case 'attribute':
-          case 'schema-array':
-          case 'array':
-          case 'schema-object':
-          case 'object':
-          case 'resource':
-          case 'belongsTo':
-          case 'hasMany':
-          case 'collection':
-            return DefaultMode[field.kind as 'field'].get({
-              store,
-              resourceKey: identifier,
-              modeName: context.modeName,
-              legacy: context.legacy,
-              editable: context.editable,
-              path: propArray,
-              field: field as GenericField,
-              record: receiver as unknown as ReactiveResource,
-              signals,
-              value: null,
-            });
-
-          default:
-            assertNeverField(identifier, field, propArray);
-        }
-      },
-
-      set(
-        target: ReactiveResource,
-        prop: string | number | symbol,
-        value: unknown,
-        receiver: typeof Proxy<ReactiveResource>
-      ) {
-        // the only "editable" prop as it is currently a proxy for "isDestroyed"
-        if (prop === '___notifications') {
-          target[prop] = value as object;
-          return true;
-        }
-
-        if (!IS_EDITABLE) {
-          const type = isEmbedded ? embeddedField!.type : identifier.type;
-          throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
-        }
-
-        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
-        if (!maybeField) {
-          const type = isEmbedded ? embeddedField!.type : identifier.type;
-
-          if (isExtensionProp(extensions, prop)) {
-            return performExtensionSet(receiver, extensions!, signals, prop, value);
-          }
-
-          assert(`There is no settable field named ${String(prop)} on ${type}`);
-          return false;
-        }
-        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
-        assert(
-          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
-          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
-        );
-        /**
-         * Prop Array is the path from a resource to the field including
-         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
-         *
-         * E.g. in the following
-         *
-         * ```
-         * const user = {
-         *   addresses: [{
-         *     street: 'Sunset Blvd',
-         *     zip: 90210
-         *   }]
-         * }
-         * ```
-         *
-         * The propArray for "street" is ['addresses', 0, 'street']
-         *
-         * Prop Array follows the `cache` path to the value, not the ui path.
-         * Thus, if `addresses` has a sourceKey of `user_addresses` and
-         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
-         * ['user_addresses', 0, 'zip_code']
-         */
-        const propArray = isEmbedded ? embeddedPath!.slice() : [];
-        // we use the field.name instead of prop here because we want to use the cache-path not
-        // the record path.
-        // SAFETY: we lie as string here because if we were to get null
-        // we would be in a field kind that won't use the propArray below.
-        const fieldCacheKey = getFieldCacheKey(field) as string;
-        propArray.push(fieldCacheKey);
-
-        switch (field.kind) {
-          case '@id':
-          case '@hash':
-          case '@local':
-          case 'field':
-          case 'attribute':
-          case 'derived':
-          case 'array':
-          case 'schema-array':
-          case 'schema-object':
-          case 'object':
-          case 'resource':
-          case 'belongsTo':
-          case 'hasMany':
-          case 'collection':
-            return DefaultMode[field.kind as '@id'].set({
-              store,
-              resourceKey: identifier,
-              modeName: context.modeName,
-              legacy: context.legacy,
-              editable: context.editable,
-              path: propArray,
-              field: field as IdentityField,
-              record: receiver as unknown as ReactiveResource,
-              signals,
-              value,
-            });
-
-          default:
-            return assertNeverField(identifier, field, propArray);
-        }
-      },
-    });
-
-    // what signal do we need for embedded record?
-    this.___notifications = store.notifications.subscribe(
-      identifier,
+    this.___notifications = context.store.notifications.subscribe(
+      resourceKey,
       (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
         switch (type) {
           case 'identity': {
@@ -489,15 +142,15 @@ export class ReactiveResource {
           case 'attributes':
             if (key) {
               if (Array.isArray(key)) {
-                if (!isEmbedded) return; // deep paths will be handled by embedded records
+                if (context.path === null) return; // deep paths will be handled by embedded records
                 // TODO we should have the notification manager
                 // ensure it is safe for each callback to mutate this array
-                if (isPathMatch(embeddedPath!, key)) {
+                if (isPathMatch(context.path, key)) {
                   // handle the notification
                   // TODO we should likely handle this notification here
                   // also we should add a LOGGING flag
                   // eslint-disable-next-line no-console
-                  console.warn(`Notification unhandled for ${key.join(',')} on ${identifier.type}`, proxy);
+                  console.warn(`Notification unhandled for ${key.join(',')} on ${resourceKey.type}`, proxy);
                   return;
                 }
 
@@ -568,7 +221,7 @@ export class ReactiveResource {
 
                   assert(`Can only use hasMany fields when the resource is in legacy mode`, context.legacy);
 
-                  if (schema._kind('@legacy', 'hasMany').notify(store, proxy, identifier, field)) {
+                  if (schema._kind('@legacy', 'hasMany').notify(context.store, proxy, resourceKey, field)) {
                     assert(`Expected options to exist on relationship meta`, field.options);
                     assert(`Expected async to exist on relationship meta options`, 'async' in field.options);
                     if (field.options.async) {
@@ -588,6 +241,348 @@ export class ReactiveResource {
         }
       }
     );
+
+    const proxy = new Proxy(this, {
+      ownKeys() {
+        const identityKey = identityField?.name;
+        const keys = Array.from(fields.keys());
+        if (identityKey) {
+          keys.unshift(identityKey);
+        }
+        return keys;
+      },
+
+      has(target: ReactiveResource, prop: string | number | symbol) {
+        if (prop === Destroy || prop === Checkout) {
+          return true;
+        }
+        return fields.has(prop as string);
+      },
+
+      getOwnPropertyDescriptor(target, prop) {
+        const schemaForField = prop === identityField?.name ? identityField : fields.get(prop as string)!;
+        assert(`No field named ${String(prop)} on ${resourceKey.type}`, schemaForField);
+
+        if (isNonEnumerableProp(prop)) {
+          return {
+            writable: false,
+            enumerable: false,
+            configurable: true,
+          };
+        }
+
+        switch (schemaForField.kind) {
+          case 'derived':
+            return {
+              writable: false,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@id':
+            return {
+              writable: resourceKey.id === null,
+              enumerable: true,
+              configurable: true,
+            };
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'resource':
+          case 'alias':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
+          case 'schema-array':
+          case 'array':
+          case 'schema-object':
+          case 'object':
+            return {
+              writable: context.editable,
+              enumerable: true,
+              configurable: true,
+            };
+          default:
+            return {
+              writable: false,
+              enumerable: false,
+              configurable: false,
+            };
+        }
+      },
+
+      get(target: ReactiveResource, prop: string | number | symbol, receiver: typeof Proxy<ReactiveResource>) {
+        if (RecordSymbols.has(prop as RecordSymbol)) {
+          if (prop === Destroy) {
+            return () => _DESTROY(receiver as unknown as ReactiveResource);
+          }
+          if (prop === Checkout) {
+            return () => Promise.resolve(_CHECKOUT(receiver as unknown as ReactiveResource));
+          }
+          return target[prop as keyof ReactiveResource];
+        }
+        if (prop === Signals) {
+          return signals;
+        }
+
+        // TODO make this a symbol
+        if (prop === '___notifications') {
+          return target.___notifications;
+        }
+
+        // ReactiveResource reserves use of keys that begin with these characters
+        // for its own usage.
+        // _, @, $, *
+
+        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
+        if (!maybeField) {
+          if (IgnoredGlobalFields.has(prop as string)) {
+            return undefined;
+          }
+
+          /////////////////////////////////////////////////////////////
+          //// Note these bound function behaviors are essentially ////
+          //// built-in but overrideable derivations.              ////
+          ////                                                     ////
+          //// The bar for this has to be "basic expectations of   ////
+          ///  an object" – very, very high                        ////
+          /////////////////////////////////////////////////////////////
+
+          if (prop === Symbol.toStringTag || prop === 'toString') {
+            let fn = BoundFns.get('toString');
+            if (!fn) {
+              fn = function () {
+                entangleSignal(signals, receiver, '@identity', null);
+                return `Record<${resourceKey.type}:${resourceKey.id} (${resourceKey.lid})>`;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === 'toHTML') {
+            let fn = BoundFns.get('toHTML');
+            if (!fn) {
+              fn = function () {
+                entangleSignal(signals, receiver, '@identity', null);
+                return `<span>Record<${resourceKey.type}:${resourceKey.id} (${resourceKey.lid})></span>`;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === 'toJSON') {
+            let fn = BoundFns.get('toJSON');
+            if (!fn) {
+              fn = function () {
+                const json: Record<string, unknown> = {};
+                for (const key in receiver) {
+                  json[key] = receiver[key as keyof typeof receiver];
+                }
+
+                return json;
+              };
+              BoundFns.set(prop, fn);
+            }
+            return fn;
+          }
+
+          if (prop === Symbol.toPrimitive) return () => null;
+
+          if (prop === Symbol.iterator) {
+            let fn = BoundFns.get(Symbol.iterator);
+            if (!fn) {
+              fn = function* () {
+                for (const key in receiver) {
+                  yield [key, receiver[key as keyof typeof receiver]];
+                }
+              };
+              BoundFns.set(Symbol.iterator, fn);
+            }
+            return fn;
+          }
+
+          if (prop === 'constructor') {
+            return ReactiveResource;
+          }
+
+          if (isExtensionProp(extensions, prop)) {
+            return performObjectExtensionGet(receiver, extensions!, signals, prop);
+          }
+
+          // too many things check for random symbols
+          if (typeof prop === 'symbol') return undefined;
+
+          assert(`No field named ${String(prop)} on ${context.path ? context.value : resourceKey.type}`);
+          return undefined;
+        }
+
+        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
+        assert(
+          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
+          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
+        );
+        /**
+         * Prop Array is the path from a resource to the field including
+         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
+         *
+         * E.g. in the following
+         *
+         * ```
+         * const user = {
+         *   addresses: [{
+         *     street: 'Sunset Blvd',
+         *     zip: 90210
+         *   }]
+         * }
+         * ```
+         *
+         * The propArray for "street" is ['addresses', 0, 'street']
+         *
+         * Prop Array follows the `cache` path to the value, not the ui path.
+         * Thus, if `addresses` has a sourceKey of `user_addresses` and
+         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
+         * ['user_addresses', 0, 'zip_code']
+         */
+        const propArray = context.path?.slice() ?? [];
+        // we use the field.name instead of prop here because we want to use the cache-path not
+        // the record path.
+        // SAFETY: we lie as string here because if we were to get null
+        // we would be in a field kind that won't use the propArray below.
+        const fieldCacheKey = getFieldCacheKey(field) as string;
+        propArray.push(fieldCacheKey);
+
+        switch (field.kind) {
+          case '@id':
+          case '@hash':
+          case '@local':
+          case 'derived':
+          case 'field':
+          case 'attribute':
+          case 'schema-array':
+          case 'array':
+          case 'schema-object':
+          case 'object':
+          case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
+            return DefaultMode[field.kind as 'field'].get({
+              store: context.store,
+              resourceKey: resourceKey,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as GenericField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value: null,
+            });
+
+          default:
+            assertNeverField(resourceKey, field, propArray);
+        }
+      },
+
+      set(
+        target: ReactiveResource,
+        prop: string | number | symbol,
+        value: unknown,
+        receiver: typeof Proxy<ReactiveResource>
+      ) {
+        // the only "editable" prop as it is currently a proxy for "isDestroyed"
+        if (prop === '___notifications') {
+          target[prop] = value as object;
+          return true;
+        }
+
+        if (!context.editable) {
+          assert(
+            `Cannot set ${String(prop)} on ${context.path !== null ? context.value : resourceKey.type} because the record is not editable`
+          );
+          return false;
+        }
+
+        const maybeField = prop === identityField?.name ? identityField : fields.get(prop as string);
+        if (!maybeField) {
+          const type = context.path !== null ? context.value : resourceKey.type;
+
+          if (isExtensionProp(extensions, prop)) {
+            return performExtensionSet(receiver, extensions!, signals, prop, value);
+          }
+
+          assert(`There is no settable field named ${String(prop)} on ${type}`);
+          return false;
+        }
+        const field = maybeField.kind === 'alias' ? maybeField.options : maybeField;
+        assert(
+          `Alias fields cannot alias '@id' '@local' '@hash' or 'derived' fields`,
+          maybeField.kind !== 'alias' || !['@id', '@local', '@hash', 'derived'].includes(maybeField.options.kind)
+        );
+        /**
+         * Prop Array is the path from a resource to the field including
+         * intermediate "links" on arrays,objects,schema-arrays and schema-objects.
+         *
+         * E.g. in the following
+         *
+         * ```
+         * const user = {
+         *   addresses: [{
+         *     street: 'Sunset Blvd',
+         *     zip: 90210
+         *   }]
+         * }
+         * ```
+         *
+         * The propArray for "street" is ['addresses', 0, 'street']
+         *
+         * Prop Array follows the `cache` path to the value, not the ui path.
+         * Thus, if `addresses` has a sourceKey of `user_addresses` and
+         * `zip` has a sourceKey of `zip_code` then the propArray for "zip" is
+         * ['user_addresses', 0, 'zip_code']
+         */
+        const propArray = context.path?.slice() ?? [];
+        // we use the field.name instead of prop here because we want to use the cache-path not
+        // the record path.
+        // SAFETY: we lie as string here because if we were to get null
+        // we would be in a field kind that won't use the propArray below.
+        const fieldCacheKey = getFieldCacheKey(field) as string;
+        propArray.push(fieldCacheKey);
+
+        switch (field.kind) {
+          case '@id':
+          case '@hash':
+          case '@local':
+          case 'field':
+          case 'attribute':
+          case 'derived':
+          case 'array':
+          case 'schema-array':
+          case 'schema-object':
+          case 'object':
+          case 'resource':
+          case 'belongsTo':
+          case 'hasMany':
+          case 'collection':
+            return DefaultMode[field.kind as '@id'].set({
+              store: context.store,
+              resourceKey: resourceKey,
+              modeName: context.modeName,
+              legacy: context.legacy,
+              editable: context.editable,
+              path: propArray,
+              field: field as IdentityField,
+              record: receiver as unknown as ReactiveResource,
+              signals,
+              value,
+            });
+
+          default:
+            return assertNeverField(resourceKey, field, propArray);
+        }
+      },
+    });
 
     if (DEBUG) {
       Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
@@ -621,9 +616,8 @@ export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
     return editable;
   }
 
-  const isEmbedded = context.field !== null && context.path !== null;
-  if (isEmbedded) {
-    throw new Error(`Cannot checkout an embedded record (yet)`);
+  if (context.path !== null) {
+    throw new Error(`Cannot checkout an embedded record`);
   }
 
   const editableRecord = new ReactiveResource({
