@@ -67,8 +67,13 @@ class TestStore extends Store {
       registerResource() {
         throw new Error('Method not implemented.');
       },
-      resource() {
-        throw new Error('Method not implemented.');
+      resource(resource: { type: string }) {
+        return {
+          legacy: true,
+          type: resource.type,
+          identity: { kind: '@id', name: 'id' },
+          fields: [],
+        };
       },
       transformation() {
         throw new Error('Method not implemented.');

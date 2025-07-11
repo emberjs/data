@@ -42,7 +42,13 @@ import type { SchemaService } from '../-types/q/schema-service.ts';
 import type { StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';
 import { IdentifierCache } from './caches/identifier-cache.ts';
-import { InstanceCache, peekRecordIdentifier, recordIdentifierFor, storeFor } from './caches/instance-cache.ts';
+import {
+  getNewRecord,
+  InstanceCache,
+  peekRecordIdentifier,
+  recordIdentifierFor,
+  storeFor,
+} from './caches/instance-cache.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
@@ -266,6 +272,10 @@ export type CreateRecordProperties<T = MaybeHasId & Record<string, unknown>> = T
   : T extends MaybeHasId
     ? MaybeHasId & Partial<FilteredKeys<T>>
     : MaybeHasId & Record<string, unknown>;
+
+export interface CreateContext {
+  lid?: string;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ConstructorFunction = new (...args: any[]) => any;
@@ -939,36 +949,76 @@ export class Store extends BaseClass {
   }
 
   /**
-    Create a new record in the current store. The properties passed
-    to this method are set on the newly created record.
+    Creates a new record in the current store.
 
-    To create a new instance of a `Post`:
+    > [!CAUTION]
+    > This should not be used to mock records or to create
+    > a record representing data that could be fetched from
+    > the API.
+
+    The properties passed to this method are set on
+    the newly created record.
+
+    For instance: to create a new `post`:
 
     ```js
     store.createRecord('post', {
-      title: 'Ember is awesome!'
+      title: 'WarpDrive is Stellar!'
     });
     ```
 
-    To create a new instance of a `Post` that has a relationship with a `User` record:
+    Relationships can be set during create. For instance,
+    to create a new `post` that has an existing user as
+    it's author:
 
     ```js
-    let user = this.store.peekRecord('user', '1');
+    const user = store.peekRecord('user', '1');
+
     store.createRecord('post', {
-      title: 'Ember is awesome!',
+      title: 'WarpDrive is Stellar!',
       user: user
     });
     ```
 
+    ### lid handling
+
+    All new records are assigned an `lid` that can be used to handle
+    transactional saves of multiple records, or to link the data to
+    other data in scenarios involving eventual-consistency or remote
+    syncing.
+
+    ```ts
+    const post = store.createRecord('post', {
+      title: 'WarpDrive is Stellar!'
+    });
+    const { lid } = recordIdentifierFor(post);
+    ```
+
+    The `lid` defaults to a uuidv4 string.
+
+    In order to support receiving knowledge about unpersisted creates
+    from other sources (say a different tab in the same web-browser),
+    createRecord allows for the `lid` to be provided as part of an
+    optional third argument. **If this lid already exists in the store
+    an error will be thrown.**
+
+    ```ts
+    const post = store.createRecord(
+      'post',
+      { title: 'WarpDrive is Stellar!' },
+      { lid: '4d47bb88-931f-496e-986d-c4888cef7373' }
+    );
+    ```
+
     @public
-    @param {String} type the name of the resource
-    @param {Object} inputProperties a hash of properties to set on the
+    @param type the name of the resource
+    @param inputProperties a hash of properties to set on the
       newly created record.
-    @return {Model} record
+    @return a record in the "isNew" state
   */
-  createRecord<T>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>): T;
-  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance;
-  createRecord(type: string, inputProperties: CreateRecordProperties): OpaqueRecordInstance {
+  createRecord<T>(type: TypeFromInstance<T>, inputProperties: CreateRecordProperties<T>, context?: CreateContext): T;
+  createRecord(type: string, inputProperties: CreateRecordProperties, context?: CreateContext): OpaqueRecordInstance;
+  createRecord(type: string, inputProperties: CreateRecordProperties, context?: CreateContext): OpaqueRecordInstance {
     if (DEBUG) {
       assertDestroyingStore(this, 'createRecord');
     }
@@ -1007,7 +1057,7 @@ export class Store extends BaseClass {
         id = properties.id = coerceId(properties.id);
       }
 
-      const resource = { type: normalizedModelName, id };
+      const resource: { type: string; id: string | null; lid?: string } = { type: normalizedModelName, id };
 
       if (resource.id) {
         const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
@@ -1018,13 +1068,19 @@ export class Store extends BaseClass {
         );
       }
 
+      if (context?.lid) {
+        const identifier = this.identifierCache.peekRecordIdentifier({ lid: context?.lid });
+        resource.lid = context.lid;
+        assert(`The lid ${context.lid} has already been used with another '${identifier?.type}' record.`, !identifier);
+      }
+
       const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
       const cache = this.cache;
 
       const createOptions = normalizeProperties(this, identifier, properties);
       const resultProps = cache.clientDidCreate(identifier, createOptions);
 
-      record = this._instanceCache.getRecord(identifier, resultProps);
+      record = getNewRecord(this._instanceCache, identifier, resultProps);
     });
     return record;
   }

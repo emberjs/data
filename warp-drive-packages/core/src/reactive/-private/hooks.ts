@@ -16,7 +16,7 @@ export function instantiateRecord(
   const resourceSchema = schema.resource(identifier);
   assert(`Expected a resource schema`, isResourceSchema(resourceSchema));
   const legacy = resourceSchema?.legacy ?? false;
-  const editable = legacy || store.cache.isNew(identifier);
+  const editable = legacy;
   const record = new ReactiveResource({
     store,
     resourceKey: identifier,
@@ -28,7 +28,7 @@ export function instantiateRecord(
     value: null,
   });
 
-  if (createArgs) {
+  if (createArgs && editable) {
     Object.assign(record, createArgs);
   }
 

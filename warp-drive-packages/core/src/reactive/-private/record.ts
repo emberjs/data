@@ -13,6 +13,7 @@ import {
   Signals,
   withSignalStore,
 } from '../../store/-private.ts';
+import { removeRecordIdentifier } from '../../store/-private/caches/instance-cache.ts';
 import type { StableRecordIdentifier } from '../../types/identifier.ts';
 import { STRUCTURED } from '../../types/request.ts';
 import type { FieldSchema, GenericField, IdentityField } from '../../types/schema/fields.ts';
@@ -49,7 +50,7 @@ function isNonEnumerableProp(prop: string | number | symbol) {
   );
 }
 
-const Editables = new WeakMap<ReactiveResource, ReactiveResource>();
+const Editables = new Map<ReactiveResource, ReactiveResource>();
 
 export interface ReactiveResource {
   [Symbol.toStringTag]: `ReactiveResource<${string}>`;
@@ -203,7 +204,7 @@ export class ReactiveResource {
             return () => _DESTROY(receiver as unknown as ReactiveResource);
           }
           if (prop === Checkout) {
-            return () => _CHECKOUT(receiver as unknown as ReactiveResource);
+            return () => Promise.resolve(_CHECKOUT(receiver as unknown as ReactiveResource));
           }
           return target[prop as keyof ReactiveResource];
         }
@@ -378,6 +379,12 @@ export class ReactiveResource {
         value: unknown,
         receiver: typeof Proxy<ReactiveResource>
       ) {
+        // the only "editable" prop as it is currently a proxy for "isDestroyed"
+        if (prop === '___notifications') {
+          target[prop] = value as object;
+          return true;
+        }
+
         if (!IS_EDITABLE) {
           const type = isEmbedded ? embeddedField!.type : identifier.type;
           throw new Error(`Cannot set ${String(prop)} on ${type} because the record is not editable`);
@@ -601,7 +608,7 @@ export class ReactiveResource {
   }
 }
 
-function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
+export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
   const context = record[Context];
 
   // IF we are already the editable record, throw an error
@@ -611,7 +618,7 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
 
   const editable = Editables.get(record);
   if (editable) {
-    return Promise.resolve(editable);
+    return editable;
   }
 
   const isEmbedded = context.field !== null && context.path !== null;
@@ -630,7 +637,8 @@ function _CHECKOUT(record: ReactiveResource): Promise<ReactiveResource> {
     value: null,
   });
   setRecordIdentifier(editableRecord, recordIdentifierFor(record));
-  return Promise.resolve(editableRecord);
+  Editables.set(record, editableRecord);
+  return editableRecord;
 }
 
 function _DESTROY(record: ReactiveResource): void {
@@ -639,8 +647,16 @@ function _DESTROY(record: ReactiveResource): void {
     record.isDestroying = true;
     // @ts-expect-error
     record.isDestroyed = true;
+  } else if (!record[Context].editable) {
+    const editable = Editables.get(record);
+    if (editable) {
+      _DESTROY(editable);
+      removeRecordIdentifier(editable);
+    }
   }
+
   record[Context].store.notifications.unsubscribe(record.___notifications);
+  record.___notifications = null as unknown as object;
 
   // FIXME we need a way to also unsubscribe all SchemaObjects when the primary
   // resource is destroyed.

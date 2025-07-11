@@ -225,7 +225,10 @@ module('unit/model - Model', function (hooks) {
         });
       }, /You may not set 'id' as an attribute on your model/);
 
-      store.unloadAll();
+      assert.expectAssertion(() => {
+        store.unloadAll();
+      });
+
       _clearCaches();
     });
 

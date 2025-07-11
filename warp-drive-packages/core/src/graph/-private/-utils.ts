@@ -4,7 +4,6 @@ import { LOG_GRAPH } from '@warp-drive/core/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../store/-private.ts';
-import { peekCache } from '../../store/-private.ts';
 import type { CacheCapabilitiesManager } from '../../types.ts';
 import type { UpdateResourceRelationshipOperation } from '../../types/cache/operations.ts';
 import type { UpdateRelationshipOperation } from '../../types/graph.ts';
@@ -103,12 +102,11 @@ function inspect(value: unknown) {
   return 'object';
 }
 
-export function isNew(identifier: StableRecordIdentifier): boolean {
+export function checkIfNew(store: Store, identifier: StableRecordIdentifier): boolean {
   if (!identifier.id) {
     return true;
   }
-  const cache = peekCache(identifier);
-  return Boolean(cache?.isNew(identifier));
+  return store.cache.isNew(identifier);
 }
 
 export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {

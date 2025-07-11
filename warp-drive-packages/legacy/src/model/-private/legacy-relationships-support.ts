@@ -8,7 +8,6 @@ import {
   fastPush,
   isStableIdentifier,
   notifyInternalSignal,
-  peekCache,
   recordIdentifierFor,
   RelatedCollection as ManyArray,
   SOURCE,
@@ -76,9 +75,9 @@ export class LegacySupport {
 
   constructor(record: MinimalLegacyRecord) {
     this.record = record;
-    this.store = storeFor(record)!;
+    this.store = storeFor(record, false)!;
     this.identifier = recordIdentifierFor(record);
-    this.cache = peekCache(record);
+    this.cache = this.store.cache;
 
     if (this.store._graph) {
       this.graph = this.store._graph;

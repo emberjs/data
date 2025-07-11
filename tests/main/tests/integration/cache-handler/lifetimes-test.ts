@@ -29,15 +29,21 @@ type FakeRecord = { [key: string]: unknown; destroy: () => void };
 
 class BaseTestStore extends Store {
   createSchemaService(): SchemaService {
+    const Schemas = new Map<string, ResourceSchema>();
     const schemaService: SchemaService = {
       resourceTypes() {
         return [];
       },
       fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
-        return new Map();
+        const resource = Schemas.get(identifier.type);
+        const fields = new Map<string, FieldSchema>();
+        resource?.fields.forEach((field: FieldSchema) => {
+          fields.set(field.name, field);
+        });
+        return fields;
       },
-      hasResource() {
-        return true;
+      hasResource(identifier: StableRecordIdentifier | { type: string }) {
+        return Schemas.has(identifier.type);
       },
       hasTrait: function (type: string): boolean {
         throw new Error('Function not implemented.');
@@ -46,13 +52,15 @@ class BaseTestStore extends Store {
         throw new Error('Function not implemented.');
       },
       resource: function (resource: StableRecordIdentifier | { type: string }): ResourceSchema {
-        throw new Error('Function not implemented.');
+        return Schemas.get(resource.type)!;
       },
       registerResources: function (schemas: ResourceSchema[]): void {
-        throw new Error('Function not implemented.');
+        schemas.forEach((schema) => {
+          schemaService.registerResource(schema);
+        });
       },
       registerResource: function (schema: ResourceSchema): void {
-        throw new Error('Function not implemented.');
+        Schemas.set(schema.type, schema);
       },
       registerTransformation: function (transform: Transformation): void {
         throw new Error('Function not implemented.');
@@ -73,6 +81,18 @@ class BaseTestStore extends Store {
         throw new Error('Function not implemented.');
       },
     };
+
+    schemaService.registerResource({
+      type: 'test',
+      legacy: true,
+      identity: { kind: '@id', name: 'id' },
+      fields: [
+        {
+          kind: 'field',
+          name: 'name',
+        },
+      ],
+    });
 
     return schemaService;
   }
@@ -276,7 +296,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         const response = new Response();
         response.headers.set('date', new Date().toUTCString());
         context.setResponse(response);
-        return Promise.resolve({ data: { id: '1', type: 'test' } }) as Promise<T>;
+        return Promise.resolve({ data: { id: '1', type: 'test', attributes: {} } }) as Promise<T>;
       },
     };
     class TestStore extends BaseTestStore {
@@ -412,7 +432,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
         _snapshot: Snapshot
       ): Promise<{ data: { id: string; type: string } }> {
         assert.step('adapter:createRecord');
-        return Promise.resolve({ data: { id: '1', type: 'test' } });
+        return Promise.resolve({ data: { id: '1', type: 'test', attributes: {} } });
       }
     }
     const adapter = new AppAdapter();

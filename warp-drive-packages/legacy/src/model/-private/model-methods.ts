@@ -4,7 +4,6 @@ import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { peekCache } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
@@ -36,9 +35,10 @@ export interface MinimalLegacyRecord {
 export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void {
   const { currentState } = this;
   const { isNew } = currentState;
+  const store = this[RecordStore];
 
-  this[RecordStore]._join(() => {
-    peekCache(this).rollbackAttrs(recordIdentifierFor(this));
+  store._join(() => {
+    store.cache.rollbackAttrs(recordIdentifierFor(this));
     this.errors.clear();
     currentState.cleanErrorRequests();
     if (isNew) {
@@ -112,7 +112,7 @@ export function _reload<T extends MinimalLegacyRecord>(this: T, options: Record<
 }
 
 export function changedAttributes<T extends MinimalLegacyRecord>(this: T): ChangedAttributesHash {
-  return peekCache(this).changedAttrs(recordIdentifierFor(this));
+  return this[RecordStore].cache.changedAttrs(recordIdentifierFor(this));
 }
 
 export function serialize<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): unknown {

@@ -76,7 +76,6 @@ type GlobalKey =
   | 'IDENTIFIERS'
   | 'DOCUMENTS'
   // @ember-data/store InstanceCache
-  | 'CacheForIdentifierCache'
   | 'RecordCache'
   | 'StoreMap'
   // @warp-drive/core-types/symbols

@@ -5,16 +5,17 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { ReactiveDocument } from '../../../reactive/-private/document.ts';
+import { _CHECKOUT, ReactiveResource } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '../../../types/record.ts';
+import type { ResourceSchema } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { log, logGroup } from '../debug/utils.ts';
 import { CacheCapabilitiesManager } from '../managers/cache-capabilities-manager.ts';
 import type { CacheManager } from '../managers/cache-manager.ts';
 import type { CreateRecordProperties, Store } from '../store-service.ts';
-import { CacheForIdentifierCache, removeRecordDataFor, setCacheFor } from './cache-utils.ts';
 
 type Destroyable = {
   isDestroyed: boolean;
@@ -76,6 +77,14 @@ export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: St
 
   RecordCache.set(record, identifier);
 }
+export function removeRecordIdentifier(record: OpaqueRecordInstance): void {
+  if (DEBUG) {
+    if (!RecordCache.has(record)) {
+      throw new Error(`${String(record)} had no assigned identifier to remove`);
+    }
+  }
+  RecordCache.delete(record);
+}
 
 export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<OpaqueRecordInstance, Store>());
 
@@ -83,14 +92,14 @@ export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<
  * We may eventually make this public, but its likely better for this to be killed off
  * @internal
  */
-export function storeFor(record: OpaqueRecordInstance): Store | undefined {
+export function storeFor(record: OpaqueRecordInstance, ignoreMissing: boolean): Store | null {
   const store = StoreMap.get(record);
 
   assert(
     `A record in a disconnected state cannot utilize the store. This typically means the record has been destroyed, most commonly by unloading it.`,
-    store
+    ignoreMissing || store
   );
-  return store;
+  return store ?? null;
 }
 
 export type Caches = {
@@ -192,31 +201,11 @@ export class InstanceCache {
     return doc as ReactiveDocument<T>;
   }
 
-  getRecord(identifier: StableRecordIdentifier, properties?: CreateRecordProperties): OpaqueRecordInstance {
+  getRecord(identifier: StableRecordIdentifier): OpaqueRecordInstance {
     let record = this.__instances.record.get(identifier);
 
     if (!record) {
-      assert(
-        `Cannot create a new record instance while the store is being destroyed`,
-        !this.store.isDestroying && !this.store.isDestroyed
-      );
-      const cache = this.store.cache;
-      setCacheFor(identifier, cache);
-
-      record = this.store.instantiateRecord(identifier, properties || {});
-
-      setRecordIdentifier(record, identifier);
-      setCacheFor(record, cache);
-      StoreMap.set(record, this.store);
-      this.__instances.record.set(identifier, record);
-
-      if (LOG_INSTANCE_CACHE) {
-        logGroup('reactive-ui', '', identifier.type, identifier.lid, 'created', '');
-        // eslint-disable-next-line no-console
-        console.log({ properties });
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
+      record = _createRecord(this, identifier, {});
     }
 
     return record;
@@ -254,7 +243,7 @@ export class InstanceCache {
     this.store._graph?.remove(identifier);
 
     this.store.identifierCache.forgetRecordIdentifier(identifier);
-    removeRecordDataFor(identifier);
+    StoreMap.delete(identifier);
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
       log('reactive-ui', '', identifier.type, identifier.lid, 'disconnected', '');
@@ -287,7 +276,6 @@ export class InstanceCache {
         this.__instances.record.delete(identifier);
         StoreMap.delete(record);
         RecordCache.delete(record);
-        removeRecordDataFor(record);
 
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
@@ -297,7 +285,7 @@ export class InstanceCache {
 
       if (cache) {
         cache.unloadRecord(identifier);
-        removeRecordDataFor(identifier);
+        StoreMap.delete(identifier);
         if (LOG_INSTANCE_CACHE) {
           // eslint-disable-next-line no-console
           console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
@@ -388,8 +376,58 @@ export class InstanceCache {
   }
 }
 
+export function getNewRecord(
+  instances: InstanceCache,
+  identifier: StableRecordIdentifier,
+  properties: CreateRecordProperties
+): OpaqueRecordInstance {
+  let record = instances.__instances.record.get(identifier);
+
+  if (!record) {
+    record = _createRecord(instances, identifier, properties);
+
+    if (record instanceof ReactiveResource && instances.store.schema.resource) {
+      // this is a work around until we introduce a new async createRecord API
+      const schema = instances.store.schema.resource(identifier) as ResourceSchema;
+      if (!schema.legacy) {
+        const editable = _CHECKOUT(record);
+        if (properties) {
+          Object.assign(editable, properties);
+        }
+        return editable;
+      }
+    }
+  }
+
+  return record;
+}
+
+function _createRecord(
+  instances: InstanceCache,
+  identifier: StableRecordIdentifier,
+  properties: CreateRecordProperties
+): OpaqueRecordInstance {
+  assert(
+    `Cannot create a new record instance while the store is being destroyed`,
+    !instances.store.isDestroying && !instances.store.isDestroyed
+  );
+
+  const record = instances.store.instantiateRecord(identifier, properties);
+
+  setRecordIdentifier(record, identifier);
+  StoreMap.set(record, instances.store);
+  instances.__instances.record.set(identifier, record);
+
+  if (LOG_INSTANCE_CACHE) {
+    logGroup('reactive-ui', '', identifier.type, identifier.lid, 'created', '');
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
+
+  return record;
+}
+
 export function _clearCaches(): void {
   RecordCache.clear();
   StoreMap.clear();
-  CacheForIdentifierCache.clear();
 }

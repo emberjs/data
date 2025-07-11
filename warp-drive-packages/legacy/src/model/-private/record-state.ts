@@ -85,7 +85,7 @@ export default class RecordState {
   declare handler: object;
 
   constructor(record: MinimalLegacyRecord) {
-    const store = storeFor(record)!;
+    const store = storeFor(record, false)!;
     const identity = recordIdentifierFor(record);
 
     this.identifier = identity;
@@ -186,7 +186,7 @@ export default class RecordState {
 
   /** @internal */
   destroy(): void {
-    storeFor(this.record)!.notifications.unsubscribe(this.handler);
+    storeFor(this.record, false)!.notifications.unsubscribe(this.handler);
   }
 
   /** @internal */

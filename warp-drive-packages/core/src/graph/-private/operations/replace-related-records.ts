@@ -8,7 +8,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { StableRecordIdentifier } from '../../../types.ts';
 import type { ReplaceRelatedRecordsOperation } from '../../../types/graph.ts';
 import { _add, _removeLocal, _removeRemote, diffCollection } from '../-diff.ts';
-import { isBelongsTo, isHasMany, isNew, notifyChange } from '../-utils.ts';
+import { checkIfNew, isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
 import type { CollectionEdge } from '../edges/collection.ts';
 import type { Graph } from '../graph.ts';
@@ -307,7 +307,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           // we were not "committed" which means we are not present
           // in the remoteMembers. So we "remove" from the inverse.
           // however we only do this if we are not a "new" record.
-          if (!isNew(identifier)) {
+          if (!checkIfNew(graph._realStore, identifier)) {
             deprecationInfo.triggered = true;
             deprecationInfo.additions.push(identifier);
             relationship.isDirty = true;

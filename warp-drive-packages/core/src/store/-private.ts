@@ -36,11 +36,9 @@ export { RecordArrayManager, fastPush } from './-private/managers/record-array-m
 
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './-private/caches/instance-cache.ts';
-export { peekCache, removeRecordDataFor } from './-private/caches/cache-utils.ts';
 
 // @ember-data/model needs these temporarily
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache.ts';
-export { setCacheFor } from './-private/caches/cache-utils';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name.ts';
 export type { StoreRequestInput } from './-private/cache-handler/handler.ts';
 export { RelatedCollection } from './-private/record-arrays/many-array.ts';

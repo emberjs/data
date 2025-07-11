@@ -1,8 +1,7 @@
 import { getOwner, setOwner } from '@ember/application';
 
 import { assert } from '@warp-drive/core/build-config/macros';
-import { setCacheFor, setRecordIdentifier, type Store, StoreMap } from '@warp-drive/core/store/-private';
-import type { Cache } from '@warp-drive/core/types/cache';
+import { setRecordIdentifier, type Store, StoreMap } from '@warp-drive/core/store/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 
@@ -21,14 +20,12 @@ export function instantiateRecord(
 
   recast(this);
 
-  const cache = this.cache;
   // TODO deprecate allowing unknown args setting
   const createOptions = {
     _createProps: createRecordArgs,
     // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
     _secretInit: {
       identifier,
-      cache,
       store: this,
       cb: secretInit,
     },
@@ -75,8 +72,7 @@ export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>)
   assert(`No model was found for '${type}' and no schema handles the type`, this.schema.hasResource({ type }));
 }
 
-function secretInit(record: Model, cache: Cache, identifier: StableRecordIdentifier, store: Store): void {
+function secretInit(record: Model, identifier: StableRecordIdentifier, store: Store): void {
   setRecordIdentifier(record, identifier);
   StoreMap.set(record, store);
-  setCacheFor(record, cache);
 }

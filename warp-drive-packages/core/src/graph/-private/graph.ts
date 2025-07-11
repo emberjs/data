@@ -2,6 +2,7 @@ import { LOG_GRAPH } from '@warp-drive/core/build-config/debugging';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import type { Store } from '../../store/-private.ts';
 import type { CacheCapabilitiesManager, StableRecordIdentifier } from '../../types.ts';
 import { getOrSetGlobal, peekTransient, setTransient } from '../../types/-private.ts';
 import type { RelationshipDiff } from '../../types/cache.ts';
@@ -18,12 +19,12 @@ import type { EdgeCache, UpgradedMeta } from './-edge-definition.ts';
 import { isLHS, upgradeDefinition } from './-edge-definition.ts';
 import {
   assertValidRelationshipPayload,
+  checkIfNew,
   forAllRelatedIdentifiers,
   getStore,
   isBelongsTo,
   isHasMany,
   isImplicit,
-  isNew,
   notifyChange,
   removeIdentifierCompletelyFromRelationship,
 } from './-utils.ts';
@@ -76,6 +77,7 @@ export class Graph {
   declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
   declare identifiers: Map<StableRecordIdentifier, Record<string, GraphEdge>>;
   declare store: CacheCapabilitiesManager;
+  declare _realStore: Store;
   declare isDestroyed: boolean;
   declare _willSyncRemote: boolean;
   declare _willSyncLocal: boolean;
@@ -91,6 +93,7 @@ export class Graph {
     this._potentialPolymorphicTypes = Object.create(null) as Record<string, Record<string, boolean>>;
     this.identifiers = new Map();
     this.store = store;
+    this._realStore = (store as unknown as { _store: Store })._store;
     this.isDestroyed = false;
     this._willSyncRemote = false;
     this._willSyncLocal = false;
@@ -229,7 +232,7 @@ export class Graph {
         continue;
       }
       assert(`Expected a relationship`, relationship);
-      if (relationship.definition.inverseIsAsync && !isNew(identifier)) {
+      if (relationship.definition.inverseIsAsync && !checkIfNew(this._realStore, identifier)) {
         if (LOG_GRAPH) {
           // eslint-disable-next-line no-console
           console.log(`graph: <<NOT>> RELEASABLE ${String(identifier)}`);
@@ -679,7 +682,7 @@ function removeDematerializedInverse(
 ) {
   if (isBelongsTo(relationship)) {
     const localInverse = relationship.localState;
-    if (!relationship.definition.isAsync || (localInverse && isNew(localInverse))) {
+    if (!relationship.definition.isAsync || (localInverse && checkIfNew(graph._realStore, localInverse))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
@@ -693,7 +696,7 @@ function removeDematerializedInverse(
         relationship.remoteState = null;
         relationship.state.hasReceivedData = true;
         relationship.state.isEmpty = true;
-        if (relationship.localState && !isNew(relationship.localState)) {
+        if (relationship.localState && !checkIfNew(graph._realStore, relationship.localState)) {
           relationship.localState = null;
         }
       }
@@ -705,7 +708,7 @@ function removeDematerializedInverse(
       notifyChange(graph, relationship);
     }
   } else {
-    if (!relationship.definition.isAsync || (inverseIdentifier && isNew(inverseIdentifier))) {
+    if (!relationship.definition.isAsync || (inverseIdentifier && checkIfNew(graph._realStore, inverseIdentifier))) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
