@@ -3,6 +3,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 import { recordIdentifierFor } from '@ember-data/store';
+import type { Type } from '@warp-drive/core-types/symbols';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import type Store from 'warp-drive__schema-record/services/store';
@@ -15,6 +16,7 @@ interface User {
   netWorth: number;
   coolometer: number;
   rank: number;
+  [Type]: 'user';
 }
 
 module('Polaris | Create | basic fields', function (hooks) {
@@ -37,7 +39,7 @@ module('Polaris | Create | basic fields', function (hooks) {
       })
     );
 
-    const record = store.createRecord('user', { name: 'Rey Skybarker' }) as User;
+    const record = store.createRecord<User>('user', { name: 'Rey Skybarker' });
 
     assert.strictEqual(record.id, null, 'id is accessible');
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
@@ -60,7 +62,7 @@ module('Polaris | Create | basic fields', function (hooks) {
       })
     );
 
-    const record = store.createRecord('user', { id: '1' }) as User;
+    const record = store.createRecord<User>('user', { id: '1' });
 
     assert.strictEqual(record.id, '1', 'id is accessible');
     assert.strictEqual(record.name, undefined, 'name is accessible');
@@ -83,7 +85,7 @@ module('Polaris | Create | basic fields', function (hooks) {
       })
     );
 
-    const record = store.createRecord('user', {}) as User;
+    const record = store.createRecord<User>('user', {});
     assert.strictEqual(record.name, undefined, 'name is accessible');
     record.name = 'Rey Skybarker';
     assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
@@ -106,7 +108,7 @@ module('Polaris | Create | basic fields', function (hooks) {
       })
     );
 
-    const record = store.createRecord('user', {}) as User;
+    const record = store.createRecord<User>('user', {});
     assert.strictEqual(record.id, null, 'id is accessible');
     record.id = '1';
     assert.strictEqual(record.id, '1', 'id is accessible');
@@ -172,7 +174,7 @@ module('Polaris | Create | basic fields', function (hooks) {
         ],
       })
     );
-    const record = store.createRecord('user', { name: 'Chris' });
+    const record = store.createRecord<User>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
     const primaryRecord = store.peekRecord<User>(identifier);
 
@@ -205,11 +207,9 @@ module('Polaris | Create | basic fields', function (hooks) {
         ],
       })
     );
-    const record = store.createRecord('user', { name: 'Chris' });
-    const identifier = recordIdentifierFor(record);
-    const primaryRecord = store.peekRecord<User>(identifier);
+    store.createRecord<User>('user', { name: 'Chris' });
 
-    const all = store.peekAll('user');
+    const all = store.peekAll<User>('user');
     assert.strictEqual(all.length, 0, 'Our empty new record does not appear in the list of all records');
   });
 
@@ -228,14 +228,20 @@ module('Polaris | Create | basic fields', function (hooks) {
         ],
       })
     );
-    const record = store.createRecord('user', { name: 'Chris' });
+    const record = store.createRecord<User & { ___notifications: null | object }>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
     const primaryRecord = store.peekRecord<User>(identifier);
 
     store.unloadRecord(primaryRecord);
 
-    // check editable is unloaded too ...
-    assert.ok(false, 'implement me');
+    // peekRecord should now be `null`
+    const peeked = store.peekRecord<User>(identifier);
+    assert.strictEqual(peeked, null, 'we can no longer peek the record');
+    const cacheEntry = store.cache.peek(identifier);
+    assert.strictEqual(cacheEntry, null, 'there is no cache entry');
+
+    // this check should become `$state.isDestroyed` once that is a thing
+    assert.strictEqual(record.___notifications, null, 'the record was destroyed');
   });
 
   test('we can unload via the editable record', function (assert) {
@@ -253,13 +259,17 @@ module('Polaris | Create | basic fields', function (hooks) {
         ],
       })
     );
-    const record = store.createRecord('user', { name: 'Chris' });
+    const record = store.createRecord<User & { ___notifications: null | object }>('user', { name: 'Chris' });
     const identifier = recordIdentifierFor(record);
-    const primaryRecord = store.peekRecord<User>(identifier);
 
     store.unloadRecord(record);
 
-    // check primary is unloaded too ...
-    assert.ok(false, 'implement me');
+    const primaryRecord = store.peekRecord<User>(identifier);
+    assert.strictEqual(primaryRecord, null, 'the primary record no longer exists');
+    const cacheEntry = store.cache.peek(identifier);
+    assert.strictEqual(cacheEntry, null, 'there is no cache entry');
+
+    // this check should become `$state.isDestroyed` once that is a thing
+    assert.strictEqual(record.___notifications, null, 'the record was destroyed');
   });
 });

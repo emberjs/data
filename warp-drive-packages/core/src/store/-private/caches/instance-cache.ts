@@ -77,6 +77,14 @@ export function setRecordIdentifier(record: OpaqueRecordInstance, identifier: St
 
   RecordCache.set(record, identifier);
 }
+export function removeRecordIdentifier(record: OpaqueRecordInstance): void {
+  if (DEBUG) {
+    if (!RecordCache.has(record)) {
+      throw new Error(`${String(record)} had no assigned identifier to remove`);
+    }
+  }
+  RecordCache.delete(record);
+}
 
 export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<OpaqueRecordInstance, Store>());
 
