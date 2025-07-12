@@ -22,31 +22,64 @@ type RecordId = string | null;
   Snapshots are only available when using `@ember-data/legacy-compat`
   for legacy compatibility with adapters and serializers.
 
-  @class Snapshot
+  For serialization of records in modern paradigms, request data from
+  the cache or off the record directly.
+
+  @hideconstructor
   @public
 */
 export class Snapshot<R = unknown> {
-  declare __attributes: Record<keyof R & string, unknown> | null;
-  declare _belongsToRelationships: Record<string, Snapshot>;
-  declare _belongsToIds: Record<string, RecordId>;
-  declare _hasManyRelationships: Record<string, Snapshot[]>;
-  declare _hasManyIds: Record<string, RecordId[]>;
-  declare _changedAttributes: ChangedAttributesHash;
-
-  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
-  declare modelName: R extends TypedRecordInstance ? TypeFromInstance<R> : string;
-  declare id: string | null;
-  declare include?: string | string[];
-  declare adapterOptions?: Record<string, unknown>;
-  declare _store: Store;
+  declare private __attributes: Record<keyof R & string, unknown> | null;
+  declare private _belongsToRelationships: Record<string, Snapshot>;
+  declare private _belongsToIds: Record<string, RecordId>;
+  declare private _hasManyRelationships: Record<string, Snapshot[]>;
+  declare private _hasManyIds: Record<string, RecordId[]>;
+  declare private _changedAttributes: ChangedAttributesHash;
+  declare private _store: Store;
 
   /**
-   * @constructor
-   * @private
-   * @param options
-   * @param identifier
-   * @param _store
-   */
+    The unique RecordIdentifier associated with this Snapshot.
+
+    @public
+  */
+  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
+
+  /**
+   The ResourceType of the underlying record for this Snapshot, as a string.
+
+    @public
+  */
+  declare modelName: R extends TypedRecordInstance ? TypeFromInstance<R> : string;
+
+  /**
+   The id of the snapshot's underlying record
+
+    Example
+
+    ```js
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
+    postSnapshot.id; // => '1'
+    ```
+
+    @public
+  */
+  declare id: string | null;
+
+  /**
+   If `include` was passed to the options for the request, the value
+   would be available here.
+
+   @public
+  */
+  declare include?: string | string[];
+
+  /**
+   The adapterOptions passed to the request which generated this Snapshot, if any
+
+   @public
+  */
+  declare adapterOptions?: Record<string, unknown>;
+
   constructor(
     options: FindRecordOptions,
     identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
@@ -62,14 +95,6 @@ export class Snapshot<R = unknown> {
 
     const hasRecord = !!store._instanceCache.peek(identifier);
     this.modelName = identifier.type;
-
-    /**
-      The unique RecordIdentifier associated with this Snapshot.
-
-      @property identifier
-      @public
-      @type {StableRecordIdentifier}
-    */
     this.identifier = identifier;
 
     /*
@@ -84,48 +109,11 @@ export class Snapshot<R = unknown> {
       this._attributes;
     }
 
-    /**
-     The id of the snapshot's underlying record
-
-     Example
-
-     ```javascript
-     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-     postSnapshot.id; // => '1'
-     ```
-
-     @property id
-     @type {String}
-     @public
-     */
     this.id = identifier.id;
-
-    /**
-     A hash of adapter options
-     @property adapterOptions
-     @type {Object}
-     @public
-     */
     this.adapterOptions = options.adapterOptions;
-
-    /**
-     If `include` was passed to the options hash for the request, the value
-     would be available here.
-
-     @property include
-     @type {String|Array}
-     @public
-     */
     this.include = options.include;
-
-    /**
-     The name of the type of the underlying record for this snapshot, as a string.
-
-     @property modelName
-     @type {String}
-     @public
-     */
     this.modelName = identifier.type;
+
     if (hasRecord) {
       const cache = this._store.cache;
       this._changedAttributes = cache.changedAttrs(identifier);
@@ -136,14 +124,11 @@ export class Snapshot<R = unknown> {
    The underlying record for this snapshot. Can be used to access methods and
    properties defined on the record.
 
-   Example
-
-   ```javascript
-   let json = snapshot.record.toJSON();
+   ```js
+   const someValue = snapshot.record.someProp;
    ```
 
    @property record
-   @type {Model}
    @public
    */
   get record(): R | null {
@@ -155,19 +140,17 @@ export class Snapshot<R = unknown> {
     return record;
   }
 
-  get _attributes(): Record<keyof R & string, unknown> {
+  /** @internal */
+  private get _attributes(): Record<keyof R & string, unknown> {
     if (this.__attributes !== null) {
       return this.__attributes;
     }
     const attributes = (this.__attributes = Object.create(null) as Record<string, unknown>);
     const { identifier } = this;
-    const attrs = this._store.schema.fields(identifier);
     const cache = this._store.cache;
 
-    attrs.forEach((field, keyName) => {
-      if (field.kind === 'attribute') {
-        attributes[keyName] = cache.getAttr(identifier, keyName);
-      }
+    this.eachAttribute((key: string, meta: LegacyAttributeField) => {
+      attributes[key] = cache.getAttr(identifier, key);
     });
 
     return attributes;
@@ -191,8 +174,7 @@ export class Snapshot<R = unknown> {
 
    Note: Values are loaded eagerly and cached when the snapshot is created.
 
-   @param {String} keyName
-   @return {Object} The attribute value or undefined
+   @return The attribute value or undefined
    @public
    */
   attr(keyName: keyof R & string): unknown {
@@ -205,14 +187,21 @@ export class Snapshot<R = unknown> {
   /**
    Returns all attributes and their corresponding values.
 
+   ::: warning ⚠️ WARNING
+   Attributes are SHALLOW copied from the cache.
+   Because they are NOT deep copied from the cache, mutating
+   any object or array fields will cause unintended side-effects
+   and bugs.
+   :::
+
    Example
 
-   ```javascript
+   ```js
    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
    postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
    ```
 
-   @return {Object} All attributes of the current snapshot
+   @return All attributes of the current snapshot
    @public
    */
   attributes(): Record<keyof R & string, unknown> {
@@ -224,13 +213,13 @@ export class Snapshot<R = unknown> {
 
    Example
 
-   ```javascript
+   ```js
    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
    postModel.set('title', 'Ember.js rocks!');
    postSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
    ```
 
-   @return {Object} All changed attributes of the current snapshot
+   @return All changed attributes of the current snapshot
    @public
    */
   changedAttributes(): ChangedAttributesHash {
@@ -260,7 +249,7 @@ export class Snapshot<R = unknown> {
 
    Example
 
-   ```javascript
+   ```js
    // store.push('post', { id: 1, title: 'Hello World' });
    // store.createRecord('comment', { body: 'Lorem ipsum', post: post });
    commentSnapshot.belongsTo('post'); // => Snapshot
@@ -277,12 +266,10 @@ export class Snapshot<R = unknown> {
 
    Note: Relationships are loaded lazily and cached upon first access.
 
-   @param {String} keyName
-   @param {Object} [options]
    @public
-   @return {(Snapshot|String|null|undefined)} A snapshot or ID of a known
-   relationship or null if the relationship is known but unset. undefined
-   will be returned if the contents of the relationship is unknown.
+   @return A snapshot or ID of a known relationship or null if the
+   relationship is known but unset. undefined will be returned if the
+   contents of the relationship are unknown.
    */
   belongsTo(keyName: string, options?: { id?: boolean }): Snapshot | RecordId | undefined {
     const returnModeIsId = !!(options && options.id);
@@ -374,10 +361,8 @@ export class Snapshot<R = unknown> {
 
    Note: Relationships are loaded lazily and cached upon first access.
 
-   @param {String} keyName
-   @param {Object} [options]
    @public
-   @return {(Array|undefined)} An array of snapshots or IDs of a known
+   @return An array of snapshots or IDs of a known
    relationship or an empty array if the relationship is known but unset.
    undefined will be returned if the contents of the relationship is unknown.
    */
@@ -468,17 +453,24 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @param {Function} callback the callback to execute
-    @param {Object} [binding] the value to which the callback's `this` should be bound
+    @param callback the callback to execute
+    @param binding the optional value to which the callback's `this` should be bound
     @public
   */
   eachAttribute(callback: (key: string, meta: LegacyAttributeField) => void, binding?: unknown): void {
-    const fields = this._store.schema.fields(this.identifier);
-    fields.forEach((field, key) => {
-      if (field.kind === 'attribute') {
-        callback.call(binding, key, field);
-      }
-    });
+    // if the store has a modelFor implementation, we use it to iterate attributes. This allows
+    // a custom "ModelSchema" class for legacy serializers to adapt to new fields if desired.
+    if (typeof this._store.modelFor === 'function') {
+      const modelSchema = this._store.modelFor(this.identifier.type);
+      modelSchema.eachAttribute(callback, binding);
+    } else {
+      const fields = this._store.schema.fields(this.identifier);
+      fields.forEach((field, key) => {
+        if (field.kind === 'attribute') {
+          callback.call(binding, key, field);
+        }
+      });
+    }
   }
 
   /**
@@ -493,17 +485,24 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @param {Function} callback the callback to execute
-    @param {Object} [binding] the value to which the callback's `this` should be bound
+    @param callback the callback to execute
+    @param binding the optional value to which the callback's `this` should be bound
     @public
   */
   eachRelationship(callback: (key: string, meta: LegacyRelationshipField) => void, binding?: unknown): void {
-    const fields = this._store.schema.fields(this.identifier);
-    fields.forEach((field, key) => {
-      if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
-        callback.call(binding, key, field);
-      }
-    });
+    // if the store has a modelFor implementation, we use it to iterate relationships. This allows
+    // a custom "ModelSchema" class for legacy serializers to adapt to new fields if desired.
+    if (typeof this._store.modelFor === 'function') {
+      const modelSchema = this._store.modelFor(this.identifier.type);
+      modelSchema.eachRelationship(callback, binding);
+    } else {
+      const fields = this._store.schema.fields(this.identifier);
+      fields.forEach((field, key) => {
+        if (field.kind === 'belongsTo' || field.kind === 'hasMany') {
+          callback.call(binding, key, field);
+        }
+      });
+    }
   }
 
   /**
@@ -527,8 +526,7 @@ export class Snapshot<R = unknown> {
     });
     ```
 
-    @param {Object} options
-    @return {Object} an object whose values are primitive JSON values only
+    @return an object whose values are primitive JSON values only
     @public
    */
   serialize(options?: SerializerOptions): unknown {
