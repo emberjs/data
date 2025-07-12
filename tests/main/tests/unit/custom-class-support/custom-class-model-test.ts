@@ -134,7 +134,14 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
           let count = 0;
           assert.verifySteps(
             DEBUG
-              ? ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:hasResource', 'TestSchema:hasResource']
+              ? [
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                  'TestSchema:fields',
+                  'TestSchema:fields',
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                ]
               : ['TestSchema:fields', 'TestSchema:fields'],
             'serialization of record for save'
           );
@@ -193,15 +200,32 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             }
             count++;
           });
-          assert.verifySteps([
-            'Adapter:createRecord',
-            'TestSchema:fields',
-            'Adapter:createRecord:attr:name',
-            'Adapter:createRecord:attr:age',
-            'TestSchema:fields',
-            'Adapter:createRecord:rel:boats',
-            'Adapter:createRecord:rel:house',
-          ]);
+
+          assert.verifySteps(
+            DEBUG
+              ? [
+                  'Adapter:createRecord',
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                  'TestSchema:fields',
+                  'Adapter:createRecord:attr:name',
+                  'Adapter:createRecord:attr:age',
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                  'TestSchema:fields',
+                  'Adapter:createRecord:rel:boats',
+                  'Adapter:createRecord:rel:house',
+                ]
+              : [
+                  'Adapter:createRecord',
+                  'TestSchema:fields',
+                  'Adapter:createRecord:attr:name',
+                  'Adapter:createRecord:attr:age',
+                  'TestSchema:fields',
+                  'Adapter:createRecord:rel:boats',
+                  'Adapter:createRecord:rel:house',
+                ]
+          );
           return Promise.resolve({ data: { type: 'person', id: '1' } });
         };
       }
