@@ -240,7 +240,7 @@ module('Emergent Behavior > Recovery | belongsTo', function (hooks) {
       class {
         findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
-          // @ts-expect-error
+          // @ts-expect-errorw
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
           return Promise.reject(new Error('404 - Not Found'));

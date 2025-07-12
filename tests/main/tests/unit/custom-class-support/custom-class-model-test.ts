@@ -200,11 +200,16 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
             }
             count++;
           });
+
           assert.verifySteps([
             'Adapter:createRecord',
+            'TestSchema:hasResource',
+            'TestSchema:hasResource',
             'TestSchema:fields',
             'Adapter:createRecord:attr:name',
             'Adapter:createRecord:attr:age',
+            'TestSchema:hasResource',
+            'TestSchema:hasResource',
             'TestSchema:fields',
             'Adapter:createRecord:rel:boats',
             'Adapter:createRecord:rel:house',
