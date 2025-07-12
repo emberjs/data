@@ -473,6 +473,7 @@ export class ReactiveResource {
               modeName: context.modeName,
               legacy: context.legacy,
               editable: context.editable,
+              destroyables: context.destroyables,
               path: propArray,
               field: field as GenericField,
               record: receiver as unknown as ReactiveResource,
@@ -571,6 +572,7 @@ export class ReactiveResource {
               modeName: context.modeName,
               legacy: context.legacy,
               editable: context.editable,
+              destroyables: context.destroyables,
               path: propArray,
               field: field as IdentityField,
               record: receiver as unknown as ReactiveResource,
@@ -626,6 +628,7 @@ export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
     modeName: context.legacy ? 'legacy' : 'polaris',
     legacy: context.legacy,
     editable: true,
+    destroyables: new Set(),
     path: null,
     field: null,
     value: null,
@@ -634,6 +637,29 @@ export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
   Editables.set(record, editableRecord);
   return editableRecord;
 }
+
+// when a resource is destroyed, we need to cleanup any retainers that might exist
+// in the objects and arrays it contained, as well as prevent future mutation from
+// affecting the cache.
+//
+// we could keep a flat set or array of "destroyables". This would be quick to iterate.
+// however, often we need to destroy a leaf or a branch of objects associated to a resource
+// while the resource is still alive.
+//
+// sometimes we know when this happens: for instance - perhaps a schema-object field is nulled
+// out, changes type, or gains a new identity.
+//
+// other times we don't know when this occurs precisely - perhaps an array has changed state.
+// some objects are retained but shift positions, others destroyed, and others created. Unless
+// we eagerly instantiate every item in the array to check, we can't know which members are no
+// longer required.
+//
+// we could:
+// => store each proxy in a weakref and nowhere else, auto-cleanup regardless of use if no-longer accessible
+// => do a non-materializing "key" scan to determine which objects are still valid
+// => use a finalization registry to cleanup no-longer accessed proxies
+// => change arrays to always be fully-matrialized or de-materialized, enabling quick determination
+//.   of any reclaimable keys
 
 function _DESTROY(record: ReactiveResource): void {
   if (record[Context].legacy) {
