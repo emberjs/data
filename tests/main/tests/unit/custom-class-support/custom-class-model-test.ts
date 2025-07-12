@@ -142,7 +142,7 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
                   'TestSchema:hasResource',
                   'TestSchema:hasResource',
                 ]
-              : ['TestSchema:hasResource', 'TestSchema:hasResource', 'TestSchema:fields', 'TestSchema:fields'],
+              : ['TestSchema:fields', 'TestSchema:fields'],
             'serialization of record for save'
           );
           assert.step('Adapter:createRecord');
