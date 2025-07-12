@@ -134,8 +134,15 @@ module('unit/model - Custom Class Model', function (hooks: NestedHooks) {
           let count = 0;
           assert.verifySteps(
             DEBUG
-              ? ['TestSchema:fields', 'TestSchema:fields', 'TestSchema:hasResource', 'TestSchema:hasResource']
-              : ['TestSchema:fields', 'TestSchema:fields'],
+              ? [
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                  'TestSchema:fields',
+                  'TestSchema:fields',
+                  'TestSchema:hasResource',
+                  'TestSchema:hasResource',
+                ]
+              : ['TestSchema:hasResource', 'TestSchema:hasResource', 'TestSchema:fields', 'TestSchema:fields'],
             'serialization of record for save'
           );
           assert.step('Adapter:createRecord');

@@ -762,6 +762,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
       class {
         findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
+          // @ts-expect-error
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
           return Promise.resolve({
             data: {
@@ -951,6 +952,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
         findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
           if (snapshot.include === 'frenemies') {
+            // @ts-expect-error
             assert.deepEqual(snapshot._attributes, { name: 'Rey' }, 'the snapshot has the correct attributes');
 
             return Promise.resolve({
@@ -968,6 +970,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
               },
             });
           }
+          // @ts-expect-error
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
           return Promise.resolve({
@@ -1176,6 +1179,7 @@ module('Emergent Behavior > Recovery | hasMany', function (hooks) {
       class {
         findRecord(_store: Store, schema: ModelSchema, id: string, snapshot: Snapshot) {
           assert.step('findRecord');
+          // @ts-expect-error
           assert.deepEqual(snapshot._attributes, { name: undefined }, 'the snapshot has the correct attributes');
 
           return Promise.reject(new Error('404 - Not Found'));
