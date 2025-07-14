@@ -6,9 +6,9 @@ type Signal = {
   value: number;
 };
 
-export function buildSignalConfig(options: HooksOptions) {
+export function buildSignalConfig(options: HooksOptions): SignalHooks<Signal> {
   return {
-    createSignal: (obj: object, key: string | symbol): Signal => {
+    createSignal(obj: object, key: string | symbol): Signal {
       let value = 1;
       let update: () => void | null;
 
@@ -37,7 +37,7 @@ export function buildSignalConfig(options: HooksOptions) {
       return () => m;
     },
     willSyncFlushWatchers: () => false,
-  } satisfies SignalHooks;
+  };
 }
 
 setupSignals(buildSignalConfig);

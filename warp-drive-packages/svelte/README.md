@@ -23,11 +23,11 @@ pnpm install -E @warp-drive/svelte@latest
 
 **Tagged Releases**
 
-- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive%2Fvue/canary?label=@canary&color=FFBF00)
-- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive%2Fvue/bet?label=@beta&color=ff00ff)
-- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive%2Fvue/latest?label=@latest&color=90EE90)
-- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive%2Fvue/lts?label=@lts&color=0096FF)
-- ![NPM LTS-4-12 Version](https://img.shields.io/npm/v/%40warp-drive%2Fvue/lts-4-12?label=@lts-4-12&color=bbbbbb)
+- ![NPM Canary Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/canary?label=@canary&color=FFBF00)
+- ![NPM Beta Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/beta?label=@beta&color=ff00ff)
+- ![NPM Stable Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/latest?label=@latest&color=90EE90)
+- ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/lts?label=@lts&color=0096FF)
+- ![NPM LTS-4-12 Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/lts-4-12?label=@lts-4-12&color=bbbbbb)
 
 ## About
 

@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "declarationDir": "declarations",
     "emitDeclarationOnly": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "alwaysStrict": true,
     "strict": true,
@@ -24,7 +24,6 @@
     "noEmitOnError": false,
     "strictNullChecks": true,
     "noErrorTruncation": true,
-    "preserveConstEnums": false,
     "experimentalDecorators": true,
     // Enable faster builds
     // but causes us to not rebuild properly
@@ -41,6 +40,8 @@
       "@warp-drive/core": ["../core/declarations"],
       "@warp-drive/core/*": ["../core/declarations/*"]
     },
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
     "erasableSyntaxOnly": true,
     "lib": ["ESNext", "DOM"],
     "moduleDetection": "force"
