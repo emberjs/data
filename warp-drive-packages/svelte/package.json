@@ -1,0 +1,58 @@
+{
+  "name": "@warp-drive/svelte",
+  "description": "Data bindings and utilities for Svelte",
+  "version": "5.7.0-alpha.12",
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "warp-drive-packages/svelte"
+  },
+  "homepage": "https://github.com/emberjs/data",
+  "bugs": "https://github.com/emberjs/data/issues",
+  "keywords": [],
+  "scripts": {
+    "build:pkg": "vite build && npm run prepack",
+    "prepack": "svelte-package",
+    "sync": "echo \"syncing\"",
+    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
+    "start": "vite"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md",
+    "logos"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    },
+    "./install": {
+      "types": "./dist/install.svelte.d.ts",
+      "svelte": "./dist/install.svelte.js"
+    }
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "dependencies": {
+    "@warp-drive/core": "workspace:*"
+  },
+  "peerDependenciesMeta": {},
+  "devDependencies": {
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/package": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^5.1.0",
+    "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive/core": "workspace:*",
+    "svelte": "^5.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}
