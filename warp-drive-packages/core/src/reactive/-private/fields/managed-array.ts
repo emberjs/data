@@ -254,7 +254,7 @@ export class ManagedArray {
                   : ((rawValue as ObjectValue)[KeyMode] as string | number | object);
           }
 
-          if (!schemaObjectKeyValue) {
+          if (!schemaObjectKeyValue && schemaObjectKeyValue !== 0) {
             assert(`Unexpected out of bounds access on SchemaArray`);
             return undefined;
           }
