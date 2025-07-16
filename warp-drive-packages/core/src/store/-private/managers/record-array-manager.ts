@@ -417,9 +417,9 @@ export class RecordArrayManager {
     this.isDestroying = true;
     this.clear(false);
     this._live.clear();
-    this.isDestroyed = true;
     this.store.notifications.unsubscribe(this._subscription);
     this.store.notifications.unsubscribe(this._documentSubscription);
+    this.isDestroyed = true;
   }
 }
 

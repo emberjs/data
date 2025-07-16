@@ -197,7 +197,9 @@ export default class NotificationManager {
     value: NotificationType | CacheOperation | DocumentCacheOperation,
     key?: string
   ): boolean {
-    assert(`Expected not to be destroyed`, !this.isDestroyed);
+    if (this.isDestroyed) {
+      return false;
+    }
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'

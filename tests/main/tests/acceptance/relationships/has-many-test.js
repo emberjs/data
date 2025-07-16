@@ -544,7 +544,7 @@ module('async has-many rendering tests', function (hooks) {
 
       const relationshipState = parent.hasMany('children').hasManyRelationship;
       const RelationshipPromiseCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipPromisesCache;
-      const RelationshipProxyCache = LEGACY_SUPPORT.getrecordIdentifierFor(parent)._relationshipProxyCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipProxyCache;
 
       assert.true(relationshipState.definition.isAsync, 'The relationship is async');
       assert.true(
