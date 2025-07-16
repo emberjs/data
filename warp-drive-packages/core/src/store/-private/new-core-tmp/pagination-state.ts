@@ -1,93 +1,121 @@
 /**
  * @module @warp-drive/ember
  */
-import type { ReactiveDocument } from '../../../reactive/-private/document.ts';
-import type { Future } from '../../../request.ts';
+import { ReactiveDocument } from '../../../reactive/-private/document.ts';
+import { type Future } from '../../../request.ts';
 import type { StructuredErrorDocument } from '../../../types/request.ts';
-import type { ResourceErrorDocument } from '../../../types/spec/document.ts';
-import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal';
-import type { RequestCacheRequestState } from './request-state';
-import { getRequestState } from './request-state';
+import { Link } from '../../../types/spec/json-api-raw.ts';
+import { defineSignal, memoized } from './reactivity/signal';
+import { getRequestState, RequestCacheRequestState } from './request-state.ts';
 
 const RequestCache = new WeakMap<Future<unknown>, PaginationState>();
 
-type FirstLink<T, RT, E> = {
-  prev: null;
-  self: Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>>;
-  next: Link<T, RT, E> | PlaceholderLink<T, RT, E> | null;
-  isVirtual: false;
-};
-
-type Link<T, RT, E> = {
-  prev: Link<T, RT, E> | PlaceholderLink<T, RT, E> | FirstLink<T, RT, E>;
-  self: Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>>;
-  next: Link<T, RT, E> | PlaceholderLink<T, RT, E> | null;
-  isVirtual: false;
-};
-
-type PlaceholderLink<T, RT, E> = {
-  prev: Link<T, RT, E> | FirstLink<T, RT, E>;
-  self: null;
-  next: Link<T, RT, E>;
-  isVirtual: true;
-};
-
-export class PaginationState<T = unknown, E = unknown> {
-  #pageList!: FirstLink<T, ReactiveDocument<T[]>, E>;
-  declare pages: ReactiveDocument<T[]>[];
-  declare data: T[];
-  declare _isLoading: boolean;
-  declare _isSuccess: boolean;
-  declare _isError: boolean;
-
-  constructor(request: Future<ReactiveDocument<T[]>>) {
-    this.#pageList = {
-      prev: null,
-      self: getRequestState(request),
-      next: null,
-      isVirtual: false,
-    };
+function getHref(link?: Link | null): string | null {
+  if (!link) {
+    return null;
   }
-
-  // TODO: pagination-utils Add loading state tracking to the ReactiveDocument interface
-  get isLoading(): boolean {
-    return this.pages.some((page) => page.isLoading);
+  if (typeof link === 'string') {
+    return link;
   }
-
-  get isSuccess(): boolean {
-    return !this.isError;
-  }
-
-  // TODO: pagination-utils Add error state tracking to the ReactiveDocument interface
-  get isError(): boolean {
-    return this.pages.some((page) => page.isError);
-  }
-
-  get errors(): (object | undefined)[] {
-    return this.pages.flatMap((page) => page.errors);
-  }
-
-  #addPage(page: ReactiveDocument<T[]>) {
-    this.pages.push(page);
-    if (page.data) {
-      this.data = this.data.concat(page.data);
-    }
-  }
-
-  async next(): Promise<void> {
-    const page = this.pages.at(-1);
-    const result = await page?.next();
-    if (result) {
-      this.#addPage(result);
-    }
-  }
+  return link.href;
 }
 
-defineSignal(PaginationState.prototype, 'pages', []);
-defineSignal(PaginationState.prototype, 'data', []);
-defineNonEnumerableSignal(PaginationState.prototype, '_isLoading', false);
-defineNonEnumerableSignal(PaginationState.prototype, '_isSuccess', true);
-defineNonEnumerableSignal(PaginationState.prototype, '_isError', false);
+export class PaginationState<RT = unknown, T = unknown, E = unknown> {
+  declare pages: Readonly<RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>>[];
+  declare data: RT[];
+  declare initialRequest: Future<RT> | null;
+  declare initialState: RequestCacheRequestState<RT, T, StructuredErrorDocument<E>>;
+  declare prevRequest: Future<RT> | null;
+  declare nextRequest: Future<RT> | null;
+
+  constructor(request: Future<RT>) {
+    const state = getRequestState<RT, T, E>(request);
+    this.initialRequest = request;
+    this.initialState = state;
+    this.pages = [state];
+    this.data = [];
+    request.then((result) => {
+      const content = result.content as ReactiveDocument<RT[]>;
+      if (content.data) {
+        this.addData(content.data, 'append');
+      }
+      return result;
+    });
+  }
+
+  @memoized
+  get isLoading(): boolean {
+    return this.initialState.isLoading;
+  }
+
+  @memoized
+  get isSuccess(): boolean {
+    return this.initialState.isSuccess;
+  }
+
+  @memoized
+  get isError(): boolean {
+    return this.initialState.isError;
+  }
+
+  @memoized
+  get prev(): string | null {
+    const page = this.pages.at(0);
+    const content = page?.value as ReactiveDocument<T[]>;
+    return getHref(content?.links?.prev);
+  }
+
+  @memoized
+  get next(): string | null {
+    const page = this.pages.at(-1);
+    const content = page?.value as ReactiveDocument<T[]>;
+    return getHref(content?.links?.next);
+  }
+
+  loadPrev = (request: Future<unknown>): void => {
+    this.prevRequest = request
+      .then((result) => {
+        const content = result.content as ReactiveDocument<RT[]>;
+        if (content.data) {
+          this.addData(content.data, 'prepend');
+        }
+        return result;
+      })
+      .finally(() => {
+        this.prevRequest = null;
+      }) as Future<RT>;
+    this.pages = [getRequestState<RT, T, E>(request as Future<RT>), ...this.pages];
+  };
+
+  loadNext = (request: Future<unknown>): void => {
+    this.nextRequest = request
+      .then((result) => {
+        const content = result.content as ReactiveDocument<RT[]>;
+        if (content.data) {
+          this.addData(content.data, 'append');
+        }
+        return result;
+      })
+      .finally(() => {
+        this.nextRequest = null;
+      }) as Future<RT>;
+    this.pages = [...this.pages, getRequestState<RT, T, E>(request as Future<RT>)];
+  };
+
+  addData = (data: unknown[], behavior: 'prepend' | 'append'): void => {
+    if (behavior === 'prepend') {
+      this.data = [...(data as RT[]), ...this.data];
+    } else {
+      this.data = [...this.data, ...(data as RT[])];
+    }
+  };
+}
+
+defineSignal(PaginationState.prototype, 'pages', undefined);
+defineSignal(PaginationState.prototype, 'data', undefined);
+defineSignal(PaginationState.prototype, 'initialRequest', undefined);
+defineSignal(PaginationState.prototype, 'prevRequest', undefined);
+defineSignal(PaginationState.prototype, 'nextRequest', undefined);
 
 /**
  * Get the pagination state for a given request, this will return the same
@@ -107,15 +135,15 @@ defineNonEnumerableSignal(PaginationState.prototype, '_isError', false);
  * @param future
  * @return {PaginationState}
  */
-export function getPaginationState<T, E = ResourceErrorDocument>(
-  future: Future<ReactiveDocument<T[]>>
-): Readonly<PaginationState<T, E>> {
-  let state = RequestCache.get(future) as PaginationState<T, E> | undefined;
+export function getPaginationState<RT, T, E>(
+  future: Future<RT>
+): Readonly<PaginationState<RT, T, StructuredErrorDocument<E>>> {
+  let state = RequestCache.get(future);
 
   if (!state) {
-    state = new PaginationState(future);
+    state = new PaginationState<RT, T, E>(future);
     RequestCache.set(future, state);
   }
 
-  return state;
+  return state as Readonly<PaginationState<RT, T, StructuredErrorDocument<E>>>;
 }
