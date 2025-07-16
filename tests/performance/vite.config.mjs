@@ -42,7 +42,8 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('@ember-data/model')) return 'warp-drive-legacy';
           if (id.includes('@ember-data/legacy-compat')) return 'warp-drive-legacy';
-          if (id.includes('@ember-data')) return 'warp-drive';
+          if (id.includes('@ember-data')) return 'warp-drive-legacy';
+          if (id.includes('@warp-drive/legacy')) return 'warp-drive-legacy';
           if (id.includes('@warp-drive')) return 'warp-drive';
           if (id.includes('@ember')) return 'ember';
           if (id.includes('ember-source')) return 'ember';
