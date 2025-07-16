@@ -289,9 +289,9 @@ export default class NotificationManager {
     if (buffered.size) {
       this._buffered = new Map();
       for (const [identifier, states] of buffered) {
-        for (const state of states) {
+        for (let i = 0; i < states.length; i++) {
           // @ts-expect-error
-          _flushNotification(this._cache, identifier, state[0], state[1]);
+          _flushNotification(this._cache, identifier, states[i][0], states[i][1]);
         }
       }
     }
