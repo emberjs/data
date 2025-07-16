@@ -6,8 +6,8 @@ import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
 import { ARRAY_SIGNAL, notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
-import type { CollectionCreateOptions } from '../record-arrays/identifier-array.ts';
-import { Collection, IdentifierArray, SOURCE } from '../record-arrays/identifier-array.ts';
+import type { Collection, CollectionCreateOptions, IdentifierArray } from '../record-arrays/identifier-array.ts';
+import { createCollection, createIdentifierArray, SOURCE } from '../record-arrays/identifier-array.ts';
 import type { Store } from '../store-service.ts';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager.ts';
 
@@ -192,7 +192,7 @@ export class RecordArrayManager {
     }
 
     if (!array) {
-      array = new IdentifierArray({
+      array = createIdentifierArray({
         type,
         identifiers,
         store: this.store,
@@ -229,7 +229,7 @@ export class RecordArrayManager {
       store: this.store,
       manager: this,
     };
-    const array = new Collection(options);
+    const array = createCollection(options);
     this._managed.add(array);
     this._set.set(array, new Set(options.identifiers || []));
 
