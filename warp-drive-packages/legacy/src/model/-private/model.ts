@@ -866,7 +866,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     if (normalizedId !== null && didChange) {
       this.store._instanceCache.setRecordId(identifier, normalizedId);
-      this.store.notifications.notify(identifier, 'identity');
+      this.store.notifications.notify(identifier, 'identity', null);
     }
   }
 

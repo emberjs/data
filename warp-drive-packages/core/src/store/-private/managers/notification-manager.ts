@@ -96,7 +96,7 @@ export default class NotificationManager {
   /** @internal */
   declare private isDestroyed: boolean;
   /** @internal */
-  declare private _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
+  declare private _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | null][]>;
   /** @internal */
   declare private _cache: Map<
     StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
@@ -188,14 +188,14 @@ export default class NotificationManager {
    *
    * @private
    */
-  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
-  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string | null): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state', key?: null): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation, key?: null): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation, key?: null): boolean;
   notify(
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     value: NotificationType | CacheOperation | DocumentCacheOperation,
-    key?: string
+    key?: string | null
   ): boolean {
     if (this.isDestroyed) {
       return false;
@@ -224,7 +224,7 @@ export default class NotificationManager {
         buffer = [];
         this._buffered.set(identifier, buffer);
       }
-      buffer.push([value, key]);
+      buffer.push([value, key || null]);
 
       if (LOG_METRIC_COUNTS) {
         count(`notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
@@ -289,9 +289,9 @@ export default class NotificationManager {
     if (buffered.size) {
       this._buffered = new Map();
       for (const [identifier, states] of buffered) {
-        for (const [value, key] of states) {
+        for (const state of states) {
           // @ts-expect-error
-          this._flushNotification(identifier, value, key);
+          _flushNotification(this._cache, identifier, state[0], state[1]);
         }
       }
     }
@@ -301,64 +301,63 @@ export default class NotificationManager {
     this._onFlushCB = undefined;
   }
 
-  private _flushNotification(
-    identifier: StableRecordIdentifier,
-    value: 'attributes' | 'relationships',
-    key?: string
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier,
-    value: 'errors' | 'meta' | 'identity' | 'state'
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
-    value: CacheOperation
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
-    value: NotificationType | CacheOperation,
-    key?: string
-  ): boolean {
-    if (LOG_NOTIFICATIONS) {
-      log(
-        'notify',
-        '',
-        `${'type' in identifier ? identifier.type : 'document'}`,
-        identifier.lid,
-        `${value}`,
-        key || ''
-      );
-    }
-
-    // TODO for documents this will need to switch based on Identifier kind
-    if (isCacheOperationValue(value)) {
-      const callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
-        ResourceOperationCallback | DocumentOperationCallback
-      >;
-
-      if (callbackMap) {
-        callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
-          cb(identifier as StableRecordIdentifier, value);
-        });
-      }
-    }
-
-    const callbacks = this._cache.get(identifier);
-    if (!callbacks || !callbacks.length) {
-      return false;
-    }
-    callbacks.forEach((cb) => {
-      // @ts-expect-error overload doesn't narrow within body
-      cb(identifier, value, key);
-    });
-    return true;
-  }
-
   /** @internal */
   destroy(): void {
     this.isDestroyed = true;
     this._cache.clear();
   }
+}
+
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier,
+  value: 'attributes' | 'relationships',
+  key: string | null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier,
+  value: 'errors' | 'meta' | 'identity' | 'state',
+  key: null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier | StableDocumentIdentifier,
+  value: CacheOperation,
+  key: null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier | StableDocumentIdentifier,
+  value: NotificationType | CacheOperation,
+  key: string | null
+): boolean {
+  if (LOG_NOTIFICATIONS) {
+    log('notify', '', `${'type' in identifier ? identifier.type : 'document'}`, identifier.lid, `${value}`, key || '');
+  }
+
+  // TODO for documents this will need to switch based on Identifier kind
+  if (isCacheOperationValue(value)) {
+    const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+      ResourceOperationCallback | DocumentOperationCallback
+    >;
+
+    if (callbackMap) {
+      callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
+        cb(identifier as StableRecordIdentifier, value);
+      });
+    }
+  }
+
+  const callbacks = cache.get(identifier);
+  if (!callbacks || !callbacks.length) {
+    return false;
+  }
+  callbacks.forEach((cb) => {
+    // @ts-expect-error overload doesn't narrow within body
+    cb(identifier, value, key);
+  });
+  return true;
 }
 
 function hasSubscribers(
@@ -368,13 +367,12 @@ function hasSubscribers(
 ): boolean {
   const hasSubscriber = Boolean(cache.get(identifier)?.length);
 
-  if (!isCacheOperationValue(value)) {
+  if (hasSubscriber || !isCacheOperationValue(value)) {
     return hasSubscriber;
   }
 
   const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
     ResourceOperationCallback | DocumentOperationCallback
   >;
-  const hasTypeSubscriber = Boolean(callbackMap?.length);
-  return hasSubscriber || hasTypeSubscriber;
+  return Boolean(callbackMap?.length);
 }

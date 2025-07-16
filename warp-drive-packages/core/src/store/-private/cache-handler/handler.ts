@@ -110,10 +110,10 @@ export const CacheHandler: CacheHandlerType = {
       if (identifier) {
         promise = promise.finally(() => {
           DEDUPE.delete(identifier);
-          store.notifications.notify(identifier, 'state');
+          store.notifications.notify(identifier, 'state', null);
         });
         DEDUPE.set(identifier, { priority: { blocking: true }, promise });
-        store.notifications.notify(identifier, 'state');
+        store.notifications.notify(identifier, 'state', null);
       }
       return promise;
     }
@@ -124,10 +124,10 @@ export const CacheHandler: CacheHandlerType = {
       if (identifier && !activeRequest) {
         promise = promise.finally(() => {
           DEDUPE.delete(identifier);
-          store.notifications.notify(identifier, 'state');
+          store.notifications.notify(identifier, 'state', null);
         });
         DEDUPE.set(identifier, { priority: { blocking: false }, promise });
-        store.notifications.notify(identifier, 'state');
+        store.notifications.notify(identifier, 'state', null);
       }
       store.requestManager._pending.set(context.id, promise);
     }

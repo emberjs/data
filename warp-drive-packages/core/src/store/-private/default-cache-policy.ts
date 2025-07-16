@@ -586,7 +586,8 @@ export class DefaultCachePolicy {
       // TODO batch notifications
       set.forEach((id) => {
         storeCache.invalidated.add(id);
-        notifications.notify(id, 'invalidated');
+        // @ts-expect-error
+        notifications.notify(id, 'invalidated', null);
       });
     }
   }

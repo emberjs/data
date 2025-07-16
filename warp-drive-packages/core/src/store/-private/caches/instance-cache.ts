@@ -340,7 +340,7 @@ export class InstanceCache {
 
     // TODO update resource cache if needed ?
     // TODO handle consequences of identifier merge for notifications
-    this.store.notifications.notify(identifier, 'identity');
+    this.store.notifications.notify(identifier, 'identity', null);
   }
 }
 

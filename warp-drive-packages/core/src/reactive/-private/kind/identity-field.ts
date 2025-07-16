@@ -21,7 +21,7 @@ export function setIdentityField(context: KindContext<IdentityField>): boolean {
 
   if (normalizedId !== null && didChange) {
     store._instanceCache.setRecordId(resourceKey, normalizedId);
-    store.notifications.notify(resourceKey, 'identity');
+    store.notifications.notify(resourceKey, 'identity', null);
   }
   return true;
 }
