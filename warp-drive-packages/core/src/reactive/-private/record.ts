@@ -284,6 +284,18 @@ export class ReactiveResource {
               enumerable: true,
               configurable: true,
             };
+          case '@hash':
+            return schemaForField.name
+              ? {
+                  writable: false,
+                  enumerable: true,
+                  configurable: true,
+                }
+              : {
+                  writable: false,
+                  enumerable: false,
+                  configurable: false,
+                };
           case '@local':
           case 'field':
           case 'attribute':
