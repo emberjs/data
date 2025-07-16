@@ -1,27 +1,40 @@
 import Component from '@glimmer/component';
 import { cached } from '@glimmer/tracking';
+import { service } from '@ember/service';
+
+import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 
 import type { Document, Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future } from '@warp-drive/core/request';
 import type { PaginationState } from '@warp-drive/core/store/-private';
-import { getPaginationState } from '@warp-drive/core/store/-private';
+import { getPaginationState, type Page } from '@warp-drive/core/store/-private';
 import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
+import { Request } from './request.gts';
 import { and, Throw } from './await.gts';
 
-const IdleBlockMissingError = new Error(
-  'No idle block provided for <Paginate> component, and no query or request was provided.'
-);
+function notNull(x: null): never;
+function notNull<T>(x: T): Exclude<T, null>;
+function notNull<T>(x: T | null) {
+  assert('Expected a non-null value, but got null', x !== null);
+  return x;
+}
 
-interface RequestSignature<T, E = unknown> {
+let consume = service;
+if (macroCondition(moduleExists('ember-provide-consume-context'))) {
+  const { consume: contextConsume } = importSync('ember-provide-consume-context') as { consume: typeof service };
+  consume = contextConsume;
+}
+
+interface PaginateSignature<RT, T, E> {
   Args: {
     /**
      * The request to monitor. This should be a `Future` instance returned
      * by either the `store.request` or `store.requestManager.request` methods.
      *
      */
-    request?: Future<Document<T[]>>;
+    request?: Future<RT>;
 
     /**
      * The store instance to use for making requests. If contexts are available,
@@ -34,34 +47,7 @@ interface RequestSignature<T, E = unknown> {
     store?: Store;
   };
   Blocks: {
-    /**
-     * The block to render when the component is idle and waiting to be given a request.
-     *
-     */
-    idle: [];
-
-    /**
-     * The block to render when the request is loading.
-     *
-     */
-    loading: [state: PaginationState<T, StructuredErrorDocument<E>>];
-
-    /**
-     * The block to render when the request failed. If this block is not provided,
-     * the error will be rethrown.
-     *
-     * Thus it is required to provide an error block and proper error handling if
-     * you do not want the error to crash the application.
-     *
-     */
-    error: [error: StructuredErrorDocument<E>];
-
-    /**
-     * The block to render when the request succeeded.
-     *
-     */
-    content: [pages: Document<T[]>[], state: Readonly<PaginationState<T, StructuredErrorDocument<E>>>];
-    always: [state: Readonly<PaginationState<T, StructuredErrorDocument<E>>>];
+    default: [state: PaginationState<T, StructuredErrorDocument<E>>];
   };
 }
 
@@ -282,41 +268,96 @@ interface RequestSignature<T, E = unknown> {
  * @class <Request />
  * @public
  */
-export class Paginate<T, E> extends Component<RequestSignature<T, E>> {
-  @cached
-  get isIdle() {
-    const { request } = this.args;
+export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
+  /**
+   * The store instance to use for making requests. If contexts are available, this
+   * will be the `store` on the context, else it will be the store service.
+   *
+   * @internal
+   */
+  @consume('store') declare _store: Store;
 
-    return Boolean(!request);
+  get store(): Store {
+    const store = this.args.store || this._store;
+    assert(
+      moduleExists('ember-provide-consume-context')
+        ? `No store was provided to the <Request> component. Either provide a store via the @store arg or via the context API provided by ember-provide-consume-context.`
+        : `No store was provided to the <Request> component. Either provide a store via the @store arg or by registering a store service.`,
+      store
+    );
+    return store;
   }
 
-  get pageState(): Readonly<PaginationState<T, E>> {
+  get state(): PaginationState<RT, T, E> {
     assert('The `request` argument is required for the <Paginate> component.', this.args.request);
-    return getPaginationState<T, E>(this.args.request);
+    return getPaginationState<RT, T, E>(this.args.request);
   }
 
-  get result(): ReactiveDocument<T[]>[] {
-    return this.pageState?.pages;
+  @cached
+  get pages(): Page<RT, T, E>[] {
+    return this.state.pages;
   }
 
-  // get errros() {
-  //   return this.pageState?.errors;
-  // }
+  @cached
+  get data(): T[] {
+    return this.state.data;
+  }
+
+  @cached
+  get hasPrev(): boolean {
+    return Boolean(this.state.prev);
+  }
+
+  @cached
+  get hasNext(): boolean {
+    return Boolean(this.state.next);
+  }
+
+  @cached
+  get prevRequest(): Future<RT> | null {
+    return this.state.prevRequest;
+  }
+
+  @cached
+  get currentRequest(): Future<RT> | null {
+    return this.state.currentRequest;
+  }
+
+  @cached
+  get nextRequest(): Future<RT> | null {
+    return this.state.nextRequest;
+  }
+
+  loadPrev = (): void => {
+    const { prev } = this.state;
+    if (prev) {
+      const request = this.store.request({ method: 'GET', url: prev });
+      this.state.loadPrev(request);
+    }
+  };
+
+  loadNext = (): void => {
+    const { next } = this.state;
+    if (next) {
+      const request = this.store.request({ method: 'GET', url: next });
+      this.state.loadNext(request);
+    }
+  };
 
   <template>
-    {{#if (and this.isIdle (has-block "idle"))}}
-      {{yield to="idle"}}
-    {{else if this.isIdle}}
-      <Throw @error={{IdleBlockMissingError}} />
-      {{!-- {{else if this.pageState.isLoading}}
-      {{yield this.pageState to="loading"}}
-    {{else if (and this.pageState.isError (has-block "error"))}}
-      {{yield (notNull this.pageState.errors) to="error"}} --}}
-    {{else if this.pageState.isSuccess}}
-      {{#if (has-block "content")}}
-        {{yield this.result this.pageState to="content"}}
-      {{/if}}
+    {{#if this.state.initialState.isLoading}}
+      {{yield this.state.initialState to="loading"}}
+
+    {{else if (and this.state.initialState.isCancelled (has-block "cancelled"))}}
+      {{yield (notNull this.state.initialState.reason) this to="cancelled"}}
+
+    {{else if (and this.state.initialState.isError (has-block "error"))}}
+      {{yield (notNull this.state.initialState.reason) this to="error"}}
+
+    {{else if this.state.initialState.isSuccess}}
+      {{yield this to="content"}}
     {{/if}}
-    {{yield this.pageState to="always"}}
+
+    {{yield this to="always"}}
   </template>
 }

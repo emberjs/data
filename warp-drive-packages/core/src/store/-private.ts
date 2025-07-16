@@ -81,7 +81,7 @@ export {
   type RequestLoadingState,
   type RequestCacheRequestState as RequestState,
 } from './-private/new-core-tmp/request-state.ts';
-export { PaginationState, getPaginationState } from './-private/new-core-tmp/pagination-state.ts';
+export { type PaginationState, getPaginationState } from './-private/new-core-tmp/pagination-state.ts';
 
 export { type SignalHooks, waitFor } from './-private/new-core-tmp/reactivity/configure.ts';
 export {
