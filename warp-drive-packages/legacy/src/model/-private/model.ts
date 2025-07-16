@@ -546,9 +546,11 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     const store = storeFor(this, false)!;
     store.notifications.unsubscribe(this.___private_notifications);
 
-    LEGACY_SUPPORT.get(this as unknown as MinimalLegacyRecord)?.destroy();
-    LEGACY_SUPPORT.delete(this as unknown as MinimalLegacyRecord);
-    LEGACY_SUPPORT.delete(identifier);
+    const support = LEGACY_SUPPORT.get(identifier);
+    if (support) {
+      support.destroy();
+      LEGACY_SUPPORT.delete(identifier);
+    }
 
     super.destroy();
   }
@@ -864,7 +866,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
 
     if (normalizedId !== null && didChange) {
       this.store._instanceCache.setRecordId(identifier, normalizedId);
-      this.store.notifications.notify(identifier, 'identity');
+      this.store.notifications.notify(identifier, 'identity', null);
     }
   }
 

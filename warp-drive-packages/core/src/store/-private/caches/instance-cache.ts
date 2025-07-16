@@ -268,39 +268,7 @@ export class InstanceCache {
 
     // TODO is this join still necessary?
     this.store._join(() => {
-      const record = this.__instances.record.get(identifier);
-      const cache = this.cache;
-
-      if (record) {
-        this.store.teardownRecord(record);
-        this.__instances.record.delete(identifier);
-        StoreMap.delete(record);
-        RecordCache.delete(record);
-
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
-        }
-      }
-
-      if (cache) {
-        cache.unloadRecord(identifier);
-        StoreMap.delete(identifier);
-        if (LOG_INSTANCE_CACHE) {
-          // eslint-disable-next-line no-console
-          console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
-        }
-      } else {
-        this.disconnect(identifier);
-      }
-
-      this.store._requestCache._clearEntries(identifier);
-      if (LOG_INSTANCE_CACHE) {
-        // eslint-disable-next-line no-console
-        console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
-        // eslint-disable-next-line no-console
-        console.groupEnd();
-      }
+      unloadRecord(this, identifier);
     });
   }
 
@@ -372,7 +340,7 @@ export class InstanceCache {
 
     // TODO update resource cache if needed ?
     // TODO handle consequences of identifier merge for notifications
-    this.store.notifications.notify(identifier, 'identity');
+    this.store.notifications.notify(identifier, 'identity', null);
   }
 }
 
@@ -430,4 +398,40 @@ function _createRecord(
 export function _clearCaches(): void {
   RecordCache.clear();
   StoreMap.clear();
+}
+
+function unloadRecord(instances: InstanceCache, identifier: StableRecordIdentifier) {
+  const record = instances.__instances.record.get(identifier);
+  const cache = instances.cache;
+
+  if (record) {
+    instances.store.teardownRecord(record);
+    instances.__instances.record.delete(identifier);
+    StoreMap.delete(record);
+    RecordCache.delete(record);
+
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: destroyed record for ${String(identifier)}`);
+    }
+  }
+
+  if (cache) {
+    cache.unloadRecord(identifier);
+    StoreMap.delete(identifier);
+    if (LOG_INSTANCE_CACHE) {
+      // eslint-disable-next-line no-console
+      console.log(`InstanceCache: destroyed cache for ${String(identifier)}`);
+    }
+  } else {
+    instances.disconnect(identifier);
+  }
+
+  instances.store._requestCache._clearEntries(identifier);
+  if (LOG_INSTANCE_CACHE) {
+    // eslint-disable-next-line no-console
+    console.log(`InstanceCache: unloaded RecordData for ${String(identifier)}`);
+    // eslint-disable-next-line no-console
+    console.groupEnd();
+  }
 }

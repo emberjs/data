@@ -50,9 +50,8 @@ export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport 
 
   if (!support) {
     assert(`Memory Leak Detected`, !record.isDestroyed && !record.isDestroying);
-    support = new LegacySupport(record);
+    support = new LegacySupport(record, identifier);
     LEGACY_SUPPORT.set(identifier, support);
-    LEGACY_SUPPORT.set(record, support);
   }
 
   return support;
@@ -73,10 +72,10 @@ export class LegacySupport {
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
 
-  constructor(record: MinimalLegacyRecord) {
+  constructor(record: MinimalLegacyRecord, identifier: StableRecordIdentifier) {
     this.record = record;
     this.store = storeFor(record, false)!;
-    this.identifier = recordIdentifierFor(record);
+    this.identifier = identifier;
     this.cache = this.store.cache;
 
     if (this.store._graph) {

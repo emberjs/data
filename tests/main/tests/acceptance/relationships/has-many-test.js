@@ -17,6 +17,7 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { LEGACY_SUPPORT } from '@ember-data/model/-private';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
+import { recordIdentifierFor } from '@ember-data/store';
 
 const service = s.service ?? s.inject;
 
@@ -392,8 +393,8 @@ module('async has-many rendering tests', function (hooks) {
       assert.arrayStrictEquals(names, ['Selena has a parent'], 'We rendered only the names for successful requests');
 
       const relationshipState = parent.hasMany('children').hasManyRelationship;
-      const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
-      const RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipProxyCache;
 
       assert.true(relationshipState.definition.isAsync, 'The relationship is async');
       assert.false(relationshipState.state.isEmpty, 'The relationship is not empty');
@@ -542,8 +543,8 @@ module('async has-many rendering tests', function (hooks) {
       assert.deepEqual(names, [], 'We rendered no names');
 
       const relationshipState = parent.hasMany('children').hasManyRelationship;
-      const RelationshipPromiseCache = LEGACY_SUPPORT.get(parent)._relationshipPromisesCache;
-      const RelationshipProxyCache = LEGACY_SUPPORT.get(parent)._relationshipProxyCache;
+      const RelationshipPromiseCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipPromisesCache;
+      const RelationshipProxyCache = LEGACY_SUPPORT.get(recordIdentifierFor(parent))._relationshipProxyCache;
 
       assert.true(relationshipState.definition.isAsync, 'The relationship is async');
       assert.true(

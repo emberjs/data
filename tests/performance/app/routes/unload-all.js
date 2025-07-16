@@ -16,5 +16,6 @@ export default Route.extend({
     performance.mark('start-unload-all');
     this.store.unloadAll();
     performance.mark('end-unload-all');
+    // performance.measure('unload-all', 'start-unload-all', 'end-unload-all');
   },
 });

@@ -74,7 +74,7 @@ export interface CachePolicy {
    * so that request subscriptions can reload when needed.
    *
    * ```ts
-   * store.notifications.notify(identifier, 'invalidated');
+   * store.notifications.notify(identifier, 'invalidated', null);
    * ```
    *
    * This allows anything subscribed to the request to be notified of the change

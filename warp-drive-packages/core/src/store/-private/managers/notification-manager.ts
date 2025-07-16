@@ -96,7 +96,7 @@ export default class NotificationManager {
   /** @internal */
   declare private isDestroyed: boolean;
   /** @internal */
-  declare private _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | undefined][]>;
+  declare private _buffered: Map<StableDocumentIdentifier | StableRecordIdentifier, [string, string | null][]>;
   /** @internal */
   declare private _cache: Map<
     StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
@@ -148,6 +148,7 @@ export default class NotificationManager {
     identifier: StableDocumentIdentifier | StableRecordIdentifier | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
+    assert(`Expected not to be destroyed`, !this.isDestroyed);
     assert(
       `Expected to receive a stable Identifier to subscribe to`,
       identifier === 'resource' ||
@@ -187,15 +188,18 @@ export default class NotificationManager {
    *
    * @private
    */
-  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
-  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string | null): boolean;
+  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state', key?: null): boolean;
+  notify(identifier: StableRecordIdentifier, value: CacheOperation, key?: null): boolean;
+  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation, key?: null): boolean;
   notify(
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     value: NotificationType | CacheOperation | DocumentCacheOperation,
-    key?: string
+    key?: string | null
   ): boolean {
+    if (this.isDestroyed) {
+      return false;
+    }
     assert(
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
@@ -213,15 +217,14 @@ export default class NotificationManager {
       return false;
     }
 
-    const hasSubscribers = Boolean(this._cache.get(identifier)?.length);
-
-    if (isCacheOperationValue(value) || hasSubscribers) {
+    const _hasSubscribers = hasSubscribers(this._cache, identifier, value);
+    if (_hasSubscribers) {
       let buffer = this._buffered.get(identifier);
       if (!buffer) {
         buffer = [];
         this._buffered.set(identifier, buffer);
       }
-      buffer.push([value, key]);
+      buffer.push([value, key || null]);
 
       if (LOG_METRIC_COUNTS) {
         count(`notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
@@ -254,7 +257,7 @@ export default class NotificationManager {
       }
     }
 
-    return hasSubscribers;
+    return _hasSubscribers;
   }
 
   /** @internal */
@@ -285,12 +288,12 @@ export default class NotificationManager {
     const buffered = this._buffered;
     if (buffered.size) {
       this._buffered = new Map();
-      buffered.forEach((states, identifier) => {
-        states.forEach((args) => {
+      for (const [identifier, states] of buffered) {
+        for (let i = 0; i < states.length; i++) {
           // @ts-expect-error
-          this._flushNotification(identifier, args[0], args[1]);
-        });
-      });
+          _flushNotification(this._cache, identifier, states[i][0], states[i][1]);
+        }
+      }
     }
 
     this._hasFlush = false;
@@ -298,62 +301,78 @@ export default class NotificationManager {
     this._onFlushCB = undefined;
   }
 
-  private _flushNotification(
-    identifier: StableRecordIdentifier,
-    value: 'attributes' | 'relationships',
-    key?: string
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier,
-    value: 'errors' | 'meta' | 'identity' | 'state'
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
-    value: CacheOperation
-  ): boolean;
-  private _flushNotification(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
-    value: NotificationType | CacheOperation,
-    key?: string
-  ): boolean {
-    if (LOG_NOTIFICATIONS) {
-      log(
-        'notify',
-        '',
-        `${'type' in identifier ? identifier.type : 'document'}`,
-        identifier.lid,
-        `${value}`,
-        key || ''
-      );
-    }
-
-    // TODO for documents this will need to switch based on Identifier kind
-    if (isCacheOperationValue(value)) {
-      const callbackMap = this._cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
-        ResourceOperationCallback | DocumentOperationCallback
-      >;
-
-      if (callbackMap) {
-        callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
-          cb(identifier as StableRecordIdentifier, value);
-        });
-      }
-    }
-
-    const callbacks = this._cache.get(identifier);
-    if (!callbacks || !callbacks.length) {
-      return false;
-    }
-    callbacks.forEach((cb) => {
-      // @ts-expect-error overload doesn't narrow within body
-      cb(identifier, value, key);
-    });
-    return true;
-  }
-
   /** @internal */
   destroy(): void {
     this.isDestroyed = true;
     this._cache.clear();
   }
+}
+
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier,
+  value: 'attributes' | 'relationships',
+  key: string | null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier,
+  value: 'errors' | 'meta' | 'identity' | 'state',
+  key: null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier | StableDocumentIdentifier,
+  value: CacheOperation,
+  key: null
+): boolean;
+function _flushNotification(
+  cache: NotificationManager['_cache'],
+  identifier: StableRecordIdentifier | StableDocumentIdentifier,
+  value: NotificationType | CacheOperation,
+  key: string | null
+): boolean {
+  if (LOG_NOTIFICATIONS) {
+    log('notify', '', `${'type' in identifier ? identifier.type : 'document'}`, identifier.lid, `${value}`, key || '');
+  }
+
+  // TODO for documents this will need to switch based on Identifier kind
+  if (isCacheOperationValue(value)) {
+    const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+      ResourceOperationCallback | DocumentOperationCallback
+    >;
+
+    if (callbackMap) {
+      callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
+        cb(identifier as StableRecordIdentifier, value);
+      });
+    }
+  }
+
+  const callbacks = cache.get(identifier);
+  if (!callbacks || !callbacks.length) {
+    return false;
+  }
+  callbacks.forEach((cb) => {
+    // @ts-expect-error overload doesn't narrow within body
+    cb(identifier, value, key);
+  });
+  return true;
+}
+
+function hasSubscribers(
+  cache: NotificationManager['_cache'],
+  identifier: StableDocumentIdentifier | StableRecordIdentifier,
+  value: NotificationType | CacheOperation | DocumentCacheOperation
+): boolean {
+  const hasSubscriber = Boolean(cache.get(identifier)?.length);
+
+  if (hasSubscriber || !isCacheOperationValue(value)) {
+    return hasSubscriber;
+  }
+
+  const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+    ResourceOperationCallback | DocumentOperationCallback
+  >;
+  return Boolean(callbackMap?.length);
 }
