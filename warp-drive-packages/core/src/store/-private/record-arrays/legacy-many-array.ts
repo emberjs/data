@@ -13,7 +13,7 @@ import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
 import { notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
-import type { CreateRecordProperties, Store } from '../store-service.ts';
+import type { CreateRecordProperties } from '../store-service.ts';
 import { save } from './-utils.ts';
 import type { LegacyLiveArrayCreateOptions } from './legacy-live-array.ts';
 import type { NativeProxy } from './native-proxy-type-fix.ts';
@@ -69,10 +69,7 @@ export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
   isPolymorphic: boolean;
   /** @internal */
   isAsync: boolean;
-  /** @internal */
-  identifier: StableRecordIdentifier;
-  /** @internal */
-  store: Store;
+
   /** @internal */
   key: string;
   /** @internal */
@@ -427,7 +424,7 @@ function reload<T>(this: LegacyManyArray<T>, options?: BaseFinderOptions): Promi
 }
 
 function createRecord<T>(this: LegacyManyArray<T>, hash: CreateRecordProperties<T>): T {
-  const { store } = this;
+  const { store } = this[Context];
   assert(`Expected modelName to be set`, this.modelName);
   const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
   this.push(record);
@@ -470,6 +467,7 @@ function assertNoDuplicates<T>(
   callback: (currentState: StableRecordIdentifier[]) => void,
   reason: string
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
   const state = target.slice();
   callback(state);
 
@@ -479,10 +477,8 @@ function assertNoDuplicates<T>(
     if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
       deprecate(
         `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
-          collection.identifier.type
-        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-          new Set(duplicates)
-        )
+          identifier.type
+        }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
           .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`,
@@ -500,10 +496,8 @@ function assertNoDuplicates<T>(
     } else {
       throw new Error(
         `${reason} Found duplicates for the following records within the new state provided to \`<${
-          collection.identifier.type
-        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-          new Set(duplicates)
-        )
+          identifier.type
+        }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
           .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`
@@ -517,12 +511,14 @@ function mutateAddToRelatedRecords<T>(
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'add',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -535,12 +531,14 @@ function mutateRemoveFromRelatedRecords<T>(
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'remove',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -557,12 +555,14 @@ function mutateReplaceRelatedRecord<T>(
   },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'replaceRelatedRecord',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -575,12 +575,14 @@ function mutateReplaceRelatedRecords<T>(
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'replaceRelatedRecords',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       value,
     },
@@ -593,12 +595,14 @@ function mutateSortRelatedRecords<T>(
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'sortRelatedRecords',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       value,
     },

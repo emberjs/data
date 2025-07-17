@@ -216,7 +216,7 @@ export class RecordArrayManager {
     if (!isLegacyQuery && !isLegacyLiveArray(array)) {
       const context = array[Context];
       const signal = context.signal;
-      const identifier = context.options!.identifier as StableDocumentIdentifier;
+      const identifier = context.options!.requestKey as StableDocumentIdentifier;
 
       // we only need to rebuild the array from cache if a full sync is required
       // due to notification that the cache has changed

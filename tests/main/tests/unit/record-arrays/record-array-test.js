@@ -6,8 +6,9 @@ import { FetchManager, SnapshotRecordArray } from '@ember-data/legacy-compat/-pr
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import { recordIdentifierFor } from '@ember-data/store';
-import { LiveArray, SOURCE } from '@ember-data/store/-private';
+import { LiveArray } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 class Tag extends Model {
   @attr
@@ -22,7 +23,7 @@ module('unit/record-arrays/live-array - LiveArray', function (hooks) {
 
     assert.false(recordArray.isUpdating, 'record is not updating');
     assert.strictEqual(recordArray.modelName, 'recordType', 'has modelName');
-    assert.deepEqual(recordArray[SOURCE], [], 'content is not defined');
+    assert.deepEqual(recordArray[Context].source, [], 'content is not defined');
     assert.strictEqual(recordArray.store, null, 'no store with recordArray');
   });
 
@@ -35,7 +36,7 @@ module('unit/record-arrays/live-array - LiveArray', function (hooks) {
     });
     assert.false(recordArray.isUpdating); // cannot set as default value:
     assert.strictEqual(recordArray.modelName, 'apple');
-    assert.deepEqual(recordArray[SOURCE], []);
+    assert.deepEqual(recordArray[Context].source, []);
     assert.strictEqual(recordArray.store, store);
   });
 

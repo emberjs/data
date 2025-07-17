@@ -6,6 +6,7 @@ import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import { RecordArrayManager } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 class Tag extends Model {
   @attr()
@@ -52,7 +53,7 @@ module('unit/record-arrays/collection', function (hooks) {
     assert.true(recordArray.isLoaded);
     assert.false(recordArray.isUpdating);
     assert.strictEqual(recordArray.modelName, 'apple');
-    assert.deepEqual(recordArray[SOURCE].slice(), ['1']);
+    assert.deepEqual(recordArray[Context].source.slice(), ['1']);
     assert.strictEqual(recordArray.store, store);
     assert.strictEqual(recordArray.query, 'some-query');
     assert.strictEqual(recordArray.links, 'foo');

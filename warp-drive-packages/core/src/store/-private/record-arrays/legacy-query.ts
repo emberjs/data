@@ -121,6 +121,7 @@ export function createLegacyQueryArray<T = unknown>(options: LegacyQueryArrayCre
       meta: options.meta,
     } as ObjectValue,
     features: {
+      query: options.query,
       modelName: options.type,
       update,
       _update: _updateCollection,

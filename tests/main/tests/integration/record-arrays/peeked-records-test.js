@@ -6,6 +6,7 @@ import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { SOURCE } from '@ember-data/store/-private';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 import { startWatching, watchProperties } from '../../helpers/watch-property';
 
@@ -243,7 +244,7 @@ module('integration/peeked-records', function (hooks) {
       'RecordArray state after unloadAll has not changed yet'
     );
 
-    assert.strictEqual(peekedRecordArray[SOURCE].length, 2, 'Array length is unchanged before the next peek');
+    assert.strictEqual(peekedRecordArray[Context].source.length, 2, 'Array length is unchanged before the next peek');
 
     await settled();
     store.peekAll('person');
