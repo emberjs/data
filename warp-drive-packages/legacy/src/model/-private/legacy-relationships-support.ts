@@ -2,14 +2,14 @@ import type { Document, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@warp-drive/core/graph/-private';
-import type { LiveArray } from '@warp-drive/core/store/-private';
+import type { LiveArray, RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
 import {
   ARRAY_SIGNAL,
+  createRelatedCollection,
   fastPush,
   isStableIdentifier,
   notifyInternalSignal,
   recordIdentifierFor,
-  RelatedCollection as ManyArray,
   SOURCE,
   storeFor,
 } from '@warp-drive/core/store/-private';
@@ -239,7 +239,7 @@ export class LegacySupport {
       if (!manyArray) {
         const [identifiers, doc] = this._getCurrentState<T>(this.identifier, key);
 
-        manyArray = new ManyArray<T>({
+        manyArray = createRelatedCollection<T>({
           store: this.store,
           type: definition.type as TypeFromInstanceOrString<T>,
           identifier: this.identifier,

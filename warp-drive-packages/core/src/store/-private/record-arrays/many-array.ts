@@ -17,11 +17,9 @@ import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
 import { ARRAY_SIGNAL, notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import type { CreateRecordProperties, Store } from '../store-service.ts';
-import type { MinimumManager } from './identifier-array.ts';
-import { IdentifierArray, MUTATE, SOURCE } from './identifier-array.ts';
+import type { IdentifierArray, IdentifierArrayCreateOptions, MinimumManager } from './identifier-array.ts';
+import { createIdentifierArray, destroy, MUTATE, SOURCE } from './identifier-array.ts';
 import type { NativeProxy } from './native-proxy-type-fix.ts';
-
-type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
 
 function _MUTATE<T>(
   target: StableRecordIdentifier[],
@@ -299,29 +297,15 @@ export interface ManyArrayCreateArgs<T> {
   We call the record to which a relationship belongs-to the
   relationship's _owner_.
 
-  @class ManyArray
   @public
 */
-export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
-  declare isAsync: boolean;
+export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
   /**
     The loading state of this array
-
-    @property isLoaded
-    @type {Boolean}
     @public
-    */
+  */
+  isLoaded: boolean;
 
-  declare isLoaded: boolean;
-  /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property isPolymorphic
-    @type {Boolean}
-    @private
-    */
-  declare isPolymorphic: boolean;
-  declare _inverseIsAsync: boolean;
   /**
     Metadata associated with the request for async hasMany relationships.
 
@@ -356,40 +340,40 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     // meta.total => 5
     ```
 
-    @property meta
-    @type {Object | null}
     @public
     */
-  declare meta: Record<string, unknown> | null;
+  meta: Record<string, unknown> | null;
+
   /**
-     * Retrieve the links for this relationship
-     *
-     @property links
-     @type {Object | null}
-     @public
-     */
-  declare links: Links | PaginationLinks | null;
-  declare identifier: StableRecordIdentifier;
-  declare cache: Cache;
-  declare _manager: MinimumManager;
-  declare store: Store;
-  declare key: string;
-  declare type: ModelSchema;
-  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+   * Retrieve the links for this relationship
+   *
+   @public
+    */
+  links: Links | PaginationLinks | null;
 
-  constructor(options: ManyArrayCreateArgs<T>) {
-    (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
-    super(options as unknown as IdentifierArrayCreateOptions);
-    this.isLoaded = options.isLoaded || false;
-    this.isAsync = options.isAsync || false;
-    this.isPolymorphic = options.isPolymorphic || false;
-    this.identifier = options.identifier;
-    this.key = options.key;
-  }
+  /** @internal */
+  isPolymorphic: boolean;
+  /** @internal */
+  _inverseIsAsync: boolean;
+  /** @internal */
+  isAsync: boolean;
+  /** @internal */
+  identifier: StableRecordIdentifier;
+  /** @internal */
+  cache: Cache;
+  /** @internal */
+  _manager: MinimumManager;
+  /** @internal */
+  store: Store;
+  /** @internal */
+  key: string;
+  /** @internal */
+  type: ModelSchema;
+  /** @internal */
+  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
-  notify(): void {
-    notifyInternalSignal(this[ARRAY_SIGNAL]);
-  }
+  /** @internal */
+  notify(): void;
 
   /**
     Reloads all of the records in the manyArray. If the manyArray
@@ -412,30 +396,14 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
 
     @public
   */
-  reload(options?: BaseFinderOptions): Promise<this> {
-    assert(
-      `Expected the manager for ManyArray to implement reloadHasMany`,
-      typeof this._manager.reloadHasMany === 'function'
-    );
-    // TODO this is odd, we don't ask the store for anything else like this?
-    return this._manager.reloadHasMany<T>(this.key, options) as Promise<this>;
-  }
+  reload(options?: BaseFinderOptions): Promise<RelatedCollection<T>>;
 
   /**
-    Create a child record within the owner
+    Create a child record and associated it to the collection
 
     @public
-    @param {Object} hash
-    @return {Model} record
   */
-  createRecord(hash: CreateRecordProperties<T>): T {
-    const { store } = this;
-    assert(`Expected modelName to be set`, this.modelName);
-    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
-    this.push(record);
-
-    return record;
-  }
+  createRecord(hash: CreateRecordProperties<T>): T;
 
   /**
     Saves all of the records in the `ManyArray`.
@@ -444,7 +412,7 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
 
     Example
 
-    ```javascript
+    ```js
     const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
 
     let messages = await inbox.messages;
@@ -455,22 +423,59 @@ export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
     ```
 
     @public
-    @return {PromiseArray} promise
   */
-  declare save: () => Promise<IdentifierArray<T>>;
+  save: () => Promise<IdentifierArray<T>>;
 
   /** @internal */
-  destroy(): void {
-    super.destroy(false);
-  }
+  destroy(): void;
 }
-RelatedCollection.prototype.isAsync = false;
-RelatedCollection.prototype.isPolymorphic = false;
-RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
-RelatedCollection.prototype.cache = null as unknown as Cache;
-RelatedCollection.prototype._inverseIsAsync = false;
-RelatedCollection.prototype.key = '';
-RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
+
+function notify(this: RelatedCollection): void {
+  notifyInternalSignal(this[ARRAY_SIGNAL]);
+}
+
+function reload<T>(this: RelatedCollection<T>, options?: BaseFinderOptions): Promise<RelatedCollection<T>> {
+  assert(
+    `Expected the manager for ManyArray to implement reloadHasMany`,
+    typeof this._manager.reloadHasMany === 'function'
+  );
+  // TODO this is odd, we don't ask the store for anything else like this?
+  return this._manager.reloadHasMany<T>(this.key, options) as Promise<RelatedCollection<T>>;
+}
+
+function createRecord<T>(this: RelatedCollection<T>, hash: CreateRecordProperties<T>): T {
+  const { store } = this;
+  assert(`Expected modelName to be set`, this.modelName);
+  const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
+  this.push(record);
+
+  return record;
+}
+
+function destroyRelatedCollection(this: RelatedCollection): void {
+  destroy.call(this, false);
+}
+
+export function createRelatedCollection<T = unknown>(options: ManyArrayCreateArgs<T>): RelatedCollection<T> {
+  const EXT = {
+    isLoaded: options.isLoaded || false,
+    isAsync: options.isAsync || false,
+    isPolymorphic: options.isPolymorphic || false,
+    identifier: options.identifier,
+    cache: null,
+    _inverseIsAsync: false,
+    key: options.key,
+    DEPRECATED_CLASS_NAME: 'ManyArray',
+    createRecord,
+    destroy: destroyRelatedCollection,
+    reload,
+    notify,
+  };
+  (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
+  // @ts-expect-error
+  options.EXT = EXT;
+  return createIdentifierArray(options) as unknown as RelatedCollection<T>;
+}
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 

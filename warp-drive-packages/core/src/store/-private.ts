@@ -27,8 +27,8 @@ export type { CreateRecordProperties } from './-private/store-service.ts';
 export { coerceId, ensureStringId } from './-private/utils/coerce-id.ts';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix.ts';
 export {
-  IdentifierArray as LiveArray,
-  Collection as CollectionRecordArray,
+  type IdentifierArray as LiveArray,
+  type Collection as CollectionRecordArray,
   SOURCE,
   MUTATE,
 } from './-private/record-arrays/identifier-array.ts';
@@ -41,7 +41,7 @@ export { _clearCaches } from './-private/caches/instance-cache.ts';
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache.ts';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name.ts';
 export type { StoreRequestInput } from './-private/cache-handler/handler.ts';
-export { RelatedCollection } from './-private/record-arrays/many-array.ts';
+export { type RelatedCollection, createRelatedCollection } from './-private/record-arrays/many-array.ts';
 
 export { log, logGroup } from './-private/debug/utils';
 export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';

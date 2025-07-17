@@ -25,10 +25,12 @@ import type { SignalStore, WarpDriveSignal } from '../new-core-tmp/reactivity/in
 import {
   ARRAY_SIGNAL,
   consumeInternalSignal,
+  createInternalSignal,
   notifyInternalSignal,
+  Signals,
   withSignalStore,
 } from '../new-core-tmp/reactivity/internal.ts';
-import { defineSignal, entangleSignal } from '../new-core-tmp/reactivity/signal.ts';
+import { createSignalDescriptor } from '../new-core-tmp/reactivity/signal.ts';
 import type { Store } from '../store-service.ts';
 import { NativeProxy } from './native-proxy-type-fix.ts';
 
@@ -69,6 +71,38 @@ function isArraySetter<T>(prop: KeyType): prop is keyof Array<T> {
 export const SOURCE: '___(unique) Symbol(#source)' = getOrSetGlobal('#source', Symbol('#source'));
 export const MUTATE: '___(unique) Symbol(#update)' = getOrSetGlobal('#update', Symbol('#update'));
 const IS_COLLECTION: '___(unique) Symbol(IS_COLLECTION)' = getOrSetGlobal('IS_COLLECTION', Symbol.for('Collection'));
+
+const SelfProps = new Set([
+  'modelName',
+  'store',
+  '_manager',
+  'identifier',
+  'isLoaded',
+  'destroy',
+  '_update',
+  'update',
+  'save',
+  'query',
+  'DEPRECATED_CLASS_NAME',
+  'isUpdating',
+  'isLoaded',
+  'isDestroyed',
+  'isDestroying',
+  '_updatingPromise',
+
+  // ManyArray
+  'isAsync',
+  'isPolymorphic',
+  'cache',
+  '_inverseIsAsync',
+  'key',
+  'createRecord',
+  'reload',
+  'notify',
+]);
+function isSelfProp(prop: string | symbol): boolean {
+  return SelfProps.has(prop as string);
+}
 
 function convertToInt(prop: KeyType): number | null {
   if (typeof prop === 'symbol') return null;
@@ -208,9 +242,63 @@ interface ArrayContext {
     args: unknown[],
     _SIGNAL: WarpDriveSignal
   ): unknown;
+  EXT: {
+    modelName: string | null;
+    store: Store;
+    _manager: MinimumManager;
+    identifier: StableDocumentIdentifier | null;
+    destroy: typeof destroy;
+    update: typeof update;
+    _update: typeof _update;
+    save: typeof save;
+    query: object | null;
+    DEPRECATED_CLASS_NAME: string | null;
+    isUpdating: boolean;
+    isLoaded: boolean;
+    isDestroyed: boolean;
+    isDestroying: boolean;
+    _updatingPromise: Promise<unknown> | null;
+  };
 }
 
+// this will error if someone tries to call
+// A(identifierArray) since it is not configurable
+// which is preferable to the `meta` override we used
+// before which required importing all of Ember
+const ARR_BRACKET_DESC = {
+  enumerable: true,
+  configurable: false,
+  get: function () {
+    // here to support computed chains
+    // and {{#each}}
+    if (DEPRECATE_COMPUTED_CHAINS) {
+      return this;
+    }
+  },
+};
+
+const IS_UPDATING_DESC = createSignalDescriptor('isUpdating', false);
+
 const ArrayHandler = {
+  getOwnPropertyDescriptor<R extends typeof NativeProxy<StableRecordIdentifier[], unknown[]>>(
+    target: StableRecordIdentifier[],
+    prop: keyof R
+  ) {
+    if (prop === '[]') {
+      // proxies do not allow you to report a descriptor as non-configurable
+      // if there is no descriptor or the underlying descriptor is configurable
+      const underlying = Reflect.getOwnPropertyDescriptor(target, prop);
+      if (!underlying) {
+        Object.defineProperty(target, prop, ARR_BRACKET_DESC);
+      }
+      return ARR_BRACKET_DESC;
+    }
+    if (prop === 'isUpdating') {
+      return IS_UPDATING_DESC;
+    }
+    return Reflect.getOwnPropertyDescriptor(target, prop);
+  },
+
   get<R extends typeof NativeProxy<StableRecordIdentifier[], unknown[]>>(
     target: StableRecordIdentifier[],
     prop: keyof R,
@@ -218,6 +306,10 @@ const ArrayHandler = {
   ): unknown {
     // @ts-expect-error this is our side-channel for data
     const CONTEXT = target[Context] as unknown as ArrayContext;
+    if (prop === Signals) {
+      return CONTEXT.signals;
+    }
+
     const index = convertToInt(prop);
     if (CONTEXT.SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
       CONTEXT.manager._syncArray(receiver as unknown as IdentifierArray);
@@ -305,6 +397,10 @@ const ArrayHandler = {
       return fn;
     }
 
+    if (prop === 'isUpdating') {
+      return IS_UPDATING_DESC.get!.call(receiver);
+    }
+
     if (prop === SOURCE) {
       return target;
     }
@@ -327,6 +423,28 @@ const ArrayHandler = {
       return fn;
     }
 
+    if (isSelfProp(prop)) {
+      let fn = CONTEXT.boundFns.get(prop);
+      if (fn) return fn;
+
+      // @ts-expect-error
+      const outcome: unknown = CONTEXT.EXT[prop];
+
+      if (typeof outcome === 'function') {
+        fn = function () {
+          consumeInternalSignal(CONTEXT.SIGNAL);
+          // array functions must run through Reflect to work properly
+          // binding via other means will not work.
+          return Reflect.apply(outcome as ProxiedMethod, receiver, arguments) as unknown;
+        };
+
+        CONTEXT.boundFns.set(prop, fn);
+        return fn;
+      }
+
+      return consumeInternalSignal(CONTEXT.SIGNAL), outcome;
+    }
+
     if (isExtensionProp(CONTEXT.extensions, prop)) {
       return performArrayExtensionGet(
         receiver,
@@ -342,7 +460,6 @@ const ArrayHandler = {
     return target[prop as keyof StableRecordIdentifier[]];
   },
 
-  // FIXME: Should this get a generic like get above?
   set(
     target: StableRecordIdentifier[],
     prop: KeyType,
@@ -351,6 +468,11 @@ const ArrayHandler = {
   ): boolean {
     // @ts-expect-error this is our side-channel for data
     const CONTEXT = target[Context] as unknown as ArrayContext;
+    if (prop === Signals) {
+      CONTEXT.signals = value as SignalStore;
+      return true;
+    }
+
     if (!CONTEXT.editable && !MUTABLE_PROPS.includes(prop as string)) {
       assert(`Mutating ${String(prop)} on this Array is not allowed.`, CONTEXT.editable);
       return false;
@@ -376,6 +498,11 @@ const ArrayHandler = {
       return true;
     }
 
+    if (prop === 'isUpdating') {
+      IS_UPDATING_DESC.set!.call(receiver, value);
+      return true;
+    }
+
     if (isExtensionProp(CONTEXT.extensions, prop)) {
       return performExtensionSet(receiver, CONTEXT.extensions!, CONTEXT.signals, prop, value);
     }
@@ -394,6 +521,11 @@ const ArrayHandler = {
         const identifier = recordIdentifierFor(value);
         assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
         target[index] = identifier;
+        return true;
+        // TODO filter to "settable" self props
+      } else if (isSelfProp(prop as unknown as string)) {
+        // @ts-expect-error not all properties are indeces and we can't safely cast
+        CONTEXT.EXT[prop] = value;
         return true;
       }
       return false;
@@ -442,8 +574,102 @@ const ArrayHandler = {
   },
 };
 
-export class IdentifierArray<T = unknown> {
-  declare DEPRECATED_CLASS_NAME: string;
+export function destroy(this: IdentifierArray, clear: boolean): void {
+  // @ts-expect-error
+  const context = this[Context] as ArrayContext;
+  this.isDestroying = !clear;
+  // changing the reference breaks the Proxy
+  // this[SOURCE] = [];
+  context.SOURCE.length = 0;
+  notifyInternalSignal(context.SIGNAL);
+  this.isDestroyed = !clear;
+}
+
+/**
+  Used to get the latest version of all of the records in this array
+  from the adapter.
+
+  Example
+
+  ```javascript
+  let people = store.peekAll('person');
+  people.isUpdating; // false
+
+  people.update().then(function() {
+    people.isUpdating; // false
+  });
+
+  people.isUpdating; // true
+  ```
+
+  @public
+*/
+function update(this: IdentifierArray): Promise<IdentifierArray> {
+  if (this.isUpdating) {
+    return this._updatingPromise!;
+  }
+
+  this.isUpdating = true;
+
+  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const updatingPromise = this._update() as Promise<IdentifierArray>;
+  void updatingPromise.finally(() => {
+    this._updatingPromise = null;
+    if (this.isDestroying || this.isDestroyed) {
+      return;
+    }
+    this.isUpdating = false;
+  });
+
+  this._updatingPromise = updatingPromise;
+
+  return updatingPromise;
+}
+
+/*
+  Update this Array and return a promise which resolves once the update
+  is finished.
+  */
+function _update(this: IdentifierArray): Promise<IdentifierArray> {
+  // @ts-expect-error
+  const context = this[Context] as ArrayContext;
+  assert(`_update cannot be used with this array`, this.modelName);
+  // @ts-expect-error typescript is unable to handle the complexity of
+  //   T = unknown, modelName = string
+  //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+  // both being valid options to pass through here.
+  return context.store.findAll<T>(this.modelName, { reload: true });
+}
+
+// TODO deprecate
+/**
+  Saves all of the records in the `RecordArray`.
+
+  Example
+
+  ```javascript
+  let messages = store.peekAll('message');
+  messages.forEach(function(message) {
+    message.hasBeenSeen = true;
+  });
+  messages.save();
+  ```
+
+  @public
+  @return {Promise<IdentifierArray>} promise
+*/
+function save(this: IdentifierArray): Promise<IdentifierArray> {
+  // @ts-expect-error
+  const context = this[Context] as ArrayContext;
+  const promise = Promise.all(this.map((record) => context.store.saveRecord(record))).then(() => this);
+
+  return promise;
+}
+
+export interface IdentifierArray<T = unknown> {
+  /** @internal */
+  DEPRECATED_CLASS_NAME: string;
   /**
     The flag to signal a `RecordArray` is currently loading data.
     Example
@@ -453,200 +679,112 @@ export class IdentifierArray<T = unknown> {
     people.update();
     people.isUpdating; // true
     ```
-    @property isUpdating
-    @public
-    @type Boolean
   */
-  declare isUpdating: boolean;
-  isLoaded = true;
-  isDestroying = false;
-  isDestroyed = false;
-  _updatingPromise: Promise<IdentifierArray<T>> | null = null;
+  isUpdating: boolean;
+  isLoaded: boolean;
+  /** @internal */
+  isDestroying: boolean;
+  /** @internal */
+  isDestroyed: boolean;
+  /** @internal */
+  _updatingPromise: Promise<IdentifierArray<T>> | null;
+  /** @internal */
   readonly identifier: StableDocumentIdentifier | null;
 
-  declare links: Links | PaginationLinks | null;
-  declare meta: Record<string, unknown> | null;
-  declare modelName?: TypeFromInstanceOrString<T>;
+  links: Links | PaginationLinks | null;
+  meta: Record<string, unknown> | null;
+  modelName?: TypeFromInstanceOrString<T>;
   /**
     The store that created this record array.
 
-    @property store
-    @private
-    @type Store
-    */
-  declare store: Store;
-  declare _manager: MinimumManager;
-
-  destroy(clear: boolean): void {
-    this.isDestroying = !clear;
-    // changing the reference breaks the Proxy
-    // this[SOURCE] = [];
-    this[SOURCE].length = 0;
-    notifyInternalSignal(this[ARRAY_SIGNAL]);
-    this.isDestroyed = !clear;
-  }
-
-  constructor(options: IdentifierArrayCreateOptions<T>) {
-    this.modelName = options.type;
-    this.store = options.store;
-    this._manager = options.manager;
-    this.identifier = options.identifier || null;
-    this[SOURCE] = options.identifiers;
-    this[IS_COLLECTION] = true;
-
-    // we attach the signal storage to the class
-    // so that its easier to find debugging.
-    const signals = withSignalStore(this);
-    const boundFns = new Map<KeyType, ProxiedMethod>();
-    const PrivateState: PrivateState = {
-      links: options.links || null,
-      meta: options.meta || null,
-    };
-
-    const extensions =
-      options.field && this.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions
-        ? this.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(options.field)
-        : null;
-
-    const context = {
-      identifier: options.identifier || null,
-      field: options.field || null,
-      SIGNAL: null as unknown as WarpDriveSignal,
-      transaction: false,
-      store: options.store,
-      manager: options.manager,
-      editable: options.allowMutation,
-      boundFns: boundFns,
-      data: PrivateState,
-      extensions,
-      signals,
-      SOURCE: options.identifiers,
-      MUTATE: options[MUTATE] || (() => {}),
-    } satisfies ArrayContext;
-    // @ts-expect-error assigning a non-number prop to the array
-    options.identifiers[Context] = context;
-
-    const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(this[SOURCE], ArrayHandler) as IdentifierArray<T>;
-
-    if (DEBUG) {
-      Object.defineProperty(this, '__SHOW_ME_THE_DATA_(debug mode only)__', {
-        enumerable: false,
-        configurable: true,
-        get() {
-          return proxy.slice();
-        },
-      });
-    }
-
-    // we entangle the signal on the returned proxy since that is
-    // the object that other code will be interfacing with.
-    // when a mutation occurs
-    // we track all mutations within the call
-    // and forward them as one
-    context.SIGNAL = entangleSignal(signals, proxy, ARRAY_SIGNAL, undefined);
-
-    return proxy;
-  }
-
-  /**
-    Used to get the latest version of all of the records in this array
-    from the adapter.
-
-    Example
-
-    ```javascript
-    let people = store.peekAll('person');
-    people.isUpdating; // false
-
-    people.update().then(function() {
-      people.isUpdating; // false
-    });
-
-    people.isUpdating; // true
-    ```
-
-    @public
+    @internal
   */
-  update(): Promise<IdentifierArray<T>> {
-    if (this.isUpdating) {
-      return this._updatingPromise!;
-    }
+  store: Store;
+  /** @internal */
+  _manager: MinimumManager;
 
-    this.isUpdating = true;
-
-    const updatingPromise = this._update();
-    void updatingPromise.finally(() => {
-      this._updatingPromise = null;
-      if (this.isDestroying || this.isDestroyed) {
-        return;
-      }
-      this.isUpdating = false;
-    });
-
-    this._updatingPromise = updatingPromise;
-
-    return updatingPromise;
-  }
-
-  /*
-    Update this Array and return a promise which resolves once the update
-    is finished.
-   */
-  _update(): Promise<IdentifierArray<T>> {
-    assert(`_update cannot be used with this array`, this.modelName);
-    // @ts-expect-error typescript is unable to handle the complexity of
-    //   T = unknown, modelName = string
-    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
-    // both being valid options to pass through here.
-    return this.store.findAll<T>(this.modelName, { reload: true });
-  }
-
-  // TODO deprecate
-  /**
-    Saves all of the records in the `RecordArray`.
-
-    Example
-
-    ```javascript
-    let messages = store.peekAll('message');
-    messages.forEach(function(message) {
-      message.hasBeenSeen = true;
-    });
-    messages.save();
-    ```
-
-    @public
-    @return {Promise<IdentifierArray>} promise
-  */
-  save(): Promise<IdentifierArray> {
-    const promise = Promise.all(this.map((record) => this.store.saveRecord(record))).then(() => this);
-
-    return promise;
-  }
+  /** @internal */
+  [IS_COLLECTION]: boolean;
 }
 
-// this will error if someone tries to call
-// A(identifierArray) since it is not configurable
-// which is preferable to the `meta` override we used
-// before which required importing all of Ember
-const desc = {
-  enumerable: true,
-  configurable: false,
-  get: function () {
-    // here to support computed chains
-    // and {{#each}}
-    if (DEPRECATE_COMPUTED_CHAINS) {
-      return this;
-    }
-  },
-};
-// compat(desc);
-Object.defineProperty(IdentifierArray.prototype, '[]', desc);
-
-defineSignal(IdentifierArray.prototype, 'isUpdating', false);
-
 export function createIdentifierArray<T = unknown>(options: IdentifierArrayCreateOptions<T>): IdentifierArray<T> {
-  return new IdentifierArray<T>(options);
+  // we attach the signal storage to the class
+  // so that its easier to find debugging.
+  const boundFns = new Map<KeyType, ProxiedMethod>();
+  const PrivateState: PrivateState = {
+    links: options.links || null,
+    meta: options.meta || null,
+  };
+
+  const extensions =
+    options.field && options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions
+      ? options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(options.field)
+      : null;
+
+  const arrayExt = {
+    modelName: options.type || null,
+    store: options.store,
+    _manager: options.manager,
+    identifier: options.identifier || null,
+    destroy,
+    update,
+    _update,
+    save,
+    query: null,
+    DEPRECATED_CLASS_NAME: null,
+    isUpdating: false,
+    isLoaded: true,
+    isDestroyed: false,
+    isDestroying: false,
+    _updatingPromise: null,
+  };
+
+  // @ts-expect-error
+  if (options.EXT) {
+    // @ts-expect-error
+    Object.assign(arrayExt, options.EXT);
+  }
+
+  const TARGET = options.identifiers;
+  const context = {
+    identifier: options.identifier || null,
+    field: options.field || null,
+    SIGNAL: null as unknown as WarpDriveSignal,
+    transaction: false,
+    store: options.store,
+    manager: options.manager,
+    editable: options.allowMutation,
+    boundFns: boundFns,
+    data: PrivateState,
+    extensions,
+    signals: null as unknown as SignalStore,
+    SOURCE: options.identifiers,
+    MUTATE: options[MUTATE] || (() => {}),
+    EXT: arrayExt,
+  } satisfies ArrayContext;
+  // @ts-expect-error assigning a non-number prop to the array
+  TARGET[Context] = context;
+
+  const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(TARGET, ArrayHandler) as IdentifierArray<T>;
+  if (DEBUG) {
+    Object.defineProperty(TARGET, '__SHOW_ME_THE_DATA_(debug mode only)__', {
+      enumerable: false,
+      configurable: true,
+      get() {
+        return proxy.slice();
+      },
+    });
+  }
+
+  // we entangle the signal on the returned proxy since that is
+  // the object that other code will be interfacing with.
+  // when a mutation occurs
+  // we track all mutations within the call
+  // and forward them as one
+  withSignalStore(proxy);
+  context.SIGNAL = createInternalSignal(context.signals, proxy, ARRAY_SIGNAL, undefined);
+
+  return proxy;
 }
 
 export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
@@ -655,42 +793,41 @@ export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
   isLoaded: boolean;
 };
 
-export class Collection<T = unknown> extends IdentifierArray<T> {
-  query: ImmutableRequestInfo | Record<string, unknown> | null = null;
-  declare _manager: RecordArrayManager;
-
-  constructor(options: CollectionCreateOptions) {
-    super(options as IdentifierArrayCreateOptions);
-    this.query = options.query || null;
-    this.isLoaded = options.isLoaded || false;
-  }
-
-  _update(): Promise<Collection<T>> {
-    const { store, query } = this;
-
-    // TODO save options from initial request?
-    assert(`update cannot be used with this array`, this.modelName);
-    assert(`update cannot be used with no query`, query);
-    // @ts-expect-error typescript is unable to handle the complexity of
-    //   T = unknown, modelName = string
-    //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
-    // both being valid options to pass through here.
-    const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
-
-    return promise;
-  }
-
-  destroy(clear: boolean): void {
-    super.destroy(clear);
-    this._manager._managed.delete(this);
-    this._manager._pending.delete(this);
-  }
+export interface Collection<T = unknown> extends IdentifierArray<T> {
+  query: ImmutableRequestInfo | Record<string, unknown> | null;
+  _manager: RecordArrayManager;
 }
-// trick the proxy "in" check
-Collection.prototype.query = null;
+
+function _updateCollection(this: Collection): Promise<Collection> {
+  const { store, query } = this;
+
+  // TODO save options from initial request?
+  assert(`update cannot be used with this array`, this.modelName);
+  assert(`update cannot be used with no query`, query);
+  // @ts-expect-error typescript is unable to handle the complexity of
+  //   T = unknown, modelName = string
+  //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
+  // both being valid options to pass through here.
+  const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
+
+  return promise;
+}
+
+function destroyCollection(this: Collection, clear: boolean): void {
+  destroy.call(this, clear);
+  this._manager._managed.delete(this);
+  this._manager._pending.delete(this);
+}
 
 export function createCollection<T = unknown>(options: CollectionCreateOptions): Collection<T> {
-  return new Collection<T>(options);
+  // @ts-expect-error
+  options.EXT = {
+    query: options.query || null,
+    isLoaded: options.isLoaded || false,
+    _update: _updateCollection,
+    destroy: destroyCollection,
+  };
+  return createIdentifierArray(options) as Collection<T>;
 }
 
 // Ensure instanceof works correctly

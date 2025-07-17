@@ -160,7 +160,7 @@ export function upgradeWithSignals<T extends object>(obj: T): asserts obj is T &
  */
 export function withSignalStore<T extends object>(obj: T): SignalStore {
   upgradeWithSignals(obj);
-  if (obj[Signals] === undefined) {
+  if (!obj[Signals]) {
     initializeSignalStore(obj);
   }
   return obj[Signals];
@@ -177,7 +177,7 @@ export function withSignalStore<T extends object>(obj: T): SignalStore {
  */
 export function initializeSignalStore<T extends object>(obj: T): asserts obj is T & { [Signals]: SignalStore } {
   upgradeWithSignals(obj);
-  assert(`Signal store already exists on object`, obj[Signals] === undefined);
+  assert(`Signal store already exists on object`, !obj[Signals]);
   obj[Signals] = new Map();
 }
 

@@ -33,7 +33,7 @@ export function entangleSignal<T extends object>(
   return signal;
 }
 
-function createSignalDescriptor(key: string | symbol, intialValue: unknown) {
+export function createSignalDescriptor(key: string | symbol, intialValue: unknown): PropertyDescriptor {
   return {
     enumerable: true,
     configurable: false,
