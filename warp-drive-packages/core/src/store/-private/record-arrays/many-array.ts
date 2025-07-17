@@ -21,6 +21,217 @@ import type { IdentifierArray, IdentifierArrayCreateOptions, MinimumManager } fr
 import { createIdentifierArray, destroy, MUTATE, SOURCE } from './identifier-array.ts';
 import type { NativeProxy } from './native-proxy-type-fix.ts';
 
+export interface ManyArrayCreateArgs<T> {
+  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
+  type: TypeFromInstanceOrString<T>;
+  store: Store;
+  allowMutation: boolean;
+  manager: MinimumManager;
+  field?: LegacyHasManyField | LinksModeHasManyField;
+  identifier: StableRecordIdentifier;
+  cache: Cache;
+  meta: Record<string, unknown> | null;
+  links: Links | PaginationLinks | null;
+  key: string;
+  isPolymorphic: boolean;
+  isAsync: boolean;
+  _inverseIsAsync: boolean;
+  isLoaded: boolean;
+}
+/**
+  A `ManyArray` is a `MutableArray` that represents the contents of a has-many
+  relationship.
+
+  The `ManyArray` is instantiated lazily the first time the relationship is
+  requested.
+
+  This class is not intended to be directly instantiated by consuming applications.
+
+  ### Inverses
+
+  Often, the relationships in Ember Data applications will have
+  an inverse. For example, imagine the following models are
+  defined:
+
+  ```js [app/models/post.js]
+  import Model, { hasMany } from '@ember-data/model';
+
+  export default class PostModel extends Model {
+    @hasMany('comment') comments;
+  }
+  ```
+
+  ```js [app/models/comment.js]
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
+
+  export default class CommentModel extends Model {
+    @belongsTo('post') post;
+  }
+  ```
+
+  If you created a new instance of `Post` and added
+  a `Comment` record to its `comments` has-many
+  relationship, you would expect the comment's `post`
+  property to be set to the post that contained
+  the has-many.
+
+  We call the record to which a relationship belongs-to the
+  relationship's _owner_.
+
+  @public
+*/
+export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
+  /**
+    The loading state of this array
+    @public
+  */
+  isLoaded: boolean;
+
+  /**
+    Metadata associated with the request for async hasMany relationships.
+
+    Example
+
+    Given that the server returns the following JSON payload when fetching a
+    hasMany relationship:
+
+    ```js
+    {
+      "comments": [{
+        "id": 1,
+        "comment": "This is the first comment",
+      }, {
+    // ...
+      }],
+
+      "meta": {
+        "page": 1,
+        "total": 5
+      }
+    }
+    ```
+
+    You can then access the meta data via the `meta` property:
+
+    ```js
+    let comments = await post.comments;
+    let meta = comments.meta;
+
+    // meta.page => 1
+    // meta.total => 5
+    ```
+
+    @public
+    */
+  meta: Record<string, unknown> | null;
+
+  /**
+   * Retrieve the links for this relationship
+   *
+   @public
+    */
+  links: Links | PaginationLinks | null;
+
+  /** @internal */
+  isPolymorphic: boolean;
+  /** @internal */
+  _inverseIsAsync: boolean;
+  /** @internal */
+  isAsync: boolean;
+  /** @internal */
+  identifier: StableRecordIdentifier;
+  /** @internal */
+  cache: Cache;
+  /** @internal */
+  _manager: MinimumManager;
+  /** @internal */
+  store: Store;
+  /** @internal */
+  key: string;
+  /** @internal */
+  type: ModelSchema;
+  /** @internal */
+  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+
+  /** @internal */
+  notify(): void;
+
+  /**
+    Reloads all of the records in the manyArray. If the manyArray
+    holds a relationship that was originally fetched using a links url
+    WarpDrive will revisit the original links url to repopulate the
+    relationship.
+
+    If the ManyArray holds the result of a `store.query()` reload will
+    re-run the original query.
+
+    Example
+
+    ```javascript
+    let user = store.peekRecord('user', '1')
+    await login(user);
+
+    let permissions = await user.permissions;
+    await permissions.reload();
+    ```
+
+    @public
+  */
+  reload(options?: BaseFinderOptions): Promise<RelatedCollection<T>>;
+
+  /**
+    Create a child record and associated it to the collection
+
+    @public
+  */
+  createRecord(hash: CreateRecordProperties<T>): T;
+
+  /**
+    Saves all of the records in the `ManyArray`.
+
+    Note: this API can only be used in legacy mode with a configured Adapter.
+
+    Example
+
+    ```js
+    const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
+
+    let messages = await inbox.messages;
+    messages.forEach((message) => {
+      message.isRead = true;
+    });
+    messages.save();
+    ```
+
+    @public
+  */
+  save: () => Promise<IdentifierArray<T>>;
+
+  /** @internal */
+  destroy(): void;
+}
+
+export function createRelatedCollection<T = unknown>(options: ManyArrayCreateArgs<T>): RelatedCollection<T> {
+  const EXT = {
+    isLoaded: options.isLoaded || false,
+    isAsync: options.isAsync || false,
+    isPolymorphic: options.isPolymorphic || false,
+    identifier: options.identifier,
+    cache: null,
+    _inverseIsAsync: false,
+    key: options.key,
+    DEPRECATED_CLASS_NAME: 'ManyArray',
+    createRecord,
+    destroy: destroyRelatedCollection,
+    reload,
+    notify,
+  };
+  (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
+  // @ts-expect-error
+  options.EXT = EXT;
+  return createIdentifierArray(options) as unknown as RelatedCollection<T>;
+}
+
 function _MUTATE<T>(
   target: StableRecordIdentifier[],
   receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
@@ -240,196 +451,6 @@ function _MUTATE<T>(
   }
 }
 
-export interface ManyArrayCreateArgs<T> {
-  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
-  type: TypeFromInstanceOrString<T>;
-  store: Store;
-  allowMutation: boolean;
-  manager: MinimumManager;
-  field?: LegacyHasManyField | LinksModeHasManyField;
-  identifier: StableRecordIdentifier;
-  cache: Cache;
-  meta: Record<string, unknown> | null;
-  links: Links | PaginationLinks | null;
-  key: string;
-  isPolymorphic: boolean;
-  isAsync: boolean;
-  _inverseIsAsync: boolean;
-  isLoaded: boolean;
-}
-/**
-  A `ManyArray` is a `MutableArray` that represents the contents of a has-many
-  relationship.
-
-  The `ManyArray` is instantiated lazily the first time the relationship is
-  requested.
-
-  This class is not intended to be directly instantiated by consuming applications.
-
-  ### Inverses
-
-  Often, the relationships in Ember Data applications will have
-  an inverse. For example, imagine the following models are
-  defined:
-
-  ```js [app/models/post.js]
-  import Model, { hasMany } from '@ember-data/model';
-
-  export default class PostModel extends Model {
-    @hasMany('comment') comments;
-  }
-  ```
-
-  ```js [app/models/comment.js]
-  import { Model, belongsTo } from '@warp-drive/legacy/model';
-
-  export default class CommentModel extends Model {
-    @belongsTo('post') post;
-  }
-  ```
-
-  If you created a new instance of `Post` and added
-  a `Comment` record to its `comments` has-many
-  relationship, you would expect the comment's `post`
-  property to be set to the post that contained
-  the has-many.
-
-  We call the record to which a relationship belongs-to the
-  relationship's _owner_.
-
-  @public
-*/
-export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
-  /**
-    The loading state of this array
-    @public
-  */
-  isLoaded: boolean;
-
-  /**
-    Metadata associated with the request for async hasMany relationships.
-
-    Example
-
-    Given that the server returns the following JSON payload when fetching a
-    hasMany relationship:
-
-    ```js
-    {
-      "comments": [{
-        "id": 1,
-        "comment": "This is the first comment",
-      }, {
-    // ...
-      }],
-
-      "meta": {
-        "page": 1,
-        "total": 5
-      }
-    }
-    ```
-
-    You can then access the meta data via the `meta` property:
-
-    ```js
-    let comments = await post.comments;
-    let meta = comments.meta;
-
-    // meta.page => 1
-    // meta.total => 5
-    ```
-
-    @public
-    */
-  meta: Record<string, unknown> | null;
-
-  /**
-   * Retrieve the links for this relationship
-   *
-   @public
-    */
-  links: Links | PaginationLinks | null;
-
-  /** @internal */
-  isPolymorphic: boolean;
-  /** @internal */
-  _inverseIsAsync: boolean;
-  /** @internal */
-  isAsync: boolean;
-  /** @internal */
-  identifier: StableRecordIdentifier;
-  /** @internal */
-  cache: Cache;
-  /** @internal */
-  _manager: MinimumManager;
-  /** @internal */
-  store: Store;
-  /** @internal */
-  key: string;
-  /** @internal */
-  type: ModelSchema;
-  /** @internal */
-  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
-
-  /** @internal */
-  notify(): void;
-
-  /**
-    Reloads all of the records in the manyArray. If the manyArray
-    holds a relationship that was originally fetched using a links url
-    WarpDrive will revisit the original links url to repopulate the
-    relationship.
-
-    If the ManyArray holds the result of a `store.query()` reload will
-    re-run the original query.
-
-    Example
-
-    ```javascript
-    let user = store.peekRecord('user', '1')
-    await login(user);
-
-    let permissions = await user.permissions;
-    await permissions.reload();
-    ```
-
-    @public
-  */
-  reload(options?: BaseFinderOptions): Promise<RelatedCollection<T>>;
-
-  /**
-    Create a child record and associated it to the collection
-
-    @public
-  */
-  createRecord(hash: CreateRecordProperties<T>): T;
-
-  /**
-    Saves all of the records in the `ManyArray`.
-
-    Note: this API can only be used in legacy mode with a configured Adapter.
-
-    Example
-
-    ```js
-    const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
-
-    let messages = await inbox.messages;
-    messages.forEach((message) => {
-      message.isRead = true;
-    });
-    messages.save();
-    ```
-
-    @public
-  */
-  save: () => Promise<IdentifierArray<T>>;
-
-  /** @internal */
-  destroy(): void;
-}
-
 function notify(this: RelatedCollection): void {
   notifyInternalSignal(this[ARRAY_SIGNAL]);
 }
@@ -454,27 +475,6 @@ function createRecord<T>(this: RelatedCollection<T>, hash: CreateRecordPropertie
 
 function destroyRelatedCollection(this: RelatedCollection): void {
   destroy.call(this, false);
-}
-
-export function createRelatedCollection<T = unknown>(options: ManyArrayCreateArgs<T>): RelatedCollection<T> {
-  const EXT = {
-    isLoaded: options.isLoaded || false,
-    isAsync: options.isAsync || false,
-    isPolymorphic: options.isPolymorphic || false,
-    identifier: options.identifier,
-    cache: null,
-    _inverseIsAsync: false,
-    key: options.key,
-    DEPRECATED_CLASS_NAME: 'ManyArray',
-    createRecord,
-    destroy: destroyRelatedCollection,
-    reload,
-    notify,
-  };
-  (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
-  // @ts-expect-error
-  options.EXT = EXT;
-  return createIdentifierArray(options) as unknown as RelatedCollection<T>;
 }
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };

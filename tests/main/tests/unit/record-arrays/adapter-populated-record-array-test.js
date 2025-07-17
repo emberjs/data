@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
-import { CollectionRecordArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
+import { LegacyQueryArray, RecordArrayManager, SOURCE } from '@ember-data/store/-private';
 import testInDebug from '@ember-data/unpublished-test-infra/test-support/test-in-debug';
 
 class Tag extends Model {

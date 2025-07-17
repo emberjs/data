@@ -6,8 +6,13 @@ import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
 import { ARRAY_SIGNAL, notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
-import type { Collection, CollectionCreateOptions, IdentifierArray } from '../record-arrays/identifier-array.ts';
-import { createCollection, createIdentifierArray, SOURCE } from '../record-arrays/identifier-array.ts';
+import type { IdentifierArray } from '../record-arrays/identifier-array.ts';
+import { createIdentifierArray, SOURCE } from '../record-arrays/identifier-array.ts';
+import {
+  type Collection,
+  type CollectionCreateOptions,
+  createLegacyQueryArray,
+} from '../record-arrays/legacy-query.ts';
 import type { Store } from '../store-service.ts';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager.ts';
 
@@ -46,7 +51,6 @@ const SLICE_BATCH_SIZE = 4761;
  * Sincerely,
  *   - runspired (Chris Thoburn) 08/21/2022
  *
- * @function fastPush
  * @internal
  * @param target the array to push into
  * @param source the items to push into target
@@ -229,7 +233,7 @@ export class RecordArrayManager {
       store: this.store,
       manager: this,
     };
-    const array = createCollection(options);
+    const array = createLegacyQueryArray(options);
     this._managed.add(array);
     this._set.set(array, new Set(options.identifiers || []));
 

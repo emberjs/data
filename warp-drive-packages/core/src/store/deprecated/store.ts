@@ -7,7 +7,7 @@ import type { StableRecordIdentifier } from '../../types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../types/record';
 import { SkipCache } from '../../types/request';
 import type { ResourceIdentifierObject } from '../../types/spec/json-api-raw';
-import type { CollectionRecordArray, LiveArray } from '../-private';
+import type { LegacyQueryArray, LiveArray } from '../-private';
 import { constructResource, ensureStringId, recordIdentifierFor, storeFor } from '../-private';
 import type { Caches } from '../-private/caches/instance-cache';
 import { isMaybeIdentifier, Store } from '../-private/store-service';
@@ -619,9 +619,9 @@ declare module '../-private/store-service' {
       type: TypeFromInstance<T>,
       query: LegacyResourceQuery,
       options?: QueryOptions
-    ): Promise<CollectionRecordArray<T>>;
+    ): Promise<LegacyQueryArray<T>>;
     /** @deprecated */
-    query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<CollectionRecordArray>;
+    query(type: string, query: LegacyResourceQuery, options?: QueryOptions): Promise<LegacyQueryArray>;
 
     /**
     This method makes a request for one record, where the `id` is not known
@@ -913,7 +913,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
     type: string,
     query: LegacyResourceQuery,
     options: QueryOptions = {}
-  ): Promise<CollectionRecordArray> {
+  ): Promise<LegacyQueryArray> {
     deprecate(`store.query is deprecated. Use store.request instead.`, false, {
       id: 'warp-drive:deprecate-legacy-request-methods',
       until: '6.0',
@@ -935,7 +935,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
       typeof type === 'string'
     );
 
-    const promise = this.request<CollectionRecordArray>({
+    const promise = this.request<LegacyQueryArray>({
       op: 'query',
       data: {
         type: normalizeModelName(type),

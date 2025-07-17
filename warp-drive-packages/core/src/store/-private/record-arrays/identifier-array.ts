@@ -14,13 +14,11 @@ import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { TypeFromInstanceOrString } from '../../../types/record.ts';
-import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
 import type { Links, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
-import type { RecordArrayManager } from '../managers/record-array-manager.ts';
 import type { SignalStore, WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import {
   ARRAY_SIGNAL,
@@ -180,24 +178,6 @@ export type MinimumManager = {
   mutate?(mutation: LocalRelationshipOperation): void;
   reloadHasMany?<T>(key: string, options?: BaseFinderOptions): Promise<IdentifierArray<T>> | PromiseManyArray<T>;
 };
-
-/**
-  A record array is an array that contains records of a certain type (or modelName).
-  The record array materializes records as needed when they are retrieved for the first
-  time. You should not create record arrays yourself. Instead, an instance of
-  `RecordArray` or its subclasses will be returned by your application's store
-  in response to queries.
-
-  This class should not be imported and instantiated by consuming applications.
-
-  @class RecordArray
-  @public
-*/
-export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
-  [IS_COLLECTION]: boolean;
-  [ARRAY_SIGNAL]: WarpDriveSignal;
-  [SOURCE]: StableRecordIdentifier[];
-}
 
 // these are "internally" mutable, they should not be mutated by consumers
 // though this is not currently enforced.
@@ -667,9 +647,19 @@ function save(this: IdentifierArray): Promise<IdentifierArray> {
   return promise;
 }
 
-export interface IdentifierArray<T = unknown> {
-  /** @internal */
-  DEPRECATED_CLASS_NAME: string;
+/**
+  A record array is an array that contains records of a certain type (or modelName).
+  The record array materializes records as needed when they are retrieved for the first
+  time. You should not create record arrays yourself. Instead, an instance of
+  `RecordArray` or its subclasses will be returned by your application's store
+  in response to queries.
+
+  This class should not be imported and instantiated by consuming applications.
+
+  @class RecordArray
+  @public
+*/
+export interface IdentifierArray<T = unknown> extends Omit<Array<T>, '[]'> {
   /**
     The flag to signal a `RecordArray` is currently loading data.
     Example
@@ -682,6 +672,18 @@ export interface IdentifierArray<T = unknown> {
   */
   isUpdating: boolean;
   isLoaded: boolean;
+  links: Links | PaginationLinks | null;
+  meta: Record<string, unknown> | null;
+  modelName?: TypeFromInstanceOrString<T>;
+
+  /** @internal */
+  [IS_COLLECTION]: boolean;
+  /** @internal */
+  [ARRAY_SIGNAL]: WarpDriveSignal;
+  /** @internal */
+  [SOURCE]: StableRecordIdentifier[];
+  /** @internal */
+  DEPRECATED_CLASS_NAME: string;
   /** @internal */
   isDestroying: boolean;
   /** @internal */
@@ -690,10 +692,9 @@ export interface IdentifierArray<T = unknown> {
   _updatingPromise: Promise<IdentifierArray<T>> | null;
   /** @internal */
   readonly identifier: StableDocumentIdentifier | null;
+  /** @internal */
+  destroy: typeof destroy;
 
-  links: Links | PaginationLinks | null;
-  meta: Record<string, unknown> | null;
-  modelName?: TypeFromInstanceOrString<T>;
   /**
     The store that created this record array.
 
@@ -702,9 +703,6 @@ export interface IdentifierArray<T = unknown> {
   store: Store;
   /** @internal */
   _manager: MinimumManager;
-
-  /** @internal */
-  [IS_COLLECTION]: boolean;
 }
 
 export function createIdentifierArray<T = unknown>(options: IdentifierArrayCreateOptions<T>): IdentifierArray<T> {
@@ -785,49 +783,6 @@ export function createIdentifierArray<T = unknown>(options: IdentifierArrayCreat
   context.SIGNAL = createInternalSignal(context.signals, proxy, ARRAY_SIGNAL, undefined);
 
   return proxy;
-}
-
-export type CollectionCreateOptions = IdentifierArrayCreateOptions & {
-  manager: RecordArrayManager;
-  query: ImmutableRequestInfo | Record<string, unknown> | null;
-  isLoaded: boolean;
-};
-
-export interface Collection<T = unknown> extends IdentifierArray<T> {
-  query: ImmutableRequestInfo | Record<string, unknown> | null;
-  _manager: RecordArrayManager;
-}
-
-function _updateCollection(this: Collection): Promise<Collection> {
-  const { store, query } = this;
-
-  // TODO save options from initial request?
-  assert(`update cannot be used with this array`, this.modelName);
-  assert(`update cannot be used with no query`, query);
-  // @ts-expect-error typescript is unable to handle the complexity of
-  //   T = unknown, modelName = string
-  //   T extends TypedRecordInstance, modelName = TypeFromInstance<T>
-  // both being valid options to pass through here.
-  const promise = store.query<T>(this.modelName, query as Record<string, unknown>, { _recordArray: this });
-
-  return promise;
-}
-
-function destroyCollection(this: Collection, clear: boolean): void {
-  destroy.call(this, clear);
-  this._manager._managed.delete(this);
-  this._manager._pending.delete(this);
-}
-
-export function createCollection<T = unknown>(options: CollectionCreateOptions): Collection<T> {
-  // @ts-expect-error
-  options.EXT = {
-    query: options.query || null,
-    isLoaded: options.isLoaded || false,
-    _update: _updateCollection,
-    destroy: destroyCollection,
-  };
-  return createIdentifierArray(options) as Collection<T>;
 }
 
 // Ensure instanceof works correctly

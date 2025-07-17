@@ -26,12 +26,8 @@ export type { CreateRecordProperties } from './-private/store-service.ts';
 // to also eliminate
 export { coerceId, ensureStringId } from './-private/utils/coerce-id.ts';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix.ts';
-export {
-  type IdentifierArray as LiveArray,
-  type Collection as CollectionRecordArray,
-  SOURCE,
-  MUTATE,
-} from './-private/record-arrays/identifier-array.ts';
+export { type IdentifierArray as LiveArray, SOURCE, MUTATE } from './-private/record-arrays/identifier-array.ts';
+export { type Collection as LegacyQueryArray } from './-private/record-arrays/legacy-query.ts';
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager.ts';
 
 // leaked for private use / test use, should investigate removing
