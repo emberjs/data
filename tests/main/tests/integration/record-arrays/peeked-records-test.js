@@ -5,7 +5,6 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
-import { SOURCE } from '@ember-data/store/-private';
 import { Context } from '@warp-drive/core/reactive/-private';
 
 import { startWatching, watchProperties } from '../../helpers/watch-property';
