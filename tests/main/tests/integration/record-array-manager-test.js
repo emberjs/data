@@ -128,7 +128,6 @@ module('integration/record_array_manager', function (hooks) {
 
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);
-    assert.strictEqual(recordArray._manager, manager, 'the manager is set correctly');
     assert.deepEqual(recordArray[SOURCE], []);
     assert.deepEqual(recordArray.slice(), []);
   });

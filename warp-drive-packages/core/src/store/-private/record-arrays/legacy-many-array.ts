@@ -3,41 +3,22 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { BaseFinderOptions, ModelSchema, StableRecordIdentifier } from '../../../types.ts';
-import type { Cache } from '../../../types/cache.ts';
-import type {
-  OpaqueRecordInstance,
-  TypedRecordInstance,
-  TypeFromInstance,
-  TypeFromInstanceOrString,
-} from '../../../types/record.ts';
+import { Context } from '../../../reactive/-private.ts';
+import type { BaseFinderOptions, StableRecordIdentifier } from '../../../types.ts';
+import type { LocalRelationshipOperation } from '../../../types/graph.ts';
+import type { ObjectValue } from '../../../types/json/raw.ts';
+import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../../types/record.ts';
 import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
-import type { Links, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
+import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
-import { ARRAY_SIGNAL, notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
+import { notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import type { CreateRecordProperties, Store } from '../store-service.ts';
-import type { IdentifierArray, IdentifierArrayCreateOptions, MinimumManager } from './identifier-array.ts';
-import { createIdentifierArray, destroy, MUTATE, SOURCE } from './identifier-array.ts';
+import { save } from './-utils.ts';
+import type { LegacyLiveArrayCreateOptions } from './legacy-live-array.ts';
 import type { NativeProxy } from './native-proxy-type-fix.ts';
+import { createReactiveResourceArray, destroy, type ReactiveResourceArray } from './resource-array.ts';
 
-export interface ManyArrayCreateArgs<T> {
-  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
-  type: TypeFromInstanceOrString<T>;
-  store: Store;
-  allowMutation: boolean;
-  manager: MinimumManager;
-  field?: LegacyHasManyField | LinksModeHasManyField;
-  identifier: StableRecordIdentifier;
-  cache: Cache;
-  meta: Record<string, unknown> | null;
-  links: Links | PaginationLinks | null;
-  key: string;
-  isPolymorphic: boolean;
-  isAsync: boolean;
-  _inverseIsAsync: boolean;
-  isLoaded: boolean;
-}
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
@@ -80,78 +61,28 @@ export interface ManyArrayCreateArgs<T> {
 
   @public
 */
-export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
-  /**
-    The loading state of this array
-    @public
-  */
-  isLoaded: boolean;
-
-  /**
-    Metadata associated with the request for async hasMany relationships.
-
-    Example
-
-    Given that the server returns the following JSON payload when fetching a
-    hasMany relationship:
-
-    ```js
-    {
-      "comments": [{
-        "id": 1,
-        "comment": "This is the first comment",
-      }, {
-    // ...
-      }],
-
-      "meta": {
-        "page": 1,
-        "total": 5
-      }
-    }
-    ```
-
-    You can then access the meta data via the `meta` property:
-
-    ```js
-    let comments = await post.comments;
-    let meta = comments.meta;
-
-    // meta.page => 1
-    // meta.total => 5
-    ```
-
-    @public
-    */
-  meta: Record<string, unknown> | null;
-
-  /**
-   * Retrieve the links for this relationship
-   *
-   @public
-    */
+export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
+  meta: Meta | null;
   links: Links | PaginationLinks | null;
 
   /** @internal */
   isPolymorphic: boolean;
   /** @internal */
-  _inverseIsAsync: boolean;
-  /** @internal */
   isAsync: boolean;
   /** @internal */
   identifier: StableRecordIdentifier;
-  /** @internal */
-  cache: Cache;
-  /** @internal */
-  _manager: MinimumManager;
   /** @internal */
   store: Store;
   /** @internal */
   key: string;
   /** @internal */
-  type: ModelSchema;
-  /** @internal */
   modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+
+  /**
+    The loading state of this array
+    @public
+  */
+  isLoaded: boolean;
 
   /** @internal */
   notify(): void;
@@ -177,7 +108,7 @@ export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
 
     @public
   */
-  reload(options?: BaseFinderOptions): Promise<RelatedCollection<T>>;
+  reload(options?: BaseFinderOptions): Promise<LegacyManyArray<T>>;
 
   /**
     Create a child record and associated it to the collection
@@ -205,31 +136,64 @@ export interface RelatedCollection<T = unknown> extends IdentifierArray<T> {
 
     @public
   */
-  save: () => Promise<IdentifierArray<T>>;
+  save: () => Promise<LegacyManyArray<T>>;
 
   /** @internal */
-  destroy(): void;
+  destroy: () => void;
 }
 
-export function createRelatedCollection<T = unknown>(options: ManyArrayCreateArgs<T>): RelatedCollection<T> {
-  const EXT = {
-    isLoaded: options.isLoaded || false,
-    isAsync: options.isAsync || false,
-    isPolymorphic: options.isPolymorphic || false,
-    identifier: options.identifier,
-    cache: null,
-    _inverseIsAsync: false,
-    key: options.key,
-    DEPRECATED_CLASS_NAME: 'ManyArray',
-    createRecord,
-    destroy: destroyRelatedCollection,
-    reload,
-    notify,
-  };
-  (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
-  // @ts-expect-error
-  options.EXT = EXT;
-  return createIdentifierArray(options) as unknown as RelatedCollection<T>;
+/**
+ * The options for {@link createLegacyManyArray}
+ *
+ * @internal
+ */
+export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptions {
+  isLoaded: boolean;
+  editable: boolean;
+  isAsync: boolean;
+  isPolymorphic: boolean;
+  field: LegacyHasManyField | LinksModeHasManyField;
+  identifier: StableRecordIdentifier;
+  links: Links | PaginationLinks | null;
+  meta: Meta | null;
+}
+/**
+ * Creates a {@link LegacyManyArray}
+ *
+ * @internal
+ */
+export function createLegacyManyArray<T>(options: LegacyManyArrayCreateOptions): LegacyManyArray<T> {
+  const extensions = options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions
+    ? options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(options.field)
+    : null;
+
+  return createReactiveResourceArray({
+    store: options.store,
+    manager: options.manager,
+    editable: options.editable,
+    source: options.source,
+    data: {
+      links: options.links,
+      meta: options.meta,
+    } as ObjectValue,
+    features: {
+      modelName: options.type,
+      save,
+      DEPRECATED_CLASS_NAME: 'ManyArray',
+      isLoaded: options.isLoaded,
+      isAsync: options.isAsync,
+      isPolymorphic: options.isPolymorphic,
+      identifier: options.identifier,
+      key: options.field.name,
+      reload,
+      createRecord,
+      notify,
+    },
+    extensions,
+    options: null,
+    destroy: destroyLegacyManyArray,
+    mutate: _MUTATE,
+  }) as LegacyManyArray<T>;
 }
 
 function _MUTATE<T>(
@@ -239,7 +203,7 @@ function _MUTATE<T>(
   args: unknown[],
   _SIGNAL: WarpDriveSignal
 ): unknown {
-  const collection = receiver as unknown as RelatedCollection<T>;
+  const collection = receiver as unknown as LegacyManyArray<T>;
   switch (prop) {
     case 'length 0': {
       Reflect.set(target, 'length', 0);
@@ -367,7 +331,7 @@ function _MUTATE<T>(
       const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
       // detect a full replace
-      if (start === 0 && deleteCount === collection[SOURCE].length) {
+      if (start === 0 && deleteCount === collection[Context].source.length) {
         const newValues = extractIdentifiersFromRecords(adds);
 
         assertNoDuplicates(
@@ -451,20 +415,18 @@ function _MUTATE<T>(
   }
 }
 
-function notify(this: RelatedCollection): void {
-  notifyInternalSignal(this[ARRAY_SIGNAL]);
+function notify(this: LegacyManyArray): void {
+  notifyInternalSignal(this[Context].signal);
 }
 
-function reload<T>(this: RelatedCollection<T>, options?: BaseFinderOptions): Promise<RelatedCollection<T>> {
-  assert(
-    `Expected the manager for ManyArray to implement reloadHasMany`,
-    typeof this._manager.reloadHasMany === 'function'
-  );
+function reload<T>(this: LegacyManyArray<T>, options?: BaseFinderOptions): Promise<LegacyManyArray<T>> {
+  const { manager } = this[Context];
+  assert(`Expected the manager for ManyArray to implement reloadHasMany`, typeof manager.reloadHasMany === 'function');
   // TODO this is odd, we don't ask the store for anything else like this?
-  return this._manager.reloadHasMany<T>(this.key, options) as Promise<RelatedCollection<T>>;
+  return manager.reloadHasMany<T>(this.key, options) as Promise<LegacyManyArray<T>>;
 }
 
-function createRecord<T>(this: RelatedCollection<T>, hash: CreateRecordProperties<T>): T {
+function createRecord<T>(this: LegacyManyArray<T>, hash: CreateRecordProperties<T>): T {
   const { store } = this;
   assert(`Expected modelName to be set`, this.modelName);
   const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
@@ -473,7 +435,7 @@ function createRecord<T>(this: RelatedCollection<T>, hash: CreateRecordPropertie
   return record;
 }
 
-function destroyRelatedCollection(this: RelatedCollection): void {
+function destroyLegacyManyArray(this: ReactiveResourceArray): void {
   destroy.call(this, false);
 }
 
@@ -503,7 +465,7 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 }
 
 function assertNoDuplicates<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   target: StableRecordIdentifier[],
   callback: (currentState: StableRecordIdentifier[]) => void,
   reason: string
@@ -551,7 +513,7 @@ function assertNoDuplicates<T>(
 }
 
 function mutateAddToRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
@@ -569,7 +531,7 @@ function mutateAddToRelatedRecords<T>(
 }
 
 function mutateRemoveFromRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
@@ -587,7 +549,7 @@ function mutateRemoveFromRelatedRecords<T>(
 }
 
 function mutateReplaceRelatedRecord<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: {
     value: StableRecordIdentifier;
     prior: StableRecordIdentifier;
@@ -609,7 +571,7 @@ function mutateReplaceRelatedRecord<T>(
 }
 
 function mutateReplaceRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
@@ -627,7 +589,7 @@ function mutateReplaceRelatedRecords<T>(
 }
 
 function mutateSortRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
@@ -644,12 +606,10 @@ function mutateSortRelatedRecords<T>(
   );
 }
 
-function mutate<T>(
-  collection: RelatedCollection<T>,
-  mutation: Parameters<Exclude<MinimumManager['mutate'], undefined>>[0],
-  _SIGNAL: WarpDriveSignal
-) {
-  assert(`Expected the manager for ManyArray to implement mutate`, typeof collection._manager.mutate === 'function');
-  collection._manager.mutate(mutation);
+function mutate<T>(collection: LegacyManyArray<T>, mutation: LocalRelationshipOperation, _SIGNAL: WarpDriveSignal) {
+  const { manager } = collection[Context];
+
+  assert(`Expected the manager for ManyArray to implement mutate`, typeof manager.mutate === 'function');
+  manager.mutate(mutation);
   notifyInternalSignal(_SIGNAL);
 }

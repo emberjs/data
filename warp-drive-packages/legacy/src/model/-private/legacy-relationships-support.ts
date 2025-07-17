@@ -2,15 +2,14 @@ import type { Document, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@warp-drive/core/graph/-private';
-import type { LiveArray, RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
+import { Context } from '@warp-drive/core/reactive/-private';
+import type { LegacyManyArray } from '@warp-drive/core/store/-private';
 import {
-  ARRAY_SIGNAL,
-  createRelatedCollection,
+  createLegacyManyArray,
   fastPush,
   isStableIdentifier,
   notifyInternalSignal,
   recordIdentifierFor,
-  SOURCE,
   storeFor,
 } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions, StableRecordIdentifier } from '@warp-drive/core/types';
@@ -64,8 +63,8 @@ export class LegacySupport {
   declare cache: Cache;
   declare references: Record<string, BelongsToReference | HasManyReference>;
   declare identifier: StableRecordIdentifier;
-  declare _manyArrayCache: Record<string, ManyArray>;
-  declare _relationshipPromisesCache: Record<string, Promise<ManyArray | OpaqueRecordInstance>>;
+  declare _manyArrayCache: Record<string, LegacyManyArray>;
+  declare _relationshipPromisesCache: Record<string, Promise<LegacyManyArray | OpaqueRecordInstance>>;
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
   declare _pending: Record<string, Promise<StableRecordIdentifier | null> | undefined>;
 
@@ -82,22 +81,25 @@ export class LegacySupport {
       this.graph = this.store._graph;
     }
 
-    this._manyArrayCache = Object.create(null) as Record<string, ManyArray>;
-    this._relationshipPromisesCache = Object.create(null) as Record<string, Promise<ManyArray | OpaqueRecordInstance>>;
+    this._manyArrayCache = Object.create(null) as Record<string, LegacyManyArray>;
+    this._relationshipPromisesCache = Object.create(null) as Record<
+      string,
+      Promise<LegacyManyArray | OpaqueRecordInstance>
+    >;
     this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
     this._pending = Object.create(null) as Record<string, Promise<StableRecordIdentifier | null>>;
     this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
-  _syncArray(array: LiveArray): void {
+  _syncArray(array: LegacyManyArray): void {
     // It’s possible the parent side of the relationship may have been destroyed by this point
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
-    const currentState = array[SOURCE];
+    const currentState = array[Context].source;
     const identifier = this.identifier;
 
-    const [identifiers, jsonApi] = this._getCurrentState(identifier, (array as ManyArray).key);
+    const [identifiers, jsonApi] = this._getCurrentState(identifier, array.key);
 
     if (jsonApi.meta) {
       array.meta = jsonApi.meta;
@@ -229,9 +231,9 @@ export class LegacySupport {
     return [identifiers, jsonApi];
   }
 
-  getManyArray<T>(key: string, definition?: UpgradedMeta): ManyArray<T> {
+  getManyArray<T>(key: string, definition?: UpgradedMeta): LegacyManyArray<T> {
     if (this.graph) {
-      let manyArray: ManyArray<T> | undefined = this._manyArrayCache[key] as ManyArray<T> | undefined;
+      let manyArray: LegacyManyArray<T> | undefined = this._manyArrayCache[key] as LegacyManyArray<T> | undefined;
       if (!definition) {
         definition = this.graph.get(this.identifier, key).definition;
       }
@@ -239,24 +241,22 @@ export class LegacySupport {
       if (!manyArray) {
         const [identifiers, doc] = this._getCurrentState<T>(this.identifier, key);
 
-        manyArray = createRelatedCollection<T>({
+        manyArray = createLegacyManyArray({
           store: this.store,
-          type: definition.type as TypeFromInstanceOrString<T>,
-          identifier: this.identifier,
-          cache: this.cache,
-          field: this.store.schema.fields(this.identifier).get(key) as LegacyHasManyField,
-          identifiers,
-          key,
-          meta: doc.meta || null,
-          links: doc.links || null,
-          isPolymorphic: definition.isPolymorphic,
-          isAsync: definition.isAsync,
-          _inverseIsAsync: definition.inverseIsAsync,
           // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
           manager: this,
+          source: identifiers,
+          type: definition.type,
           isLoaded: !definition.isAsync,
-          allowMutation: true,
+          editable: true,
+          isAsync: definition.isAsync,
+          isPolymorphic: definition.isPolymorphic,
+          field: this.store.schema.fields(this.identifier).get(key) as LegacyHasManyField,
+          identifier: this.identifier,
+          links: doc.links || null,
+          meta: doc.meta || null,
         });
+
         this._manyArrayCache[key] = manyArray;
       }
 
@@ -268,11 +268,11 @@ export class LegacySupport {
   fetchAsyncHasMany(
     key: string,
     relationship: CollectionEdge,
-    manyArray: ManyArray,
+    manyArray: LegacyManyArray,
     options?: BaseFinderOptions
-  ): Promise<ManyArray> {
+  ): Promise<LegacyManyArray> {
     if (this.graph) {
-      let loadingPromise = this._relationshipPromisesCache[key] as Promise<ManyArray> | undefined;
+      let loadingPromise = this._relationshipPromisesCache[key] as Promise<LegacyManyArray> | undefined;
       if (loadingPromise) {
         return loadingPromise;
       }
@@ -295,11 +295,11 @@ export class LegacySupport {
     assert('hasMany only works with the @ember-data/json-api package');
   }
 
-  reloadHasMany<T>(key: string, options?: BaseFinderOptions): Promise<ManyArray<T>> | PromiseManyArray<T> {
+  reloadHasMany<T>(key: string, options?: BaseFinderOptions): Promise<LegacyManyArray<T>> | PromiseManyArray<T> {
     if (this.graph) {
       const loadingPromise = this._relationshipPromisesCache[key];
       if (loadingPromise) {
-        return loadingPromise as Promise<ManyArray<T>>;
+        return loadingPromise as Promise<LegacyManyArray<T>>;
       }
       const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
@@ -313,12 +313,12 @@ export class LegacySupport {
         return this._updatePromiseProxyFor('hasMany', key, { promise }) as PromiseManyArray<T>;
       }
 
-      return promise as Promise<ManyArray<T>>;
+      return promise as Promise<LegacyManyArray<T>>;
     }
     assert(`hasMany only works with the @ember-data/json-api package`);
   }
 
-  getHasMany(key: string, options?: BaseFinderOptions): PromiseManyArray | ManyArray {
+  getHasMany(key: string, options?: BaseFinderOptions): PromiseManyArray | LegacyManyArray {
     if (this.graph) {
       const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
       const { definition, state } = relationship;
@@ -632,7 +632,7 @@ export class LegacySupport {
     this.isDestroying = true;
 
     let cache: Record<string, { destroy(): void } | undefined> = this._manyArrayCache;
-    this._manyArrayCache = Object.create(null) as Record<string, ManyArray>;
+    this._manyArrayCache = Object.create(null) as Record<string, LegacyManyArray>;
     Object.keys(cache).forEach((key) => {
       cache[key]!.destroy();
     });
@@ -672,8 +672,8 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: CollectionEdge,
-  value: ManyArray
-): ManyArray;
+  value: LegacyManyArray
+): LegacyManyArray;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
@@ -685,16 +685,16 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: CollectionEdge,
-  value: ManyArray,
+  value: LegacyManyArray,
   error: Error
 ): never;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: ResourceEdge | CollectionEdge,
-  value: ManyArray | StableRecordIdentifier | null,
+  value: LegacyManyArray | StableRecordIdentifier | null,
   error?: Error
-): ManyArray | OpaqueRecordInstance | null {
+): LegacyManyArray | OpaqueRecordInstance | null {
   delete recordExt._relationshipPromisesCache[key];
   relationship.state.shouldForceReload = false;
   const isHasMany = relationship.definition.kind === 'hasMany';
@@ -702,7 +702,7 @@ function handleCompletedRelationshipRequest(
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    notifyInternalSignal((value as ManyArray)[ARRAY_SIGNAL]);
+    notifyInternalSignal((value as LegacyManyArray)[Context].signal);
   }
 
   if (error) {
@@ -727,7 +727,7 @@ function handleCompletedRelationshipRequest(
   }
 
   if (isHasMany) {
-    (value as ManyArray).isLoaded = true;
+    (value as LegacyManyArray).isLoaded = true;
   } else {
     recordExt.store.notifications._flush();
   }

@@ -7,7 +7,7 @@ import type { StableRecordIdentifier } from '../../types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../types/record';
 import { SkipCache } from '../../types/request';
 import type { ResourceIdentifierObject } from '../../types/spec/json-api-raw';
-import type { LegacyQueryArray, LiveArray } from '../-private';
+import type { LegacyLiveArray, LegacyQueryArray } from '../-private';
 import { constructResource, ensureStringId, recordIdentifierFor, storeFor } from '../-private';
 import type { Caches } from '../-private/caches/instance-cache';
 import { isMaybeIdentifier, Store } from '../-private/store-service';
@@ -560,9 +560,9 @@ declare module '../-private/store-service' {
     @param type the name of the resource
     @param options
   */
-    findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<LiveArray<T>>;
+    findAll<T>(type: TypeFromInstance<T>, options?: FindAllOptions): Promise<LegacyLiveArray<T>>;
     /** @deprecated */
-    findAll(type: string, options?: FindAllOptions): Promise<LiveArray>;
+    findAll(type: string, options?: FindAllOptions): Promise<LegacyLiveArray>;
 
     /**
     This method delegates a query to the adapter. This is the one place where
@@ -876,7 +876,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
   Store.prototype.findAll = function <T>(
     type: TypeFromInstance<T> | string,
     options: FindAllOptions = {}
-  ): Promise<LiveArray<T>> {
+  ): Promise<LegacyLiveArray<T>> {
     deprecate(`store.findAll is deprecated. Use store.request instead.`, false, {
       id: 'warp-drive:deprecate-legacy-request-methods',
       until: '6.0',
@@ -897,7 +897,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
       typeof type === 'string'
     );
 
-    const promise = this.request<LiveArray<T>>({
+    const promise = this.request<LegacyLiveArray<T>>({
       op: 'findAll',
       data: {
         type: normalizeModelName(type),

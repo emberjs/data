@@ -26,8 +26,17 @@ export type { CreateRecordProperties } from './-private/store-service.ts';
 // to also eliminate
 export { coerceId, ensureStringId } from './-private/utils/coerce-id.ts';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix.ts';
-export { type IdentifierArray as LiveArray, SOURCE, MUTATE } from './-private/record-arrays/identifier-array.ts';
-export { type Collection as LegacyQueryArray } from './-private/record-arrays/legacy-query.ts';
+export { type ReactiveResourceArray } from './-private/record-arrays/resource-array.ts';
+export {
+  type LegacyLiveArray,
+  /** @deprecated use LegacyLiveArray or ReactiveResourceArray */
+  type LegacyLiveArray as LiveArray,
+} from './-private/record-arrays/legacy-live-array.ts';
+export {
+  type LegacyQueryArray,
+  /** @deprecated use LegacyQueryArray or ReactiveResourceArray */
+  type LegacyQueryArray as CollectionRecordArray,
+} from './-private/record-arrays/legacy-query.ts';
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager.ts';
 
 // leaked for private use / test use, should investigate removing
@@ -37,7 +46,11 @@ export { _clearCaches } from './-private/caches/instance-cache.ts';
 export { setRecordIdentifier, StoreMap } from './-private/caches/instance-cache.ts';
 export { normalizeModelName as _deprecatingNormalize } from './-private/utils/normalize-model-name.ts';
 export type { StoreRequestInput } from './-private/cache-handler/handler.ts';
-export { type RelatedCollection, createRelatedCollection } from './-private/record-arrays/many-array.ts';
+export {
+  type LegacyManyArray,
+  type LegacyManyArray as RelatedCollection,
+  createLegacyManyArray,
+} from './-private/record-arrays/legacy-many-array.ts';
 
 export { log, logGroup } from './-private/debug/utils';
 export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';

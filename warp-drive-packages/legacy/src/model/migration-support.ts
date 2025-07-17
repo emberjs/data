@@ -24,8 +24,9 @@ import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '@warp-drive/core/reactive';
+import { Context } from '@warp-drive/core/reactive/-private';
 import type { ExtensibleField } from '@warp-drive/core/reactive/-private/schema';
-import { ARRAY_SIGNAL, notifyInternalSignal } from '@warp-drive/core/store/-private';
+import { notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
@@ -445,7 +446,7 @@ export function registerDerivations(schema: SchemaService): void {
         }
 
         if (manyArray) {
-          notifyInternalSignal(manyArray[ARRAY_SIGNAL]);
+          notifyInternalSignal(manyArray[Context].signal);
 
           return true;
         }

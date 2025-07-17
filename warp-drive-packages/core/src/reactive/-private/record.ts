@@ -2,7 +2,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { NotificationType } from '../../index.ts';
-import type { RelatedCollection as ManyArray, Store } from '../../store/-private.ts';
+import type { LegacyManyArray, Store } from '../../store/-private.ts';
 import {
   ARRAY_SIGNAL,
   entangleSignal,
@@ -211,9 +211,9 @@ export class ReactiveResource {
                   if (field.options.linksMode) {
                     const signal = signals.get(key);
                     if (signal) {
-                      const peeked = signal.value as ManyArray | undefined;
+                      const peeked = signal.value as LegacyManyArray | undefined;
                       if (peeked) {
-                        notifyInternalSignal(peeked[ARRAY_SIGNAL]);
+                        notifyInternalSignal(peeked[Context].signal);
                       }
                     }
                     return;

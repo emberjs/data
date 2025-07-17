@@ -1,6 +1,6 @@
 import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { LegacyQueryArray, LiveArray } from '@warp-drive/core/store/-private';
+import type { LegacyLiveArray, LegacyQueryArray } from '@warp-drive/core/store/-private';
 import { constructResource, ensureStringId, recordIdentifierFor, storeFor } from '@warp-drive/core/store/-private';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
@@ -77,7 +77,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
   StoreKlass.prototype.findAll = function <T>(
     type: TypeFromInstance<T> | string,
     options: FindAllOptions = {}
-  ): Promise<LiveArray<T>> {
+  ): Promise<LegacyLiveArray<T>> {
     assert(
       `Attempted to call store.findAll(), but the store instance has already been destroyed.`,
       !(this.isDestroying || this.isDestroyed)
@@ -88,7 +88,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       typeof type === 'string'
     );
 
-    const promise = this.request<LiveArray<T>>({
+    const promise = this.request<LegacyLiveArray<T>>({
       op: 'findAll',
       data: {
         type: normalizeModelName(type),

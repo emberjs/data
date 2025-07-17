@@ -32,7 +32,6 @@ import { getOrSetGlobal } from '../../types/-private';
 // debugging DX and as a safe way to provide an intimate contract on public objects.
 
 export const SOURCE: '___(unique) Symbol(SOURCE)' = getOrSetGlobal('SOURCE', Symbol('#source'));
-export const MUTATE: '___(unique) Symbol(MUTATE)' = getOrSetGlobal('MUTATE', Symbol('#update'));
 
 export const Destroy: '___(unique) Symbol(Destroy)' = getOrSetGlobal(
   'Destroy',

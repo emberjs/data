@@ -53,7 +53,7 @@ import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
 import { RequestPromise, RequestStateService } from './network/request-cache.ts';
-import type { IdentifierArray } from './record-arrays/identifier-array.ts';
+import type { LegacyLiveArray } from './record-arrays/legacy-live-array.ts';
 import { coerceId, ensureStringId } from './utils/coerce-id.ts';
 import { normalizeModelName } from './utils/normalize-model-name.ts';
 // @ts-expect-error adding to globalThis
@@ -1247,9 +1247,9 @@ export class Store extends BaseClass {
     @param {String} type the name of the resource
     @return {RecordArray}
   */
-  peekAll<T>(type: TypeFromInstance<T>): IdentifierArray<T>;
-  peekAll(type: string): IdentifierArray;
-  peekAll(type: string): IdentifierArray {
+  peekAll<T>(type: TypeFromInstance<T>): LegacyLiveArray<T>;
+  peekAll(type: string): LegacyLiveArray;
+  peekAll(type: string): LegacyLiveArray {
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }

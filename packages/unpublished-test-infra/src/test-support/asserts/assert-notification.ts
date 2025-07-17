@@ -73,7 +73,7 @@ function setupNotifications(context: TestContext, store: Store) {
   notifications.notify = function (
     identifier: StableRecordIdentifier | StableDocumentIdentifier,
     bucket: NotificationType | DocumentCacheOperation,
-    key?: string
+    key?: string | null
   ) {
     const counter = getCounter(context, identifier, bucket, key ?? null);
     counter.count++;

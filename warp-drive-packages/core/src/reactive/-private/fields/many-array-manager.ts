@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../../index.ts';
 import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
-import { fastPush, SOURCE } from '../../../store/-private.ts';
+import { fastPush } from '../../../store/-private.ts';
 import type { CollectionRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
@@ -44,7 +44,7 @@ export class ManyArrayManager {
       array.links = rawValue.links;
     }
 
-    const currentState = array[SOURCE];
+    const currentState = array[Context].source;
 
     // unlike in the normal RecordArray case, we don't need to divorce the reference
     // because we don't need to worry about associate/disassociate since the graph

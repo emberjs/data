@@ -1,6 +1,6 @@
 import type { Store } from '@warp-drive/core';
-import type { LiveArray } from '@warp-drive/core/store/-private';
-import { SOURCE } from '@warp-drive/core/store/-private';
+import { Context } from '@warp-drive/core/reactive/-private';
+import type { LegacyLiveArray } from '@warp-drive/core/store/-private';
 import type { FindAllOptions, ModelSchema } from '@warp-drive/core/types';
 import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 
@@ -107,7 +107,7 @@ export class SnapshotRecordArray {
     @private
     @type {Array}
   */
-  get _recordArray(): LiveArray {
+  get _recordArray(): LegacyLiveArray {
     return this.__store.peekAll(this.modelName);
   }
 
@@ -168,7 +168,7 @@ export class SnapshotRecordArray {
     upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
-    this._snapshots = this._recordArray[SOURCE].map((identifier: StableRecordIdentifier) =>
+    this._snapshots = this._recordArray[Context].source.map((identifier: StableRecordIdentifier) =>
       _fetchManager.createSnapshot(identifier)
     );
 

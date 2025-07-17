@@ -24,6 +24,7 @@
     "lint:prettier:fix": "prettier --write --cache --cache-location=.prettier-cache --log-level=warn .",
     "preinstall": "npx only-allow pnpm",
     "check:test-types": "turbo --log-order=stream check:types --filter=./{tests,config}/* --continue --concurrency=10",
+    "check:types:pkg": "pnpm exec glint --build",
     "check:types": "bun run check:test-types",
     "test": "pnpm turbo test --concurrency=1",
     "test:production": "pnpm turbo test:production --concurrency=1",

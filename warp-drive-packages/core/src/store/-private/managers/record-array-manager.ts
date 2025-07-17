@@ -1,18 +1,24 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import { Context } from '../../../reactive/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
-import { ARRAY_SIGNAL, notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
-import type { IdentifierArray } from '../record-arrays/identifier-array.ts';
-import { createIdentifierArray, SOURCE } from '../record-arrays/identifier-array.ts';
+import { notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
+import type { LegacyLiveArray } from '../record-arrays/legacy-live-array.ts';
+import { createLegacyLiveArray } from '../record-arrays/legacy-live-array.ts';
 import {
-  type Collection,
-  type CollectionCreateOptions,
   createLegacyQueryArray,
+  type LegacyQueryArray,
+  type LegacyQueryArrayCreateOptions,
 } from '../record-arrays/legacy-query.ts';
+import {
+  createRequestCollection,
+  type ReactiveRequestCollectionCreateArgs,
+  type ReactiveResourceArray,
+} from '../record-arrays/resource-array.ts';
 import type { Store } from '../store-service.ts';
 import type { CacheOperation, DocumentCacheOperation, UnsubscribeToken } from './notification-manager.ts';
 
@@ -64,6 +70,20 @@ export function fastPush<T>(target: T[], source: T[]): void {
   target.push(...source);
 }
 
+interface LegacyQueryInit {
+  type: string;
+  query: ImmutableRequestInfo | Record<string, unknown>;
+}
+interface AnonymousRequestCollectionInit {
+  source: StableRecordIdentifier[];
+}
+interface RequestCollectionInit {
+  source: StableRecordIdentifier[];
+  requestKey: StableDocumentIdentifier;
+}
+
+type CollectionInit = LegacyQueryInit | AnonymousRequestCollectionInit | RequestCollectionInit;
+
 type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
 
 /**
@@ -74,15 +94,55 @@ export class RecordArrayManager {
   declare store: Store;
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
-  declare _set: Map<IdentifierArray, Set<StableRecordIdentifier>>;
-  declare _live: Map<string, IdentifierArray>;
-  declare _managed: Set<IdentifierArray>;
-  declare _pending: Map<IdentifierArray, ChangeSet>;
-  declare _identifiers: Map<StableRecordIdentifier, Set<Collection>>;
+  /**
+   *
+   */
+  declare _set: Map<ReactiveResourceArray, Set<StableRecordIdentifier>>;
+  /**
+   * LiveArray (peekAll/findAll) array instances
+   * keyed by their ResourceType.
+   */
+  declare _live: Map<string, LegacyLiveArray>;
+  /**
+   *
+   */
+  declare _managed: Set<ReactiveResourceArray>;
+  /**
+   * Buffered changes to apply keyed by the array to
+   * which to apply them to.
+   */
+  declare _pending: Map<ReactiveResourceArray, ChangeSet>;
+  /**
+   * An inverse map from StableRecordIdentifier to the list
+   * of arrays it can be found in, useful for fast updates
+   * when state changes to a resource occur.
+   */
+  declare _identifiers: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>;
+  /**
+   * When we do not yet have a LiveArray, this keeps track of
+   * the added/removed identifiers to enable us to more efficiently
+   * produce the LiveArray later.
+   *
+   * It's possible that using a Set and only storing additions instead of
+   * additions and deletes would be more efficient.
+   */
   declare _staged: Map<string, ChangeSet>;
   declare _subscription: UnsubscribeToken;
   declare _documentSubscription: UnsubscribeToken;
-  declare _keyedArrays: Map<string, Collection>;
+  /**
+   * KeyedArrays are arrays associated to a specific RequestKey.
+   */
+  declare _keyedArrays: Map<string, ReactiveResourceArray>;
+  /**
+   * The visibility set tracks whether a given identifier should
+   * be shown in RecordArrays. It is used to dedupe added/removed
+   * and state change events.
+   *
+   * As a Map, it grows to be very large - there may be ways to
+   * reduce its size by instead migrating to it functioning as
+   * an exclusion list. Any entry not in the list would be considered
+   * visible.
+   */
   declare _visibilitySet: Map<StableRecordIdentifier, boolean>;
 
   constructor(options: { store: Store }) {
@@ -138,11 +198,11 @@ export class RecordArrayManager {
     );
   }
 
-  _syncArray(array: IdentifierArray | Collection): void {
+  _syncArray(array: ReactiveResourceArray): void {
     const pending = this._pending.get(array);
-    const isRequestArray = isCollection(array);
+    const isLegacyQuery = isLegacyQueryArray(array);
 
-    if ((!isRequestArray && !pending) || this.isDestroying || this.isDestroyed) {
+    if ((isLegacyQuery && !pending) || this.isDestroying || this.isDestroyed) {
       return;
     }
 
@@ -153,14 +213,16 @@ export class RecordArrayManager {
     }
 
     // then pull new state if required
-    if (isRequestArray) {
-      const signal = array[ARRAY_SIGNAL];
+    if (!isLegacyQuery && !isLegacyLiveArray(array)) {
+      const context = array[Context];
+      const signal = context.signal;
+      const identifier = context.options!.identifier as StableDocumentIdentifier;
 
       // we only need to rebuild the array from cache if a full sync is required
       // due to notification that the cache has changed
       if (signal.value === 'cache-sync') {
-        const doc = this.store.cache.peek(array.identifier);
-        assert(`Expected to find a document for ${array.identifier.lid} but found none`, doc);
+        const doc = this.store.cache.peek(identifier);
+        assert(`Expected to find a document for ${identifier.lid} but found none`, doc);
         const data = !('data' in doc) || !Array.isArray(doc.data) ? [] : doc.data;
         // TODO technically we should destroy here if
         // !('data' in doc) || !Array.isArray(doc.data)
@@ -182,7 +244,7 @@ export class RecordArrayManager {
     @param {String} modelName
     @return {RecordArray}
   */
-  liveArrayFor(type: string): IdentifierArray {
+  liveArrayFor(type: string): LegacyLiveArray {
     let array = this._live.get(type);
     const identifiers: StableRecordIdentifier[] = [];
     const staged = this._staged.get(type);
@@ -196,12 +258,11 @@ export class RecordArrayManager {
     }
 
     if (!array) {
-      array = createIdentifierArray({
-        type,
-        identifiers,
+      array = createLegacyLiveArray({
         store: this.store,
-        allowMutation: false,
         manager: this,
+        source: identifiers,
+        type,
       });
       this._live.set(type, array);
       this._set.set(array, new Set(identifiers));
@@ -210,49 +271,62 @@ export class RecordArrayManager {
     return array;
   }
 
-  getCollection(config: {
-    type?: string;
-    query?: ImmutableRequestInfo | Record<string, unknown>;
-    identifiers?: StableRecordIdentifier[];
-    doc?: CollectionResourceDocument;
-    identifier?: StableDocumentIdentifier | null;
-  }): Collection {
-    if (config.identifier && this._keyedArrays.has(config.identifier.lid)) {
-      return this._keyedArrays.get(config.identifier.lid)!;
+  getCollection(config: LegacyQueryInit): LegacyQueryArray;
+  getCollection(config: AnonymousRequestCollectionInit): ReactiveResourceArray;
+  getCollection(config: RequestCollectionInit): ReactiveResourceArray;
+  getCollection(config: CollectionInit): ReactiveResourceArray {
+    if ('requestKey' in config && this._keyedArrays.has(config.requestKey.lid)) {
+      return this._keyedArrays.get(config.requestKey.lid)!;
     }
 
-    const options: CollectionCreateOptions = {
-      type: config.type,
-      identifier: config.identifier || null,
-      links: config.doc?.links || null,
-      meta: config.doc?.meta || null,
-      query: config.query || null,
-      identifiers: config.identifiers || [],
-      isLoaded: !!config.identifiers?.length,
-      allowMutation: false,
-      store: this.store,
-      manager: this,
-    };
-    const array = createLegacyQueryArray(options);
+    let array: ReactiveResourceArray | null = null;
+    if ('requestKey' in config) {
+      const options: ReactiveRequestCollectionCreateArgs = {
+        store: this.store,
+        manager: this,
+        source: config.source,
+        options: {
+          requestKey: config.requestKey,
+        },
+      };
+      array = createRequestCollection(options);
+      this._keyedArrays.set(config.requestKey.lid, array);
+      this._set.set(array, new Set(config.source));
+      associate(this._identifiers, array, config.source);
+    } else if ('query' in config) {
+      const options: LegacyQueryArrayCreateOptions = {
+        store: this.store,
+        manager: this,
+        source: [],
+        type: config.type,
+        query: config.query,
+        isLoaded: false,
+        links: null,
+        meta: null,
+      };
+      array = createLegacyQueryArray(options);
+      this._set.set(array, new Set());
+    } else {
+      const options: ReactiveRequestCollectionCreateArgs = {
+        store: this.store,
+        manager: this,
+        source: config.source,
+        options: null,
+      };
+      array = createRequestCollection(options);
+      this._set.set(array, new Set(config.source));
+      associate(this._identifiers, array, config.source);
+    }
+
     this._managed.add(array);
-    this._set.set(array, new Set(options.identifiers || []));
-
-    if (config.identifier) {
-      this._keyedArrays.set(config.identifier.lid, array);
-    }
-
-    if (config.identifiers) {
-      associate(this._identifiers, array, config.identifiers);
-    }
-
     return array;
   }
 
-  dirtyArray(array: IdentifierArray, delta: number, shouldSyncFromCache: boolean): void {
+  dirtyArray(array: ReactiveResourceArray, delta: number, shouldSyncFromCache: boolean): void {
     if (array === FAKE_ARR) {
       return;
     }
-    const signal = array[ARRAY_SIGNAL];
+    const signal = array[Context].signal;
     if (!signal.isStale || delta > 0) {
       notifyInternalSignal(signal);
 
@@ -266,14 +340,14 @@ export class RecordArrayManager {
     identifier: StableRecordIdentifier,
     includeManaged: boolean,
     isRemove?: boolean
-  ): Map<IdentifierArray, ChangeSet> | void {
+  ): Map<ReactiveResourceArray, ChangeSet> | void {
     if (this.isDestroying || this.isDestroyed) {
       return;
     }
 
     const liveArray = this._live.get(identifier.type);
     const allPending = this._pending;
-    const pending: Map<IdentifierArray, ChangeSet> = new Map();
+    const pending: Map<ReactiveResourceArray, ChangeSet> = new Map();
 
     if (includeManaged) {
       const managed = this._identifiers.get(identifier);
@@ -291,7 +365,7 @@ export class RecordArrayManager {
 
     // during unloadAll we can ignore removes since we've already
     // cleared the array.
-    if (liveArray && liveArray[SOURCE].length === 0 && isRemove) {
+    if (liveArray && liveArray[Context].source.length === 0 && isRemove) {
       const pendingLive = allPending.get(liveArray);
       if (!pendingLive || pendingLive.size === 0) {
         return pending;
@@ -306,7 +380,7 @@ export class RecordArrayManager {
         changes = new Map();
         this._staged.set(identifier.type, changes);
       }
-      pending.set(FAKE_ARR as IdentifierArray, changes);
+      pending.set(FAKE_ARR as ReactiveResourceArray, changes);
     } else {
       let changes = allPending.get(liveArray);
       if (!changes) {
@@ -320,12 +394,12 @@ export class RecordArrayManager {
   }
 
   populateManagedArray(
-    array: Collection,
+    array: ReactiveResourceArray,
     identifiers: StableRecordIdentifier[],
     payload: CollectionResourceDocument | null
   ): void {
     this._pending.delete(array);
-    const source = array[SOURCE];
+    const source = array[Context].source;
     assert(
       `The new state of the collection should not be using the same array reference as the original state.`,
       source !== identifiers
@@ -335,12 +409,12 @@ export class RecordArrayManager {
     fastPush(source, identifiers);
     this._set.set(array, new Set(identifiers));
 
-    if (!isCollection(array)) {
-      notifyInternalSignal(array[ARRAY_SIGNAL]);
+    if (isLegacyQueryArray(array)) {
+      notifyInternalSignal(array[Context].signal);
       array.meta = payload?.meta || null;
       array.links = payload?.links || null;
+      array.isLoaded = true;
     }
-    array.isLoaded = true;
 
     disassociate(this._identifiers, array, old);
     associate(this._identifiers, array, identifiers);
@@ -428,8 +502,8 @@ export class RecordArrayManager {
 }
 
 function associate(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
-  array: Collection,
+  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  array: ReactiveResourceArray,
   identifiers: StableRecordIdentifier[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
@@ -444,8 +518,8 @@ function associate(
 }
 
 function disassociate(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
-  array: Collection,
+  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  array: ReactiveResourceArray,
   identifiers: StableRecordIdentifier[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
@@ -454,8 +528,8 @@ function disassociate(
 }
 
 export function disassociateIdentifier(
-  ArraysCache: Map<StableRecordIdentifier, Set<Collection>>,
-  array: Collection,
+  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  array: ReactiveResourceArray,
   identifier: StableRecordIdentifier
 ): void {
   const cache = ArraysCache.get(identifier);
@@ -465,11 +539,11 @@ export function disassociateIdentifier(
 }
 
 function sync(
-  array: IdentifierArray,
+  array: ReactiveResourceArray,
   changes: Map<StableRecordIdentifier, 'add' | 'del'>,
   arraySet: Set<StableRecordIdentifier>
 ) {
-  const state = array[SOURCE];
+  const state = array[Context].source;
   const adds: StableRecordIdentifier[] = [];
   const removes: StableRecordIdentifier[] = [];
   changes.forEach((value, key) => {
@@ -517,8 +591,12 @@ function sync(
   }
 }
 
-function isCollection(
-  array: IdentifierArray | Collection
-): array is Collection & { identifier: StableDocumentIdentifier } {
-  return array.identifier !== null;
+function isLegacyQueryArray(array: ReactiveResourceArray): array is LegacyQueryArray {
+  const context = array[Context];
+  return context.features !== null && context.features.DEPRECATED_CLASS_NAME === 'LegacyQueryArray';
+}
+
+function isLegacyLiveArray(array: ReactiveResourceArray): array is LegacyLiveArray {
+  const context = array[Context];
+  return context.features !== null && context.features.DEPRECATED_CLASS_NAME === 'LiveArray';
 }
