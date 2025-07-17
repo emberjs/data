@@ -1,4 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { SchemaService } from '../../types.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
 import type { ObjectValue, PrimitiveValue, Value } from '../json/raw.ts';
 
@@ -525,7 +527,7 @@ export interface ObjectField {
      * Configures which extensions this object should use.
      *
      * Extensions are registered with the store's schema service
-     * via {@link SchemaService.registerDangerousObjectExtension}
+     * via {@link SchemaService.CAUTION_MEGA_DANGER_ZONE_registerExtension}
      *
      * Extensions should only be used for temporary enhancements
      * to objects to support migrating away from deprecated patterns
