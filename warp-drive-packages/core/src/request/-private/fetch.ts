@@ -2,9 +2,9 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { cloneResponseProperties, type Context } from './context';
-import type { HttpErrorProps } from './utils';
+import type { FetchError } from './utils';
 
-export type { HttpErrorProps };
+export type { FetchError };
 
 interface FastbootRequest extends Request {
   protocol: string;
@@ -120,13 +120,15 @@ const Fetch = {
       response = await _fetch(context.request.url, context.request);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
-        (e as HttpErrorProps).statusText = 'Aborted';
-        (e as HttpErrorProps).status = 20;
-        (e as HttpErrorProps).isRequestError = true;
+        (e as FetchError).statusText = 'Aborted';
+        (e as FetchError).status = 20;
+        (e as FetchError).code = 20;
+        (e as FetchError).isRequestError = true;
       } else {
-        (e as HttpErrorProps).statusText = 'Unknown Network Error';
-        (e as HttpErrorProps).status = 0;
-        (e as HttpErrorProps).isRequestError = true;
+        (e as FetchError).statusText = 'Unknown Network Error';
+        (e as FetchError).status = 0;
+        (e as FetchError).code = 0;
+        (e as FetchError).isRequestError = true;
       }
       throw e;
     }
@@ -245,7 +247,7 @@ const Fetch = {
 
       const error = (errors ? new AggregateError(errors, msg) : new Error(msg)) as Error & {
         content: object | undefined;
-      } & HttpErrorProps;
+      } & FetchError;
       error.status = response.status;
       error.statusText = statusText;
       error.isRequestError = true;

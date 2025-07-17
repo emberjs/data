@@ -37,7 +37,19 @@ type AutorefreshBehaviorCombos =
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
 
-type ContentFeatures<RT> = {
+/**
+ * Utilities to assist in recovering from the error.
+ */
+export interface RecoveryFeatures {
+  isOnline: boolean;
+  isHidden: boolean;
+  retry: () => Promise<void>;
+}
+
+/**
+ * Utilities for keeping the request fresh
+ */
+export interface ContentFeatures<RT> {
   isOnline: boolean;
   isHidden: boolean;
   isRefreshing: boolean;
@@ -45,7 +57,7 @@ type ContentFeatures<RT> = {
   reload: () => Promise<void>;
   abort?: () => void;
   latestRequest?: Future<RT>;
-};
+}
 
 interface RequestSignature<RT, T, E> {
   Args: {
@@ -133,8 +145,14 @@ interface RequestSignature<RT, T, E> {
      *
      */
     cancelled: [
+      /**
+       * The Error the request rejected with.
+       */
       error: StructuredErrorDocument<E>,
-      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+      /**
+       * Utilities to assist in recovering from the error.
+       */
+      features: RecoveryFeatures,
     ];
 
     /**
@@ -143,11 +161,16 @@ interface RequestSignature<RT, T, E> {
      *
      * Thus it is required to provide an error block and proper error handling if
      * you do not want the error to crash the application.
-     *
      */
     error: [
+      /**
+       * The Error the request rejected with.
+       */
       error: StructuredErrorDocument<E>,
-      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+      /**
+       * Utilities to assist in recovering from the error.
+       */
+      features: RecoveryFeatures,
     ];
 
     /**

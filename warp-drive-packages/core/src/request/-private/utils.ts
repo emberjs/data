@@ -10,6 +10,8 @@ import type {
 import { STRUCTURED } from '../../types/request';
 import { Context, ContextOwner } from './context';
 import { assertValidRequest } from './debug';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Fetch } from './fetch.ts';
 import { createFuture, isFuture } from './future';
 import { setRequestResult } from './promise-cache';
 import type { DeferredFuture, Future, GodContext, Handler } from './types';
@@ -85,12 +87,54 @@ function ensureDoc<T>(owner: ContextOwner, content: T | Error, isError: boolean)
   };
 }
 
-export interface HttpErrorProps extends DOMException {
+/**
+ * Additional properties exposed on errors thrown by the
+ * {@link Fetch | Fetch Handler}.
+ *
+ * In the case of an Abort or system/browser level issue,
+ * this extends {@link DOMException}.
+ *
+ * Else it extends from {@link AggregateError} if the
+ * response includes an array of errors, falling back
+ * to {@link Error} as its base.
+ */
+export interface FetchError extends DOMException {
+  /**
+   * Alias for {@link FetchError.status | status}.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response/status)
+   */
   code: number;
+  /**
+   * The name associated to the {@link FetchError.status | status code}.
+   *
+   * Typically this will be of the formula `StatusTextError` for instance
+   * a 404 status with status text of `Not Found` would have the name
+   * `NotFoundError`.
+   */
   name: string;
+  /**
+   * The http status code associated to the returned error.
+   *
+   * Browser/System level network errors will often have an error code of `0` or `5`.
+   * Aborted requests will have an error code of `20`.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response/status)
+   */
   status: number;
+  /**
+   * The Status Text associated to the {@link FetchError.status | status code}
+   * for the error.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response/statusText)
+   *
+   */
   statusText: string;
-  isRequestError: boolean;
+  /**
+   * A property signifying that an Error uses the {@link FetchError}
+   * interface.
+   */
+  isRequestError: true;
 }
 
 export function enhanceReason(reason?: string): DOMException {

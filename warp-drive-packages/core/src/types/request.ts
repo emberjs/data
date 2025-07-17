@@ -1,3 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Fetch } from '../request/-private/fetch.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { FetchError } from '../request/-private/utils.ts';
 import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
 import type { StableRecordIdentifier } from './identifier.ts';
 import type { QueryParamsSerializationOptions } from './params.ts';
@@ -173,6 +177,11 @@ export interface FindRecordOptions extends ConstrainedRequestOptions {
   include?: string | string[];
 }
 
+/**
+ * When a handler chain resolves, it returns an object
+ * containing the original request, the response set by the handler
+ * chain (if any), and the processed content.
+ */
 export interface StructuredDataDocument<T> {
   [STRUCTURED]?: true;
   /**
@@ -182,6 +191,15 @@ export interface StructuredDataDocument<T> {
   response: Response | ResponseInfo | null;
   content: T;
 }
+
+/**
+ * When a handler chain rejects, it throws an Error that maintains the
+ * `{ request, response, content }` shape but is also an Error instance
+ * itself.
+ *
+ * If using the error originates from the {@link Fetch | Fetch Handler}
+ * the error will be a {@link FetchError}
+ */
 export interface StructuredErrorDocument<T = unknown> extends Error {
   [STRUCTURED]?: true;
   request: ImmutableRequestInfo;
@@ -189,6 +207,15 @@ export interface StructuredErrorDocument<T = unknown> extends Error {
   error: string | object;
   content?: T;
 }
+
+/**
+ * A union of the resolve/reject data types for a request.
+ *
+ * See the docs for:
+ *
+ * - {@link StructuredDataDocument} (resolved/successful requests)
+ * - {@link StructuredErrorDocument} (rejected/failed requests)
+ */
 export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;
 
 /**
