@@ -122,12 +122,13 @@ const Fetch = {
       if (e instanceof DOMException && e.name === 'AbortError') {
         (e as FetchError).statusText = 'Aborted';
         (e as FetchError).status = 20;
-        (e as FetchError).code = 20;
         (e as FetchError).isRequestError = true;
       } else {
         (e as FetchError).statusText = 'Unknown Network Error';
         (e as FetchError).status = 0;
-        (e as FetchError).code = 0;
+        if (!(e instanceof DOMException)) {
+          (e as FetchError).code = 0;
+        }
         (e as FetchError).isRequestError = true;
       }
       throw e;
