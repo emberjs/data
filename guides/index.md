@@ -13,26 +13,27 @@ By ***ambitious***, we mean that ***Warp*Drive** is ideal for both small and lar
 == MPAs
 
 ***Warp*Drive** is the missing bridge for MPAs, allowing your app to seamlessly pick-up where the user
-left off.
+left off with zero extra network requests.
 <br><br>
 
 == SPAs
 
-***Warp*Drive** simplifies building SPAs with its robust state management.
-<br><br><br>
+***Warp*Drive** reduces complex state problems to simple to reason about requests, supercharging your ability
+to ship advanced features.
+<br><br>
 
 == Cross Framework
 
-***Warp*Drive** helps you write, test and ship critical business and state logic that plugs in to any framework.
-<br><br>
+***Warp*Drive** helps you write, test and ship critical business and state logic that plugs in to any framework. Stop debating if you picked the right framework: roll with whatever you need.
+<br>
 
 == Component Libraries
 
-Stop writing the same gnarly component logic in a dozen frameworks or sacrificing with WebComponents. ***Warp*Drive** allows you to create shareable reactive component engines that are easy to expose via thin bindings into any framework.
+Stop writing the same gnarly component logic in a dozen frameworks or sacrificing with WebComponents. ***Warp*Drive** allows you to create shareable reactive component engines that are easy to expose via super-thin low-maintenance bindings.
 
 == SDKs
 
-Want to make your API dead-simple to consume? ***Warp*Drive** makes it easy to create and share intuitive, editor-friendly typed bindings to any API as a suite of builders.
+Want to make your API dead-simple to consume? ***Warp*Drive** makes it easy to create and share intuitive, editor-friendly typed bindings to any API.
 <br><br>
 
 :::
