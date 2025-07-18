@@ -63,7 +63,7 @@ We recommend the source-code for [ember-data/store](https://github.com/emberjs/d
 For instance:
 
 - perhaps you want to fully drop support for adapters and serializers
-- perhaps you want to drop support for Model and only use SchemaRecord (or use some of both to give yourself some flexibility)
+- perhaps you want to drop support for Model and only use ReactiveResource (or use some of both to give yourself some flexibility)
 
 3. Due to (#2) above, your ember-cli-build file MUST call `setConfig` to configure the build config for the library.
 

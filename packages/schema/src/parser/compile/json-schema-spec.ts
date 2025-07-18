@@ -66,7 +66,7 @@ export type IdentityField = {
  * For this reason Local fields should be used sparingly.
  *
  * In the future, we may choose to only allow our
- * own SchemaRecord to utilize them.
+ * own ReactiveResource to utilize them.
  *
  * Example use cases that drove the creation of local
  * fields are states like `isDestroying` and `isDestroyed`

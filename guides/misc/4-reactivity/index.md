@@ -16,10 +16,10 @@ Each form of data can be accessed and managed reactively through one of two mode
 
 These modes are interopable. The reactive object (record) for a resource in PolarisMode can relate to
 a record in LegacyMode and vice-versa. This interopability is true whether the record in LegacyMode is
-a SchemaRecord or a Model.
+a ReactiveResource or a Model.
 
-These reactive primitives use fine-grained signals-based reactivity. Currently, we use
-glimmer's (Ember's) implementation of `Signal` (`@tracked`) and `Computed` (`@cached`);
-however, we've architected our use to be pluggable and will soon enable configuration
-of any desired implementation, thus making WarpDrive compatible with any signals compatible
-library or framework.
+These reactive primitives use fine-grained signals-based reactivity. The specific implementation used is pluggable and can be integrated with any implementation or
+even multiple at once.
+
+For Ember, we use glimmer's implementation of `Signal` (`@tracked`) and `Computed` (`@cached`), though the integration does not have to be an implementation of signals
+at all! For instance, `react` could be integrated by utilizing [useSyncExternalStore](https://react.dev/reference/react/useSyncExternalStore) in place of signals and subscribing to all potential changes via the notification manager. 

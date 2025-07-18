@@ -34,7 +34,7 @@ type EditableUser = {
   readonly [Type]: 'user';
 };
 
-module('WarpDrive | SchemaRecord | Edit Workflow', function (hooks) {
+module('WarpDrive | ReactiveResource | Edit Workflow', function (hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function (assert) {

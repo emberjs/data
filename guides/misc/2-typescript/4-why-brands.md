@@ -64,7 +64,7 @@ There are two significant drawbacks to this approach. The first is one of the sa
 
 The second is related and more important: it forces you to use classes or other objects to represent data, which we don't want to do.
 
-In the near future, EmberData will switch the default story for presenting data from `Model` which is a class-per-resource approach to `SchemaRecord`, which is a single class capable of presenting the data for any associated schema. Schema's are defined in `json` and can be loaded into the app in any number of ways. That means when using SchemaRecord, there never would be a class to import and use as a token for such a call.
+In the near future, EmberData will switch the default story for presenting data from `Model` which is a class-per-resource approach to `ReactiveResource`, which is a single class capable of presenting the data for any associated schema. Schema's are defined in `json` and can be loaded into the app in any number of ways. That means when using ReactiveResource, there never would be a class to import and use as a token for such a call.
 
 ### Ok, Brands!
 

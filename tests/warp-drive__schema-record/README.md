@@ -1,4 +1,4 @@
-# SchemaRecord Tests
+# ReactiveResource Tests
 
-Provides testing for the SchemaRecord
+Provides testing for the ReactiveResource
 

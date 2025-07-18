@@ -45,7 +45,7 @@ We loosely define this to mean three things.
     enable applications to easily maintain, iterate on, and migrate between data best practices within
     their organization.
 3) That any API format specification could be utilized directly by a matching cache implementation,
-    consumable by SchemaRecord, and elegantly supported via a Handlers and Builders.
+    consumable by ReactiveResource, and elegantly supported via a Handlers and Builders.
 
 Our stretch goal (and ultimate north star) is to achieve this for all frontend JavaScript applications, not just Ember applications.
 
@@ -63,7 +63,7 @@ are marked with ⚠️. Those we'd love to see more polishing work on are also m
   - ⚠️ `npx warp-drive` setup workflow for configuring this
 - **Model-optional default story for presenting data**
   - ✅ Replacement of @ember-data/model with json schemas+types
-  - ✅ SchemaRecord which consumes them
+  - ✅ ReactiveResource which consumes them
 - **Context-preserving cacheable network requests*
   - ✅ Replacement of Adapter/Serializer with RequestManager
   - ✅ Replacement of buildURL mixin and example Adapters with request-utils
@@ -71,7 +71,7 @@ are marked with ⚠️. Those we'd love to see more polishing work on are also m
 - ****
   - 
 - ✅ 🩵 **Improved change tracking and transactional saves**
-- ⚠️ **An Overhaul of guides and documentation**
+- ✅ 🩵 **An Overhaul of guides and documentation**
 
 Our stretch goals for Polaris are:
 
@@ -188,7 +188,7 @@ etc.
 
 Features (non-exhaustive):
 
-- SchemaRecord
+- ReactiveResource
 - JSON:API, REST, ActiveRecord | Request Builders
 - JSON:API, REST, ActiveRecord | Serialization Utils
 - Graph
@@ -209,7 +209,7 @@ Deprecations:
 > released as a patch in the 5.3 series.
 
 - Improved SchemaService
-- SchemaRecord
+- ReactiveResource
 - LinksMode for relationships
 - <:idle> state for requests
 - @ember/string and ember-inflector removal

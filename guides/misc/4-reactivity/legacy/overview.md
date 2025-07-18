@@ -4,13 +4,13 @@
 
 ---
 
-SchemaRecord has two modes: `legacy` and `polaris`.
+ReactiveResource has two modes: `legacy` and `polaris`.
 
 **LegacyMode** can be used to emulate the behaviors and capabilities of The `Model` class from `@ember-data/model` that was the default way to define reactive objects with schemas for much of EmberData's history.
 
-The advantage of using SchemaRecord in LegacyMode is that it allows adopting many newer schema-driven behaviors before fully refactoring away from behaviors of Model that aren't supported by PolarisMode.
+The advantage of using ReactiveResource in LegacyMode is that it allows adopting many newer schema-driven behaviors before fully refactoring away from behaviors of Model that aren't supported by PolarisMode.
 
-Because there is little-to-no distinction between the base features of Model and SchemaRecord in LegacyMode we refer to both of these approaches as LegacyMode. This mode remains the default experience in V5.
+Because there is little-to-no distinction between the base features of Model and ReactiveResource in LegacyMode we refer to both of these approaches as LegacyMode. This mode remains the default experience in V5.
 
 ## Feature Overview
 
@@ -24,7 +24,7 @@ In LegacyMode:
 - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
 
 
-## Usage with SchemaRecord
+## Usage with ReactiveResource
 
 ### Installation
 
@@ -118,7 +118,7 @@ Several migration paths from Models to PolarisMode records exist.
 
 - [The Two Store Approach](../../migrating/two-store-migration.md) enables migrating while also upgrading versions and starting relatively fresh. This enables the same resource type (for instance `user`) to be used in legacymode in some areas of the app and in polaris mode in others by sourcing data from separately
 configured store instances.
-- **The Jump To SchemaRecord Approach** is best for apps that do not have many properties or methods on models beyond `attr` `belongsTo` and `hasMany` defined fields. In this approach, all models are converted to types and schemas in LegacyMode in one push.
-- **The Incremental Model Migration Approach** is best for apps that have added complex logic, computed fields, methods, and overrides to their Models. Models and SchemaRecords can work with each other, including via relationships. In this approach, all records for each `type` of resource will always be either a legacy `Model` instance or a `SchemaRecord` instance depending on if the resource has been migrated yet or not. The store's schema service is configured to understand both Models and raw schemas as sources of schema, and is configured to instantiate model classes.
+- **The Jump To ReactiveResource Approach** is best for apps that do not have many properties or methods on models beyond `attr` `belongsTo` and `hasMany` defined fields. In this approach, all models are converted to types and schemas in LegacyMode in one push.
+- **The Incremental Model Migration Approach** is best for apps that have added complex logic, computed fields, methods, and overrides to their Models. Models and ReactiveResources can work with each other, including via relationships. In this approach, all records for each `type` of resource will always be either a legacy `Model` instance or a `ReactiveResource` instance depending on if the resource has been migrated yet or not. The store's schema service is configured to understand both Models and raw schemas as sources of schema, and is configured to instantiate model classes.
 
 We have ideas on several additional incremental migration paths we might add in the near future, including adding decorators that support new field kinds that can be used with `Model`, and a new utility class that would let you proxy an underlying schema-record but wrap it with properties and methods you'd previously added to your Model definitions. Both of these approaches would similarly be intended to support temporary transition states while working towards all of your data being used in [PolarisMode](../polaris/overview.md).
