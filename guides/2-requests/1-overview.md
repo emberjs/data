@@ -19,7 +19,7 @@ But it doesn't have to be! Remote really boils down to [persistence](https://en.
 
 ## Request Options
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
 
 :::tabs key:req1
 
@@ -157,13 +157,15 @@ const { content } = await store.request(createContentLike({
 
 Builders make it easy to quickly write shareable, reusable requests with [typed responses](./2-typing-requests.md) that mirror your application's capabilities and critical business logic.
 
+We build on this foundation to give access to a powerful pipeline for managing requests.
+
 ## Requests Do Not Need To Use Fetch
 
 The native [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) interface provides a convenient, feature-rich way to describe the data you want to retrieve or update – but ultimately request handlers get to decide how that occurs.
 
 Request handlers can be used to connect to any data source via any mechanism. Besides fetch, this might be localStorage, [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket), [ServerEvents](https://developer.mozilla.org/en-US/docs/Web/API/EventSource), [MessageChannel](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel), or something else entirely!
 
-```ts
+```ts [services/store.ts]
 import Store from '@ember-data/store';
 
 import RequestManager from '@ember-data/request';
@@ -189,14 +191,7 @@ export default class AppStore extends Store {
 
 Requests are a manner of expressing what data you want to use or an update to data you want to make. 
 
-
-[WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket), [ServerEvents](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
-
-[WebSockets](), [ServerEvents](), 
-
 The [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system), browser managed storage mediums such as [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), or [WebAssembly](https://webassembly.org/) builds of [sqlite3](https://sqlite.org/wasm/doc/trunk/index.md) are all common examples of persistent or remote data sources that aren't accessed via connecting to a server.
-
-
 
 ### The Chain of Responsibility
 
@@ -206,3 +201,13 @@ When we configured the `RequestManager` above, you may have noticed that when we
 
 <img class="dark-only" src="../images/handlers-all-purple.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
 <img class="light-only" src="../images/handlers-all-light-2.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
+
+This architecture allows us to quickly integrate any kind of pre- or post- processing for requests to ensure we get the data we want how we want it.
+
+*Warp***Drive** comes with a number of useful composable handlers pre-built:
+
+- [Fetch](/api/@warp-drive/core/variables/Fetch) - it makes `fetch` happen, and more
+- [AutoCompress](/api/@warp-drive/utilities/handlers/classes/AutoCompress) - automatically compress large request bodies and use streaming uploads where supported
+- [Gate](/api/@warp-drive/utilities/handlers/classes/Gate) - quickly activate/deactivate a handler per-request or more broadly
+
+As well as a suite of useful [utilities](http://localhost:5173/api/@warp-drive/utilities/handlers/) for handlers.
