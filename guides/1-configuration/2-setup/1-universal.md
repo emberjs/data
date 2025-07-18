@@ -140,14 +140,14 @@ store in module state that you will import and use when needed.
 == Universal
 
 ```ts [services/store.ts]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
   registerDerivations,
   SchemaService,
   teardownRecord
 } from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core';
+import { DefaultCachePolicy } from '@warp-drive/core/store';
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
 
@@ -157,7 +157,7 @@ export default class AppStore extends Store {
     .use([Fetch])
     .useCache(CacheHandler);
 
-  lifetimes = new CachePolicy({
+  lifetimes = new DefaultCachePolicy({
     apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
     apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
@@ -262,7 +262,7 @@ import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/ty
 
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import { CachePolicy } from '@ember-data/request-utils';
+import { DefaultCachePolicy } from '@ember-data/request-utils';
 
 import JSONAPICache from '@ember-data/json-api';
 
@@ -289,7 +289,7 @@ export default class AppStore extends Store {
     .use([Fetch])
     .useCache(CacheHandler);
 
-  lifetimes = new CachePolicy({
+  lifetimes = new DefaultCachePolicy({
     apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
     apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
@@ -489,13 +489,12 @@ and across requests.
 Out of the box, ***Warp*Drive** provides a Cache that expects the [{JSON:API}](https://jsonapi.org) format. This format excels at simiplifying common complex problems around cache consistency and information density. Most APIs can be quickly adapted to work with it, but if a cache built to understand another format would do better it just needs to follow the same interface.
 
 ```ts [services/store.ts]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core'; // [!code focus:1]
 import {
   registerDerivations,
   SchemaService,
 } from '@warp-drive/core/reactive';
-import { CacheHandler } from '@warp-drive/core'; // [!code focus:5]
-import type {
+import type {  // [!code focus:4]
   CacheCapabilitiesManager
 } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
@@ -530,8 +529,7 @@ in the cache while preventing accidental or unsafe mutation in your app.
 == ReactiveResource
 
 ```ts [services/store.ts]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
-import { CacheHandler } from '@warp-drive/core';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import type {
   CacheCapabilitiesManager,
   ResourceKey // [!code focus]
@@ -712,14 +710,14 @@ The basic policy will invalidate requests based on caching and date headers avai
 on request responses, falling back to a simple time based policy.
 
 ```ts [services/store.ts]
-import { Fetch, RequestManager, Store } from '@warp-drive/core';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
   registerDerivations,
   SchemaService,
   teardownRecord
 } from '@warp-drive/core/reactive';
-import { CacheHandler, CachePolicy } from '@warp-drive/core'; // [!code focus]
+import { DefaultCachePolicy } from '@warp-drive/core/store'; // [!code focus]
 import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { JSONAPICache } from '@warp-drive/json-api';
 
@@ -730,7 +728,7 @@ export default class AppStore extends Store {
     .use([Fetch])
     .useCache(CacheHandler);
 
-  lifetimes = new CachePolicy({ // [!code focus:9]
+  lifetimes = new DefaultCachePolicy({ // [!code focus:9]
     apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
     apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
     constraints: {
