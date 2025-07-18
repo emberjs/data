@@ -21,7 +21,25 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [llmstxt(), groupIconVitePlugin()],
+    plugins: [
+      llmstxt(),
+      groupIconVitePlugin({
+        customIcon: {
+          ember: 'vscode-icons:file-type-ember',
+          emberjs: 'vscode-icons:file-type-ember',
+          'ember.js': 'vscode-icons:file-type-ember',
+          'Ember.js': 'vscode-icons:file-type-ember',
+          glimmer: 'vscode-icons:file-type-glimmer',
+          glimmerjs: 'vscode-icons:file-type-glimmer',
+          'glimmer.js': 'vscode-icons:file-type-glimmer',
+          'glimmer-ts': 'vscode-icons:file-type-glimmer',
+          'glimmer-js': 'vscode-icons:file-type-glimmer',
+          '.gts': 'vscode-icons:file-type-glimmer',
+          '.gjs': 'vscode-icons:file-type-glimmer',
+          '.hbs': 'vscode-icons:file-type-ember',
+        },
+      }),
+    ],
   },
 
   // just until we have the guides and docs in a better state

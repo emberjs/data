@@ -17,6 +17,139 @@ But it doesn't have to be! Remote really boils down to [persistence](https://en.
 <img class="dark-only" src="../images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
 <img class="light-only" src="../images/requests-light.png" alt="waves of reactive signals light up space" width="100%">
 
+## Reactive Control Flow
+
+*Warp***Drive** offers both a JavaScript API and a Component API for working with
+requests. Both APIs offer a clean way of working with asynchronous data via reactive
+values and states instead of needing to switch into imperative code or async/await. This
+approach enables enables automatic cleanup when components dismount, unlocking [Intelligent Lifecycle Management]()
+
+:::tabs
+
+== Component API
+
+With the component API, any builder function can be used to produce the query
+the `<Request />` component should make.
+
+::: code-group
+
+```glimmer-ts [Ember]
+import { Request } from '@warp-drive/ember';
+import { findRecord } from '@warp-drive/utilities/json-api';
+import { Spinner } from './spinner';
+
+export default <template>
+  <Request @query={{findRecord "user" @userId}}> <!-- [!code focus] -->
+    <:content as |result|>  <!-- [!code focus] -->
+      Hello {{result.data.name}}!
+    </:content> <!-- [!code focus] -->
+  </Request> <!-- [!code focus] -->
+</template>
+```
+
+```.vue [Vue]
+Coming Soon!
+```
+
+```.svelte [Svelte]
+Coming Soon!
+```
+
+== JS API
+
+With the JS API, getters and methods can declaratively compute off of
+the state of the request.
+
+::: code-group
+
+```glimmer-ts [Ember]
+import Component from '@glimmer/component';
+import { cached } from '@glimmer/tracking';
+import { service } from '@ember/service';
+
+import { getRequestState } from '@warp-drive/ember'; // [!code focus]
+import { findRecord } from '@warp-drive/utilities/json-api';
+
+import type Store from '#/services/store.ts';
+
+export default class Example extends Component { // [!code focus]
+  @service declare store: Store;
+
+  @cached
+  get userRequest() {
+    return this.store.request( // [!code focus:3]
+      findRecord("user", this.args.userId)
+    );
+  }
+
+  get user() {
+    return getRequestState(this.userRequest).value?.data; // [!code focus]
+  }
+
+  <template>
+    {{#if this.user}}
+        Hello {{this.user.name}}! <!-- [!code focus] -->
+    {{/if}}
+  </template>
+} // [!code focus]
+```
+
+```.vue [Vue]
+Coming Soon!
+```
+
+```.svelte [Svelte]
+Coming Soon!
+```
+
+== Combined
+
+The Component API and the JS API interop seamlessly. Requests
+triggered by the JS API can be passed into the `<Request />` component
+as args.
+
+::: code-group
+
+```glimmer-ts [Ember]
+import Component from '@glimmer/component';
+import { cached } from '@glimmer/tracking';
+import { service } from '@ember/service';
+
+import { Request } from '@warp-drive/ember'; // [!code focus]
+import { findRecord } from '@warp-drive/utilities/json-api';
+
+import type Store from '#/services/store.ts';
+
+export default class Example extends Component { // [!code focus]
+  @service declare store: Store;
+
+  @cached
+  get userRequest() { // [!code focus:5]
+    return this.store.request( 
+      findRecord("user", this.args.userId)
+    );
+  }
+
+  <template>
+    <Request @request={{this.userRequest}}> <!-- [!code focus] -->
+      <:content as |result|>  <!-- [!code focus] -->
+        Hello {{result.data.name}}!
+      </:content> <!-- [!code focus] -->
+    </Request> <!-- [!code focus] -->
+  </template>
+}
+```
+
+```.vue [Vue]
+Coming Soon!
+```
+
+```.svelte [Svelte]
+Coming Soon!
+```
+
+:::
+
 ## Request Options
 
 *Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
