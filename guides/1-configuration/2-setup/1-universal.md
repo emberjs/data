@@ -19,10 +19,11 @@ For Ember.js, this plugin comes built-in to the toolchain and all you need to do
 the desired configuration in `ember-cli-build`. For all other projects, the configuration
 is done inside of the app's babel configuration file.
 
-::: code-group
+::: tabs key:paradigm
 
-```ts [Universal Apps]
-// babel.config.mjs
+== Universal Apps
+
+```ts [babel.config.mjs]
 import { setConfig } from '@warp-drive/core/build-config';
 import { buildMacros } from '@embroider/macros/babel';
 
@@ -61,7 +62,9 @@ export default {
 };
 ```
 
-```ts [New Ember Apps]
+== New Ember Apps
+
+```ts [ember-cli-build.js]
 'use strict';
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 const { compatBuild } = require('@embroider/compat');
@@ -83,7 +86,9 @@ module.exports = async function (defaults) {
 };
 ```
 
-```ts [Existing Ember Apps]
+== Existing Ember Apps
+
+```ts [ember-cli-build.js]
 'use strict';
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 const { compatBuild } = require('@embroider/compat');
@@ -130,9 +135,11 @@ In other frameworks you will want to create a singleton
 store in module state that you will import and use when needed.
 :::
 
-::: code-group
+:::tabs key:config
 
-```ts [Universal]
+== Universal
+
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
@@ -182,7 +189,9 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+== Model (Ember Only)
+
+```ts [services/store.ts]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
@@ -245,7 +254,9 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Migration (Ember Only)]
+== Migration (Ember Only)
+
+```ts [services/store.ts]
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 
@@ -333,7 +344,7 @@ linking together requests for data with schemas, caching and reactivity.
 While it's easy to use ***just*** ***Warp*Drive**'s request management, most apps will find they
 require far more than basic fetch management. For this reason it's often best to start with a Store even when you aren't sure yet.
 
-```ts
+```ts [services/store.ts]
 import { Store } from '@warp-drive/core';
 
 export default class AppStore extends Store {}
@@ -349,7 +360,7 @@ backend.
 → Learn more about [Making Requests](../../2-requests.md)
 :::
 
-```ts
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core'; // [!code focus]
 
 export default class AppStore extends Store {
@@ -369,9 +380,11 @@ applications.
 → Learn more about [Resource Schemas](../../8-schemas.md)
 :::
 
-::: code-group
+:::tabs key:config
 
-```ts [Universal]
+== Universal
+
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {  // [!code focus:4]
   registerDerivations,
@@ -391,7 +404,9 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+== Model (Ember Only)
+
+```ts [services/store.ts]
 import Store from '@ember-data/store';
 import type { ModelSchema, SchemaService } from '@ember-data/store/types'; // [!code focus]
 
@@ -421,7 +436,9 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Migration (Ember Only)]
+== Migration (Ember Only)
+
+```ts [services/store.ts]
 import Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types'; // [!code focus]
 
@@ -471,7 +488,7 @@ and across requests.
 
 Out of the box, ***Warp*Drive** provides a Cache that expects the [{JSON:API}](https://jsonapi.org) format. This format excels at simiplifying common complex problems around cache consistency and information density. Most APIs can be quickly adapted to work with it, but if a cache built to understand another format would do better it just needs to follow the same interface.
 
-```ts
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   registerDerivations,
@@ -508,9 +525,11 @@ be missing out on the best part. Reactive objects transform raw cached data into
 reactive data. The resulting objects are immutable, always displaying the latest state
 in the cache while preventing accidental or unsafe mutation in your app.
 
-::: code-group
+:::tabs key:config
 
-```ts [ReactiveResource]
+== ReactiveResource
+
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import { CacheHandler } from '@warp-drive/core';
 import type {
@@ -551,7 +570,9 @@ export default class AppStore extends Store {
 }
 ```
 
-```ts [Model (Ember Only)]
+== Model (Ember Only)
+
+```ts [services/store.ts]
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 
@@ -601,8 +622,9 @@ export default class AppStore extends Store {
 }
 ```
 
+== Migration (Ember Only)
 
-```ts [Migration (Ember Only)]
+```ts [services/store.ts]
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
 
@@ -689,7 +711,7 @@ below.
 The basic policy will invalidate requests based on caching and date headers available
 on request responses, falling back to a simple time based policy.
 
-```ts
+```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
