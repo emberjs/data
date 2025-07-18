@@ -1,12 +1,1 @@
-{
-  "url": "users/1",
-  "status": 404,
-  "statusText": "Not Found",
-  "headers": {
-    "Content-Type": "application/vnd.api+json",
-    "Content-Encoding": "br",
-    "Cache-Control": "no-store"
-  },
-  "method": "GET",
-  "requestBody": null
-}
+{"url":"users/1","status":404,"statusText":"Not Found","headers":{"Content-Type":"application/vnd.api+json","Content-Encoding":"br","Cache-Control":"no-store","Content-Length":75},"method":"GET","requestBody":null}
