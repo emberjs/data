@@ -77,7 +77,7 @@ const { content } = await store.request<User>({
 `request` takes a generic that can be used to set the [return type](./2-requests/3-typing-requests.md) of the content of the associated request. [Builders](./2-requests/2-builders.md) – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
 
 ```ts
-import { withBrand } from '@warp-drive/core-types/request'; // [!code focus]
+import { withBrand } from '@warp-drive/core/types/request'; // [!code focus]
 import type { User } from './types/data';
 
 export function getUser(id: string) {
@@ -143,7 +143,7 @@ content.data.organizations.map(organization => {
 ***Warp*Drive**'s reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and [transformation](./concepts/transformation.md) is controlled by a simple JSON [ResourceSchema](./concepts/schemas.md).
 
 ```ts
-import { withDefaults } from '@warp-drive/schema-record';
+import { withDefaults } from '@warp-drive/core/reactive';
 
 store.schema.registerResource(
   withDefaults({
@@ -179,7 +179,7 @@ heavy immutability tricks such as spread, slice, and map.
 [Mutation](./concepts/mutations.md) is handled within controlled contexts. The data to edit is "checked out" for editing, giving access to a mutable version. Local edits are seamlessly preserved if the user navigates away and returns without saving, and the changes are buffered from appearing elsewhere in your app until they are also committed to the server.
 
 ```ts
-import { Checkout } from '@warp-drive/schema-record';
+import { Checkout } from '@warp-drive/core/reactive';
 
 // ...
 
