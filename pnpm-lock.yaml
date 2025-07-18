@@ -287,6 +287,9 @@ importers:
       vitepress-plugin-llms:
         specifier: ^1.1.4
         version: 1.1.4
+      vitepress-plugin-tabs:
+        specifier: ^0.7.1
+        version: 0.7.1(vitepress@1.6.3(typescript@5.8.3))
 
   internal-tooling:
     dependencies:
@@ -13291,6 +13294,12 @@ packages:
   vitepress-plugin-llms@1.1.4:
     resolution: {integrity: sha512-/+xrVWpd03B5bGsWN+R+TN0P3kqM/jaDWiddmpFxPuw7vJdoE9mAqAZx1ywzhHEeBCepDMt069l1VRyitmEU6A==}
 
+  vitepress-plugin-tabs@0.7.1:
+    resolution: {integrity: sha512-jxJvsicxnMSIYX9b8mAFLD2nwyKUcMO10dEt4nDSbinZhM8cGvAmMFOHPdf6TBX6gYZRl+/++/iYHtoM14fERQ==}
+    peerDependencies:
+      vitepress: ^1.0.0
+      vue: ^3.5.0
+
   vitepress@1.6.3:
     resolution: {integrity: sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==}
     hasBin: true
@@ -13311,8 +13320,8 @@ packages:
       '@volar/language-service':
         optional: true
 
-  volar-service-typescript@0.0.64:
-    resolution: {integrity: sha512-FN2H97iqjR1id8AM4fH7lTXuTx2on9zD6QlUFllaiHKqgNrEITlQwm/9Ujrd9ST7MUzhgIKyUsa2WlanX9kkMg==}
+  volar-service-typescript@0.0.65:
+    resolution: {integrity: sha512-zPJuLIMs7lkQCvL+Rza8+3/EIoXEIkX8+DL7bNNfPgnbalbvRDhqWLVMJ6Zk3pINjLJafDqyhSbw8srfkUv97w==}
     peerDependencies:
       '@volar/language-service': ~2.4.0
     peerDependenciesMeta:
@@ -16382,7 +16391,7 @@ snapshots:
       typescript: 5.8.3
       uuid: 8.3.2
       volar-service-html: 0.0.64(@volar/language-service@2.4.12)
-      volar-service-typescript: 0.0.64(@volar/language-service@2.4.12)
+      volar-service-typescript: 0.0.65(@volar/language-service@2.4.12)
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
@@ -18110,6 +18119,7 @@ snapshots:
       vitepress: 1.6.3(typescript@5.8.3)
       vitepress-plugin-group-icons: 1.5.2(vite@7.0.0)
       vitepress-plugin-llms: 1.1.4
+      vitepress-plugin-tabs: 0.7.1(vitepress@1.6.3(typescript@5.8.3))
     transitivePeerDependencies:
       - '@75lb/nature'
       - '@algolia/client-search'
@@ -18141,6 +18151,7 @@ snapshots:
       - terser
       - tsx
       - universal-cookie
+      - vue
       - yaml
 
   '@warp-drive/internal-tooling@file:internal-tooling':
@@ -26743,6 +26754,10 @@ snapshots:
       - '@75lb/nature'
       - supports-color
 
+  vitepress-plugin-tabs@0.7.1(vitepress@1.6.3(typescript@5.8.3)):
+    dependencies:
+      vitepress: 1.6.3(typescript@5.8.3)
+
   vitepress@1.6.3(typescript@5.8.3):
     dependencies:
       '@docsearch/css': 3.8.2
@@ -26798,7 +26813,7 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.4.12
 
-  volar-service-typescript@0.0.64(@volar/language-service@2.4.12):
+  volar-service-typescript@0.0.65(@volar/language-service@2.4.12):
     dependencies:
       path-browserify: 1.0.1
       semver: 7.7.2

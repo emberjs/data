@@ -33,6 +33,7 @@
     "typedoc-vitepress-theme": "^1.1.2",
     "vitepress-plugin-llms": "^1.1.4",
     "vitepress-plugin-group-icons": "^1.5.2",
+    "vitepress-plugin-tabs": "^0.7.1",
     "vite": "^7.0.0"
   },
   "volta": {

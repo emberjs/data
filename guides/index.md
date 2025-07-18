@@ -6,7 +6,36 @@ title: Introduction
 
 ***Warp*Drive** is the data framework for building ambitious applications.
 
-By ambitious, we mean that ***Warp*Drive** is ideal for both small and large applications that strive to be best-in-class. ***Warp*Drive** seamlessly handles and simplifies the hardest parts of state management when building an app, helping you focus on creating the features and user experiences that drive value.
+By ***ambitious***, we mean that ***Warp*Drive** is ideal for both small and large applications that strive to be best-in-class. ***Warp*Drive** seamlessly handles and simplifies the hardest parts of state management when building an app, helping you focus on creating the features and user experiences that **drive value**.
+
+:::tabs
+
+== MPAs
+
+***Warp*Drive** is the missing bridge for MPAs, allowing your app to seamlessly pick-up where the user
+left off.
+<br><br>
+
+== SPAs
+
+***Warp*Drive** simplifies building SPAs with its robust state management.
+<br><br><br>
+
+== Cross Framework
+
+***Warp*Drive** helps you write, test and ship critical business and state logic that plugs in to any framework.
+<br><br>
+
+== Component Libraries
+
+Stop writing the same gnarly component logic in a dozen frameworks or sacrificing with WebComponents. ***Warp*Drive** allows you to create shareable reactive component engines that are easy to expose via thin bindings into any framework.
+
+== SDKs
+
+Want to make your API dead-simple to consume? ***Warp*Drive** makes it easy to create and share intuitive, editor-friendly typed bindings to any API as a suite of builders.
+<br><br>
+
+:::
 
 <br>
 <img class="dark-only" src="./images/reactivity-pastel.png" alt="waves of reactive signals light up space" width="100%">

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress';
 import { getGuidesStructure, postProcessApiDocs } from '../../src/site-utils.ts';
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 
 const TypeDocSidebar = await postProcessApiDocs();
 
@@ -16,6 +17,7 @@ export default defineConfig({
   markdown: {
     config(md) {
       md.use(groupIconMdPlugin);
+      md.use(tabsMarkdownPlugin);
     },
   },
   vite: {
