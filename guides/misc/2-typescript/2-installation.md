@@ -3,7 +3,7 @@
 WarpDrive now provides a cli that will handle installation and configuration for you
 when installing the types-packages for native types to use with older releases (such as 4.12).
 
-```cli
+```sh
 npx warp-drive retrofit types@canary
 ```
 

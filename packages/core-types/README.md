@@ -18,7 +18,7 @@
 
 ## Installation
 
-```cli
+```sh
 pnpm install @warp-drive/core-types
 ```
 

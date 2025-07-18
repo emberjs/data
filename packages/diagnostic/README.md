@@ -18,7 +18,7 @@
 
 ## Installation
 
-```cli
+```sh
 pnpm install @warp-drive/diagnostic
 ```
 
@@ -292,7 +292,7 @@ For github-actions, [use the official bun action](https://github.com/oven-sh/set
 
 Finally, give your tests a run to make sure they still work as expected.
 
-```cli
+```sh
 bun ./diagnostic.js
 ```
 

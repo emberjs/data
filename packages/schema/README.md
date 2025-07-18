@@ -32,7 +32,7 @@ Its like GraphQL, RPC, or Protobuf... but for anything!
 
 ## Installation
 
-```cli
+```sh
 pnpm install @warp-drive/schema
 ```
 

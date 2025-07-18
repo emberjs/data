@@ -20,7 +20,7 @@
 
 ## Install
 
-```cli
+```sh
 pnpm add @warp-drive/experiments
 ```
 

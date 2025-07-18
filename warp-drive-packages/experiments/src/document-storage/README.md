@@ -19,7 +19,7 @@ An alternative to IndexedDB built over the StorageManager API.
 
 ## Install
 
-```cli
+```sh
 pnpm add @warp-drive/experiments
 ```
 

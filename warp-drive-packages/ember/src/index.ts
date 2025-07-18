@@ -3,7 +3,7 @@
  *
  * ## Installation
  *
- * ```cli
+ * ```sh
  * pnpm install @warp-drive/ember
  * ```
  *

@@ -70,41 +70,11 @@ module.exports = async function (defaults) {
 };
 ```
 
-```ts [Universal Apps]
-import { setConfig } from '@warp-drive/build-config';
-
-setConfig(context, {
-  // this should be the most recent <major>.<minor> version for
-  // which all deprecations have been fully resolved
-  // and should be updated when that changes
-  // for new apps it should be the version you installed
-  // for universal apps this MUST be at least 5.5
-  compatWith: '5.5'
-});
-```
-
 :::
 
 ## Add TypeScript Types
 
 ::: code-group
-
-```tsconfig.json [Universal]
-{
-  compilerOptions: {
-    types: [
-      "@ember-data/graph/unstable-preview-types", // [!code ++]
-      "@ember-data/json-api/unstable-preview-types", // [!code ++]
-      "@ember-data/request/unstable-preview-types", // [!code ++]
-      "@ember-data/request-utils/unstable-preview-types", // [!code ++]
-      "@ember-data/store/unstable-preview-types", // [!code ++]
-      "@warp-drive/build-config/declarations", // [!code ++]
-      "@warp-drive/core-types/unstable-preview-types", // [!code ++]
-      "@warp-drive/schema-record/unstable-preview-types", // [!code ++]
-    ]
-  }
-}
-```
 
 ```tsconfig.json [Ember Polaris]
 {

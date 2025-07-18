@@ -578,13 +578,13 @@ declare module '../-private/store-service' {
 
     If you do something like this:
 
-    ```javascript
+    ```js
     store.query('person', { page: 1 });
     ```
 
     The request made to the server will look something like this:
 
-    ```
+    ```http
     GET "/api/v1/person?page=1"
     ```
 
@@ -604,8 +604,7 @@ declare module '../-private/store-service' {
     ```
 
     This method returns a promise, which is resolved with a
-    [`Collection`](/ember-data/release/classes/Collection)
-    once the server returns.
+    {@link LegacyQueryArray} once the server returns.
 
     @public
     @deprecated use {@link Store.request} instead

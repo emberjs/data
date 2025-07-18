@@ -32,7 +32,7 @@ The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.co
 Install using your javascript package manager of choice. For instance
 with [pnpm](https://pnpm.io/)
 
-```cli
+```sh
 pnpm add @warp-drive/schema-record
 ```
 
