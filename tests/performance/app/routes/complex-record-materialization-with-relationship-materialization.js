@@ -8,7 +8,9 @@ export default class extends Route {
     performance.mark('start-data-generation');
     const payload = await fetch('./fixtures/complex-record-materialization.json').then((r) => r.json());
     performance.mark('start-push-payload');
-    this.store._push(payload);
+    this.store._push(payload, true);
+    performance.mark('start-flush-notifications');
+    this.store.notifications._flush();
     performance.mark('start-peek-records');
     const complexRecordsA = this.store.peekAll('complex-record-a');
     const complexRecordsB = this.store.peekAll('complex-record-b');
