@@ -34,6 +34,7 @@
     "vitepress-plugin-llms": "^1.1.4",
     "vitepress-plugin-group-icons": "^1.5.2",
     "vitepress-plugin-tabs": "^0.7.1",
+    "vue": "^3.5.17",
     "vite": "^7.0.0"
   },
   "volta": {
