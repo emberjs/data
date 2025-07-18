@@ -577,11 +577,11 @@ export class Graph {
 }
 
 function flushPending(graph: Graph, ops: Map<string, Map<string, RemoteRelationshipOperation[]>>) {
-  ops.forEach((type) => {
-    type.forEach((opList) => {
+  for (const type of ops.values()) {
+    for (const opList of type.values()) {
       flushPendingList(graph, opList);
-    });
-  });
+    }
+  }
 }
 function flushPendingList(graph: Graph, opList: RemoteRelationshipOperation[]) {
   for (let i = 0; i < opList.length; i++) {
