@@ -1,6 +1,7 @@
 import { assert } from '@warp-drive/build-config/macros';
 
-import { entangleSignal, RelatedCollection as ManyArray } from '../../../store/-private.ts';
+import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
+import { createLegacyManyArray, entangleSignal } from '../../../store/-private.ts';
 import type { StableRecordIdentifier } from '../../../types/identifier.ts';
 import type { LegacyHasManyField } from '../../../types/schema/fields.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
@@ -33,26 +34,19 @@ export function getHasManyField(context: KindContext<LegacyHasManyField>): unkno
     if (!rawValue) {
       return null;
     }
-    const managedArray = new ManyArray<unknown>({
+    const managedArray = createLegacyManyArray({
       store,
-      type: field.type,
-      identifier: resourceKey,
-      cache,
-      field: context.legacy ? field : undefined,
-      // we divorce the reference here because ManyArray mutates the target directly
-      // before sending the mutation op to the cache. We may be able to avoid this in the future
-      identifiers: rawValue.data?.slice() as StableRecordIdentifier[],
-      key: field.name,
-      meta: rawValue.meta || null,
-      links: rawValue.links || null,
-      isPolymorphic: field.options.polymorphic ?? false,
-      isAsync: field.options.async ?? false,
-      // TODO: Grab the proper value
-      _inverseIsAsync: false,
-      // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
       manager: new ManyArrayManager(record, editable),
+      source: (rawValue.data?.slice() ?? []) as StableRecordIdentifier[],
+      type: field.type,
       isLoaded: true,
-      allowMutation: editable,
+      editable,
+      isAsync: field.options.async ?? false,
+      isPolymorphic: field.options.polymorphic ?? false,
+      field,
+      identifier: resourceKey,
+      links: rawValue.links || null,
+      meta: rawValue.meta || null,
     });
     signal.value = managedArray;
     return managedArray;

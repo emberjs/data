@@ -124,7 +124,6 @@ import Transform, {
 import {
   DS,
   Errors,
-  ManyArray,
   PromiseArray,
   PromiseManyArray,
   PromiseObject,
@@ -169,7 +168,6 @@ interface DSLibrary extends DS {
   ServerError: typeof ServerError;
   Serializer: typeof Serializer;
   DebugAdapter?: typeof import('@ember-data/debug').default;
-  ManyArray: typeof ManyArray;
   RecordArrayManager: typeof RecordArrayManager;
   RESTAdapter: typeof RESTAdapter;
   BuildURLMixin: typeof BuildURLMixin;
@@ -216,7 +214,6 @@ if (macroCondition(dependencySatisfies('@ember-data/debug', '*'))) {
   DS.DebugAdapter = importSync('@ember-data/debug') as typeof import('@ember-data/debug').default;
 }
 
-DS.ManyArray = ManyArray;
 DS.RecordArrayManager = RecordArrayManager;
 DS.RESTAdapter = RESTAdapter;
 DS.BuildURLMixin = BuildURLMixin;

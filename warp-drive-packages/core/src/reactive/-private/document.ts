@@ -12,7 +12,7 @@ import type { StableRecordIdentifier } from '../../types.ts';
 import type { StableDocumentIdentifier } from '../../types/identifier.ts';
 import type { ImmutableRequestInfo, RequestInfo } from '../../types/request.ts';
 import { withBrand } from '../../types/request.ts';
-import type { CollectionResourceDataDocument, ResourceDocument } from '../../types/spec/document.ts';
+import type { ResourceDocument } from '../../types/spec/document.ts';
 import type { Link, Meta, PaginationLinks } from '../../types/spec/json-api-raw.ts';
 import type { Mutable } from '../../types/utils.ts';
 
@@ -274,12 +274,14 @@ defineGate(ReactiveDocument.prototype, 'data', {
     const data = 'data' in doc ? (doc.data as T | undefined) : undefined;
 
     if (Array.isArray(data)) {
-      return this._store.recordArrayManager.getCollection({
-        type: identifier ? identifier.lid : _localCache!.request.url,
-        identifiers: data.slice(),
-        doc: identifier ? undefined : (doc as CollectionResourceDataDocument),
-        identifier: identifier ?? null,
-      }) as T;
+      return identifier
+        ? (this._store.recordArrayManager.getCollection({
+            source: data.slice() as StableRecordIdentifier[],
+            requestKey: identifier,
+          }) as T)
+        : (this._store.recordArrayManager.getCollection({
+            source: data.slice() as StableRecordIdentifier[],
+          }) as T);
     } else if (data) {
       return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
     } else {

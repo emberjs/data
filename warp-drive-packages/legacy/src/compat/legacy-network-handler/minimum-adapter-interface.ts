@@ -1,5 +1,5 @@
 import type { Store } from '@warp-drive/core';
-import type { CollectionRecordArray } from '@warp-drive/core/store/-private';
+import type { LegacyQueryArray } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 
@@ -123,7 +123,7 @@ export interface MinimumAdapterInterface {
    * @param {ModelSchema} schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
    * @param {Object} query
-   * @param {CollectionRecordArray} recordArray
+   * @param {LegacyQueryArray} recordArray
    * @param {Object} options
    * @return {Promise} a promise resolving with resource data to feed to the associated serializer
    */
@@ -131,7 +131,7 @@ export interface MinimumAdapterInterface {
     store: Store,
     schema: ModelSchema,
     query: Record<string, unknown>,
-    recordArray: CollectionRecordArray,
+    recordArray: LegacyQueryArray,
     options: { adapterOptions?: unknown }
   ): Promise<AdapterPayload>;
 

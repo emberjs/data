@@ -3,25 +3,195 @@ import { deprecate } from '@ember/debug';
 import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { BaseFinderOptions, ModelSchema, StableRecordIdentifier } from '../../../types.ts';
-import type { Cache } from '../../../types/cache.ts';
-import type {
-  OpaqueRecordInstance,
-  TypedRecordInstance,
-  TypeFromInstance,
-  TypeFromInstanceOrString,
-} from '../../../types/record.ts';
+import { Context } from '../../../reactive/-private.ts';
+import type { BaseFinderOptions, StableRecordIdentifier } from '../../../types.ts';
+import type { LocalRelationshipOperation } from '../../../types/graph.ts';
+import type { ObjectValue } from '../../../types/json/raw.ts';
+import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../../types/record.ts';
 import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
-import type { Links, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
+import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import { isStableIdentifier } from '../caches/identifier-cache.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
-import { ARRAY_SIGNAL, notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
-import type { CreateRecordProperties, Store } from '../store-service.ts';
-import type { MinimumManager } from './identifier-array.ts';
-import { IdentifierArray, MUTATE, SOURCE } from './identifier-array.ts';
+import { notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
+import type { CreateRecordProperties } from '../store-service.ts';
+import { save } from './-utils.ts';
+import type { LegacyLiveArrayCreateOptions } from './legacy-live-array.ts';
 import type { NativeProxy } from './native-proxy-type-fix.ts';
+import { createReactiveResourceArray, destroy, type ReactiveResourceArray } from './resource-array.ts';
 
-type IdentifierArrayCreateOptions = ConstructorParameters<typeof IdentifierArray>[0];
+/**
+  A `ManyArray` is a `MutableArray` that represents the contents of a has-many
+  relationship.
+
+  The `ManyArray` is instantiated lazily the first time the relationship is
+  requested.
+
+  This class is not intended to be directly instantiated by consuming applications.
+
+  ### Inverses
+
+  Often, the relationships in Ember Data applications will have
+  an inverse. For example, imagine the following models are
+  defined:
+
+  ```js [app/models/post.js]
+  import Model, { hasMany } from '@ember-data/model';
+
+  export default class PostModel extends Model {
+    @hasMany('comment') comments;
+  }
+  ```
+
+  ```js [app/models/comment.js]
+  import { Model, belongsTo } from '@warp-drive/legacy/model';
+
+  export default class CommentModel extends Model {
+    @belongsTo('post') post;
+  }
+  ```
+
+  If you created a new instance of `Post` and added
+  a `Comment` record to its `comments` has-many
+  relationship, you would expect the comment's `post`
+  property to be set to the post that contained
+  the has-many.
+
+  We call the record to which a relationship belongs-to the
+  relationship's _owner_.
+
+  @public
+*/
+export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
+  meta: Meta | null;
+  links: Links | PaginationLinks | null;
+
+  /** @internal */
+  isPolymorphic: boolean;
+  /** @internal */
+  isAsync: boolean;
+
+  /** @internal */
+  key: string;
+  /** @internal */
+  modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+
+  /**
+    The loading state of this array
+    @public
+  */
+  isLoaded: boolean;
+
+  /** @internal */
+  notify(): void;
+
+  /**
+    Reloads all of the records in the manyArray. If the manyArray
+    holds a relationship that was originally fetched using a links url
+    WarpDrive will revisit the original links url to repopulate the
+    relationship.
+
+    If the ManyArray holds the result of a `store.query()` reload will
+    re-run the original query.
+
+    Example
+
+    ```javascript
+    let user = store.peekRecord('user', '1')
+    await login(user);
+
+    let permissions = await user.permissions;
+    await permissions.reload();
+    ```
+
+    @public
+  */
+  reload(options?: BaseFinderOptions): Promise<LegacyManyArray<T>>;
+
+  /**
+    Create a child record and associated it to the collection
+
+    @public
+  */
+  createRecord(hash: CreateRecordProperties<T>): T;
+
+  /**
+    Saves all of the records in the `ManyArray`.
+
+    Note: this API can only be used in legacy mode with a configured Adapter.
+
+    Example
+
+    ```js
+    const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
+
+    let messages = await inbox.messages;
+    messages.forEach((message) => {
+      message.isRead = true;
+    });
+    messages.save();
+    ```
+
+    @public
+  */
+  save: () => Promise<LegacyManyArray<T>>;
+
+  /** @internal */
+  destroy: () => void;
+}
+
+/**
+ * The options for {@link createLegacyManyArray}
+ *
+ * @internal
+ */
+export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptions {
+  isLoaded: boolean;
+  editable: boolean;
+  isAsync: boolean;
+  isPolymorphic: boolean;
+  field: LegacyHasManyField | LinksModeHasManyField;
+  identifier: StableRecordIdentifier;
+  links: Links | PaginationLinks | null;
+  meta: Meta | null;
+}
+/**
+ * Creates a {@link LegacyManyArray}
+ *
+ * @internal
+ */
+export function createLegacyManyArray<T>(options: LegacyManyArrayCreateOptions): LegacyManyArray<T> {
+  const extensions = options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions
+    ? options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions(options.field)
+    : null;
+
+  return createReactiveResourceArray({
+    store: options.store,
+    manager: options.manager,
+    editable: options.editable,
+    source: options.source,
+    data: {
+      links: options.links,
+      meta: options.meta,
+    } as ObjectValue,
+    features: {
+      modelName: options.type,
+      save,
+      DEPRECATED_CLASS_NAME: 'ManyArray',
+      isLoaded: options.isLoaded,
+      isAsync: options.isAsync,
+      isPolymorphic: options.isPolymorphic,
+      identifier: options.identifier,
+      key: options.field.name,
+      reload,
+      createRecord,
+      notify,
+    },
+    extensions,
+    options: null,
+    destroy: destroyLegacyManyArray,
+    mutate: _MUTATE,
+  }) as LegacyManyArray<T>;
+}
 
 function _MUTATE<T>(
   target: StableRecordIdentifier[],
@@ -30,7 +200,7 @@ function _MUTATE<T>(
   args: unknown[],
   _SIGNAL: WarpDriveSignal
 ): unknown {
-  const collection = receiver as unknown as RelatedCollection<T>;
+  const collection = receiver as unknown as LegacyManyArray<T>;
   switch (prop) {
     case 'length 0': {
       Reflect.set(target, 'length', 0);
@@ -158,7 +328,7 @@ function _MUTATE<T>(
       const [start, deleteCount, ...adds] = args as [number, number, ...OpaqueRecordInstance[]];
 
       // detect a full replace
-      if (start === 0 && deleteCount === collection[SOURCE].length) {
+      if (start === 0 && deleteCount === collection[Context].source.length) {
         const newValues = extractIdentifiersFromRecords(adds);
 
         assertNoDuplicates(
@@ -242,235 +412,29 @@ function _MUTATE<T>(
   }
 }
 
-export interface ManyArrayCreateArgs<T> {
-  identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[];
-  type: TypeFromInstanceOrString<T>;
-  store: Store;
-  allowMutation: boolean;
-  manager: MinimumManager;
-  field?: LegacyHasManyField | LinksModeHasManyField;
-  identifier: StableRecordIdentifier;
-  cache: Cache;
-  meta: Record<string, unknown> | null;
-  links: Links | PaginationLinks | null;
-  key: string;
-  isPolymorphic: boolean;
-  isAsync: boolean;
-  _inverseIsAsync: boolean;
-  isLoaded: boolean;
+function notify(this: LegacyManyArray): void {
+  notifyInternalSignal(this[Context].signal);
 }
-/**
-  A `ManyArray` is a `MutableArray` that represents the contents of a has-many
-  relationship.
 
-  The `ManyArray` is instantiated lazily the first time the relationship is
-  requested.
-
-  This class is not intended to be directly instantiated by consuming applications.
-
-  ### Inverses
-
-  Often, the relationships in Ember Data applications will have
-  an inverse. For example, imagine the following models are
-  defined:
-
-  ```js [app/models/post.js]
-  import Model, { hasMany } from '@ember-data/model';
-
-  export default class PostModel extends Model {
-    @hasMany('comment') comments;
-  }
-  ```
-
-  ```js [app/models/comment.js]
-  import { Model, belongsTo } from '@warp-drive/legacy/model';
-
-  export default class CommentModel extends Model {
-    @belongsTo('post') post;
-  }
-  ```
-
-  If you created a new instance of `Post` and added
-  a `Comment` record to its `comments` has-many
-  relationship, you would expect the comment's `post`
-  property to be set to the post that contained
-  the has-many.
-
-  We call the record to which a relationship belongs-to the
-  relationship's _owner_.
-
-  @class ManyArray
-  @public
-*/
-export class RelatedCollection<T = unknown> extends IdentifierArray<T> {
-  declare isAsync: boolean;
-  /**
-    The loading state of this array
-
-    @property isLoaded
-    @type {Boolean}
-    @public
-    */
-
-  declare isLoaded: boolean;
-  /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property isPolymorphic
-    @type {Boolean}
-    @private
-    */
-  declare isPolymorphic: boolean;
-  declare _inverseIsAsync: boolean;
-  /**
-    Metadata associated with the request for async hasMany relationships.
-
-    Example
-
-    Given that the server returns the following JSON payload when fetching a
-    hasMany relationship:
-
-    ```js
-    {
-      "comments": [{
-        "id": 1,
-        "comment": "This is the first comment",
-      }, {
-    // ...
-      }],
-
-      "meta": {
-        "page": 1,
-        "total": 5
-      }
-    }
-    ```
-
-    You can then access the meta data via the `meta` property:
-
-    ```js
-    let comments = await post.comments;
-    let meta = comments.meta;
-
-    // meta.page => 1
-    // meta.total => 5
-    ```
-
-    @property meta
-    @type {Object | null}
-    @public
-    */
-  declare meta: Record<string, unknown> | null;
-  /**
-     * Retrieve the links for this relationship
-     *
-     @property links
-     @type {Object | null}
-     @public
-     */
-  declare links: Links | PaginationLinks | null;
-  declare identifier: StableRecordIdentifier;
-  declare cache: Cache;
-  declare _manager: MinimumManager;
-  declare store: Store;
-  declare key: string;
-  declare type: ModelSchema;
-  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
-
-  constructor(options: ManyArrayCreateArgs<T>) {
-    (options as unknown as IdentifierArrayCreateOptions)[MUTATE] = _MUTATE;
-    super(options as unknown as IdentifierArrayCreateOptions);
-    this.isLoaded = options.isLoaded || false;
-    this.isAsync = options.isAsync || false;
-    this.isPolymorphic = options.isPolymorphic || false;
-    this.identifier = options.identifier;
-    this.key = options.key;
-  }
-
-  notify(): void {
-    notifyInternalSignal(this[ARRAY_SIGNAL]);
-  }
-
-  /**
-    Reloads all of the records in the manyArray. If the manyArray
-    holds a relationship that was originally fetched using a links url
-    WarpDrive will revisit the original links url to repopulate the
-    relationship.
-
-    If the ManyArray holds the result of a `store.query()` reload will
-    re-run the original query.
-
-    Example
-
-    ```javascript
-    let user = store.peekRecord('user', '1')
-    await login(user);
-
-    let permissions = await user.permissions;
-    await permissions.reload();
-    ```
-
-    @public
-  */
-  reload(options?: BaseFinderOptions): Promise<this> {
-    assert(
-      `Expected the manager for ManyArray to implement reloadHasMany`,
-      typeof this._manager.reloadHasMany === 'function'
-    );
-    // TODO this is odd, we don't ask the store for anything else like this?
-    return this._manager.reloadHasMany<T>(this.key, options) as Promise<this>;
-  }
-
-  /**
-    Create a child record within the owner
-
-    @public
-    @param {Object} hash
-    @return {Model} record
-  */
-  createRecord(hash: CreateRecordProperties<T>): T {
-    const { store } = this;
-    assert(`Expected modelName to be set`, this.modelName);
-    const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
-    this.push(record);
-
-    return record;
-  }
-
-  /**
-    Saves all of the records in the `ManyArray`.
-
-    Note: this API can only be used in legacy mode with a configured Adapter.
-
-    Example
-
-    ```javascript
-    const { content: { data: inbox } } = await store.request(findRecord({ type: 'inbox', id: '1' }));
-
-    let messages = await inbox.messages;
-    messages.forEach((message) => {
-      message.isRead = true;
-    });
-    messages.save();
-    ```
-
-    @public
-    @return {PromiseArray} promise
-  */
-  declare save: () => Promise<IdentifierArray<T>>;
-
-  /** @internal */
-  destroy(): void {
-    super.destroy(false);
-  }
+function reload<T>(this: LegacyManyArray<T>, options?: BaseFinderOptions): Promise<LegacyManyArray<T>> {
+  const { manager } = this[Context];
+  assert(`Expected the manager for ManyArray to implement reloadHasMany`, typeof manager.reloadHasMany === 'function');
+  // TODO this is odd, we don't ask the store for anything else like this?
+  return manager.reloadHasMany<T>(this.key, options) as Promise<LegacyManyArray<T>>;
 }
-RelatedCollection.prototype.isAsync = false;
-RelatedCollection.prototype.isPolymorphic = false;
-RelatedCollection.prototype.identifier = null as unknown as StableRecordIdentifier;
-RelatedCollection.prototype.cache = null as unknown as Cache;
-RelatedCollection.prototype._inverseIsAsync = false;
-RelatedCollection.prototype.key = '';
-RelatedCollection.prototype.DEPRECATED_CLASS_NAME = 'ManyArray';
+
+function createRecord<T>(this: LegacyManyArray<T>, hash: CreateRecordProperties<T>): T {
+  const { store } = this[Context];
+  assert(`Expected modelName to be set`, this.modelName);
+  const record = store.createRecord<T>(this.modelName as TypeFromInstance<T>, hash);
+  this.push(record);
+
+  return record;
+}
+
+function destroyLegacyManyArray(this: ReactiveResourceArray): void {
+  destroy.call(this, false);
+}
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
 
@@ -498,11 +462,12 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 }
 
 function assertNoDuplicates<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   target: StableRecordIdentifier[],
   callback: (currentState: StableRecordIdentifier[]) => void,
   reason: string
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
   const state = target.slice();
   callback(state);
 
@@ -512,10 +477,8 @@ function assertNoDuplicates<T>(
     if (DEPRECATE_MANY_ARRAY_DUPLICATES) {
       deprecate(
         `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
-          collection.identifier.type
-        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-          new Set(duplicates)
-        )
+          identifier.type
+        }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
           .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`,
@@ -533,10 +496,8 @@ function assertNoDuplicates<T>(
     } else {
       throw new Error(
         `${reason} Found duplicates for the following records within the new state provided to \`<${
-          collection.identifier.type
-        }:${collection.identifier.id || collection.identifier.lid}>.${collection.key}\`\n\t- ${Array.from(
-          new Set(duplicates)
-        )
+          identifier.type
+        }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
           .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`
@@ -546,16 +507,18 @@ function assertNoDuplicates<T>(
 }
 
 function mutateAddToRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'add',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -564,16 +527,18 @@ function mutateAddToRelatedRecords<T>(
 }
 
 function mutateRemoveFromRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'remove',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -582,7 +547,7 @@ function mutateRemoveFromRelatedRecords<T>(
 }
 
 function mutateReplaceRelatedRecord<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   operationInfo: {
     value: StableRecordIdentifier;
     prior: StableRecordIdentifier;
@@ -590,12 +555,14 @@ function mutateReplaceRelatedRecord<T>(
   },
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'replaceRelatedRecord',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       ...operationInfo,
     },
@@ -604,16 +571,18 @@ function mutateReplaceRelatedRecord<T>(
 }
 
 function mutateReplaceRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'replaceRelatedRecords',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       value,
     },
@@ -622,16 +591,18 @@ function mutateReplaceRelatedRecords<T>(
 }
 
 function mutateSortRelatedRecords<T>(
-  collection: RelatedCollection<T>,
+  collection: LegacyManyArray<T>,
   value: StableRecordIdentifier[],
   _SIGNAL: WarpDriveSignal
 ) {
+  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+
   // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
       op: 'sortRelatedRecords',
-      record: collection.identifier,
+      record: identifier,
       field: collection.key,
       value,
     },
@@ -639,12 +610,10 @@ function mutateSortRelatedRecords<T>(
   );
 }
 
-function mutate<T>(
-  collection: RelatedCollection<T>,
-  mutation: Parameters<Exclude<MinimumManager['mutate'], undefined>>[0],
-  _SIGNAL: WarpDriveSignal
-) {
-  assert(`Expected the manager for ManyArray to implement mutate`, typeof collection._manager.mutate === 'function');
-  collection._manager.mutate(mutation);
+function mutate<T>(collection: LegacyManyArray<T>, mutation: LocalRelationshipOperation, _SIGNAL: WarpDriveSignal) {
+  const { manager } = collection[Context];
+
+  assert(`Expected the manager for ManyArray to implement mutate`, typeof manager.mutate === 'function');
+  manager.mutate(mutation);
   notifyInternalSignal(_SIGNAL);
 }

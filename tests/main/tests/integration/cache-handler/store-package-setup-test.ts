@@ -11,7 +11,7 @@ import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
 import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { CollectionRecordArray } from '@ember-data/store/-private';
+import type { LegacyQueryArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type {
   StableDocumentIdentifier,
@@ -1607,7 +1607,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
 
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
@@ -1623,7 +1623,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json',
         });
         assert.ok(false, 'we should error');
@@ -1707,7 +1707,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       })!;
 
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1725,7 +1725,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const doc = store.cache.peekRequest(docIdentifier) as unknown as StructuredErrorDocument;
 
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, 'we should error');
@@ -1838,7 +1838,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // First failed fetch
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json?include=author',
           cacheOptions: { reload: true },
         });
@@ -1861,7 +1861,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       // Replay of failed fetch
       try {
-        await store.request<CollectionRecordArray>({
+        await store.request<LegacyQueryArray>({
           url: '/assets/users/2.json?include=author',
         });
         assert.ok(false, '<Second Failure> we should error');

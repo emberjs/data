@@ -23,7 +23,7 @@ export { Errors } from '@ember-data/model/-private';
 export { Snapshot } from '@ember-data/legacy-compat/-private';
 
 export { RecordArrayManager, coerceId } from '@ember-data/store/-private';
-export { ManyArray, PromiseManyArray } from '@ember-data/model/-private';
+export { type ManyArray, PromiseManyArray } from '@ember-data/model/-private';
 export { SnapshotRecordArray } from '@ember-data/legacy-compat/-private';
 
 export const PromiseArray: Readonly<typeof ArrayProxy> & (new (owner?: Owner) => ArrayProxy<unknown>) & Mixin =

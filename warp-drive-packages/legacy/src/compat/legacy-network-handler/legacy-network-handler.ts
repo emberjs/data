@@ -3,7 +3,7 @@ import { LOG_REQUESTS } from '@warp-drive/core/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
-import { type CollectionRecordArray, waitFor } from '@warp-drive/core/store/-private';
+import { type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -449,13 +449,13 @@ function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   upgradeStore(store);
   let { options } = data as {
-    options: { _recordArray?: CollectionRecordArray; adapterOptions?: Record<string, unknown> };
+    options: { _recordArray?: LegacyQueryArray; adapterOptions?: Record<string, unknown> };
   };
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const { type, query } = data as {
     type: string;
     query: Record<string, unknown>;
-    options: { _recordArray?: CollectionRecordArray; adapterOptions?: Record<string, unknown> };
+    options: { _recordArray?: LegacyQueryArray; adapterOptions?: Record<string, unknown> };
   };
   const adapter = store.adapterFor(type);
 

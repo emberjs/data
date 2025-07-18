@@ -91,7 +91,6 @@ type GlobalKey =
   | 'ManagedObjectMap'
   | 'Support'
   | 'SOURCE'
-  | 'MUTATE'
   | 'Destroy'
   | 'Checkout'
   | 'Context';

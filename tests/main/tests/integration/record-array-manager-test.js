@@ -7,7 +7,7 @@ import { setupTest } from 'ember-qunit';
 import RESTAdapter from '@ember-data/adapter/rest';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
-import { SOURCE } from '@ember-data/store/-private';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 let store, manager;
 
@@ -128,8 +128,7 @@ module('integration/record_array_manager', function (hooks) {
 
     assert.strictEqual(recordArray.modelName, 'foo');
     assert.true(recordArray.isLoaded);
-    assert.strictEqual(recordArray._manager, manager, 'the manager is set correctly');
-    assert.deepEqual(recordArray[SOURCE], []);
+    assert.deepEqual(recordArray[Context].source, []);
     assert.deepEqual(recordArray.slice(), []);
   });
 

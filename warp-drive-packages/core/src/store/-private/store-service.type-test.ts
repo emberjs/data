@@ -1,7 +1,8 @@
 import { expectTypeOf } from 'expect-type';
 
 import { Type } from '../../types/symbols';
-import type { Collection, IdentifierArray } from './record-arrays/identifier-array';
+import type { LegacyQueryArray } from '../-private';
+import type { LegacyLiveArray } from './record-arrays/legacy-live-array';
 import type { CreateRecordProperties } from './store-service';
 import { Store } from './store-service';
 
@@ -242,16 +243,16 @@ import { Store } from './store-service';
     [Type]: 'user';
   };
 
-  expectTypeOf(store.findAll('user')).toEqualTypeOf<Promise<IdentifierArray>>();
+  expectTypeOf(store.findAll('user')).toEqualTypeOf<Promise<LegacyLiveArray>>();
   expectTypeOf(
     // @ts-expect-error no matching signature since no brand from which to check 'user'
     store.findAll<UnbrandedUser>('user')
-  ).toEqualTypeOf<Promise<IdentifierArray<UnbrandedUser>>>();
-  expectTypeOf(store.findAll<BrandedUser>('user')).toEqualTypeOf<Promise<IdentifierArray<BrandedUser>>>();
+  ).toEqualTypeOf<Promise<LegacyLiveArray<UnbrandedUser>>>();
+  expectTypeOf(store.findAll<BrandedUser>('user')).toEqualTypeOf<Promise<LegacyLiveArray<BrandedUser>>>();
   expectTypeOf(
     // @ts-expect-error should error since this does not match the brand
     store.findAll<BrandedUser>('users')
-  ).toEqualTypeOf<Promise<IdentifierArray<BrandedUser>>>();
+  ).toEqualTypeOf<Promise<LegacyLiveArray<BrandedUser>>>();
 
   type MyThing = {
     name: string;
@@ -295,8 +296,8 @@ import { Store } from './store-service';
     ],
   });
 
-  expectTypeOf<IdentifierArray>(result);
-  expectTypeOf<IdentifierArray<MyThing>>(result2);
+  expectTypeOf<LegacyLiveArray>(result);
+  expectTypeOf<LegacyLiveArray<MyThing>>(result2);
 }
 
 //////////////////////////////////
@@ -318,16 +319,16 @@ import { Store } from './store-service';
   // @ts-expect-error expect error since no second argument
   void store.query('user');
 
-  expectTypeOf(store.query('user', {})).toEqualTypeOf<Promise<Collection>>();
+  expectTypeOf(store.query('user', {})).toEqualTypeOf<Promise<LegacyQueryArray>>();
   expectTypeOf(
     // @ts-expect-error no matching signature since no brand from which to check 'user'
     store.query<UnbrandedUser>('user', {})
-  ).toEqualTypeOf<Promise<Collection<UnbrandedUser>>>();
-  expectTypeOf(store.query<BrandedUser>('user', {})).toEqualTypeOf<Promise<Collection<BrandedUser>>>();
+  ).toEqualTypeOf<Promise<LegacyQueryArray<UnbrandedUser>>>();
+  expectTypeOf(store.query<BrandedUser>('user', {})).toEqualTypeOf<Promise<LegacyQueryArray<BrandedUser>>>();
   expectTypeOf(
     // @ts-expect-error should error since this does not match the brand
     store.query<BrandedUser>('users', {})
-  ).toEqualTypeOf<Promise<Collection<BrandedUser>>>();
+  ).toEqualTypeOf<Promise<LegacyQueryArray<BrandedUser>>>();
 
   type MyThing = {
     name: string;
@@ -386,9 +387,9 @@ import { Store } from './store-service';
     ],
   });
 
-  expectTypeOf<Collection>(result);
-  expectTypeOf<Collection>(result3);
-  expectTypeOf<Collection<MyThing>>(result2);
+  expectTypeOf<LegacyQueryArray>(result);
+  expectTypeOf<LegacyQueryArray>(result3);
+  expectTypeOf<LegacyQueryArray<MyThing>>(result2);
 }
 
 //////////////////////////////////
