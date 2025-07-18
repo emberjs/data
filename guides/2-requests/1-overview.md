@@ -21,15 +21,19 @@ But it doesn't have to be! Remote really boils down to [persistence](https://en.
 
 *Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) and as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
 
-::: code-group
+:::tabs key:req1
 
-```ts [Simple GET]
+== Simple GET
+
+```ts [GET /api/users]
 const { content } = await store.request({
   url: '/api/users'
 });
 ```
 
-```ts [QUERY with POST]
+== QUERY with POST
+
+```ts [POST /api/users]
 const { content } = await store.request({
   url: '/api/users',
   method: 'POST',
@@ -46,7 +50,9 @@ const { content } = await store.request({
 });
 ```
 
-```ts [RPC Style Update]
+== RPC Style Update
+
+```ts [POST /actions/like]
 const { content } = await store.request({
   url: '/actions/like',
   method: 'POST',
@@ -72,20 +78,28 @@ Of course, writing requests so manually quickly gets repetitive.
 
 Here's an example of how the requests above could be expressed as builders:
 
-::: code-group
+:::tabs key:req1
 
-```ts [Simple GET]
-function getUsers() {
+== Simple GET
+
+```ts [builders/get-users.ts]
+export function getUsers() {
   return {
     url: '/api/users'
   }
 }
+```
+
+```ts [my-app.ts]
+import { getUsers } from '#/builders/get-users.ts';
 
 const { content } = await store.request(getUsers());
 ```
 
-```ts [QUERY with POST]
-function queryUsers(query) {
+== QUERY with POST
+
+```ts [builders/query-users.ts]
+export function queryUsers(query) {
   return {
     url: '/api/users',
     method: 'POST',
@@ -96,6 +110,10 @@ function queryUsers(query) {
     body: JSON.stringify(query)
   }
 }
+```
+
+```ts [my-app.ts]
+import { queryUsers } from '#/builders/query-users.ts';
 
 const { content } = await store.request(
   queryUsers({
@@ -107,9 +125,10 @@ const { content } = await store.request(
 )
 ```
 
-```ts [RPC Style Update]
+== RPC Style Update
 
-function createContentLike(actor, content) {
+```ts [builders/create-content-like.ts]
+export function createContentLike(actor, content) {
   return {
     url: '/actions/like',
     method: 'POST',
@@ -123,6 +142,10 @@ function createContentLike(actor, content) {
     })
   }
 }
+```
+
+```ts [my-app.ts]
+import { createContentLike } from '#/builders/create-content-like.ts';
 
 const { content } = await store.request(createContentLike({
   actor: { type: 'user', id: '1' },
