@@ -96,20 +96,26 @@ export interface AddResourceOperation extends Op {
    */
   value: ExistingResourceObject;
 }
-
+/**
+ * Upserts (merges) new state for a resource
+ */
 export interface UpdateResourceOperation extends Op {
   op: 'update';
   record: StableExistingRecordIdentifier;
   value: ExistingResourceObject;
 }
-
+/**
+ * Replaces the state of a field with a new state
+ */
 export interface UpdateResourceFieldOperation extends Op {
   op: 'update';
   record: StableExistingRecordIdentifier;
   field: string;
   value: Value;
 }
-
+/**
+ * Replaces the state of a relationship with a new state
+ */
 export interface UpdateResourceRelationshipOperation extends Op {
   op: 'update';
   record: StableExistingRecordIdentifier;
@@ -129,6 +135,9 @@ export interface AddToDocumentOperation extends Op {
   value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
   index?: number;
 }
+/**
+ * Adds the specified ResourceKeys to a relationship
+ */
 export interface AddToResourceRelationshipOperation extends Op {
   op: 'add';
   record: StableExistingRecordIdentifier;
@@ -136,7 +145,9 @@ export interface AddToResourceRelationshipOperation extends Op {
   value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
   index?: number;
 }
-
+/**
+ * Removes the specified ResourceKeys from a relationship
+ */
 export interface RemoveFromResourceRelationshipOperation extends Op {
   op: 'remove';
   record: StableExistingRecordIdentifier;
