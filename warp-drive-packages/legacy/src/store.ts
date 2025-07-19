@@ -2,7 +2,7 @@ import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { LegacyLiveArray, LegacyQueryArray } from '@warp-drive/core/store/-private';
 import { constructResource, ensureStringId, recordIdentifierFor, storeFor } from '@warp-drive/core/store/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import { SkipCache } from '@warp-drive/core/types/request';
 import type { ResourceIdentifierObject } from '@warp-drive/core/types/spec/json-api-raw';
@@ -182,7 +182,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: ResourceKey = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     const cache = upgradeInstanceCaches(this._instanceCache.__instances).reference;
     let reference = cache.get(identifier);
@@ -254,10 +254,8 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
 export { Store };
 
 type Caches = Store['_instanceCache']['__instances'];
-function upgradeInstanceCaches(
-  cache: Caches
-): Caches & { reference: WeakMap<StableRecordIdentifier, RecordReference> } {
-  const withReferences = cache as Caches & { reference: WeakMap<StableRecordIdentifier, RecordReference> };
+function upgradeInstanceCaches(cache: Caches): Caches & { reference: WeakMap<ResourceKey, RecordReference> } {
+  const withReferences = cache as Caches & { reference: WeakMap<ResourceKey, RecordReference> };
   if (!withReferences.reference) {
     withReferences.reference = new WeakMap();
   }

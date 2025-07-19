@@ -17,7 +17,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { IdentifierBucket, StableIdentifier, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
@@ -160,7 +160,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
+      identifier: StableIdentifier | ResourceKey,
       data: ResourceData | unknown,
       bucket: IdentifierBucket
     ) {
@@ -225,7 +225,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
+      identifier: StableIdentifier | ResourceKey,
       data: ResourceData | unknown,
       bucket: IdentifierBucket
     ) {
@@ -295,7 +295,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | StableRecordIdentifier,
+      identifier: StableIdentifier | ResourceKey,
       data: ResourceData | unknown,
       bucket: IdentifierBucket
     ) {
@@ -546,7 +546,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
   test(`The forget method is called when a record unload results in full removal`, async function (assert) {
     let forgetMethodCalls = 0;
-    const expectedIdentifiers: StableRecordIdentifier[] = [];
+    const expectedIdentifiers: ResourceKey[] = [];
 
     class Container extends Model {
       @belongsTo('retainer', { async: false, inverse: 'container' })

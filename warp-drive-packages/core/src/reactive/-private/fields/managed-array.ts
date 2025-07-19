@@ -5,7 +5,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Store } from '../../../index.ts';
 import type { WarpDriveSignal } from '../../../store/-private.ts';
 import { ARRAY_SIGNAL, consumeInternalSignal, entangleSignal, withSignalStore } from '../../../store/-private.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
@@ -104,7 +104,7 @@ type MemoizedSchemaObject = {
 
 export interface ManagedArray extends Omit<Array<unknown>, '[]'> {
   [SOURCE]: unknown[];
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   path: string | string[];
   owner: ReactiveResource;
   [ARRAY_SIGNAL]: WarpDriveSignal;
@@ -376,7 +376,7 @@ export class ManagedArray {
           throw new Error(`Cannot set ${String(prop)} on ${errorPath} because the record is not editable`);
         }
         if (prop === 'identifier') {
-          self.identifier = value as StableRecordIdentifier;
+          self.identifier = value as ResourceKey;
           return true;
         }
         if (prop === 'owner') {

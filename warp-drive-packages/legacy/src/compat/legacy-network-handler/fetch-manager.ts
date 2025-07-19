@@ -14,7 +14,7 @@ import type {
 import { coerceId, waitFor } from '@warp-drive/core/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { StableExistingRecordIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core/types/request';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
@@ -51,7 +51,7 @@ interface PendingSaveItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   snapshot: Snapshot;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   options: FetchMutationOptions;
   queryRequest: Request;
 }
@@ -71,9 +71,9 @@ export class FetchManager {
     this.isDestroyed = false;
   }
 
-  createSnapshot<T>(identifier: StableRecordIdentifier<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
-  createSnapshot(identifier: StableRecordIdentifier, options?: FindRecordOptions): Snapshot;
-  createSnapshot(identifier: StableRecordIdentifier, options: FindRecordOptions = {}): Snapshot {
+  createSnapshot<T>(identifier: ResourceKey<TypeFromInstance<T>>, options?: FindRecordOptions): Snapshot<T>;
+  createSnapshot(identifier: ResourceKey, options?: FindRecordOptions): Snapshot;
+  createSnapshot(identifier: ResourceKey, options: FindRecordOptions = {}): Snapshot {
     return new Snapshot(options, identifier, this._store);
   }
 
@@ -85,10 +85,7 @@ export class FetchManager {
 
     @internal
   */
-  scheduleSave(
-    identifier: StableRecordIdentifier,
-    options: FetchMutationOptions
-  ): Promise<null | SingleResourceDocument> {
+  scheduleSave(identifier: ResourceKey, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
     const resolver = createDeferred<SingleResourceDocument | null>();
     const query: SaveRecordMutation = {
       op: 'saveRecord',
@@ -281,7 +278,7 @@ export class FetchManager {
   }
 }
 
-function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isEmpty(instanceCache: InstanceCache, identifier: ResourceKey): boolean {
   const cache = instanceCache.cache;
   if (!cache) {
     return true;
@@ -293,7 +290,7 @@ function _isEmpty(instanceCache: InstanceCache, identifier: StableRecordIdentifi
   return (!isNew || isDeleted) && isEmpty;
 }
 
-function _isLoading(cache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function _isLoading(cache: InstanceCache, identifier: ResourceKey): boolean {
   const req = cache.store.getRequestStateService();
   // const fulfilled = req.getLastRequestForRecord(identifier);
   const isLoaded = cache.recordIsLoaded(identifier);

@@ -4,14 +4,14 @@ import type { NotificationType, Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import { Context } from '@warp-drive/core/reactive/-private';
 import { notifyInternalSignal, peekInternalSignal, withSignalStore } from '@warp-drive/core/store/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 
 import { LEGACY_SUPPORT } from './legacy-relationships-support.ts';
 import type { Model } from './model.ts';
 
 export default function notifyChanges(
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   value: NotificationType,
   key: string | undefined,
   record: Model,
@@ -47,7 +47,7 @@ export default function notifyChanges(
   }
 }
 
-function notifyRelationship(identifier: StableRecordIdentifier, key: string, record: Model, meta: RelationshipSchema) {
+function notifyRelationship(identifier: ResourceKey, key: string, record: Model, meta: RelationshipSchema) {
   if (meta.kind === 'belongsTo') {
     record.notifyPropertyChange(key);
   } else if (meta.kind === 'hasMany') {
@@ -76,7 +76,7 @@ function notifyRelationship(identifier: StableRecordIdentifier, key: string, rec
   }
 }
 
-function notifyAttribute(store: Store, identifier: StableRecordIdentifier, key: string, record: Model) {
+function notifyAttribute(store: Store, identifier: ResourceKey, key: string, record: Model) {
   const currentValue = cacheFor(record, key);
   const cache = store.cache;
   if (currentValue !== cache.getAttr(identifier, key)) {

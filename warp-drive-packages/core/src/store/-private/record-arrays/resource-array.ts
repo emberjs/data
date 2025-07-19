@@ -10,7 +10,7 @@ import {
   performExtensionSet,
 } from '../../../reactive/-private/fields/extension.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { CollectionField } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
@@ -64,7 +64,7 @@ interface ReactiveResourceArrayCreateOptions {
   store: Store;
   manager: MinimumManager;
   editable: boolean;
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
 
   // reactive, passed in
   data: ObjectValue | null;
@@ -80,8 +80,8 @@ interface ReactiveResourceArrayCreateOptions {
   mutate:
     | null
     | ((
-        target: StableRecordIdentifier[],
-        receiver: typeof NativeProxy<StableRecordIdentifier[], unknown[]>,
+        target: ResourceKey[],
+        receiver: typeof NativeProxy<ResourceKey[], unknown[]>,
         prop: string,
         args: unknown[],
         _SIGNAL: WarpDriveSignal
@@ -91,8 +91,8 @@ interface ReactiveResourceArrayCreateOptions {
 interface ReactiveResourceArrayContext extends ReactiveResourceArrayCreateOptions {
   destroy: (this: ReactiveResourceArray, clear: boolean) => void;
   mutate: (
-    target: StableRecordIdentifier[],
-    receiver: typeof NativeProxy<StableRecordIdentifier[], unknown[]>,
+    target: ResourceKey[],
+    receiver: typeof NativeProxy<ResourceKey[], unknown[]>,
     prop: string,
     args: unknown[],
     _SIGNAL: WarpDriveSignal
@@ -120,7 +120,7 @@ export interface ReactiveResourceArray<T = unknown> extends Omit<Array<T>, '[]'>
   [Context]: ReactiveResourceArrayContext;
 }
 
-export interface TargetArray extends Array<StableRecordIdentifier> {
+export interface TargetArray extends Array<ResourceKey> {
   /** @internal */
   [Context]: ReactiveResourceArrayContext;
 }
@@ -142,11 +142,8 @@ const ARR_BRACKET_DESC = {
 };
 
 const IS_UPDATING_DESC = createSignalDescriptor('isUpdating', false);
-const ArrayHandler: ProxyHandler<StableRecordIdentifier[]> = {
-  getOwnPropertyDescriptor<R extends typeof NativeProxy<StableRecordIdentifier[], unknown[]>>(
-    target: TargetArray,
-    prop: keyof R
-  ) {
+const ArrayHandler: ProxyHandler<ResourceKey[]> = {
+  getOwnPropertyDescriptor<R extends typeof NativeProxy<ResourceKey[], unknown[]>>(target: TargetArray, prop: keyof R) {
     if (prop === '[]') {
       // proxies do not allow you to report a descriptor as non-configurable
       // if there is no descriptor or the underlying descriptor is configurable
@@ -162,7 +159,7 @@ const ArrayHandler: ProxyHandler<StableRecordIdentifier[]> = {
     return Reflect.getOwnPropertyDescriptor(target, prop);
   },
 
-  get<R extends typeof NativeProxy<StableRecordIdentifier[], unknown[]>>(
+  get<R extends typeof NativeProxy<ResourceKey[], unknown[]>>(
     target: TargetArray,
     prop: keyof R,
     receiver: R
@@ -307,14 +304,14 @@ const ArrayHandler: ProxyHandler<StableRecordIdentifier[]> = {
       );
     }
 
-    return target[prop as keyof StableRecordIdentifier[]];
+    return target[prop as keyof ResourceKey[]];
   },
 
   set(
     target: TargetArray,
     prop: KeyType,
     value: unknown,
-    receiver: typeof NativeProxy<StableRecordIdentifier[], unknown[]>
+    receiver: typeof NativeProxy<ResourceKey[], unknown[]>
   ): boolean {
     const CONTEXT = target[Context];
     if (prop === Signals) {
@@ -382,7 +379,7 @@ const ArrayHandler: ProxyHandler<StableRecordIdentifier[]> = {
       return false;
     }
 
-    const original: StableRecordIdentifier | undefined = target[index];
+    const original: ResourceKey | undefined = target[index];
     const newIdentifier = extractIdentifierFromRecord(value);
     assert(`Expected a record`, newIdentifier && isStableIdentifier(newIdentifier));
     // We generate "transactions" whenever a setter method on the array
@@ -450,7 +447,7 @@ export function createReactiveResourceArray<T>(options: ReactiveResourceArrayCre
   } satisfies ReactiveResourceArrayContext;
   TARGET[Context] = context;
 
-  const proxy = new NativeProxy<StableRecordIdentifier[], T[]>(TARGET, ArrayHandler) as ReactiveResourceArray<T>;
+  const proxy = new NativeProxy<ResourceKey[], T[]>(TARGET, ArrayHandler) as ReactiveResourceArray<T>;
   if (DEBUG) {
     Object.defineProperty(TARGET, '__SHOW_ME_THE_DATA_(debug mode only)__', {
       enumerable: false,
@@ -509,7 +506,7 @@ export interface ReactiveRequestCollectionCreateArgs {
   // passed in
   store: Store;
   manager: MinimumManager;
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
 
   options: {
     requestKey: StableDocumentIdentifier;
@@ -535,11 +532,11 @@ export interface ReactiveRelatedCollectionCreateArgs {
   // passed in
   store: Store;
   manager: MinimumManager;
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
 
   // not-accessible except by the context
   options: {
-    resourceKey: StableRecordIdentifier;
+    resourceKey: ResourceKey;
     path: string[];
     field: CollectionField;
   };

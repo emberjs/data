@@ -21,7 +21,7 @@ import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '../../types/identifier.ts';
+import type { StableExistingRecordIdentifier, ResourceKey } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheOptions, RequestInfo } from '../../types/request.ts';
@@ -353,10 +353,7 @@ export interface Store {
    * @public
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  instantiateRecord<T>(
-    identifier: StableRecordIdentifier,
-    createRecordArgs: { [key: string]: unknown }
-  ): OpaqueRecordInstance;
+  instantiateRecord<T>(identifier: ResourceKey, createRecordArgs: { [key: string]: unknown }): OpaqueRecordInstance;
 
   /**
    * A hook which an app or addon may implement. Called when
@@ -892,7 +889,7 @@ export class Store extends BaseClass {
       store: Store;
       disableTestWaiter?: boolean;
       [EnableHydration]: boolean;
-      records?: StableRecordIdentifier[];
+      records?: ResourceKey[];
     } = {
       store: this,
       [EnableHydration]: requestConfig[EnableHydration] ?? true,
@@ -1487,7 +1484,7 @@ export class Store extends BaseClass {
 
     @private
     @param {Object} jsonApiDoc
-    @return {StableRecordIdentifier|Array<StableRecordIdentifier>|null} identifiers for the primary records that had data loaded
+    @return {ResourceKey|Array<ResourceKey>|null} identifiers for the primary records that had data loaded
   */
   _push(
     jsonApiDoc: JsonApiDocument,
@@ -1629,7 +1626,7 @@ export function isMaybeIdentifier(
 
 function normalizeProperties(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   properties?: { [key: string]: unknown }
 ): { [key: string]: unknown } | undefined {
   // assert here
@@ -1689,8 +1686,8 @@ function assertRecordsPassedToHasMany(records: OpaqueRecordInstance[]) {
   );
 }
 
-function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
-  return records.map((record) => extractIdentifierFromRecord(record)) as StableRecordIdentifier[];
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): ResourceKey[] {
+  return records.map((record) => extractIdentifierFromRecord(record)) as ResourceKey[];
 }
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };

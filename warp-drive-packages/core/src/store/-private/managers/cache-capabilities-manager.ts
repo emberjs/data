@@ -1,7 +1,7 @@
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';
 import type { SchemaService } from '../../-types/q/schema-service.ts';
 import type { IdentifierCache } from '../caches/identifier-cache.ts';
@@ -14,7 +14,7 @@ export interface CacheCapabilitiesManager {
 }
 export class CacheCapabilitiesManager implements StoreWrapper {
   declare _willNotify: boolean;
-  declare _pendingNotifies: Map<StableRecordIdentifier, Set<string>>;
+  declare _pendingNotifies: Map<ResourceKey, Set<string>>;
   declare _store: Store;
 
   constructor(_store: Store) {
@@ -27,7 +27,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.identifierCache;
   }
 
-  _scheduleNotification(identifier: StableRecordIdentifier, key: string): void {
+  _scheduleNotification(identifier: ResourceKey, key: string): void {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
@@ -68,11 +68,11 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     });
   }
 
-  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed', key: null): void;
+  notifyChange(identifier: ResourceKey, namespace: 'added' | 'removed', key: null): void;
   notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key: string | null): void;
+  notifyChange(identifier: ResourceKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceKey | StableDocumentIdentifier,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void {
@@ -80,7 +80,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
-      this._scheduleNotification(identifier as StableRecordIdentifier, key);
+      this._scheduleNotification(identifier as ResourceKey, key);
       return;
     }
 
@@ -92,16 +92,16 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this._store.schema;
   }
 
-  setRecordId(identifier: StableRecordIdentifier, id: string): void {
+  setRecordId(identifier: ResourceKey, id: string): void {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
     this._store._instanceCache.setRecordId(identifier, id);
   }
 
-  hasRecord(identifier: StableRecordIdentifier): boolean {
+  hasRecord(identifier: ResourceKey): boolean {
     return Boolean(this._store._instanceCache.peek(identifier));
   }
 
-  disconnectRecord(identifier: StableRecordIdentifier): void {
+  disconnectRecord(identifier: ResourceKey): void {
     assert(`Expected a stable identifier`, isStableIdentifier(identifier));
     this._store._instanceCache.disconnect(identifier);
     this._pendingNotifies.delete(identifier);

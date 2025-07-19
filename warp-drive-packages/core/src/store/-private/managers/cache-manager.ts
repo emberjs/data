@@ -3,7 +3,7 @@ import type { Change } from '../../../types/cache/change.ts';
 import type { MergeOperation } from '../../../types/cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
 import type { Value } from '../../../types/json/raw.ts';
 import type { StructuredDataDocument, StructuredDocument } from '../../../types/request.ts';
 import type { ResourceDocument, SingleResourceDataDocument } from '../../../types/spec/document.ts';
@@ -119,18 +119,18 @@ export class CacheManager implements Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek(identifier: StableRecordIdentifier): unknown;
+  peek(identifier: ResourceKey): unknown;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+  peek(identifier: ResourceKey | StableDocumentIdentifier): unknown {
     return this.#cache.peek(identifier);
   }
 
-  peekRemoteState(identifier: StableRecordIdentifier): unknown;
+  peekRemoteState(identifier: ResourceKey): unknown;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peekRemoteState(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+  peekRemoteState(identifier: ResourceKey | StableDocumentIdentifier): unknown {
     return this.#cache.peekRemoteState(identifier);
   }
   /**
@@ -154,7 +154,7 @@ export class CacheManager implements Cache {
    * @param hasRecord
    * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: StableRecordIdentifier, data: unknown, hasRecord: boolean): void | string[] {
+  upsert(identifier: ResourceKey, data: unknown, hasRecord: boolean): void | string[] {
     return this.#cache.upsert(identifier, data, hasRecord);
   }
 
@@ -277,7 +277,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param options
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
+  clientDidCreate(identifier: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
     return this.#cache.clientDidCreate(identifier, options);
   }
 
@@ -288,7 +288,7 @@ export class CacheManager implements Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: StoreRequestContext): void {
+  willCommit(identifier: ResourceKey, context: StoreRequestContext): void {
     this.#cache.willCommit(identifier, context);
   }
 
@@ -300,7 +300,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param data
    */
-  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return this.#cache.didCommit(identifier, result);
   }
 
@@ -312,7 +312,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this.#cache.commitWasRejected(identifier, errors);
   }
 
@@ -323,7 +323,7 @@ export class CacheManager implements Cache {
    * @public
    * @param identifier
    */
-  unloadRecord(identifier: StableRecordIdentifier): void {
+  unloadRecord(identifier: ResourceKey): void {
     this.#cache.unloadRecord(identifier);
   }
 
@@ -338,7 +338,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
+  getAttr(identifier: ResourceKey, propertyName: string): Value | undefined {
     return this.#cache.getAttr(identifier, propertyName);
   }
 
@@ -350,7 +350,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @return {unknown}
    */
-  getRemoteAttr(identifier: StableRecordIdentifier, propertyName: string): Value | undefined {
+  getRemoteAttr(identifier: ResourceKey, propertyName: string): Value | undefined {
     return this.#cache.getRemoteAttr(identifier, propertyName);
   }
 
@@ -362,7 +362,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: Value): void {
+  setAttr(identifier: ResourceKey, propertyName: string, value: Value): void {
     this.#cache.setAttr(identifier, propertyName, value);
   }
 
@@ -373,7 +373,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return
    */
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+  changedAttrs(identifier: ResourceKey): ChangedAttributesHash {
     return this.#cache.changedAttrs(identifier);
   }
 
@@ -384,7 +384,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+  hasChangedAttrs(identifier: ResourceKey): boolean {
     return this.#cache.hasChangedAttrs(identifier);
   }
 
@@ -395,7 +395,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return the names of attributes that were restored
    */
-  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+  rollbackAttrs(identifier: ResourceKey): string[] {
     return this.#cache.rollbackAttrs(identifier);
   }
 
@@ -425,10 +425,10 @@ export class CacheManager implements Cache {
     ```
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Map<string, RelationshipDiff>}
    */
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff> {
     return this.#cache.changedRelationships(identifier);
   }
 
@@ -436,10 +436,10 @@ export class CacheManager implements Cache {
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Boolean}
    */
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+  hasChangedRelationships(identifier: ResourceKey): boolean {
     return this.#cache.hasChangedRelationships(identifier);
   }
 
@@ -451,10 +451,10 @@ export class CacheManager implements Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {String[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+  rollbackRelationships(identifier: ResourceKey): string[] {
     return this.#cache.rollbackRelationships(identifier);
   }
 
@@ -466,10 +466,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @return resource relationship object
    */
-  getRelationship(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRelationship(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRelationship(identifier, propertyName);
   }
 
@@ -481,10 +478,7 @@ export class CacheManager implements Cache {
    * @param propertyName
    * @return resource relationship object
    */
-  getRemoteRelationship(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRemoteRelationship(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     return this.#cache.getRemoteRelationship(identifier, propertyName);
   }
 
@@ -499,7 +493,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @param isDeleted
    */
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void {
     this.#cache.setIsDeleted(identifier, isDeleted);
   }
 
@@ -510,7 +504,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return
    */
-  getErrors(identifier: StableRecordIdentifier): ApiError[] {
+  getErrors(identifier: ResourceKey): ApiError[] {
     return this.#cache.getErrors(identifier);
   }
 
@@ -521,7 +515,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isEmpty(identifier: StableRecordIdentifier): boolean {
+  isEmpty(identifier: ResourceKey): boolean {
     return this.#cache.isEmpty(identifier);
   }
 
@@ -533,7 +527,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isNew(identifier: StableRecordIdentifier): boolean {
+  isNew(identifier: ResourceKey): boolean {
     return this.#cache.isNew(identifier);
   }
 
@@ -545,7 +539,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeleted(identifier: StableRecordIdentifier): boolean {
+  isDeleted(identifier: ResourceKey): boolean {
     return this.#cache.isDeleted(identifier);
   }
 
@@ -557,7 +551,7 @@ export class CacheManager implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+  isDeletionCommitted(identifier: ResourceKey): boolean {
     return this.#cache.isDeletionCommitted(identifier);
   }
 }

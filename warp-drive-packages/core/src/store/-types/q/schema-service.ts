@@ -1,6 +1,6 @@
 import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '../../../reactive.ts';
 import type { ExtensibleField } from '../../../reactive/-private/schema.ts';
-import type { RecordIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { RecordIdentifier, ResourceKey } from '../../../types/identifier.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { Derivation, HashFn, Transformation } from '../../../types/schema/concepts.ts';
 import type {
@@ -90,7 +90,7 @@ export interface SchemaService {
    *
    * @public
    */
-  hasResource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): boolean;
+  hasResource(resource: ObjectWithStringTypeProperty | ResourceKey): boolean;
 
   /**
    * Queries whether the SchemaService recognizes `type` as a resource trait
@@ -104,7 +104,7 @@ export interface SchemaService {
    *
    * @public
    */
-  resourceHasTrait(resource: ObjectWithStringTypeProperty | StableRecordIdentifier, trait: string): boolean;
+  resourceHasTrait(resource: ObjectWithStringTypeProperty | ResourceKey, trait: string): boolean;
 
   /**
    * Queries for the fields of a given resource type or resource identity.
@@ -113,7 +113,7 @@ export interface SchemaService {
    *
    * @public
    */
-  fields(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Map<string, FieldSchema>;
+  fields(resource: ObjectWithStringTypeProperty | ResourceKey): Map<string, FieldSchema>;
 
   /**
    * Queries for the fields of a given resource type or resource identity.
@@ -123,7 +123,7 @@ export interface SchemaService {
    * @public
    */
   cacheFields?(
-    resource: ObjectWithStringTypeProperty | StableRecordIdentifier
+    resource: ObjectWithStringTypeProperty | ResourceKey
   ): Map<string, Exclude<CacheableFieldSchema, IdentityField>>;
 
   /**
@@ -155,7 +155,7 @@ export interface SchemaService {
    *
    * @public
    */
-  resource(resource: ObjectWithStringTypeProperty | StableRecordIdentifier): Schema;
+  resource(resource: ObjectWithStringTypeProperty | ResourceKey): Schema;
 
   /**
    * Enables registration of multiple Schemas at once.
@@ -384,7 +384,7 @@ export interface SchemaService {
    * @public
    */
   CAUTION_MEGA_DANGER_ZONE_resourceExtensions?(
-    resource: StableRecordIdentifier | { type: string }
+    resource: ResourceKey | { type: string }
   ): null | ProcessedExtension['features'];
 
   /**

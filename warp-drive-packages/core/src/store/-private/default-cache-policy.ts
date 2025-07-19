@@ -4,7 +4,7 @@ import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { StableDocumentIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
@@ -15,14 +15,14 @@ type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
 export interface NotificationCallback {
-  (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
-  (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
 }
 
 interface ResourceOperationCallback {
   // resource updates
-  (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+  (identifier: ResourceKey, notificationType: CacheOperation): void;
 }
 
 interface DocumentOperationCallback {
@@ -31,13 +31,13 @@ interface DocumentOperationCallback {
 }
 
 type NotificationManager = {
-  subscribe(identifier: StableRecordIdentifier, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(identifier: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
   subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
 
-  notify(identifier: StableRecordIdentifier, value: 'attributes' | 'relationships', key?: string): boolean;
-  notify(identifier: StableRecordIdentifier, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: StableRecordIdentifier, value: CacheOperation): boolean;
+  notify(identifier: ResourceKey, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(identifier: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(identifier: ResourceKey, value: CacheOperation): boolean;
   notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
 };
 

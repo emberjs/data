@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RemoveFromResourceRelationshipMutation } from '../../../types/cache/mutations.ts';
 import type { RemoveFromResourceRelationshipOperation } from '../../../types/cache/operations.ts';
 import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import { _remove } from '../-diff.ts';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
 import type { CollectionEdge } from '../edges/collection.ts';
@@ -31,7 +31,7 @@ export default function removeFromRelatedRecords(
       return replaceRelatedRecord(graph, newOp, isRemote);
     }
     assert(
-      `Expected '${(value as StableRecordIdentifier)?.lid}' (the value to remove) to be the same as the remote state '${relationship.remoteState?.lid ?? '<null>'}'`,
+      `Expected '${(value as ResourceKey)?.lid}' (the value to remove) to be the same as the remote state '${relationship.remoteState?.lid ?? '<null>'}'`,
       value === relationship.remoteState
     );
     return;
@@ -55,9 +55,9 @@ export default function removeFromRelatedRecords(
 
 function removeRelatedRecord(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   index: number | null,
   isRemote: boolean
 ) {

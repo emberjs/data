@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { Context } from '../../../reactive/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
 import { notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
@@ -75,16 +75,16 @@ interface LegacyQueryInit {
   query: ImmutableRequestInfo | Record<string, unknown>;
 }
 interface AnonymousRequestCollectionInit {
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
 }
 interface RequestCollectionInit {
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
   requestKey: StableDocumentIdentifier;
 }
 
 type CollectionInit = LegacyQueryInit | AnonymousRequestCollectionInit | RequestCollectionInit;
 
-type ChangeSet = Map<StableRecordIdentifier, 'add' | 'del'>;
+type ChangeSet = Map<ResourceKey, 'add' | 'del'>;
 
 /**
   @class RecordArrayManager
@@ -97,7 +97,7 @@ export class RecordArrayManager {
   /**
    *
    */
-  declare _set: Map<ReactiveResourceArray, Set<StableRecordIdentifier>>;
+  declare _set: Map<ReactiveResourceArray, Set<ResourceKey>>;
   /**
    * LiveArray (peekAll/findAll) array instances
    * keyed by their ResourceType.
@@ -117,7 +117,7 @@ export class RecordArrayManager {
    * of arrays it can be found in, useful for fast updates
    * when state changes to a resource occur.
    */
-  declare _identifiers: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>;
+  declare _identifiers: Map<ResourceKey, Set<ReactiveResourceArray>>;
   /**
    * When we do not yet have a LiveArray, this keeps track of
    * the added/removed identifiers to enable us to more efficiently
@@ -143,7 +143,7 @@ export class RecordArrayManager {
    * an exclusion list. Any entry not in the list would be considered
    * visible.
    */
-  declare _visibilitySet: Map<StableRecordIdentifier, boolean>;
+  declare _visibilitySet: Map<ResourceKey, boolean>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -174,7 +174,7 @@ export class RecordArrayManager {
   private _subscribeToResourceChanges() {
     this._subscription = this.store.notifications.subscribe(
       'resource',
-      (identifier: StableRecordIdentifier, type: CacheOperation) => {
+      (identifier: ResourceKey, type: CacheOperation) => {
         const schema = this.store.schema.resource?.(identifier);
         // If we are a polaris mode schema
         // and we are in the `isNew` state, we are kept hidden from
@@ -246,7 +246,7 @@ export class RecordArrayManager {
   */
   liveArrayFor(type: string): LegacyLiveArray {
     let array = this._live.get(type);
-    const identifiers: StableRecordIdentifier[] = [];
+    const identifiers: ResourceKey[] = [];
     const staged = this._staged.get(type);
     if (staged) {
       staged.forEach((value, key) => {
@@ -337,7 +337,7 @@ export class RecordArrayManager {
   }
 
   _getPendingFor(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     includeManaged: boolean,
     isRemove?: boolean
   ): Map<ReactiveResourceArray, ChangeSet> | void {
@@ -395,7 +395,7 @@ export class RecordArrayManager {
 
   populateManagedArray(
     array: ReactiveResourceArray,
-    identifiers: StableRecordIdentifier[],
+    identifiers: ResourceKey[],
     payload: CollectionResourceDocument | null
   ): void {
     this._pending.delete(array);
@@ -420,7 +420,7 @@ export class RecordArrayManager {
     associate(this._identifiers, array, identifiers);
   }
 
-  identifierAdded(identifier: StableRecordIdentifier): void {
+  identifierAdded(identifier: ResourceKey): void {
     const changeSets = this._getPendingFor(identifier, false);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -436,7 +436,7 @@ export class RecordArrayManager {
     }
   }
 
-  identifierRemoved(identifier: StableRecordIdentifier): void {
+  identifierRemoved(identifier: ResourceKey): void {
     const changeSets = this._getPendingFor(identifier, true, true);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -452,7 +452,7 @@ export class RecordArrayManager {
     }
   }
 
-  identifierChanged(identifier: StableRecordIdentifier): void {
+  identifierChanged(identifier: ResourceKey): void {
     const newState = this.store._instanceCache.recordIsLoaded(identifier, true);
 
     // if the change matches the most recent direct added/removed
@@ -502,9 +502,9 @@ export class RecordArrayManager {
 }
 
 function associate(
-  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  ArraysCache: Map<ResourceKey, Set<ReactiveResourceArray>>,
   array: ReactiveResourceArray,
-  identifiers: StableRecordIdentifier[]
+  identifiers: ResourceKey[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
     const identifier = identifiers[i];
@@ -518,9 +518,9 @@ function associate(
 }
 
 function disassociate(
-  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  ArraysCache: Map<ResourceKey, Set<ReactiveResourceArray>>,
   array: ReactiveResourceArray,
-  identifiers: StableRecordIdentifier[]
+  identifiers: ResourceKey[]
 ) {
   for (let i = 0; i < identifiers.length; i++) {
     disassociateIdentifier(ArraysCache, array, identifiers[i]);
@@ -528,9 +528,9 @@ function disassociate(
 }
 
 export function disassociateIdentifier(
-  ArraysCache: Map<StableRecordIdentifier, Set<ReactiveResourceArray>>,
+  ArraysCache: Map<ResourceKey, Set<ReactiveResourceArray>>,
   array: ReactiveResourceArray,
-  identifier: StableRecordIdentifier
+  identifier: ResourceKey
 ): void {
   const cache = ArraysCache.get(identifier);
   if (cache) {
@@ -538,14 +538,10 @@ export function disassociateIdentifier(
   }
 }
 
-function sync(
-  array: ReactiveResourceArray,
-  changes: Map<StableRecordIdentifier, 'add' | 'del'>,
-  arraySet: Set<StableRecordIdentifier>
-) {
+function sync(array: ReactiveResourceArray, changes: Map<ResourceKey, 'add' | 'del'>, arraySet: Set<ResourceKey>) {
   const state = array[Context].source;
-  const adds: StableRecordIdentifier[] = [];
-  const removes: StableRecordIdentifier[] = [];
+  const adds: ResourceKey[] = [];
+  const removes: ResourceKey[] = [];
   changes.forEach((value, key) => {
     if (value === 'add') {
       // likely we want to keep a Set along-side

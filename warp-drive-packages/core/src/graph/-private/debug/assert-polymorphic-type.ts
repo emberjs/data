@@ -3,7 +3,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { CacheCapabilitiesManager } from '../../../types.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import {
   isLegacyField,
   isRelationshipField,
@@ -24,9 +24,9 @@ import {
   `record.relationshipFor(key)`.
 */
 let assertPolymorphicType: (
-  parentIdentifier: StableRecordIdentifier,
+  parentIdentifier: ResourceKey,
   parentDefinition: UpgradedMeta,
-  addedIdentifier: StableRecordIdentifier,
+  addedIdentifier: ResourceKey,
   store: CacheCapabilitiesManager
 ) => void;
 let assertInheritedSchema: (definition: UpgradedMeta, type: string) => void;
@@ -210,9 +210,9 @@ if (DEBUG) {
   };
 
   assertPolymorphicType = function assertPolymorphicType(
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceKey,
     parentDefinition: UpgradedMeta,
-    addedIdentifier: StableRecordIdentifier,
+    addedIdentifier: ResourceKey,
     store: CacheCapabilitiesManager
   ) {
     if (parentDefinition.inverseIsImplicit) {

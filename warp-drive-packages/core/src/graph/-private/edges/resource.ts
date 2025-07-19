@@ -1,5 +1,5 @@
 import type { ResourceRelationship } from '../../../types/cache/relationship.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import type { UpgradedMeta } from '../-edge-definition.ts';
 import type { RelationshipState } from '../-state.ts';
@@ -13,17 +13,17 @@ import { createState } from '../-state.ts';
  */
 export interface ResourceEdge {
   definition: UpgradedMeta;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   state: RelationshipState;
-  localState: StableRecordIdentifier | null;
-  remoteState: StableRecordIdentifier | null;
+  localState: ResourceKey | null;
+  remoteState: ResourceKey | null;
   meta: Meta | null;
   links: Links | PaginationLinks | null;
   transactionRef: number;
   accessed: boolean;
 }
 
-export function createResourceEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): ResourceEdge {
+export function createResourceEdge(definition: UpgradedMeta, identifier: ResourceKey): ResourceEdge {
   return {
     definition,
     identifier,
@@ -39,7 +39,7 @@ export function createResourceEdge(definition: UpgradedMeta, identifier: StableR
 
 export function legacyGetResourceRelationshipData(source: ResourceEdge, getRemoteState: boolean): ResourceRelationship {
   source.accessed = true;
-  let data: StableRecordIdentifier | null | undefined;
+  let data: ResourceKey | null | undefined;
   const payload: ResourceRelationship = {};
   if (getRemoteState && source.remoteState) {
     data = source.remoteState;

@@ -7,7 +7,7 @@ import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/c
 import type {
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  StableRecordIdentifier,
+  ResourceKey,
 } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core/types/record';
@@ -142,12 +142,12 @@ export class PersistedCache implements Cache {
    * notifications for relational data.
    *
    * @internal
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peek<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+  peek(identifier: ResourceKey | StableDocumentIdentifier): unknown {
     return this._cache.peek(identifier);
   }
 
@@ -179,12 +179,12 @@ export class PersistedCache implements Cache {
    * notifications for relational data.
    *
    * @internal
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peekRemoteState(identifier: StableRecordIdentifier | StableDocumentIdentifier): unknown {
+  peekRemoteState(identifier: ResourceKey | StableDocumentIdentifier): unknown {
     return this._cache.peekRemoteState(identifier);
   }
 
@@ -209,7 +209,7 @@ export class PersistedCache implements Cache {
    * @param hasRecord
    * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: StableRecordIdentifier, data: ResourceBlob, hasRecord: boolean): void | string[] {
+  upsert(identifier: ResourceKey, data: ResourceBlob, hasRecord: boolean): void | string[] {
     return this._cache.upsert(identifier, data, hasRecord);
   }
 
@@ -332,7 +332,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param options
    */
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
+  clientDidCreate(identifier: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
     return this._cache.clientDidCreate(identifier, options);
   }
 
@@ -343,7 +343,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: RequestContext): void {
+  willCommit(identifier: ResourceKey, context: RequestContext): void {
     this._cache.willCommit(identifier, context);
   }
 
@@ -355,7 +355,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param data
    */
-  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return this._cache.didCommit(identifier, result);
   }
 
@@ -367,7 +367,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._cache.commitWasRejected(identifier, errors);
   }
 
@@ -378,7 +378,7 @@ export class PersistedCache implements Cache {
    * @internal
    * @param identifier
    */
-  unloadRecord(identifier: StableRecordIdentifier): void {
+  unloadRecord(identifier: ResourceKey): void {
     this._cache.unloadRecord(identifier);
   }
 
@@ -393,7 +393,7 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, field: string): Value | undefined {
+  getAttr(identifier: ResourceKey, field: string): Value | undefined {
     return this._cache.getAttr(identifier, field);
   }
 
@@ -405,7 +405,7 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @return {unknown}
    */
-  getRemoteAttr(identifier: StableRecordIdentifier, field: string): Value | undefined {
+  getRemoteAttr(identifier: ResourceKey, field: string): Value | undefined {
     return this._cache.getRemoteAttr(identifier, field);
   }
 
@@ -417,7 +417,7 @@ export class PersistedCache implements Cache {
    * @param propertyName
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: Value): void {
+  setAttr(identifier: ResourceKey, propertyName: string, value: Value): void {
     this._cache.setAttr(identifier, propertyName, value);
   }
 
@@ -428,7 +428,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return
    */
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+  changedAttrs(identifier: ResourceKey): ChangedAttributesHash {
     return this._cache.changedAttrs(identifier);
   }
 
@@ -439,7 +439,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+  hasChangedAttrs(identifier: ResourceKey): boolean {
     return this._cache.hasChangedAttrs(identifier);
   }
 
@@ -450,7 +450,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return the names of attributes that were restored
    */
-  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+  rollbackAttrs(identifier: ResourceKey): string[] {
     return this._cache.rollbackAttrs(identifier);
   }
 
@@ -477,10 +477,10 @@ export class PersistedCache implements Cache {
     ```
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Map<string, RelationshipDiff>}
    */
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff> {
     return this._cache.changedRelationships(identifier);
   }
 
@@ -488,10 +488,10 @@ export class PersistedCache implements Cache {
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Boolean}
    */
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+  hasChangedRelationships(identifier: ResourceKey): boolean {
     return this._cache.hasChangedRelationships(identifier);
   }
 
@@ -503,10 +503,10 @@ export class PersistedCache implements Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {String[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+  rollbackRelationships(identifier: ResourceKey): string[] {
     return this._cache.rollbackRelationships(identifier);
   }
 
@@ -522,7 +522,7 @@ export class PersistedCache implements Cache {
    * @return resource relationship object
    */
   getRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship {
@@ -538,7 +538,7 @@ export class PersistedCache implements Cache {
    * @return resource relationship object
    */
   getRemoteRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship {
@@ -556,7 +556,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @param isDeleted
    */
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void {
     this._cache.setIsDeleted(identifier, isDeleted);
   }
 
@@ -567,7 +567,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return
    */
-  getErrors(identifier: StableRecordIdentifier): ApiError[] {
+  getErrors(identifier: ResourceKey): ApiError[] {
     return this._cache.getErrors(identifier);
   }
 
@@ -578,7 +578,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isEmpty(identifier: StableRecordIdentifier): boolean {
+  isEmpty(identifier: ResourceKey): boolean {
     return this._cache.isEmpty(identifier);
   }
 
@@ -590,7 +590,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isNew(identifier: StableRecordIdentifier): boolean {
+  isNew(identifier: ResourceKey): boolean {
     return this._cache.isNew(identifier);
   }
 
@@ -602,7 +602,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeleted(identifier: StableRecordIdentifier): boolean {
+  isDeleted(identifier: ResourceKey): boolean {
     return this._cache.isDeleted(identifier);
   }
 
@@ -614,7 +614,7 @@ export class PersistedCache implements Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+  isDeletionCommitted(identifier: ResourceKey): boolean {
     return this._cache.isDeletionCommitted(identifier);
   }
 }

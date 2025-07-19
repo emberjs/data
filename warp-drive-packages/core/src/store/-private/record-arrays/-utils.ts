@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/build-config/macros';
 import { Context } from '../../../reactive/-private';
 import type { BaseFinderOptions } from '../../../types';
 import type { LocalRelationshipOperation } from '../../../types/graph';
-import type { StableRecordIdentifier } from '../../../types/identifier';
+import type { ResourceKey } from '../../../types/identifier';
 import type { Store } from '../store-service';
 import type { NativeProxy } from './native-proxy-type-fix';
 import type { ReactiveResourceArray } from './resource-array';
@@ -144,18 +144,14 @@ export function convertToInt(prop: KeyType): number | null {
   return num % 1 === 0 ? num : null;
 }
 
-export type ForEachCB<T> = (
-  record: T,
-  index: number,
-  context: typeof NativeProxy<StableRecordIdentifier[], T[]>
-) => void;
+export type ForEachCB<T> = (record: T, index: number, context: typeof NativeProxy<ResourceKey[], T[]>) => void;
 export function safeForEach<T>(
-  instance: typeof NativeProxy<StableRecordIdentifier[], T[]>,
-  arr: StableRecordIdentifier[],
+  instance: typeof NativeProxy<ResourceKey[], T[]>,
+  arr: ResourceKey[],
   store: Store,
   callback: ForEachCB<T>,
   target: unknown
-): typeof NativeProxy<StableRecordIdentifier[], T[]> {
+): typeof NativeProxy<ResourceKey[], T[]> {
   if (target === undefined) {
     target = null;
   }

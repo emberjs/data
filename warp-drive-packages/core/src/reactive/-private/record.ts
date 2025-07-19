@@ -14,7 +14,7 @@ import {
   withSignalStore,
 } from '../../store/-private.ts';
 import { removeRecordIdentifier } from '../../store/-private/caches/instance-cache.ts';
-import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey } from '../../types/identifier.ts';
 import { STRUCTURED } from '../../types/request.ts';
 import type { FieldSchema, GenericField, IdentityField } from '../../types/schema/fields.ts';
 import { RecordStore } from '../../types/symbols.ts';
@@ -130,7 +130,7 @@ export class ReactiveResource {
     const signals = withSignalStore(this);
     this.___notifications = context.store.notifications.subscribe(
       resourceKey,
-      (_: StableRecordIdentifier, type: NotificationType, key?: string | string[]) => {
+      (_: ResourceKey, type: NotificationType, key?: string | string[]) => {
         switch (type) {
           case 'identity': {
             if (isEmbedded || !identityField) return; // base paths never apply to embedded records
@@ -682,7 +682,7 @@ function _DESTROY(record: ReactiveResource): void {
   // resource is destroyed.
 }
 
-function assertNeverField(identifier: StableRecordIdentifier, field: never, path: string | string[]): false {
+function assertNeverField(identifier: ResourceKey, field: never, path: string | string[]): false {
   assert(
     `Cannot use unknown field kind ${(field as FieldSchema).kind} on <${identifier.type}>.${Array.isArray(path) ? path.join('.') : path}`
   );

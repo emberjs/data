@@ -7,7 +7,7 @@ import type { Store } from '../../store/-private.ts';
 import type { CacheCapabilitiesManager } from '../../types.ts';
 import type { UpdateResourceRelationshipOperation } from '../../types/cache/operations.ts';
 import type { UpdateRelationshipOperation } from '../../types/graph.ts';
-import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey } from '../../types/identifier.ts';
 import type { ResourceIdentifierObject } from '../../types/spec/json-api-raw.ts';
 import type { UpgradedMeta } from './-edge-definition.ts';
 import { coerceId } from './coerce-id.ts';
@@ -102,7 +102,7 @@ function inspect(value: unknown) {
   return 'object';
 }
 
-export function checkIfNew(store: Store, identifier: StableRecordIdentifier): boolean {
+export function checkIfNew(store: Store, identifier: ResourceKey): boolean {
   if (!identifier.id) {
     return true;
   }
@@ -121,7 +121,7 @@ export function isHasMany(relationship: GraphEdge): relationship is CollectionEd
   return relationship.definition.kind === 'hasMany';
 }
 
-export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: StableRecordIdentifier) => void): void {
+export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: ResourceKey) => void): void {
   if (isBelongsTo(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
@@ -157,7 +157,7 @@ export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: Stable
 export function removeIdentifierCompletelyFromRelationship(
   graph: Graph,
   relationship: GraphEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   silenceNotifications?: boolean
 ): void {
   if (isBelongsTo(relationship)) {
@@ -227,7 +227,7 @@ export function notifyChange(graph: Graph, relationship: CollectionEdge | Resour
 
 export function assertRelationshipData(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   data: ResourceIdentifierObject,
   meta: UpgradedMeta
 ): void {

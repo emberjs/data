@@ -2,7 +2,7 @@ import type { Store } from '@warp-drive/core';
 import { Context } from '@warp-drive/core/reactive/-private';
 import type { LegacyLiveArray } from '@warp-drive/core/store/-private';
 import type { FindAllOptions, ModelSchema } from '@warp-drive/core/types';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 
 import { upgradeStore } from '../-private.ts';
 import type { Snapshot } from './snapshot.ts';
@@ -168,7 +168,7 @@ export class SnapshotRecordArray {
     upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
-    this._snapshots = this._recordArray[Context].source.map((identifier: StableRecordIdentifier) =>
+    this._snapshots = this._recordArray[Context].source.map((identifier: ResourceKey) =>
       _fetchManager.createSnapshot(identifier)
     );
 

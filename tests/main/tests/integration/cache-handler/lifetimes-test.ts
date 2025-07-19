@@ -11,7 +11,7 @@ import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { StableDocumentIdentifier, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {
@@ -34,7 +34,7 @@ class BaseTestStore extends Store {
       resourceTypes() {
         return [];
       },
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+      fields(identifier: ResourceKey | { type: string }): Map<string, FieldSchema> {
         const resource = Schemas.get(identifier.type);
         const fields = new Map<string, FieldSchema>();
         resource?.fields.forEach((field: FieldSchema) => {
@@ -42,16 +42,16 @@ class BaseTestStore extends Store {
         });
         return fields;
       },
-      hasResource(identifier: StableRecordIdentifier | { type: string }) {
+      hasResource(identifier: ResourceKey | { type: string }) {
         return Schemas.has(identifier.type);
       },
       hasTrait: function (type: string): boolean {
         throw new Error('Function not implemented.');
       },
-      resourceHasTrait: function (resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+      resourceHasTrait: function (resource: ResourceKey | { type: string }, trait: string): boolean {
         throw new Error('Function not implemented.');
       },
-      resource: function (resource: StableRecordIdentifier | { type: string }): ResourceSchema {
+      resource: function (resource: ResourceKey | { type: string }): ResourceSchema {
         return Schemas.get(resource.type)!;
       },
       registerResources: function (schemas: ResourceSchema[]): void {
@@ -101,19 +101,16 @@ class BaseTestStore extends Store {
     return new JSONAPICache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
-    const token = this.notifications.subscribe(
-      identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-        if (kind === 'attributes' && key) {
-          record[key] = this.cache.getAttr(identifier, key);
-        }
+    const token = this.notifications.subscribe(identifier, (_: ResourceKey, kind: NotificationType, key?: string) => {
+      if (kind === 'attributes' && key) {
+        record[key] = this.cache.getAttr(identifier, key);
       }
-    );
+    });
 
     record.destroy = () => {
       this.notifications.unsubscribe(token);
@@ -356,7 +353,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
 
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: ResourceKey; [Type]: 'test' }>('test', {});
 
     await store.request({
       url: '/test',
@@ -688,7 +685,7 @@ module('Store | CacheHandler + Lifetimes', function (hooks) {
     assert.verifySteps(['isHardExpired: false', 'isSoftExpired: false'], 'we resolve from cache still');
 
     // issue an out of band createRecord request with a record identifier
-    const record = store.createRecord<{ identifier: StableRecordIdentifier; [Type]: 'test' }>('test', {});
+    const record = store.createRecord<{ identifier: ResourceKey; [Type]: 'test' }>('test', {});
     await store.requestManager.request({
       store,
       url: '/test',

@@ -7,7 +7,7 @@ import type {
   RemoveFromResourceRelationshipOperation as RemoveResourceOperation,
   UpdateResourceRelationshipOperation,
 } from './cache/operations.ts';
-import type { StableRecordIdentifier } from './identifier.ts';
+import type { ResourceKey } from './identifier.ts';
 import type { CollectionResourceRelationship, SingleResourceRelationship } from './spec/json-api-raw.ts';
 
 export interface Operation {
@@ -16,45 +16,45 @@ export interface Operation {
 
 export interface UpdateRelationshipOperation {
   op: 'updateRelationship';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
   value: SingleResourceRelationship | CollectionResourceRelationship;
 }
 
 export interface DeleteRecordOperation {
   op: 'deleteRecord';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   isNew: boolean;
 }
 
 export interface UnknownOperation {
   op: 'never';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
 }
 
 export interface ReplaceRelatedRecordOperation {
   op: 'replaceRelatedRecord';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier | null; // never null if field is a collection
-  prior?: StableRecordIdentifier; // if field is a collection, the value we are swapping with
+  value: ResourceKey | null; // never null if field is a collection
+  prior?: ResourceKey; // if field is a collection, the value we are swapping with
   index?: number; // if field is a collection, the index at which we are replacing a value
 }
 
 export interface SortRelatedRecords {
   op: 'sortRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier[];
+  value: ResourceKey[];
 }
 
 export interface ReplaceRelatedRecordsOperation {
   op: 'replaceRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier[]; // the records to add. If no prior/index specified all existing should be removed
-  prior?: StableRecordIdentifier[]; // if this is a "splice" the records we expect to be removed
+  value: ResourceKey[]; // the records to add. If no prior/index specified all existing should be removed
+  prior?: ResourceKey[]; // if this is a "splice" the records we expect to be removed
   index?: number; // if this is a "splice" the index to start from
 }
 

@@ -10,7 +10,7 @@ import type { Store, WarpDriveSignal } from '../../store/-private.ts';
 import { createMemo, withSignalStore } from '../../store/-private.ts';
 import type { SchemaService as SchemaServiceInterface } from '../../types.ts';
 import { getOrSetGlobal } from '../../types/-private.ts';
-import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey } from '../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../types/json/raw.ts';
 import type { Derivation, HashFn } from '../../types/schema/concepts.ts';
 import {
@@ -330,13 +330,13 @@ export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identit
 interface FromIdentityDerivation {
   (record: ReactiveResource, options: { key: 'lid' } | { key: 'type' }, key: string): string;
   (record: ReactiveResource, options: { key: 'id' }, key: string): string | null;
-  (record: ReactiveResource, options: { key: '^' }, key: string): StableRecordIdentifier;
+  (record: ReactiveResource, options: { key: '^' }, key: string): ResourceKey;
   (record: ReactiveResource, options: null, key: string): asserts options;
   (
     record: ReactiveResource,
     options: { key: 'id' | 'lid' | 'type' | '^' } | null,
     key: string
-  ): StableRecordIdentifier | string | null;
+  ): ResourceKey | string | null;
   [Type]: '@identity';
 }
 
@@ -365,7 +365,7 @@ export const fromIdentity = ((
   record: ReactiveResource,
   options: { key: 'id' | 'lid' | 'type' | '^' } | null,
   key: string
-): StableRecordIdentifier | string | null => {
+): ResourceKey | string | null => {
   const context = record[Context];
   const identifier = context.resourceKey;
   assert(`Cannot compute @identity for a record without an identifier`, identifier);
@@ -407,7 +407,7 @@ interface InternalSchema {
 export type Transformation<T extends Value = Value, PT = unknown> = {
   serialize(value: PT, options: Record<string, unknown> | null, record: ReactiveResource): T;
   hydrate(value: T | undefined, options: Record<string, unknown> | null, record: ReactiveResource): PT;
-  defaultValue?(options: Record<string, unknown> | null, identifier: StableRecordIdentifier): T;
+  defaultValue?(options: Record<string, unknown> | null, identifier: ResourceKey): T;
   [Type]: string;
 };
 
@@ -438,25 +438,13 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
 
 interface KindFns {
   belongsTo: {
-    get: (store: Store, record: object, resourceKey: StableRecordIdentifier, field: LegacyBelongsToField) => unknown;
-    set: (
-      store: Store,
-      record: object,
-      cacheKey: StableRecordIdentifier,
-      field: LegacyBelongsToField,
-      value: unknown
-    ) => void;
+    get: (store: Store, record: object, resourceKey: ResourceKey, field: LegacyBelongsToField) => unknown;
+    set: (store: Store, record: object, cacheKey: ResourceKey, field: LegacyBelongsToField, value: unknown) => void;
   };
   hasMany: {
-    get: (store: Store, record: object, resourceKey: StableRecordIdentifier, field: LegacyHasManyField) => unknown;
-    set: (
-      store: Store,
-      record: object,
-      cacheKey: StableRecordIdentifier,
-      field: LegacyHasManyField,
-      value: unknown
-    ) => void;
-    notify: (store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField) => boolean;
+    get: (store: Store, record: object, resourceKey: ResourceKey, field: LegacyHasManyField) => unknown;
+    set: (store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField, value: unknown) => void;
+    notify: (store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField) => boolean;
   };
 }
 
@@ -527,7 +515,7 @@ export class SchemaService implements SchemaServiceInterface {
   hasTrait(type: string): boolean {
     return this._traits.has(type);
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceKey | { type: string }, trait: string): boolean {
     return this._schemas.get(resource.type)!.traits.has(trait);
   }
   transformation(field: GenericField | ObjectField | ArrayField | { type: string }): Transformation {
@@ -581,7 +569,7 @@ export class SchemaService implements SchemaServiceInterface {
     );
     return this._hashFns.get(field.type)!;
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceKey | { type: string }): ResourceSchema | ObjectSchema {
     assert(`No resource registered with name '${resource.type}'`, this._schemas.has(resource.type));
     return this._schemas.get(resource.type)!.original;
   }
@@ -682,7 +670,7 @@ export class SchemaService implements SchemaServiceInterface {
   }
 
   CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
-    resource: StableRecordIdentifier | { type: string }
+    resource: ResourceKey | { type: string }
   ): null | ProcessedExtension['features'] {
     const schema = this.resource(resource);
     return processExtensions(this, schema, 'resource', null);
