@@ -33,6 +33,7 @@ import type {
 import type { ObjectValue, Value } from '@warp-drive/core/types/json/raw';
 import type {
   ImmutableRequestInfo,
+  RequestContext,
   StructuredDataDocument,
   StructuredDocument,
   StructuredErrorDocument,
@@ -912,7 +913,7 @@ export class JSONAPICache implements Cache {
    * @category Resource Lifecycle
    * @public
    */
-  willCommit(identifier: StableRecordIdentifier): void {
+  willCommit(identifier: StableRecordIdentifier, _context: RequestContext | null): void {
     const cached = this.__peek(identifier, false);
 
     /*
@@ -975,10 +976,10 @@ export class JSONAPICache implements Cache {
    */
   didCommit(
     committedIdentifier: StableRecordIdentifier,
-    result: StructuredDataDocument<SingleResourceDocument>
+    result: StructuredDataDocument<SingleResourceDocument> | null
   ): SingleResourceDataDocument {
-    const payload = result.content;
-    const operation = result.request.op;
+    const payload = result ? result.content : null;
+    const operation = result ? result.request.op : null;
     const data = payload && payload.data;
 
     if (LOG_CACHE) {

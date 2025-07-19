@@ -93,6 +93,7 @@ type GlobalKey =
   | 'SOURCE'
   | 'Destroy'
   | 'Checkout'
+  | 'Commit'
   | 'Context';
 
 type ModuleScopedCaches = Record<GlobalKey, unknown>;

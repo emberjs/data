@@ -38,4 +38,5 @@ export const Destroy: '___(unique) Symbol(Destroy)' = getOrSetGlobal(
   Symbol.dispose || Symbol.for('Dispose')
 );
 export const Checkout: '___(unique) Symbol(Checkout)' = getOrSetGlobal('Checkout', Symbol('Checkout'));
+export const Commit: '___(unique) Symbol(Commit)' = getOrSetGlobal('Commit', Symbol('Commit'));
 export const Context: '___(unique) Symbol(Context)' = getOrSetGlobal('Context', Symbol('Context'));

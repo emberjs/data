@@ -5,8 +5,9 @@ import { setupTest } from 'ember-qunit';
 import { serializePatch, serializeResources, updateRecord } from '@ember-data/json-api/request';
 import RequestManager from '@ember-data/request';
 import { CacheHandler, recordIdentifierFor } from '@ember-data/store';
+import { checkout, commit } from '@warp-drive/core/reactive';
 import type { Type } from '@warp-drive/core-types/symbols';
-import { Checkout, registerDerivations, withDefaults } from '@warp-drive/schema-record';
+import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
 
 import type Store from '../app/services/store';
 
@@ -24,7 +25,6 @@ type User = Readonly<{
   name: string;
   $type: 'user';
   [Type]: 'user';
-  [Checkout](): Promise<EditableUser>;
 }>;
 
 type EditableUser = {
@@ -63,7 +63,7 @@ module('WarpDrive | ReactiveResource | Edit Workflow', function (hooks) {
         attributes: { name: 'Rey Skybarker' },
       },
     });
-    const editableUser = await user[Checkout]();
+    const editableUser = await checkout<EditableUser>(user);
     assert.strictEqual(editableUser.name, 'Rey Skybarker', 'name is accessible');
     editableUser.name = 'Rey Skywalker';
     assert.strictEqual(editableUser.name, 'Rey Skywalker', 'name is updated');
@@ -94,7 +94,7 @@ module('WarpDrive | ReactiveResource | Edit Workflow', function (hooks) {
         attributes: { name: 'Rey Skybarker' },
       },
     });
-    const editableUser = await user[Checkout]();
+    const editableUser = await checkout<EditableUser>(user);
     assert.strictEqual(editableUser.name, 'Rey Skybarker', 'name is accessible');
     editableUser.name = 'Rey Skywalker';
     assert.strictEqual(editableUser.name, 'Rey Skywalker', 'name is updated');
@@ -125,7 +125,7 @@ module('WarpDrive | ReactiveResource | Edit Workflow', function (hooks) {
         attributes: { name: 'Rey Skybarker' },
       },
     });
-    const editableUser = await user[Checkout]();
+    const editableUser = await checkout<EditableUser>(user);
     assert.strictEqual(editableUser.name, 'Rey Skybarker', 'name is accessible');
     editableUser.name = 'Rey Skywalker';
     assert.strictEqual(editableUser.name, 'Rey Skywalker', 'name is updated');
@@ -144,6 +144,31 @@ module('WarpDrive | ReactiveResource | Edit Workflow', function (hooks) {
     const saveResult = await store.request(saveInit);
     assert.deepEqual(saveResult.content.data, user, 'we get the immutable version back from the request');
     assert.verifySteps(['PUT /users/1']);
+    assert.strictEqual(user.name, 'Rey Skywalker', 'name is updated in the cache and shows in the immutable record');
+  });
+
+  test('we can commit an editable record', async function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const user = store.push<User>({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: { name: 'Rey Skybarker' },
+      },
+    });
+    const editableUser = await checkout<EditableUser>(user);
+    assert.strictEqual(editableUser.name, 'Rey Skybarker', 'name is accessible');
+    editableUser.name = 'Rey Skywalker';
+    assert.strictEqual(editableUser.name, 'Rey Skywalker', 'name is updated');
+    assert.strictEqual(user.name, 'Rey Skybarker', 'immutable record shows original value');
+
+    // ensure identifier works as expected
+    const identifier = recordIdentifierFor(editableUser);
+    assert.strictEqual(identifier.id, '1', 'id is accessible');
+    assert.strictEqual(identifier.type, 'user', 'type is accessible');
+
+    // ensure commit works as expected
+    await commit(editableUser);
     assert.strictEqual(user.name, 'Rey Skywalker', 'name is updated in the cache and shows in the immutable record');
   });
 });

@@ -70,7 +70,7 @@ module('Integration - updateRecord', function (hooks) {
     class TestCache extends JSONAPICache {
       override willCommit(identifier: StableRecordIdentifier): void {
         assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier);
+        return super.willCommit(identifier, null);
       }
       override didCommit(
         committedIdentifier: StableRecordIdentifier,
@@ -152,7 +152,7 @@ module('Integration - updateRecord', function (hooks) {
     class TestCache extends JSONAPICache {
       override willCommit(identifier: StableRecordIdentifier): void {
         assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier);
+        return super.willCommit(identifier, null);
       }
       override didCommit(
         committedIdentifier: StableRecordIdentifier,
