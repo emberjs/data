@@ -312,3 +312,4 @@ export {
   Checkout,
 } from './reactive/-private/symbols';
 export { type ReactiveDocument } from './reactive/-private/document';
+export { getExpensiveSubscription } from './store/-private/new-core-tmp/expensive-subscription.ts';

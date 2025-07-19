@@ -1,5 +1,8 @@
 import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier';
+import type { UnsubscribeToken } from '../managers/notification-manager';
 import type { Store } from '../store-service';
+
+const Subscriptions = new WeakMap<StableDocumentIdentifier, ExpensiveSubscription>();
 
 /**
  * `ExpensiveSubscription` is a mechanism for non-reactive
@@ -13,18 +16,18 @@ import type { Store } from '../store-service';
  * the request being subscribed to. The more requests in-use, the more
  * this cost adds up.
  */
-export class ExpensiveSubscription {
+class ExpensiveSubscription {
   declare private _request: StableDocumentIdentifier;
   declare private _store: Store;
-  declare private _callback: () => void;
-  declare private _subscription: unknown;
-  declare private _resources: Map<ResourceKey, unknown>;
+  declare private _callbacks: Set<() => void>;
+  declare private _subscription: UnsubscribeToken;
+  declare private _resources: Map<ResourceKey, UnsubscribeToken>;
   declare private _notify: Promise<void> | null;
 
-  constructor(store: Store, request: StableDocumentIdentifier, callback: () => void) {
+  constructor(store: Store, request: StableDocumentIdentifier) {
     this._store = store;
     this._request = request;
-    this._callback = callback;
+    this._callbacks = new Set();
     this._resources = new Map();
 
     this._subscription = store.notifications.subscribe(request, this._notifyRequestChange);
@@ -69,8 +72,70 @@ export class ExpensiveSubscription {
     this._notify =
       this._notify ||
       Promise.resolve().then(() => {
-        this._callback();
+        for (const callback of this._callbacks) {
+          callback();
+        }
         this._notify = null;
       });
+  };
+
+  addWatcher(callback: () => void) {
+    this._callbacks.add(callback);
+  }
+
+  removeWatcher(callback: () => void) {
+    this._callbacks.delete(callback);
+    if (this._callbacks.size === 0) {
+      this.destroy();
+    }
+  }
+
+  destroy() {
+    Subscriptions.delete(this._request);
+    const { notifications } = this._store;
+    if (this._subscription) {
+      notifications.unsubscribe(this._subscription);
+    }
+    for (const token of this._resources.values()) {
+      notifications.unsubscribe(token);
+    }
+    this._callbacks.clear();
+    this._resources.clear();
+  }
+}
+
+/**
+ * Creates an {@link ExpensiveSubscription} for the {@link StableDocumentIdentifier}
+ * if one does not already exist and adds a watcher to it.
+ *
+ * Returns a cleanup function. This should be called on-mount by a component
+ * that wants to subscribe to a request and cleanup should be called on dismount.
+ *
+ * ::: warning ⚠️ Avoid Using If Your App Supports Fine-grained Reactivity
+ * This mechanism should never be used by frameworks or libraries
+ * that support fine-grained reactivity.
+ * :::
+ *
+ * `ExpensiveSubscription` is a mechanism for non-reactive
+ * frameworks such as `react` to integrate with WarpDrive, for instance
+ * by treating a request as an [external store](https://react.dev/reference/react/useSyncExternalStore)
+ *
+ * `ExpensiveSubscription` is expensive *because* it doubles the number
+ * of notification callbacks required for each resource contained in
+ * the request being subscribed to. The more requests in-use, the more
+ * this cost adds up.
+ */
+export function getExpensiveRequestSubscription(
+  store: Store,
+  requestKey: StableDocumentIdentifier,
+  callback: () => void
+): () => void {
+  let subscription = Subscriptions.get(requestKey);
+  if (!subscription) {
+    subscription = new ExpensiveSubscription(store, requestKey);
+  }
+  subscription.addWatcher(callback);
+  return () => {
+    subscription.removeWatcher(callback);
   };
 }
