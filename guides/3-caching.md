@@ -64,13 +64,13 @@ Read on to understand what this means.
 When a response has a CacheKey, the Cache stores it using that CacheKey. If an entry was already present for that CacheKey, it is entirely overwritten.
 
 The same CacheKey applies to a request, its response, and its parsed content. We refer to
-this as a `RequestCacheKey`. In ***Warp*Drive** CacheKeys are objects with a string `lid`
+this as a `RequestKey`. In ***Warp*Drive** CacheKeys are objects with a string `lid`
 property and either the object or the string can be used as a unique key (the store's `identifierCache` is what provides cache keys and guarantees these properties).
 
 ::: code-group
 
 ```ts [Interface]
-interface RequestCacheKey {
+interface RequestKey {
   lid: string;
 }
 ```
@@ -110,9 +110,9 @@ The `content` (or respectively `error`) property of the StructuredDocument will 
 interface ResponseDocument {
   meta?: object;
   links?: object;
-  data?: ResourceCacheKey | ResourceCacheKey[];
+  data?: ResourceKey | ResourceKey[];
   included?: object[];
-  errors?: ResourceCacheKey[];
+  errors?: ResourceKey[];
 }
 ```
 
@@ -120,12 +120,12 @@ interface ResponseDocument {
 
 During content processing, the cache extracts any resources it finds in the payload. The returned response document includes a list of the Resource CacheKeys representing resources extracted.
 
-Like RequestCacheKey, a ResourceCacheKey is a stable object with a string `lid` property. ResourceCacheKey also encoudes the `ResourceType` and the primary key of the resource.
+Like RequestKey, a ResourceKey is a stable object with a string `lid` property. ResourceKey also encoudes the `ResourceType` and the primary key of the resource.
 
 ::: code-group
 
 ```ts [Interface]
-interface ResourceCacheKey {
+interface ResourceKey {
   id: string | null;
   type: string;
   lid: string;
@@ -264,13 +264,13 @@ Here's an example:
 
 :::
 
-## Fields Are Cached By ResourceCacheKey + FieldName with Replace Semantics
+## Fields Are Cached By ResourceKey + FieldName with Replace Semantics
 
 Where this really matters is for deep objects. Generally, we support partial resource representations due to the upsert strategy, but this also means that out-of-the-box we only support partials only one level deep. E.g. if a field's value is an object, that object should be the full state of the field not a partial state of the field, we will not deep-merge during upsert.
 
-## Relationships Are Cached By ResourceCacheKey + FieldName
+## Relationships Are Cached By ResourceKey + FieldName
 
-The Cache delegates relationship caching to the Graph Storage primitive provided by `@ember-data/graph`. The Graph is a powerful and highly optimized relational map that maintains the connections between ResourceCacheKeys.
+The Cache delegates relationship caching to the Graph Storage primitive provided by `@ember-data/graph`. The Graph is a powerful and highly optimized relational map that maintains the connections between ResourceKeys.
 
 By default, The Graph uses **upsert semantics** for a relationship payload with **replace semantics** for each of `links` `meta` and `data` fields within it. This means that relationship payloads are expected to have complete representations for each of these if present (aside: this will somewhat change to support paginated collections in the near future).
 
