@@ -1,7 +1,7 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { Relationship } from '@warp-drive/core/types/cache/relationship';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { InnerRelationshipDocument, ResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 
@@ -27,14 +27,14 @@ export type JsonApiResourcePatch =
  *
  * @public
  * @param {Cache} cache}
- * @param {StableRecordIdentifier} identifier
+ * @param {ResourceKey} identifier
  * @return {Object} An object with a `data` property containing the serialized resource patch
  */
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier): { data: ResourceObject };
-export function serializeResources(cache: Cache, identifiers: StableRecordIdentifier[]): { data: ResourceObject[] };
+export function serializeResources(cache: Cache, identifiers: ResourceKey): { data: ResourceObject };
+export function serializeResources(cache: Cache, identifiers: ResourceKey[]): { data: ResourceObject[] };
 export function serializeResources(
   cache: Cache,
-  identifiers: StableRecordIdentifier | StableRecordIdentifier[]
+  identifiers: ResourceKey | ResourceKey[]
 ): { data: ResourceObject | ResourceObject[] } {
   return {
     data: Array.isArray(identifiers)
@@ -72,7 +72,7 @@ function fixRelData(
   return null;
 }
 
-function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): ResourceObject {
+function _serializeResource(cache: Cache, identifier: ResourceKey): ResourceObject {
   const { id, lid, type } = identifier;
   // peek gives us everything we want, but since its referentially the same data
   // as is in the cache we clone it to avoid any accidental mutations
@@ -121,12 +121,12 @@ function _serializeResource(cache: Cache, identifier: StableRecordIdentifier): R
  *
  * @public
  * @param {Cache} cache}
- * @param {StableRecordIdentifier} identifier
+ * @param {ResourceKey} identifier
  * @return {Object} An object with a `data` property containing the serialized resource patch
  */
 export function serializePatch(
   cache: Cache,
-  identifier: StableRecordIdentifier
+  identifier: ResourceKey
   // options: { include?: string[] } = {}
 ): { data: JsonApiResourcePatch } {
   const { id, lid, type } = identifier;

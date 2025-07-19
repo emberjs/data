@@ -1,7 +1,7 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { Context } from '../../../reactive/-private.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { TypeFromInstanceOrString } from '../../../types/record.ts';
 import type { Store } from '../store-service.ts';
 import type { LegacyArray, MinimumManager } from './-utils.ts';
@@ -88,7 +88,7 @@ export interface LegacyLiveArray<T = unknown> extends LegacyArray<T> {
 export interface LegacyLiveArrayCreateOptions {
   store: Store;
   manager: MinimumManager;
-  source: StableRecordIdentifier[];
+  source: ResourceKey[];
   type: string;
 }
 

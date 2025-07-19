@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { AddToResourceRelationshipMutation } from '../../../types/cache/mutations.ts';
 import type { AddToResourceRelationshipOperation } from '../../../types/cache/operations.ts';
 import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import { _add } from '../-diff.ts';
 import { isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
 import type { CollectionEdge } from '../edges/collection.ts';
@@ -26,7 +26,7 @@ export default function addToRelatedRecords(
         op: 'replaceRelatedRecord',
         record,
         field: op.field,
-        value: value as StableRecordIdentifier,
+        value: value as ResourceKey,
       };
       return replaceRelatedRecord(graph, newOp, isRemote);
     }
@@ -63,8 +63,8 @@ export default function addToRelatedRecords(
 function addRelatedRecord(
   graph: Graph,
   relationship: CollectionEdge,
-  record: StableRecordIdentifier,
-  value: StableRecordIdentifier,
+  record: ResourceKey,
+  value: ResourceKey,
   index: number | null,
   isRemote: boolean
 ) {

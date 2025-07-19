@@ -2,7 +2,7 @@ import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core/types/spec/json-api-raw';
 
@@ -14,7 +14,7 @@ import { normalizeResponseHelper } from './serializer-response.ts';
 export function _findHasMany(
   adapter: MinimumAdapterInterface,
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
@@ -63,7 +63,7 @@ export function _findHasMany(
 
 export function _findBelongsTo(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions

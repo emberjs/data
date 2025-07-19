@@ -14,9 +14,9 @@ import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { LegacyQueryArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type {
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
@@ -36,7 +36,7 @@ type FakeRecord = { [key: string]: unknown; destroy: () => void };
 type UserRecord = {
   id: string;
   name: string;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   destroy: () => void;
   [Type]: 'user';
 };
@@ -81,7 +81,7 @@ class TestStore extends Store {
       derivation() {
         throw new Error('Method not implemented.');
       },
-      fields(identifier: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+      fields(identifier: ResourceKey | { type: string }): Map<string, FieldSchema> {
         return new Map();
       },
       hasTrait() {
@@ -108,19 +108,16 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type, identifier } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
-    const token = this.notifications.subscribe(
-      identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-        if (kind === 'attributes' && key) {
-          record[key] = this.cache.getAttr(identifier, key);
-        }
+    const token = this.notifications.subscribe(identifier, (_: ResourceKey, kind: NotificationType, key?: string) => {
+      if (kind === 'attributes' && key) {
+        record[key] = this.cache.getAttr(identifier, key);
       }
-    );
+    });
 
     record.destroy = () => {
       this.notifications.unsubscribe(token);

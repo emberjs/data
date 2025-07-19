@@ -5,7 +5,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import { type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
@@ -87,7 +87,7 @@ export const LegacyNetworkHandler: Handler = {
 function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, records: identifiers } = context.request;
   const { options, record, links, useLink, field } = data as {
-    record: StableRecordIdentifier;
+    record: ResourceKey;
     options: Record<string, unknown>;
     links?: Links;
     useLink: boolean;
@@ -121,7 +121,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
 function findHasMany<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, records: identifiers } = context.request;
   const { options, record, links, useLink, field } = data as {
-    record: StableRecordIdentifier;
+    record: ResourceKey;
     options: Record<string, unknown>;
     links?: PaginationLinks | Links;
     useLink: boolean;
@@ -155,7 +155,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
 
   // identifiers case
   assert(`Expected an array of identifiers to fetch`, Array.isArray(identifiers));
-  const fetches = new Array<globalThis.Promise<StableRecordIdentifier>>(identifiers.length);
+  const fetches = new Array<globalThis.Promise<ResourceKey>>(identifiers.length);
   const manager = store._fetchManager;
 
   for (let i = 0; i < identifiers.length; i++) {
@@ -172,7 +172,7 @@ function findHasMany<T>(context: StoreRequestContext): Promise<T> {
 
 function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data, op: operation } = context.request;
-  const { options, record: identifier } = data as { record: StableRecordIdentifier; options: Record<string, unknown> };
+  const { options, record: identifier } = data as { record: ResourceKey; options: Record<string, unknown> };
 
   upgradeStore(store);
 
@@ -214,7 +214,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
 
 function adapterDidInvalidate(
   store: Store,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   error: Error & { errors?: ApiError[]; isAdapterError?: true; code?: string }
 ) {
   upgradeStore(store);
@@ -292,7 +292,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     options: { reload?: boolean; backgroundReload?: boolean };
   };
   upgradeStore(store);
-  let promise: Promise<StableRecordIdentifier>;
+  let promise: Promise<ResourceKey>;
 
   // if not loaded start loading
   if (!store._instanceCache.recordIsLoaded(identifier)) {
@@ -350,11 +350,11 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
       }
 
       // Return the cached record
-      promise = Promise.resolve(identifier) as Promise<StableRecordIdentifier>;
+      promise = Promise.resolve(identifier) as Promise<ResourceKey>;
     }
   }
 
-  return promise.then((i: StableRecordIdentifier) => store.peekRecord(i)) as Promise<T>;
+  return promise.then((i: ResourceKey) => store.peekRecord(i)) as Promise<T>;
 }
 
 function findAll<T>(context: StoreRequestContext): Promise<T> {
@@ -537,7 +537,7 @@ function queryRecord<T>(context: StoreRequestContext): Promise<T> {
 
     assertSingleResourceDocument(payload);
 
-    const identifier = store._push(payload, true) as StableRecordIdentifier;
+    const identifier = store._push(payload, true) as ResourceKey;
     return identifier ? store.peekRecord(identifier) : null;
   }) as Promise<T>;
 }

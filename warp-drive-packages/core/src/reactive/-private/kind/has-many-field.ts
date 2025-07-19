@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/build-config/macros';
 
 import type { RelatedCollection as ManyArray } from '../../../store/-private.ts';
 import { createLegacyManyArray, entangleSignal } from '../../../store/-private.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { LegacyHasManyField } from '../../../types/schema/fields.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
 import type { KindContext } from '../default-mode';
@@ -37,7 +37,7 @@ export function getHasManyField(context: KindContext<LegacyHasManyField>): unkno
     const managedArray = createLegacyManyArray({
       store,
       manager: new ManyArrayManager(record, editable),
-      source: (rawValue.data?.slice() ?? []) as StableRecordIdentifier[],
+      source: (rawValue.data?.slice() ?? []) as ResourceKey[],
       type: field.type,
       isLoaded: true,
       editable,

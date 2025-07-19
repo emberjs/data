@@ -30,7 +30,7 @@ import { notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ObjectValue } from '@warp-drive/core/types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core/types/schema/concepts';
@@ -408,11 +408,11 @@ export function registerDerivations(schema: SchemaService): void {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   schema._registerMode('@legacy', {
     belongsTo: {
-      get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField) {
+      get(store: Store, record: object, cacheKey: ResourceKey, field: LegacyBelongsToField) {
         // FIXME field.name here should likely be field.sourceKey || field.name
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
       },
-      set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyBelongsToField, value: unknown) {
+      set(store: Store, record: object, cacheKey: ResourceKey, field: LegacyBelongsToField, value: unknown) {
         store._join(() => {
           // FIXME field.name here should likely be field.sourceKey || field.name
           lookupLegacySupport(record as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
@@ -420,11 +420,11 @@ export function registerDerivations(schema: SchemaService): void {
       },
     },
     hasMany: {
-      get(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField) {
+      get(store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField) {
         // FIXME field.name here should likely be field.sourceKey || field.name
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getHasMany(field.name);
       },
-      set(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField, value: unknown[]) {
+      set(store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField, value: unknown[]) {
         store._join(() => {
           const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
           // FIXME field.name here should likely be field.sourceKey || field.name
@@ -433,7 +433,7 @@ export function registerDerivations(schema: SchemaService): void {
           manyArray.splice(0, manyArray.length, ...value);
         });
       },
-      notify(store: Store, record: object, cacheKey: StableRecordIdentifier, field: LegacyHasManyField): boolean {
+      notify(store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField): boolean {
         const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
         // FIXME field.name here should likely be field.sourceKey || field.name
         const manyArray = support && support._manyArrayCache[field.name];
@@ -522,8 +522,8 @@ export function registerDerivations(schema: SchemaService): void {
  * @public
  */
 export interface DelegatingSchemaService {
-  attributesDefinitionFor?(resource: StableRecordIdentifier | { type: string }): AttributesSchema;
-  relationshipsDefinitionFor?(resource: StableRecordIdentifier | { type: string }): RelationshipsSchema;
+  attributesDefinitionFor?(resource: ResourceKey | { type: string }): AttributesSchema;
+  relationshipsDefinitionFor?(resource: ResourceKey | { type: string }): RelationshipsSchema;
   doesTypeExist?(type: string): boolean;
 }
 export class DelegatingSchemaService implements SchemaService {
@@ -535,7 +535,7 @@ export class DelegatingSchemaService implements SchemaService {
     this._secondary = buildSchema(store);
   }
 
-  isDelegated(resource: StableRecordIdentifier | { type: string }): boolean {
+  isDelegated(resource: ResourceKey | { type: string }): boolean {
     return !this._preferred.hasResource(resource) && this._secondary.hasResource(resource);
   }
 
@@ -543,7 +543,7 @@ export class DelegatingSchemaService implements SchemaService {
     return Array.from(new Set(this._preferred.resourceTypes().concat(this._secondary.resourceTypes())));
   }
 
-  hasResource(resource: StableRecordIdentifier | { type: string }): boolean {
+  hasResource(resource: ResourceKey | { type: string }): boolean {
     return this._preferred.hasResource(resource) || this._secondary.hasResource(resource);
   }
   hasTrait(type: string): boolean {
@@ -552,13 +552,13 @@ export class DelegatingSchemaService implements SchemaService {
     }
     return this._secondary.hasTrait(type);
   }
-  resourceHasTrait(resource: StableRecordIdentifier | { type: string }, trait: string): boolean {
+  resourceHasTrait(resource: ResourceKey | { type: string }, trait: string): boolean {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.resourceHasTrait(resource, trait);
     }
     return this._secondary.resourceHasTrait(resource, trait);
   }
-  fields(resource: StableRecordIdentifier | { type: string }): Map<string, FieldSchema> {
+  fields(resource: ResourceKey | { type: string }): Map<string, FieldSchema> {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.fields(resource);
     }
@@ -573,7 +573,7 @@ export class DelegatingSchemaService implements SchemaService {
   derivation(field: DerivedField | { type: string }): Derivation {
     return this._preferred.derivation(field);
   }
-  resource(resource: StableRecordIdentifier | { type: string }): ResourceSchema | ObjectSchema {
+  resource(resource: ResourceKey | { type: string }): ResourceSchema | ObjectSchema {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.resource(resource);
     }
@@ -600,7 +600,7 @@ export class DelegatingSchemaService implements SchemaService {
   }
 
   CAUTION_MEGA_DANGER_ZONE_resourceExtensions(
-    resource: StableRecordIdentifier | { type: string }
+    resource: ResourceKey | { type: string }
   ): null | ProcessedExtension['features'] {
     return this._preferred.CAUTION_MEGA_DANGER_ZONE_resourceExtensions!(resource);
   }
@@ -652,18 +652,14 @@ export class DelegatingSchemaService implements SchemaService {
 }
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
-  DelegatingSchemaService.prototype.attributesDefinitionFor = function (
-    resource: StableRecordIdentifier | { type: string }
-  ) {
+  DelegatingSchemaService.prototype.attributesDefinitionFor = function (resource: ResourceKey | { type: string }) {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.attributesDefinitionFor!(resource);
     }
 
     return this._secondary.attributesDefinitionFor!(resource);
   };
-  DelegatingSchemaService.prototype.relationshipsDefinitionFor = function (
-    resource: StableRecordIdentifier | { type: string }
-  ) {
+  DelegatingSchemaService.prototype.relationshipsDefinitionFor = function (resource: ResourceKey | { type: string }) {
     if (this._preferred.hasResource(resource)) {
       return this._preferred.relationshipsDefinitionFor!(resource);
     }

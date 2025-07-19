@@ -14,11 +14,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
-import type {
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-  StableRecordIdentifier,
-} from '../identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier, StableExistingRecordIdentifier } from '../identifier.ts';
 import type { Value } from '../json/raw.ts';
 import type { ExistingResourceObject } from '../spec/json-api-raw.ts';
 import type { Relationship } from './relationship.ts';
@@ -46,15 +42,15 @@ export interface Op {
 export interface MergeOperation extends Op {
   op: 'mergeIdentifiers';
   /**
-   * The stale {@link StableRecordIdentifier | ResourceKey} that
+   * The stale {@link ResourceKey | ResourceKey} that
    * the cache should eliminate in favor of {@link MergeOperation.value | value}
    */
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   /**
-   * The kept {@link StableRecordIdentifier | ResourceKey} that
+   * The kept {@link ResourceKey | ResourceKey} that
    * the cache should also keep and merge {@link MergeOperation.record | record} into.
    */
-  value: StableRecordIdentifier;
+  value: ResourceKey;
 }
 
 /**

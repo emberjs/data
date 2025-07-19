@@ -2,7 +2,7 @@ import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { UpgradedMeta } from '@warp-drive/core/graph/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 
 /*
   Assert that `addedRecord` has a valid type so it can be added to the
@@ -17,18 +17,18 @@ import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
   `record.relationshipFor(key)`.
 */
 let assertPolymorphicType: (
-  parentIdentifier: StableRecordIdentifier,
+  parentIdentifier: ResourceKey,
   parentDefinition: UpgradedMeta,
-  addedIdentifier: StableRecordIdentifier,
+  addedIdentifier: ResourceKey,
   store: Store
 ) => void;
 
 if (DEBUG) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   assertPolymorphicType = function assertPolymorphicType(
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceKey,
     parentDefinition: UpgradedMeta,
-    addedIdentifier: StableRecordIdentifier,
+    addedIdentifier: ResourceKey,
     store: Store
   ) {
     if (parentDefinition.inverseIsImplicit) {

@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { IdentifierCache } from '../../-private/caches/identifier-cache.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
 import type { SchemaService } from './schema-service.ts';
@@ -59,11 +59,11 @@ export type CacheCapabilitiesManager = {
    * Update the `id` for the record corresponding to the identifier
    * This operation can only be done for records whose `id` is `null`.
    *
-   * @param {StableRecordIdentifier} identifier;
+   * @param {ResourceKey} identifier;
    * @param {String} id;
    * @public
    */
-  setRecordId(identifier: StableRecordIdentifier, id: string): void;
+  setRecordId(identifier: ResourceKey, id: string): void;
 
   /**
    * Signal to the store that the specified record may be considered fully
@@ -71,10 +71,10 @@ export type CacheCapabilitiesManager = {
    * data exist for the identified resource, no known relationships still
    * point to it either.
    *
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @public
    */
-  disconnectRecord(identifier: StableRecordIdentifier): void;
+  disconnectRecord(identifier: ResourceKey): void;
 
   /**
    * Use this method to determine if the Store has an instantiated record associated
@@ -84,7 +84,7 @@ export type CacheCapabilitiesManager = {
    * @return {Boolean}
    * @public
    */
-  hasRecord(identifier: StableRecordIdentifier): boolean;
+  hasRecord(identifier: ResourceKey): boolean;
 
   /**
    * Notify subscribers of the NotificationManager that cache state has changed.
@@ -94,16 +94,16 @@ export type CacheCapabilitiesManager = {
    *
    * No other namespaces currently expect the `key` argument.
    *
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @param {'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state'} namespace
    * @param {string|undefined} key
    * @public
    */
-  notifyChange(identifier: StableRecordIdentifier, namespace: 'added' | 'removed', key: null): void;
+  notifyChange(identifier: ResourceKey, namespace: 'added' | 'removed', key: null): void;
   notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
-  notifyChange(identifier: StableRecordIdentifier, namespace: NotificationType, key: string | null): void;
+  notifyChange(identifier: ResourceKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceKey | StableDocumentIdentifier,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void;

@@ -2,7 +2,7 @@ import type { NotificationType, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import type {
   LinkObject,
@@ -88,7 +88,7 @@ export default class BelongsToReference<
 
   // unsubscribe tokens given to us by the notification manager
   declare ___token: object;
-  declare ___identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+  declare ___identifier: ResourceKey<TypeFromInstanceOrString<T>>;
   declare ___relatedToken: object | null;
 
   declare _ref: number;
@@ -96,7 +96,7 @@ export default class BelongsToReference<
   constructor(
     store: Store,
     graph: Graph,
-    parentIdentifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>,
+    parentIdentifier: ResourceKey<TypeFromInstanceOrString<T>>,
     belongsToRelationship: ResourceEdge,
     key: K
   ) {
@@ -110,7 +110,7 @@ export default class BelongsToReference<
 
     this.___token = store.notifications.subscribe(
       parentIdentifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+      (_: ResourceKey, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'relationships' && notifiedKey === key) {
           this._ref++;
         }
@@ -136,11 +136,11 @@ export default class BelongsToReference<
    * `null` if no related record is known.
    *
    * @property identifier
-   * @type {StableRecordIdentifier | null}
+   * @type {ResourceKey | null}
    * @public
    */
   @memoized
-  get identifier(): StableRecordIdentifier<TypeFromInstanceOrString<Related>> | null {
+  get identifier(): ResourceKey<TypeFromInstanceOrString<Related>> | null {
     if (this.___relatedToken) {
       this.store.notifications.unsubscribe(this.___relatedToken);
       this.___relatedToken = null;
@@ -151,14 +151,14 @@ export default class BelongsToReference<
       const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
       this.___relatedToken = this.store.notifications.subscribe(
         identifier,
-        (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+        (_: ResourceKey, bucket: NotificationType, notifiedKey?: string) => {
           if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
             this._ref++;
           }
         }
       );
 
-      return identifier as StableRecordIdentifier<TypeFromInstanceOrString<Related>>;
+      return identifier as ResourceKey<TypeFromInstanceOrString<Related>>;
     }
 
     return null;
@@ -321,7 +321,7 @@ export default class BelongsToReference<
     this._ref; // subscribe
     const cache = this.store.cache;
     return cache.getRelationship(this.___identifier, this.key) as SingleResourceRelationship<
-      StableRecordIdentifier<TypeFromInstance<Related>>
+      ResourceKey<TypeFromInstance<Related>>
     >;
   }
 
@@ -622,9 +622,7 @@ export default class BelongsToReference<
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
   async load(options?: Record<string, unknown>): Promise<Related | null> {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceKey, LegacySupport>).get(this.___identifier)!;
     const fetchSyncRel =
       !this.belongsToRelationship.definition.isAsync && !areAllInverseRecordsLoaded(this.store, this._resource());
     return fetchSyncRel
@@ -684,9 +682,7 @@ export default class BelongsToReference<
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   reload(options?: Record<string, unknown>): Promise<Related | null> {
-    const support: LegacySupport = (LEGACY_SUPPORT as Map<StableRecordIdentifier, LegacySupport>).get(
-      this.___identifier
-    )!;
+    const support: LegacySupport = (LEGACY_SUPPORT as Map<ResourceKey, LegacySupport>).get(this.___identifier)!;
     return support.reloadBelongsTo(this.key, options).then(() => this.value());
   }
 }

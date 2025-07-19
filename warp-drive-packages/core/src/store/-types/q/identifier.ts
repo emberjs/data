@@ -1,4 +1,4 @@
-import type { IdentifierBucket, StableIdentifier, StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { IdentifierBucket, ResourceKey, StableIdentifier } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 
 export interface GenerationMethod {
@@ -8,11 +8,11 @@ export interface GenerationMethod {
 }
 
 export type UpdateMethod = {
-  (identifier: StableRecordIdentifier, newData: unknown, bucket: 'record'): void;
+  (identifier: ResourceKey, newData: unknown, bucket: 'record'): void;
   (identifier: StableIdentifier, newData: unknown, bucket: never): void;
 };
 
-export type ForgetMethod = (identifier: StableIdentifier | StableRecordIdentifier, bucket: IdentifierBucket) => void;
+export type ForgetMethod = (identifier: StableIdentifier | ResourceKey, bucket: IdentifierBucket) => void;
 
 export type ResetMethod = () => void;
 
@@ -20,4 +20,4 @@ export type KeyInfo = {
   id: string | null;
   type: string;
 };
-export type KeyInfoMethod = (resource: unknown, known: StableRecordIdentifier | null) => KeyInfo;
+export type KeyInfoMethod = (resource: unknown, known: ResourceKey | null) => KeyInfo;

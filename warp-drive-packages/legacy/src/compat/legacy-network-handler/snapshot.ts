@@ -4,7 +4,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { FindRecordOptions } from '@warp-drive/core/types';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
@@ -42,7 +42,7 @@ export class Snapshot<R = unknown> {
 
     @public
   */
-  declare identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
+  declare identifier: ResourceKey<R extends TypedRecordInstance ? TypeFromInstance<R> : string>;
 
   /**
    The ResourceType of the underlying record for this Snapshot, as a string.
@@ -82,7 +82,7 @@ export class Snapshot<R = unknown> {
 
   constructor(
     options: FindRecordOptions,
-    identifier: StableRecordIdentifier<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
+    identifier: ResourceKey<R extends TypedRecordInstance ? TypeFromInstance<R> : string>,
     store: Store
   ) {
     this._store = store;

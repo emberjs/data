@@ -3,7 +3,7 @@ import type { Change } from './cache/change.ts';
 import type { Mutation } from './cache/mutations.ts';
 import type { Operation } from './cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
-import type { StableDocumentIdentifier, StableRecordIdentifier } from './identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier } from './identifier.ts';
 import type { Value } from './json/raw.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';
@@ -21,16 +21,16 @@ export type ChangedAttributesHash = Record<string, [Value | undefined, Value]>;
 export type RelationshipDiff =
   | {
       kind: 'collection';
-      remoteState: StableRecordIdentifier[];
-      additions: Set<StableRecordIdentifier>;
-      removals: Set<StableRecordIdentifier>;
-      localState: StableRecordIdentifier[];
+      remoteState: ResourceKey[];
+      additions: Set<ResourceKey>;
+      removals: Set<ResourceKey>;
+      localState: ResourceKey[];
       reordered: boolean;
     }
   | {
       kind: 'resource';
-      remoteState: StableRecordIdentifier | null;
-      localState: StableRecordIdentifier | null;
+      remoteState: ResourceKey | null;
+      localState: ResourceKey | null;
     };
 
 /**
@@ -125,10 +125,10 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peek<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
 
   /**
@@ -161,10 +161,10 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {StableRecordIdentifier | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | StableDocumentIdentifier} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
 
   /**
@@ -190,7 +190,7 @@ export interface Cache {
    * @param hasRecord
    * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: StableRecordIdentifier, data: ResourceBlob, hasRecord: boolean): void | string[];
+  upsert(identifier: ResourceKey, data: ResourceBlob, hasRecord: boolean): void | string[];
 
   // Cache Forking Support
   // =====================
@@ -298,7 +298,7 @@ export interface Cache {
    * @param identifier
    * @param createArgs
    */
-  clientDidCreate(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>): Record<string, unknown>;
+  clientDidCreate(identifier: ResourceKey, createArgs?: Record<string, unknown>): Record<string, unknown>;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -307,7 +307,7 @@ export interface Cache {
    * @public
    * @param identifier
    */
-  willCommit(identifier: StableRecordIdentifier, context: RequestContext | null): void;
+  willCommit(identifier: ResourceKey, context: RequestContext | null): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -318,10 +318,7 @@ export interface Cache {
    * @param data - a document in the cache format containing any updated data
    * @return {SingleResourceDataDocument}
    */
-  didCommit(
-    identifier: StableRecordIdentifier,
-    result: StructuredDataDocument<unknown> | null
-  ): SingleResourceDataDocument;
+  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown> | null): SingleResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -331,7 +328,7 @@ export interface Cache {
    * @param identifier
    * @param errors
    */
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void;
+  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource
@@ -342,7 +339,7 @@ export interface Cache {
    * @public
    * @param identifier
    */
-  unloadRecord(identifier: StableRecordIdentifier): void;
+  unloadRecord(identifier: ResourceKey): void;
 
   // Granular Resource Data APIs
   // ===========================
@@ -355,7 +352,7 @@ export interface Cache {
    * @param field
    * @return {unknown}
    */
-  getAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined;
+  getAttr(identifier: ResourceKey, field: string | string[]): Value | undefined;
 
   /**
    * Retrieve remote state without any local changes for a specific attribute
@@ -365,7 +362,7 @@ export interface Cache {
    * @param field
    * @return {unknown}
    */
-  getRemoteAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined;
+  getRemoteAttr(identifier: ResourceKey, field: string | string[]): Value | undefined;
 
   /**
    * Mutate the data for an attribute in the cache
@@ -377,7 +374,7 @@ export interface Cache {
    * @param field
    * @param value
    */
-  setAttr(identifier: StableRecordIdentifier, field: string | string[], value: Value): void;
+  setAttr(identifier: ResourceKey, field: string | string[], value: Value): void;
 
   /**
    * Query the cache for the changed attributes of a resource.
@@ -392,7 +389,7 @@ export interface Cache {
    * @param identifier
    * @return {Record<string, [unknown, unknown]>} `{ <field>: [<old>, <new>] }`
    */
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash;
+  changedAttrs(identifier: ResourceKey): ChangedAttributesHash;
 
   /**
    * Query the cache for whether any mutated attributes exist
@@ -401,7 +398,7 @@ export interface Cache {
    * @param identifier
    * @return {Boolean}
    */
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean;
+  hasChangedAttrs(identifier: ResourceKey): boolean;
 
   /**
    * Tell the cache to discard any uncommitted mutations to attributes
@@ -412,7 +409,7 @@ export interface Cache {
    * @param identifier
    * @return {String[]} the names of fields that were restored
    */
-  rollbackAttrs(identifier: StableRecordIdentifier): string[];
+  rollbackAttrs(identifier: ResourceKey): string[];
 
   /**
    * Query the cache for the changes to relationships of a resource.
@@ -437,19 +434,19 @@ export interface Cache {
     ```
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Map<string, RelationshipDiff>}
    */
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff>;
+  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff>;
 
   /**
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {Boolean}
    */
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean;
+  hasChangedRelationships(identifier: ResourceKey): boolean;
 
   /**
    * Tell the cache to discard any uncommitted mutations to relationships.
@@ -459,21 +456,21 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @return {String[]} the names of relationships that were restored
    */
-  rollbackRelationships(identifier: StableRecordIdentifier): string[];
+  rollbackRelationships(identifier: ResourceKey): string[];
 
   /**
    * Query the cache for the current state of a relationship property
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @param {String} field
    * @return resource relationship object
    */
   getRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship;
@@ -482,12 +479,12 @@ export interface Cache {
    * Query the cache for the server state of a relationship property without any local changes
    *
    * @public
-   * @param {StableRecordIdentifier} identifier
+   * @param {ResourceKey} identifier
    * @param {String} field
    * @return resource relationship object
    */
   getRemoteRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship;
@@ -505,14 +502,14 @@ export interface Cache {
    * @param identifier
    * @param {Boolean} isDeleted
    */
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void;
+  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void;
 
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
    * @public
    */
-  getErrors(identifier: StableRecordIdentifier): ApiError[];
+  getErrors(identifier: ResourceKey): ApiError[];
 
   /**
    * Query the cache for whether a given resource has any available data
@@ -521,7 +518,7 @@ export interface Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isEmpty(identifier: StableRecordIdentifier): boolean;
+  isEmpty(identifier: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource was created locally and not
@@ -531,7 +528,7 @@ export interface Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isNew(identifier: StableRecordIdentifier): boolean;
+  isNew(identifier: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource is marked as deleted (but not
@@ -541,7 +538,7 @@ export interface Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeleted(identifier: StableRecordIdentifier): boolean;
+  isDeleted(identifier: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource has been deleted and that deletion
@@ -551,5 +548,5 @@ export interface Cache {
    * @param identifier
    * @return {Boolean}
    */
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean;
+  isDeletionCommitted(identifier: ResourceKey): boolean;
 }

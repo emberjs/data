@@ -3,7 +3,7 @@ import { deprecate } from '@ember/debug';
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/build-config/deprecations';
 import { assert } from '@warp-drive/build-config/macros';
 
-import type { StableRecordIdentifier } from '../../types/identifier';
+import type { ResourceKey } from '../../types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../types/record';
 import { SkipCache } from '../../types/request';
 import type { ResourceIdentifierObject } from '../../types/spec/json-api-raw';
@@ -1023,7 +1023,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    const identifier: StableRecordIdentifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: ResourceKey = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
 
     const cache = upgradeInstanceCaches(this._instanceCache.__instances).reference;
     let reference = cache.get(identifier);
@@ -1118,10 +1118,8 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
 
 export { Store };
 
-function upgradeInstanceCaches(
-  cache: Caches
-): Caches & { reference: WeakMap<StableRecordIdentifier, RecordReference> } {
-  const withReferences = cache as Caches & { reference: WeakMap<StableRecordIdentifier, RecordReference> };
+function upgradeInstanceCaches(cache: Caches): Caches & { reference: WeakMap<ResourceKey, RecordReference> } {
+  const withReferences = cache as Caches & { reference: WeakMap<ResourceKey, RecordReference> };
   if (!withReferences.reference) {
     withReferences.reference = new WeakMap();
   }

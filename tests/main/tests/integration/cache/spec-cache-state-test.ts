@@ -18,9 +18,9 @@ import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
@@ -51,27 +51,27 @@ class Person extends Model {
 
 class TestCache implements Cache {
   _storeWrapper: CacheCapabilitiesManager;
-  _identifier: StableRecordIdentifier;
+  _identifier: ResourceKey;
 
-  constructor(wrapper: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
+  constructor(wrapper: CacheCapabilitiesManager, identifier: ResourceKey) {
     this._storeWrapper = wrapper;
     this._identifier = identifier;
   }
 
-  changedRelationships(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff> {
     throw new Error('Method not implemented.');
   }
-  hasChangedRelationships(identifier: StableRecordIdentifier): boolean {
+  hasChangedRelationships(identifier: ResourceKey): boolean {
     throw new Error('Method not implemented.');
   }
-  rollbackRelationships(identifier: StableRecordIdentifier): string[] {
+  rollbackRelationships(identifier: ResourceKey): string[] {
     throw new Error('Method not implemented.');
   }
 
   patch(op: MergeOperation): void {
     throw new Error('Method not implemented.');
   }
-  _data: Map<StableRecordIdentifier, object> = new Map();
+  _data: Map<ResourceKey, object> = new Map();
   put<T extends SingleResourceDocument>(doc: StructuredDocument<T>): SingleResourceDataDocument;
   put<T extends CollectionResourceDocument>(doc: StructuredDocument<T>): CollectionResourceDataDocument;
   put<T extends ResourceMetaDocument | ResourceErrorDocument>(
@@ -101,12 +101,12 @@ class TestCache implements Cache {
     throw new Error('Not Implemented');
   }
 
-  peek(identifier: StableRecordIdentifier): ResourceBlob | null;
+  peek(identifier: ResourceKey): ResourceBlob | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | StableRecordIdentifier): ResourceBlob | ResourceDocument | null {
+  peek(identifier: StableDocumentIdentifier | ResourceKey): ResourceBlob | ResourceDocument | null {
     throw new Error(`Not Implemented`);
   }
-  peekRemoteState<T = unknown>(identifier: StableRecordIdentifier<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peekRemoteState<T = unknown>(identifier: unknown): T | ResourceDocument | null {
     throw new Error(`Not Implemented`);
@@ -130,11 +130,7 @@ class TestCache implements Cache {
     throw new Error('Not Implemented');
   }
 
-  upsert(
-    identifier: StableRecordIdentifier,
-    data: ExistingResourceObject,
-    calculateChanges?: boolean
-  ): void | string[] {
+  upsert(identifier: ResourceKey, data: ExistingResourceObject, calculateChanges?: boolean): void | string[] {
     if (!this._data.has(identifier)) {
       this._storeWrapper.notifyChange(identifier, 'added', null);
     }
@@ -150,78 +146,70 @@ class TestCache implements Cache {
   _errors?: ApiError[];
   _isNew = false;
 
-  clientDidCreate(identifier: StableRecordIdentifier, options?: Record<string, unknown>): Record<string, unknown> {
+  clientDidCreate(identifier: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
     this._isNew = true;
     this._storeWrapper.notifyChange(identifier, 'added', null);
     return {};
   }
-  willCommit(identifier: StableRecordIdentifier): void {}
-  didCommit(identifier: StableRecordIdentifier, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+  willCommit(identifier: ResourceKey): void {}
+  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return { data: identifier as StableExistingRecordIdentifier };
   }
-  commitWasRejected(identifier: StableRecordIdentifier, errors?: ApiError[]): void {
+  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._errors = errors;
   }
-  unloadRecord(identifier: StableRecordIdentifier): void {}
-  getAttr(identifier: StableRecordIdentifier, propertyName: string): string {
+  unloadRecord(identifier: ResourceKey): void {}
+  getAttr(identifier: ResourceKey, propertyName: string): string {
     return '';
   }
-  getRemoteAttr(identifier: StableRecordIdentifier, field: string | string[]): Value | undefined {
+  getRemoteAttr(identifier: ResourceKey, field: string | string[]): Value | undefined {
     return '';
   }
-  setAttr(identifier: StableRecordIdentifier, propertyName: string, value: unknown): void {
+  setAttr(identifier: ResourceKey, propertyName: string, value: unknown): void {
     throw new Error('Method not implemented.');
   }
-  changedAttrs(identifier: StableRecordIdentifier): ChangedAttributesHash {
+  changedAttrs(identifier: ResourceKey): ChangedAttributesHash {
     return {};
   }
-  hasChangedAttrs(identifier: StableRecordIdentifier): boolean {
+  hasChangedAttrs(identifier: ResourceKey): boolean {
     return false;
   }
-  rollbackAttrs(identifier: StableRecordIdentifier): string[] {
+  rollbackAttrs(identifier: ResourceKey): string[] {
     throw new Error('Method not implemented.');
   }
-  getRelationship(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRelationship(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
   getRemoteRelationship(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship {
     throw new Error('Method not implemented.');
   }
-  addToHasMany(
-    identifier: StableRecordIdentifier,
-    propertyName: string,
-    value: StableRecordIdentifier[],
-    idx?: number
-  ): void {
+  addToHasMany(identifier: ResourceKey, propertyName: string, value: ResourceKey[], idx?: number): void {
     throw new Error('Method not implemented.');
   }
-  removeFromHasMany(identifier: StableRecordIdentifier, propertyName: string, value: StableRecordIdentifier[]): void {
+  removeFromHasMany(identifier: ResourceKey, propertyName: string, value: ResourceKey[]): void {
     throw new Error('Method not implemented.');
   }
-  setIsDeleted(identifier: StableRecordIdentifier, isDeleted: boolean): void {
+  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void {
     throw new Error('Method not implemented.');
   }
 
-  getErrors(identifier: StableRecordIdentifier): ApiError[] {
+  getErrors(identifier: ResourceKey): ApiError[] {
     return this._errors || [];
   }
-  isEmpty(identifier: StableRecordIdentifier): boolean {
+  isEmpty(identifier: ResourceKey): boolean {
     return false;
   }
-  isNew(identifier: StableRecordIdentifier): boolean {
+  isNew(identifier: ResourceKey): boolean {
     return this._isNew;
   }
-  isDeleted(identifier: StableRecordIdentifier): boolean {
+  isDeleted(identifier: ResourceKey): boolean {
     return false;
   }
-  isDeletionCommitted(identifier: StableRecordIdentifier): boolean {
+  isDeletionCommitted(identifier: ResourceKey): boolean {
     return false;
   }
 }
@@ -344,7 +332,7 @@ module('integration/record-data - Record Data State', function (hooks) {
     const { owner } = this;
 
     class LifecycleCache extends TestCache {
-      constructor(sw: CacheCapabilitiesManager, identifier: StableRecordIdentifier) {
+      constructor(sw: CacheCapabilitiesManager, identifier: ResourceKey) {
         super(sw, identifier);
         storeWrapper = sw;
       }
@@ -365,7 +353,7 @@ module('integration/record-data - Record Data State', function (hooks) {
         return isDeletionCommitted;
       }
 
-      override setIsDeleted(identifier: StableRecordIdentifier, value: boolean): void {
+      override setIsDeleted(identifier: ResourceKey, value: boolean): void {
         isDeleted = true;
         calledSetIsDeleted = true;
       }

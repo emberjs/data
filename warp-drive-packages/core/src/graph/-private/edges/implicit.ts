@@ -1,4 +1,4 @@
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { UpgradedMeta } from '../-edge-definition.ts';
 
 export type ImplicitMeta = UpgradedMeta & { kind: 'implicit'; isImplicit: true };
@@ -35,12 +35,12 @@ export type ImplicitMeta = UpgradedMeta & { kind: 'implicit'; isImplicit: true }
 */
 export interface ImplicitEdge {
   definition: ImplicitMeta;
-  identifier: StableRecordIdentifier;
-  localMembers: Set<StableRecordIdentifier>;
-  remoteMembers: Set<StableRecordIdentifier>;
+  identifier: ResourceKey;
+  localMembers: Set<ResourceKey>;
+  remoteMembers: Set<ResourceKey>;
 }
 
-export function createImplicitEdge(definition: ImplicitMeta, identifier: StableRecordIdentifier): ImplicitEdge {
+export function createImplicitEdge(definition: ImplicitMeta, identifier: ResourceKey): ImplicitEdge {
   return {
     definition,
     identifier,

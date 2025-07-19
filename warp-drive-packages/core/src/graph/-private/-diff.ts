@@ -8,7 +8,7 @@ import {
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { StableRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey } from '../../types/identifier.ts';
 import { isBelongsTo, notifyChange } from './-utils.ts';
 import { assertPolymorphicType } from './debug/assert-polymorphic-type.ts';
 import type { CollectionEdge } from './edges/collection.ts';
@@ -346,11 +346,11 @@ type Diff<T> = {
 };
 
 export function diffCollection(
-  finalState: StableRecordIdentifier[],
+  finalState: ResourceKey[],
   relationship: CollectionEdge,
-  onAdd: (v: StableRecordIdentifier) => void,
-  onDel: (v: StableRecordIdentifier) => void
-): Diff<StableRecordIdentifier> {
+  onAdd: (v: ResourceKey) => void,
+  onDel: (v: ResourceKey) => void
+): Diff<ResourceKey> {
   const finalSet = new Set(finalState);
   const { localState: priorLocalState, remoteState, remoteMembers } = relationship;
 
@@ -403,7 +403,7 @@ export function diffCollection(
   );
 }
 
-export function computeLocalState(storage: CollectionEdge): StableRecordIdentifier[] {
+export function computeLocalState(storage: CollectionEdge): ResourceKey[] {
   if (!storage.isDirty) {
     assert(`Expected localState to be present`, Array.isArray(storage.localState));
     return storage.localState;
@@ -439,9 +439,9 @@ export function computeLocalState(storage: CollectionEdge): StableRecordIdentifi
  */
 export function _add(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   index: number | null,
   isRemote: boolean
 ): boolean {
@@ -452,9 +452,9 @@ export function _add(
 
 function _addRemote(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   index: number | null
 ): boolean {
   assert(`expected an identifier to add to the collection relationship`, value);
@@ -520,9 +520,9 @@ function _addRemote(
 
 function _addLocal(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   index: number | null
 ): boolean {
   const { remoteMembers, removals } = relationship;
@@ -576,16 +576,16 @@ function _addLocal(
 
 export function _remove(
   graph: Graph,
-  record: StableRecordIdentifier,
+  record: ResourceKey,
   relationship: CollectionEdge,
-  value: StableRecordIdentifier,
+  value: ResourceKey,
   index: number | null,
   isRemote: boolean
 ): boolean {
   return !isRemote ? _removeLocal(relationship, value) : _removeRemote(relationship, value);
 }
 
-export function _removeLocal(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {
+export function _removeLocal(relationship: CollectionEdge, value: ResourceKey): boolean {
   assert(`expected an identifier to remove from the collection relationship`, value);
   const { remoteMembers, additions } = relationship;
   let removals = relationship.removals;
@@ -628,7 +628,7 @@ export function _removeLocal(relationship: CollectionEdge, value: StableRecordId
   return true;
 }
 
-export function _removeRemote(relationship: CollectionEdge, value: StableRecordIdentifier): boolean {
+export function _removeRemote(relationship: CollectionEdge, value: ResourceKey): boolean {
   assert(`expected an identifier to remove from the collection relationship`, value);
   const { remoteMembers, additions, removals, remoteState } = relationship;
 
@@ -678,7 +678,7 @@ export function _removeRemote(relationship: CollectionEdge, value: StableRecordI
 
 export function rollbackRelationship(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   field: string,
   relationship: CollectionEdge | ResourceEdge
 ): void {

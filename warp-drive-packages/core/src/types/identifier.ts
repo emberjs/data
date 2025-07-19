@@ -15,8 +15,12 @@ export const CACHE_OWNER: '__$co' = ProdSymbol('__$co', 'CACHE_OWNER');
 export type IdentifierBucket = 'record' | 'document';
 
 export interface Identifier {
+  /**
+   * A string representing a unique identity.
+   *
+   * @public
+   */
   lid: string;
-  clientId?: string;
 }
 
 export interface ExistingRecordIdentifier<T extends string = string> extends Identifier {
@@ -53,6 +57,7 @@ export type RecordIdentifier<T extends string = string> = ExistingRecordIdentifi
  * @internal
  */
 export interface StableIdentifier extends Identifier {
+  /** @internal */
   [DEBUG_IDENTIFIER_BUCKET]?: string;
 }
 
@@ -67,7 +72,18 @@ export interface StableIdentifier extends Identifier {
  * @internal
  */
 export interface StableExistingRecordIdentifier<T extends string = string> extends StableIdentifier {
+  /**
+   * the PrimaryKey for the resource this ResourceKey belongs to. `null`
+   * if not yet assigned a PrimaryKey value.
+   *
+   * @public
+   */
   id: string;
+  /**
+   * the primary `ResourceType` or "model name" this ResourceKey belongs to.
+   *
+   * @public
+   */
   type: T;
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
   [CACHE_OWNER]: number | undefined;
@@ -86,10 +102,24 @@ export interface StableExistingRecordIdentifier<T extends string = string> exten
  * @internal
  */
 export interface StableNewRecordIdentifier<T extends string = string> extends StableIdentifier {
+  /**
+   * the primary id for the record this identity belongs to. `null`
+   * if not yet assigned an id.
+   *
+   * @public
+   */
   id: string | null;
+  /**
+   * the primary resource `type` or `modelName` this identity belongs to.
+   *
+   * @public
+   */
   type: T;
+  /** @internal */
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
+  /** @internal */
   [CACHE_OWNER]: number | undefined;
+  /** @internal */
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
@@ -100,34 +130,8 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
  * Every record instance has a unique identifier, and identifiers may refer
  * to data that has never been loaded (for instance, in an async relationship).
  *
- * @class StableRecordIdentifier
  * @public
  */
+export type ResourceKey<T extends string = string> = StableExistingRecordIdentifier<T> | StableNewRecordIdentifier<T>;
 
-/**
- * A string representing a unique identity.
- *
- * @property lid
- * @type {String}
- * @public
- */
-/**
- * the primary resource `type` or `modelName` this identity belongs to.
- *
- * @property type
- * @type {String}
- * @public
- */
-/**
- * the primary id for the record this identity belongs to. `null`
- * if not yet assigned an id.
- *
- * @property id
- * @type {String | null}
- * @public
- */
-export type StableRecordIdentifier<T extends string = string> =
-  | StableExistingRecordIdentifier<T>
-  | StableNewRecordIdentifier<T>;
-
-export type ResourceKey<T extends string = string> = StableRecordIdentifier<T>;
+export type StableRecordIdentifier<T extends string = string> = ResourceKey<T>;

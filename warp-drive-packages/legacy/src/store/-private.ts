@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { defineSignal, ensureStringId, type InstanceCache, recordIdentifierFor } from '@warp-drive/core/store/-private';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { StableNewRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableNewRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
@@ -154,11 +154,11 @@ export interface ModelSchema<T = unknown> {
   ): void;
 }
 
-function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
+function _resourceIsFullDeleted(identifier: ResourceKey, cache: Cache): boolean {
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+export function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: ResourceKey): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }
@@ -177,17 +177,17 @@ export class RecordReference {
   // unsubscribe token given to us by the notification manager
   private ___token!: object;
   /** @internal */
-  private ___identifier: StableRecordIdentifier;
+  private ___identifier: ResourceKey;
 
   /** @internal */
   declare private _ref: number;
 
-  constructor(store: Store, identifier: StableRecordIdentifier) {
+  constructor(store: Store, identifier: ResourceKey) {
     this.store = store;
     this.___identifier = identifier;
     this.___token = store.notifications.subscribe(
       identifier,
-      (_: StableRecordIdentifier, bucket: NotificationType, notifiedKey?: string) => {
+      (_: ResourceKey, bucket: NotificationType, notifiedKey?: string) => {
         if (bucket === 'identity' || (bucket === 'attributes' && notifiedKey === 'id')) {
           this._ref++;
         }
@@ -244,7 +244,7 @@ export class RecordReference {
     @public
      @return The identifier of the record.
   */
-  identifier(): StableRecordIdentifier {
+  identifier(): ResourceKey {
     return this.___identifier;
   }
 

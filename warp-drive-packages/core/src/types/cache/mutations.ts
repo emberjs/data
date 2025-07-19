@@ -1,43 +1,43 @@
-import type { StableRecordIdentifier } from '../identifier.ts';
+import type { ResourceKey } from '../identifier.ts';
 
 export interface AddToResourceRelationshipMutation {
   op: 'add';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: ResourceKey | ResourceKey[];
   index?: number;
 }
 
 export interface RemoveFromResourceRelationshipMutation {
   op: 'remove';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier | StableRecordIdentifier[];
+  value: ResourceKey | ResourceKey[];
   index?: number;
 }
 
 export interface ReplaceRelatedRecordMutation {
   op: 'replaceRelatedRecord';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
   // never null if field is a collection
-  value: StableRecordIdentifier | null;
+  value: ResourceKey | null;
   // if field is a collection,
   //  the value we are swapping with
-  prior?: StableRecordIdentifier;
+  prior?: ResourceKey;
   index?: number;
 }
 
 export interface ReplaceRelatedRecordsMutation {
   op: 'replaceRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
   // the records to add. If no prior/index
   //  specified all existing should be removed
-  value: StableRecordIdentifier[];
+  value: ResourceKey[];
   // if this is a "splice" the
   //  records we expect to be removed
-  prior?: StableRecordIdentifier[];
+  prior?: ResourceKey[];
   // if this is a "splice" the
   //   index to start from
   index?: number;
@@ -45,9 +45,9 @@ export interface ReplaceRelatedRecordsMutation {
 
 export interface SortRelatedRecordsMutation {
   op: 'sortRelatedRecords';
-  record: StableRecordIdentifier;
+  record: ResourceKey;
   field: string;
-  value: StableRecordIdentifier[];
+  value: ResourceKey[];
 }
 // A Mutation is an action that updates
 // the local state of the Cache in some

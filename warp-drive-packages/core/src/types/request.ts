@@ -3,7 +3,7 @@ import type { Fetch } from '../request/-private/fetch.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { FetchError } from '../request/-private/utils.ts';
 import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
-import type { StableRecordIdentifier } from './identifier.ts';
+import type { ResourceKey } from './identifier.ts';
 import type { QueryParamsSerializationOptions } from './params.ts';
 import type { ExtractSuggestedCacheTypes, TypedRecordInstance, TypeFromInstanceOrString } from './record.ts';
 import type { ResourceIdentifierObject } from './spec/json-api-raw.ts';
@@ -117,7 +117,7 @@ export type DeleteRequestOptions<RT = unknown, T = unknown> = {
   op: 'deleteRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -125,7 +125,7 @@ export type DeleteRequestOptions<RT = unknown, T = unknown> = {
 
 type ImmutableRequest<T> = Readonly<T> & {
   readonly headers: ImmutableHeaders;
-  readonly records: [StableRecordIdentifier];
+  readonly records: [ResourceKey];
 };
 
 export type UpdateRequestOptions<RT = unknown, T = unknown> = {
@@ -135,7 +135,7 @@ export type UpdateRequestOptions<RT = unknown, T = unknown> = {
   op: 'updateRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -148,7 +148,7 @@ export type CreateRequestOptions<RT = unknown, T = unknown> = {
   op: 'createRecord';
   body?: string | BodyInit | FormData;
   data: {
-    record: StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+    record: ResourceKey<TypeFromInstanceOrString<T>>;
   };
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
@@ -312,7 +312,7 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
    * operations on the store.
    *
    */
-  records?: StableRecordIdentifier[];
+  records?: ResourceKey[];
 
   disableTestWaiter?: boolean;
   /**

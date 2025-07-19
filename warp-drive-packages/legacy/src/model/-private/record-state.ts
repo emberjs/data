@@ -12,7 +12,7 @@ import {
   withSignalStore,
 } from '@warp-drive/core/store/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 
 import type { Errors } from './errors';
 import type { MinimalLegacyRecord } from './model-methods';
@@ -72,7 +72,7 @@ root
 */
 export default class RecordState {
   declare store: Store;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: ResourceKey;
   declare record: MinimalLegacyRecord;
   declare rs: RequestStateService;
 
@@ -163,7 +163,7 @@ export default class RecordState {
 
     this.handler = notifications.subscribe(
       identity,
-      (identifier: StableRecordIdentifier, type: NotificationType, key?: string) => {
+      (identifier: ResourceKey, type: NotificationType, key?: string) => {
         switch (type) {
           case 'state':
             this.notify('isSaved');

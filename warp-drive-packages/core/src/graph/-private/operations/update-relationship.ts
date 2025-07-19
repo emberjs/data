@@ -3,7 +3,7 @@ import { warn } from '@ember/debug';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../../index.ts';
-import type { StableRecordIdentifier } from '../../../types.ts';
+import type { ResourceKey } from '../../../types.ts';
 import type { UpdateResourceRelationshipOperation } from '../../../types/cache/operations.ts';
 import type { UpdateRelationshipOperation } from '../../../types/graph.ts';
 import type {
@@ -177,11 +177,11 @@ function isStaleTransaction(relationshipTransactionId: number, graphTransactionI
 }
 
 export function upgradeIdentifiers(
-  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | StableRecordIdentifier)[],
+  arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | ResourceKey)[],
   cache: IdentifierCache
-): StableRecordIdentifier[] {
+): ResourceKey[] {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = cache.upgradeIdentifier(arr[i]);
   }
-  return arr as StableRecordIdentifier[];
+  return arr as ResourceKey[];
 }

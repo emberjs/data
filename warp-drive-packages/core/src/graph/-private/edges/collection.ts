@@ -1,5 +1,5 @@
 import type { CollectionRelationship } from '../../../types/cache/relationship.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
 import { computeLocalState } from '../-diff.ts';
 import type { UpgradedMeta } from '../-edge-definition.ts';
@@ -8,19 +8,19 @@ import { createState } from '../-state.ts';
 
 export interface CollectionEdge {
   definition: UpgradedMeta;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   state: RelationshipState;
 
-  remoteMembers: Set<StableRecordIdentifier>;
-  remoteState: StableRecordIdentifier[];
+  remoteMembers: Set<ResourceKey>;
+  remoteState: ResourceKey[];
 
-  additions: Set<StableRecordIdentifier> | null;
-  removals: Set<StableRecordIdentifier> | null;
+  additions: Set<ResourceKey> | null;
+  removals: Set<ResourceKey> | null;
 
   meta: Meta | null;
   links: Links | PaginationLinks | null;
 
-  localState: StableRecordIdentifier[] | null;
+  localState: ResourceKey[] | null;
   /**
    * Whether the localState for this edge is out-of-sync
    * with the remoteState.
@@ -39,12 +39,12 @@ export interface CollectionEdge {
   accessed: boolean;
 
   _diff?: {
-    add: Set<StableRecordIdentifier>;
-    del: Set<StableRecordIdentifier>;
+    add: Set<ResourceKey>;
+    del: Set<ResourceKey>;
   };
 }
 
-export function createCollectionEdge(definition: UpgradedMeta, identifier: StableRecordIdentifier): CollectionEdge {
+export function createCollectionEdge(definition: UpgradedMeta, identifier: ResourceKey): CollectionEdge {
   return {
     definition,
     identifier,

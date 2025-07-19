@@ -5,7 +5,7 @@ import type { RelatedCollection as ManyArray } from '../../../store/-private.ts'
 import { fastPush } from '../../../store/-private.ts';
 import type { CollectionRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { StableRecordIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { CacheOptions } from '../../../types/request.ts';
 import { EnableHydration } from '../../../types/request.ts';
 import type { CollectionResourceRelationship } from '../../../types/spec/json-api-raw.ts';
@@ -20,7 +20,7 @@ export interface FindHasManyOptions {
 export class ManyArrayManager {
   declare record: ReactiveResource;
   declare store: Store;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: ResourceKey;
   declare editable: boolean;
 
   constructor(record: ReactiveResource, editable: boolean) {
@@ -51,7 +51,7 @@ export class ManyArrayManager {
     // takes care of that for us
     if (currentState !== rawValue.data) {
       currentState.length = 0;
-      fastPush(currentState, rawValue.data as StableRecordIdentifier[]);
+      fastPush(currentState, rawValue.data as ResourceKey[]);
     }
   }
 
@@ -69,7 +69,7 @@ export class ManyArrayManager {
       url: getRelatedLink(rawValue),
       op: 'findHasMany',
       method: 'GET' as const,
-      records: rawValue.data as StableRecordIdentifier[],
+      records: rawValue.data as ResourceKey[],
       cacheOptions,
       options: {
         field,

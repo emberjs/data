@@ -12,7 +12,7 @@ import {
   recordIdentifierFor,
   storeFor,
 } from '@warp-drive/core/store/-private';
-import type { BaseFinderOptions, StableRecordIdentifier } from '@warp-drive/core/types';
+import type { BaseFinderOptions, ResourceKey } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
@@ -37,9 +37,9 @@ import HasManyReference from './references/has-many.ts';
 
 type PromiseBelongsToFactory<T = unknown> = { create(args: BelongsToProxyCreateArgs<T>): PromiseBelongsTo<T> };
 
-export const LEGACY_SUPPORT: Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport> = getOrSetGlobal(
+export const LEGACY_SUPPORT: Map<ResourceKey | MinimalLegacyRecord, LegacySupport> = getOrSetGlobal(
   'LEGACY_SUPPORT',
-  new Map<StableRecordIdentifier | MinimalLegacyRecord, LegacySupport>()
+  new Map<ResourceKey | MinimalLegacyRecord, LegacySupport>()
 );
 
 export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport {
@@ -62,16 +62,16 @@ export class LegacySupport {
   declare graph: Graph;
   declare cache: Cache;
   declare references: Record<string, BelongsToReference | HasManyReference>;
-  declare identifier: StableRecordIdentifier;
+  declare identifier: ResourceKey;
   declare _manyArrayCache: Record<string, LegacyManyArray>;
   declare _relationshipPromisesCache: Record<string, Promise<LegacyManyArray | OpaqueRecordInstance>>;
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
-  declare _pending: Record<string, Promise<StableRecordIdentifier | null> | undefined>;
+  declare _pending: Record<string, Promise<ResourceKey | null> | undefined>;
 
   declare isDestroying: boolean;
   declare isDestroyed: boolean;
 
-  constructor(record: MinimalLegacyRecord, identifier: StableRecordIdentifier) {
+  constructor(record: MinimalLegacyRecord, identifier: ResourceKey) {
     this.record = record;
     this.store = storeFor(record, false)!;
     this.identifier = identifier;
@@ -87,7 +87,7 @@ export class LegacySupport {
       Promise<LegacyManyArray | OpaqueRecordInstance>
     >;
     this._relationshipProxyCache = Object.create(null) as Record<string, PromiseManyArray | PromiseBelongsTo>;
-    this._pending = Object.create(null) as Record<string, Promise<StableRecordIdentifier | null>>;
+    this._pending = Object.create(null) as Record<string, Promise<ResourceKey | null>>;
     this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
@@ -126,8 +126,7 @@ export class LegacySupport {
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this._findBelongsToByJsonApiResource(resource, this.identifier, relationship, options).then(
-      (identifier: StableRecordIdentifier | null) =>
-        handleCompletedRelationshipRequest(this, key, relationship, identifier),
+      (identifier: ResourceKey | null) => handleCompletedRelationshipRequest(this, key, relationship, identifier),
       (e: Error) => handleCompletedRelationshipRequest(this, key, relationship, null, e)
     );
   }
@@ -212,15 +211,15 @@ export class LegacySupport {
   }
 
   _getCurrentState<T>(
-    identifier: StableRecordIdentifier,
+    identifier: ResourceKey,
     field: string
-  ): [StableRecordIdentifier<TypeFromInstanceOrString<T>>[], CollectionRelationship] {
+  ): [ResourceKey<TypeFromInstanceOrString<T>>[], CollectionRelationship] {
     const jsonApi = this.cache.getRelationship(identifier, field) as CollectionRelationship;
     const cache = this.store._instanceCache;
-    const identifiers: StableRecordIdentifier<TypeFromInstanceOrString<T>>[] = [];
+    const identifiers: ResourceKey<TypeFromInstanceOrString<T>>[] = [];
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
-        const relatedIdentifier = jsonApi.data[i] as StableRecordIdentifier<TypeFromInstanceOrString<T>>;
+        const relatedIdentifier = jsonApi.data[i] as ResourceKey<TypeFromInstanceOrString<T>>;
         assert(`Expected a stable identifier`, isStableIdentifier(relatedIdentifier));
         if (cache.recordIsLoaded(relatedIdentifier, true)) {
           identifiers.push(relatedIdentifier);
@@ -427,7 +426,7 @@ export class LegacySupport {
 
   _findHasManyByJsonApiResource(
     resource: CollectionResourceRelationship,
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceKey,
     relationship: CollectionEdge,
     options: BaseFinderOptions = {}
   ): Promise<void | unknown[]> | void {
@@ -517,10 +516,10 @@ export class LegacySupport {
 
   _findBelongsToByJsonApiResource(
     resource: SingleResourceRelationship,
-    parentIdentifier: StableRecordIdentifier,
+    parentIdentifier: ResourceKey,
     relationship: ResourceEdge,
     options: BaseFinderOptions = {}
-  ): Promise<StableRecordIdentifier | null> {
+  ): Promise<ResourceKey | null> {
     if (!resource) {
       return Promise.resolve(null);
     }
@@ -574,12 +573,10 @@ export class LegacySupport {
             data: request,
             cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
           };
-      const future = this.store.request<StableRecordIdentifier | null>(req);
+      const future = this.store.request<ResourceKey | null>(req);
       this._pending[key] = future
         .then((doc) =>
-          field.options.linksMode
-            ? (doc.content as unknown as Document<StableRecordIdentifier | null>).data!
-            : doc.content
+          field.options.linksMode ? (doc.content as unknown as Document<ResourceKey | null>).data! : doc.content
         )
         .finally(() => {
           this._pending[key] = undefined;
@@ -610,7 +607,7 @@ export class LegacySupport {
       options.reload = options.reload || !attemptLocalCache || undefined;
 
       this._pending[key] = this.store
-        .request<StableRecordIdentifier | null>({
+        .request<ResourceKey | null>({
           op: 'findBelongsTo',
           records: [identifier],
           data: request,
@@ -666,7 +663,7 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: ResourceEdge,
-  value: StableRecordIdentifier | null
+  value: ResourceKey | null
 ): OpaqueRecordInstance | null;
 function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
@@ -692,7 +689,7 @@ function handleCompletedRelationshipRequest(
   recordExt: LegacySupport,
   key: string,
   relationship: ResourceEdge | CollectionEdge,
-  value: LegacyManyArray | StableRecordIdentifier | null,
+  value: LegacyManyArray | ResourceKey | null,
   error?: Error
 ): LegacyManyArray | OpaqueRecordInstance | null {
   delete recordExt._relationshipPromisesCache[key];
@@ -736,7 +733,7 @@ function handleCompletedRelationshipRequest(
   // only set to not stale if no error is thrown
   relationship.state.isStale = false;
 
-  return isHasMany || !value ? value : recordExt.store.peekRecord(value as StableRecordIdentifier);
+  return isHasMany || !value ? value : recordExt.store.peekRecord(value as ResourceKey);
 }
 
 type PromiseProxyRecord = { then(): void; content: OpaqueRecordInstance | null | undefined };
@@ -774,7 +771,7 @@ export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelation
     assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
     // treat as collection
     // check for unloaded records
-    return identifiers.every((identifier: StableRecordIdentifier) => instanceCache.recordIsLoaded(identifier));
+    return identifiers.every((identifier: ResourceKey) => instanceCache.recordIsLoaded(identifier));
   }
 
   // treat as single resource
