@@ -8,7 +8,7 @@ import { setupTest } from 'ember-qunit';
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 
 class Person extends Model {
   @attr('string', {})
@@ -160,7 +160,7 @@ module('integration/cache-capabilities', function (hooks) {
         },
       },
     });
-    storeWrapper.disconnectRecord(identifier as StableRecordIdentifier);
+    storeWrapper.disconnectRecord(identifier as ResourceKey);
     await settled();
     assert.strictEqual(store.peekRecord('house', '1'), null, 'record was removed from id map');
   });

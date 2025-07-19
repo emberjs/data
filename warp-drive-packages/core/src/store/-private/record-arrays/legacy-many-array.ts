@@ -4,7 +4,7 @@ import { DEPRECATE_MANY_ARRAY_DUPLICATES } from '@warp-drive/core/build-config/d
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { Context } from '../../../reactive/-private.ts';
-import type { BaseFinderOptions, StableRecordIdentifier } from '../../../types.ts';
+import type { BaseFinderOptions, ResourceKey } from '../../../types.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../../types/record.ts';
@@ -150,7 +150,7 @@ export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptio
   isAsync: boolean;
   isPolymorphic: boolean;
   field: LegacyHasManyField | LinksModeHasManyField;
-  identifier: StableRecordIdentifier;
+  identifier: ResourceKey;
   links: Links | PaginationLinks | null;
   meta: Meta | null;
 }
@@ -194,8 +194,8 @@ export function createLegacyManyArray<T>(options: LegacyManyArrayCreateOptions):
 }
 
 function _MUTATE<T>(
-  target: StableRecordIdentifier[],
-  receiver: typeof NativeProxy<StableRecordIdentifier[], T[]>,
+  target: ResourceKey[],
+  receiver: typeof NativeProxy<ResourceKey[], T[]>,
   prop: string,
   args: unknown[],
   _SIGNAL: WarpDriveSignal
@@ -208,7 +208,7 @@ function _MUTATE<T>(
       return true;
     }
     case 'replace cell': {
-      const [index, prior, value] = args as [number, StableRecordIdentifier, StableRecordIdentifier];
+      const [index, prior, value] = args as [number, ResourceKey, ResourceKey];
       target[index] = value;
       mutateReplaceRelatedRecord(collection, { value, prior, index }, _SIGNAL);
       return true;
@@ -452,7 +452,7 @@ function assertRecordPassedToHasMany(record: OpaqueRecordInstance | PromiseProxy
   );
 }
 
-function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): StableRecordIdentifier[] {
+function extractIdentifiersFromRecords(records: OpaqueRecordInstance[]): ResourceKey[] {
   return records.map(extractIdentifierFromRecord);
 }
 
@@ -463,11 +463,11 @@ function extractIdentifierFromRecord(recordOrPromiseRecord: PromiseProxyRecord |
 
 function assertNoDuplicates<T>(
   collection: LegacyManyArray<T>,
-  target: StableRecordIdentifier[],
-  callback: (currentState: StableRecordIdentifier[]) => void,
+  target: ResourceKey[],
+  callback: (currentState: ResourceKey[]) => void,
   reason: string
 ) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+  const identifier = collection[Context].features!.identifier as ResourceKey;
   const state = target.slice();
   callback(state);
 
@@ -508,10 +508,10 @@ function assertNoDuplicates<T>(
 
 function mutateAddToRelatedRecords<T>(
   collection: LegacyManyArray<T>,
-  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  operationInfo: { value: ResourceKey | ResourceKey[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+  const identifier = collection[Context].features!.identifier as ResourceKey;
 
   // FIXME field needs to use sourceKey
   mutate(
@@ -528,10 +528,10 @@ function mutateAddToRelatedRecords<T>(
 
 function mutateRemoveFromRelatedRecords<T>(
   collection: LegacyManyArray<T>,
-  operationInfo: { value: StableRecordIdentifier | StableRecordIdentifier[]; index?: number },
+  operationInfo: { value: ResourceKey | ResourceKey[]; index?: number },
   _SIGNAL: WarpDriveSignal
 ) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+  const identifier = collection[Context].features!.identifier as ResourceKey;
 
   // FIXME field needs to use sourceKey
   mutate(
@@ -549,13 +549,13 @@ function mutateRemoveFromRelatedRecords<T>(
 function mutateReplaceRelatedRecord<T>(
   collection: LegacyManyArray<T>,
   operationInfo: {
-    value: StableRecordIdentifier;
-    prior: StableRecordIdentifier;
+    value: ResourceKey;
+    prior: ResourceKey;
     index: number;
   },
   _SIGNAL: WarpDriveSignal
 ) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+  const identifier = collection[Context].features!.identifier as ResourceKey;
 
   // FIXME field needs to use sourceKey
   mutate(
@@ -572,10 +572,10 @@ function mutateReplaceRelatedRecord<T>(
 
 function mutateReplaceRelatedRecords<T>(
   collection: LegacyManyArray<T>,
-  value: StableRecordIdentifier[],
+  value: ResourceKey[],
   _SIGNAL: WarpDriveSignal
 ) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+  const identifier = collection[Context].features!.identifier as ResourceKey;
 
   // FIXME field needs to use sourceKey
   mutate(
@@ -590,12 +590,8 @@ function mutateReplaceRelatedRecords<T>(
   );
 }
 
-function mutateSortRelatedRecords<T>(
-  collection: LegacyManyArray<T>,
-  value: StableRecordIdentifier[],
-  _SIGNAL: WarpDriveSignal
-) {
-  const identifier = collection[Context].features!.identifier as StableRecordIdentifier;
+function mutateSortRelatedRecords<T>(collection: LegacyManyArray<T>, value: ResourceKey[], _SIGNAL: WarpDriveSignal) {
+  const identifier = collection[Context].features!.identifier as ResourceKey;
 
   // FIXME field needs to use sourceKey
   mutate(

@@ -8,7 +8,7 @@ import {
 } from '../../store/-private/new-core-tmp/reactivity/internal.ts';
 import { defineGate } from '../../store/-private/new-core-tmp/reactivity/signal.ts';
 import type { Store } from '../../store/-private/store-service.ts';
-import type { StableRecordIdentifier } from '../../types.ts';
+import type { ResourceKey } from '../../types.ts';
 import type { StableDocumentIdentifier } from '../../types/identifier.ts';
 import type { ImmutableRequestInfo, RequestInfo } from '../../types/request.ts';
 import { withBrand } from '../../types/request.ts';
@@ -276,14 +276,14 @@ defineGate(ReactiveDocument.prototype, 'data', {
     if (Array.isArray(data)) {
       return identifier
         ? (this._store.recordArrayManager.getCollection({
-            source: data.slice() as StableRecordIdentifier[],
+            source: data.slice() as ResourceKey[],
             requestKey: identifier,
           }) as T)
         : (this._store.recordArrayManager.getCollection({
-            source: data.slice() as StableRecordIdentifier[],
+            source: data.slice() as ResourceKey[],
           }) as T);
     } else if (data) {
-      return this._store.peekRecord(data as unknown as StableRecordIdentifier) as T;
+      return this._store.peekRecord(data as unknown as ResourceKey) as T;
     } else {
       return data;
     }
