@@ -3,7 +3,7 @@ import type { Change } from './cache/change.ts';
 import type { Mutation } from './cache/mutations.ts';
 import type { Operation } from './cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
-import type { ResourceKey,StableDocumentIdentifier } from './identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier } from './identifier.ts';
 import type { Value } from './json/raw.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';

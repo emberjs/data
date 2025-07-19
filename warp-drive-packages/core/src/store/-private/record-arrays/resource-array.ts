@@ -10,7 +10,7 @@ import {
   performExtensionSet,
 } from '../../../reactive/-private/fields/extension.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
-import type { ResourceKey,StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { CollectionField } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';

@@ -2,7 +2,7 @@ import type { NotificationType, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
-import type { ResourceKey,StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import type {
   LinkObject,

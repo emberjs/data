@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { defineSignal, ensureStringId, type InstanceCache, recordIdentifierFor } from '@warp-drive/core/store/-private';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { ResourceKey,StableNewRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableNewRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {

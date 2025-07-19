@@ -1,4 +1,4 @@
-import type { ResourceKey,StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { IdentifierCache } from '../../-private/caches/identifier-cache.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
 import type { SchemaService } from './schema-service.ts';

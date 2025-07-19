@@ -11,7 +11,7 @@ import { CachePolicy } from '@ember-data/request-utils';
 import type { NotificationType } from '@ember-data/store';
 import Store, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type { ResourceKey,StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ObjectValue } from '@warp-drive/core-types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
 import type {

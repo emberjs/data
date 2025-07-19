@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/build-config/macros';
 
 import { getOrSetGlobal } from '../../types/-private.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { ResourceKey,StableNewRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey, StableNewRecordIdentifier } from '../../types/identifier.ts';
 import type { Value } from '../../types/json/raw';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 import type {

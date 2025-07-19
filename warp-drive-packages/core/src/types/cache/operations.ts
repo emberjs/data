@@ -14,7 +14,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
-import type { ResourceKey,StableDocumentIdentifier, StableExistingRecordIdentifier } from '../identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier, StableExistingRecordIdentifier } from '../identifier.ts';
 import type { Value } from '../json/raw.ts';
 import type { ExistingResourceObject } from '../spec/json-api-raw.ts';
 import type { Relationship } from './relationship.ts';

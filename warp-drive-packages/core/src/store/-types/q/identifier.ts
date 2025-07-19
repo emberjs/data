@@ -1,4 +1,4 @@
-import type { IdentifierBucket, ResourceKey,StableIdentifier } from '../../../types/identifier.ts';
+import type { IdentifierBucket, ResourceKey, StableIdentifier } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 
 export interface GenerationMethod {

@@ -14,7 +14,7 @@ import type {
 import { coerceId, waitFor } from '@warp-drive/core/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
-import type { ResourceKey,StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core/types/request';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
