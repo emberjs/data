@@ -8,7 +8,7 @@ import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import { _CHECKOUT, ReactiveResource } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
-import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
+import type { ResourceKey,StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '../../../types/record.ts';
 import type { ResourceSchema } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';

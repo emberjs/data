@@ -21,7 +21,7 @@ import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { StableExistingRecordIdentifier, ResourceKey } from '../../types/identifier.ts';
+import type { ResourceKey,StableExistingRecordIdentifier } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheOptions, RequestInfo } from '../../types/request.ts';

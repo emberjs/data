@@ -14,7 +14,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { IdentifierBucket, StableIdentifier, ResourceKey } from '@warp-drive/core-types/identifier';
+import type { IdentifierBucket, ResourceKey,StableIdentifier } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;

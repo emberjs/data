@@ -5,7 +5,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import { type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
-import type { StableExistingRecordIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { ResourceKey,StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';

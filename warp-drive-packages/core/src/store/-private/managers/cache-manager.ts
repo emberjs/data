@@ -3,7 +3,7 @@ import type { Change } from '../../../types/cache/change.ts';
 import type { MergeOperation } from '../../../types/cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
+import type { ResourceKey,StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { Value } from '../../../types/json/raw.ts';
 import type { StructuredDataDocument, StructuredDocument } from '../../../types/request.ts';
 import type { ResourceDocument, SingleResourceDataDocument } from '../../../types/spec/document.ts';

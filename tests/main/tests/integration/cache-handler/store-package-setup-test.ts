@@ -14,9 +14,9 @@ import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { LegacyQueryArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
 import type {
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  ResourceKey,
 } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';

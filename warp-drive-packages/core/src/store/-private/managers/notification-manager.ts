@@ -1,7 +1,7 @@
 import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/core/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { StableDocumentIdentifier, ResourceKey } from '../../../types/identifier.ts';
+import type { ResourceKey,StableDocumentIdentifier } from '../../../types/identifier.ts';
 import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache.ts';
 import { log } from '../debug/utils.ts';
 import { willSyncFlushWatchers } from '../new-core-tmp/reactivity/configure.ts';

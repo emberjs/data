@@ -26,9 +26,9 @@ import type {
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type {
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  ResourceKey,
 } from '@warp-drive/core/types/identifier';
 import type { ObjectValue, Value } from '@warp-drive/core/types/json/raw';
 import type {

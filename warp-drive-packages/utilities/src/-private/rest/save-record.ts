@@ -1,6 +1,6 @@
 import { recordIdentifierFor } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { StableExistingRecordIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { ResourceKey,StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
 import type { TypedRecordInstance } from '@warp-drive/core/types/record';
 import type {
   ConstrainedRequestOptions,

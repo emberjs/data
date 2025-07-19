@@ -18,9 +18,9 @@ import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/c
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
   RecordIdentifier,
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  ResourceKey,
 } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {

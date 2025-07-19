@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier, ResourceKey } from '../identifier.ts';
+import type { ResourceKey,StableDocumentIdentifier } from '../identifier.ts';
 
 export interface Change {
   identifier: ResourceKey | StableDocumentIdentifier;

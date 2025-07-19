@@ -4,7 +4,7 @@ import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { StableDocumentIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { ResourceKey,StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
