@@ -271,6 +271,7 @@
  *
  * @module
  */
+import { checkout } from './reactive/-private/record.ts';
 import type {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isLegacyResourceSchema,
@@ -303,6 +304,11 @@ export {
   fromIdentity,
   registerDerivations,
 } from './reactive/-private/schema';
-export { type ReactiveResource } from './reactive/-private/record';
-export { Checkout } from './reactive/-private/symbols';
+export { commit, type ReactiveResource } from './reactive/-private/record.ts';
+
+export { checkout };
+export {
+  /** @deprecated use {@link checkout} */
+  Checkout,
+} from './reactive/-private/symbols';
 export { type ReactiveDocument } from './reactive/-private/document';

@@ -26,10 +26,10 @@ import { getFieldCacheKey } from './fields/get-field-key.ts';
 import type { ManagedArray } from './fields/managed-array.ts';
 import { peekManagedObject } from './fields/managed-object.ts';
 import type { SchemaService } from './schema.ts';
-import { Checkout, Context, Destroy } from './symbols.ts';
+import { Checkout, Commit, Context, Destroy } from './symbols.ts';
 
 const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
-const symbolList = [Context, Destroy, RecordStore, Checkout];
+const symbolList = [Context, Destroy, RecordStore, Checkout, Commit];
 const RecordSymbols = new Set(symbolList);
 
 type RecordSymbol = (typeof symbolList)[number];
@@ -53,6 +53,7 @@ function isNonEnumerableProp(prop: string | number | symbol) {
 const Editables = new Map<ReactiveResource, ReactiveResource>();
 
 export interface ReactiveResource {
+  /** @internal */
   [Symbol.toStringTag]: `ReactiveResource<${string}>`;
 
   /** @internal */
@@ -67,14 +68,17 @@ export interface ReactiveResource {
   /** @internal */
   [Destroy](): void;
 
+  /** @internal */
+  [Commit](): Promise<void>;
+
   /**
    * Create an editable copy of the record
    *
    * ReactiveResource instances are not editable by default. This method creates an editable copy of the record. To use,
-   * import the `Checkout` symbol from `@warp-drive/schema-record` and call it on the record.
+   * import the `Checkout` symbol from `@warp-drive/core/reactive` and call it on the record.
    *
    * ```ts
-   * import { Checkout } from '@warp-drive/schema-record';
+   * import { Checkout } from '@warp-drive/core/reactive';
    *
    * const record = store.peekRecord('user', '1');
    * const editableRecord = await record[Checkout]();
@@ -82,14 +86,14 @@ export interface ReactiveResource {
    *
    * @returns a promise that resolves to the editable record
    * @throws if the record is already editable or if the record is embedded
-   *
+   * @internal
    */
   [Checkout]<T>(): Promise<T>;
 }
 
 /**
  * A class that uses a the ResourceSchema for a ResourceType
- * and a ResouceKey to transform data from the cache into a rich, reactive
+ * and a ResourceKey to transform data from the cache into a rich, reactive
  * object.
  *
  * This class is not directly instantiable. To use it, you should
@@ -329,6 +333,9 @@ export class ReactiveResource {
           }
           if (prop === Checkout) {
             return () => Promise.resolve(_CHECKOUT(receiver as unknown as ReactiveResource));
+          }
+          if (prop === Commit) {
+            return () => Promise.resolve(_COMMIT(receiver as unknown as ReactiveResource));
           }
           return target[prop as keyof ReactiveResource];
         }
@@ -615,6 +622,13 @@ export class ReactiveResource {
   }
 }
 
+async function _COMMIT(record: ReactiveResource): Promise<void> {
+  await Promise.resolve();
+  const context = record[Context];
+  context.store.cache.willCommit(context.resourceKey, null);
+  context.store.cache.didCommit(context.resourceKey, null);
+}
+
 export function _CHECKOUT(record: ReactiveResource): ReactiveResource {
   const context = record[Context];
 
@@ -673,4 +687,46 @@ function assertNeverField(identifier: StableRecordIdentifier, field: never, path
     `Cannot use unknown field kind ${(field as FieldSchema).kind} on <${identifier.type}>.${Array.isArray(path) ? path.join('.') : path}`
   );
   return false;
+}
+
+/**
+ * Checkout an immutable resource for editing.
+ *
+ * {@link ReactiveResource | ReactiveResources} are not editable by default. This method
+ * creates an editable copy of the resource.
+ *
+ * This returns a promise which resolves with the editable
+ * version of the resource.
+ *
+ * ```ts
+ * import { checkout } from '@warp-drive/core/reactive';
+ *
+ * const immutable = store.peekRecord('user', '1');
+ * const editable = await checkout(immutable);
+ * ```
+ *
+ * Edits to editable resources will be automatically committed if a new
+ * payload from the cache matches their existing value.
+ *
+ * @public
+ *
+ * @returns a promise that resolves to the editable resource
+ * @throws if the resource is already editable or if resource is an embedded object
+ */
+export function checkout<T>(resource: unknown): Promise<T & ReactiveResource> {
+  return (resource as ReactiveResource)[Checkout]();
+}
+
+/**
+ * Forcibly commit all local changes on an editable resource to
+ * the remote (immutable) version.
+ *
+ * This API should only be used cautiously. Typically a better
+ * approach is for either the API or a Handler to reflect saved
+ * changes back to update the cache.
+ *
+ * @public
+ */
+export function commit(record: ReactiveResource): Promise<void> {
+  return record[Commit]();
 }
