@@ -35,6 +35,9 @@ export interface NewRecordIdentifier<T extends string = string> extends Identifi
 
 export type StableDocumentIdentifier = {
   lid: string;
+  type: '@document';
+  /** @internal */
+  [CACHE_OWNER]: number | undefined;
 };
 export type RequestKey = StableDocumentIdentifier;
 
@@ -73,20 +76,26 @@ export interface StableIdentifier extends Identifier {
  */
 export interface StableExistingRecordIdentifier<T extends string = string> extends StableIdentifier {
   /**
+   * the primary `ResourceType` or "model name" this ResourceKey belongs to.
+   *
+   * @public
+   */
+  type: T;
+
+  /** @internal */
+  [CACHE_OWNER]: number | undefined;
+
+  /**
    * the PrimaryKey for the resource this ResourceKey belongs to. `null`
    * if not yet assigned a PrimaryKey value.
    *
    * @public
    */
   id: string;
-  /**
-   * the primary `ResourceType` or "model name" this ResourceKey belongs to.
-   *
-   * @public
-   */
-  type: T;
+
+  /** @internal */
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  [CACHE_OWNER]: number | undefined;
+  /** @internal */
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
@@ -103,22 +112,25 @@ export interface StableExistingRecordIdentifier<T extends string = string> exten
  */
 export interface StableNewRecordIdentifier<T extends string = string> extends StableIdentifier {
   /**
+   * the primary resource `type` or `modelName` this identity belongs to.
+   *
+   * @public
+   */
+  type: T;
+
+  /** @internal */
+  [CACHE_OWNER]: number | undefined;
+
+  /**
    * the primary id for the record this identity belongs to. `null`
    * if not yet assigned an id.
    *
    * @public
    */
   id: string | null;
-  /**
-   * the primary resource `type` or `modelName` this identity belongs to.
-   *
-   * @public
-   */
-  type: T;
+
   /** @internal */
   [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  /** @internal */
-  [CACHE_OWNER]: number | undefined;
   /** @internal */
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
