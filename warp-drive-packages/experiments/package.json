@@ -12,10 +12,6 @@
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
   "exports": {
-    "./persisted-cache": {
-      "types": "./declarations/persisted-cache.d.ts",
-      "default": "./dist/persisted-cache.js"
-    },
     "./document-storage": {
       "types": "./declarations/document-storage.d.ts",
       "default": "./dist/document-storage.js"

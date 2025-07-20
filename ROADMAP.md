@@ -113,9 +113,9 @@ This would enable applications to pre-fetch the data for routes more optimally, 
 
 4) PersistedCache
 
-See the [experiment](./warp-drive-packages/experiments/src/persisted-cache/README.md)
+See the [experiment](./warp-drive-packages/experiments/src/document-storage/README.md)
 
-A wrapper for any Cache implementation that automatically syncs its state to IndexedDB in the background. Useful for being able to replay requests when reloading a page or opening a new tab, deduping requests across tabs, and providing minimal but powerful offline support.
+Support for persiting the cache into on-device storage.
 
 5) DataWorker
 
