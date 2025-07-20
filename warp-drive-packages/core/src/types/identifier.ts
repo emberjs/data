@@ -23,16 +23,6 @@ export interface Identifier {
   lid: string;
 }
 
-export interface ExistingRecordIdentifier<T extends string = string> extends Identifier {
-  id: string;
-  type: T;
-}
-
-export interface NewRecordIdentifier<T extends string = string> extends Identifier {
-  id: string | null;
-  type: T;
-}
-
 export type StableDocumentIdentifier = {
   lid: string;
   type: '@document';
@@ -40,19 +30,6 @@ export type StableDocumentIdentifier = {
   [CACHE_OWNER]: number | undefined;
 };
 export type RequestKey = StableDocumentIdentifier;
-
-/**
- * An Identifier specific to a record which may or may not
- * be present in the cache.
- *
- * The absence of an `id` DOES NOT indicate that this
- * Identifier is for a new client-created record as it
- * may also indicate that it was generated for a secondary
- * index and the primary `id` index is not yet known.
- *
- * @internal
- */
-export type RecordIdentifier<T extends string = string> = ExistingRecordIdentifier<T> | NewRecordIdentifier<T>;
 
 /**
  * Used when an Identifier is known to be the stable version

@@ -14,10 +14,9 @@ import {
   DEBUG_STALE_CACHE_OWNER,
   type Identifier,
   type IdentifierBucket,
-  type RecordIdentifier,
+  type PersistedResourceKey,
   type ResourceKey,
   type StableDocumentIdentifier,
-  type PersistedResourceKey,
   type StableIdentifier,
 } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
@@ -629,7 +628,8 @@ export class CacheKeyManager {
 
     @public
   */
-  updateRecordIdentifier(identifierObject: RecordIdentifier, data: unknown): ResourceKey {
+  // FIXME audit usage
+  updateRecordIdentifier(identifierObject: ResourceKey, data: unknown): ResourceKey {
     let identifier = this.getOrCreateRecordIdentifier(identifierObject);
 
     const keyInfo = this._keyInfoForResource(data, identifier);
@@ -751,7 +751,8 @@ export class CacheKeyManager {
 
    @public
   */
-  forgetRecordIdentifier(identifierObject: RecordIdentifier): void {
+  // FIXME audit usage
+  forgetRecordIdentifier(identifierObject: ResourceKey): void {
     const identifier = this.getOrCreateRecordIdentifier(identifierObject);
     const typeSet = this._cache.resourcesByType[identifier.type];
     assert(`Expected to find a typeSet for ${identifier.type}`, typeSet);
@@ -868,7 +869,7 @@ function performRecordIdentifierUpdate(
       const lid = data.lid;
       if (lid !== identifier.lid) {
         throw new Error(
-          `The 'lid' for a RecordIdentifier cannot be updated once it has been created. Attempted to set lid for '${wrapper.lid}' to '${lid}'.`
+          `The 'lid' for a ResourceKey cannot be updated once it has been created. Attempted to set lid for '${wrapper.lid}' to '${lid}'.`
         );
       }
     }
@@ -877,7 +878,7 @@ function performRecordIdentifierUpdate(
       // here we warn and ignore, as this may be a mistake, but we allow the user
       // to have multiple cache-keys pointing at a single lid so we cannot error
       warn(
-        `The 'id' for a RecordIdentifier should not be updated once it has been set. Attempted to set id for '${wrapper.lid}' to '${id}'.`,
+        `The 'id' for a ResourceKey should not be updated once it has been set. Attempted to set id for '${wrapper.lid}' to '${id}'.`,
         false,
         { id: 'ember-data:multiple-ids-for-identifier' }
       );
@@ -886,7 +887,7 @@ function performRecordIdentifierUpdate(
     // TODO consider just ignoring here to allow flexible polymorphic support
     if (type && type !== identifier.type) {
       throw new Error(
-        `The 'type' for a RecordIdentifier cannot be updated once it has been set. Attempted to set type for '${wrapper.lid}' to '${type}'.`
+        `The 'type' for a ResourceKey cannot be updated once it has been set. Attempted to set type for '${wrapper.lid}' to '${type}'.`
       );
     }
 

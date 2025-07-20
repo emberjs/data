@@ -38,7 +38,7 @@ export class Snapshot<R = unknown> {
   declare private _store: Store;
 
   /**
-    The unique RecordIdentifier associated with this Snapshot.
+    The unique ResourceKey associated with this Snapshot.
 
     @public
   */

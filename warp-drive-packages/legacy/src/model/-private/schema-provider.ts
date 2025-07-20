@@ -5,7 +5,7 @@ import type { Store } from '@warp-drive/core';
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { SchemaService } from '@warp-drive/core/types';
-import type { RecordIdentifier, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ObjectValue } from '@warp-drive/core/types/json/raw';
 import type { Derivation, HashFn, Transformation } from '@warp-drive/core/types/schema/concepts';
 import type {
@@ -36,9 +36,9 @@ type InternalSchema = {
 };
 
 export interface ModelSchemaProvider {
-  attributesDefinitionFor(resource: RecordIdentifier | { type: string }): AttributesSchema;
+  attributesDefinitionFor(resource: ResourceKey | { type: string }): AttributesSchema;
 
-  relationshipsDefinitionFor(resource: RecordIdentifier | { type: string }): RelationshipsSchema;
+  relationshipsDefinitionFor(resource: ResourceKey | { type: string }): RelationshipsSchema;
 
   doesTypeExist(type: string): boolean;
 }
@@ -134,7 +134,7 @@ export class ModelSchemaProvider implements SchemaService {
     return internalSchema;
   }
 
-  fields(resource: RecordIdentifier | { type: string }): Map<string, LegacyField> {
+  fields(resource: ResourceKey | { type: string }): Map<string, LegacyField> {
     const type = normalizeModelName(resource.type);
 
     if (!this._schemas.has(type)) {
@@ -182,7 +182,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   };
 
   ModelSchemaProvider.prototype.attributesDefinitionFor = function (
-    resource: RecordIdentifier | { type: string }
+    resource: ResourceKey | { type: string }
   ): AttributesSchema {
     deprecate(`Use \`schema.fields({ type })\` instead of \`schema.attributesDefinitionFor({ type })\``, false, {
       id: 'ember-data:schema-service-updates',
@@ -206,7 +206,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   };
 
   ModelSchemaProvider.prototype.relationshipsDefinitionFor = function (
-    resource: RecordIdentifier | { type: string }
+    resource: ResourceKey | { type: string }
   ): RelationshipsSchema {
     deprecate(`Use \`schema.fields({ type })\` instead of \`schema.relationshipsDefinitionFor({ type })\``, false, {
       id: 'ember-data:schema-service-updates',

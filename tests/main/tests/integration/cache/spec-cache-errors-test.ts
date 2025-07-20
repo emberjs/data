@@ -16,12 +16,7 @@ import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  PersistedResourceKey,
-  RecordIdentifier,
-  ResourceKey,
-  StableDocumentIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
   CollectionResourceDataDocument,
@@ -68,7 +63,9 @@ class TestCache implements Cache {
   ): ResourceMetaDocument | ResourceErrorDocument;
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     if ('content' in doc && !('error' in doc)) {
-      const identifier = this.wrapper.cacheKeyManager.getOrCreateRecordIdentifier(doc.content.data as RecordIdentifier);
+      const identifier = this.wrapper.cacheKeyManager.getOrCreateRecordIdentifier(
+        doc.content.data as ExistingResourceObject
+      );
       this.upsert(identifier, doc.content.data as ExistingResourceObject, this.wrapper.hasRecord(identifier));
       return { data: identifier } as SingleResourceDataDocument;
     } else if ('error' in doc) {

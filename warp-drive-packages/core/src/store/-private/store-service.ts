@@ -21,7 +21,7 @@ import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { ResourceKey, PersistedResourceKey } from '../../types/identifier.ts';
+import type { PersistedResourceKey, ResourceKey } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheOptions, RequestInfo } from '../../types/request.ts';
@@ -469,11 +469,11 @@ export interface Store {
    *     return this._schema.hasResource(resource);
    *   }
    *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *   attributesDefinitionFor(identifier: ResourceKey | { type: string }): AttributesSchema {
    *     return this._schema.attributesDefinitionFor(identifier);
    *   }
    *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *   relationshipsDefinitionFor(identifier: ResourceKey | { type: string }): RelationshipsSchema {
    *     const schema = AbstractSchemas.get(identifier.type);
    *     return schema || this._schema.relationshipsDefinitionFor(identifier);
    *   }
@@ -524,11 +524,11 @@ export interface Store {
    *     return this._schema.hasResource(resource);
    *   }
    *
-   *   attributesDefinitionFor(identifier: RecordIdentifier | { type: string }): AttributesSchema {
+   *   attributesDefinitionFor(identifier: ResourceKey | { type: string }): AttributesSchema {
    *     return this._schema.attributesDefinitionFor(identifier);
    *   }
    *
-   *   relationshipsDefinitionFor(identifier: RecordIdentifier | { type: string }): RelationshipsSchema {
+   *   relationshipsDefinitionFor(identifier: ResourceKey | { type: string }): RelationshipsSchema {
    *     const schema = AbstractSchemas.get(identifier.type);
    *     return schema || this._schema.relationshipsDefinitionFor(identifier);
    *   }

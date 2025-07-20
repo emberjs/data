@@ -117,12 +117,10 @@ function maybeUpdatePersistedCache(
   if (!document && resourceDocument) {
     // we have resources to update but not a full request to cache
     void worker.storage.putResources(resourceDocument, (resourceIdentifier) => {
-      // @ts-expect-error FIXME investigate why document.data won't accept the signature
       return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
     });
   } else if (document) {
     void worker.storage.putDocument(document, (resourceIdentifier) => {
-      // @ts-expect-error FIXME investigate why document.data won't accept the signature
       return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
     });
   }

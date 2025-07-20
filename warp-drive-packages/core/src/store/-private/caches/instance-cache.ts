@@ -151,7 +151,7 @@ export class InstanceCache {
           // @ts-expect-error TODO this needs to be fixed
           if ('id' in resourceData) {
             throw new Error(
-              `Failed to update the 'id' for the RecordIdentifier '${identifier.type}:${String(identifier.id)} (${
+              `Failed to update the 'id' for the ResourceKey '${identifier.type}:${String(identifier.id)} (${
                 identifier.lid
               })' to '${String(resourceData.id)}', because that id is already in use by '${
                 matchedIdentifier.type
@@ -160,7 +160,7 @@ export class InstanceCache {
           }
 
           assert(
-            `Failed to update the RecordIdentifier '${identifier.type}:${String(identifier.id)} (${
+            `Failed to update the ResourceKey '${identifier.type}:${String(identifier.id)} (${
               identifier.lid
             })' to merge with the detected duplicate identifier '${matchedIdentifier.type}:${String(
               matchedIdentifier.id
