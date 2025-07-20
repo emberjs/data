@@ -78,7 +78,7 @@ module('integration/request-state-service - Request State Service', function (ho
     const requestService = store.getRequestStateService();
 
     // Relying on sequential lids until identifiers land
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     normalizedHash.data.lid = identifier.lid;
     const request = requestService.getPendingRequestsForRecord(identifier)[0];
 
@@ -175,7 +175,7 @@ module('integration/request-state-service - Request State Service', function (ho
 
     const requestService = store.getRequestStateService();
     // Relying on sequential lids until identifiers land
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     let count = 0;
     const requestOp = {
       op: 'findRecord',

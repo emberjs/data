@@ -91,7 +91,7 @@ function makeRel(id: string | null, isMany: boolean): BestFriendRel<UserRef | Us
 
 export async function setInitialState(context: Context, config: TestConfig, assert: Diagnostic): Promise<TestState> {
   const { owner, store, graph } = context;
-  const { identifierCache } = store;
+  const { cacheKeyManager } = store;
   const isMany = config.relType === 'hasMany';
 
   const relFn = isMany ? hasMany : belongsTo;
@@ -126,7 +126,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
     };
 
     [chris, john] = store.push<UserRecord>(data);
-    johnIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    johnIdentifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
   } else {
     chris = store.push<UserRecord>({
       data: {
@@ -159,7 +159,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   // give ourselves a tick in case there was async work
   await Promise.resolve();
 
-  const chrisIdentifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+  const chrisIdentifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
   const johnBestFriend = graph.get(johnIdentifier, 'bestFriends');
 

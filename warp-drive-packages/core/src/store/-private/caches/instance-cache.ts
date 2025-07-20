@@ -125,7 +125,7 @@ export class InstanceCache {
 
     this._storeWrapper = new CacheCapabilitiesManager(this.store);
 
-    store.identifierCache.__configureMerge(
+    store.cacheKeyManager.__configureMerge(
       (identifier: ResourceKey, matchedIdentifier: ResourceKey, resourceData: unknown) => {
         let keptIdentifier = identifier;
         if (identifier.id !== matchedIdentifier.id) {
@@ -240,7 +240,7 @@ export class InstanceCache {
 
     this.store._graph?.remove(identifier);
 
-    this.store.identifierCache.forgetRecordIdentifier(identifier);
+    this.store.cacheKeyManager.forgetRecordIdentifier(identifier);
     StoreMap.delete(identifier);
     this.store._requestCache._clearEntries(identifier);
     if (LOG_INSTANCE_CACHE) {
@@ -271,7 +271,7 @@ export class InstanceCache {
   }
 
   clear(type?: string): void {
-    const cache = this.store.identifierCache._cache;
+    const cache = this.store.cacheKeyManager._cache;
     if (type === undefined) {
       // it would be cool if we could just de-ref cache here
       // but probably would require WeakRef models to do so.
@@ -325,7 +325,7 @@ export class InstanceCache {
       console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
     }
 
-    const existingIdentifier = this.store.identifierCache.peekRecordIdentifier({ type, id });
+    const existingIdentifier = this.store.cacheKeyManager.peekRecordIdentifier({ type, id });
     assert(
       `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
       !existingIdentifier || existingIdentifier === identifier
@@ -333,7 +333,7 @@ export class InstanceCache {
 
     if (identifier.id === null) {
       // TODO potentially this needs to handle merged result
-      this.store.identifierCache.updateRecordIdentifier(identifier, { type, id });
+      this.store.cacheKeyManager.updateRecordIdentifier(identifier, { type, id });
     }
 
     // TODO update resource cache if needed ?

@@ -178,7 +178,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       },
     ];
 
-    Object.keys(store.identifierCache._cache.resourcesByType).forEach((type) => {
+    Object.keys(store.cacheKeyManager._cache.resourcesByType).forEach((type) => {
       discoveredTypes.set(type, false);
     });
 

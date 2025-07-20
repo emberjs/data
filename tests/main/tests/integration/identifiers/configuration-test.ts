@@ -417,20 +417,20 @@ module('Integration | Identifiers - configuration', function (hooks) {
     const userByIdPromise = store.findRecord('user', '1');
 
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
-    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We have 2 identifiers in the cache');
+    assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'We have 2 identifiers in the cache');
     generateLidCalls = 0;
 
-    const originalUserByUsernameIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const originalUserByUsernameIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '@runspired',
     });
-    const originalUserByIdIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const originalUserByIdIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     });
 
     assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
-    assert.strictEqual(store.identifierCache._cache.resources.size, 2, 'We still have 2 identifiers in the cache');
+    assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'We still have 2 identifiers in the cache');
     generateLidCalls = 0;
 
     // we expect that the username based identifier will be abandoned
@@ -442,7 +442,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
     assert.strictEqual(
-      store.identifierCache._cache.resources.size,
+      store.cacheKeyManager._cache.resources.size,
       2,
       'We keep a back reference identifier in the cache'
     );
@@ -475,10 +475,10 @@ module('Integration | Identifiers - configuration', function (hooks) {
     assert.strictEqual(recordA, recordD, 'We have a single record for both identifiers');
     assert.strictEqual(recordA, recordE, 'We have a single record for both identifiers');
 
-    const regeneratedIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const regeneratedIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       lid: finalUserByUsernameIdentifier.lid,
     });
-    const regeneratedIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+    const regeneratedIdentifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({
       id: '@runspired',
       type: 'user',
     });
@@ -489,7 +489,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     store.unloadRecord(recordA);
     await settled();
     assert.strictEqual(
-      store.identifierCache._cache.resources.size,
+      store.cacheKeyManager._cache.resources.size,
       0,
       'We have no identifiers or backreferences in the cache'
     );

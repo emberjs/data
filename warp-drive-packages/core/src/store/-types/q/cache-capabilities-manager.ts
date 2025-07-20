@@ -1,5 +1,5 @@
 import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
-import type { IdentifierCache } from '../../-private/caches/identifier-cache.ts';
+import type { CacheKeyManager } from '../../-private/managers/cache-key-manager.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
 import type { SchemaService } from './schema-service.ts';
 
@@ -12,22 +12,22 @@ import type { SchemaService } from './schema-service.ts';
  *
  * This class cannot be directly instantiated.
  *
- * @class CacheCapabilitiesManager
  * @public
  */
 export type CacheCapabilitiesManager = {
   /**
-   * Provides access to the IdentifierCache instance
+   * Provides access to the CacheKeyManager instance
    * for this Store instance.
    *
-   * The IdentifierCache can be used to peek, generate or
+   * The CacheKeyManager can be used to peek, generate or
    * retrieve a stable unique identifier for any resource.
    *
-   * @property identifierCache
-   * @type {IdentifierCache}
    * @public
    */
-  identifierCache: IdentifierCache;
+  cacheKeyManager: CacheKeyManager;
+
+  /** @deprecated use {@link CacheCapabilitiesManager.cacheKeyManager} */
+  identifierCache: CacheKeyManager;
 
   /**
    * DEPRECATED - use the schema property
@@ -38,7 +38,7 @@ export type CacheCapabilitiesManager = {
    * The SchemaService can be used to query for
    * information about the schema of a resource.
    *
-   * @deprecated
+   * @deprecated use {@link CacheCapabilitiesManager.schema}
    * @public
    */
   getSchemaDefinitionService(): SchemaService;
@@ -59,8 +59,6 @@ export type CacheCapabilitiesManager = {
    * Update the `id` for the record corresponding to the identifier
    * This operation can only be done for records whose `id` is `null`.
    *
-   * @param {ResourceKey} identifier;
-   * @param {String} id;
    * @public
    */
   setRecordId(identifier: ResourceKey, id: string): void;
@@ -71,7 +69,6 @@ export type CacheCapabilitiesManager = {
    * data exist for the identified resource, no known relationships still
    * point to it either.
    *
-   * @param {ResourceKey} identifier
    * @public
    */
   disconnectRecord(identifier: ResourceKey): void;
@@ -80,8 +77,6 @@ export type CacheCapabilitiesManager = {
    * Use this method to determine if the Store has an instantiated record associated
    * with an identifier.
    *
-   * @param identifier
-   * @return {Boolean}
    * @public
    */
   hasRecord(identifier: ResourceKey): boolean;
@@ -94,9 +89,6 @@ export type CacheCapabilitiesManager = {
    *
    * No other namespaces currently expect the `key` argument.
    *
-   * @param {ResourceKey} identifier
-   * @param {'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | 'state'} namespace
-   * @param {string|undefined} key
    * @public
    */
   notifyChange(identifier: ResourceKey, namespace: 'added' | 'removed', key: null): void;

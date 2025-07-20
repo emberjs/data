@@ -51,7 +51,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
     assert.equal(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4 }), 'meta is correct');
     assert.equal(responseDocument.lid, 'https://api.example.com/v1/users', 'lid is correct');
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users',
     })!;
@@ -90,7 +90,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         },
       })
     );
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users',
       cacheOptions: { key: 'users' },
@@ -136,7 +136,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         },
       })
     );
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users',
     })!;
@@ -217,11 +217,11 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users',
     })!;
@@ -295,7 +295,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = new TestStore();
-    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const documentIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
 

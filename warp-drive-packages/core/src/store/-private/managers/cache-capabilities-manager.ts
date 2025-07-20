@@ -4,9 +4,9 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';
 import type { SchemaService } from '../../-types/q/schema-service.ts';
-import type { IdentifierCache } from '../caches/identifier-cache.ts';
-import { isDocumentIdentifier, isStableIdentifier } from '../caches/identifier-cache.ts';
 import type { Store } from '../store-service.ts';
+import type { CacheKeyManager } from './cache-key-manager.ts';
+import { isDocumentIdentifier, isStableIdentifier } from './cache-key-manager.ts';
 import type { NotificationType } from './notification-manager.ts';
 
 export interface CacheCapabilitiesManager {
@@ -23,8 +23,13 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     this._pendingNotifies = new Map();
   }
 
-  get identifierCache(): IdentifierCache {
-    return this._store.identifierCache;
+  get cacheKeyManager(): CacheKeyManager {
+    return this._store.cacheKeyManager;
+  }
+
+  /** @deprecated use {@link CacheCapabilitiesManager.cacheKeyManager} */
+  get identifierCache(): CacheKeyManager {
+    return this.cacheKeyManager;
   }
 
   _scheduleNotification(identifier: ResourceKey, key: string): void {

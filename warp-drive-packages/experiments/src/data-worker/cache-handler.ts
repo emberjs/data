@@ -33,7 +33,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     const { store } = context.request;
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+    const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(context.request);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
 
     if (identifier && !peeked) {
@@ -147,7 +147,7 @@ function updateCacheForSuccess<T>(
     response = store.cache.put(document) as ResourceDataDocument;
 
     if (response.lid) {
-      const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+      const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(request);
       const full = store.cache.peekRequest(identifier!);
       maybeUpdatePersistedCache(store, full);
     }
@@ -194,7 +194,7 @@ function updateCacheForError<T>(
 
     store.cache.commitWasRejected(record, errors);
   } else {
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+    const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(request);
     if (identifier) {
       maybeUpdatePersistedCache(store, error as StructuredErrorDocument<ResourceErrorDocument>);
     }

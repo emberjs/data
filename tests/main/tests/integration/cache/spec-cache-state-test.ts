@@ -81,7 +81,7 @@ class TestCache implements Cache {
     if ('content' in doc && !('error' in doc)) {
       if (Array.isArray(doc.content.data)) {
         const data = doc.content.data.map((resource) => {
-          const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
+          const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
             resource
           ) as StableExistingRecordIdentifier;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
@@ -89,7 +89,7 @@ class TestCache implements Cache {
         });
         return { data };
       } else {
-        const identifier = this._storeWrapper.identifierCache.getOrCreateRecordIdentifier(
+        const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
           doc.content.data
         ) as StableExistingRecordIdentifier;
         this.upsert(identifier, doc.content.data!, this._storeWrapper.hasRecord(identifier));

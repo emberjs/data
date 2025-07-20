@@ -683,9 +683,9 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     const store = this.owner.lookup('service:store');
 
     const identifiers = [
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '20' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'test', id: '10' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'test', id: '20' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'test', id: '21' }),
     ];
 
     const result = await Promise.all(identifiers.map((id) => store.findRecord(id)));

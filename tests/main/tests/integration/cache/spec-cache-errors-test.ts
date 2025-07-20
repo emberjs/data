@@ -68,7 +68,7 @@ class TestCache implements Cache {
   ): ResourceMetaDocument | ResourceErrorDocument;
   put(doc: StructuredDocument<JsonApiDocument>): ResourceDocument {
     if ('content' in doc && !('error' in doc)) {
-      const identifier = this.wrapper.identifierCache.getOrCreateRecordIdentifier(doc.content.data as RecordIdentifier);
+      const identifier = this.wrapper.cacheKeyManager.getOrCreateRecordIdentifier(doc.content.data as RecordIdentifier);
       this.upsert(identifier, doc.content.data as ExistingResourceObject, this.wrapper.hasRecord(identifier));
       return { data: identifier } as SingleResourceDataDocument;
     } else if ('error' in doc) {

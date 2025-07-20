@@ -171,7 +171,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
   module('<cache>.hasChangedRelationships', function () {
     test('it returns false when no changes have occurred', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
 
       const graph = graphFor(store);
@@ -200,7 +200,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '4') as Config;
       app.configs.push(config);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state added');
     });
     test('it returns true when a hasMany has state removed', function (assert) {
@@ -208,7 +208,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '2') as Config;
       app.configs.splice(app.configs.indexOf(config), 1);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
     });
     test('it returns true when a hasMany has state re-ordered', function (assert) {
@@ -217,7 +217,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config = store.peekRecord('config', '1') as Config;
       app.configs.splice(app.configs.indexOf(config), 1);
       app.configs.push(config);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
     });
     test('it returns false when a mutated has-many has returned to its initial state', function (assert) {
@@ -226,15 +226,15 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config = store.peekRecord('config', '1') as Config;
       app.configs.shift();
       app.configs.unshift(config);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
     });
     test('it returns false when a belongsTo has no change', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      const config4Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const config4Identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
       assert.false(store.cache.hasChangedRelationships(config4Identifier), 'a belongsTo has no change (null)');
 
-      const config1Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const config1Identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.false(store.cache.hasChangedRelationships(config1Identifier), 'a belongsTo has no change (populated)');
     });
     test('it returns true when a belongsTo has state added', function (assert) {
@@ -242,28 +242,28 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '4') as Config;
       config.app = app;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state added');
     });
     test('it returns true when a belongsTo has state removed', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state removed');
     });
     test('it returns true when a belongsTo has state replaced', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = store.peekRecord('app', '2') as App;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
     });
     test('it returns false when state has returned to the initial state', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
       config.app = store.peekRecord('app', '1') as App;
       assert.false(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
@@ -273,7 +273,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
   module('<cache>.rollbackRelationships', function () {
     test('it returns an empty array when no changes have occurred', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
       let changed = store.cache.rollbackRelationships(appIdentifier);
       assert.arrayStrictEquals(changed, [], 'no changes have occurred');
@@ -312,7 +312,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config3 = store.peekRecord('config', '3') as Config;
       const config4 = store.peekRecord('config', '4') as Config;
       app.configs.push(config4);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state added');
       assert.arrayStrictEquals(app.configs, [config1, config2, config3, config4], 'hasMany has state added');
       assert.strictEqual(config4.app, app, 'config4 has state added');
@@ -331,7 +331,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
       app.configs.splice(app.configs.indexOf(config2), 1);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
       assert.arrayStrictEquals(app.configs, [config1, config3], 'hasMany has state added');
       assert.strictEqual(config2.app, null, 'config2 state cleared');
@@ -349,7 +349,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config1 = store.peekRecord('config', '1') as Config;
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
       app.configs.splice(app.configs.indexOf(config1), 1);
       app.configs.push(config1);
@@ -370,7 +370,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config1 = store.peekRecord('config', '1') as Config;
       const config2 = store.peekRecord('config', '2') as Config;
       const config3 = store.peekRecord('config', '3') as Config;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'the hasMany is in a clean state');
       assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany is in the correct starting order');
@@ -396,7 +396,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config3 = store.peekRecord('config', '3') as Config;
       app.configs.shift();
       app.configs.unshift(config1);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.arrayStrictEquals(app.configs, [config1, config2, config3], 'hasMany is correct');
       assert.strictEqual(config2.app, app, 'config2 is clean');
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
@@ -409,13 +409,13 @@ module('Integration | Relationships | Rollback', function (hooks) {
 
     test('it returns an empty array when a belongsTo has no change', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      const config4Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const config4Identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
       assert.false(store.cache.hasChangedRelationships(config4Identifier), 'a belongsTo has no change (null)');
 
       let changed = store.cache.rollbackRelationships(config4Identifier);
       assert.arrayStrictEquals(changed, [], 'relationship was clean');
 
-      const config1Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const config1Identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.false(store.cache.hasChangedRelationships(config1Identifier), 'a belongsTo has no change (populated)');
 
       changed = store.cache.rollbackRelationships(config1Identifier);
@@ -427,7 +427,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '4') as Config;
       config.app = app;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state added');
 
       const changed = store.cache.rollbackRelationships(configIdentifier);
@@ -440,7 +440,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config = store.peekRecord('config', '1') as Config;
       const app = config.app;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state removed');
 
       const changed = store.cache.rollbackRelationships(configIdentifier);
@@ -460,7 +460,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       // we update the config1.app to point at a different app,
       // which will remove config1 from app:1's list of configs
       config1.app = store.peekRecord('app', '2') as App;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
 
       // confirm the mutation
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
@@ -482,7 +482,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
       config.app = store.peekRecord('app', '1') as App;
       assert.false(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
@@ -548,7 +548,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
   module('<cache>.changedRelationships', function () {
     test('it returns an empty map when no changes have occurred', function (assert) {
       const store = this.owner.lookup('service:store') as Store;
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'no changes have occurred');
       let changed = store.cache.changedRelationships(appIdentifier);
       assert.strictEqual(changed.size, 0, 'no changes have occurred');
@@ -581,7 +581,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
 
       function identifier(type: string, id: string): StableRecordIdentifier {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const app = store.peekRecord('app', '1') as App;
@@ -619,7 +619,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
 
       function identifier(type: string, id: string): StableRecordIdentifier {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const app = store.peekRecord('app', '1') as App;
@@ -657,14 +657,14 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
 
       function identifier(type: string, id: string): StableRecordIdentifier {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '1') as Config;
       app.configs.splice(app.configs.indexOf(config), 1);
       app.configs.push(config);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.true(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state reordered');
 
       const changed = store.cache.changedRelationships(appIdentifier);
@@ -699,7 +699,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config = store.peekRecord('config', '1') as Config;
       app.configs.shift();
       app.configs.unshift(config);
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
       assert.false(store.cache.hasChangedRelationships(appIdentifier), 'a hasMany has state removed');
 
       const changed = store.cache.changedRelationships(appIdentifier);
@@ -710,7 +710,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
 
       function identifier(type: string, id: string): StableRecordIdentifier {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const config4Identifier = identifier('config', '4');
@@ -729,7 +729,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const app = store.peekRecord('app', '1') as App;
       const config = store.peekRecord('config', '4') as Config;
       config.app = app;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state added');
       const changed = store.cache.changedRelationships(configIdentifier);
       assert.strictEqual(changed.size, 1, 'a belongsTo has state added');
@@ -746,7 +746,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.strictEqual(change.remoteState, null, 'original state is null');
       assert.strictEqual(
         change.localState,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
         'app was added'
       );
     });
@@ -755,7 +755,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state removed');
 
       const changed = store.cache.changedRelationships(configIdentifier);
@@ -772,7 +772,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.strictEqual(change.kind, 'resource', 'kind is resource');
       assert.strictEqual(
         change.remoteState,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
         'remote state is app 1'
       );
       assert.strictEqual(change.localState, null, 'new state is null');
@@ -782,7 +782,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = store.peekRecord('app', '2') as App;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
 
       const changed = store.cache.changedRelationships(configIdentifier);
@@ -799,12 +799,12 @@ module('Integration | Relationships | Rollback', function (hooks) {
       assert.strictEqual(change.kind, 'resource', 'kind is resource');
       assert.strictEqual(
         change.remoteState,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' }),
         'remote state is app 1'
       );
       assert.strictEqual(
         change.localState,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '2' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '2' }),
         'new state is app 2'
       );
     });
@@ -813,7 +813,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const store = this.owner.lookup('service:store') as Store;
       const config = store.peekRecord('config', '1') as Config;
       config.app = null;
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       assert.true(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
       config.app = store.peekRecord('app', '1') as App;
       assert.false(store.cache.hasChangedRelationships(configIdentifier), 'a belongsTo has state replaced');
@@ -828,7 +828,7 @@ module('Integration | Relationships | Rollback', function (hooks) {
       const config = store.peekRecord('config', '1') as Config;
       const app2 = store.peekRecord('app', '2') as App;
 
-      const configIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+      const configIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
       const relationship = store.cache.getRelationship(configIdentifier, 'app');
       config.app = app2;
       const remote = store.cache.getRemoteRelationship(configIdentifier, 'app');

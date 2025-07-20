@@ -143,7 +143,7 @@ function getPossiblyPersistedRequestId(request: StoreRequestContext['request']):
     return null;
   }
 
-  const identifier = store.identifierCache.getOrCreateDocumentIdentifier(request);
+  const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(request);
 
   // if there is no cache-key,  this is not a request we can resolve from the persisted from cache
   if (!identifier) {

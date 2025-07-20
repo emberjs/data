@@ -10,7 +10,7 @@ import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../../types/record.ts';
 import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
 import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
-import { isStableIdentifier } from '../caches/identifier-cache.ts';
+import { isStableIdentifier } from '../managers/cache-key-manager.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
 import { notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import type { CreateRecordProperties } from '../store-service.ts';

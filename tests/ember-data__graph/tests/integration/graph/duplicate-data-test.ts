@@ -35,7 +35,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
       const store = owner.lookup('service:store') as unknown as Store;
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
-        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+        return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
       };
 
       const appIdentifier = identifier({ type: 'app', id: '1' });
@@ -98,7 +98,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
       const store = owner.lookup('service:store') as unknown as Store;
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
-        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+        return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
       };
       const appIdentifier = identifier({ type: 'app', id: '1' });
       const configIdentifier1 = identifier({ type: 'config', id: '1' });
@@ -156,7 +156,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
         owner.register('model:config', Config);
         const store = owner.lookup('service:store') as unknown as Store;
         const graph = graphFor(store);
-        const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+        const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
         try {
           store._join(() => {
@@ -202,11 +202,11 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
         owner.register('model:config', Config);
         const store = owner.lookup('service:store') as unknown as Store;
         const graph = graphFor(store);
-        const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-        const configIdentifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
-        const configIdentifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '2' });
-        const configIdentifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
-        const configIdentifier4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
+        const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+        const configIdentifier1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });
+        const configIdentifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '2' });
+        const configIdentifier3 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '3' });
+        const configIdentifier4 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '4' });
 
         try {
           store._join(() => {

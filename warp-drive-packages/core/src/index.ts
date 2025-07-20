@@ -42,4 +42,4 @@ export {
   setIdentifierForgetMethod,
   setIdentifierResetMethod,
   setKeyInfoForResource,
-} from './store/-private/caches/identifier-cache.ts';
+} from './store/-private/managers/cache-key-manager.ts';

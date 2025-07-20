@@ -144,7 +144,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
 
   module('serializePatch', function () {
     test('Correctly serializes only changed attributes and relationships', function (assert) {
-      const user1Identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const user1Identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       store.cache.setAttr(user1Identifier, 'firstName', 'Christopher');
 
       let patch = serializePatch(store.cache, user1Identifier);
@@ -200,7 +200,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           op: 'add',
           record: user1Identifier,
           field: 'friends',
-          value: store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
+          value: store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
         });
       });
 
@@ -232,7 +232,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           op: 'remove',
           record: user1Identifier,
           field: 'friends',
-          value: store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+          value: store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
         });
       });
 
@@ -263,8 +263,8 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
           record: user1Identifier,
           field: 'friends',
           value: [
-            store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
-            store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+            store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+            store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
           ],
         });
       });
@@ -295,7 +295,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
     test('Correctly serializes single resources', function (assert) {
       const payload = serializeResources(
         store.cache,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' })
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' })
       );
       assert.deepEqual(payload, {
         data: {
@@ -324,9 +324,9 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
     });
     test('Correctly serializes multiple resources', function (assert) {
       const payload = serializeResources(store.cache, [
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
       ]);
       assert.deepEqual(payload, {
         data: [
