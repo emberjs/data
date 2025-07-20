@@ -20,7 +20,7 @@ import BaseStore, { CacheHandler } from '@ember-data/store';
 import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 import type { Cache } from '@warp-drive/core-types/cache';
 import type { TypeFromInstance } from '@warp-drive/core-types/record';
 
@@ -49,7 +49,7 @@ export default class Store extends BaseStore {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>): Model {
+  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 

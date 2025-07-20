@@ -4,9 +4,9 @@ import type { DocumentCacheOperation, NotificationType } from '@ember-data/store
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type {
+  ResourceKey,
   StableDocumentIdentifier,
   StableExistingRecordIdentifier,
-  StableRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
@@ -35,19 +35,16 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, this.cache.peek(identifier)!.attributes);
 
-    const token = this.notifications.subscribe(
-      identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-        if (kind === 'attributes' && key) {
-          record[key] = this.cache.getAttr(identifier, key);
-        }
+    const token = this.notifications.subscribe(identifier, (_: ResourceKey, kind: NotificationType, key?: string) => {
+      if (kind === 'attributes' && key) {
+        record[key] = this.cache.getAttr(identifier, key);
       }
-    );
+    });
 
     record.destroy = () => {
       this.notifications.unsubscribe(token);

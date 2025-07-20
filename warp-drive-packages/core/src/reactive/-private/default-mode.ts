@@ -1,6 +1,6 @@
 import type { Store } from '../../store/-private.ts';
 import type { SignalStore } from '../../store/-private/new-core-tmp/reactivity/internal.ts';
-import type { StableRecordIdentifier } from '../../types.ts';
+import type { ResourceKey } from '../../types.ts';
 import type {
   FieldSchema,
   HashField,
@@ -36,7 +36,7 @@ export interface ModeInfo {
 
 export interface BaseContext {
   store: Store;
-  resourceKey: StableRecordIdentifier;
+  resourceKey: ResourceKey;
   modeName: ModeName;
   legacy: boolean;
   editable: boolean;

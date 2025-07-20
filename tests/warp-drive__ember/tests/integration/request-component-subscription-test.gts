@@ -12,7 +12,7 @@ import type { Handler, NextFn } from '@warp-drive/core/request';
 import { createDeferred } from '@warp-drive/core/request';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { RequestContext } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
@@ -113,7 +113,7 @@ class TestStore extends Store {
     return schema;
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: { [key: string]: unknown }): unknown {
+  instantiateRecord(identifier: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
     return instantiateRecord(this, identifier, createRecordArgs);
   }
 

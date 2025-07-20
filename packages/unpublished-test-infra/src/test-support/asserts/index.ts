@@ -1,6 +1,6 @@
 import { TestContext } from '@ember/test-helpers';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 
 import type Assert from 'ember-data-qunit-asserts';
@@ -45,7 +45,7 @@ declare module '@warp-drive/diagnostic' {
      * is made so that it is easy to assert notification counts in between steps of a test.
      */
     notified(
-      identifier: StableDocumentIdentifier | StableRecordIdentifier,
+      identifier: StableDocumentIdentifier | ResourceKey,
       bucket: NotificationType | CacheOperation,
       key: string | null,
       count: number,

@@ -24,7 +24,7 @@ export interface NotificationCallback {
   (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
   (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   (identifier: ResourceKey, notificationType: CacheOperation): void;
-  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+  // (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
 }
 
 export interface ResourceOperationCallback {
@@ -122,13 +122,13 @@ export default class NotificationManager {
    * export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
    *
    * export interface NotificationCallback {
-   *   (identifier: StableRecordIdentifier, notificationType: 'attributes' | 'relationships', key?: string): void;
-   *   (identifier: StableRecordIdentifier, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-   *   (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+   *   (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+   *   (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+   *   (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
    * }
    * export interface ResourceOperationCallback {
    *   // resource updates
-   *   (identifier: StableRecordIdentifier, notificationType: CacheOperation): void;
+   *   (identifier: ResourceKey, notificationType: CacheOperation): void;
    * }
    * export interface DocumentOperationCallback {
    *   // document updates

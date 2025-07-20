@@ -65,7 +65,7 @@ export interface StableIdentifier extends Identifier {
 }
 
 /**
- * Used when a StableRecordIdentifier was not created locally as part
+ * Used when a ResourceKey was not created locally as part
  * of a call to store.createRecord
  *
  * Distinguishing between this Identifier and one for a client created
@@ -100,10 +100,10 @@ export interface StableExistingRecordIdentifier<T extends string = string> exten
 }
 
 /**
- * Used when a StableRecordIdentifier was created locally
+ * Used when a ResourceKey was created locally
  * (by a call to store.createRecord).
  *
- * It is possible in rare circumstances to have a StableRecordIdentifier
+ * It is possible in rare circumstances to have a ResourceKey
  * that is not for a new record but does not have an ID. This would
  * happen if a user intentionally created one for use with a secondary-index
  * prior to the record having been fully loaded.
@@ -146,4 +146,5 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
  */
 export type ResourceKey<T extends string = string> = StableExistingRecordIdentifier<T> | StableNewRecordIdentifier<T>;
 
+/** @deprecated use {@link ResourceKey} */
 export type StableRecordIdentifier<T extends string = string> = ResourceKey<T>;

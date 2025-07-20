@@ -2,7 +2,7 @@ import { CacheHandler, Fetch, RequestManager, Store as DataStore } from '@warp-d
 import { instantiateRecord, SchemaService, teardownRecord } from '@warp-drive/core/reactive';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import { JSONAPICache } from '@warp-drive/json-api';
 
 export default class Store extends DataStore {
@@ -22,7 +22,7 @@ export default class Store extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs?: Record<string, unknown>) {
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
     return instantiateRecord(this, identifier, createArgs);
   }
 

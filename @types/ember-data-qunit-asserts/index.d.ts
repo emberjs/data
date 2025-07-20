@@ -1,5 +1,5 @@
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 
 declare global {
@@ -47,7 +47,7 @@ declare global {
      * is made so that it is easy to assert notification counts in between steps of a test.
      */
     notified(
-      identifier: StableDocumentIdentifier | StableRecordIdentifier,
+      identifier: StableDocumentIdentifier | ResourceKey,
       bucket: NotificationType | CacheOperation,
       key: string | null,
       count: number
@@ -75,7 +75,7 @@ declare global {
       expectNoAssertion(callback: () => unknown): Promise<void>;
       arrayStrictEquals<T>(unknown, expected: T[], message: string): void;
       notified(
-        identifier: StableDocumentIdentifier | StableRecordIdentifier,
+        identifier: StableDocumentIdentifier | ResourceKey,
         bucket: NotificationType | CacheOperation,
         key: string | null,
         count: number

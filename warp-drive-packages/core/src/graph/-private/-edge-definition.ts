@@ -2,7 +2,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../index.ts';
-import type { StableRecordIdentifier } from '../../types.ts';
+import type { ResourceKey } from '../../types.ts';
 import type {
   CollectionField,
   FieldSchema,
@@ -374,7 +374,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 
 export function upgradeDefinition(
   graph: Graph,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   propertyName: string,
   isImplicit = false
 ): EdgeDefinition | null {
@@ -586,7 +586,7 @@ export function upgradeDefinition(
   return info;
 }
 
-function inverseForRelationship(store: Store, identifier: StableRecordIdentifier | { type: string }, key: string) {
+function inverseForRelationship(store: Store, identifier: ResourceKey | { type: string }, key: string) {
   const definition = store.schema.fields(identifier).get(key);
   if (!definition) {
     return null;

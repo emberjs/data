@@ -159,7 +159,7 @@ We would rename the types/classes/properties/methods of much of the library as w
 on the RequestOptions interface to improve coherence. Roughly the high level shift is:
 
 - Identifier => CacheKey
-- StableRecordIdentifier => ResourceKey
+- ResourceKey => ResourceKey
 - StableDocumentIdentifier => DocumentCacheKey
 - IdentifierCache => CacheKeyManager
 - RecordArray => ReactiveResourceArray

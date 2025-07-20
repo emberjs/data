@@ -17,7 +17,7 @@ type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 
 export interface NotificationCallback {
   (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
   (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  // (identifier: StableRecordIdentifier, notificationType: NotificationType, key?: string): void;
+  // (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
 }
 
 interface ResourceOperationCallback {

@@ -3,7 +3,7 @@ import type { StructuredDataDocument } from '@ember-data/request';
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
@@ -38,19 +38,16 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier) {
+  override instantiateRecord(identifier: ResourceKey) {
     const { id, lid, type } = identifier;
     const record: FakeRecord = { id, lid, type } as unknown as FakeRecord;
     Object.assign(record, (this.cache.peek(identifier) as ResourceObject).attributes);
 
-    const token = this.notifications.subscribe(
-      identifier,
-      (_: StableRecordIdentifier, kind: NotificationType, key?: string) => {
-        if (kind === 'attributes' && key) {
-          record[key] = this.cache.getAttr(identifier, key);
-        }
+    const token = this.notifications.subscribe(identifier, (_: ResourceKey, kind: NotificationType, key?: string) => {
+      if (kind === 'attributes' && key) {
+        record[key] = this.cache.getAttr(identifier, key);
       }
-    );
+    });
 
     record.destroy = () => {
       this.notifications.unsubscribe(token);

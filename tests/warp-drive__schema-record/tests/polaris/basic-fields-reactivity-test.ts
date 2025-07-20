@@ -5,7 +5,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
 import type Store from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
 import { registerDerivations, withDefaults } from '@warp-drive/schema-record';
@@ -102,7 +102,7 @@ module('Reactivity | basic fields can receive remote updates', function (hooks) 
         }
         return Number(value);
       },
-      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: ResourceKey): string {
         const v = 0;
         return v.toFixed(_options?.precision ?? 3);
       },

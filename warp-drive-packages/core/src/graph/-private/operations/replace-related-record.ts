@@ -4,7 +4,7 @@ import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { StableRecordIdentifier } from '../../../types.ts';
+import type { ResourceKey } from '../../../types.ts';
 import type { ReplaceRelatedRecordOperation } from '../../../types/graph.ts';
 import { checkIfNew, isBelongsTo, notifyChange } from '../-utils.ts';
 import { assertPolymorphicType } from '../debug/assert-polymorphic-type.ts';
@@ -22,7 +22,7 @@ export default function replaceRelatedRecord(graph: Graph, op: ReplaceRelatedRec
   }
   const { definition, state } = relationship;
   const prop = isRemote ? 'remoteState' : 'localState';
-  const existingState: StableRecordIdentifier | null = relationship[prop];
+  const existingState: ResourceKey | null = relationship[prop];
 
   /*
     case 1:1

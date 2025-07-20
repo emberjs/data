@@ -111,7 +111,7 @@ interface KeyOptions {
 }
 type TypeMap = { [key: string]: KeyOptions };
 
-// type IdentifierTypeLookup = { all: Set<StableRecordIdentifier>; id: Map<string, StableRecordIdentifier> };
+// type IdentifierTypeLookup = { all: Set<ResourceKey>; id: Map<string, ResourceKey> };
 // type IdentifiersByType = Map<string, IdentifierTypeLookup>;
 type IdentifierMap = Map<string, ResourceKey>;
 
@@ -278,10 +278,10 @@ export function setIdentifierResetMethod(method: ResetMethod | null): void {
 
 /**
  Configure a callback for when the identifier cache is generating a new
- StableRecordIdentifier for a resource.
+ ResourceKey for a resource.
 
  This method controls the `type` and `id` that will be assigned to the
- `StableRecordIdentifier` that is created.
+ `ResourceKey` that is created.
 
  This configuration MUST occur prior to the store instance being created.
 
@@ -319,7 +319,7 @@ function defaultUpdateMethod(identifier: ResourceKey, data: unknown, bucket: 're
 function defaultUpdateMethod(identifier: StableIdentifier, newData: unknown, bucket: never): void;
 function defaultUpdateMethod(identifier: StableIdentifier | ResourceKey, data: unknown, bucket: 'record'): void {
   if (bucket === 'record') {
-    assert(`Expected identifier to be a StableRecordIdentifier`, isStableIdentifier(identifier));
+    assert(`Expected identifier to be a ResourceKey`, isStableIdentifier(identifier));
     if (!identifier.id && hasId(data)) {
       updateTypeIdMapping(NEW_IDENTIFIERS, identifier, data.id);
     }
@@ -500,13 +500,13 @@ export class CacheKeyManager {
     if (shouldGenerate === 2) {
       (resource as ResourceKey).lid = lid;
       (resource as ResourceKey)[CACHE_OWNER] = this._id;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(resource as ResourceKey, 'record', false);
+      identifier = /*#__NOINLINE__*/ makeResourceKey(resource as ResourceKey, 'record', false);
     } else {
       // we lie a bit here as a memory optimization
       const keyInfo = this._keyInfoForResource(resource, null) as ResourceKey;
       keyInfo.lid = lid;
       keyInfo[CACHE_OWNER] = this._id;
-      identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(keyInfo, 'record', false);
+      identifier = /*#__NOINLINE__*/ makeResourceKey(keyInfo, 'record', false);
     }
 
     addResourceToCache(this._cache, identifier);
@@ -588,7 +588,7 @@ export class CacheKeyManager {
   */
   createIdentifierForNewRecord(data: { type: string; id?: string | null; lid?: string }): ResourceKey {
     const newLid = this._generate(data, 'record');
-    const identifier = /*#__NOINLINE__*/ makeStableRecordIdentifier(
+    const identifier = /*#__NOINLINE__*/ makeResourceKey(
       { id: data.id || null, type: data.type, lid: newLid, [CACHE_OWNER]: this._id },
       'record',
       true
@@ -788,7 +788,7 @@ export class CacheKeyManager {
   }
 }
 
-function makeStableRecordIdentifier(
+function makeResourceKey(
   recordIdentifier: {
     type: string;
     id: string | null;
