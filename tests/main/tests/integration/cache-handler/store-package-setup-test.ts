@@ -13,7 +13,7 @@ import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { LegacyQueryArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
 import type { HashFn } from '@warp-drive/core-types/schema/concepts';
@@ -1639,7 +1639,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
 
-      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
+      function getErrorPayload(lid?: string | RequestKey) {
         if (lid) {
           if (typeof lid === 'string') {
             return {
@@ -1747,7 +1747,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
 
-      function getErrorPayload(lid?: string | StableDocumentIdentifier) {
+      function getErrorPayload(lid?: string | RequestKey) {
         if (lid) {
           if (typeof lid === 'string') {
             return {

@@ -1,6 +1,6 @@
 import type { CacheOperation, NotificationType } from '@ember-data/store/-private/managers/notification-manager';
 import type { ResourceKey } from '@warp-drive/core-types';
-import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { RequestKey } from '@warp-drive/core-types/identifier';
 
 declare global {
   interface DeprecationConfig {
@@ -47,7 +47,7 @@ declare global {
      * is made so that it is easy to assert notification counts in between steps of a test.
      */
     notified(
-      identifier: StableDocumentIdentifier | ResourceKey,
+      identifier: RequestKey | ResourceKey,
       bucket: NotificationType | CacheOperation,
       key: string | null,
       count: number
@@ -75,7 +75,7 @@ declare global {
       expectNoAssertion(callback: () => unknown): Promise<void>;
       arrayStrictEquals<T>(unknown, expected: T[], message: string): void;
       notified(
-        identifier: StableDocumentIdentifier | ResourceKey,
+        identifier: RequestKey | ResourceKey,
         bucket: NotificationType | CacheOperation,
         key: string | null,
         count: number

@@ -1,7 +1,7 @@
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { RequestKey } from '../../types/identifier';
 import type { ImmutableHeaders, ImmutableRequestInfo, RequestInfo, ResponseInfo } from '../../types/request';
 import { SkipCache } from '../../types/request';
 import { deepFreeze } from './debug';
@@ -176,7 +176,7 @@ export class Context {
     this.#owner.setResponse(response);
   }
 
-  setIdentifier(identifier: StableDocumentIdentifier): void {
+  setIdentifier(identifier: RequestKey): void {
     assert(
       `setIdentifier may only be used synchronously from a CacheHandler`,
       identifier && this._isCacheHandler && !this._finalized

@@ -14,7 +14,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { CacheKeyType, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { CacheKeyType, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
@@ -380,7 +380,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       };
 
       const updateMethod = (
-        identifier: StableDocumentIdentifier | ResourceKey | { lid: string },
+        identifier: RequestKey | ResourceKey | { lid: string },
         resource: ResourceData | unknown,
         bucket: 'record' | 'document' | never
       ) => {

@@ -1,4 +1,4 @@
-import type { StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { RequestKey } from '../../../types/identifier.ts';
 import type {
   ImmutableCreateRequestOptions,
   ImmutableDeleteRequestOptions,
@@ -16,7 +16,7 @@ export function calcShouldFetch(
   store: Store,
   request: ImmutableRequestInfo,
   hasCachedValue: boolean,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestKey | null
 ): boolean {
   const { cacheOptions } = request;
   return (
@@ -31,7 +31,7 @@ export function calcShouldBackgroundFetch(
   store: Store,
   request: ImmutableRequestInfo,
   willFetch: boolean,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestKey | null
 ): boolean {
   const { cacheOptions } = request;
   return (
@@ -93,8 +93,8 @@ export function isErrorDocument(
 }
 
 export function getPriority(
-  identifier: StableDocumentIdentifier | null,
-  deduped: Map<StableDocumentIdentifier, { priority: { blocking: boolean } }>,
+  identifier: RequestKey | null,
+  deduped: Map<RequestKey, { priority: { blocking: boolean } }>,
   priority: { blocking: boolean }
 ): { blocking: boolean } {
   if (identifier) {

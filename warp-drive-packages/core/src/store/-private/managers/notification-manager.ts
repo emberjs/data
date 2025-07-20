@@ -1,7 +1,7 @@
 import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/core/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import { log } from '../debug/utils.ts';
 import { willSyncFlushWatchers } from '../new-core-tmp/reactivity/configure.ts';
 import type { Store } from '../store-service.ts';
@@ -34,7 +34,7 @@ export interface ResourceOperationCallback {
 
 export interface DocumentOperationCallback {
   // document updates
-  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+  (identifier: RequestKey, notificationType: DocumentCacheOperation): void;
 }
 
 function count(label: string) {
@@ -44,7 +44,7 @@ function count(label: string) {
 }
 
 function asInternalToken(token: unknown): asserts token is {
-  for: StableDocumentIdentifier | ResourceKey | 'resource' | 'document';
+  for: RequestKey | ResourceKey | 'resource' | 'document';
 } & (NotificationCallback | ResourceOperationCallback | DocumentOperationCallback) {
   assert(`Expected a token with a 'for' property`, token && typeof token === 'function' && 'for' in token);
 }
@@ -52,7 +52,7 @@ function asInternalToken(token: unknown): asserts token is {
 function _unsubscribe(
   token: UnsubscribeToken,
   cache: Map<
-    'resource' | 'document' | StableDocumentIdentifier | ResourceKey,
+    'resource' | 'document' | RequestKey | ResourceKey,
     Array<NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >
 ) {
@@ -96,10 +96,10 @@ export default class NotificationManager {
   /** @internal */
   declare private isDestroyed: boolean;
   /** @internal */
-  declare private _buffered: Map<StableDocumentIdentifier | ResourceKey, [string, string | null][]>;
+  declare private _buffered: Map<RequestKey | ResourceKey, [string, string | null][]>;
   /** @internal */
   declare private _cache: Map<
-    StableDocumentIdentifier | ResourceKey | 'resource' | 'document',
+    RequestKey | ResourceKey | 'resource' | 'document',
     Array<NotificationCallback | ResourceOperationCallback | DocumentOperationCallback>
   >;
   /** @internal */
@@ -132,20 +132,20 @@ export default class NotificationManager {
    * }
    * export interface DocumentOperationCallback {
    *   // document updates
-   *   (identifier: StableDocumentIdentifier, notificationType: CacheOperation): void;
+   *   (identifier: RequestKey, notificationType: CacheOperation): void;
    * }
    * ```
    *
    * @public
-   * @param {StableDocumentIdentifier | ResourceKey | 'resource' | 'document'} identifier
+   * @param {RequestKey | ResourceKey | 'resource' | 'document'} identifier
    * @param {NotificationCallback | ResourceOperationCallback | DocumentOperationCallback} callback
    * @return {UnsubscribeToken} an opaque token to be used with unsubscribe
    */
   subscribe(identifier: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
   subscribe(
-    identifier: StableDocumentIdentifier | ResourceKey | 'resource' | 'document',
+    identifier: RequestKey | ResourceKey | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
     assert(`Expected not to be destroyed`, !this.isDestroyed);
@@ -188,9 +188,9 @@ export default class NotificationManager {
   notify(identifier: ResourceKey, value: 'attributes' | 'relationships', key?: string | null): boolean;
   notify(identifier: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state', key?: null): boolean;
   notify(identifier: ResourceKey, value: CacheOperation, key?: null): boolean;
-  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation, key?: null): boolean;
+  notify(identifier: RequestKey, value: DocumentCacheOperation, key?: null): boolean;
   notify(
-    identifier: ResourceKey | StableDocumentIdentifier,
+    identifier: ResourceKey | RequestKey,
     value: NotificationType | CacheOperation | DocumentCacheOperation,
     key?: string | null
   ): boolean {
@@ -319,13 +319,13 @@ function _flushNotification(
 ): boolean;
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey | StableDocumentIdentifier,
+  identifier: ResourceKey | RequestKey,
   value: CacheOperation,
   key: null
 ): boolean;
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey | StableDocumentIdentifier,
+  identifier: ResourceKey | RequestKey,
   value: NotificationType | CacheOperation,
   key: string | null
 ): boolean {
@@ -359,7 +359,7 @@ function _flushNotification(
 
 function hasSubscribers(
   cache: NotificationManager['_cache'],
-  identifier: StableDocumentIdentifier | ResourceKey,
+  identifier: RequestKey | ResourceKey,
   value: NotificationType | CacheOperation | DocumentCacheOperation
 ): boolean {
   const hasSubscriber = Boolean(cache.get(identifier)?.length);

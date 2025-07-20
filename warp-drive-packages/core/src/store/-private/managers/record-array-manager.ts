@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { Context } from '../../../reactive/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
 import { notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';
@@ -79,7 +79,7 @@ interface AnonymousRequestCollectionInit {
 }
 interface RequestCollectionInit {
   source: ResourceKey[];
-  requestKey: StableDocumentIdentifier;
+  requestKey: RequestKey;
 }
 
 type CollectionInit = LegacyQueryInit | AnonymousRequestCollectionInit | RequestCollectionInit;
@@ -160,7 +160,7 @@ export class RecordArrayManager {
 
     this._documentSubscription = this.store.notifications.subscribe(
       'document',
-      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+      (identifier: RequestKey, type: DocumentCacheOperation) => {
         if (type === 'updated' && this._keyedArrays.has(identifier.lid)) {
           const array = this._keyedArrays.get(identifier.lid)!;
           this.dirtyArray(array, 0, true);
@@ -216,7 +216,7 @@ export class RecordArrayManager {
     if (!isLegacyQuery && !isLegacyLiveArray(array)) {
       const context = array[Context];
       const signal = context.signal;
-      const identifier = context.options!.requestKey as StableDocumentIdentifier;
+      const identifier = context.options!.requestKey as RequestKey;
 
       // we only need to rebuild the array from cache if a full sync is required
       // due to notification that the cache has changed

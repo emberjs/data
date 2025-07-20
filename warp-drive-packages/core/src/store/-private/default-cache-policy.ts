@@ -4,7 +4,7 @@ import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { ResourceKey, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey, RequestKey } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
@@ -27,18 +27,18 @@ interface ResourceOperationCallback {
 
 interface DocumentOperationCallback {
   // document updates
-  (identifier: StableDocumentIdentifier, notificationType: DocumentCacheOperation): void;
+  (identifier: RequestKey, notificationType: DocumentCacheOperation): void;
 }
 
 type NotificationManager = {
   subscribe(identifier: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
   subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document' | StableDocumentIdentifier, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(identifier: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
 
   notify(identifier: ResourceKey, value: 'attributes' | 'relationships', key?: string): boolean;
   notify(identifier: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
   notify(identifier: ResourceKey, value: CacheOperation): boolean;
-  notify(identifier: StableDocumentIdentifier, value: DocumentCacheOperation): boolean;
+  notify(identifier: RequestKey, value: DocumentCacheOperation): boolean;
 };
 
 type Store = {
@@ -149,7 +149,7 @@ function parseCacheControlValue(stringToParse: string): number {
 }
 
 function isExpired(
-  identifier: StableDocumentIdentifier,
+  identifier: RequestKey,
   request: StructuredDocument<ResourceDocument>,
   config: PolicyConfig
 ): boolean {
@@ -499,14 +499,11 @@ export type PolicyConfig = {
  */
 export class DefaultCachePolicy {
   declare config: PolicyConfig;
-  declare _stores: WeakMap<
-    Store,
-    { invalidated: Set<StableDocumentIdentifier>; types: Map<string, Set<StableDocumentIdentifier>> }
-  >;
+  declare _stores: WeakMap<Store, { invalidated: Set<RequestKey>; types: Map<string, Set<RequestKey>> }>;
 
   _getStore(store: Store): {
-    invalidated: Set<StableDocumentIdentifier>;
-    types: Map<string, Set<StableDocumentIdentifier>>;
+    invalidated: Set<RequestKey>;
+    types: Map<string, Set<RequestKey>>;
   } {
     let set = this._stores.get(store);
     if (!set) {
@@ -551,10 +548,10 @@ export class DefaultCachePolicy {
    * ```
    *
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestKey} identifier
    * @param {Store} store
    */
-  invalidateRequest(identifier: StableDocumentIdentifier, store: Store): void {
+  invalidateRequest(identifier: RequestKey, store: Store): void {
     this._getStore(store).invalidated.add(identifier);
   }
 
@@ -606,13 +603,13 @@ export class DefaultCachePolicy {
    * @param {ImmutableRequestInfo} request
    * @param {ImmutableResponse} response
    * @param {Store} store
-   * @param {StableDocumentIdentifier | null} identifier
+   * @param {RequestKey | null} identifier
    * @return {void}
    */
   didRequest(
     request: ImmutableRequestInfo,
     response: Response | ResponseInfo | null,
-    identifier: StableDocumentIdentifier | null,
+    identifier: RequestKey | null,
     store: Store
   ): void {
     // if this is a successful createRecord request, invalidate the cacheKey for the type
@@ -658,11 +655,11 @@ export class DefaultCachePolicy {
    * and the cache will be updated before returning the response.
    *
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestKey} identifier
    * @param {Store} store
    * @return {Boolean} true if the request is considered hard expired
    */
-  isHardExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+  isHardExpired(identifier: RequestKey, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
     const storeCache = this._getStore(store);
     if (storeCache.invalidated.has(identifier)) {
@@ -693,11 +690,11 @@ export class DefaultCachePolicy {
    * request is made to update the cache via the configured request handlers.
    *
    * @public
-   * @param {StableDocumentIdentifier} identifier
+   * @param {RequestKey} identifier
    * @param {Store} store
    * @return {Boolean} true if the request is considered soft expired
    */
-  isSoftExpired(identifier: StableDocumentIdentifier, store: Store): boolean {
+  isSoftExpired(identifier: RequestKey, store: Store): boolean {
     if (TESTING) {
       if (!this.config.disableTestOptimization) {
         return false;

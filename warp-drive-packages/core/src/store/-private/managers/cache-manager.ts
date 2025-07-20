@@ -3,7 +3,7 @@ import type { Change } from '../../../types/cache/change.ts';
 import type { MergeOperation } from '../../../types/cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { Value } from '../../../types/json/raw.ts';
 import type { StructuredDataDocument, StructuredDocument } from '../../../types/request.ts';
 import type { ResourceDocument, SingleResourceDataDocument } from '../../../types/spec/document.ts';
@@ -119,29 +119,29 @@ export class CacheManager implements Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | RequestKey} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek(identifier: ResourceKey): unknown;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: ResourceKey | StableDocumentIdentifier): unknown {
+  peek(identifier: RequestKey): ResourceDocument | null;
+  peek(identifier: ResourceKey | RequestKey): unknown {
     return this.#cache.peek(identifier as ResourceKey);
   }
 
   peekRemoteState(identifier: ResourceKey): unknown;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peekRemoteState(identifier: ResourceKey | StableDocumentIdentifier): unknown {
+  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
+  peekRemoteState(identifier: ResourceKey | RequestKey): unknown {
     return this.#cache.peekRemoteState(identifier as ResourceKey);
   }
   /**
    * Peek the Cache for the existing request data associated with
    * a cacheable request
    *
-   * @param {StableDocumentIdentifier}
-   * @return {StableDocumentIdentifier | null}
+   * @param {RequestKey}
+   * @return {RequestKey | null}
    * @public
    */
-  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+  peekRequest(identifier: RequestKey): StructuredDocument<ResourceDocument> | null {
     return this.#cache.peekRequest(identifier);
   }
 
@@ -214,7 +214,7 @@ export class CacheManager implements Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: ResourceKey | StableDocumentIdentifier;
+   *  identifier: ResourceKey | RequestKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }

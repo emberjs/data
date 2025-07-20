@@ -3,7 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation, NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -180,7 +180,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     })!;
 
     let isUpdating = false;
-    store.notifications.subscribe('document', (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
+    store.notifications.subscribe('document', (identifier: RequestKey, type: DocumentCacheOperation) => {
       if (isUpdating) {
         assert.equal(type, 'updated', 'We were notified of an update');
         assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
@@ -190,18 +190,15 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       }
     });
 
-    store.notifications.subscribe(
-      documentIdentifier,
-      (identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
-        if (isUpdating) {
-          assert.equal(type, 'updated', 'We were notified of an update');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        } else {
-          assert.equal(type, 'added', 'We were notified of an add');
-          assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
-        }
+    store.notifications.subscribe(documentIdentifier, (identifier: RequestKey, type: DocumentCacheOperation) => {
+      if (isUpdating) {
+        assert.equal(type, 'updated', 'We were notified of an update');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
+      } else {
+        assert.equal(type, 'added', 'We were notified of an add');
+        assert.equal(identifier, documentIdentifier, 'We were notified of the correct document');
       }
-    );
+    });
 
     store._run(() => {
       const responseDocument = store.cache.put(

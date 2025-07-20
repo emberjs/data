@@ -1,7 +1,7 @@
-import type { ResourceKey, StableDocumentIdentifier } from '../identifier.ts';
+import type { ResourceKey, RequestKey } from '../identifier.ts';
 
 export interface Change {
-  identifier: ResourceKey | StableDocumentIdentifier;
+  identifier: ResourceKey | RequestKey;
   op: 'upsert' | 'remove';
   patch?: unknown;
 }

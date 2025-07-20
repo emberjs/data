@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { CacheHandler as CacheHandlerType, Future, ManagedRequestPriority, NextFn } from '../../../request.ts';
-import type { StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { RequestKey } from '../../../types/identifier.ts';
 import type {
   ImmutableRequestInfo,
   RequestContext,
@@ -80,7 +80,7 @@ export interface StoreRequestContext extends RequestContext {
  */
 export const CacheHandler: CacheHandlerType = {
   request<T>(
-    context: StoreRequestContext & { setIdentifier(identifier: StableDocumentIdentifier): void },
+    context: StoreRequestContext & { setIdentifier(identifier: RequestKey): void },
     next: NextFn<T>
   ): Promise<T | StructuredDataDocument<T>> | Future<T> | T {
     // if we have no cache or no cache-key skip cache handling
@@ -156,7 +156,7 @@ export const CacheHandler: CacheHandlerType = {
 
 type HydrationOptions = {
   shouldHydrate?: boolean;
-  identifier: StableDocumentIdentifier | null;
+  identifier: RequestKey | null;
 };
 
 type UpdateOptions = HydrationOptions & {
@@ -305,7 +305,7 @@ function handleFetchError<T>(
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestKey | null,
   priority: { blocking: boolean }
 ): Promise<T> {
   const { store } = context.request;

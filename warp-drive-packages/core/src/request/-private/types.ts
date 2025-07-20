@@ -1,6 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 
-import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { RequestKey } from '../../types/identifier';
 import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from '../../types/request';
 
 export interface GodContext {
@@ -9,7 +9,7 @@ export interface GodContext {
   stream: ReadableStream | Promise<ReadableStream | null> | null;
   hasRequestedStream: boolean;
   id: number;
-  identifier: StableDocumentIdentifier | null;
+  identifier: RequestKey | null;
 }
 
 export type Deferred<T> = {
@@ -68,10 +68,10 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    * assigned by the CacheHandler.
    *
    * @property lid
-   * @type {StableDocumentIdentifier | null}
+   * @type {RequestKey | null}
    * @public
    */
-  lid: StableDocumentIdentifier | null;
+  lid: RequestKey | null;
 
   /**
    * The id of the associated request, if any, as assigned

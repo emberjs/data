@@ -9,7 +9,7 @@ import {
 import { defineGate } from '../../store/-private/new-core-tmp/reactivity/signal.ts';
 import type { Store } from '../../store/-private/store-service.ts';
 import type { ResourceKey } from '../../types.ts';
-import type { StableDocumentIdentifier } from '../../types/identifier.ts';
+import type { RequestKey } from '../../types/identifier.ts';
 import type { ImmutableRequestInfo, RequestInfo } from '../../types/request.ts';
 import { withBrand } from '../../types/request.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
@@ -88,16 +88,16 @@ export class ReactiveDocument<T> {
    *
    * @property identifier
    * @public
-   * @type {StableDocumentIdentifier|null}
+   * @type {RequestKey|null}
    */
-  declare readonly identifier: StableDocumentIdentifier | null;
+  declare readonly identifier: RequestKey | null;
 
   declare protected readonly _store: Store;
   declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
 
   constructor(
     store: Store,
-    identifier: StableDocumentIdentifier | null,
+    identifier: RequestKey | null,
     localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
   ) {
     this._store = store;
@@ -108,26 +108,23 @@ export class ReactiveDocument<T> {
     // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
     // in a destroy method
     if (identifier) {
-      store.notifications.subscribe(
-        identifier,
-        (_identifier: StableDocumentIdentifier, type: DocumentCacheOperation) => {
-          switch (type) {
-            case 'updated':
-              // FIXME in the case of a collection we need to notify it's length
-              // and have it recalc
-              notifyInternalSignal(peekInternalSignal(signals, 'data'));
-              notifyInternalSignal(peekInternalSignal(signals, 'links'));
-              notifyInternalSignal(peekInternalSignal(signals, 'meta'));
-              notifyInternalSignal(peekInternalSignal(signals, 'errors'));
-              break;
-            case 'added':
-            case 'removed':
-            case 'invalidated':
-            case 'state':
-              break;
-          }
+      store.notifications.subscribe(identifier, (_identifier: RequestKey, type: DocumentCacheOperation) => {
+        switch (type) {
+          case 'updated':
+            // FIXME in the case of a collection we need to notify it's length
+            // and have it recalc
+            notifyInternalSignal(peekInternalSignal(signals, 'data'));
+            notifyInternalSignal(peekInternalSignal(signals, 'links'));
+            notifyInternalSignal(peekInternalSignal(signals, 'meta'));
+            notifyInternalSignal(peekInternalSignal(signals, 'errors'));
+            break;
+          case 'added':
+          case 'removed':
+          case 'invalidated':
+          case 'state':
+            break;
         }
-      );
+      });
     }
   }
 
