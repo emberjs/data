@@ -2,7 +2,7 @@ import type { Store, StoreRequestContext } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@warp-drive/core/request';
-import type { ExistingRecordIdentifier, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
+import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -97,6 +97,7 @@ function maybeUpdateObjects<T>(store: Store, document: ResourceDataDocument | nu
 
     return Object.assign({}, document, { data }) as T;
   } else {
+    // @ts-expect-error FIXME investigate why document.data won't accept the signature
     const data = (document.data ? store.cache.peek(document.data) : null) as T;
     return Object.assign({}, document, { data }) as T;
   }
@@ -104,7 +105,7 @@ function maybeUpdateObjects<T>(store: Store, document: ResourceDataDocument | nu
 
 function maybeUpdatePersistedCache(
   store: Store,
-  document: StructuredDocument<ResourceDocument<ExistingRecordIdentifier>> | null,
+  document: StructuredDocument<ResourceDocument> | null,
   resourceDocument?: ResourceDataDocument
 ) {
   const worker = (store as unknown as { _worker: DataWorker })._worker;
@@ -116,10 +117,12 @@ function maybeUpdatePersistedCache(
   if (!document && resourceDocument) {
     // we have resources to update but not a full request to cache
     void worker.storage.putResources(resourceDocument, (resourceIdentifier) => {
+      // @ts-expect-error FIXME investigate why document.data won't accept the signature
       return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
     });
   } else if (document) {
     void worker.storage.putDocument(document, (resourceIdentifier) => {
+      // @ts-expect-error FIXME investigate why document.data won't accept the signature
       return store.cache.peek(resourceIdentifier) as ExistingResourceObject;
     });
   }
