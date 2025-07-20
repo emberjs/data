@@ -678,7 +678,7 @@ export function _removeRemote(relationship: CollectionEdge, value: ResourceKey):
 
 export function rollbackRelationship(
   graph: Graph,
-  identifier: ResourceKey,
+  key: ResourceKey,
   field: string,
   relationship: CollectionEdge | ResourceEdge
 ): void {
@@ -687,7 +687,7 @@ export function rollbackRelationship(
       graph,
       {
         op: 'replaceRelatedRecord',
-        record: identifier,
+        record: key,
         field,
         value: relationship.remoteState,
       },
@@ -698,7 +698,7 @@ export function rollbackRelationship(
       graph,
       {
         op: 'replaceRelatedRecords',
-        record: identifier,
+        record: key,
         field,
         value: relationship.remoteState.slice(),
       },

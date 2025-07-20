@@ -374,7 +374,7 @@ export function isRHS(info: EdgeDefinition, type: string, key: string): boolean 
 
 export function upgradeDefinition(
   graph: Graph,
-  identifier: ResourceKey,
+  key: ResourceKey,
   propertyName: string,
   isImplicit = false
 ): EdgeDefinition | null {
@@ -382,7 +382,7 @@ export function upgradeDefinition(
   const storeWrapper = graph.store;
   const polymorphicLookup = graph._potentialPolymorphicTypes;
 
-  const { type } = identifier;
+  const { type } = key;
   let cached = /*#__NOINLINE__*/ expandingGet<EdgeDefinition | null>(cache, type, propertyName);
 
   // CASE: We have a cached resolution (null if no relationship exists)
@@ -395,7 +395,7 @@ export function upgradeDefinition(
     !isImplicit
   );
 
-  const relationships = storeWrapper.schema.fields(identifier);
+  const relationships = storeWrapper.schema.fields(key);
   assert(`Expected to have a relationship definition for ${type} but none was found.`, relationships);
   const meta = relationships.get(propertyName);
 
@@ -435,7 +435,7 @@ export function upgradeDefinition(
     assert(`Expected the inverse model to exist`, getStore(storeWrapper).modelFor(inverseType));
     inverseDefinition = null;
   } else {
-    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), identifier, propertyName);
+    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), key, propertyName);
 
     // CASE: If we are polymorphic, and we declared an inverse that is non-null
     // we must assume that the lack of inverseKey means that there is no
@@ -586,8 +586,8 @@ export function upgradeDefinition(
   return info;
 }
 
-function inverseForRelationship(store: Store, identifier: ResourceKey | { type: string }, key: string) {
-  const definition = store.schema.fields(identifier).get(key);
+function inverseForRelationship(store: Store, resourceKey: ResourceKey | { type: string }, key: string) {
+  const definition = store.schema.fields(resourceKey).get(key);
   if (!definition) {
     return null;
   }
