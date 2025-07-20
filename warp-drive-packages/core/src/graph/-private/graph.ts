@@ -108,20 +108,20 @@ export class Graph {
     this.silenceNotifications = false;
   }
 
-  has(identifier: ResourceKey, propertyName: string): boolean {
-    const relationships = this.identifiers.get(identifier);
+  has(resourceKey: ResourceKey, propertyName: string): boolean {
+    const relationships = this.identifiers.get(resourceKey);
     if (!relationships) {
       return false;
     }
     return relationships[propertyName] !== undefined;
   }
 
-  getDefinition(identifier: ResourceKey, propertyName: string): UpgradedMeta {
-    let defs = this._metaCache[identifier.type];
+  getDefinition(resourceKey: ResourceKey, propertyName: string): UpgradedMeta {
+    let defs = this._metaCache[resourceKey.type];
     let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
     if (!meta) {
-      const info = /*#__NOINLINE__*/ upgradeDefinition(this, identifier, propertyName);
-      assert(`Could not determine relationship information for ${identifier.type}.${propertyName}`, info !== null);
+      const info = /*#__NOINLINE__*/ upgradeDefinition(this, resourceKey, propertyName);
+      assert(`Could not determine relationship information for ${resourceKey.type}.${propertyName}`, info !== null);
 
       // if (info.rhs_definition?.kind === 'implicit') {
       // we should possibly also do this
@@ -129,40 +129,40 @@ export class Graph {
       // this.registerPolymorphicType(info.rhs_baseModelName, identifier.type);
       // }
 
-      meta = /*#__NOINLINE__*/ isLHS(info, identifier.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
-      defs = this._metaCache[identifier.type] = defs || {};
+      meta = /*#__NOINLINE__*/ isLHS(info, resourceKey.type, propertyName) ? info.lhs_definition : info.rhs_definition!;
+      defs = this._metaCache[resourceKey.type] = defs || {};
       defs[propertyName] = meta;
     }
     return meta;
   }
 
-  get(identifier: ResourceKey, propertyName: string): GraphEdge {
+  get(resourceKey: ResourceKey, propertyName: string): GraphEdge {
     assert(`expected propertyName`, propertyName);
-    let relationships = this.identifiers.get(identifier);
+    let relationships = this.identifiers.get(resourceKey);
     if (!relationships) {
       relationships = Object.create(null) as Record<string, GraphEdge>;
-      this.identifiers.set(identifier, relationships);
+      this.identifiers.set(resourceKey, relationships);
     }
 
     let relationship = relationships[propertyName];
     if (!relationship) {
-      const meta = this.getDefinition(identifier, propertyName);
+      const meta = this.getDefinition(resourceKey, propertyName);
 
       if (meta.kind === 'belongsTo') {
-        relationship = relationships[propertyName] = createResourceEdge(meta, identifier);
+        relationship = relationships[propertyName] = createResourceEdge(meta, resourceKey);
       } else if (meta.kind === 'hasMany') {
-        relationship = relationships[propertyName] = createCollectionEdge(meta, identifier);
+        relationship = relationships[propertyName] = createCollectionEdge(meta, resourceKey);
       } else {
         assert(`Expected kind to be implicit`, meta.kind === 'implicit' && meta.isImplicit === true);
-        relationship = relationships[propertyName] = createImplicitEdge(meta as ImplicitMeta, identifier);
+        relationship = relationships[propertyName] = createImplicitEdge(meta as ImplicitMeta, resourceKey);
       }
     }
 
     return relationship;
   }
 
-  getData(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    const relationship = this.get(identifier, propertyName);
+  getData(resourceKey: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
+    const relationship = this.get(resourceKey, propertyName);
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
 
@@ -173,8 +173,8 @@ export class Graph {
     return legacyGetCollectionRelationshipData(relationship, false);
   }
 
-  getRemoteData(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    const relationship = this.get(identifier, propertyName);
+  getRemoteData(resourceKey: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
+    const relationship = this.get(resourceKey, propertyName);
 
     assert(`Cannot getRemoteData() on an implicit relationship`, !isImplicit(relationship));
 
@@ -211,12 +211,12 @@ export class Graph {
     t2[type1] = true;
   }
 
-  isReleasable(identifier: ResourceKey): boolean {
-    const relationships = this.identifiers.get(identifier);
+  isReleasable(resourceKey: ResourceKey): boolean {
+    const relationships = this.identifiers.get(resourceKey);
     if (!relationships) {
       if (LOG_GRAPH) {
         // eslint-disable-next-line no-console
-        console.log(`graph: RELEASABLE ${String(identifier)}`);
+        console.log(`graph: RELEASABLE ${String(resourceKey)}`);
       }
       return true;
     }
@@ -229,27 +229,27 @@ export class Graph {
         continue;
       }
       assert(`Expected a relationship`, relationship);
-      if (relationship.definition.inverseIsAsync && !checkIfNew(this._realStore, identifier)) {
+      if (relationship.definition.inverseIsAsync && !checkIfNew(this._realStore, resourceKey)) {
         if (LOG_GRAPH) {
           // eslint-disable-next-line no-console
-          console.log(`graph: <<NOT>> RELEASABLE ${String(identifier)}`);
+          console.log(`graph: <<NOT>> RELEASABLE ${String(resourceKey)}`);
         }
         return false;
       }
     }
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
-      console.log(`graph: RELEASABLE ${String(identifier)}`);
+      console.log(`graph: RELEASABLE ${String(resourceKey)}`);
     }
     return true;
   }
 
-  unload(identifier: ResourceKey, silenceNotifications?: boolean): void {
+  unload(resourceKey: ResourceKey, silenceNotifications?: boolean): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
-      console.log(`graph: unload ${String(identifier)}`);
+      console.log(`graph: unload ${String(resourceKey)}`);
     }
-    const relationships = this.identifiers.get(identifier);
+    const relationships = this.identifiers.get(resourceKey);
 
     if (relationships) {
       // cleans up the graph but retains some nodes
@@ -268,8 +268,8 @@ export class Graph {
     }
   }
 
-  _isDirty(identifier: ResourceKey, field: string): boolean {
-    const relationships = this.identifiers.get(identifier);
+  _isDirty(resourceKey: ResourceKey, field: string): boolean {
+    const relationships = this.identifiers.get(resourceKey);
     if (!relationships) {
       return false;
     }
@@ -287,8 +287,8 @@ export class Graph {
     return false;
   }
 
-  getChanged(identifier: ResourceKey): Map<string, RelationshipDiff> {
-    const relationships = this.identifiers.get(identifier);
+  getChanged(resourceKey: ResourceKey): Map<string, RelationshipDiff> {
+    const relationships = this.identifiers.get(resourceKey);
     const changed = new Map<string, RelationshipDiff>();
 
     if (!relationships) {
@@ -331,22 +331,22 @@ export class Graph {
     return changed;
   }
 
-  hasChanged(identifier: ResourceKey): boolean {
-    const relationships = this.identifiers.get(identifier);
+  hasChanged(resourceKey: ResourceKey): boolean {
+    const relationships = this.identifiers.get(resourceKey);
     if (!relationships) {
       return false;
     }
     const keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
-      if (this._isDirty(identifier, keys[i])) {
+      if (this._isDirty(resourceKey, keys[i])) {
         return true;
       }
     }
     return false;
   }
 
-  rollback(identifier: ResourceKey): string[] {
-    const relationships = this.identifiers.get(identifier);
+  rollback(resourceKey: ResourceKey): string[] {
+    const relationships = this.identifiers.get(resourceKey);
     const changed: string[] = [];
     if (!relationships) {
       return changed;
@@ -359,8 +359,8 @@ export class Graph {
         continue;
       }
 
-      if (this._isDirty(identifier, field)) {
-        rollbackRelationship(this, identifier, field, relationship as CollectionEdge | ResourceEdge);
+      if (this._isDirty(resourceKey, field)) {
+        rollbackRelationship(this, resourceKey, field, relationship as CollectionEdge | ResourceEdge);
         changed.push(field);
       }
     }
@@ -368,15 +368,15 @@ export class Graph {
     return changed;
   }
 
-  remove(identifier: ResourceKey): void {
+  remove(resourceKey: ResourceKey): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
-      console.log(`graph: remove ${String(identifier)}`);
+      console.log(`graph: remove ${String(resourceKey)}`);
     }
-    assert(`Cannot remove ${String(identifier)} while still removing ${String(this._removing)}`, !this._removing);
-    this._removing = identifier;
-    this.unload(identifier);
-    this.identifiers.delete(identifier);
+    assert(`Cannot remove ${String(resourceKey)} while still removing ${String(this._removing)}`, !this._removing);
+    this._removing = resourceKey;
+    this.unload(resourceKey);
+    this.identifiers.delete(resourceKey);
     this._removing = null;
   }
 
@@ -639,7 +639,7 @@ function notifyInverseOfDematerialization(
   graph: Graph,
   inverseIdentifier: ResourceKey,
   inverseKey: string,
-  identifier: ResourceKey,
+  resourceKey: ResourceKey,
   silenceNotifications?: boolean
 ) {
   if (!graph.has(inverseIdentifier, inverseKey)) {
@@ -651,8 +651,8 @@ function notifyInverseOfDematerialization(
 
   // For remote members, it is possible that inverseRecordData has already been associated to
   // to another record. For such cases, do not dematerialize the inverseRecordData
-  if (!isBelongsTo(relationship) || !relationship.localState || identifier === relationship.localState) {
-    /*#__NOINLINE__*/ removeDematerializedInverse(graph, relationship, identifier, silenceNotifications);
+  if (!isBelongsTo(relationship) || !relationship.localState || resourceKey === relationship.localState) {
+    /*#__NOINLINE__*/ removeDematerializedInverse(graph, relationship, resourceKey, silenceNotifications);
   }
 }
 

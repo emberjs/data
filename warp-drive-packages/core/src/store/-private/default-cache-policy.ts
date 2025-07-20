@@ -4,7 +4,7 @@ import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
-import type { ResourceKey, RequestKey } from '@warp-drive/core/types/identifier';
+import type { RequestKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
@@ -15,30 +15,30 @@ type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
 type DocumentCacheOperation = 'invalidated' | 'added' | 'removed' | 'updated' | 'state';
 
 export interface NotificationCallback {
-  (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
-  (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  // (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
+  (resourceKey: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (resourceKey: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  // (resourceKey: ResourceKey, notificationType: NotificationType, key?: string): void;
 }
 
 interface ResourceOperationCallback {
   // resource updates
-  (identifier: ResourceKey, notificationType: CacheOperation): void;
+  (resourceKey: ResourceKey, notificationType: CacheOperation): void;
 }
 
 interface DocumentOperationCallback {
   // document updates
-  (identifier: RequestKey, notificationType: DocumentCacheOperation): void;
+  (cacheKey: RequestKey, notificationType: DocumentCacheOperation): void;
 }
 
 type NotificationManager = {
-  subscribe(identifier: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
-  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(resourceKey: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(cacheKey: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(cacheKey: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
 
-  notify(identifier: ResourceKey, value: 'attributes' | 'relationships', key?: string): boolean;
-  notify(identifier: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
-  notify(identifier: ResourceKey, value: CacheOperation): boolean;
-  notify(identifier: RequestKey, value: DocumentCacheOperation): boolean;
+  notify(cacheKey: ResourceKey, value: 'attributes' | 'relationships', key?: string): boolean;
+  notify(cacheKey: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state'): boolean;
+  notify(cacheKey: ResourceKey, value: CacheOperation): boolean;
+  notify(cacheKey: RequestKey, value: DocumentCacheOperation): boolean;
 };
 
 type Store = {
@@ -148,11 +148,7 @@ function parseCacheControlValue(stringToParse: string): number {
   return parsedValue;
 }
 
-function isExpired(
-  identifier: RequestKey,
-  request: StructuredDocument<ResourceDocument>,
-  config: PolicyConfig
-): boolean {
+function isExpired(cacheKey: RequestKey, request: StructuredDocument<ResourceDocument>, config: PolicyConfig): boolean {
   const { constraints } = config;
 
   if (constraints?.isExpired) {
@@ -161,7 +157,7 @@ function isExpired(
       if (LOG_CACHE_POLICY) {
         // eslint-disable-next-line no-console
         console.log(
-          `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because constraints.isExpired returned ${result}`
+          `CachePolicy: ${cacheKey.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because constraints.isExpired returned ${result}`
         );
       }
       return result;
@@ -173,7 +169,7 @@ function isExpired(
   if (!headers) {
     if (LOG_CACHE_POLICY) {
       // eslint-disable-next-line no-console
-      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no headers were provided`);
+      console.log(`CachePolicy: ${cacheKey.lid} is EXPIRED because no headers were provided`);
     }
 
     // if we have no headers then both the headers based expiration
@@ -194,7 +190,7 @@ function isExpired(
         if (LOG_CACHE_POLICY) {
           // eslint-disable-next-line no-console
           console.log(
-            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by X-WarpDrive-Expires header is ${result ? 'in the past' : 'in the future'}`
+            `CachePolicy: ${cacheKey.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by X-WarpDrive-Expires header is ${result ? 'in the past' : 'in the future'}`
           );
         }
         return result;
@@ -226,7 +222,7 @@ function isExpired(
             if (LOG_CACHE_POLICY) {
               // eslint-disable-next-line no-console
               console.log(
-                `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Cache-Control header is ${result ? 'in the past' : 'in the future'}`
+                `CachePolicy: ${cacheKey.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Cache-Control header is ${result ? 'in the past' : 'in the future'}`
               );
             }
 
@@ -245,7 +241,7 @@ function isExpired(
         if (LOG_CACHE_POLICY) {
           // eslint-disable-next-line no-console
           console.log(
-            `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Expires header is ${result ? 'in the past' : 'in the future'}`
+            `CachePolicy: ${cacheKey.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the time set by Expires header is ${result ? 'in the past' : 'in the future'}`
           );
         }
         return result;
@@ -257,7 +253,7 @@ function isExpired(
   if (!date) {
     if (LOG_CACHE_POLICY) {
       // eslint-disable-next-line no-console
-      console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no Date header was provided`);
+      console.log(`CachePolicy: ${cacheKey.lid} is EXPIRED because no Date header was provided`);
     }
     return true;
   }
@@ -276,7 +272,7 @@ function isExpired(
   if (LOG_CACHE_POLICY) {
     // eslint-disable-next-line no-console
     console.log(
-      `CachePolicy: ${identifier.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the apiCacheHardExpires time since the response's Date header is ${result ? 'in the past' : 'in the future'}`
+      `CachePolicy: ${cacheKey.lid} is ${result ? 'EXPIRED' : 'NOT expired'} because the apiCacheHardExpires time since the response's Date header is ${result ? 'in the past' : 'in the future'}`
     );
   }
 
@@ -451,7 +447,7 @@ export type PolicyConfig = {
  * request for that type is successful.
  *
  * For this to work, the `createRecord` request must include the `cacheOptions.types` array
- * with the types that should be invalidated, or its request should specify the identifiers
+ * with the types that should be invalidated, or its request should specify the ResourceKeys
  * of the records that are being created via `records`. Providing both is valid.
  *
  * > [!NOTE]
@@ -537,22 +533,20 @@ export class DefaultCachePolicy {
   }
 
   /**
-   * Invalidate a request by its identifier for a given store instance.
+   * Invalidate a request by its CacheKey for the given store instance.
    *
    * While the store argument may seem redundant, the CachePolicy
    * is designed to be shared across multiple stores / forks
    * of the store.
    *
    * ```ts
-   * store.lifetimes.invalidateRequest(store, identifier);
+   * store.lifetimes.invalidateRequest(store, cacheKey);
    * ```
    *
    * @public
-   * @param {RequestKey} identifier
-   * @param {Store} store
    */
-  invalidateRequest(identifier: RequestKey, store: Store): void {
-    this._getStore(store).invalidated.add(identifier);
+  invalidateRequest(cacheKey: RequestKey, store: Store): void {
+    this._getStore(store).invalidated.add(cacheKey);
   }
 
   /**
@@ -571,8 +565,6 @@ export class DefaultCachePolicy {
    * ```
    *
    * @public
-   * @param {String} type
-   * @param {Store} store
    */
   invalidateRequestsForType(type: string, store: Store): void {
     const storeCache = this._getStore(store);
@@ -600,16 +592,11 @@ export class DefaultCachePolicy {
    * This method should not be invoked directly by consumers.
    *
    * @public
-   * @param {ImmutableRequestInfo} request
-   * @param {ImmutableResponse} response
-   * @param {Store} store
-   * @param {RequestKey | null} identifier
-   * @return {void}
    */
   didRequest(
     request: ImmutableRequestInfo,
     response: Response | ResponseInfo | null,
-    identifier: RequestKey | null,
+    cacheKey: RequestKey | null,
     store: Store
   ): void {
     // if this is a successful createRecord request, invalidate the cacheKey for the type
@@ -629,15 +616,15 @@ export class DefaultCachePolicy {
 
       // add this document's cacheKey to a map for all associated types
       // it is recommended to only use this for queries
-    } else if (identifier && request.cacheOptions?.types?.length) {
+    } else if (cacheKey && request.cacheOptions?.types?.length) {
       const storeCache = this._getStore(store);
       request.cacheOptions?.types.forEach((type) => {
         const set = storeCache.types.get(type);
         if (set) {
-          set.add(identifier);
-          storeCache.invalidated.delete(identifier);
+          set.add(cacheKey);
+          storeCache.invalidated.delete(cacheKey);
         } else {
-          storeCache.types.set(type, new Set([identifier]));
+          storeCache.types.set(type, new Set([cacheKey]));
         }
       });
     }
@@ -655,28 +642,26 @@ export class DefaultCachePolicy {
    * and the cache will be updated before returning the response.
    *
    * @public
-   * @param {RequestKey} identifier
-   * @param {Store} store
-   * @return {Boolean} true if the request is considered hard expired
+   * @return true if the request is considered hard expired
    */
-  isHardExpired(identifier: RequestKey, store: Store): boolean {
+  isHardExpired(cacheKey: RequestKey, store: Store): boolean {
     // if we are explicitly invalidated, we are hard expired
     const storeCache = this._getStore(store);
-    if (storeCache.invalidated.has(identifier)) {
+    if (storeCache.invalidated.has(cacheKey)) {
       return true;
     }
     const cache = store.cache;
-    const cached = cache.peekRequest(identifier);
+    const cached = cache.peekRequest(cacheKey);
 
     if (!cached?.response) {
       if (LOG_CACHE_POLICY) {
         // eslint-disable-next-line no-console
-        console.log(`CachePolicy: ${identifier.lid} is EXPIRED because no cache entry was found`);
+        console.log(`CachePolicy: ${cacheKey.lid} is EXPIRED because no cache entry was found`);
       }
       return true;
     }
 
-    return isExpired(identifier, cached, this.config);
+    return isExpired(cacheKey, cached, this.config);
   }
 
   /**
@@ -690,18 +675,16 @@ export class DefaultCachePolicy {
    * request is made to update the cache via the configured request handlers.
    *
    * @public
-   * @param {RequestKey} identifier
-   * @param {Store} store
-   * @return {Boolean} true if the request is considered soft expired
+   * @return true if the request is considered soft expired
    */
-  isSoftExpired(identifier: RequestKey, store: Store): boolean {
+  isSoftExpired(cacheKey: RequestKey, store: Store): boolean {
     if (TESTING) {
       if (!this.config.disableTestOptimization) {
         return false;
       }
     }
     const cache = store.cache;
-    const cached = cache.peekRequest(identifier);
+    const cached = cache.peekRequest(cacheKey);
 
     if (cached?.response) {
       const date = cached.response.headers.get('date');
@@ -709,7 +692,7 @@ export class DefaultCachePolicy {
       if (!date) {
         if (LOG_CACHE_POLICY) {
           // eslint-disable-next-line no-console
-          console.log(`CachePolicy: ${identifier.lid} is STALE because no date header was found`);
+          console.log(`CachePolicy: ${cacheKey.lid} is STALE because no date header was found`);
         }
         return true;
       } else {
@@ -721,7 +704,7 @@ export class DefaultCachePolicy {
         if (LOG_CACHE_POLICY) {
           // eslint-disable-next-line no-console
           console.log(
-            `CachePolicy: ${identifier.lid} is ${result ? 'STALE' : 'NOT stale'}. Expiration time: ${deadline}, now: ${now}`
+            `CachePolicy: ${cacheKey.lid} is ${result ? 'STALE' : 'NOT stale'}. Expiration time: ${deadline}, now: ${now}`
           );
         }
 
@@ -731,7 +714,7 @@ export class DefaultCachePolicy {
 
     if (LOG_CACHE_POLICY) {
       // eslint-disable-next-line no-console
-      console.log(`CachePolicy: ${identifier.lid} is STALE because no cache entry was found`);
+      console.log(`CachePolicy: ${cacheKey.lid} is STALE because no cache entry was found`);
     }
 
     return true;

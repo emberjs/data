@@ -102,11 +102,11 @@ function inspect(value: unknown) {
   return 'object';
 }
 
-export function checkIfNew(store: Store, identifier: ResourceKey): boolean {
-  if (!identifier.id) {
+export function checkIfNew(store: Store, resourceKey: ResourceKey): boolean {
+  if (!resourceKey.id) {
     return true;
   }
-  return store.cache.isNew(identifier);
+  return store.cache.isNew(resourceKey);
 }
 
 export function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
@@ -121,7 +121,7 @@ export function isHasMany(relationship: GraphEdge): relationship is CollectionEd
   return relationship.definition.kind === 'hasMany';
 }
 
-export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (identifier: ResourceKey) => void): void {
+export function forAllRelatedIdentifiers(rel: GraphEdge, cb: (resourceKey: ResourceKey) => void): void {
   if (isBelongsTo(rel)) {
     if (rel.remoteState) {
       cb(rel.remoteState);
@@ -227,12 +227,12 @@ export function notifyChange(graph: Graph, relationship: CollectionEdge | Resour
 
 export function assertRelationshipData(
   store: Store,
-  identifier: ResourceKey,
+  resourceKey: ResourceKey,
   data: ResourceIdentifierObject,
   meta: UpgradedMeta
 ): void {
   assert(
-    `A ${identifier.type} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
+    `A ${resourceKey.type} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
       data
     )}', but ${
       meta.key
@@ -241,8 +241,8 @@ export function assertRelationshipData(
   );
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on <${
-      identifier.type
-    }:${String(identifier.id)}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
+      resourceKey.type
+    }:${String(resourceKey.id)}>, expected an identifier with type '${meta.type}' but found\n\n'${JSON.stringify(
       data,
       null,
       2
@@ -251,8 +251,8 @@ export function assertRelationshipData(
   );
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on <${
-      identifier.type
-    }:${String(identifier.id)}>, expected an identifier but found\n\n'${JSON.stringify(
+      resourceKey.type
+    }:${String(resourceKey.id)}>, expected an identifier but found\n\n'${JSON.stringify(
       data,
       null,
       2
@@ -263,8 +263,8 @@ export function assertRelationshipData(
     assert(
       `Missing Schema: Encountered a relationship identifier { type: '${data.type}', id: '${String(
         data.id
-      )}' } for the '${identifier.type}.${meta.key}' ${meta.kind} relationship on <${identifier.type}:${String(
-        identifier.id
+      )}' } for the '${resourceKey.type}.${meta.key}' ${meta.kind} relationship on <${resourceKey.type}:${String(
+        resourceKey.id
       )}>, but no schema exists for that type.`,
       store.schema.hasResource(data)
     );
@@ -272,8 +272,8 @@ export function assertRelationshipData(
     assert(
       `Missing Schema: Encountered a relationship identifier with type '${data.type}' for the ${
         meta.kind
-      } relationship '${meta.key}' on <${identifier.type}:${String(
-        identifier.id
+      } relationship '${meta.key}' on <${resourceKey.type}:${String(
+        resourceKey.id
       )}>, Expected an identifier with type '${meta.type}'. No schema was found for '${data.type}'.`,
       data === null || !data.type || store.schema.hasResource(data)
     );
