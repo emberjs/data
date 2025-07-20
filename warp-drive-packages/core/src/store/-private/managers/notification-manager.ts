@@ -2,10 +2,10 @@ import { LOG_METRIC_COUNTS, LOG_NOTIFICATIONS } from '@warp-drive/core/build-con
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
-import { isDocumentIdentifier, isStableIdentifier } from './cache-key-manager.ts';
 import { log } from '../debug/utils.ts';
 import { willSyncFlushWatchers } from '../new-core-tmp/reactivity/configure.ts';
 import type { Store } from '../store-service.ts';
+import { isDocumentIdentifier, isStableIdentifier } from './cache-key-manager.ts';
 
 export type UnsubscribeToken = object;
 
@@ -344,7 +344,7 @@ function _flushNotification(
 
     if (callbackMap) {
       callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
-        cb(identifier as ResourceKey, value);
+        (cb as ResourceOperationCallback)(identifier as ResourceKey, value);
       });
     }
   }
