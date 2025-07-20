@@ -17,7 +17,7 @@ import {
   type RecordIdentifier,
   type ResourceKey,
   type StableDocumentIdentifier,
-  type StableExistingRecordIdentifier,
+  type PersistedResourceKey,
   type StableIdentifier,
 } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
@@ -44,7 +44,7 @@ type ResourceData = unknown;
 type TypeFromIdentifier<T> = T extends { type: infer U } ? U : string;
 
 type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
-  ? StableExistingRecordIdentifier<TypeFromIdentifier<T>>
+  ? PersistedResourceKey<TypeFromIdentifier<T>>
   : ResourceKey;
 
 export function isStableIdentifier(identifier: unknown): identifier is ResourceKey {

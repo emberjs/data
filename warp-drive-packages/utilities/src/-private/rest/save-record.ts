@@ -1,6 +1,6 @@
 import { recordIdentifierFor } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypedRecordInstance } from '@warp-drive/core/types/record';
 import type {
   ConstrainedRequestOptions,
@@ -19,7 +19,7 @@ import {
 import { camelize, pluralize } from '../../string';
 import { copyForwardUrlOptions } from '../builder-utils.ts';
 
-function isExisting(identifier: ResourceKey): identifier is StableExistingRecordIdentifier {
+function isExisting(identifier: ResourceKey): identifier is PersistedResourceKey {
   return 'id' in identifier && identifier.id !== null && 'type' in identifier && identifier.type !== null;
 }
 

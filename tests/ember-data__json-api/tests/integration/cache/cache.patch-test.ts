@@ -3,7 +3,7 @@ import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -93,11 +93,8 @@ class TestStore extends Store {
   }
 }
 
-function setupRecord<T extends string>(
-  store: Store,
-  record: ExistingResourceObject<T>
-): StableExistingRecordIdentifier<T>;
-function setupRecord(store: Store, record: ExistingResourceObject): StableExistingRecordIdentifier {
+function setupRecord<T extends string>(store: Store, record: ExistingResourceObject<T>): PersistedResourceKey<T>;
+function setupRecord(store: Store, record: ExistingResourceObject): PersistedResourceKey {
   const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(record);
   store.cache.patch({
     op: 'add',
@@ -1423,7 +1420,7 @@ module('Integration | <JSONAPICache>.patch', function () {
     const userIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       id: '2',
       type: 'user',
-    } as const) as StableExistingRecordIdentifier;
+    } as const) as PersistedResourceKey;
     const user = store.peekRecord<User>(userIdentifier);
     const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
     const cacheDocument = store.cache.peek(documentIdentifier);

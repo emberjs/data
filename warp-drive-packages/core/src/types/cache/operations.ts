@@ -14,7 +14,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
-import type { ResourceKey, StableDocumentIdentifier, StableExistingRecordIdentifier } from '../identifier.ts';
+import type { ResourceKey, StableDocumentIdentifier, PersistedResourceKey } from '../identifier.ts';
 import type { Value } from '../json/raw.ts';
 import type { ExistingResourceObject } from '../spec/json-api-raw.ts';
 import type { Relationship } from './relationship.ts';
@@ -75,7 +75,7 @@ export interface RemoveResourceOperation extends Op {
   /**
    * The cache key for the resource
    */
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
 }
 
 /**
@@ -86,7 +86,7 @@ export interface AddResourceOperation extends Op {
   /**
    * The cache key for the resource
    */
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   /**
    * The data for the resource
    */
@@ -97,7 +97,7 @@ export interface AddResourceOperation extends Op {
  */
 export interface UpdateResourceOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   value: ExistingResourceObject;
 }
 /**
@@ -105,7 +105,7 @@ export interface UpdateResourceOperation extends Op {
  */
 export interface UpdateResourceFieldOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   field: string;
   value: Value;
 }
@@ -114,9 +114,9 @@ export interface UpdateResourceFieldOperation extends Op {
  */
 export interface UpdateResourceRelationshipOperation extends Op {
   op: 'update';
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   field: string;
-  value: Relationship<StableExistingRecordIdentifier>;
+  value: Relationship<PersistedResourceKey>;
 }
 
 /**
@@ -128,7 +128,7 @@ export interface AddToDocumentOperation extends Op {
   op: 'add';
   record: StableDocumentIdentifier;
   field: 'data' | 'included';
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;
 }
 /**
@@ -136,9 +136,9 @@ export interface AddToDocumentOperation extends Op {
  */
 export interface AddToResourceRelationshipOperation extends Op {
   op: 'add';
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   field: string;
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;
 }
 /**
@@ -146,9 +146,9 @@ export interface AddToResourceRelationshipOperation extends Op {
  */
 export interface RemoveFromResourceRelationshipOperation extends Op {
   op: 'remove';
-  record: StableExistingRecordIdentifier;
+  record: PersistedResourceKey;
   field: string;
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;
 }
 /**
@@ -160,7 +160,7 @@ export interface RemoveFromDocumentOperation extends Op {
   op: 'remove';
   record: StableDocumentIdentifier;
   field: 'data' | 'included';
-  value: StableExistingRecordIdentifier | StableExistingRecordIdentifier[];
+  value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;
 }
 

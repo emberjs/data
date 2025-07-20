@@ -21,7 +21,7 @@ import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
 import type { RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { ResourceKey, StableExistingRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey, PersistedResourceKey } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheOptions, RequestInfo } from '../../types/request.ts';
@@ -1492,10 +1492,7 @@ export class Store extends BaseClass {
     @param {Object} jsonApiDoc
     @return {ResourceKey|Array<ResourceKey>|null} identifiers for the primary records that had data loaded
   */
-  _push(
-    jsonApiDoc: JsonApiDocument,
-    asyncFlush?: boolean
-  ): StableExistingRecordIdentifier | StableExistingRecordIdentifier[] | null {
+  _push(jsonApiDoc: JsonApiDocument, asyncFlush?: boolean): PersistedResourceKey | PersistedResourceKey[] | null {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }

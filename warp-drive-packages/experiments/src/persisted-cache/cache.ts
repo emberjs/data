@@ -4,11 +4,7 @@ import type { Change } from '@warp-drive/core/types/cache/change';
 import type { Mutation } from '@warp-drive/core/types/cache/mutations';
 import type { Operation } from '@warp-drive/core/types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
-import type {
-  ResourceKey,
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-} from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type { Value } from '@warp-drive/core/types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from '@warp-drive/core/types/request';
@@ -73,14 +69,14 @@ export class PersistedCache implements Cache {
     requests.put(request);
 
     if ('data' in result && result.data) {
-      const resourceData: StableExistingRecordIdentifier[] = Array.isArray(result.data) ? result.data : [result.data];
+      const resourceData: PersistedResourceKey[] = Array.isArray(result.data) ? result.data : [result.data];
       resourceData.forEach((identifier) => {
         resources.put(this._cache.peek(identifier), identifier.lid);
       });
     }
 
     if ('included' in result && result.included) {
-      const included: StableExistingRecordIdentifier[] = result.included;
+      const included: PersistedResourceKey[] = result.included;
       included.forEach((identifier) => {
         resources.put(this._cache.peek(identifier), identifier.lid);
       });

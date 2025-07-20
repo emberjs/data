@@ -2,7 +2,7 @@ import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 import type { ExistingResourceObject, JsonApiDocument } from '@warp-drive/core/types/spec/json-api-raw';
 
@@ -18,7 +18,7 @@ export function _findHasMany(
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
-): Promise<StableExistingRecordIdentifier[]> {
+): Promise<PersistedResourceKey[]> {
   upgradeStore(store);
   const promise = Promise.resolve().then(() => {
     const snapshot = store._fetchManager.createSnapshot(identifier, options);
@@ -57,7 +57,7 @@ export function _findHasMany(
     );
 
     payload = syncRelationshipDataFromLink(store, payload, identifier as ResourceIdentity, relationship);
-    return store._push(payload, true) as StableExistingRecordIdentifier[];
+    return store._push(payload, true) as PersistedResourceKey[];
   }, null);
 }
 
@@ -67,7 +67,7 @@ export function _findBelongsTo(
   link: string | null | { href: string },
   relationship: RelationshipSchema,
   options: BaseFinderOptions
-): Promise<StableExistingRecordIdentifier | null> {
+): Promise<PersistedResourceKey | null> {
   upgradeStore(store);
   const promise = Promise.resolve().then(() => {
     const adapter = store.adapterFor(identifier.type);
@@ -106,7 +106,7 @@ export function _findBelongsTo(
 
     payload = syncRelationshipDataFromLink(store, payload, identifier as ResourceIdentity, relationship);
 
-    return store._push(payload, true) as StableExistingRecordIdentifier | null;
+    return store._push(payload, true) as PersistedResourceKey | null;
   }, null);
 }
 

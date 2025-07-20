@@ -3,7 +3,7 @@ import type { StructuredDataDocument } from '@ember-data/request';
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
@@ -98,11 +98,11 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as PersistedResourceKey;
     const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '2',
-    }) as StableExistingRecordIdentifier;
+    }) as PersistedResourceKey;
     assert.equal(identifier.id, '1', 'We were given the correct data back');
     assert.equal(identifier2.id, '2', 'We were given the correct data back');
 

@@ -13,11 +13,7 @@ import type { Document, NotificationType } from '@ember-data/store';
 import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
 import type { LegacyQueryArray } from '@ember-data/store/-private';
 import type { CacheCapabilitiesManager, SchemaService } from '@ember-data/store/types';
-import type {
-  ResourceKey,
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { OpaqueRecordInstance } from '@warp-drive/core-types/record';
 import type { RequestContext } from '@warp-drive/core-types/request';
 import type { HashFn } from '@warp-drive/core-types/schema/concepts';
@@ -760,7 +756,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
         type: 'user',
         id: '1',
-      }) as StableExistingRecordIdentifier;
+      }) as PersistedResourceKey;
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
@@ -822,7 +818,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({
         type: 'user',
         id: '2',
-      }) as StableExistingRecordIdentifier;
+      }) as PersistedResourceKey;
 
       assert.strictEqual(data3, identifier2, 'we get an identifier back as data');
       assert.strictEqual(updatedUserDocument.content.lid, '/assets/users/1.json', 'we get back url as the cache key');

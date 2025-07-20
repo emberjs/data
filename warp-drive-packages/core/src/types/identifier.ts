@@ -68,13 +68,13 @@ export interface StableIdentifier extends Identifier {
  * Used when a ResourceKey was not created locally as part
  * of a call to store.createRecord
  *
- * Distinguishing between this Identifier and one for a client created
- * record that was created with an ID is generally speaking not possible
+ * Distinguishing between this ResourceKey and one for a client created
+ * resource that was created with an ID is generally speaking not possible
  * at runtime, so anything with an ID typically narrows to this.
  *
  * @internal
  */
-export interface StableExistingRecordIdentifier<T extends string = string> extends StableIdentifier {
+export interface PersistedResourceKey<T extends string = string> extends StableIdentifier {
   /**
    * the primary `ResourceType` or "model name" this ResourceKey belongs to.
    *
@@ -98,6 +98,9 @@ export interface StableExistingRecordIdentifier<T extends string = string> exten
   /** @internal */
   [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
+
+/** @deprecated use {@link PersistedResourceKey} */
+export type StableExistingRecordIdentifier<T extends string = string> = PersistedResourceKey<T>;
 
 /**
  * Used when a ResourceKey was created locally
@@ -144,7 +147,7 @@ export interface NewResourceKey<T extends string = string> extends StableIdentif
  *
  * @public
  */
-export type ResourceKey<T extends string = string> = StableExistingRecordIdentifier<T> | NewResourceKey<T>;
+export type ResourceKey<T extends string = string> = PersistedResourceKey<T> | NewResourceKey<T>;
 
 /** @deprecated use {@link ResourceKey} */
 export type StableRecordIdentifier<T extends string = string> = ResourceKey<T>;
