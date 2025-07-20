@@ -111,7 +111,11 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
     assert.deepEqual(responseDocument.data, [identifier, identifier2], 'We were given the correct data back');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users',
+    })!;
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDataDocument<CollectionResourceDocument>>,
       {
@@ -123,7 +127,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
