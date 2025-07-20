@@ -32,8 +32,8 @@ class TestStore extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  override instantiateRecord(key: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   override teardownRecord(record: Model): void {
@@ -65,9 +65,9 @@ module('Integration - deleteRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: ResourceKey): void {
-        assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier, null);
+      override willCommit(key: ResourceKey): void {
+        assert.step(`willCommit ${key.lid}`);
+        return super.willCommit(key, null);
       }
       override didCommit(
         committedIdentifier: ResourceKey,
@@ -76,9 +76,9 @@ module('Integration - deleteRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${identifier.lid}`);
-        return super.commitWasRejected(identifier, errors);
+      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+        assert.step(`commitWasRejected ${key.lid}`);
+        return super.commitWasRejected(key, errors);
       }
     }
 
@@ -112,7 +112,7 @@ module('Integration - deleteRecord', function (hooks) {
     owner.register('model:user', User);
     const store = owner.lookup('service:store') as Store;
     const user = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Chris' } } }) as User;
-    const identifier = recordIdentifierFor(user);
+    const key = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
     assert.false(user.isDeleted, 'The user is not deleted');
     assert.false(user.hasDirtyAttributes, 'The user is not dirty');
@@ -150,7 +150,7 @@ module('Integration - deleteRecord', function (hooks) {
     assert.true(user.isDeleted, 'The user is deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
 
-    assert.verifySteps([`willCommit ${identifier.lid}`, 'handle deleteRecord request', `didCommit ${identifier.lid}`]);
+    assert.verifySteps([`willCommit ${key.lid}`, 'handle deleteRecord request', `didCommit ${key.lid}`]);
 
     const user2 = store.peekRecord('user', '2') as User;
     assert.notEqual(user2, null, 'The user is in the store');
@@ -162,9 +162,9 @@ module('Integration - deleteRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: ResourceKey): void {
-        assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier, null);
+      override willCommit(key: ResourceKey): void {
+        assert.step(`willCommit ${key.lid}`);
+        return super.willCommit(key, null);
       }
       override didCommit(
         committedIdentifier: ResourceKey,
@@ -173,9 +173,9 @@ module('Integration - deleteRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${identifier.lid}`);
-        return super.commitWasRejected(identifier, errors);
+      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+        assert.step(`commitWasRejected ${key.lid}`);
+        return super.commitWasRejected(key, errors);
       }
     }
 
@@ -208,7 +208,7 @@ module('Integration - deleteRecord', function (hooks) {
     owner.register('model:user', User);
     const store = owner.lookup('service:store') as Store;
     const user = store.push({ data: { type: 'user', id: '1', attributes: { name: 'Chris' } } }) as User;
-    const identifier = recordIdentifierFor(user);
+    const key = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
     assert.false(user.isDeleted, 'The user is not deleted');
     assert.false(user.hasDirtyAttributes, 'The user is not dirty');
@@ -282,10 +282,6 @@ module('Integration - deleteRecord', function (hooks) {
     assert.true(user.isDeleted, 'The user is still deleted');
     assert.false(user.isSaving, 'The user is no longer saving');
 
-    assert.verifySteps([
-      `willCommit ${identifier.lid}`,
-      'handle deleteRecord request',
-      `commitWasRejected ${identifier.lid}`,
-    ]);
+    assert.verifySteps([`willCommit ${key.lid}`, 'handle deleteRecord request', `commitWasRejected ${key.lid}`]);
   });
 });

@@ -26,8 +26,8 @@ export default class Store extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  override instantiateRecord(key: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   override teardownRecord(record: Model): void {

@@ -32,8 +32,8 @@ class TestStore extends DataStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  override instantiateRecord(key: ResourceKey, createRecordArgs: { [key: string]: unknown }): unknown {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   override teardownRecord(record: Model): void {
@@ -65,9 +65,9 @@ module('Integration - createRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: ResourceKey): void {
-        assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier, null);
+      override willCommit(key: ResourceKey): void {
+        assert.step(`willCommit ${key.lid}`);
+        return super.willCommit(key, null);
       }
       override didCommit(
         committedIdentifier: ResourceKey,
@@ -76,9 +76,9 @@ module('Integration - createRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${identifier.lid}`);
-        return super.commitWasRejected(identifier, errors);
+      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+        assert.step(`commitWasRejected ${key.lid}`);
+        return super.commitWasRejected(key, errors);
       }
     }
 
@@ -112,7 +112,7 @@ module('Integration - createRecord', function (hooks) {
     owner.register('model:user', User);
     const store = owner.lookup('service:store') as Store;
     const user = store.createRecord('user', { name: 'John' }) as User;
-    const identifier = recordIdentifierFor(user);
+    const key = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
     assert.true(user.isNew, 'The user is new');
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
@@ -138,7 +138,7 @@ module('Integration - createRecord', function (hooks) {
     assert.false(user.isNew, 'The user is no longer new');
     assert.false(user.isSaving, 'The user is no longer saving');
 
-    assert.verifySteps([`willCommit ${identifier.lid}`, 'handle createRecord request', `didCommit ${identifier.lid}`]);
+    assert.verifySteps([`willCommit ${key.lid}`, 'handle createRecord request', `didCommit ${key.lid}`]);
   });
 
   test('Rejecting during Save of a new record with a createRecord op works as expected', async function (this: TestContext, assert) {
@@ -146,9 +146,9 @@ module('Integration - createRecord', function (hooks) {
 
     // intercept cache APIs to ensure they are called as expected
     class TestCache extends JSONAPICache {
-      override willCommit(identifier: ResourceKey): void {
-        assert.step(`willCommit ${identifier.lid}`);
-        return super.willCommit(identifier, null);
+      override willCommit(key: ResourceKey): void {
+        assert.step(`willCommit ${key.lid}`);
+        return super.willCommit(key, null);
       }
       override didCommit(
         committedIdentifier: ResourceKey,
@@ -157,9 +157,9 @@ module('Integration - createRecord', function (hooks) {
         assert.step(`didCommit ${committedIdentifier.lid}`);
         return super.didCommit(committedIdentifier, result);
       }
-      override commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${identifier.lid}`);
-        return super.commitWasRejected(identifier, errors);
+      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+        assert.step(`commitWasRejected ${key.lid}`);
+        return super.commitWasRejected(key, errors);
       }
     }
 
@@ -193,7 +193,7 @@ module('Integration - createRecord', function (hooks) {
     owner.register('model:user', User);
     const store = owner.lookup('service:store') as Store;
     const user = store.createRecord('user', { name: 'John' }) as User;
-    const identifier = recordIdentifierFor(user);
+    const key = recordIdentifierFor(user);
     assert.false(user.isSaving, 'The user is not saving');
     assert.true(user.isNew, 'The user is new');
     assert.true(user.hasDirtyAttributes, 'The user is dirty');
@@ -251,10 +251,6 @@ module('Integration - createRecord', function (hooks) {
     assert.equal(nameErrors.length, 1, 'The user has the expected number of errors');
     assert.equal(nameErrors[0]?.message, 'Name must be capitalized', 'The user has the expected error for the field');
 
-    assert.verifySteps([
-      `willCommit ${identifier.lid}`,
-      'handle createRecord request',
-      `commitWasRejected ${identifier.lid}`,
-    ]);
+    assert.verifySteps([`willCommit ${key.lid}`, 'handle createRecord request', `commitWasRejected ${key.lid}`]);
   });
 });

@@ -1,6 +1,6 @@
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '../../../types/cache.ts';
 import type { Change } from '../../../types/cache/change.ts';
-import type { MergeOperation } from '../../../types/cache/operations.ts';
+import type { Operation } from '../../../types/cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from '../../../types/cache/relationship.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
@@ -69,14 +69,11 @@ export class CacheManager implements Cache {
   /**
    * Perform an operation on the cache to update the remote state.
    *
-   * Note: currently the only valid operation is a MergeOperation
-   * which occurs when a collision of identifiers is detected.
-   *
    * @public
    * @param op the operation to perform
    * @return {void}
    */
-  patch(op: MergeOperation): void {
+  patch(op: Operation | Operation[]): void {
     this.#cache.patch(op);
   }
 
@@ -119,19 +116,19 @@ export class CacheManager implements Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | RequestKey} identifier
+   * @param {ResourceKey | RequestKey} cacheKey
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
-  peek(identifier: ResourceKey): unknown;
-  peek(identifier: RequestKey): ResourceDocument | null;
-  peek(identifier: ResourceKey | RequestKey): unknown {
-    return this.#cache.peek(identifier as ResourceKey);
+  peek(cacheKey: ResourceKey): unknown;
+  peek(cacheKey: RequestKey): ResourceDocument | null;
+  peek(cacheKey: ResourceKey | RequestKey): unknown {
+    return this.#cache.peek(cacheKey as ResourceKey);
   }
 
-  peekRemoteState(identifier: ResourceKey): unknown;
-  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
-  peekRemoteState(identifier: ResourceKey | RequestKey): unknown {
-    return this.#cache.peekRemoteState(identifier as ResourceKey);
+  peekRemoteState(cacheKey: ResourceKey): unknown;
+  peekRemoteState(cacheKey: RequestKey): ResourceDocument | null;
+  peekRemoteState(cacheKey: ResourceKey | RequestKey): unknown {
+    return this.#cache.peekRemoteState(cacheKey as ResourceKey);
   }
   /**
    * Peek the Cache for the existing request data associated with
@@ -141,21 +138,18 @@ export class CacheManager implements Cache {
    * @return {RequestKey | null}
    * @public
    */
-  peekRequest(identifier: RequestKey): StructuredDocument<ResourceDocument> | null {
-    return this.#cache.peekRequest(identifier);
+  peekRequest(key: RequestKey): StructuredDocument<ResourceDocument> | null {
+    return this.#cache.peekRequest(key);
   }
 
   /**
-   * Push resource data from a remote source into the cache for this identifier
+   * Push resource data from a remote source into the cache for this ResourceKey
    *
    * @public
-   * @param identifier
-   * @param data
-   * @param hasRecord
-   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: ResourceKey, data: unknown, hasRecord: boolean): void | string[] {
-    return this.#cache.upsert(identifier, data, hasRecord);
+  upsert(key: ResourceKey, data: unknown, hasRecord: boolean): void | string[] {
+    return this.#cache.upsert(key, data, hasRecord);
   }
 
   // Cache Forking Support
@@ -199,7 +193,7 @@ export class CacheManager implements Cache {
    * `Change` entry in the returned array.
    *
    * A `Change` is described by an object containing up to
-   * three properties: (1) the `identifier` of the entity that
+   * three properties: (1) the `ResourceKey` of the entity that
    * changed; (2) the `op` code of that change being one of
    * `upsert` or `remove`, and if the op is `upsert` a `patch`
    * containing the data to merge into the cache for the given
@@ -214,7 +208,7 @@ export class CacheManager implements Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: ResourceKey | RequestKey;
+   *  key: ResourceKey | RequestKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }
@@ -274,11 +268,9 @@ export class CacheManager implements Cache {
    * process. This return value behavior is deprecated.
    *
    * @public
-   * @param identifier
-   * @param options
    */
-  clientDidCreate(identifier: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
-    return this.#cache.clientDidCreate(identifier, options);
+  clientDidCreate(key: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
+    return this.#cache.clientDidCreate(key, options);
   }
 
   /**
@@ -286,10 +278,10 @@ export class CacheManager implements Cache {
    * will be part of a save transaction.
    *
    * @public
-   * @param identifier
+   * @param key
    */
-  willCommit(identifier: ResourceKey, context: StoreRequestContext): void {
-    this.#cache.willCommit(identifier, context);
+  willCommit(key: ResourceKey, context: StoreRequestContext): void {
+    this.#cache.willCommit(key, context);
   }
 
   /**
@@ -297,11 +289,9 @@ export class CacheManager implements Cache {
    * was successfully updated as part of a save transaction.
    *
    * @public
-   * @param identifier
-   * @param data
    */
-  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
-    return this.#cache.didCommit(identifier, result);
+  didCommit(key: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+    return this.#cache.didCommit(key, result);
   }
 
   /**
@@ -309,11 +299,9 @@ export class CacheManager implements Cache {
    * was update via a save transaction failed.
    *
    * @public
-   * @param identifier
-   * @param errors
    */
-  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-    this.#cache.commitWasRejected(identifier, errors);
+  commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+    this.#cache.commitWasRejected(key, errors);
   }
 
   /**
@@ -321,10 +309,9 @@ export class CacheManager implements Cache {
    * should be cleared.
    *
    * @public
-   * @param identifier
    */
-  unloadRecord(identifier: ResourceKey): void {
-    this.#cache.unloadRecord(identifier);
+  unloadRecord(key: ResourceKey): void {
+    this.#cache.unloadRecord(key);
   }
 
   // Granular Resource Data APIs
@@ -334,69 +321,55 @@ export class CacheManager implements Cache {
    * Retrieve the data for an attribute from the cache
    *
    * @public
-   * @param identifier
-   * @param propertyName
-   * @return {unknown}
    */
-  getAttr(identifier: ResourceKey, propertyName: string): Value | undefined {
-    return this.#cache.getAttr(identifier, propertyName);
+  getAttr(key: ResourceKey, propertyName: string): Value | undefined {
+    return this.#cache.getAttr(key, propertyName);
   }
 
   /**
    * Retrieve the remote state for an attribute from the cache
    *
    * @public
-   * @param identifier
-   * @param propertyName
-   * @return {unknown}
    */
-  getRemoteAttr(identifier: ResourceKey, propertyName: string): Value | undefined {
-    return this.#cache.getRemoteAttr(identifier, propertyName);
+  getRemoteAttr(key: ResourceKey, propertyName: string): Value | undefined {
+    return this.#cache.getRemoteAttr(key, propertyName);
   }
 
   /**
    * Mutate the data for an attribute in the cache
    *
    * @public
-   * @param identifier
-   * @param propertyName
-   * @param value
    */
-  setAttr(identifier: ResourceKey, propertyName: string, value: Value): void {
-    this.#cache.setAttr(identifier, propertyName, value);
+  setAttr(key: ResourceKey, propertyName: string, value: Value): void {
+    this.#cache.setAttr(key, propertyName, value);
   }
 
   /**
    * Query the cache for the changed attributes of a resource.
    *
    * @public
-   * @param identifier
-   * @return
    */
-  changedAttrs(identifier: ResourceKey): ChangedAttributesHash {
-    return this.#cache.changedAttrs(identifier);
+  changedAttrs(key: ResourceKey): ChangedAttributesHash {
+    return this.#cache.changedAttrs(key);
   }
 
   /**
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  hasChangedAttrs(identifier: ResourceKey): boolean {
-    return this.#cache.hasChangedAttrs(identifier);
+  hasChangedAttrs(key: ResourceKey): boolean {
+    return this.#cache.hasChangedAttrs(key);
   }
 
   /**
    * Tell the cache to discard any uncommitted mutations to attributes
    *
    * @public
-   * @param identifier
    * @return the names of attributes that were restored
    */
-  rollbackAttrs(identifier: ResourceKey): string[] {
-    return this.#cache.rollbackAttrs(identifier);
+  rollbackAttrs(key: ResourceKey): string[] {
+    return this.#cache.rollbackAttrs(key);
   }
 
   // Relationships
@@ -425,22 +398,18 @@ export class CacheManager implements Cache {
     ```
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {Map<string, RelationshipDiff>}
    */
-  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff> {
-    return this.#cache.changedRelationships(identifier);
+  changedRelationships(key: ResourceKey): Map<string, RelationshipDiff> {
+    return this.#cache.changedRelationships(key);
   }
 
   /**
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {Boolean}
    */
-  hasChangedRelationships(identifier: ResourceKey): boolean {
-    return this.#cache.hasChangedRelationships(identifier);
+  hasChangedRelationships(key: ResourceKey): boolean {
+    return this.#cache.hasChangedRelationships(key);
   }
 
   /**
@@ -451,35 +420,30 @@ export class CacheManager implements Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {String[]} the names of relationships that were restored
+   * @return the names of relationships that were restored
    */
-  rollbackRelationships(identifier: ResourceKey): string[] {
-    return this.#cache.rollbackRelationships(identifier);
+  rollbackRelationships(key: ResourceKey): string[] {
+    return this.#cache.rollbackRelationships(key);
   }
 
   /**
    * Query the cache for the current state of a relationship property
    *
    * @public
-   * @param identifier
-   * @param propertyName
    * @return resource relationship object
    */
-  getRelationship(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    return this.#cache.getRelationship(identifier, propertyName);
+  getRelationship(key: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
+    return this.#cache.getRelationship(key, propertyName);
   }
 
   /**
    * Query the cache for the remote state of a relationship property
    *
    * @public
-   * @param identifier
-   * @param propertyName
    * @return resource relationship object
    */
-  getRemoteRelationship(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    return this.#cache.getRemoteRelationship(identifier, propertyName);
+  getRemoteRelationship(key: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
+    return this.#cache.getRemoteRelationship(key, propertyName);
   }
 
   // Resource State
@@ -490,33 +454,27 @@ export class CacheManager implements Cache {
    * or remove such a mark.
    *
    * @public
-   * @param identifier
-   * @param isDeleted
    */
-  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void {
-    this.#cache.setIsDeleted(identifier, isDeleted);
+  setIsDeleted(key: ResourceKey, isDeleted: boolean): void {
+    this.#cache.setIsDeleted(key, isDeleted);
   }
 
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
    * @public
-   * @param identifier
-   * @return
    */
-  getErrors(identifier: ResourceKey): ApiError[] {
-    return this.#cache.getErrors(identifier);
+  getErrors(key: ResourceKey): ApiError[] {
+    return this.#cache.getErrors(key);
   }
 
   /**
    * Query the cache for whether a given resource has any available data
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isEmpty(identifier: ResourceKey): boolean {
-    return this.#cache.isEmpty(identifier);
+  isEmpty(key: ResourceKey): boolean {
+    return this.#cache.isEmpty(key);
   }
 
   /**
@@ -524,11 +482,9 @@ export class CacheManager implements Cache {
    * yet persisted.
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isNew(identifier: ResourceKey): boolean {
-    return this.#cache.isNew(identifier);
+  isNew(key: ResourceKey): boolean {
+    return this.#cache.isNew(key);
   }
 
   /**
@@ -536,11 +492,9 @@ export class CacheManager implements Cache {
    * necessarily persisted yet).
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isDeleted(identifier: ResourceKey): boolean {
-    return this.#cache.isDeleted(identifier);
+  isDeleted(key: ResourceKey): boolean {
+    return this.#cache.isDeleted(key);
   }
 
   /**
@@ -548,10 +502,8 @@ export class CacheManager implements Cache {
    * has also been persisted.
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isDeletionCommitted(identifier: ResourceKey): boolean {
-    return this.#cache.isDeletionCommitted(identifier);
+  isDeletionCommitted(key: ResourceKey): boolean {
+    return this.#cache.isDeletionCommitted(key);
   }
 }
