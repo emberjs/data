@@ -5,7 +5,7 @@ import type { ResourceKey, StableDocumentIdentifier } from '../../../types/ident
 import { log } from '../debug/utils.ts';
 import { willSyncFlushWatchers } from '../new-core-tmp/reactivity/configure.ts';
 import type { Store } from '../store-service.ts';
-import { isDocumentIdentifier, isStableIdentifier } from './cache-key-manager.ts';
+import { isRequestKey, isResourceKey } from './cache-key-manager.ts';
 
 export type UnsubscribeToken = object;
 
@@ -151,10 +151,7 @@ export default class NotificationManager {
     assert(`Expected not to be destroyed`, !this.isDestroyed);
     assert(
       `Expected to receive a stable Identifier to subscribe to`,
-      identifier === 'resource' ||
-        identifier === 'document' ||
-        isStableIdentifier(identifier) ||
-        isDocumentIdentifier(identifier)
+      identifier === 'resource' || identifier === 'document' || isResourceKey(identifier) || isRequestKey(identifier)
     );
     let callbacks = this._cache.get(identifier);
     assert(`expected to receive a valid callback`, typeof callback === 'function');
@@ -204,7 +201,7 @@ export default class NotificationManager {
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
     );
-    if (!isStableIdentifier(identifier) && !isDocumentIdentifier(identifier)) {
+    if (!isResourceKey(identifier) && !isRequestKey(identifier)) {
       if (LOG_NOTIFICATIONS) {
         // eslint-disable-next-line no-console
         console.log(
@@ -338,7 +335,7 @@ function _flushNotification(
 
   // TODO for documents this will need to switch based on Identifier kind
   if (isCacheOperationValue(value)) {
-    const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+    const callbackMap = cache.get(isRequestKey(identifier) ? 'document' : 'resource') as Array<
       ResourceOperationCallback | DocumentOperationCallback
     >;
 
@@ -371,7 +368,7 @@ function hasSubscribers(
     return hasSubscriber;
   }
 
-  const callbackMap = cache.get(isDocumentIdentifier(identifier) ? 'document' : 'resource') as Array<
+  const callbackMap = cache.get(isRequestKey(identifier) ? 'document' : 'resource') as Array<
     ResourceOperationCallback | DocumentOperationCallback
   >;
   return Boolean(callbackMap?.length);

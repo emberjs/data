@@ -2,7 +2,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 
 // provided for additional debuggability
 export const DEBUG_CLIENT_ORIGINATED: unique symbol = Symbol('record-originated-on-client');
-export const DEBUG_IDENTIFIER_BUCKET: unique symbol = Symbol('identifier-bucket');
+export const DEBUG_KEY_TYPE: unique symbol = Symbol('key-type');
 export const DEBUG_STALE_CACHE_OWNER: unique symbol = Symbol('warpDriveStaleCache');
 
 function ProdSymbol<T extends string>(str: T, debugStr: string): T {
@@ -12,16 +12,7 @@ function ProdSymbol<T extends string>(str: T, debugStr: string): T {
 // also present in production
 export const CACHE_OWNER: '__$co' = ProdSymbol('__$co', 'CACHE_OWNER');
 
-export type IdentifierBucket = 'record' | 'document';
-
-export interface Identifier {
-  /**
-   * A string representing a unique identity.
-   *
-   * @public
-   */
-  lid: string;
-}
+export type CacheKeyType = 'record' | 'document';
 
 export type StableDocumentIdentifier = {
   lid: string;
@@ -32,13 +23,32 @@ export type StableDocumentIdentifier = {
 export type RequestKey = StableDocumentIdentifier;
 
 /**
- * Used when an Identifier is known to be the stable version
+ * Used when an ResourceKey is known to be the stable version
  *
  * @internal
  */
-export interface StableIdentifier extends Identifier {
+interface ResourceKeyBase<T extends string = string> {
+  /**
+   * A string representing a unique identity.
+   *
+   * @public
+   */
+  lid: string;
+
+  /**
+   * the primary `ResourceType` or "model name" this ResourceKey belongs to.
+   *
+   * @public
+   */
+  type: T;
+
   /** @internal */
-  [DEBUG_IDENTIFIER_BUCKET]?: string;
+  [CACHE_OWNER]: number | undefined;
+
+  /** @internal */
+  [DEBUG_CLIENT_ORIGINATED]?: boolean;
+  /** @internal */
+  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**
@@ -51,29 +61,13 @@ export interface StableIdentifier extends Identifier {
  *
  * @internal
  */
-export interface PersistedResourceKey<T extends string = string> extends StableIdentifier {
+export interface PersistedResourceKey<T extends string = string> extends ResourceKeyBase<T> {
   /**
-   * the primary `ResourceType` or "model name" this ResourceKey belongs to.
-   *
-   * @public
-   */
-  type: T;
-
-  /** @internal */
-  [CACHE_OWNER]: number | undefined;
-
-  /**
-   * the PrimaryKey for the resource this ResourceKey belongs to. `null`
-   * if not yet assigned a PrimaryKey value.
+   * the PrimaryKey for the resource this ResourceKey represents.
    *
    * @public
    */
   id: string;
-
-  /** @internal */
-  [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  /** @internal */
-  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /** @deprecated use {@link PersistedResourceKey} */
@@ -90,29 +84,14 @@ export type StableExistingRecordIdentifier<T extends string = string> = Persiste
  *
  * @internal
  */
-export interface NewResourceKey<T extends string = string> extends StableIdentifier {
+export interface NewResourceKey<T extends string = string> extends ResourceKeyBase<T> {
   /**
-   * the primary resource `type` or `modelName` this identity belongs to.
-   *
-   * @public
-   */
-  type: T;
-
-  /** @internal */
-  [CACHE_OWNER]: number | undefined;
-
-  /**
-   * the primary id for the record this identity belongs to. `null`
-   * if not yet assigned an id.
+   * the PrimaryKey for the resource this ResourceKey represents. `null`
+   * if not yet assigned a PrimaryKey value.
    *
    * @public
    */
   id: string | null;
-
-  /** @internal */
-  [DEBUG_CLIENT_ORIGINATED]?: boolean;
-  /** @internal */
-  [DEBUG_STALE_CACHE_OWNER]?: number | undefined;
 }
 
 /**

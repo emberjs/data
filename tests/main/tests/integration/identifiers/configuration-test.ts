@@ -17,7 +17,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { IdentifierBucket, ResourceKey, StableIdentifier } from '@warp-drive/core-types/identifier';
+import type { CacheKeyType, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
@@ -43,7 +43,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     owner.register('model:user', User);
 
     let localIdInc = 9000;
-    const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+    const generationMethod: GenerationMethod = (resource: unknown, bucket: CacheKeyType) => {
       if (bucket !== 'record') {
         throw new Error('Test cannot generate an lid for a non-record');
       }
@@ -94,7 +94,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
   test(`The configured generation method is used for newly created records`, function (assert) {
     let localIdInc = 9000;
-    const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+    const generationMethod: GenerationMethod = (resource: unknown, bucket: CacheKeyType) => {
       if (bucket !== 'record') {
         throw new Error('Test cannot generate an lid for a non-record');
       }
@@ -160,9 +160,9 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | ResourceKey,
+      identifier: { lid: string } | ResourceKey,
       data: ResourceData | unknown,
-      bucket: IdentifierBucket
+      bucket: CacheKeyType
     ) {
       switch (bucket) {
         case 'record':
@@ -225,9 +225,9 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | ResourceKey,
+      identifier: { lid: string } | ResourceKey,
       data: ResourceData | unknown,
-      bucket: IdentifierBucket
+      bucket: CacheKeyType
     ) {
       switch (bucket) {
         case 'record':
@@ -295,9 +295,9 @@ module('Integration | Identifiers - configuration', function (hooks) {
     let updateCallback: (...args: any[]) => void;
 
     function updateMethod(
-      identifier: StableIdentifier | ResourceKey,
+      identifier: { lid: string } | ResourceKey,
       data: ResourceData | unknown,
-      bucket: IdentifierBucket
+      bucket: CacheKeyType
     ) {
       switch (bucket) {
         case 'record':
@@ -381,7 +381,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
     this.owner.register('serializer:application', TestSerializer);
 
     let generateLidCalls = 0;
-    setIdentifierGenerationMethod((resource: unknown, bucket: IdentifierBucket) => {
+    setIdentifierGenerationMethod((resource: unknown, bucket: CacheKeyType) => {
       if (bucket !== 'record') {
         throw new Error('Test cannot generate an lid for a non-record');
       }

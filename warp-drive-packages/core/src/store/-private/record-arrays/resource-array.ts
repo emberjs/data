@@ -14,8 +14,8 @@ import type { ResourceKey, StableDocumentIdentifier } from '../../../types/ident
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { CollectionField } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
-import { isStableIdentifier } from '../managers/cache-key-manager.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
+import { isResourceKey } from '../managers/cache-key-manager.ts';
 import type { SignalStore, WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import {
   ARRAY_SIGNAL,
@@ -369,7 +369,7 @@ const ArrayHandler: ProxyHandler<ResourceKey[]> = {
     if (index === null || index > target.length) {
       if (index !== null && CONTEXT.transaction) {
         const identifier = recordIdentifierFor(value);
-        assert(`Cannot set index ${index} past the end of the array.`, isStableIdentifier(identifier));
+        assert(`Cannot set index ${index} past the end of the array.`, isResourceKey(identifier));
         target[index] = identifier;
         return true;
       } else if (CONTEXT.features && prop in CONTEXT.features) {
@@ -381,7 +381,7 @@ const ArrayHandler: ProxyHandler<ResourceKey[]> = {
 
     const original: ResourceKey | undefined = target[index];
     const newIdentifier = extractIdentifierFromRecord(value);
-    assert(`Expected a record`, newIdentifier && isStableIdentifier(newIdentifier));
+    assert(`Expected a record`, newIdentifier && isResourceKey(newIdentifier));
     // We generate "transactions" whenever a setter method on the array
     // is called and might bulk update multiple array cells. Fundamentally,
     // all array operations decompose into individual cell replacements.
