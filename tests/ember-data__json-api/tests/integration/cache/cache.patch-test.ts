@@ -3,7 +3,7 @@ import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
-import type { StableExistingRecordIdentifier, StableRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
@@ -84,7 +84,7 @@ class TestStore extends Store {
     return new Cache(wrapper);
   }
 
-  instantiateRecord(identifier: StableRecordIdentifier, createArgs: Record<string, unknown>) {
+  instantiateRecord(identifier: ResourceKey, createArgs: Record<string, unknown>) {
     return instantiateRecord(this, identifier, createArgs);
   }
 

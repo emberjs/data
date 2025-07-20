@@ -113,7 +113,7 @@ export class RecordArrayManager {
    */
   declare _pending: Map<ReactiveResourceArray, ChangeSet>;
   /**
-   * An inverse map from StableRecordIdentifier to the list
+   * An inverse map from ResourceKey to the list
    * of arrays it can be found in, useful for fast updates
    * when state changes to a resource occur.
    */

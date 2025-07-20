@@ -4,7 +4,7 @@
  *
  * @module
  */
-export type { ResourceKey as StableRecordIdentifier, ResourceKey } from './types/identifier.ts';
+export type { StableRecordIdentifier, ResourceKey } from './types/identifier.ts';
 
 export type { CacheCapabilitiesManager } from './store/-types/q/cache-capabilities-manager.ts';
 // FIXME this should come from somewhere more intelligent

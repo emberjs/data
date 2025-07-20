@@ -1,6 +1,6 @@
 // Remove this disable once @belongsTo is typed
 import { recordIdentifierFor } from '@warp-drive/core';
-import type { StableRecordIdentifier } from '@warp-drive/core/types';
+import type { ResourceKey } from '@warp-drive/core/types';
 import type { CollectionResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
 import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
@@ -67,8 +67,8 @@ interface ExpectedTestOutcomes {
 interface TestState {
   chris: UserRecord;
   john: UserRecord;
-  chrisIdentifier: StableRecordIdentifier;
-  johnIdentifier: StableRecordIdentifier;
+  chrisIdentifier: ResourceKey;
+  johnIdentifier: ResourceKey;
   chrisInverseKey: string;
   johnInverseKey: string;
 }
@@ -106,7 +106,7 @@ export async function setInitialState(context: Context, config: TestConfig, asse
   }
   owner.register('model:user', User);
 
-  let chris: UserRecord, john: UserRecord, johnIdentifier: StableRecordIdentifier;
+  let chris: UserRecord, john: UserRecord, johnIdentifier: ResourceKey;
   if (!config.useCreate) {
     const data: CollectionResourceDocument<'user'> = {
       data: [

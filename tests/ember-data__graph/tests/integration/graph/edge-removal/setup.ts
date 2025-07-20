@@ -3,7 +3,7 @@ import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } fro
 import { graphFor } from '@warp-drive/core/graph/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { Type } from '@warp-drive/core/types/symbols';
 import type { Hooks } from '@warp-drive/diagnostic/-types';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
@@ -22,7 +22,7 @@ class AbstractMap {
     this.isImplicit = isImplicit;
   }
 
-  has(identifier: StableRecordIdentifier) {
+  has(identifier: ResourceKey) {
     const graph = graphFor(this.store);
     return graph.identifiers.has(identifier);
   }
@@ -30,7 +30,7 @@ class AbstractMap {
 
 class AbstractGraph {
   public identifiers: AbstractMap;
-  public implicit: { has(identifier: StableRecordIdentifier): boolean };
+  public implicit: { has(identifier: ResourceKey): boolean };
   declare private store: Store;
 
   constructor(store: Store) {
@@ -43,11 +43,11 @@ class AbstractGraph {
     };
   }
 
-  get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
+  get(identifier: ResourceKey, propertyName: string): GraphEdge {
     return graphFor(this.store).get(identifier, propertyName);
   }
 
-  getImplicit(identifier: StableRecordIdentifier): Record<string, ImplicitEdge> {
+  getImplicit(identifier: ResourceKey): Record<string, ImplicitEdge> {
     const rels = graphFor(this.store).identifiers.get(identifier);
     const implicits = Object.create(null) as Record<string, ImplicitEdge>;
     if (rels) {
@@ -86,11 +86,11 @@ export function stateOf(
   graph: Graph,
   rel: GraphEdge
 ): {
-  remote: StableRecordIdentifier[];
-  local: StableRecordIdentifier[];
+  remote: ResourceKey[];
+  local: ResourceKey[];
 } {
-  let local: StableRecordIdentifier[];
-  let remote: StableRecordIdentifier[];
+  let local: ResourceKey[];
+  let remote: ResourceKey[];
 
   if (isBelongsTo(rel)) {
     // we cast these to array form to make the tests more legible
@@ -102,8 +102,8 @@ export function stateOf(
     local = data.data || [];
     remote = rel.remoteState;
   } else {
-    local = setToArray<StableRecordIdentifier>(rel.localMembers);
-    remote = setToArray<StableRecordIdentifier>(rel.remoteMembers);
+    local = setToArray<ResourceKey>(rel.localMembers);
+    remote = setToArray<ResourceKey>(rel.remoteMembers);
   }
   return {
     local,

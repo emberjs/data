@@ -34,14 +34,14 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): ResourceKey 
 }
 
 /**
-  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/StableRecordIdentifier)
+  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/ResourceKey)
   assigned to the given record instance.
 
   ```js
   import { recordIdentifierFor } from "@ember-data/store";
   // ... gain access to a record, for instance with peekRecord or findRecord
   const record = store.peekRecord("user", "1");
-  // get the identifier for the record (see docs for StableRecordIdentifier)
+  // get the identifier for the record (see docs for ResourceKey)
   const identifier = recordIdentifierFor(record);
   // access the identifier's properties.
   const { id, type, lid } = identifier;

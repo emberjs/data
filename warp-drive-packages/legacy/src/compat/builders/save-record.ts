@@ -1,7 +1,7 @@
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { InstanceCache } from '@warp-drive/core/store/-private';
-import type { StableRecordIdentifier } from '@warp-drive/core/types';
+import type { ResourceKey } from '@warp-drive/core/types';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import { SkipCache } from '@warp-drive/core/types/request';
@@ -10,20 +10,20 @@ import type { RequestSignature } from '@warp-drive/core/types/symbols';
 type SaveRecordRequestInput<T extends string = string, RT = unknown> = StoreRequestInput & {
   op: 'createRecord' | 'deleteRecord' | 'updateRecord';
   data: {
-    record: StableRecordIdentifier<T>;
+    record: ResourceKey<T>;
     options: SaveRecordBuilderOptions;
   };
-  records: [StableRecordIdentifier<T>];
+  records: [ResourceKey<T>];
   [RequestSignature]?: RT;
 };
 
 type SaveRecordBuilderOptions = Record<string, unknown>;
 
-function _resourceIsFullDeleted(identifier: StableRecordIdentifier, cache: Cache): boolean {
+function _resourceIsFullDeleted(identifier: ResourceKey, cache: Cache): boolean {
   return cache.isDeletionCommitted(identifier) || (cache.isNew(identifier) && cache.isDeleted(identifier));
 }
 
-function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: StableRecordIdentifier): boolean {
+function resourceIsFullyDeleted(instanceCache: InstanceCache, identifier: ResourceKey): boolean {
   const cache = instanceCache.cache;
   return !cache || _resourceIsFullDeleted(identifier, cache);
 }

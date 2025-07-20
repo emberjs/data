@@ -3,7 +3,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Store } from '../../store/-private.ts';
-import type { CacheCapabilitiesManager, StableRecordIdentifier } from '../../types.ts';
+import type { CacheCapabilitiesManager, ResourceKey } from '../../types.ts';
 import { getOrSetGlobal, peekTransient, setTransient } from '../../types/-private.ts';
 import type { RelationshipDiff } from '../../types/cache.ts';
 import type { MergeOperation } from '../../types/cache/operations.ts';
@@ -75,7 +75,7 @@ export class Graph {
   declare _definitionCache: EdgeCache;
   declare _metaCache: Record<string, Record<string, UpgradedMeta>>;
   declare _potentialPolymorphicTypes: Record<string, Record<string, boolean>>;
-  declare identifiers: Map<StableRecordIdentifier, Record<string, GraphEdge>>;
+  declare identifiers: Map<ResourceKey, Record<string, GraphEdge>>;
   declare store: CacheCapabilitiesManager;
   declare _realStore: Store;
   declare isDestroyed: boolean;
@@ -85,7 +85,7 @@ export class Graph {
   declare _pushedUpdates: PendingOps;
   declare _updatedRelationships: Set<CollectionEdge>;
   declare _transaction: number | null;
-  declare _removing: StableRecordIdentifier | null;
+  declare _removing: ResourceKey | null;
 
   constructor(store: CacheCapabilitiesManager) {
     this._definitionCache = Object.create(null) as EdgeCache;
@@ -108,7 +108,7 @@ export class Graph {
     this.silenceNotifications = false;
   }
 
-  has(identifier: StableRecordIdentifier, propertyName: string): boolean {
+  has(identifier: ResourceKey, propertyName: string): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
@@ -116,7 +116,7 @@ export class Graph {
     return relationships[propertyName] !== undefined;
   }
 
-  getDefinition(identifier: StableRecordIdentifier, propertyName: string): UpgradedMeta {
+  getDefinition(identifier: ResourceKey, propertyName: string): UpgradedMeta {
     let defs = this._metaCache[identifier.type];
     let meta: UpgradedMeta | null | undefined = defs?.[propertyName];
     if (!meta) {
@@ -136,7 +136,7 @@ export class Graph {
     return meta;
   }
 
-  get(identifier: StableRecordIdentifier, propertyName: string): GraphEdge {
+  get(identifier: ResourceKey, propertyName: string): GraphEdge {
     assert(`expected propertyName`, propertyName);
     let relationships = this.identifiers.get(identifier);
     if (!relationships) {
@@ -161,7 +161,7 @@ export class Graph {
     return relationship;
   }
 
-  getData(identifier: StableRecordIdentifier, propertyName: string): ResourceRelationship | CollectionRelationship {
+  getData(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     const relationship = this.get(identifier, propertyName);
 
     assert(`Cannot getData() on an implicit relationship`, !isImplicit(relationship));
@@ -173,10 +173,7 @@ export class Graph {
     return legacyGetCollectionRelationshipData(relationship, false);
   }
 
-  getRemoteData(
-    identifier: StableRecordIdentifier,
-    propertyName: string
-  ): ResourceRelationship | CollectionRelationship {
+  getRemoteData(identifier: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
     const relationship = this.get(identifier, propertyName);
 
     assert(`Cannot getRemoteData() on an implicit relationship`, !isImplicit(relationship));
@@ -214,7 +211,7 @@ export class Graph {
     t2[type1] = true;
   }
 
-  isReleasable(identifier: StableRecordIdentifier): boolean {
+  isReleasable(identifier: ResourceKey): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       if (LOG_GRAPH) {
@@ -247,7 +244,7 @@ export class Graph {
     return true;
   }
 
-  unload(identifier: StableRecordIdentifier, silenceNotifications?: boolean): void {
+  unload(identifier: ResourceKey, silenceNotifications?: boolean): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: unload ${String(identifier)}`);
@@ -271,7 +268,7 @@ export class Graph {
     }
   }
 
-  _isDirty(identifier: StableRecordIdentifier, field: string): boolean {
+  _isDirty(identifier: ResourceKey, field: string): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
@@ -290,7 +287,7 @@ export class Graph {
     return false;
   }
 
-  getChanged(identifier: StableRecordIdentifier): Map<string, RelationshipDiff> {
+  getChanged(identifier: ResourceKey): Map<string, RelationshipDiff> {
     const relationships = this.identifiers.get(identifier);
     const changed = new Map<string, RelationshipDiff>();
 
@@ -334,7 +331,7 @@ export class Graph {
     return changed;
   }
 
-  hasChanged(identifier: StableRecordIdentifier): boolean {
+  hasChanged(identifier: ResourceKey): boolean {
     const relationships = this.identifiers.get(identifier);
     if (!relationships) {
       return false;
@@ -348,7 +345,7 @@ export class Graph {
     return false;
   }
 
-  rollback(identifier: StableRecordIdentifier): string[] {
+  rollback(identifier: ResourceKey): string[] {
     const relationships = this.identifiers.get(identifier);
     const changed: string[] = [];
     if (!relationships) {
@@ -371,7 +368,7 @@ export class Graph {
     return changed;
   }
 
-  remove(identifier: StableRecordIdentifier): void {
+  remove(identifier: ResourceKey): void {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
       console.log(`graph: remove ${String(identifier)}`);
@@ -609,7 +606,7 @@ function destroyRelationship(graph: Graph, rel: GraphEdge, silenceNotifications?
   const { inverseKey } = rel.definition;
 
   if (!rel.definition.inverseIsImplicit) {
-    /*#__NOINLINE__*/ forAllRelatedIdentifiers(rel, (inverseIdentifer: StableRecordIdentifier) =>
+    /*#__NOINLINE__*/ forAllRelatedIdentifiers(rel, (inverseIdentifer: ResourceKey) =>
       /*#__NOINLINE__*/ notifyInverseOfDematerialization(
         graph,
         inverseIdentifer,
@@ -640,9 +637,9 @@ function destroyRelationship(graph: Graph, rel: GraphEdge, silenceNotifications?
 
 function notifyInverseOfDematerialization(
   graph: Graph,
-  inverseIdentifier: StableRecordIdentifier,
+  inverseIdentifier: ResourceKey,
   inverseKey: string,
-  identifier: StableRecordIdentifier,
+  identifier: ResourceKey,
   silenceNotifications?: boolean
 ) {
   if (!graph.has(inverseIdentifier, inverseKey)) {
@@ -677,7 +674,7 @@ function clearRelationship(relationship: CollectionEdge | ResourceEdge) {
 function removeDematerializedInverse(
   graph: Graph,
   relationship: CollectionEdge | ResourceEdge,
-  inverseIdentifier: StableRecordIdentifier,
+  inverseIdentifier: ResourceKey,
   silenceNotifications?: boolean
 ) {
   if (isBelongsTo(relationship)) {
@@ -729,7 +726,7 @@ function removeCompletelyFromInverse(graph: Graph, relationship: GraphEdge) {
   const { identifier } = relationship;
   const { inverseKey } = relationship.definition;
 
-  forAllRelatedIdentifiers(relationship, (inverseIdentifier: StableRecordIdentifier) => {
+  forAllRelatedIdentifiers(relationship, (inverseIdentifier: ResourceKey) => {
     if (graph.has(inverseIdentifier, inverseKey)) {
       removeIdentifierCompletelyFromRelationship(graph, graph.get(inverseIdentifier, inverseKey), identifier);
     }

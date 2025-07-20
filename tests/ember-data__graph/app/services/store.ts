@@ -1,6 +1,6 @@
 import { CacheHandler, Fetch, RequestManager, Store as BaseStore } from '@warp-drive/core';
 import type { CacheCapabilitiesManager, ModelSchema } from '@warp-drive/core/types';
-import type { StableRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import { JSONAPICache } from '@warp-drive/json-api';
 import {
@@ -31,7 +31,7 @@ export default class Store extends BaseStore {
     return new JSONAPICache(capabilities);
   }
 
-  override instantiateRecord(identifier: StableRecordIdentifier, createRecordArgs: Record<string, unknown>): Model {
+  override instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>): Model {
     return instantiateRecord.call(this, identifier, createRecordArgs);
   }
 

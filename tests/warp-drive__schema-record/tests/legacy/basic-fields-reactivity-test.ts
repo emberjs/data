@@ -11,7 +11,7 @@ import {
 } from '@ember-data/model/migration-support';
 import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 import { Type } from '@warp-drive/core-types/symbols';
 import type { SchemaRecord, Transformation } from '@warp-drive/schema-record';
 
@@ -116,7 +116,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
         assert.ok(false, 'unexpected hydrate');
         throw new Error('unexpected hydrate');
       },
-      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: ResourceKey): string {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },
@@ -277,7 +277,7 @@ module('Legacy | Reactivity | basic fields can receive remote updates', function
         assert.ok(false, 'unexpected hydrate');
         throw new Error('unexpected hydrate');
       },
-      defaultValue(_options: { precision?: number } | null, _identifier: StableRecordIdentifier): string {
+      defaultValue(_options: { precision?: number } | null, _identifier: ResourceKey): string {
         assert.ok(false, 'unexpected defaultValue');
         throw new Error('unexpected defaultValue');
       },

@@ -1,6 +1,6 @@
 import { TestContext } from '@ember/test-helpers';
 
-import type { StableRecordIdentifier } from '@warp-drive/core-types';
+import type { ResourceKey } from '@warp-drive/core-types';
 
 import type Assert from 'ember-data-qunit-asserts';
 
@@ -10,13 +10,13 @@ import type { StableDocumentIdentifier } from '@warp-drive/core-types/identifier
 
 type Counter = { count: number; delivered: number; ignored: number };
 type NotificationStorage = Map<
-  StableDocumentIdentifier | StableRecordIdentifier | 'document' | 'resource',
+  StableDocumentIdentifier | ResourceKey | 'document' | 'resource',
   Map<NotificationType | DocumentCacheOperation, Counter | Map<string | symbol, Counter>>
 >;
 
 function getCounter(
   context: TestContext,
-  identifier: StableRecordIdentifier | StableDocumentIdentifier,
+  identifier: ResourceKey | StableDocumentIdentifier,
   bucket: NotificationType | DocumentCacheOperation,
   key: string | null
 ) {
@@ -71,7 +71,7 @@ function setupNotifications(context: TestContext, store: Store) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalNotify = notifications.notify;
   notifications.notify = function (
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceKey | StableDocumentIdentifier,
     bucket: NotificationType | DocumentCacheOperation,
     key?: string | null
   ) {
@@ -102,7 +102,7 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert):
 
   assert.notified = function (
     this: Assert,
-    identifier: StableRecordIdentifier | StableDocumentIdentifier,
+    identifier: ResourceKey | StableDocumentIdentifier,
     bucket: NotificationType | DocumentCacheOperation,
     key: string | null,
     count: number,

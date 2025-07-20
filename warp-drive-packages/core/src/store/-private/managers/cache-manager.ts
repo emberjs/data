@@ -214,7 +214,7 @@ export class CacheManager implements Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: StableRecordIdentifier | StableDocumentIdentifier;
+   *  identifier: ResourceKey | StableDocumentIdentifier;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }
@@ -411,16 +411,16 @@ export class CacheManager implements Cache {
    * type RelationshipDiff =
   | {
       kind: 'collection';
-      remoteState: StableRecordIdentifier[];
-      additions: Set<StableRecordIdentifier>;
-      removals: Set<StableRecordIdentifier>;
-      localState: StableRecordIdentifier[];
+      remoteState: ResourceKey[];
+      additions: Set<ResourceKey>;
+      removals: Set<ResourceKey>;
+      localState: ResourceKey[];
       reordered: boolean;
     }
   | {
       kind: 'resource';
-      remoteState: StableRecordIdentifier | null;
-      localState: StableRecordIdentifier | null;
+      remoteState: ResourceKey | null;
+      localState: ResourceKey | null;
     };
     ```
    *
