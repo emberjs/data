@@ -17,7 +17,7 @@ import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -111,16 +111,16 @@ class TestCache implements Cache {
   }
 
   peek(identifier: ResourceKey): ResourceBlob | null;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | ResourceKey): ResourceBlob | ResourceDocument | null {
+  peek(identifier: RequestKey): ResourceDocument | null;
+  peek(identifier: RequestKey | ResourceKey): ResourceBlob | ResourceDocument | null {
     throw new Error(`Not Implemented`);
   }
   peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
   peekRemoteState<T = unknown>(identifier: unknown): T | ResourceDocument | null {
     throw new Error(`Not Implemented`);
   }
-  peekRequest<T>(identifier: StableDocumentIdentifier): StructuredDocument<T> | null {
+  peekRequest<T>(identifier: RequestKey): StructuredDocument<T> | null {
     throw new Error(`Not Implemented`);
   }
   fork(): Promise<Cache> {

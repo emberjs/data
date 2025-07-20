@@ -14,18 +14,27 @@ export const CACHE_OWNER: '__$co' = ProdSymbol('__$co', 'CACHE_OWNER');
 
 export type CacheKeyType = 'record' | 'document';
 
-export type StableDocumentIdentifier = {
+/**
+ * A referentially stable object with a unique string (lid) that can be used
+ * as a reference to request data in the cache.
+ *
+ * Only requests that are assigned a RequestKey are retrievable/replayable from
+ * the cache, though requests without RequestKeys may still update cache state.
+ *
+ * @public
+ */
+export interface RequestKey {
   lid: string;
   type: '@document';
   /** @internal */
   [CACHE_OWNER]: number | undefined;
-};
-export type RequestKey = StableDocumentIdentifier;
+}
+
+/** @deprecated use {@link RequestKey} */
+export type StableDocumentIdentifier = RequestKey;
 
 /**
  * Used when an ResourceKey is known to be the stable version
- *
- * @internal
  */
 interface ResourceKeyBase<T extends string = string> {
   /**
@@ -58,8 +67,6 @@ interface ResourceKeyBase<T extends string = string> {
  * Distinguishing between this ResourceKey and one for a client created
  * resource that was created with an ID is generally speaking not possible
  * at runtime, so anything with an ID typically narrows to this.
- *
- * @internal
  */
 export interface PersistedResourceKey<T extends string = string> extends ResourceKeyBase<T> {
   /**
@@ -81,8 +88,6 @@ export type StableExistingRecordIdentifier<T extends string = string> = Persiste
  * that is not for a new record but does not have an ID. This would
  * happen if a user intentionally created one for use with a secondary-index
  * prior to the record having been fully loaded.
- *
- * @internal
  */
 export interface NewResourceKey<T extends string = string> extends ResourceKeyBase<T> {
   /**
@@ -98,7 +103,7 @@ export interface NewResourceKey<T extends string = string> extends ResourceKeyBa
  * A referentially stable object with a unique string (lid) that can be used
  * as a reference to data in the cache.
  *
- * Every record instance has a unique identifier, and identifiers may refer
+ * Every resource has a unique ResourceKey, and ResourceKeys may refer
  * to data that has never been loaded (for instance, in an async relationship).
  *
  * @public

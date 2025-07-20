@@ -3,7 +3,7 @@ import type { Change } from './cache/change.ts';
 import type { Mutation } from './cache/mutations.ts';
 import type { Operation } from './cache/operations.ts';
 import type { CollectionRelationship, ResourceRelationship } from './cache/relationship.ts';
-import type { ResourceKey, StableDocumentIdentifier } from './identifier.ts';
+import type { RequestKey, ResourceKey } from './identifier.ts';
 import type { Value } from './json/raw.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';
@@ -125,11 +125,11 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | RequestKey} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peek<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peek(identifier: RequestKey): ResourceDocument | null;
 
   /**
    * Peek remote resource data from the Cache.
@@ -161,11 +161,11 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | StableDocumentIdentifier} identifier
+   * @param {ResourceKey | RequestKey} identifier
    * @return {ResourceDocument | ResourceBlob | null} the known resource data
    */
   peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
+  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
 
   /**
    * Peek the Cache for the existing request data associated with
@@ -175,11 +175,11 @@ export interface Cache {
    * that it will return the the request, response, and content
    * whereas `peek` will return just the `content`.
    *
-   * @param {StableDocumentIdentifier}
+   * @param {RequestKey}
    * @return {StructuredDocument<ResourceDocument> | null}
    * @public
    */
-  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null;
+  peekRequest(identifier: RequestKey): StructuredDocument<ResourceDocument> | null;
 
   /**
    * Push resource data from a remote source into the cache for this identifier
@@ -244,7 +244,7 @@ export interface Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: ResourceKey | StableDocumentIdentifier;
+   *  identifier: ResourceKey | RequestKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }

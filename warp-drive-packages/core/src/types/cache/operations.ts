@@ -14,7 +14,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Cache } from '../cache.ts';
-import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '../identifier.ts';
+import type { PersistedResourceKey, ResourceKey, RequestKey } from '../identifier.ts';
 import type { Value } from '../json/raw.ts';
 import type { ExistingResourceObject } from '../spec/json-api-raw.ts';
 import type { Relationship } from './relationship.ts';
@@ -62,7 +62,7 @@ export interface RemoveDocumentOperation extends Op {
   /**
    * The cache key for the request
    */
-  record: StableDocumentIdentifier;
+  record: RequestKey;
 }
 
 /**
@@ -126,7 +126,7 @@ export interface UpdateResourceRelationshipOperation extends Op {
  */
 export interface AddToDocumentOperation extends Op {
   op: 'add';
-  record: StableDocumentIdentifier;
+  record: RequestKey;
   field: 'data' | 'included';
   value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;
@@ -158,7 +158,7 @@ export interface RemoveFromResourceRelationshipOperation extends Op {
  */
 export interface RemoveFromDocumentOperation extends Op {
   op: 'remove';
-  record: StableDocumentIdentifier;
+  record: RequestKey;
   field: 'data' | 'included';
   value: PersistedResourceKey | PersistedResourceKey[];
   index?: number;

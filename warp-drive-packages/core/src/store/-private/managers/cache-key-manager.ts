@@ -15,7 +15,7 @@ import {
   DEBUG_STALE_CACHE_OWNER,
   type PersistedResourceKey,
   type ResourceKey,
-  type StableDocumentIdentifier,
+  type RequestKey,
 } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type {
@@ -55,14 +55,11 @@ export function isResourceKey(identifier: unknown): identifier is ResourceKey {
       (identifier as ResourceKey)[CACHE_OWNER] !== undefined
     );
   } else {
-    return (
-      (identifier as StableDocumentIdentifier).type !== '@document' &&
-      (identifier as StableDocumentIdentifier)[CACHE_OWNER] !== undefined
-    );
+    return (identifier as RequestKey).type !== '@document' && (identifier as RequestKey)[CACHE_OWNER] !== undefined;
   }
 }
 
-export function isRequestKey(identifier: unknown): identifier is StableDocumentIdentifier {
+export function isRequestKey(identifier: unknown): identifier is RequestKey {
   if (DEBUG) {
     return (
       !!identifier &&
@@ -73,10 +70,7 @@ export function isRequestKey(identifier: unknown): identifier is StableDocumentI
       (identifier as ResourceKey)[CACHE_OWNER] !== undefined
     );
   } else {
-    return (
-      (identifier as StableDocumentIdentifier).type === '@document' &&
-      (identifier as StableDocumentIdentifier)[CACHE_OWNER] !== undefined
-    );
+    return (identifier as RequestKey).type === '@document' && (identifier as RequestKey)[CACHE_OWNER] !== undefined;
   }
 }
 
@@ -114,7 +108,7 @@ type IdentifierMap = Map<string, ResourceKey>;
 
 type StableCache = {
   resources: IdentifierMap;
-  documents: Map<string, StableDocumentIdentifier>;
+  documents: Map<string, RequestKey>;
   resourcesByType: TypeMap;
   polymorphicLidBackMap: Map<string, string[]>;
 };
@@ -313,10 +307,10 @@ function updateTypeIdMapping(typeMap: TypeIdMap, identifier: ResourceKey, id: st
 }
 
 function defaultUpdateMethod(identifier: ResourceKey, data: unknown, bucket: 'record'): void;
-function defaultUpdateMethod(identifier: StableDocumentIdentifier, data: unknown, bucket: 'document'): void;
+function defaultUpdateMethod(identifier: RequestKey, data: unknown, bucket: 'document'): void;
 function defaultUpdateMethod(identifier: { lid: string }, newData: unknown, bucket: never): void;
 function defaultUpdateMethod(
-  identifier: StableDocumentIdentifier | ResourceKey | { lid: string },
+  identifier: RequestKey | ResourceKey | { lid: string },
   data: unknown,
   bucket: 'record' | 'document'
 ): void {
@@ -421,7 +415,7 @@ export class CacheKeyManager {
     this._cache = {
       resources: new Map<string, ResourceKey>(),
       resourcesByType: Object.create(null) as TypeMap,
-      documents: new Map<string, StableDocumentIdentifier>(),
+      documents: new Map<string, RequestKey>(),
       polymorphicLidBackMap: new Map<string, string[]>(),
     };
   }
@@ -538,7 +532,7 @@ export class CacheKeyManager {
 
     @public
   */
-  getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): StableDocumentIdentifier | null {
+  getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): RequestKey | null {
     let cacheKey: string | null | undefined = request.cacheOptions?.key;
 
     if (!cacheKey) {

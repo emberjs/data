@@ -1,4 +1,4 @@
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
 import type { CacheKeyManager } from '../../-private/managers/cache-key-manager.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
 import type { SchemaService } from './schema-service.ts';
@@ -92,10 +92,10 @@ export type CacheCapabilitiesManager = {
    * @public
    */
   notifyChange(identifier: ResourceKey, namespace: 'added' | 'removed', key: null): void;
-  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
+  notifyChange(identifier: RequestKey, namespace: 'added' | 'updated' | 'removed', key: null): void;
   notifyChange(identifier: ResourceKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: ResourceKey | StableDocumentIdentifier,
+    identifier: ResourceKey | RequestKey,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void;

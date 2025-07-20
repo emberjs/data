@@ -1,8 +1,8 @@
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier';
+import type { ResourceKey, RequestKey } from '../../../types/identifier';
 import type { UnsubscribeToken } from '../managers/notification-manager';
 import type { Store } from '../store-service';
 
-const Subscriptions = new WeakMap<StableDocumentIdentifier, ExpensiveSubscription>();
+const Subscriptions = new WeakMap<RequestKey, ExpensiveSubscription>();
 
 /**
  * `ExpensiveSubscription` is a mechanism for non-reactive
@@ -17,14 +17,14 @@ const Subscriptions = new WeakMap<StableDocumentIdentifier, ExpensiveSubscriptio
  * this cost adds up.
  */
 class ExpensiveSubscription {
-  declare private _request: StableDocumentIdentifier;
+  declare private _request: RequestKey;
   declare private _store: Store;
   declare private _callbacks: Set<() => void>;
   declare private _subscription: UnsubscribeToken;
   declare private _resources: Map<ResourceKey, UnsubscribeToken>;
   declare private _notify: Promise<void> | null;
 
-  constructor(store: Store, request: StableDocumentIdentifier) {
+  constructor(store: Store, request: RequestKey) {
     this._store = store;
     this._request = request;
     this._callbacks = new Set();
@@ -105,7 +105,7 @@ class ExpensiveSubscription {
 }
 
 /**
- * Creates an {@link ExpensiveSubscription} for the {@link StableDocumentIdentifier}
+ * Creates an {@link ExpensiveSubscription} for the {@link RequestKey}
  * if one does not already exist and adds a watcher to it.
  *
  * Returns a cleanup function. This should be called on-mount by a component
@@ -127,7 +127,7 @@ class ExpensiveSubscription {
  */
 export function getExpensiveRequestSubscription(
   store: Store,
-  requestKey: StableDocumentIdentifier,
+  requestKey: RequestKey,
   callback: () => void
 ): () => void {
   let subscription = Subscriptions.get(requestKey);

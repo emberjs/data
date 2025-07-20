@@ -1,7 +1,7 @@
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';
 import type { SchemaService } from '../../-types/q/schema-service.ts';
 import type { Store } from '../store-service.ts';
@@ -74,10 +74,10 @@ export class CacheCapabilitiesManager implements StoreWrapper {
   }
 
   notifyChange(identifier: ResourceKey, namespace: 'added' | 'removed', key: null): void;
-  notifyChange(identifier: StableDocumentIdentifier, namespace: 'added' | 'updated' | 'removed', key: null): void;
+  notifyChange(identifier: RequestKey, namespace: 'added' | 'updated' | 'removed', key: null): void;
   notifyChange(identifier: ResourceKey, namespace: NotificationType, key: string | null): void;
   notifyChange(
-    identifier: ResourceKey | StableDocumentIdentifier,
+    identifier: ResourceKey | RequestKey,
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void {

@@ -653,12 +653,12 @@ export class Store extends BaseClass {
    * ```ts
    * store.lifetimes = {
    *   // make the request and ignore the current cache state
-   *   isHardExpired(identifier: StableDocumentIdentifier): boolean {
+   *   isHardExpired(key: RequestKey): boolean {
    *     return false;
    *   }
    *
    *   // make the request in the background if true, return cache state
-   *   isSoftExpired(identifier: StableDocumentIdentifier): boolean {
+   *   isSoftExpired(key: RequestKey): boolean {
    *     return false;
    *   }
    * }

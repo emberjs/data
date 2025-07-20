@@ -160,7 +160,7 @@ on the RequestOptions interface to improve coherence. Roughly the high level shi
 
 - Identifier => CacheKey
 - ResourceKey => ResourceKey
-- StableDocumentIdentifier => DocumentCacheKey
+- StableDocumentIdentifier => RequestKey
 - IdentifierCache => CacheKeyManager
 - RecordArray => ReactiveResourceArray
 - Record/Model => ReactiveResource

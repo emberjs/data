@@ -2,7 +2,7 @@ import type { Store, StoreRequestContext } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@warp-drive/core/request';
-import type { StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
+import type { RequestKey } from '@warp-drive/core/types/identifier';
 import type {
   StructuredDataDocument,
   StructuredDocument,
@@ -63,7 +63,7 @@ export const CacheHandler: CacheHandlerType = {
 };
 
 function completeRequest<T>(
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestKey | null,
   store: Store,
   context: StoreRequestContext,
   next: NextFn<T>
@@ -159,7 +159,7 @@ function updateCacheForSuccess<T>(
 function handleFetchSuccess<T>(
   store: Store,
   request: StoreRequestContext['request'],
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestKey | null,
   document: StructuredDataDocument<T>
 ): T {
   let response: ResourceDataDocument;
@@ -206,7 +206,7 @@ function updateCacheForError<T>(
 function handleFetchError<T>(
   store: Store,
   request: StoreRequestContext['request'],
-  identifier: StableDocumentIdentifier | null,
+  identifier: RequestKey | null,
   error: StructuredErrorDocument<T>
 ): never {
   if (request.signal?.aborted) {
@@ -233,7 +233,7 @@ function handleFetchError<T>(
 function fetchContentAndHydrate<T>(
   next: NextFn<T>,
   context: StoreRequestContext,
-  identifier: StableDocumentIdentifier | null
+  identifier: RequestKey | null
 ): Promise<T> {
   const { request } = context;
   const { store } = context.request;

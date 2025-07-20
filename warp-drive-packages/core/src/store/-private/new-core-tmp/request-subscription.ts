@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { RequestManager, Store, StoreRequestInput } from '../../../index';
 import type { Future } from '../../../request';
-import type { StableDocumentIdentifier } from '../../../types/identifier';
+import type { RequestKey } from '../../../types/identifier';
 import type { RequestInfo, StructuredErrorDocument } from '../../../types/request';
 import { EnableHydration } from '../../../types/request';
 import type { RequestState } from '../../-private';
@@ -339,7 +339,7 @@ export class RequestSubscription<RT, T, E> {
 
       this._subscription = store.notifications.subscribe(
         requestId,
-        (_id: StableDocumentIdentifier, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
+        (_id: RequestKey, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
           // ignore subscription events that occur while our own component's request
           // is ocurring
           if (this._isUpdating) {

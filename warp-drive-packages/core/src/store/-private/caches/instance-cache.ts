@@ -8,7 +8,7 @@ import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import { _CHECKOUT, ReactiveResource } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
-import type { ResourceKey, StableDocumentIdentifier } from '../../../types/identifier.ts';
+import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance, TypeFromInstanceOrString } from '../../../types/record.ts';
 import type { ResourceSchema } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
@@ -102,10 +102,7 @@ export function storeFor(record: OpaqueRecordInstance, ignoreMissing: boolean): 
 
 export type Caches = {
   record: Map<ResourceKey, OpaqueRecordInstance>;
-  document: Map<
-    StableDocumentIdentifier,
-    ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>
-  >;
+  document: Map<RequestKey, ReactiveDocument<OpaqueRecordInstance | OpaqueRecordInstance[] | null | undefined>>;
 };
 
 export class InstanceCache {
@@ -190,7 +187,7 @@ export class InstanceCache {
     return this.__instances.record.get(identifier);
   }
 
-  getDocument<T>(identifier: StableDocumentIdentifier): ReactiveDocument<T> {
+  getDocument<T>(identifier: RequestKey): ReactiveDocument<T> {
     let doc = this.__instances.document.get(identifier);
     if (!doc) {
       doc = new ReactiveDocument<T>(this.store, identifier, null);

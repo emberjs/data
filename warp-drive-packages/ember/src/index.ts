@@ -150,7 +150,7 @@ export { getPromiseState } from '@warp-drive/core/store/-private';
  * interface Future<T> extends Promise<T>> {
  *   getStream(): Promise<ReadableStream>;
  *   abort(): void;
- *   lid: StableDocumentIdentifier | null;
+ *   lid: RequestKey | null;
  * }
  * ```
  *

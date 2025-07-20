@@ -25,7 +25,7 @@ import type {
 } from '@warp-drive/core/types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
-import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, RequestKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ObjectValue, Value } from '@warp-drive/core/types/json/raw';
 import type {
   ImmutableRequestInfo,
@@ -553,8 +553,8 @@ export class JSONAPICache implements Cache {
    * @public
    */
   peek(identifier: ResourceKey): ResourceObject | null;
-  peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peek(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
+  peek(identifier: RequestKey): ResourceDocument | null;
+  peek(identifier: RequestKey | ResourceKey): ResourceObject | ResourceDocument | null {
     if (isResourceKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
@@ -616,8 +616,8 @@ export class JSONAPICache implements Cache {
    * @public
    */
   peekRemoteState(identifier: ResourceKey): ResourceObject | null;
-  peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
-  peekRemoteState(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
+  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
+  peekRemoteState(identifier: RequestKey | ResourceKey): ResourceObject | ResourceDocument | null {
     if (isResourceKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
@@ -683,7 +683,7 @@ export class JSONAPICache implements Cache {
    * @category Cache Management
    * @public
    */
-  peekRequest(identifier: StableDocumentIdentifier): StructuredDocument<ResourceDocument> | null {
+  peekRequest(identifier: RequestKey): StructuredDocument<ResourceDocument> | null {
     return this.__documents.get(identifier.lid) || null;
   }
 
@@ -764,7 +764,7 @@ export class JSONAPICache implements Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: ResourceKey | StableDocumentIdentifier;
+   *  identifier: ResourceKey | RequestKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }

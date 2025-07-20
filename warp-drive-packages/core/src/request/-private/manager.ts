@@ -2,7 +2,7 @@ import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 
 import { waitFor } from '../../store/-private/new-core-tmp/reactivity/configure';
 import { peekUniversalTransient, setUniversalTransient } from '../../types/-private';
-import type { StableDocumentIdentifier } from '../../types/identifier';
+import type { RequestKey } from '../../types/identifier';
 import type { RequestInfo, StructuredErrorDocument } from '../../types/request';
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
@@ -115,7 +115,7 @@ export class RequestManager {
    */
   declare _pending: Map<number, Promise<unknown>>;
   /** @internal */
-  declare _deduped: Map<StableDocumentIdentifier, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
+  declare _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
