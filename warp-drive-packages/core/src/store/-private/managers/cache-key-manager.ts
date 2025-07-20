@@ -9,15 +9,13 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { getOrSetGlobal, peekTransient, setTransient } from '../../../types/-private.ts';
 import {
   CACHE_OWNER,
+  type CacheKeyType,
   DEBUG_CLIENT_ORIGINATED,
-  DEBUG_IDENTIFIER_BUCKET,
+  DEBUG_KEY_TYPE,
   DEBUG_STALE_CACHE_OWNER,
-  type Identifier,
-  type IdentifierBucket,
   type PersistedResourceKey,
   type ResourceKey,
   type StableDocumentIdentifier,
-  type StableIdentifier,
 } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type {
@@ -46,7 +44,7 @@ type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
   ? PersistedResourceKey<TypeFromIdentifier<T>>
   : ResourceKey;
 
-export function isStableIdentifier(identifier: unknown): identifier is ResourceKey {
+export function isResourceKey(identifier: unknown): identifier is ResourceKey {
   if (DEBUG) {
     return (
       !!identifier &&
@@ -64,7 +62,7 @@ export function isStableIdentifier(identifier: unknown): identifier is ResourceK
   }
 }
 
-export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
+export function isRequestKey(identifier: unknown): identifier is StableDocumentIdentifier {
   if (DEBUG) {
     return (
       !!identifier &&
@@ -315,10 +313,15 @@ function updateTypeIdMapping(typeMap: TypeIdMap, identifier: ResourceKey, id: st
 }
 
 function defaultUpdateMethod(identifier: ResourceKey, data: unknown, bucket: 'record'): void;
-function defaultUpdateMethod(identifier: StableIdentifier, newData: unknown, bucket: never): void;
-function defaultUpdateMethod(identifier: StableIdentifier | ResourceKey, data: unknown, bucket: 'record'): void {
+function defaultUpdateMethod(identifier: StableDocumentIdentifier, data: unknown, bucket: 'document'): void;
+function defaultUpdateMethod(identifier: { lid: string }, newData: unknown, bucket: never): void;
+function defaultUpdateMethod(
+  identifier: StableDocumentIdentifier | ResourceKey | { lid: string },
+  data: unknown,
+  bucket: 'record' | 'document'
+): void {
   if (bucket === 'record') {
-    assert(`Expected identifier to be a ResourceKey`, isStableIdentifier(identifier));
+    assert(`Expected identifier to be a ResourceKey`, isResourceKey(identifier));
     if (!identifier.id && hasId(data)) {
       updateTypeIdMapping(NEW_IDENTIFIERS, identifier, data.id);
     }
@@ -339,7 +342,7 @@ function defaultGenerationMethod(data: ImmutableRequestInfo, bucket: 'document')
 function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 'record'): string;
 function defaultGenerationMethod(
   data: ImmutableRequestInfo | ResourceData | { type: string },
-  bucket: IdentifierBucket
+  bucket: CacheKeyType
 ): string | null {
   if (bucket === 'record') {
     if (hasLid(data)) {
@@ -455,7 +458,7 @@ export class CacheKeyManager {
       console.groupCollapsed(`Identifiers: ${shouldGenerate ? 'Generating' : 'Peeking'} Identifier`, resource);
     }
     // short circuit if we're already the stable version
-    if (isStableIdentifier(resource)) {
+    if (isResourceKey(resource)) {
       if (DEBUG) {
         // TODO should we instead just treat this case as a new generation skipping the short circuit?
         if (!this._cache.resources.has(resource.lid) || this._cache.resources.get(resource.lid) !== resource) {
@@ -525,7 +528,7 @@ export class CacheKeyManager {
    *
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject | Identifier): ResourceKey | undefined {
+  peekRecordIdentifier(resource: ResourceIdentifierObject): ResourceKey | undefined {
     return this._getRecordIdentifier(resource, 0);
   }
 
@@ -796,7 +799,7 @@ function makeResourceKey(
     lid: string;
     [CACHE_OWNER]: number | undefined;
   },
-  bucket: IdentifierBucket,
+  bucket: CacheKeyType,
   clientOriginated: boolean
 ): ResourceKey {
   if (DEBUG) {
@@ -825,7 +828,7 @@ function makeResourceKey(
       get [DEBUG_CLIENT_ORIGINATED]() {
         return clientOriginated;
       },
-      get [DEBUG_IDENTIFIER_BUCKET]() {
+      get [DEBUG_KEY_TYPE]() {
         return bucket;
       },
     };

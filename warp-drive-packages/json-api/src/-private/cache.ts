@@ -5,7 +5,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@warp-drive/core/graph/-private';
-import { isDocumentIdentifier, isStableIdentifier, logGroup } from '@warp-drive/core/store/-private';
+import { isRequestKey, isResourceKey, logGroup } from '@warp-drive/core/store/-private';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core/types/cache';
 import type { Change } from '@warp-drive/core/types/cache/change';
@@ -451,7 +451,7 @@ export class JSONAPICache implements Cache {
       assert(`Expected a hasMany field`, parentField?.kind === 'hasMany');
       assert(
         `Expected a parent identifier for a findHasMany request`,
-        parentIdentifier && isStableIdentifier(parentIdentifier)
+        parentIdentifier && isResourceKey(parentIdentifier)
       );
       if (parentField && parentIdentifier) {
         this.__graph.push({
@@ -555,7 +555,7 @@ export class JSONAPICache implements Cache {
   peek(identifier: ResourceKey): ResourceObject | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peek(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
-    if (isStableIdentifier(identifier)) {
+    if (isResourceKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {
@@ -618,7 +618,7 @@ export class JSONAPICache implements Cache {
   peekRemoteState(identifier: ResourceKey): ResourceObject | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peekRemoteState(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
-    if (isStableIdentifier(identifier)) {
+    if (isResourceKey(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {
@@ -2402,8 +2402,8 @@ function cacheUpsert(
 }
 
 function patchCache(Cache: JSONAPICache, op: Operation): void {
-  const isRecord = isStableIdentifier(op.record);
-  const isDocument = !isRecord && isDocumentIdentifier(op.record);
+  const isRecord = isResourceKey(op.record);
+  const isDocument = !isRecord && isRequestKey(op.record);
 
   assert(`Expected Cache.patch op.record to be a record or document identifier`, isRecord || isDocument);
 

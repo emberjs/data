@@ -1,7 +1,7 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { ExistingResourceIdentifierObject, ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
-import { isStableIdentifier } from '../managers/cache-key-manager.ts';
+import { isResourceKey } from '../managers/cache-key-manager.ts';
 import { coerceId } from './coerce-id.ts';
 import { isNonEmptyString } from './is-non-empty-string.ts';
 
@@ -25,7 +25,7 @@ export function constructResource(
 ): ResourceIdentifierObject | ExistingResourceIdentifierObject {
   if (typeof type === 'object' && type !== null) {
     const resource = type;
-    if (isStableIdentifier(resource)) {
+    if (isResourceKey(resource)) {
       return resource;
     }
     if ('id' in resource) {

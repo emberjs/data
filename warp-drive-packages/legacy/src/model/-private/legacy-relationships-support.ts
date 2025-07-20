@@ -7,7 +7,7 @@ import type { LegacyManyArray } from '@warp-drive/core/store/-private';
 import {
   createLegacyManyArray,
   fastPush,
-  isStableIdentifier,
+  isResourceKey,
   notifyInternalSignal,
   recordIdentifierFor,
   storeFor,
@@ -155,7 +155,7 @@ export class LegacySupport {
     const { identifier, cache } = this;
     const resource = cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
     const relatedIdentifier = resource && resource.data ? resource.data : null;
-    assert(`Expected a stable identifier`, !relatedIdentifier || isStableIdentifier(relatedIdentifier));
+    assert(`Expected a stable identifier`, !relatedIdentifier || isResourceKey(relatedIdentifier));
 
     const store = this.store;
     const relationship = this.graph.get(this.identifier, key);
@@ -220,7 +220,7 @@ export class LegacySupport {
     if (jsonApi.data) {
       for (let i = 0; i < jsonApi.data.length; i++) {
         const relatedIdentifier = jsonApi.data[i] as ResourceKey<TypeFromInstanceOrString<T>>;
-        assert(`Expected a stable identifier`, isStableIdentifier(relatedIdentifier));
+        assert(`Expected a stable identifier`, isResourceKey(relatedIdentifier));
         if (cache.recordIsLoaded(relatedIdentifier, true)) {
           identifiers.push(relatedIdentifier);
         }
@@ -464,7 +464,7 @@ export class LegacySupport {
       // fetch via link
       if (shouldFindViaLink) {
         assert(`Expected collection to be an array`, !identifiers || Array.isArray(identifiers));
-        assert(`Expected stable identifiers`, !identifiers || identifiers.every(isStableIdentifier));
+        assert(`Expected stable identifiers`, !identifiers || identifiers.every(isResourceKey));
 
         const req = field.options.linksMode
           ? {
@@ -496,7 +496,7 @@ export class LegacySupport {
       const hasData = hasReceivedData && !isEmpty;
       if (attemptLocalCache || hasData || hasLocalPartialData) {
         assert(`Expected collection to be an array`, Array.isArray(identifiers));
-        assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
+        assert(`Expected stable identifiers`, identifiers.every(isResourceKey));
 
         options.reload = options.reload || !attemptLocalCache || undefined;
         return this.store.request({
@@ -533,7 +533,7 @@ export class LegacySupport {
     }
 
     const identifier = resource.data ? resource.data : null;
-    assert(`Expected a stable identifier`, !identifier || isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, !identifier || isResourceKey(identifier));
 
     const { isStale, hasDematerializedInverse, hasReceivedData, isEmpty, shouldForceReload } = relationship.state;
 
@@ -768,7 +768,7 @@ export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelation
   const identifiers = resource.data;
 
   if (Array.isArray(identifiers)) {
-    assert(`Expected stable identifiers`, identifiers.every(isStableIdentifier));
+    assert(`Expected stable identifiers`, identifiers.every(isResourceKey));
     // treat as collection
     // check for unloaded records
     return identifiers.every((identifier: ResourceKey) => instanceCache.recordIsLoaded(identifier));
@@ -777,7 +777,7 @@ export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelation
   // treat as single resource
   if (!identifiers) return true;
 
-  assert(`Expected stable identifiers`, isStableIdentifier(identifiers));
+  assert(`Expected stable identifiers`, isResourceKey(identifiers));
   return instanceCache.recordIsLoaded(identifiers);
 }
 

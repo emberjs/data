@@ -10,8 +10,8 @@ import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../../types/record.ts';
 import type { LegacyHasManyField, LinksModeHasManyField } from '../../../types/schema/fields.ts';
 import type { Links, Meta, PaginationLinks } from '../../../types/spec/json-api-raw.ts';
-import { isStableIdentifier } from '../managers/cache-key-manager.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
+import { isResourceKey } from '../managers/cache-key-manager.ts';
 import { notifyInternalSignal, type WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import type { CreateRecordProperties } from '../store-service.ts';
 import { save } from './-utils.ts';
@@ -479,7 +479,7 @@ function assertNoDuplicates<T>(
         `${reason} This behavior is deprecated. Found duplicates for the following records within the new state provided to \`<${
           identifier.type
         }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
-          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .map((r) => (isResourceKey(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`,
         false,
@@ -498,7 +498,7 @@ function assertNoDuplicates<T>(
         `${reason} Found duplicates for the following records within the new state provided to \`<${
           identifier.type
         }:${identifier.id || identifier.lid}>.${collection.key}\`\n\t- ${Array.from(new Set(duplicates))
-          .map((r) => (isStableIdentifier(r) ? r.lid : recordIdentifierFor(r).lid))
+          .map((r) => (isResourceKey(r) ? r.lid : recordIdentifierFor(r).lid))
           .sort((a, b) => a.localeCompare(b))
           .join('\n\t- ')}`
       );

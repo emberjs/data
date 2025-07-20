@@ -6,7 +6,7 @@ import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/ca
 import type { SchemaService } from '../../-types/q/schema-service.ts';
 import type { Store } from '../store-service.ts';
 import type { CacheKeyManager } from './cache-key-manager.ts';
-import { isDocumentIdentifier, isStableIdentifier } from './cache-key-manager.ts';
+import { isRequestKey, isResourceKey } from './cache-key-manager.ts';
 import type { NotificationType } from './notification-manager.ts';
 
 export interface CacheCapabilitiesManager {
@@ -81,7 +81,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     namespace: NotificationType | 'added' | 'removed' | 'updated',
     key: string | null
   ): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier) || isDocumentIdentifier(identifier));
+    assert(`Expected a stable identifier`, isResourceKey(identifier) || isRequestKey(identifier));
 
     // TODO do we still get value from this?
     if (namespace === 'relationships' && key) {
@@ -98,7 +98,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
   }
 
   setRecordId(identifier: ResourceKey, id: string): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, isResourceKey(identifier));
     this._store._instanceCache.setRecordId(identifier, id);
   }
 
@@ -107,7 +107,7 @@ export class CacheCapabilitiesManager implements StoreWrapper {
   }
 
   disconnectRecord(identifier: ResourceKey): void {
-    assert(`Expected a stable identifier`, isStableIdentifier(identifier));
+    assert(`Expected a stable identifier`, isResourceKey(identifier));
     this._store._instanceCache.disconnect(identifier);
     this._pendingNotifies.delete(identifier);
   }

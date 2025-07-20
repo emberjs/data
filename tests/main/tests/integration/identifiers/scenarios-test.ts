@@ -14,7 +14,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
-import type { IdentifierBucket, ResourceKey, StableIdentifier } from '@warp-drive/core-types/identifier';
+import type { CacheKeyType, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
 type ResourceData = ResourceIdentifierObject | ExistingResourceObject;
@@ -97,7 +97,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         id: Object.create(null),
         username: Object.create(null),
       };
-      const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket) => {
+      const generationMethod: GenerationMethod = (resource: unknown, bucket: CacheKeyType) => {
         if (bucket !== 'record') {
           throw new Error('Test cannot generate an lid for a non-record');
         }
@@ -349,7 +349,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         throw new Error(`Unexpected resource type ${'type' in resource ? resource.type : 'NO TYPE DECLARED'}`);
       }
 
-      const generationMethod: GenerationMethod = (resource: unknown, bucket: IdentifierBucket): string => {
+      const generationMethod: GenerationMethod = (resource: unknown, bucket: CacheKeyType): string => {
         if (bucket !== 'record') {
           throw new Error('Test cannot generate an lid for a non-record');
         }
@@ -380,15 +380,14 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       };
 
       const updateMethod = (
-        identifier: StableIdentifier | ResourceKey,
+        identifier: StableDocumentIdentifier | ResourceKey | { lid: string },
         resource: ResourceData | unknown,
-        bucket: 'record' | never
+        bucket: 'record' | 'document' | never
       ) => {
         if (bucket === 'record') {
           (resource as ResourceData).lid = identifier.lid;
           lidForUser(resource as ResourceData);
         } else {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           throw new Error(`Unhandled update for ${bucket}`);
         }
       };
