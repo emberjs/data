@@ -5,7 +5,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import { type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
@@ -97,8 +97,7 @@ function findBelongsTo<T>(context: StoreRequestContext): Promise<T> {
   upgradeStore(store);
 
   // short circuit if we are already loading
-  const pendingRequest =
-    identifier && store._fetchManager.getPendingFetch(identifier as StableExistingRecordIdentifier, options);
+  const pendingRequest = identifier && store._fetchManager.getPendingFetch(identifier as PersistedResourceKey, options);
   if (pendingRequest) {
     return pendingRequest as Promise<T>;
   }
@@ -288,7 +287,7 @@ function errorsHashToArray(errors: Record<string, string | string[]>): ApiError[
 function findRecord<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   const { record: identifier, options } = data as {
-    record: StableExistingRecordIdentifier;
+    record: PersistedResourceKey;
     options: { reload?: boolean; backgroundReload?: boolean };
   };
   upgradeStore(store);

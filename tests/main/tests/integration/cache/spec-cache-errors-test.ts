@@ -17,10 +17,10 @@ import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
+  PersistedResourceKey,
   RecordIdentifier,
   ResourceKey,
   StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -131,7 +131,7 @@ class TestCache implements Cache {
     identifier: ResourceKey,
     response: StructuredDataDocument<SingleResourceDocument>
   ): SingleResourceDataDocument {
-    return { data: identifier as StableExistingRecordIdentifier };
+    return { data: identifier as PersistedResourceKey };
   }
   commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._errors = errors;

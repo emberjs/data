@@ -14,7 +14,7 @@ import type {
 import { coerceId, waitFor } from '@warp-drive/core/store/-private';
 import type { FindRecordOptions, ModelSchema } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
-import type { ResourceKey, StableExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type { ImmutableRequestInfo } from '@warp-drive/core/types/request';
 import type { CollectionResourceDocument, SingleResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
@@ -38,13 +38,13 @@ export const SaveOp: '___(unique) Symbol(SaveOp)' = getOrSetGlobal('SaveOp', Sym
 export type FetchMutationOptions = FindRecordOptions & { [SaveOp]: 'createRecord' | 'deleteRecord' | 'updateRecord' };
 
 interface PendingFetchItem {
-  identifier: StableExistingRecordIdentifier;
+  identifier: PersistedResourceKey;
   queryRequest: Request;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolver: Deferred<any>;
   options: FindRecordOptions;
   trace?: unknown;
-  promise: Promise<StableExistingRecordIdentifier>;
+  promise: Promise<PersistedResourceKey>;
 }
 
 interface PendingSaveItem {
@@ -60,7 +60,7 @@ export class FetchManager {
   declare isDestroyed: boolean;
   declare requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
-  declare _pendingFetch: Map<string, Map<StableExistingRecordIdentifier, PendingFetchItem[]>>;
+  declare _pendingFetch: Map<string, Map<PersistedResourceKey, PendingFetchItem[]>>;
   declare _store: Store;
 
   constructor(store: Store) {
@@ -113,10 +113,10 @@ export class FetchManager {
   }
 
   scheduleFetch(
-    identifier: StableExistingRecordIdentifier,
+    identifier: PersistedResourceKey,
     options: FindRecordOptions,
     request: ImmutableRequestInfo
-  ): Promise<StableExistingRecordIdentifier> {
+  ): Promise<PersistedResourceKey> {
     const query: FindRecordQuery = {
       op: 'findRecord',
       recordIdentifier: identifier,
@@ -220,9 +220,9 @@ export class FetchManager {
   }
 
   getPendingFetch(
-    identifier: StableExistingRecordIdentifier,
+    identifier: PersistedResourceKey,
     options: FindRecordOptions
-  ): Promise<StableExistingRecordIdentifier> | undefined {
+  ): Promise<PersistedResourceKey> | undefined {
     const pendingFetches = this._pendingFetch.get(identifier.type)?.get(identifier);
 
     // We already have a pending fetch for this
@@ -245,15 +245,15 @@ export class FetchManager {
   }
 
   fetchDataIfNeededForIdentifier(
-    identifier: StableExistingRecordIdentifier,
+    identifier: PersistedResourceKey,
     options: FindRecordOptions | undefined = {},
     request: ImmutableRequestInfo
-  ): Promise<StableExistingRecordIdentifier> {
+  ): Promise<PersistedResourceKey> {
     // pre-loading will change the isEmpty value
     const isEmpty = _isEmpty(this._store._instanceCache, identifier);
     const isLoading = _isLoading(this._store._instanceCache, identifier);
 
-    let promise: Promise<StableExistingRecordIdentifier>;
+    let promise: Promise<PersistedResourceKey>;
     if (isEmpty) {
       assertIdentifierHasId(identifier);
 
@@ -544,7 +544,7 @@ function _processCoalescedGroup(
 
 function _flushPendingFetchForType(
   store: Store,
-  pendingFetchMap: Map<StableExistingRecordIdentifier, PendingFetchItem[]>,
+  pendingFetchMap: Map<PersistedResourceKey, PendingFetchItem[]>,
   modelName: string
 ) {
   upgradeStore(store);

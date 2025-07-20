@@ -3,11 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation, NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type {
-  ResourceKey,
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
@@ -79,7 +75,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as PersistedResourceKey;
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
   });
@@ -98,7 +94,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as PersistedResourceKey;
     const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users/1',
@@ -143,7 +139,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
-    }) as StableExistingRecordIdentifier;
+    }) as PersistedResourceKey;
     const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users/1',

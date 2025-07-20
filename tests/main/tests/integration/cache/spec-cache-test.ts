@@ -18,10 +18,10 @@ import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
 import type {
+  PersistedResourceKey,
   RecordIdentifier,
   ResourceKey,
   StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
 } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
@@ -97,7 +97,7 @@ class TestCache implements Cache {
         const data = doc.content.data.map((resource) => {
           const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
             resource
-          ) as StableExistingRecordIdentifier;
+          ) as PersistedResourceKey;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
@@ -159,7 +159,7 @@ class TestCache implements Cache {
   }
   willCommit(identifier: ResourceKey): void {}
   didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
-    return { data: identifier as StableExistingRecordIdentifier };
+    return { data: identifier as PersistedResourceKey };
   }
   commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._errors = errors;
@@ -328,7 +328,7 @@ module('integration/record-data - Custom Cache Implementations', function (hooks
         calledRollbackAttributes++;
       }
 
-      override didCommit(identifier: StableExistingRecordIdentifier, result: StructuredDataDocument<unknown>) {
+      override didCommit(identifier: PersistedResourceKey, result: StructuredDataDocument<unknown>) {
         calledDidCommit++;
         isNew = false;
         return { data: identifier };

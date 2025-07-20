@@ -17,11 +17,7 @@ import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  ResourceKey,
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -83,7 +79,7 @@ class TestCache implements Cache {
         const data = doc.content.data.map((resource) => {
           const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
             resource
-          ) as StableExistingRecordIdentifier;
+          ) as PersistedResourceKey;
           this.upsert(identifier, resource, this._storeWrapper.hasRecord(identifier));
           return identifier;
         });
@@ -91,7 +87,7 @@ class TestCache implements Cache {
       } else {
         const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
           doc.content.data
-        ) as StableExistingRecordIdentifier;
+        ) as PersistedResourceKey;
         this.upsert(identifier, doc.content.data!, this._storeWrapper.hasRecord(identifier));
         return { data: identifier } as SingleResourceDataDocument;
       }
@@ -153,7 +149,7 @@ class TestCache implements Cache {
   }
   willCommit(identifier: ResourceKey): void {}
   didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
-    return { data: identifier as StableExistingRecordIdentifier };
+    return { data: identifier as PersistedResourceKey };
   }
   commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._errors = errors;

@@ -25,11 +25,7 @@ import type {
 } from '@warp-drive/core/types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core/types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
-import type {
-  ResourceKey,
-  StableDocumentIdentifier,
-  StableExistingRecordIdentifier,
-} from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core/types/identifier';
 import type { ObjectValue, Value } from '@warp-drive/core/types/json/raw';
 import type {
   ImmutableRequestInfo,
@@ -367,7 +363,7 @@ export class JSONAPICache implements Cache {
 
     if (Array.isArray(jsonApiDoc.data)) {
       length = jsonApiDoc.data.length;
-      const identifiers: StableExistingRecordIdentifier[] = [];
+      const identifiers: PersistedResourceKey[] = [];
 
       for (i = 0; i < length; i++) {
         identifiers.push(putOne(this, cacheKeyManager, jsonApiDoc.data[i]));
@@ -375,7 +371,7 @@ export class JSONAPICache implements Cache {
       return this._putDocument(
         doc as StructuredDataDocument<CollectionResourceDocument>,
         identifiers,
-        included as StableExistingRecordIdentifier[]
+        included as PersistedResourceKey[]
       );
     }
 
@@ -383,7 +379,7 @@ export class JSONAPICache implements Cache {
       return this._putDocument(
         doc as StructuredDataDocument<SingleResourceDocument>,
         null,
-        included as StableExistingRecordIdentifier[]
+        included as PersistedResourceKey[]
       );
     }
 
@@ -391,7 +387,7 @@ export class JSONAPICache implements Cache {
     return this._putDocument(
       doc as StructuredDataDocument<SingleResourceDocument>,
       identifier,
-      included as StableExistingRecordIdentifier[]
+      included as PersistedResourceKey[]
     );
   }
 
@@ -408,18 +404,18 @@ export class JSONAPICache implements Cache {
   ): ResourceMetaDocument;
   _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
-    data: StableExistingRecordIdentifier | null,
-    included: StableExistingRecordIdentifier[] | undefined
+    data: PersistedResourceKey | null,
+    included: PersistedResourceKey[] | undefined
   ): SingleResourceDataDocument;
   _putDocument<T extends CollectionResourceDocument>(
     doc: StructuredDataDocument<T>,
-    data: StableExistingRecordIdentifier[],
-    included: StableExistingRecordIdentifier[] | undefined
+    data: PersistedResourceKey[],
+    included: PersistedResourceKey[] | undefined
   ): CollectionResourceDataDocument;
   _putDocument<T extends ResourceDocument>(
     doc: StructuredDocument<T>,
-    data: StableExistingRecordIdentifier[] | StableExistingRecordIdentifier | null | undefined,
-    included: StableExistingRecordIdentifier[] | undefined
+    data: PersistedResourceKey[] | PersistedResourceKey | null | undefined,
+    included: PersistedResourceKey[] | undefined
   ): SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument | ResourceMetaDocument {
     // @ts-expect-error narrowing within is just horrible  in TS :/
     const resourceDocument: SingleResourceDataDocument | CollectionResourceDataDocument | ResourceErrorDocument =
@@ -1100,7 +1096,7 @@ export class JSONAPICache implements Cache {
     }
 
     return {
-      data: identifier as StableExistingRecordIdentifier,
+      data: identifier as PersistedResourceKey,
     };
   }
 
@@ -2176,7 +2172,7 @@ function putOne(
   cache: JSONAPICache,
   identifiers: CacheKeyManager,
   resource: ExistingResourceObject
-): StableExistingRecordIdentifier {
+): PersistedResourceKey {
   assert(
     `You must include an 'id' for the resource data ${resource.type}`,
     resource.id !== null && resource.id !== undefined && resource.id !== ''
@@ -2194,7 +2190,7 @@ function putOne(
   }
   cache.upsert(identifier, resource, cache._capabilities.hasRecord(identifier));
   // even if the identifier was not "existing" before, it is now
-  return identifier as StableExistingRecordIdentifier;
+  return identifier as PersistedResourceKey;
 }
 
 /*
