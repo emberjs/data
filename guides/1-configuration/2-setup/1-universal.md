@@ -179,8 +179,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
-    return instantiateRecord(this, identifier, createArgs);
+  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, key, createArgs);
   }
 
   teardownRecord(record: unknown): void {
@@ -238,8 +238,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>) {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   teardownRecord(record: unknown): void {
@@ -311,16 +311,16 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
-    if (this.schema.isDelegated(identifier)) {
-      return instantiateModel.call(this, identifier, createRecordArgs)
+  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {
+    if (this.schema.isDelegated(key)) {
+      return instantiateModel.call(this, key, createRecordArgs)
     }
-    return instantiateRecord(this, identifier, createArgs);
+    return instantiateRecord(this, key, createArgs);
   }
 
   teardownRecord(record: unknown): void {
-    const identifier = recordIdentifierFor(record);
-    if (this.schema.isDelegated(identifier)) {
+    const key = recordIdentifierFor(record);
+    if (this.schema.isDelegated(key)) {
       return teardownModel.call(this, record as Model);
     }
     return teardownRecord(record);
@@ -558,8 +558,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) { // [!code focus:3]
-    return instantiateRecord(this, identifier, createArgs);
+  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) { // [!code focus:3]
+    return instantiateRecord(this, key, createArgs);
   }
 
   teardownRecord(record: unknown): void { // [!code focus:3]
@@ -604,8 +604,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>) {  // [!code focus:3]
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {  // [!code focus:3]
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   teardownRecord(record: unknown): void {  // [!code focus:3]
@@ -664,16 +664,16 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {  // [!code focus:6]
-    if (this.schema.isDelegated(identifier)) {
-      return instantiateModel.call(this, identifier, createRecordArgs)
+  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {  // [!code focus:6]
+    if (this.schema.isDelegated(key)) {
+      return instantiateModel.call(this, key, createRecordArgs)
     }
-    return instantiateRecord(this, identifier, createArgs);
+    return instantiateRecord(this, key, createArgs);
   }
 
   teardownRecord(record: unknown): void {  // [!code focus:7]
-    const identifier = recordIdentifierFor(record);
-    if (this.schema.isDelegated(identifier)) {
+    const key = recordIdentifierFor(record);
+    if (this.schema.isDelegated(key)) {
       return teardownModel.call(this, record as Model);
     }
     return teardownRecord(record);
@@ -750,8 +750,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
-    return instantiateRecord(this, identifier, createArgs);
+  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, key, createArgs);
   }
 
   teardownRecord(record: unknown): void {

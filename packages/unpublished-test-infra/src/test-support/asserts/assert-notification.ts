@@ -16,7 +16,7 @@ type NotificationStorage = Map<
 
 function getCounter(
   context: TestContext,
-  identifier: ResourceKey | RequestKey,
+  cacheKey: ResourceKey | RequestKey,
   bucket: NotificationType | DocumentCacheOperation,
   key: string | null
 ) {
@@ -25,10 +25,10 @@ function getCounter(
     throw new Error(`setupNotifications must be called before calling notified`);
   }
 
-  let identifierStorage = storage.get(identifier);
+  let identifierStorage = storage.get(cacheKey);
   if (!identifierStorage) {
     identifierStorage = new Map();
-    storage.set(identifier, identifierStorage);
+    storage.set(cacheKey, identifierStorage);
   }
 
   let bucketStorage = identifierStorage.get(bucket);
@@ -71,15 +71,15 @@ function setupNotifications(context: TestContext, store: Store) {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalNotify = notifications.notify;
   notifications.notify = function (
-    identifier: ResourceKey | RequestKey,
+    cacheKey: ResourceKey | RequestKey,
     bucket: NotificationType | DocumentCacheOperation,
     key?: string | null
   ) {
-    const counter = getCounter(context, identifier, bucket, key ?? null);
+    const counter = getCounter(context, cacheKey, bucket, key ?? null);
     counter.count++;
 
     // @ts-expect-error TS is bad at curried overloads
-    const scheduled = originalNotify.apply(notifications, [identifier, bucket, key]);
+    const scheduled = originalNotify.apply(notifications, [cacheKey, bucket, key]);
 
     if (scheduled) {
       counter.delivered++;
@@ -102,19 +102,19 @@ export function configureNotificationsAssert(this: TestContext, assert: Assert):
 
   assert.notified = function (
     this: Assert,
-    identifier: ResourceKey | RequestKey,
+    cacheKey: ResourceKey | RequestKey,
     bucket: NotificationType | DocumentCacheOperation,
     key: string | null,
     count: number,
     message?: string
   ) {
-    const counter = getCounter(context, identifier, bucket, key);
+    const counter = getCounter(context, cacheKey, bucket, key);
 
     this.pushResult({
       result: counter.count === count,
       actual: counter.count,
       expected: count,
-      message: `${message ? message + ' | ' : ''}Expected ${count} ${bucket} notifications for ${identifier.lid} ${key || ''}, got ${counter.count}`,
+      message: `${message ? message + ' | ' : ''}Expected ${count} ${bucket} notifications for ${cacheKey.lid} ${key || ''}, got ${counter.count}`,
     });
 
     counter.count = 0;

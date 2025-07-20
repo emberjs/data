@@ -92,8 +92,8 @@ export default class AppStore extends Store {
     return new JSONAPICache(capabilities);
   }
 
-  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>) {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   teardownRecord(record: unknown): void {

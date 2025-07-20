@@ -49,8 +49,8 @@ export default class Store extends BaseStore {
     return new JSONAPICache(storeWrapper);
   }
 
-  instantiateRecord(identifier: ResourceKey, createRecordArgs: Record<string, unknown>): Model {
-    return instantiateRecord.call(this, identifier, createRecordArgs);
+  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>): Model {
+    return instantiateRecord.call(this, key, createRecordArgs);
   }
 
   teardownRecord(record: unknown): void {
