@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/build-config/macros';
 
 import { getOrSetGlobal } from '../../types/-private.ts';
 import type { Cache } from '../../types/cache.ts';
-import type { ResourceKey, StableNewRecordIdentifier } from '../../types/identifier.ts';
+import type { ResourceKey, NewResourceKey } from '../../types/identifier.ts';
 import type { Value } from '../../types/json/raw';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
 import type {
@@ -33,7 +33,7 @@ import type { Store } from './store.ts';
     models.
   */
 type PreloadRelationshipValue = OpaqueRecordInstance | string;
-export function preloadData(store: Store, identifier: StableNewRecordIdentifier, preload: Record<string, Value>): void {
+export function preloadData(store: Store, identifier: NewResourceKey, preload: Record<string, Value>): void {
   const jsonPayload: Partial<ExistingResourceObject> = {};
   //TODO(Igor) consider the polymorphic case
   const schemas = store.schema;
