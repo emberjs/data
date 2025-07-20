@@ -87,7 +87,7 @@ export default function replaceRelatedRecords(
 }
 
 function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
-  const identifiers = op.value;
+  const resourceKeys = op.value;
   const relationship = graph.get(op.record, op.field);
   assert(`expected hasMany relationship`, isHasMany(relationship));
 
@@ -102,52 +102,52 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
     count(`replaceRelatedRecordsLocal ${'type' in record ? record.type : '<document>'} ${op.field}`);
   }
 
-  const onAdd = (identifier: ResourceKey) => {
+  const onAdd = (resourceKey: ResourceKey) => {
     // Since we are diffing against the remote state, we check
-    // if our previous local state did not contain this identifier
-    const removalsHas = removals?.has(identifier);
-    if (removalsHas || !additions?.has(identifier)) {
-      if (type !== identifier.type) {
+    // if our previous local state did not contain this ResourceKey
+    const removalsHas = removals?.has(resourceKey);
+    if (removalsHas || !additions?.has(resourceKey)) {
+      if (type !== resourceKey.type) {
         if (DEBUG) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          assertPolymorphicType(relationship.identifier, relationship.definition, resourceKey, graph.store);
         }
-        graph.registerPolymorphicType(type, identifier.type);
+        graph.registerPolymorphicType(type, resourceKey.type);
       }
 
       // we've added a record locally that wasn't in the local state before
       localBecameDirty = true;
-      addToInverse(graph, identifier, inverseKey, op.record, isRemote);
+      addToInverse(graph, resourceKey, inverseKey, op.record, isRemote);
 
       if (removalsHas) {
-        removals!.delete(identifier);
+        removals!.delete(resourceKey);
       }
     }
   };
 
-  const onRemove = (identifier: ResourceKey) => {
+  const onRemove = (resourceKey: ResourceKey) => {
     // Since we are diffing against the remote state, we check
-    // if our previous local state had contained this identifier
-    const additionsHas = additions?.has(identifier);
-    if (additionsHas || !removals?.has(identifier)) {
+    // if our previous local state had contained this ResourceKey
+    const additionsHas = additions?.has(resourceKey);
+    if (additionsHas || !removals?.has(resourceKey)) {
       // we've removed a record locally that was in the local state before
       localBecameDirty = true;
-      removeFromInverse(graph, identifier, inverseKey, record, isRemote);
+      removeFromInverse(graph, resourceKey, inverseKey, record, isRemote);
 
       if (additionsHas) {
-        additions!.delete(identifier);
+        additions!.delete(resourceKey);
       }
     }
   };
 
-  const diff = diffCollection(identifiers, relationship, onAdd, onRemove);
+  const diff = diffCollection(resourceKeys, relationship, onAdd, onRemove);
 
   // any additions no longer in the local state
   // also need to be removed from the inverse
   if (additions && additions.size > 0) {
-    additions.forEach((identifier) => {
-      if (!diff.add.has(identifier)) {
+    additions.forEach((resourceKey) => {
+      if (!diff.add.has(resourceKey)) {
         localBecameDirty = true;
-        onRemove(identifier);
+        onRemove(resourceKey);
       }
     });
   }
@@ -155,10 +155,10 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
   // any removals no longer in the local state
   // also need to be added back to the inverse
   if (removals && removals.size > 0) {
-    removals.forEach((identifier) => {
-      if (!diff.del.has(identifier)) {
+    removals.forEach((resourceKey) => {
+      if (!diff.del.has(resourceKey)) {
         localBecameDirty = true;
-        onAdd(identifier);
+        onAdd(resourceKey);
       }
     });
   }
@@ -176,7 +176,7 @@ function replaceRelatedRecordsLocal(graph: Graph, op: ReplaceRelatedRecordsOpera
 }
 
 function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOperation, isRemote: boolean) {
-  const identifiers = op.value;
+  const resourceKeys = op.value;
   const relationship = graph.get(op.record, op.field);
 
   if (LOG_METRIC_COUNTS) {
@@ -207,20 +207,20 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
   const { type } = relationship.definition;
 
   const diff = diffCollection(
-    identifiers,
+    resourceKeys,
     relationship,
-    (identifier) => {
-      if (type !== identifier.type) {
+    (resourceKey) => {
+      if (type !== resourceKey.type) {
         if (DEBUG) {
-          assertPolymorphicType(relationship.identifier, relationship.definition, identifier, graph.store);
+          assertPolymorphicType(relationship.identifier, relationship.definition, resourceKey, graph.store);
         }
-        graph.registerPolymorphicType(type, identifier.type);
+        graph.registerPolymorphicType(type, resourceKey.type);
       }
       // commit additions
       // TODO build this into the diff?
       // because we are not dirty if this was a committed local addition
-      if (relationship.additions?.has(identifier)) {
-        relationship.additions.delete(identifier);
+      if (relationship.additions?.has(resourceKey)) {
+        relationship.additions.delete(resourceKey);
       } else {
         if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
           if (!relationship.isDirty) {
@@ -231,14 +231,14 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           }
         }
       }
-      addToInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+      addToInverse(graph, resourceKey, definition.inverseKey, op.record, isRemote);
     },
-    (identifier) => {
+    (resourceKey) => {
       // commit removals
       // TODO build this into the diff?
       // because we are not dirty if this was a committed local addition
-      if (relationship.removals?.has(identifier)) {
-        relationship.removals.delete(identifier);
+      if (relationship.removals?.has(resourceKey)) {
+        relationship.removals.delete(resourceKey);
       } else {
         if (DEBUG_RELATIONSHIP_NOTIFICATIONS) {
           if (!relationship.isDirty) {
@@ -249,7 +249,7 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
           }
         }
       }
-      removeFromInverse(graph, identifier, definition.inverseKey, op.record, isRemote);
+      removeFromInverse(graph, resourceKey, definition.inverseKey, op.record, isRemote);
     }
   );
 
@@ -289,30 +289,30 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
       };
       if (relationship.removals) {
         relationship.isDirty = true;
-        relationship.removals.forEach((identifier) => {
+        relationship.removals.forEach((resourceKey) => {
           deprecationInfo.triggered = true;
-          deprecationInfo.removals.push(identifier);
+          deprecationInfo.removals.push(resourceKey);
           // reverse the removal
           // if we are still in removals at this point then
           // we were not "committed" which means we are present
           // in the remoteMembers. So we "add back" on the inverse.
-          addToInverse(graph, identifier, definition.inverseKey, op.record, false);
+          addToInverse(graph, resourceKey, definition.inverseKey, op.record, false);
         });
         relationship.removals = null;
       }
       if (relationship.additions) {
-        relationship.additions.forEach((identifier) => {
+        relationship.additions.forEach((resourceKey) => {
           // reverse the addition
           // if we are still in additions at this point then
           // we were not "committed" which means we are not present
           // in the remoteMembers. So we "remove" from the inverse.
           // however we only do this if we are not a "new" record.
-          if (!checkIfNew(graph._realStore, identifier)) {
+          if (!checkIfNew(graph._realStore, resourceKey)) {
             deprecationInfo.triggered = true;
-            deprecationInfo.additions.push(identifier);
+            deprecationInfo.additions.push(resourceKey);
             relationship.isDirty = true;
-            relationship.additions!.delete(identifier);
-            removeFromInverse(graph, identifier, definition.inverseKey, op.record, false);
+            relationship.additions!.delete(resourceKey);
+            removeFromInverse(graph, resourceKey, definition.inverseKey, op.record, false);
           }
         });
         if (relationship.additions.size === 0) {
@@ -349,12 +349,12 @@ function replaceRelatedRecordsRemote(graph: Graph, op: ReplaceRelatedRecordsOper
 
 export function addToInverse(
   graph: Graph,
-  identifier: ResourceKey,
+  resourceKey: ResourceKey,
   key: string,
   value: ResourceKey,
   isRemote: boolean
 ): void {
-  const relationship = graph.get(identifier, key);
+  const relationship = graph.get(resourceKey, key);
   const { type } = relationship.definition;
 
   if (type !== value.type) {
@@ -371,14 +371,14 @@ export function addToInverse(
     if (isRemote) {
       graph._addToTransaction(relationship);
       if (relationship.remoteState !== null) {
-        removeFromInverse(graph, relationship.remoteState, relationship.definition.inverseKey, identifier, isRemote);
+        removeFromInverse(graph, relationship.remoteState, relationship.definition.inverseKey, resourceKey, isRemote);
       }
       relationship.remoteState = value;
     }
 
     if (relationship.localState !== value) {
       if (!isRemote && relationship.localState) {
-        removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, identifier, isRemote);
+        removeFromInverse(graph, relationship.localState, relationship.definition.inverseKey, resourceKey, isRemote);
       }
       relationship.localState = value;
 
@@ -411,7 +411,7 @@ export function addToInverse(
         relationship.localState = [];
       }
 
-      if (_add(graph, identifier, relationship, value, null, isRemote)) {
+      if (_add(graph, resourceKey, relationship, value, null, isRemote)) {
         notifyChange(graph, relationship);
       }
     }
@@ -431,12 +431,12 @@ export function addToInverse(
 
 export function notifyInverseOfPotentialMaterialization(
   graph: Graph,
-  identifier: ResourceKey,
+  resourceKey: ResourceKey,
   key: string,
   value: ResourceKey,
   isRemote: boolean
 ): void {
-  const relationship = graph.get(identifier, key);
+  const relationship = graph.get(resourceKey, key);
   if (isHasMany(relationship) && isRemote && relationship.remoteMembers.has(value)) {
     notifyChange(graph, relationship);
   }
@@ -444,12 +444,12 @@ export function notifyInverseOfPotentialMaterialization(
 
 export function removeFromInverse(
   graph: Graph,
-  identifier: ResourceKey,
+  resourceKey: ResourceKey,
   key: string,
   value: ResourceKey,
   isRemote: boolean
 ): void {
-  const relationship = graph.get(identifier, key);
+  const relationship = graph.get(resourceKey, key);
 
   if (isBelongsTo(relationship)) {
     relationship.state.isEmpty = true;

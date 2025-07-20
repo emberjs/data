@@ -62,12 +62,12 @@ export interface RelationshipState {
         in this case `state.hasFailedLoadAttempt` ought to be `true`.
 
       false when
-        => cache.isNew(identifier) on initial setup
+        => cache.isNew(resourceKey) on initial setup
         => a previously triggered request has resolved
         => we get relationship data via push
 
       true when
-        => !cache.isNew(identifier) on initial setup
+        => !cache.isNew(resourceKey) on initial setup
         => an inverse has been unloaded
         => we get a new link for the relationship
 

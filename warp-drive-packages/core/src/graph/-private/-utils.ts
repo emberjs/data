@@ -207,22 +207,22 @@ export function notifyChange(graph: Graph, relationship: CollectionEdge | Resour
     return;
   }
 
-  const identifier = relationship.identifier;
+  const resourceKey = relationship.identifier;
   const key = relationship.definition.key;
 
-  if (identifier === graph._removing) {
+  if (resourceKey === graph._removing) {
     if (LOG_GRAPH) {
       // eslint-disable-next-line no-console
-      console.log(`Graph: ignoring relationship change for removed identifier ${String(identifier)} ${key}`);
+      console.log(`Graph: ignoring relationship change for removed identifier ${String(resourceKey)} ${key}`);
     }
     return;
   }
   if (LOG_GRAPH) {
     // eslint-disable-next-line no-console
-    console.log(`Graph: notifying relationship change for ${String(identifier)} ${key}`);
+    console.log(`Graph: notifying relationship change for ${String(resourceKey)} ${key}`);
   }
 
-  graph.store.notifyChange(identifier, 'relationships', key);
+  graph.store.notifyChange(resourceKey, 'relationships', key);
 }
 
 export function assertRelationshipData(

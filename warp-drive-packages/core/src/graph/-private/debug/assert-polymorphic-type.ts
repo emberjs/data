@@ -19,7 +19,7 @@ import {
   relationship (specified via `relationshipMeta`) of the `record`.
 
   This utility should only be used internally, as both record parameters must
-  be stable record identifiers and the `relationshipMeta` needs to be the meta
+  be ResourceKeys and the `relationshipMeta` needs to be the meta
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
 */

@@ -23,8 +23,8 @@ function urlFromLink(link: Link): string {
 
 /**
  * A Document is a class that wraps the response content from a request to the API
- * returned by `Cache.put` or `Cache.peek`, converting resource-identifiers into
- * record instances.
+ * returned by `Cache.put` or `Cache.peek`, converting ResourceKeys into
+ * ReactiveResource instances.
  *
  * It is not directly instantiated by the user, and its properties should not
  * be directly modified. Whether individual properties are mutable or not is
@@ -45,8 +45,6 @@ export class ReactiveDocument<T> {
    * }
    * ```
    *
-   * @property links
-   * @type {Object|undefined} - a links object
    * @public
    */
   declare readonly links?: PaginationLinks;
@@ -59,36 +57,28 @@ export class ReactiveDocument<T> {
    * For collections this will be an array of record instances,
    * for single resource requests it will be a single record instance or null.
    *
-   * @property data
    * @public
-   * @type {Object|Array<object>|null|undefined} - a data object
    */
   declare readonly data?: T;
 
   /**
    * The errors returned by the API for this request, if any
    *
-   * @property errors
    * @public
-   * @type {Object|undefined} - an errors object
    */
   declare readonly errors?: object[];
 
   /**
    * The meta object for this document, if any
    *
-   * @property meta
    * @public
-   * @type {Object|undefined} - a meta object
    */
   declare readonly meta?: Meta;
 
   /**
-   * The identifier associated with this document, if any
+   * The RequestKey associated with this document, if any
    *
-   * @property identifier
    * @public
-   * @type {RequestKey|null}
    */
   declare readonly identifier: RequestKey | null;
 
@@ -97,18 +87,18 @@ export class ReactiveDocument<T> {
 
   constructor(
     store: Store,
-    identifier: RequestKey | null,
+    cacheKey: RequestKey | null,
     localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
   ) {
     this._store = store;
     this._localCache = localCache;
-    this.identifier = identifier;
+    this.identifier = cacheKey;
     const signals = withSignalStore(this);
 
     // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
     // in a destroy method
-    if (identifier) {
-      store.notifications.subscribe(identifier, (_identifier: RequestKey, type: DocumentCacheOperation) => {
+    if (cacheKey) {
+      store.notifications.subscribe(cacheKey, (_key: RequestKey, type: DocumentCacheOperation) => {
         switch (type) {
           case 'updated':
             // FIXME in the case of a collection we need to notify it's length
