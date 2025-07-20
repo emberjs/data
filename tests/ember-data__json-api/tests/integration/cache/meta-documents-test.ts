@@ -51,8 +51,12 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
     assert.equal(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4 }), 'meta is correct');
     assert.equal(responseDocument.lid, 'https://api.example.com/v1/users', 'lid is correct');
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users',
+    })!;
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
@@ -64,7 +68,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
@@ -86,15 +90,19 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         },
       })
     );
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users',
+      cacheOptions: { key: 'users' },
+    })!;
 
     assert.false('data' in responseDocument, 'No data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4 }, 'meta is correct');
     assert.equal(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4 }), 'meta is correct');
     assert.equal(responseDocument.lid, 'users', 'lid is correct');
+    assert.equal(reqIdentifier?.lid, 'users', 'identifier lid is correct');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'users' });
-    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
-    assert.equal(structuredDocument2, null, 'url is not cache key');
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
@@ -106,9 +114,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'users' });
-    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
-    assert.equal(cachedResponse2, null, 'url is not cache key');
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
@@ -130,13 +136,17 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
         },
       })
     );
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users',
+    })!;
 
     assert.false('data' in responseDocument, 'No data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4, last: 4 }, 'meta is correct');
     assert.equal(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4, last: 4 }), 'meta is correct');
     assert.equal(responseDocument.lid, 'https://api.example.com/v1/users', 'lid is correct');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
@@ -148,7 +158,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
@@ -172,7 +182,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     assert.equal(JSON.stringify(responseDocument2.meta), JSON.stringify({ count: 3, next: 8 }), 'meta is correct');
     assert.equal(responseDocument2.lid, 'https://api.example.com/v1/users', 'lid is correct');
 
-    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const structuredDocument2 = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument2 as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
@@ -184,7 +194,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse2 = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse2,
       {
@@ -211,13 +221,17 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users',
+    })!;
 
     assert.deepEqual(responseDocument.data, [identifier], 'data is associated');
     assert.deepEqual(responseDocument.meta, { count: 4, last: 4 }, 'meta is correct');
     assert.equal(JSON.stringify(responseDocument.meta), JSON.stringify({ count: 4, last: 4 }), 'meta is correct');
     assert.equal(responseDocument.lid, 'https://api.example.com/v1/users', 'lid is correct');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<CollectionResourceDataDocument>>,
       {
@@ -230,7 +244,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
@@ -255,7 +269,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     assert.equal(JSON.stringify(responseDocument2.meta), JSON.stringify({ count: 3, next: 8 }), 'meta is correct');
     assert.equal(responseDocument2.lid, 'https://api.example.com/v1/users', 'lid is correct');
 
-    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users' });
+    const structuredDocument2 = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument2 as Partial<StructuredDocument<ResourceMetaDocument>>,
       {
@@ -267,7 +281,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       },
       'We got the cached structured document back'
     );
-    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users' });
+    const cachedResponse2 = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse2,
       {

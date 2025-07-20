@@ -559,7 +559,7 @@ export class JSONAPICache implements Cache {
   peek(identifier: ResourceKey): ResourceObject | null;
   peek(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peek(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
-    if ('type' in identifier) {
+    if (isStableIdentifier(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {
@@ -622,7 +622,7 @@ export class JSONAPICache implements Cache {
   peekRemoteState(identifier: ResourceKey): ResourceObject | null;
   peekRemoteState(identifier: StableDocumentIdentifier): ResourceDocument | null;
   peekRemoteState(identifier: StableDocumentIdentifier | ResourceKey): ResourceObject | ResourceDocument | null {
-    if ('type' in identifier) {
+    if (isStableIdentifier(identifier)) {
       const peeked = this.__safePeek(identifier, false);
 
       if (!peeked) {

@@ -102,10 +102,14 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users/1',
+    })!;
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users/1' });
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<SingleResourceDocument>>,
       {
@@ -117,7 +121,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       },
       'We got the cached structured document back'
     );
-    const cachedResponse = store.cache.peek({ lid: 'https://api.example.com/v1/users/1' });
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {
@@ -143,12 +147,15 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
-
+    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      method: 'GET',
+      url: 'https://api.example.com/v1/users/1',
+      cacheOptions: { key: 'user-1' },
+    })!;
+    assert.equal(reqIdentifier?.lid, 'user-1', 'respects cacheOptions.key');
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
 
-    const structuredDocument = store.cache.peekRequest({ lid: 'user-1' });
-    const structuredDocument2 = store.cache.peekRequest({ lid: 'https://api.example.com/v1/users/1' });
-    assert.equal(structuredDocument2, null, 'we did not use the url as the key');
+    const structuredDocument = store.cache.peekRequest(reqIdentifier);
     assert.deepEqual(
       structuredDocument as Partial<StructuredDocument<SingleResourceDocument>>,
       {
@@ -161,9 +168,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       'We got the cached structured document back'
     );
 
-    const cachedResponse = store.cache.peek({ lid: 'user-1' });
-    const cachedResponse2 = store.cache.peek({ lid: 'https://api.example.com/v1/users/1' });
-    assert.equal(cachedResponse2, null, 'we did not use the url as the key');
+    const cachedResponse = store.cache.peek(reqIdentifier);
     assert.deepEqual(
       cachedResponse,
       {

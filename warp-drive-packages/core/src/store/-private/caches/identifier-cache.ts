@@ -47,14 +47,40 @@ type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
   ? StableExistingRecordIdentifier<TypeFromIdentifier<T>>
   : ResourceKey;
 
-const DOCUMENTS = getOrSetGlobal('DOCUMENTS', new Set());
-
 export function isStableIdentifier(identifier: unknown): identifier is ResourceKey {
-  return (identifier as ResourceKey)[CACHE_OWNER] !== undefined;
+  if (DEBUG) {
+    return (
+      !!identifier &&
+      typeof identifier === 'object' &&
+      'type' in identifier &&
+      'id' in identifier &&
+      identifier.type !== '@document' &&
+      (identifier as ResourceKey)[CACHE_OWNER] !== undefined
+    );
+  } else {
+    return (
+      (identifier as StableDocumentIdentifier).type !== '@document' &&
+      (identifier as StableDocumentIdentifier)[CACHE_OWNER] !== undefined
+    );
+  }
 }
 
 export function isDocumentIdentifier(identifier: unknown): identifier is StableDocumentIdentifier {
-  return DOCUMENTS.has(identifier);
+  if (DEBUG) {
+    return (
+      !!identifier &&
+      typeof identifier === 'object' &&
+      'type' in identifier &&
+      !('id' in identifier) &&
+      identifier.type === '@document' &&
+      (identifier as ResourceKey)[CACHE_OWNER] !== undefined
+    );
+  } else {
+    return (
+      (identifier as StableDocumentIdentifier).type === '@document' &&
+      (identifier as StableDocumentIdentifier)[CACHE_OWNER] !== undefined
+    );
+  }
 }
 
 const isFastBoot = typeof FastBoot !== 'undefined';
@@ -524,11 +550,10 @@ export class IdentifierCache {
     let identifier = this._cache.documents.get(cacheKey);
 
     if (identifier === undefined) {
-      identifier = { lid: cacheKey };
+      identifier = { lid: cacheKey, type: '@document', [CACHE_OWNER]: this._id };
       if (DEBUG) {
         Object.freeze(identifier);
       }
-      DOCUMENTS.add(identifier);
       this._cache.documents.set(cacheKey, identifier);
     }
 
@@ -759,9 +784,6 @@ export class IdentifierCache {
   /** @internal */
   destroy(): void {
     NEW_IDENTIFIERS.clear();
-    this._cache.documents.forEach((identifier) => {
-      DOCUMENTS.delete(identifier);
-    });
     this._reset();
   }
 }
