@@ -17,12 +17,7 @@ import type { Change } from '@warp-drive/core-types/cache/change';
 import type { MergeOperation } from '@warp-drive/core-types/cache/operations';
 import type { CollectionRelationship, ResourceRelationship } from '@warp-drive/core-types/cache/relationship';
 import type { LocalRelationshipOperation } from '@warp-drive/core-types/graph';
-import type {
-  PersistedResourceKey,
-  RecordIdentifier,
-  ResourceKey,
-  StableDocumentIdentifier,
-} from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey, ResourceKey, StableDocumentIdentifier } from '@warp-drive/core-types/identifier';
 import type { Value } from '@warp-drive/core-types/json/raw';
 import type { TypeFromInstanceOrString } from '@warp-drive/core-types/record';
 import type {
@@ -104,7 +99,7 @@ class TestCache implements Cache {
         return { data };
       } else {
         const identifier = this._storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier(
-          doc.content.data as RecordIdentifier
+          doc.content.data as ExistingResourceObject
         );
         this.upsert(identifier, doc.content.data!, this._storeWrapper.hasRecord(identifier));
         return { data: identifier } as SingleResourceDataDocument;

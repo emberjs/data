@@ -1,5 +1,5 @@
 import type { StructuredDataDocument } from '@ember-data/request';
-import type { ExistingRecordIdentifier } from '@warp-drive/core-types/identifier';
+import type { PersistedResourceKey } from '@warp-drive/core-types/identifier';
 import type { ResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
@@ -53,7 +53,7 @@ module('Unit | DocumentStorage | Basic', function (_hooks) {
     };
     const doc = {
       content: data,
-    } as StructuredDataDocument<ResourceDataDocument<ExistingRecordIdentifier>>;
+    } as StructuredDataDocument<ResourceDataDocument>;
     const fullDoc = {
       content: fullData,
     } as unknown as StructuredDataDocument<ResourceDataDocument<ExistingResourceObject>>;
@@ -68,7 +68,7 @@ module('Unit | DocumentStorage | Basic', function (_hooks) {
         return baz;
       }
       assert.ok(false, `Unexpected resource identifier: ${resourceIdentifier.lid}`);
-      return null as unknown as ExistingRecordIdentifier;
+      return null as unknown as PersistedResourceKey;
     });
 
     assert.verifySteps(['foo:1', 'baz:1']);

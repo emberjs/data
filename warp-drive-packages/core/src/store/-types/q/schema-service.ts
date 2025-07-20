@@ -1,6 +1,6 @@
 import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '../../../reactive.ts';
 import type { ExtensibleField } from '../../../reactive/-private/schema.ts';
-import type { RecordIdentifier, ResourceKey } from '../../../types/identifier.ts';
+import type { ResourceKey } from '../../../types/identifier.ts';
 import type { ObjectValue } from '../../../types/json/raw.ts';
 import type { Derivation, HashFn, Transformation } from '../../../types/schema/concepts.ts';
 import type {
@@ -282,7 +282,7 @@ export interface SchemaService {
    * @public
    * @deprecated
    */
-  attributesDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): AttributesSchema;
+  attributesDefinitionFor?(identifier: ResourceKey | ObjectWithStringTypeProperty): AttributesSchema;
 
   /**
    * DEPRECATED - use `fields` instead
@@ -362,7 +362,7 @@ export interface SchemaService {
    * @public
    * @deprecated
    */
-  relationshipsDefinitionFor?(identifier: RecordIdentifier | ObjectWithStringTypeProperty): RelationshipsSchema;
+  relationshipsDefinitionFor?(identifier: ResourceKey | ObjectWithStringTypeProperty): RelationshipsSchema;
 
   /**
    * Returns all known resource types

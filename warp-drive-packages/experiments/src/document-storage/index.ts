@@ -1,6 +1,6 @@
 import type { StoreRequestContext } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { ExistingRecordIdentifier } from '@warp-drive/core/types/identifier';
+import type { PersistedResourceKey } from '@warp-drive/core/types/identifier';
 import type { RequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
 import type { ResourceDataDocument, ResourceDocument } from '@warp-drive/core/types/spec/document';
 import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
@@ -33,7 +33,7 @@ export type DocumentStorageOptions = {
  * CacheFileDocument is a StructuredDocument (request response) whose `content` is
  * the ResourceDocument returned by inserting the request into a Store's Cache.
  */
-type CacheFileDocument = StructuredDocument<ResourceDocument<ExistingRecordIdentifier>>;
+type CacheFileDocument = StructuredDocument<ResourceDocument>;
 /**
  * A CacheDocument is a reconstructed request response that rehydrates ResourceDocument
  * with the associated resources based on their identifiers.
@@ -186,10 +186,10 @@ class InternalDocumentStorage {
             // clone the resource to avoid leaking the internal cache
             return structuredClone(resource);
           });
-          document.content.included = included as ExistingRecordIdentifier[];
+          document.content.included = included as PersistedResourceKey[];
         }
 
-        document.content.data = data as unknown as ResourceDataDocument<ExistingRecordIdentifier>['data'];
+        document.content.data = data as unknown as ResourceDataDocument['data'];
       }
     }
 
@@ -198,7 +198,7 @@ class InternalDocumentStorage {
 
   async putDocument(
     document: CacheFileDocument,
-    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+    resourceCollector: (resourceIdentifier: PersistedResourceKey) => ExistingResourceObject
   ): Promise<void> {
     const resources = new Map<string, ExistingResourceObject>();
 
@@ -218,8 +218,8 @@ class InternalDocumentStorage {
   }
 
   _getResources(
-    document: ResourceDataDocument<ExistingRecordIdentifier>,
-    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject,
+    document: ResourceDataDocument,
+    resourceCollector: (resourceIdentifier: PersistedResourceKey) => ExistingResourceObject,
     resources: Map<string, ExistingResourceObject> = new Map<string, ExistingResourceObject>()
   ): Map<string, ExistingResourceObject> {
     if (Array.isArray(document.data)) {
@@ -243,8 +243,8 @@ class InternalDocumentStorage {
   }
 
   async putResources(
-    document: ResourceDataDocument<ExistingRecordIdentifier>,
-    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+    document: ResourceDataDocument,
+    resourceCollector: (resourceIdentifier: PersistedResourceKey) => ExistingResourceObject
   ): Promise<void> {
     const fileHandle = await this._fileHandle;
     // secure a lock before getting latest state
@@ -433,14 +433,14 @@ export class DocumentStorage {
 
   putDocument(
     document: CacheFileDocument,
-    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+    resourceCollector: (resourceIdentifier: PersistedResourceKey) => ExistingResourceObject
   ): Promise<void> {
     return this._storage.putDocument(document, resourceCollector);
   }
 
   putResources(
-    document: ResourceDataDocument<ExistingRecordIdentifier>,
-    resourceCollector: (resourceIdentifier: ExistingRecordIdentifier) => ExistingResourceObject
+    document: ResourceDataDocument,
+    resourceCollector: (resourceIdentifier: PersistedResourceKey) => ExistingResourceObject
   ): Promise<void> {
     return this._storage.putResources(document, resourceCollector);
   }
