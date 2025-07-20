@@ -21,20 +21,20 @@ function isCacheOperationValue(value: NotificationType | DocumentCacheOperation)
 export type NotificationType = 'attributes' | 'relationships' | 'identity' | 'errors' | 'meta' | CacheOperation;
 
 export interface NotificationCallback {
-  (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
-  (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-  (identifier: ResourceKey, notificationType: CacheOperation): void;
-  // (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
+  (cacheKey: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+  (cacheKey: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+  (cacheKey: ResourceKey, notificationType: CacheOperation): void;
+  // (cacheKey: ResourceKey, notificationType: NotificationType, key?: string): void;
 }
 
 export interface ResourceOperationCallback {
   // resource updates
-  (identifier: ResourceKey, notificationType: CacheOperation): void;
+  (cacheKey: ResourceKey, notificationType: CacheOperation): void;
 }
 
 export interface DocumentOperationCallback {
   // document updates
-  (identifier: RequestKey, notificationType: DocumentCacheOperation): void;
+  (cacheKey: RequestKey, notificationType: DocumentCacheOperation): void;
 }
 
 function count(label: string) {
@@ -57,15 +57,15 @@ function _unsubscribe(
   >
 ) {
   asInternalToken(token);
-  const identifier = token.for;
+  const cacheKey = token.for;
   if (LOG_NOTIFICATIONS) {
-    if (!identifier) {
+    if (!cacheKey) {
       // eslint-disable-next-line no-console
-      console.log('Passed unknown unsubscribe token to unsubscribe', identifier);
+      console.log('Passed unknown unsubscribe token to unsubscribe', cacheKey);
     }
   }
-  if (identifier) {
-    const callbacks = cache.get(identifier);
+  if (cacheKey) {
+    const callbacks = cache.get(cacheKey);
     if (!callbacks) {
       return;
     }
@@ -116,53 +116,52 @@ export default class NotificationManager {
   }
 
   /**
-   * Subscribe to changes for a given resource identifier, resource addition/removal, or document addition/removal.
+   * Subscribe to changes for a given ResourceKey, RequestKey, or addition/removal of any resource
+   * or document.
    *
    * ```ts
    * export type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
    *
    * export interface NotificationCallback {
-   *   (identifier: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
-   *   (identifier: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
-   *   (identifier: ResourceKey, notificationType: NotificationType, key?: string): void;
+   *   (cacheKey: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+   *   (cacheKey: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
+   *   (cacheKey: ResourceKey, notificationType: NotificationType, key?: string): void;
    * }
    * export interface ResourceOperationCallback {
    *   // resource updates
-   *   (identifier: ResourceKey, notificationType: CacheOperation): void;
+   *   (cacheKey: ResourceKey, notificationType: CacheOperation): void;
    * }
    * export interface DocumentOperationCallback {
    *   // document updates
-   *   (identifier: RequestKey, notificationType: CacheOperation): void;
+   *   (cacheKey: RequestKey, notificationType: CacheOperation): void;
    * }
    * ```
    *
    * @public
-   * @param {RequestKey | ResourceKey | 'resource' | 'document'} identifier
-   * @param {NotificationCallback | ResourceOperationCallback | DocumentOperationCallback} callback
-   * @return {UnsubscribeToken} an opaque token to be used with unsubscribe
+   * @return an opaque token to be used with unsubscribe
    */
-  subscribe(identifier: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
-  subscribe(identifier: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
-  subscribe(identifier: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
+  subscribe(cacheKey: ResourceKey, callback: NotificationCallback): UnsubscribeToken;
+  subscribe(cacheKey: 'resource', callback: ResourceOperationCallback): UnsubscribeToken;
+  subscribe(cacheKey: 'document' | RequestKey, callback: DocumentOperationCallback): UnsubscribeToken;
   subscribe(
-    identifier: RequestKey | ResourceKey | 'resource' | 'document',
+    cacheKey: RequestKey | ResourceKey | 'resource' | 'document',
     callback: NotificationCallback | ResourceOperationCallback | DocumentOperationCallback
   ): UnsubscribeToken {
     assert(`Expected not to be destroyed`, !this.isDestroyed);
     assert(
       `Expected to receive a stable Identifier to subscribe to`,
-      identifier === 'resource' || identifier === 'document' || isResourceKey(identifier) || isRequestKey(identifier)
+      cacheKey === 'resource' || cacheKey === 'document' || isResourceKey(cacheKey) || isRequestKey(cacheKey)
     );
-    let callbacks = this._cache.get(identifier);
+    let callbacks = this._cache.get(cacheKey);
     assert(`expected to receive a valid callback`, typeof callback === 'function');
     assert(`cannot subscribe with the same callback twice`, !callbacks || !callbacks.includes(callback));
     // we use the callback as the cancellation token
     //@ts-expect-error
-    callback.for = identifier;
+    callback.for = cacheKey;
 
     if (!callbacks) {
       callbacks = [];
-      this._cache.set(identifier, callbacks);
+      this._cache.set(cacheKey, callbacks);
     }
 
     callbacks.push(callback);
@@ -185,12 +184,12 @@ export default class NotificationManager {
    *
    * @private
    */
-  notify(identifier: ResourceKey, value: 'attributes' | 'relationships', key?: string | null): boolean;
-  notify(identifier: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state', key?: null): boolean;
-  notify(identifier: ResourceKey, value: CacheOperation, key?: null): boolean;
-  notify(identifier: RequestKey, value: DocumentCacheOperation, key?: null): boolean;
+  notify(cacheKey: ResourceKey, value: 'attributes' | 'relationships', key?: string | null): boolean;
+  notify(cacheKey: ResourceKey, value: 'errors' | 'meta' | 'identity' | 'state', key?: null): boolean;
+  notify(cacheKey: ResourceKey, value: CacheOperation, key?: null): boolean;
+  notify(cacheKey: RequestKey, value: DocumentCacheOperation, key?: null): boolean;
   notify(
-    identifier: ResourceKey | RequestKey,
+    cacheKey: ResourceKey | RequestKey,
     value: NotificationType | CacheOperation | DocumentCacheOperation,
     key?: string | null
   ): boolean {
@@ -201,38 +200,38 @@ export default class NotificationManager {
       `Notify does not accept a key argument for the namespace '${value}'. Received key '${key || ''}'.`,
       !key || value === 'attributes' || value === 'relationships'
     );
-    if (!isResourceKey(identifier) && !isRequestKey(identifier)) {
+    if (!isResourceKey(cacheKey) && !isRequestKey(cacheKey)) {
       if (LOG_NOTIFICATIONS) {
         // eslint-disable-next-line no-console
         console.log(
           `Notifying: Expected to receive a stable Identifier to notify '${value}' '${key || ''}' with, but ${String(
-            identifier
+            cacheKey
           )} is not in the cache`,
-          identifier
+          cacheKey
         );
       }
       return false;
     }
 
-    const _hasSubscribers = hasSubscribers(this._cache, identifier, value);
+    const _hasSubscribers = hasSubscribers(this._cache, cacheKey, value);
     if (_hasSubscribers) {
-      let buffer = this._buffered.get(identifier);
+      let buffer = this._buffered.get(cacheKey);
       if (!buffer) {
         buffer = [];
-        this._buffered.set(identifier, buffer);
+        this._buffered.set(cacheKey, buffer);
       }
       buffer.push([value, key || null]);
 
       if (LOG_METRIC_COUNTS) {
-        count(`notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+        count(`notify ${'type' in cacheKey ? cacheKey.type : '<document>'} ${value} ${key}`);
       }
       if (!this._scheduleNotify()) {
         if (LOG_NOTIFICATIONS) {
           log(
             'notify',
             'buffered',
-            `${'type' in identifier ? identifier.type : 'document'}`,
-            identifier.lid,
+            `${'type' in cacheKey ? cacheKey.type : 'document'}`,
+            cacheKey.lid,
             `${value}`,
             key || ''
           );
@@ -243,14 +242,14 @@ export default class NotificationManager {
         log(
           'notify',
           'discarded',
-          `${'type' in identifier ? identifier.type : 'document'}`,
-          identifier.lid,
+          `${'type' in cacheKey ? cacheKey.type : 'document'}`,
+          cacheKey.lid,
           `${value}`,
           key || ''
         );
       }
       if (LOG_METRIC_COUNTS) {
-        count(`DISCARDED notify ${'type' in identifier ? identifier.type : '<document>'} ${value} ${key}`);
+        count(`DISCARDED notify ${'type' in cacheKey ? cacheKey.type : '<document>'} ${value} ${key}`);
       }
     }
 
@@ -285,10 +284,10 @@ export default class NotificationManager {
     const buffered = this._buffered;
     if (buffered.size) {
       this._buffered = new Map();
-      for (const [identifier, states] of buffered) {
+      for (const [cacheKey, states] of buffered) {
         for (let i = 0; i < states.length; i++) {
           // @ts-expect-error
-          _flushNotification(this._cache, identifier, states[i][0], states[i][1]);
+          _flushNotification(this._cache, cacheKey, states[i][0], states[i][1]);
         }
       }
     }
@@ -307,68 +306,68 @@ export default class NotificationManager {
 
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey,
+  cacheKey: ResourceKey,
   value: 'attributes' | 'relationships',
   key: string | null
 ): boolean;
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey,
+  cacheKey: ResourceKey,
   value: 'errors' | 'meta' | 'identity' | 'state',
   key: null
 ): boolean;
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey | RequestKey,
+  cacheKey: ResourceKey | RequestKey,
   value: CacheOperation,
   key: null
 ): boolean;
 function _flushNotification(
   cache: NotificationManager['_cache'],
-  identifier: ResourceKey | RequestKey,
+  cacheKey: ResourceKey | RequestKey,
   value: NotificationType | CacheOperation,
   key: string | null
 ): boolean {
   if (LOG_NOTIFICATIONS) {
-    log('notify', '', `${'type' in identifier ? identifier.type : 'document'}`, identifier.lid, `${value}`, key || '');
+    log('notify', '', `${'type' in cacheKey ? cacheKey.type : 'document'}`, cacheKey.lid, `${value}`, key || '');
   }
 
   // TODO for documents this will need to switch based on Identifier kind
   if (isCacheOperationValue(value)) {
-    const callbackMap = cache.get(isRequestKey(identifier) ? 'document' : 'resource') as Array<
+    const callbackMap = cache.get(isRequestKey(cacheKey) ? 'document' : 'resource') as Array<
       ResourceOperationCallback | DocumentOperationCallback
     >;
 
     if (callbackMap) {
       callbackMap.forEach((cb: ResourceOperationCallback | DocumentOperationCallback) => {
-        (cb as ResourceOperationCallback)(identifier as ResourceKey, value);
+        (cb as ResourceOperationCallback)(cacheKey as ResourceKey, value);
       });
     }
   }
 
-  const callbacks = cache.get(identifier);
+  const callbacks = cache.get(cacheKey);
   if (!callbacks || !callbacks.length) {
     return false;
   }
   callbacks.forEach((cb) => {
     // @ts-expect-error overload doesn't narrow within body
-    cb(identifier, value, key);
+    cb(cacheKey, value, key);
   });
   return true;
 }
 
 function hasSubscribers(
   cache: NotificationManager['_cache'],
-  identifier: RequestKey | ResourceKey,
+  cacheKey: RequestKey | ResourceKey,
   value: NotificationType | CacheOperation | DocumentCacheOperation
 ): boolean {
-  const hasSubscriber = Boolean(cache.get(identifier)?.length);
+  const hasSubscriber = Boolean(cache.get(cacheKey)?.length);
 
   if (hasSubscriber || !isCacheOperationValue(value)) {
     return hasSubscriber;
   }
 
-  const callbackMap = cache.get(isRequestKey(identifier) ? 'document' : 'resource') as Array<
+  const callbackMap = cache.get(isRequestKey(cacheKey) ? 'document' : 'resource') as Array<
     ResourceOperationCallback | DocumentOperationCallback
   >;
   return Boolean(callbackMap?.length);

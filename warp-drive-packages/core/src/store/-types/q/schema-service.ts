@@ -282,7 +282,7 @@ export interface SchemaService {
    * @public
    * @deprecated
    */
-  attributesDefinitionFor?(identifier: ResourceKey | ObjectWithStringTypeProperty): AttributesSchema;
+  attributesDefinitionFor?(key: ResourceKey | ObjectWithStringTypeProperty): AttributesSchema;
 
   /**
    * DEPRECATED - use `fields` instead
@@ -362,7 +362,7 @@ export interface SchemaService {
    * @public
    * @deprecated
    */
-  relationshipsDefinitionFor?(identifier: ResourceKey | ObjectWithStringTypeProperty): RelationshipsSchema;
+  relationshipsDefinitionFor?(key: ResourceKey | ObjectWithStringTypeProperty): RelationshipsSchema;
 
   /**
    * Returns all known resource types
