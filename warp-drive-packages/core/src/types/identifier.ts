@@ -110,7 +110,7 @@ export interface StableExistingRecordIdentifier<T extends string = string> exten
  *
  * @internal
  */
-export interface StableNewRecordIdentifier<T extends string = string> extends StableIdentifier {
+export interface NewResourceKey<T extends string = string> extends StableIdentifier {
   /**
    * the primary resource `type` or `modelName` this identity belongs to.
    *
@@ -144,7 +144,7 @@ export interface StableNewRecordIdentifier<T extends string = string> extends St
  *
  * @public
  */
-export type ResourceKey<T extends string = string> = StableExistingRecordIdentifier<T> | StableNewRecordIdentifier<T>;
+export type ResourceKey<T extends string = string> = StableExistingRecordIdentifier<T> | NewResourceKey<T>;
 
 /** @deprecated use {@link ResourceKey} */
 export type StableRecordIdentifier<T extends string = string> = ResourceKey<T>;
