@@ -14,7 +14,6 @@ import type { ApiError } from './spec/error.ts';
  * A hash of changed attributes with the key being the attribute name and the value being an
  * array of `[oldValue, newValue]`.
  *
- * @internal
  */
 export type ChangedAttributesHash = Record<string, [Value | undefined, Value]>;
 
@@ -39,16 +38,13 @@ export type RelationshipDiff =
  * A Cache handles in-memory storage of Document and Resource
  * data.
  *
- * @class (Interface) Cache
  * @public
  */
 export interface Cache {
   /**
    * The Cache Version that this implementation implements.
    *
-   * @type {'2'}
    * @public
-   * @property version
    */
   version: '2';
 
@@ -72,8 +68,6 @@ export interface Cache {
    * a `content` member and therefor must not assume the existence
    * of `request` and `response` on the document.
    *
-   * @param {StructuredDocument} doc
-   * @return {ResourceDocument}
    * @public
    */
   put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument;
@@ -83,16 +77,13 @@ export interface Cache {
    * by merging new information into the existing state.
    *
    * @public
-   * @param {Operation | Operation[]} op the operation(s) to perform
-   * @return {void}
+   * @param op the operation(s) to perform
    */
   patch(op: Operation | Operation[]): void;
 
   /**
    * Update the "local" or "current" (unpersisted) state of the Cache
    *
-   * @param {Mutation} mutation
-   * @return {void}
    * @public
    */
   mutate(mutation: Mutation): void;
@@ -125,11 +116,10 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | RequestKey} identifier
-   * @return {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return the known resource data, if any
    */
-  peek<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
-  peek(identifier: RequestKey): ResourceDocument | null;
+  peek<T = unknown>(cacheKey: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
+  peek(cacheKey: RequestKey): ResourceDocument | null;
 
   /**
    * Peek remote resource data from the Cache.
@@ -161,11 +151,10 @@ export interface Cache {
    * notifications for relational data.
    *
    * @public
-   * @param {ResourceKey | RequestKey} identifier
-   * @return {ResourceDocument | ResourceBlob | null} the known resource data
+   * @return the known data, if any
    */
-  peekRemoteState<T = unknown>(identifier: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
-  peekRemoteState(identifier: RequestKey): ResourceDocument | null;
+  peekRemoteState<T = unknown>(cacheKey: ResourceKey<TypeFromInstanceOrString<T>>): T | null;
+  peekRemoteState(cacheKey: RequestKey): ResourceDocument | null;
 
   /**
    * Peek the Cache for the existing request data associated with
@@ -175,22 +164,17 @@ export interface Cache {
    * that it will return the the request, response, and content
    * whereas `peek` will return just the `content`.
    *
-   * @param {RequestKey}
-   * @return {StructuredDocument<ResourceDocument> | null}
    * @public
    */
-  peekRequest(identifier: RequestKey): StructuredDocument<ResourceDocument> | null;
+  peekRequest(cacheKey: RequestKey): StructuredDocument<ResourceDocument> | null;
 
   /**
-   * Push resource data from a remote source into the cache for this identifier
+   * Push resource data from a remote source into the cache for this ResourceKey
    *
    * @public
-   * @param identifier
-   * @param data
-   * @param hasRecord
-   * @return {void | string[]} if `hasRecord` is true then calculated key changes should be returned
+   * @return if `hasRecord` is true then calculated key changes should be returned
    */
-  upsert(identifier: ResourceKey, data: ResourceBlob, hasRecord: boolean): void | string[];
+  upsert(cacheKey: ResourceKey, data: ResourceBlob, hasRecord: boolean): void | string[];
 
   // Cache Forking Support
   // =====================
@@ -203,7 +187,6 @@ export interface Cache {
    * utilize this method to fork the cache.
    *
    * @public
-   * @return {Promise<Cache>}
    */
   fork(): Promise<Cache>;
 
@@ -214,9 +197,6 @@ export interface Cache {
    * preferring instead to merge at the Store level, which will
    * utilize this method to merge the caches.
    *
-   * @param {Cache} cache
-   * @public
-   * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void>;
 
@@ -229,7 +209,7 @@ export interface Cache {
    * `Change` entry in the returned array.
    *
    * A `Change` is described by an object containing up to
-   * three properties: (1) the `identifier` of the entity that
+   * three properties: (1) the `CacheKey` of the entity that
    * changed; (2) the `op` code of that change being one of
    * `upsert` or `remove`, and if the op is `upsert` a `patch`
    * containing the data to merge into the cache for the given
@@ -244,7 +224,7 @@ export interface Cache {
    *
    * ```ts
    * interface Change {
-   *  identifier: ResourceKey | RequestKey;
+   *  key: ResourceKey | RequestKey;
    *  op: 'upsert' | 'remove';
    *  patch?: unknown;
    * }
@@ -279,8 +259,6 @@ export interface Cache {
    * behavior supports optimizing pre/fetching of data for route transitions
    * via data-only SSR modes.
    *
-   * @param {ReadableStream} stream
-   * @return {Promise<void>}
    * @public
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void>;
@@ -295,40 +273,34 @@ export interface Cache {
    * process. This return value behavior is deprecated.
    *
    * @public
-   * @param identifier
-   * @param createArgs
    */
-  clientDidCreate(identifier: ResourceKey, createArgs?: Record<string, unknown>): Record<string, unknown>;
+  clientDidCreate(cacheKey: ResourceKey, createArgs?: Record<string, unknown>): Record<string, unknown>;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
    * will be part of a save transaction.
    *
    * @public
-   * @param identifier
    */
-  willCommit(identifier: ResourceKey, context: RequestContext | null): void;
+  willCommit(cacheKey: ResourceKey, context: RequestContext | null): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
    * was successfully updated as part of a save transaction.
    *
    * @public
-   * @param identifier - the primary identifier that was operated on
+   * @param the primary ResourceKey that was operated on
    * @param data - a document in the cache format containing any updated data
-   * @return {SingleResourceDataDocument}
    */
-  didCommit(identifier: ResourceKey, result: StructuredDataDocument<unknown> | null): SingleResourceDataDocument;
+  didCommit(cacheKey: ResourceKey, result: StructuredDataDocument<unknown> | null): SingleResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
    * was update via a save transaction failed.
    *
    * @public
-   * @param identifier
-   * @param errors
    */
-  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void;
+  commitWasRejected(cacheKey: ResourceKey, errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource
@@ -337,9 +309,8 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param identifier
    */
-  unloadRecord(identifier: ResourceKey): void;
+  unloadRecord(cacheKey: ResourceKey): void;
 
   // Granular Resource Data APIs
   // ===========================
@@ -348,21 +319,15 @@ export interface Cache {
    * Retrieve the data for an attribute from the cache
    *
    * @public
-   * @param identifier
-   * @param field
-   * @return {unknown}
    */
-  getAttr(identifier: ResourceKey, field: string | string[]): Value | undefined;
+  getAttr(cacheKey: ResourceKey, field: string | string[]): Value | undefined;
 
   /**
    * Retrieve remote state without any local changes for a specific attribute
    *
    * @public
-   * @param identifier
-   * @param field
-   * @return {unknown}
    */
-  getRemoteAttr(identifier: ResourceKey, field: string | string[]): Value | undefined;
+  getRemoteAttr(cacheKey: ResourceKey, field: string | string[]): Value | undefined;
 
   /**
    * Mutate the data for an attribute in the cache
@@ -370,11 +335,8 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param identifier
-   * @param field
-   * @param value
    */
-  setAttr(identifier: ResourceKey, field: string | string[], value: Value): void;
+  setAttr(cacheKey: ResourceKey, field: string | string[], value: Value): void;
 
   /**
    * Query the cache for the changed attributes of a resource.
@@ -386,19 +348,15 @@ export interface Cache {
    * ```
    *
    * @public
-   * @param identifier
-   * @return {Record<string, [unknown, unknown]>} `{ <field>: [<old>, <new>] }`
    */
-  changedAttrs(identifier: ResourceKey): ChangedAttributesHash;
+  changedAttrs(cacheKey: ResourceKey): ChangedAttributesHash;
 
   /**
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  hasChangedAttrs(identifier: ResourceKey): boolean;
+  hasChangedAttrs(cacheKey: ResourceKey): boolean;
 
   /**
    * Tell the cache to discard any uncommitted mutations to attributes
@@ -406,10 +364,9 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param identifier
-   * @return {String[]} the names of fields that were restored
+   * @return the names of fields that were restored
    */
-  rollbackAttrs(identifier: ResourceKey): string[];
+  rollbackAttrs(cacheKey: ResourceKey): string[];
 
   /**
    * Query the cache for the changes to relationships of a resource.
@@ -434,19 +391,15 @@ export interface Cache {
     ```
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {Map<string, RelationshipDiff>}
    */
-  changedRelationships(identifier: ResourceKey): Map<string, RelationshipDiff>;
+  changedRelationships(cacheKey: ResourceKey): Map<string, RelationshipDiff>;
 
   /**
    * Query the cache for whether any mutated attributes exist
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {Boolean}
    */
-  hasChangedRelationships(identifier: ResourceKey): boolean;
+  hasChangedRelationships(cacheKey: ResourceKey): boolean;
 
   /**
    * Tell the cache to discard any uncommitted mutations to relationships.
@@ -456,21 +409,18 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @return {String[]} the names of relationships that were restored
+   * @return the names of relationships that were restored
    */
-  rollbackRelationships(identifier: ResourceKey): string[];
+  rollbackRelationships(cacheKey: ResourceKey): string[];
 
   /**
    * Query the cache for the current state of a relationship property
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @param {String} field
    * @return resource relationship object
    */
   getRelationship(
-    identifier: ResourceKey,
+    cacheKey: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship;
@@ -479,12 +429,10 @@ export interface Cache {
    * Query the cache for the server state of a relationship property without any local changes
    *
    * @public
-   * @param {ResourceKey} identifier
-   * @param {String} field
    * @return resource relationship object
    */
   getRemoteRelationship(
-    identifier: ResourceKey,
+    cacheKey: ResourceKey,
     field: string,
     isCollection?: boolean
   ): ResourceRelationship | CollectionRelationship;
@@ -499,54 +447,44 @@ export interface Cache {
    * This method is a candidate to become a mutation
    *
    * @public
-   * @param identifier
-   * @param {Boolean} isDeleted
    */
-  setIsDeleted(identifier: ResourceKey, isDeleted: boolean): void;
+  setIsDeleted(cacheKey: ResourceKey, isDeleted: boolean): void;
 
   /**
    * Query the cache for any validation errors applicable to the given resource.
    *
    * @public
    */
-  getErrors(identifier: ResourceKey): ApiError[];
+  getErrors(cacheKey: ResourceKey): ApiError[];
 
   /**
    * Query the cache for whether a given resource has any available data
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isEmpty(identifier: ResourceKey): boolean;
+  isEmpty(cacheKey: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource was created locally and not
    * yet persisted.
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isNew(identifier: ResourceKey): boolean;
+  isNew(cacheKey: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource is marked as deleted (but not
    * necessarily persisted yet).
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isDeleted(identifier: ResourceKey): boolean;
+  isDeleted(cacheKey: ResourceKey): boolean;
 
   /**
    * Query the cache for whether a given resource has been deleted and that deletion
    * has also been persisted.
    *
    * @public
-   * @param identifier
-   * @return {Boolean}
    */
-  isDeletionCommitted(identifier: ResourceKey): boolean;
+  isDeletionCommitted(cacheKey: ResourceKey): boolean;
 }
