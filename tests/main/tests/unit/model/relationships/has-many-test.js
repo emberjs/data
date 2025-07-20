@@ -58,11 +58,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
     chris.friends.splice(1, 0, james);
 
     const expectedOrder = [
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
       jamesIdentifier,
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
     ];
     let expectedIndex = 0;
 
@@ -130,11 +130,11 @@ module('unit/model/relationships - hasMany', function (hooks) {
     chris.friends.splice(1, 0, james);
 
     const expectedOrder = [
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' }),
       jamesIdentifier,
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
-      store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '4' }),
+      store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '5' }),
     ];
     let expectedIndex = 0;
 

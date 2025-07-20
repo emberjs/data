@@ -18,7 +18,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.getOrCreateRecordIdentifier(runspiredHash);
 
       cache.forgetRecordIdentifier(identifier);
@@ -41,7 +41,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
       assert.strictEqual(
@@ -60,7 +60,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.getOrCreateRecordIdentifier(houseHash);
 
       assert.strictEqual(
@@ -87,7 +87,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       assert.strictEqual(identifier.id, '1', 'identifier has id');
@@ -106,7 +106,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '1' });
@@ -124,7 +124,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: '2' });
@@ -142,7 +142,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       cache.createIdentifierForNewRecord(runspiredHash);
       await assert.expectAssertion(() => {
         cache.createIdentifierForNewRecord(runspiredHash);
@@ -158,7 +158,7 @@ module('Integration | Identifiers - cache', function (hooks) {
         },
       };
       const store = this.owner.lookup('service:store') as Store;
-      const cache = store.identifierCache;
+      const cache = store.cacheKeyManager;
       const identifier = cache.createIdentifierForNewRecord(runspiredHash);
 
       const mergedIdentifier = cache.updateRecordIdentifier(identifier, { type: 'person', id: null });

@@ -225,8 +225,8 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    const person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-    const person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
+    const person1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const person2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
     const promises = [
       store.findRecord('person', '1'), // creates request (1)
       store.findRecord('person', '1', { include: '' }), // de-duped
@@ -358,10 +358,10 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
 
     owner.register('adapter:application', TestFindRecordAdapter);
 
-    const person1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
-    const person2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
-    const person3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '3' });
-    const person4 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '4' });
+    const person1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const person2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '2' });
+    const person3 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '3' });
+    const person4 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '4' });
     const promises = [
       store.findRecord('person', '1'),
       store.findRecord('person', '2', { include: 'users' }),

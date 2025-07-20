@@ -111,7 +111,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
   test('an initial findRecord call has no record for internal-model when a snapshot is generated', async function (assert) {
     assert.expect(2);
     store.adapterFor('application').findRecord = (store, type, id, snapshot) => {
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
       const record = store._instanceCache.peek({ identifier, bucket: 'record' });
       assert.false(!!record, 'We do not have a materialized record');
       assert.strictEqual(snapshot.__attributes, null, 'attributes were not populated initially');
@@ -142,7 +142,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
     const snapshot = store._fetchManager.createSnapshot(identifier);
     const expected = {
       author: undefined,
@@ -167,7 +167,7 @@ module('integration/snapshot - Snapshot', function (hooks) {
       },
     });
 
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'post', id: '1' });
     const snapshot = store._fetchManager.createSnapshot(identifier);
     const expected = {
       author: undefined,

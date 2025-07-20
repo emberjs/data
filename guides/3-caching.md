@@ -25,7 +25,7 @@ be reused, or if updated data should be fetched.
 
 ## Determining The CacheKey And Checking If The Response Is Stale
 
-- The CacheHandler uses the attached store's IdentifierCache (a CacheKey manager) to determine the Request's CacheKey
+- The CacheHandler uses the attached store's CacheKeyManager (a CacheKey manager) to determine the Request's CacheKey
     - this service will use `cacheOptions.key` if present
     - for `GET` requests if `cacheOptions.key` is not present it will use the url
     - for all other requests it will return `null` indicating the request is not one that can ever be served from cache
@@ -65,7 +65,7 @@ When a response has a CacheKey, the Cache stores it using that CacheKey. If an e
 
 The same CacheKey applies to a request, its response, and its parsed content. We refer to
 this as a `RequestKey`. In ***Warp*Drive** CacheKeys are objects with a string `lid`
-property and either the object or the string can be used as a unique key (the store's `identifierCache` is what provides cache keys and guarantees these properties).
+property and either the object or the string can be used as a unique key (the store's `cacheKeyManager` is what provides cache keys and guarantees these properties).
 
 ::: code-group
 
@@ -193,7 +193,7 @@ For example
 
 ## Resources Are Cached By Their CacheKey With Upsert Semantics
 
-When the Cache finds a Resource in a Response, it generates a CacheKey for the Resource using the Store's IdentifierCache (a CacheKey manager). If an entry was
+When the Cache finds a Resource in a Response, it generates a CacheKey for the Resource using the Store's CacheKeyManager (a CacheKey manager). If an entry was
 already present for that CacheKey, the existing data and
 new data are merged together.
 

@@ -843,7 +843,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
       resource = constructResource(type, normalizedId);
     }
 
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const identifier = this.cacheKeyManager.getOrCreateRecordIdentifier(resource);
     options = options || {};
 
     if (options.preload) {
@@ -1023,7 +1023,7 @@ if (ENABLE_LEGACY_REQUEST_METHODS) {
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    const identifier: ResourceKey = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: ResourceKey = this.cacheKeyManager.getOrCreateRecordIdentifier(resourceIdentifier);
 
     const cache = upgradeInstanceCaches(this._instanceCache.__instances).reference;
     let reference = cache.get(identifier);

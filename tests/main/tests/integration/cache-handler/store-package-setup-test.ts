@@ -163,7 +163,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -227,7 +227,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -347,7 +347,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       assert.strictEqual(
         userDocument.content.data,
-        store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
+        store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' }),
         'we get a stable identifier back as data'
       );
 
@@ -468,7 +468,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -524,7 +524,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const data3 = userDocument2.content.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', '<Updated> record2 name is correct');
@@ -609,7 +609,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -667,7 +667,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       // Assert the initial document was updated
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
@@ -757,7 +757,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         store,
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
         type: 'user',
         id: '1',
       }) as StableExistingRecordIdentifier;
@@ -816,10 +816,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
+        store.cacheKeyManager.getOrCreateDocumentIdentifier({ url: '/assets/users/1.json' })!
       ) as unknown as StructuredDataDocument<ResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({
         type: 'user',
         id: '2',
       }) as StableExistingRecordIdentifier;
@@ -888,7 +888,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
@@ -1002,7 +1002,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data!;
 
@@ -1061,7 +1061,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
 
       await store._getAllPending();
 
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(record2?.name, 'Wesley Thoburn', 'record2 name is correct');
@@ -1151,7 +1151,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance[]>>({
         url: '/assets/users/list.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const data = userDocument.content.data!;
       const record = store.peekRecord<FakeRecord | null>(identifier);
 
@@ -1214,7 +1214,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       // Assert the initial document was updated
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord<FakeRecord | null>(identifier2);
 
       assert.strictEqual(handlerCalls, 2, 'fetch handler should only be called twice');
@@ -1312,7 +1312,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         store,
         url: '/assets/users/list.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const data = userDocument.content.data;
 
       assert.true(Array.isArray(data), '<Initial> recordArray was returned as data');
@@ -1370,10 +1370,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const updatedUserDocument = store.cache.peekRequest(
-        store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!
+        store.cacheKeyManager.getOrCreateDocumentIdentifier({ url: '/assets/users/list.json' })!
       ) as unknown as StructuredDataDocument<CollectionResourceDataDocument>;
       const data3 = updatedUserDocument?.content?.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
 
       assert.strictEqual(data3.length, 2, 'recordArray has two records');
       assert.strictEqual(data3[0], identifier, 'we get an identifier back as data');
@@ -1601,7 +1601,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         Fetch,
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
+      const docIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({ url: '/assets/users/2.json' })!;
 
       try {
         await store.request<LegacyQueryArray>({
@@ -1699,7 +1699,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const docIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
         url: '/assets/users/2.json?include=author',
       })!;
 
@@ -1817,10 +1817,10 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
         },
       ]);
       store.requestManager.useCache(CacheHandler);
-      const docIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const docIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
         url: '/assets/users/2.json?include=author',
       })!;
-      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const resourceIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
       // Initial successful fetch
       const originalDoc = await store.request<Document<FakeRecord>>({
@@ -1916,8 +1916,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('aborting a request pre-cache-insert does not affect the cache', async function (assert) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const resourceIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const documentIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
       })!;
 
@@ -1972,8 +1972,8 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
     test('aborting a request post-cache-insert maintains cache-update but returns abort rejection', async function (assert) {
       const { owner } = this;
       const store = owner.lookup('service:store') as unknown as TestStore;
-      const resourceIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+      const resourceIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const documentIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
         url: '/assets/users/list.json',
       })!;
 
@@ -2040,7 +2040,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await request;
       request.abort();
 
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -2126,7 +2126,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       const userDocument = await store.request<Document<OpaqueRecordInstance>>({
         url: '/assets/users/1.json',
       });
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
       const record = store.peekRecord<FakeRecord | null>(identifier);
       const data = userDocument.content.data;
 
@@ -2185,7 +2185,7 @@ module('Store | CacheHandler - @ember-data/store', function (hooks) {
       await store._getAllPending();
 
       const data3 = userDocument2.content.data;
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const record2 = store.peekRecord(identifier2);
 
       assert.strictEqual(record2, null, '<(NOT) Updated> record2 is not in the cache');

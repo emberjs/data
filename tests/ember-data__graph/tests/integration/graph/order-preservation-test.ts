@@ -45,8 +45,8 @@ module('Graph | Order Preservation', function (hooks) {
       const store = owner.lookup('service:store') as Store;
       const graph = graphFor(store);
 
-      const appIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
-      const clusterIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'cluster', id: '1' });
+      const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
+      const clusterIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'cluster', id: '1' });
 
       // setup initial state
       // app 1 has configs 1, 2, 3
@@ -100,7 +100,7 @@ module('Graph | Order Preservation', function (hooks) {
           },
         });
         ['1', '2', '3'].forEach((id) => {
-          const groupIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'group', id });
+          const groupIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'group', id });
           graph.push({
             op: 'updateRelationship',
             field: 'apps',
@@ -122,7 +122,7 @@ module('Graph | Order Preservation', function (hooks) {
       graph.getData(clusterIdentifier, 'apps');
       graph.getData(appIdentifier, 'groups');
       ['1', '2', '3'].forEach((id) => {
-        const groupIdentifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'group', id });
+        const groupIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'group', id });
         graph.getData(groupIdentifier, 'apps');
       });
 
@@ -135,7 +135,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -205,7 +205,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -340,7 +340,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -417,7 +417,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -507,7 +507,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -600,7 +600,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');
@@ -661,7 +661,7 @@ module('Graph | Order Preservation', function (hooks) {
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       const appIdentifier = identifier('app', '1');

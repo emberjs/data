@@ -157,7 +157,7 @@ export default class HasManyReference<
 
     if (resource && resource.data) {
       return resource.data.map((resourceIdentifier) => {
-        const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+        const identifier = this.store.cacheKeyManager.getOrCreateRecordIdentifier(resourceIdentifier);
         let token = map.get(identifier);
 
         if (token) {
@@ -503,7 +503,7 @@ export default class HasManyReference<
       ? []
       : isResourceData
         ? (store._push(dataDoc, true) as ResourceKey[])
-        : dataDoc.data.map((i) => store.identifierCache.getOrCreateRecordIdentifier(i));
+        : dataDoc.data.map((i) => store.cacheKeyManager.getOrCreateRecordIdentifier(i));
     const { identifier } = this.hasManyRelationship;
 
     if (DEBUG) {

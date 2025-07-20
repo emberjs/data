@@ -89,7 +89,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     const { store } = context.request;
-    const identifier = store.identifierCache.getOrCreateDocumentIdentifier(context.request);
+    const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(context.request);
 
     if (identifier) {
       context.setIdentifier(identifier);

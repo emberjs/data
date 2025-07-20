@@ -523,7 +523,7 @@ module('unit/store/push - Store#push', function (hooks) {
       },
     });
 
-    assert.strictEqual(pushResult, store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
+    assert.strictEqual(pushResult, store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
     assert.notOk(store._instanceCache.peek(pushResult, { bucket: 'record' }), 'record is not materialized');
   });
 
@@ -539,7 +539,7 @@ module('unit/store/push - Store#push', function (hooks) {
     });
 
     assert.ok(pushResult instanceof Array);
-    assert.strictEqual(pushResult[0], store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
+    assert.strictEqual(pushResult[0], store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' }));
     assert.notOk(store._instanceCache.peek(pushResult[0], { bucket: 'record' }), 'record is not materialized');
   });
 

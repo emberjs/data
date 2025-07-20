@@ -100,7 +100,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
       }
       if (withLid) {
         // create the identifier without creating a record
-        const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'post', id });
+        const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'post', id });
         findRecordArgs.lid = identifier.lid;
       }
 
@@ -169,7 +169,7 @@ module('integration/adapter/rest_adapter - REST Adapter - findRecord', function 
 
       const store = this.owner.lookup('service:store');
       // create an identifier that is un-fetchable
-      const identifier = store.identifierCache.createIdentifierForNewRecord({ type: 'post' });
+      const identifier = store.cacheKeyManager.createIdentifierForNewRecord({ type: 'post' });
 
       await assert.expectAssertion(async () => {
         await store.findRecord(identifier);

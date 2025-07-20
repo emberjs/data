@@ -98,7 +98,7 @@ function setupRecord<T extends string>(
   record: ExistingResourceObject<T>
 ): StableExistingRecordIdentifier<T>;
 function setupRecord(store: Store, record: ExistingResourceObject): StableExistingRecordIdentifier {
-  const identifier = store.identifierCache.getOrCreateRecordIdentifier(record);
+  const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(record);
   store.cache.patch({
     op: 'add',
     record: identifier,
@@ -117,7 +117,7 @@ function setupDocument(store: Store, url: string, doc: ResourceDataDocument<Exis
     content: doc,
     response: new Response(null),
   };
-  const identifier = store.identifierCache.getOrCreateDocumentIdentifier(requestDoc.request);
+  const identifier = store.cacheKeyManager.getOrCreateDocumentIdentifier(requestDoc.request);
   store.cache.put(requestDoc);
   if (identifier === null) {
     throw new Error(`Document identifier should not be null for the test`);
@@ -148,7 +148,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     } as const;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
       record: identifier,
@@ -180,8 +180,8 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'chris',
       },
     } as const;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(user);
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier(user2);
 
     cache.patch([
       {
@@ -217,7 +217,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     } as const;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
       record: identifier,
@@ -318,7 +318,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         username: 'johndoe',
       },
     } as const;
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
       record: identifier,
@@ -358,7 +358,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         },
       },
     };
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier(user);
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(user);
     cache.patch({
       op: 'add',
       record: identifier,
@@ -376,7 +376,7 @@ module('Integration | <JSONAPICache>.patch', function () {
         },
       },
     };
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier(user2);
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier(user2);
     cache.patch({
       op: 'add',
       record: identifier2,
@@ -1420,7 +1420,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       },
       included: [],
     });
-    const userIdentifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const userIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       id: '2',
       type: 'user',
     } as const) as StableExistingRecordIdentifier;
@@ -1782,7 +1782,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has no included resources in the cache'
     );
 
-    const user2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
+    const user2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',
@@ -1852,8 +1852,8 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has no included resources in the cache'
     );
 
-    const user1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
-    const user2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
+    const user1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
+    const user2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',
@@ -1922,7 +1922,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has no included resources in the cache'
     );
 
-    const user2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
+    const user2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',
@@ -1993,8 +1993,8 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has no included resources in the cache'
     );
 
-    const user1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
-    const user2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
+    const user1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
+    const user2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',
@@ -2198,8 +2198,8 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has two included resources in the cache'
     );
 
-    const pet1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
-    const pet2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
+    const pet1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
+    const pet2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',
@@ -2275,8 +2275,8 @@ module('Integration | <JSONAPICache>.patch', function () {
       'The document has two included resources in the cache'
     );
 
-    const pet1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
-    const pet2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
+    const pet1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'pet', id: '1' } as const);
+    const pet2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'pet', id: '2' } as const);
 
     store.cache.patch({
       op: 'remove',

@@ -23,7 +23,7 @@ Example: `saveRecord({ type: 'user', id: null, lid: 'user:1' })`
 Most commonly this is the case when the user might manually construct an identifier. Often this is the result of having previously serialized record state and later attempting to restore it.
 
 * The "StableRecordIdentifier" type is used when identifying information MUST have "lid" AND MUST be the "stable" identifier object
-instance produced and managed by the `IdentifierCache` associated to a
+instance produced and managed by the `CacheKeyManager` associated to a
 specific `Store` instance.
 
 Example:

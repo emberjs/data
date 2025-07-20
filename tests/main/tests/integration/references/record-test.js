@@ -64,7 +64,7 @@ module('integration/references/record', function (hooks) {
       if (withLid) {
         if (!isCreate) {
           // create the identifier instead of getting it via store record cache
-          const identifier = store.identifierCache.getOrCreateRecordIdentifier(getReferenceArgs);
+          const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(getReferenceArgs);
           getReferenceArgs.lid = identifier.lid;
         } else {
           getReferenceArgs.lid = recordIdentifierFor(person).lid;

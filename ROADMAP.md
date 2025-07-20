@@ -161,10 +161,10 @@ on the RequestOptions interface to improve coherence. Roughly the high level shi
 - Identifier => CacheKey
 - StableRecordIdentifier => ResourceKey
 - StableDocumentIdentifier => DocumentCacheKey
-- IdentifierCache => KeyService
-- RecordArray => UIArray
-- Record/Model => UIRecord
-- Document => UIDocument
+- IdentifierCache => CacheKeyManager
+- RecordArray => ReactiveResourceArray
+- Record/Model => ReactiveResource
+- Document => ReactiveDocument
 
 etc.
 

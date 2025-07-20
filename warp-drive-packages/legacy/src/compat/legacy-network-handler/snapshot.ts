@@ -314,7 +314,7 @@ export class Snapshot<R = unknown> {
     const data = value && value.data;
     upgradeStore(store);
 
-    const inverseIdentifier = data ? store.identifierCache.getOrCreateRecordIdentifier(data) : null;
+    const inverseIdentifier = data ? store.cacheKeyManager.getOrCreateRecordIdentifier(data) : null;
 
     if (value && value.data !== undefined) {
       const cache = store.cache;
@@ -417,7 +417,7 @@ export class Snapshot<R = unknown> {
     if (value.data) {
       results = [];
       value.data.forEach((member) => {
-        const inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        const inverseIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier(member);
         const cache = store.cache;
 
         if (!cache.isDeleted(inverseIdentifier)) {

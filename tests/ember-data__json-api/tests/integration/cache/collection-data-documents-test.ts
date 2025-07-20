@@ -78,8 +78,8 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
 
     assert.deepEqual(responseDocument.data, [identifier, identifier2], 'We were given the correct data back');
   });
@@ -98,11 +98,11 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '2',
     }) as StableExistingRecordIdentifier;
@@ -111,7 +111,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
 
     assert.deepEqual(responseDocument.data, [identifier, identifier2], 'We were given the correct data back');
 
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users',
     })!;
@@ -148,7 +148,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     assert.deepEqual(responseDocument.data, [identifier], 'We were given the correct data back');
 
@@ -255,7 +255,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         })
       );
     });
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     assert.deepEqual(responseDocument!.data, [identifier], 'We were given the correct data back');
 
     let resourceData = store.cache.peek(identifier);
@@ -444,9 +444,9 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
         })
       );
     });
-    const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-    const identifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+    const identifier1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    const identifier3 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
     assert.deepEqual(responseDocument!.data, [identifier1], 'We were given the correct data back');
 

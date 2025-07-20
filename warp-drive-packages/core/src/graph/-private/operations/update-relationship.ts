@@ -14,7 +14,7 @@ import { isBelongsTo, isHasMany, notifyChange } from '../-utils.ts';
 import type { Graph } from '../graph.ts';
 import _normalizeLink from '../normalize-link.ts';
 
-type IdentifierCache = Store['identifierCache'];
+type CacheKeyManager = Store['cacheKeyManager'];
 
 /*
     Updates the "canonical" or "remote" state of a relationship, replacing any existing
@@ -47,7 +47,7 @@ export default function updateRelationshipOperation(
         payload.data = [];
       }
       assert(`Expected an array`, Array.isArray(payload.data));
-      const cache = graph.store.identifierCache;
+      const cache = graph.store.cacheKeyManager;
       graph.update(
         {
           op: 'replaceRelatedRecords',
@@ -64,7 +64,7 @@ export default function updateRelationshipOperation(
           record: identifier,
           field: op.field,
           value: payload.data
-            ? graph.store.identifierCache.upgradeIdentifier(payload.data as ExistingResourceIdentifierObject)
+            ? graph.store.cacheKeyManager.upgradeIdentifier(payload.data as ExistingResourceIdentifierObject)
             : null,
         },
         true
@@ -178,7 +178,7 @@ function isStaleTransaction(relationshipTransactionId: number, graphTransactionI
 
 export function upgradeIdentifiers(
   arr: (ExistingResourceIdentifierObject | NewResourceIdentifierObject | ResourceKey)[],
-  cache: IdentifierCache
+  cache: CacheKeyManager
 ): ResourceKey[] {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = cache.upgradeIdentifier(arr[i]);

@@ -148,7 +148,7 @@ export default class BelongsToReference<
 
     const resource = this._resource();
     if (resource && resource.data) {
-      const identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
+      const identifier = this.store.cacheKeyManager.getOrCreateRecordIdentifier(resource.data);
       this.___relatedToken = this.store.notifications.subscribe(
         identifier,
         (_: ResourceKey, bucket: NotificationType, notifiedKey?: string) => {
@@ -472,7 +472,7 @@ export default class BelongsToReference<
     const added = isResourceData
       ? (store._push(doc, true) as StableExistingRecordIdentifier)
       : doc.data
-        ? (store.identifierCache.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
+        ? (store.cacheKeyManager.getOrCreateRecordIdentifier(doc.data) as StableExistingRecordIdentifier)
         : null;
     const { identifier } = this.belongsToRelationship;
 

@@ -1,6 +1,6 @@
 // The ResourceBlob is an opaque type that must
 // satisfy two constraints.
-// (1) it should be possible for the IdentifierCache
+// (1) it should be possible for the CacheKeyManager
 // to be able to generate a RecordIdentifier for it
 // whether by default or due to configuration.
 // (2) it should be in a format expected by the Cache.

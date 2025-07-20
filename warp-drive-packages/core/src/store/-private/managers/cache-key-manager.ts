@@ -34,10 +34,10 @@ import type {
   ResetMethod,
   UpdateMethod,
 } from '../../-types/q/identifier.ts';
+import { hasId, hasLid, hasType } from '../caches/resource-utils.ts';
 import { coerceId } from '../utils/coerce-id.ts';
 import { normalizeModelName } from '../utils/normalize-model-name.ts';
 import installPolyfill from '../utils/uuid-polyfill.ts';
-import { hasId, hasLid, hasType } from './resource-utils.ts';
 
 type ResourceData = unknown;
 
@@ -381,7 +381,7 @@ if (DEBUG) {
 }
 
 /**
- * Each instance of {@link Store} receives a unique instance of a IdentifierCache.
+ * Each instance of {@link Store} receives a unique instance of a CacheKeyManager.
  *
  * This cache is responsible for assigning or retrieving the unique identify
  * for arbitrary resource data encountered by the store. Data representing
@@ -393,7 +393,7 @@ if (DEBUG) {
  * @hideconstructor
  * @public
  */
-export class IdentifierCache {
+export class CacheKeyManager {
   /** @internal */
   declare _cache: StableCache;
   declare private _generate: GenerationMethod;

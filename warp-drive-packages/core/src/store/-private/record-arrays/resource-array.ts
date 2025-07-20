@@ -14,7 +14,7 @@ import type { ResourceKey, StableDocumentIdentifier } from '../../../types/ident
 import type { ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { CollectionField } from '../../../types/schema/fields.ts';
 import type { OpaqueRecordInstance } from '../../-types/q/record-instance.ts';
-import { isStableIdentifier } from '../caches/identifier-cache.ts';
+import { isStableIdentifier } from '../managers/cache-key-manager.ts';
 import { recordIdentifierFor } from '../caches/instance-cache.ts';
 import type { SignalStore, WarpDriveSignal } from '../new-core-tmp/reactivity/internal.ts';
 import {

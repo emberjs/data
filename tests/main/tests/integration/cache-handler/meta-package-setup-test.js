@@ -25,7 +25,7 @@ module('Store | CacheHandler - setup with ember-data/store', function (hooks) {
       url: '/assets/users/1.json',
     });
 
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
     const record = store.peekRecord(identifier);
     const data = userDocument.content.data;
 

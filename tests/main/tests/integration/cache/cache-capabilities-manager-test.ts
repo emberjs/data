@@ -131,8 +131,8 @@ module('integration/cache-capabilities', function (hooks) {
     house2.unloadRecord();
 
     store.createRecord('house', {});
-    const id1 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '1' });
-    const id2 = storeWrapper.identifierCache.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
+    const id1 = storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'house', id: '1' });
+    const id2 = storeWrapper.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'house', id: '2' });
     assert.true(storeWrapper.hasRecord(id1), 'house 1 is in use');
     assert.false(storeWrapper.hasRecord(id2), 'house 2 is not in use');
   });

@@ -68,7 +68,7 @@ import { validateDocumentFields } from './validate-document-fields.ts';
 import { validateDocument } from './validator/index.ts';
 import { isErrorDocument, isMetaDocument } from './validator/utils.ts';
 
-type IdentifierCache = Store['identifierCache'];
+type CacheKeyManager = Store['cacheKeyManager'];
 type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
@@ -302,7 +302,7 @@ export class JSONAPICache implements Cache {
     const jsonApiDoc = doc.content as SingleResourceDocument | CollectionResourceDocument;
     const included = jsonApiDoc.included;
     let i: number, length: number;
-    const { identifierCache } = this._capabilities;
+    const { cacheKeyManager } = this._capabilities;
 
     if (DEBUG) {
       validateDocumentFields(this._capabilities.schema, jsonApiDoc);
@@ -361,7 +361,7 @@ export class JSONAPICache implements Cache {
 
     if (included) {
       for (i = 0, length = included.length; i < length; i++) {
-        included[i] = putOne(this, identifierCache, included[i]);
+        included[i] = putOne(this, cacheKeyManager, included[i]);
       }
     }
 
@@ -370,7 +370,7 @@ export class JSONAPICache implements Cache {
       const identifiers: StableExistingRecordIdentifier[] = [];
 
       for (i = 0; i < length; i++) {
-        identifiers.push(putOne(this, identifierCache, jsonApiDoc.data[i]));
+        identifiers.push(putOne(this, cacheKeyManager, jsonApiDoc.data[i]));
       }
       return this._putDocument(
         doc as StructuredDataDocument<CollectionResourceDocument>,
@@ -387,7 +387,7 @@ export class JSONAPICache implements Cache {
       );
     }
 
-    const identifier = putOne(this, identifierCache, jsonApiDoc.data);
+    const identifier = putOne(this, cacheKeyManager, jsonApiDoc.data);
     return this._putDocument(
       doc as StructuredDataDocument<SingleResourceDocument>,
       identifier,
@@ -436,7 +436,7 @@ export class JSONAPICache implements Cache {
     }
 
     const request = doc.request as ImmutableRequestInfo | undefined;
-    const identifier = request ? this._capabilities.identifierCache.getOrCreateDocumentIdentifier(request) : null;
+    const identifier = request ? this._capabilities.cacheKeyManager.getOrCreateDocumentIdentifier(request) : null;
 
     if (identifier) {
       resourceDocument.lid = identifier.lid;
@@ -994,11 +994,11 @@ export class JSONAPICache implements Cache {
       );
     }
 
-    const { identifierCache } = this._capabilities;
+    const { cacheKeyManager } = this._capabilities;
     const existingId = committedIdentifier.id;
     const identifier: ResourceKey =
       operation !== 'deleteRecord' && data
-        ? identifierCache.updateRecordIdentifier(committedIdentifier, data)
+        ? cacheKeyManager.updateRecordIdentifier(committedIdentifier, data)
         : committedIdentifier;
 
     const cached = this.__peek(identifier, false);
@@ -1054,7 +1054,7 @@ export class JSONAPICache implements Cache {
                     return;
                   }
                   const actualData = relationshipData
-                    ? this._capabilities.identifierCache.getOrCreateRecordIdentifier(relationshipData)
+                    ? this._capabilities.cacheKeyManager.getOrCreateRecordIdentifier(relationshipData)
                     : null;
                   assert(
                     `Expected the resource relationship '<${identifier.type}>.${name}' on ${
@@ -1095,7 +1095,7 @@ export class JSONAPICache implements Cache {
     const included = payload && payload.included;
     if (included) {
       for (let i = 0, length = included.length; i < length; i++) {
-        putOne(this, identifierCache, included[i]);
+        putOne(this, cacheKeyManager, included[i]);
       }
     }
 
@@ -2174,7 +2174,7 @@ function asOp<T extends Op>(doc: unknown): asserts doc is T {}
 
 function putOne(
   cache: JSONAPICache,
-  identifiers: IdentifierCache,
+  identifiers: CacheKeyManager,
   resource: ExistingResourceObject
 ): StableExistingRecordIdentifier {
   assert(

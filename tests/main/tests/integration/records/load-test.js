@@ -234,7 +234,7 @@ module('integration/load - Loading Records', function (hooks) {
       })
     );
 
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'person', id: '1' });
     const instanceCache = store._instanceCache;
     let cache = store.cache;
 

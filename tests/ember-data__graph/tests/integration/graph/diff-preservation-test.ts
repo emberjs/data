@@ -35,7 +35,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       const store = owner.lookup('service:store') as unknown as Store;
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
-        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+        return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
       };
       const appIdentifier = identifier({ type: 'app', id: '1' });
 
@@ -93,7 +93,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       }
 
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
-        return store.identifierCache.getOrCreateRecordIdentifier(obj);
+        return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
       };
 
       owner.register('model:app', App);
@@ -161,7 +161,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       }
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       owner.register('model:app', App);
@@ -482,7 +482,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       }
 
       function identifier(type: string, id: string) {
-        return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+        return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
       }
 
       owner.register('model:app', App);
@@ -761,7 +761,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         }
 
         function identifier(type: string, id: string) {
-          return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+          return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
         }
 
         owner.register('model:app', App);
@@ -915,7 +915,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     assert.watchNotifications(store);
 
     const Identifier = (type: string, id: string) => {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     };
     const userIdentifier = Identifier('user', '1');
     const comment1Identifier = Identifier('comment', '1');
@@ -1064,7 +1064,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     assert.watchNotifications(store);
 
     const Identifier = (type: string, id: string) => {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     };
     const userIdentifier = Identifier('user', '1');
     const comment1Identifier = Identifier('comment', '1');
@@ -1204,7 +1204,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     assert.watchNotifications(store);
 
     const Identifier = (type: string, id: string) => {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     };
     const userIdentifier = Identifier('user', '1');
     const comment1Identifier = Identifier('comment', '1');
@@ -1353,7 +1353,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     assert.watchNotifications(store);
 
     const Identifier = (type: string, id: string) => {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     };
     const userIdentifier = Identifier('user', '1');
     const comment1Identifier = Identifier('comment', '1');
@@ -1496,7 +1496,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     }
 
     function identifier(type: string, id: string) {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     }
 
     owner.register('model:app', App);
@@ -1819,7 +1819,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     }
 
     function identifier(type: string, id: string) {
-      return store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+      return store.cacheKeyManager.getOrCreateRecordIdentifier({ type, id });
     }
 
     owner.register('model:app', App);

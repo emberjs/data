@@ -30,7 +30,7 @@ module('Integration | Graph | Edges', function (hooks) {
 
     test('accessing the relationships for an identifier does not instantiate record-data for that identifier', function (assert) {
       const { owner } = this;
-      const { identifierCache } = store;
+      const { cacheKeyManager } = store;
       class User extends Model {
         @attr declare name: string;
         @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
@@ -38,8 +38,8 @@ module('Integration | Graph | Edges', function (hooks) {
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
-      const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' } as const);
+      const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const bestFriend = graph.get(identifier, 'bestFriend');
 
       assert.equal(
@@ -94,15 +94,15 @@ module('Integration | Graph | Edges', function (hooks) {
 
     test('working with a sync belongsTo relationship for an identifier does not instantiate record-data for that identifier', function (assert) {
       const { owner } = this;
-      const { identifierCache } = store;
+      const { cacheKeyManager } = store;
       class User extends Model {
         @attr declare name: string;
         @belongsTo('user', { async: false, inverse: 'bestFriend' }) declare bestFriend: User;
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const bestFriend = graph.get(identifier, 'bestFriend');
 
       store.push({
@@ -124,7 +124,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+      const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
       store._join(() => {
         graph.push({
           op: 'replaceRelatedRecord',
@@ -180,15 +180,15 @@ module('Integration | Graph | Edges', function (hooks) {
 
     test('working with an async belongsTo relationship for an identifier does not instantiate record-data for that identifier', function (assert) {
       const { owner } = this;
-      const { identifierCache } = store;
+      const { cacheKeyManager } = store;
       class User extends Model {
         @attr declare name: string;
         @belongsTo('user', { async: true, inverse: 'bestFriend' }) declare bestFriend: Promise<User>;
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const bestFriend = graph.get(identifier, 'bestFriend');
 
       store.push({
@@ -210,7 +210,7 @@ module('Integration | Graph | Edges', function (hooks) {
       assert.deepEqual(state.remote, [identifier2], 'Our initial canonical state is correct');
       assert.deepEqual(state.local, [identifier2], 'Our initial current state is correct');
 
-      const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+      const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
       store._join(() => {
         graph.push({
           op: 'replaceRelatedRecord',
@@ -266,16 +266,16 @@ module('Integration | Graph | Edges', function (hooks) {
 
     test('working with a sync hasMany relationship for an identifier does not instantiate record-data for that identifier', function (assert) {
       const { owner } = this;
-      const { identifierCache } = store;
+      const { cacheKeyManager } = store;
       class User extends Model {
         @attr declare name: string;
         @hasMany('user', { async: false, inverse: 'bestFriends' }) declare bestFriends: User[];
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+      const identifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
       const bestFriends = graph.get(identifier, 'bestFriends');
 
       store.push({
@@ -323,7 +323,7 @@ module('Integration | Graph | Edges', function (hooks) {
         null,
         'We still have no record data instance after updating the canonical state'
       );
-      const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
+      const identifier4 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
       store._join(() => {
         graph.update({
@@ -365,16 +365,16 @@ module('Integration | Graph | Edges', function (hooks) {
 
     test('working with an async hasMany relationship for an identifier does not instantiate record-data for that identifier', function (assert) {
       const { owner } = this;
-      const { identifierCache } = store;
+      const { cacheKeyManager } = store;
       class User extends Model {
         @attr declare name: string;
         @hasMany('user', { async: true, inverse: 'bestFriends' }) declare bestFriends: Promise<User[]>;
       }
       owner.register('model:user', User);
 
-      const identifier = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-      const identifier2 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-      const identifier3 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+      const identifier = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
       const bestFriends = graph.get(identifier, 'bestFriends');
 
       store.push({
@@ -422,7 +422,7 @@ module('Integration | Graph | Edges', function (hooks) {
         null,
         'We still have no record data instance after updating the canonical state'
       );
-      const identifier4 = identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
+      const identifier4 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '4' });
 
       store._join(() => {
         graph.update({

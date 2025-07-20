@@ -45,7 +45,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       resource = constructResource(type, normalizedId);
     }
 
-    const identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    const identifier = this.cacheKeyManager.getOrCreateRecordIdentifier(resource);
     options = options || {};
 
     if (options.preload) {
@@ -182,7 +182,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       isMaybeIdentifier(resourceIdentifier)
     );
 
-    const identifier: ResourceKey = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    const identifier: ResourceKey = this.cacheKeyManager.getOrCreateRecordIdentifier(resourceIdentifier);
 
     const cache = upgradeInstanceCaches(this._instanceCache.__instances).reference;
     let reference = cache.get(identifier);

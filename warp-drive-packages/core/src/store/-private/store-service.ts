@@ -41,7 +41,6 @@ import type { OpaqueRecordInstance } from '../-types/q/record-instance.ts';
 import type { SchemaService } from '../-types/q/schema-service.ts';
 import type { StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';
-import { IdentifierCache } from './caches/identifier-cache.ts';
 import {
   getNewRecord,
   InstanceCache,
@@ -49,6 +48,7 @@ import {
   recordIdentifierFor,
   storeFor,
 } from './caches/instance-cache.ts';
+import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
@@ -603,15 +603,16 @@ export class Store extends BaseClass {
   declare _schema: SchemaService;
 
   /**
-   * Provides access to the IdentifierCache instance
+   * Provides access to the CacheKeyManager
    * for this store.
    *
-   * The IdentifierCache can be used to generate or
-   * retrieve a stable unique identifier for any resource.
+   * The CacheKeyManager can be used to generate or
+   * retrieve a stable unique CacheKey for any resource
+   * or request.
    *
    * @public
    */
-  declare readonly identifierCache: IdentifierCache;
+  declare readonly cacheKeyManager: CacheKeyManager;
   /**
    * Provides access to the requestManager instance associated
    * with this Store instance.
@@ -643,7 +644,7 @@ export class Store extends BaseClass {
    *
    * Note, when defined, these methods will only be invoked if a
    * cache key exists for the request, either because the request
-   * contains `cacheOptions.key` or because the [IdentifierCache](/ember-data/release/classes/IdentifierCache)
+   * contains `cacheOptions.key` or because the [CacheKeyManager](/ember-data/release/classes/CacheKeyManager)
    * was able to generate a key for the request using the configured
    * [generation method](/ember-data/release/functions/@ember-data%2Fstore/setIdentifierGenerationMethod).
    *
@@ -715,6 +716,11 @@ export class Store extends BaseClass {
     this._isDestroyed = value;
   }
 
+  /** @deprecated use {@link Store.cacheKeyManager} */
+  get identifierCache(): CacheKeyManager {
+    return this.cacheKeyManager;
+  }
+
   /**
     @private
   */
@@ -722,7 +728,7 @@ export class Store extends BaseClass {
     super(createArgs);
     Object.assign(this, createArgs);
 
-    this.identifierCache = new IdentifierCache();
+    this.cacheKeyManager = new CacheKeyManager();
 
     this.notifications = new NotificationManager(this);
 
@@ -896,8 +902,8 @@ export class Store extends BaseClass {
     };
 
     if (requestConfig.records) {
-      const identifierCache = this.identifierCache;
-      opts.records = requestConfig.records.map((r) => identifierCache.getOrCreateRecordIdentifier(r));
+      const cacheKeyManager = this.cacheKeyManager;
+      opts.records = requestConfig.records.map((r) => cacheKeyManager.getOrCreateRecordIdentifier(r));
     }
 
     if (TESTING) {
@@ -1057,7 +1063,7 @@ export class Store extends BaseClass {
       const resource: { type: string; id: string | null; lid?: string } = { type: normalizedModelName, id };
 
       if (resource.id) {
-        const identifier = this.identifierCache.peekRecordIdentifier(resource as ResourceIdentifierObject);
+        const identifier = this.cacheKeyManager.peekRecordIdentifier(resource as ResourceIdentifierObject);
 
         assert(
           `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
@@ -1066,12 +1072,12 @@ export class Store extends BaseClass {
       }
 
       if (context?.lid) {
-        const identifier = this.identifierCache.peekRecordIdentifier({ lid: context?.lid });
+        const identifier = this.cacheKeyManager.peekRecordIdentifier({ lid: context?.lid });
         resource.lid = context.lid;
         assert(`The lid ${context.lid} has already been used with another '${identifier?.type}' record.`, !identifier);
       }
 
-      const identifier = this.identifierCache.createIdentifierForNewRecord(resource);
+      const identifier = this.cacheKeyManager.createIdentifierForNewRecord(resource);
       const cache = this.cache;
 
       const createOptions = normalizeProperties(this, identifier, properties);
@@ -1192,7 +1198,7 @@ export class Store extends BaseClass {
   peekRecord(identifier: ResourceIdentifierObject): unknown | null;
   peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
-      const stableIdentifier = this.identifierCache.peekRecordIdentifier(identifier);
+      const stableIdentifier = this.cacheKeyManager.peekRecordIdentifier(identifier);
       const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
       // TODO come up with a better mechanism for determining if we have data and could peek.
       // this is basically an "are we not empty" query.
@@ -1214,7 +1220,7 @@ export class Store extends BaseClass {
     const type = normalizeModelName(identifier);
     const normalizedId = ensureStringId(id);
     const resource = { type, id: normalizedId };
-    const stableIdentifier = this.identifierCache.peekRecordIdentifier(resource);
+    const stableIdentifier = this.cacheKeyManager.peekRecordIdentifier(resource);
     const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
 
     return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;
@@ -1538,7 +1544,7 @@ export class Store extends BaseClass {
 
     this.notifications.destroy();
     this.recordArrayManager.destroy();
-    this.identifierCache.destroy();
+    this.cacheKeyManager.destroy();
     this._instanceCache.clear();
     this.isDestroyed = true;
   }

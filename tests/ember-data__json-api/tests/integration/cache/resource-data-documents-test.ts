@@ -79,7 +79,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
@@ -98,11 +98,11 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users/1',
     })!;
@@ -143,11 +143,11 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({
       type: 'user',
       id: '1',
     }) as StableExistingRecordIdentifier;
-    const reqIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const reqIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       method: 'GET',
       url: 'https://api.example.com/v1/users/1',
       cacheOptions: { key: 'user-1' },
@@ -182,7 +182,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
   test("notifications are generated for create and update of the document's cache key", function (assert) {
     assert.expect(10);
     const store = new TestStore();
-    const documentIdentifier = store.identifierCache.getOrCreateDocumentIdentifier({
+    const documentIdentifier = store.cacheKeyManager.getOrCreateDocumentIdentifier({
       url: '/api/v1/query?type=user&name=Chris&limit=1',
     })!;
 
@@ -221,7 +221,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
           },
         })
       );
-      const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+      const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
       assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
     });
@@ -238,7 +238,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
           },
         })
       );
-      const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+      const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       assert.equal(responseDocument2.data, identifier2, 'We were given the correct data back');
     });
   });
@@ -253,7 +253,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         },
       })
     );
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     assert.equal(responseDocument.data, identifier, 'We were given the correct data back');
 
@@ -416,9 +416,9 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         })
       );
     });
-    const identifier1 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
-    const identifier2 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
-    const identifier3 = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
+    const identifier1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier2 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
+    const identifier3 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
     assert.equal(responseDocument!.data, identifier1, 'We were given the correct data back');
 
@@ -520,7 +520,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
         })
       );
     });
-    const identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
+    const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '1' });
 
     const name1 = store.cache.getAttr(identifier, 'name');
     assert.equal(name1, 'Name 1', 'The default value was generated');
