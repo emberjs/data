@@ -2,7 +2,7 @@ import { assert, expect, test } from 'vitest';
 
 import { Type } from '@warp-drive/core/types/symbols';
 import Store from '../src/store';
-import { registerDerivations } from '@warp-drive/core/reactive';
+import { registerDerivations, withDefaults } from '@warp-drive/core/reactive';
 
 interface User {
   id: string | null;
@@ -27,26 +27,28 @@ test('we can derive from simple fields', () => {
     schema.registerDerivation(concat);
     registerDerivations(schema);
 
-    schema.registerResource({
-      type: 'user',
-      identity: { kind: '@id', name: 'id' },
-      fields: [
-        {
-          name: 'firstName',
-          kind: 'field',
-        },
-        {
-          name: 'lastName',
-          kind: 'field',
-        },
-        {
-          name: 'fullName',
-          type: 'concat',
-          options: { fields: ['firstName', 'lastName'], separator: ' ' },
-          kind: 'derived',
-        },
-      ],
-    });
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        identity: { kind: '@id', name: 'id' },
+        fields: [
+          {
+            name: 'firstName',
+            kind: 'field',
+          },
+          {
+            name: 'lastName',
+            kind: 'field',
+          },
+          {
+            name: 'fullName',
+            type: 'concat',
+            options: { fields: ['firstName', 'lastName'], separator: ' ' },
+            kind: 'derived',
+          },
+        ],
+      })
+    );
 
     const record = store.push({
       data: {
@@ -60,7 +62,7 @@ test('we can derive from simple fields', () => {
     }) as User;
 
     assert.strictEqual(record.id, '1', 'id is accessible');
-    // assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
     assert.strictEqual(record.firstName, 'Rey', 'firstName is accessible');
     assert.strictEqual(record.lastName, 'Pupatine', 'lastName is accessible');
     assert.strictEqual(record.fullName, 'Rey Pupatine', 'fullName is accessible');
