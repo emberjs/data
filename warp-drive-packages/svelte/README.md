@@ -51,6 +51,8 @@ export default class Store extends WarpStore {
     const schema = new SchemaService();
     registerDerivations(schema);
 
+    // Register all your schemas and derivations here
+
     return schema;
   }
 
