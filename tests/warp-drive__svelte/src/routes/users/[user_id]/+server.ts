@@ -20,7 +20,6 @@ const USERS = {
 };
 
 export function GET({ params }) {
-  console.log(params.user_id);
   return json({
     data: USERS[params.user_id as keyof typeof USERS],
   });

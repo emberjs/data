@@ -29,9 +29,103 @@ pnpm install -E @warp-drive/svelte@latest
 - ![NPM LTS Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/lts?label=@lts&color=0096FF)
 - ![NPM LTS-4-12 Version](https://img.shields.io/npm/v/%40warp-drive%2Fsvelte/lts-4-12?label=@lts-4-12&color=bbbbbb)
 
-## About
+## How to use
 
-This library provides reactive utilities that enable you to build robust performant apps with elegant control flow.
+### 1. Set up a store context
+
+Subclass the Warp Drive store and override the methods you need to customize.
+
+```ts
+// src/store.ts
+import { Fetch, RequestManager, Store as WarpStore } from '@warp-drive/core';
+import { instantiateRecord, registerDerivations, SchemaService, teardownRecord } from '@warp-drive/core/reactive';
+import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
+import { JSONAPICache } from '@warp-drive/json-api';
+import { CacheHandler } from '@warp-drive/core';
+import '@warp-drive/svelte/install';
+
+export default class Store extends WarpStore {
+  requestManager = new RequestManager().use([Fetch]).useCache(CacheHandler);
+
+  createSchemaService() {
+    const schema = new SchemaService();
+    registerDerivations(schema);
+
+    return schema;
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager) {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, identifier, createArgs);
+  }
+
+  teardownRecord(record: unknown): void {
+    return teardownRecord(record);
+  }
+}
+```
+
+Then you can set that store as context in your app.
+
+```svelte
+// src/lib/context/store.ts
+import Store from '../../store';
+
+import { getContext, setContext } from 'svelte';
+
+const CONTEXT_KEY = Symbol('context:store');
+
+export function createStore() {
+  const storeService = new Store();
+  setContext<Store>(CONTEXT_KEY, storeService);
+}
+
+export function getStore() {
+  return getContext<Store>(CONTEXT_KEY);
+}
+```
+
+```svelte
+// src/routes/+layout.svelte
+<script>
+  import { createStore } from '$lib/context/store.svelte';
+
+  createStore();
+</script>
+```
+
+### 2. Use the store
+
+You are not ready to use the store to request data inside your components.
+
+```svelte
+// src/lib/components/example.svelte
+<script>
+  import { getStore } from '$lib/context/store.svelte';
+  import { findRecord } from '@warp-drive/utilities/json-api';
+  import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
+  import type { User } from '$lib/store/user';
+  import { page } from '$app/state';
+
+  const store = getStore();
+
+  const request = $derived(store.request<SingleResourceDataDocument<User>>(findRecord("user", page.params.user_id)));
+</script>
+
+{#await request}
+  Loading...
+{:then response}
+  {@const user = response.content.data}
+
+  <div>{user.name}</div>
+{:catch error}
+  <div>{error.message}</div>
+{/await}
+```
+
 
 ---
 
