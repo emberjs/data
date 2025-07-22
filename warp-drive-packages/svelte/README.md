@@ -33,7 +33,7 @@ pnpm install -E @warp-drive/svelte@latest
 
 ### 1. Set up a store context
 
-Subclass the Warp Drive store and override the methods you need to customize.
+Subclass the Warp Drive store and override the methods you need to customize. See the [Warp Drive docs](https://docs.warp-drive.io/guides/1-configuration/2-setup/1-universal) for a more detailed explanation.
 
 ```ts
 // src/store.ts
@@ -70,7 +70,7 @@ export default class Store extends WarpStore {
 
 Then you can set that store as context in your app.
 
-```svelte
+```ts
 // src/lib/context/store.ts
 import Store from '../../store';
 
@@ -89,8 +89,8 @@ export function getStore() {
 ```
 
 ```svelte
-// src/routes/+layout.svelte
 <script>
+  // src/routes/+layout.svelte
   import { createStore } from '$lib/context/store.svelte';
 
   createStore();
@@ -99,11 +99,11 @@ export function getStore() {
 
 ### 2. Use the store
 
-You are not ready to use the store to request data inside your components.
+You are now ready to use the store to request data inside your components.
 
 ```svelte
-// src/lib/components/example.svelte
 <script>
+  // src/lib/components/example.svelte
   import { getStore } from '$lib/context/store.svelte';
   import { findRecord } from '@warp-drive/utilities/json-api';
   import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
@@ -112,7 +112,9 @@ You are not ready to use the store to request data inside your components.
 
   const store = getStore();
 
-  const request = $derived(store.request<SingleResourceDataDocument<User>>(findRecord("user", page.params.user_id)));
+  const request = $derived(
+    store.request<SingleResourceDataDocument<User>>(findRecord("user", page.params.user_id))
+  );
 </script>
 
 {#await request}
