@@ -3,20 +3,17 @@
   import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
   import { registerSchema } from '../store/schema';
   import type { User } from '../store/user';
+  import { findRecord } from '@warp-drive/utilities/json-api';
 
   const store = getStore();
   registerSchema(store);
 
   let userId = $state('1');
 
-  const record = $derived(store.request<SingleResourceDataDocument<User>>({
-      url: `/users/${userId}`,
-      method: 'GET',
-      op: 'query',
-    }));
+  const request = $derived(store.request<SingleResourceDataDocument<User>>(findRecord("user", userId)));
 </script>
 
-{#await record}
+{#await request}
   Loading...
 {:then response}
   {@const user = response.content.data}
