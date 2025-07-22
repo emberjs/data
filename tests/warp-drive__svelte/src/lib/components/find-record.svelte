@@ -25,7 +25,7 @@
   <button data-test-update-user type="button" onclick={() => {
     store.push({
       data: {
-        id: '1',
+        id: userId,
         type: 'user',
         attributes: {
           first_name: 'Sam',
@@ -38,8 +38,9 @@
   </button>
 
   <button data-test-update-id type="button" onclick={() => {
-    userId = '2';
+    userId = userId === '1' ? '2' : '1';
   }}>
-    Fetch user 2
+    Toggle user
   </button>
+
 {/await}
