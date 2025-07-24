@@ -1,4 +1,4 @@
-import type { ResourceKey, RequestKey } from '../identifier.ts';
+import type { RequestKey, ResourceKey } from '../identifier.ts';
 
 export interface Change {
   identifier: ResourceKey | RequestKey;

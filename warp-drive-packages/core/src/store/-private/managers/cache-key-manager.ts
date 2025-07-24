@@ -14,8 +14,8 @@ import {
   DEBUG_KEY_TYPE,
   DEBUG_STALE_CACHE_OWNER,
   type PersistedResourceKey,
-  type ResourceKey,
   type RequestKey,
+  type ResourceKey,
 } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type {

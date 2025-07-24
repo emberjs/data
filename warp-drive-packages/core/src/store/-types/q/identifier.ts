@@ -1,4 +1,4 @@
-import type { CacheKeyType, ResourceKey, RequestKey } from '../../../types/identifier.ts';
+import type { CacheKeyType, RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 
 export interface GenerationMethod {

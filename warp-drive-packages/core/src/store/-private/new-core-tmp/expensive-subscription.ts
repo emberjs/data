@@ -1,4 +1,4 @@
-import type { ResourceKey, RequestKey } from '../../../types/identifier';
+import type { RequestKey, ResourceKey } from '../../../types/identifier';
 import type { UnsubscribeToken } from '../managers/notification-manager';
 import type { Store } from '../store-service';
 

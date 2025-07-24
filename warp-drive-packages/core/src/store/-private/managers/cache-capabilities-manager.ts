@@ -1,7 +1,7 @@
 import { ENABLE_LEGACY_SCHEMA_SERVICE } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
+import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';
 import type { SchemaService } from '../../-types/q/schema-service.ts';
 import type { Store } from '../store-service.ts';

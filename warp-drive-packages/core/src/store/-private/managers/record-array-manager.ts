@@ -3,7 +3,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import { Context } from '../../../reactive/-private.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { LocalRelationshipOperation } from '../../../types/graph.ts';
-import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
+import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { ImmutableRequestInfo } from '../../../types/request.ts';
 import type { CollectionResourceDocument } from '../../../types/spec/json-api-raw.ts';
 import { notifyInternalSignal } from '../new-core-tmp/reactivity/internal.ts';

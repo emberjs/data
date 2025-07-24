@@ -1,4 +1,4 @@
-import type { ResourceKey, RequestKey } from '../../../types/identifier.ts';
+import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { CacheKeyManager } from '../../-private/managers/cache-key-manager.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
 import type { SchemaService } from './schema-service.ts';
