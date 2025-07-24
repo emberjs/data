@@ -290,7 +290,15 @@ export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
 
   get state(): PaginationState<RT, T, E> {
     assert('The `request` argument is required for the <Paginate> component.', this.args.request);
-    return getPaginationState<RT, T, E>(this.args.request);
+    return getPaginationState<RT, T, E>(this.args.request, this.loadPage);
+  }
+
+  get initialState(): Readonly<PaginationState<RT, T, E>> {
+    return this.state.initialPage.state;
+  }
+
+  get activePageRequest(): Future<RT> | null {
+    return this.state.activePage?.request || null;
   }
 
   @cached
@@ -319,11 +327,6 @@ export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
   }
 
   @cached
-  get currentRequest(): Future<RT> | null {
-    return this.state.currentRequest;
-  }
-
-  @cached
   get nextRequest(): Future<RT> | null {
     return this.state.nextRequest;
   }
@@ -331,30 +334,37 @@ export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
   loadPrev = (): void => {
     const { prev } = this.state;
     if (prev) {
-      const request = this.store.request({ method: 'GET', url: prev });
-      this.state.loadPrev(request);
+      this.loadPage(prev);
     }
   };
 
   loadNext = (): void => {
     const { next } = this.state;
     if (next) {
-      const request = this.store.request({ method: 'GET', url: next });
-      this.state.loadNext(request);
+      this.loadPage(next);
     }
   };
 
+  loadPage = (url: string): Future<RT> => {
+    const page = this.state.getPageState({ self: url });
+    if (!page.request) {
+      const request = this.store.request({ method: 'GET', url });
+      page.load(request);
+    }
+    this.state.activatePage(page);
+  };
+
   <template>
-    {{#if this.state.initialState.isLoading}}
-      {{yield this.state.initialState to="loading"}}
+    {{#if this.initialState.isLoading}}
+      {{yield this to="loading"}}
 
-    {{else if (and this.state.initialState.isCancelled (has-block "cancelled"))}}
-      {{yield (notNull this.state.initialState.reason) this to="cancelled"}}
+    {{else if (and this.initialState.isCancelled (has-block "cancelled"))}}
+      {{yield (notNull this.initialState.reason) this to="cancelled"}}
 
-    {{else if (and this.state.initialState.isError (has-block "error"))}}
-      {{yield (notNull this.state.initialState.reason) this to="error"}}
+    {{else if (and this.initialState.isError (has-block "error"))}}
+      {{yield (notNull this.initialState.reason) this to="error"}}
 
-    {{else if this.state.initialState.isSuccess}}
+    {{else if this.initialState.isSuccess}}
       {{yield this to="content"}}
     {{/if}}
 
