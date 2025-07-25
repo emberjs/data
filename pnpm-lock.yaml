@@ -737,9 +737,9 @@ importers:
         specifier: ^6.0.0
         version: 6.1.0
     devDependencies:
-      mocha:
-        specifier: ^11.1.0
-        version: 11.2.2
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
 
   packages/eslint-plugin-warp-drive:
     dependencies:

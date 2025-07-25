@@ -16,9 +16,6 @@
   "exports": {
     ".": {
       "default": "./src/index.js"
-    },
-    "./recommended": {
-      "default": "./src/recommended.js"
     }
   },
   "keywords": [
