@@ -1,0 +1,37 @@
+{
+  "name": "ember-template-lint-plugin-warp-drive",
+  "description": "Ember template lint rules for Applications using WarpDrive or EmberData",
+  "version": "5.7.0-alpha.15",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emberjs/data.git",
+    "directory": "packages/ember-template-lint-plugin-warp-drive"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "default": "./src/index.js"
+    }
+  },
+  "dependencies": {
+    "ember-template-lint": "^6.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^11.1.0"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "test": "mocha tests/**/*.js",
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
+  },
+  "license": "MIT"
+}
