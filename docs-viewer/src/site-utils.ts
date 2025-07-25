@@ -212,7 +212,14 @@ export function asApiDocsSidebar(o: unknown): { oldPackages: SidebarItem[]; newP
 
 const HOISTED_PRIMITIVES = ['Classes', 'Variables', 'Functions'];
 const FILTERED_NAV_ITEMS = ['Interfaces', 'Type Aliases'];
-const META_PACKAGES = ['ember-data', 'warp-drive', 'eslint-plugin-ember-data', 'eslint-plugin-warp-drive'];
+const META_PACKAGES = [
+  'ember-data',
+  'warp-drive',
+  'ember-template-lint-plugin-ember-data',
+  'ember-template-lint-plugin-warp-drive',
+  'eslint-plugin-ember-data',
+  'eslint-plugin-warp-drive',
+];
 
 function cleanSidebarItems(items: SidebarItem[], isPrimitive = false): SidebarItem[] {
   const newItems: SidebarItem[] = [];

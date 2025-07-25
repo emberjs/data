@@ -22,6 +22,8 @@ export const Main: string[] = [
   '@warp-drive/experiments',
   '@warp-drive/schema',
   'ember-data',
+  'ember-template-lint-plugin-ember-data',
+  'ember-template-lint-plugin-warp-drive',
   'eslint-plugin-ember-data',
   'eslint-plugin-warp-drive',
   'warp-drive',
