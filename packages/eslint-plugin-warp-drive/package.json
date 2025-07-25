@@ -1,6 +1,12 @@
 {
   "name": "eslint-plugin-warp-drive",
   "description": "ESLint rules for Applications using WarpDrive or EmberData",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "EmberData",
+    "WarpDrive"
+  ],
   "main": "./src/index.js",
   "version": "5.7.0-alpha.15",
   "private": false,

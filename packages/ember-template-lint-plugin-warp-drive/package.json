@@ -1,9 +1,16 @@
 {
   "name": "ember-template-lint-plugin-warp-drive",
   "description": "Ember template lint rules for Applications using WarpDrive or EmberData",
+  "keywords": [
+    "ember-template-lint",
+    "ember-template-lint-plugin",
+    "EmberData",
+    "WarpDrive"
+  ],
+  "main": "./src/index.js",
   "version": "5.7.0-alpha.15",
-  "private": false,
   "type": "module",
+  "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
@@ -12,30 +19,28 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "main": "./src/index.js",
   "exports": {
     ".": {
       "default": "./src/index.js"
     }
   },
-  "keywords": [
-    "ember-template-lint",
-    "ember-template-lint-plugin"
-  ],
-  "dependencies": {
-    "ember-template-lint": "^6.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@warp-drive/internal-config": "workspace:*"
+    "@warp-drive/internal-config": "workspace:*",
+    "ember-template-lint": "^7.0.8",
+    "eslint": "^9.24.0",
+    "mocha": "^11.1.0"
   },
   "files": [
     "src",
     "docs",
+    "CHANGELOG.md",
     "README.md",
+    "logos",
     "LICENSE.md"
   ],
   "scripts": {
-    "test": "node tests/always-use-request-content-test.js",
+    "test": "mocha tests",
     "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "license": "MIT"
