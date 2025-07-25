@@ -63,10 +63,10 @@ class AlwaysUseRequestContent extends Rule {
   }
 
   validateContentBlock(contentBlock, requestNode) {
-    const blockParams = contentBlock.params;
+    const blockParams = contentBlock.node.blockParams;
     
     // If no block params, the content block should yield at least the result
-    if (blockParams.length === 0) {
+    if (!blockParams || blockParams.length === 0) {
       this.log({
         message: 'The <Request> component\'s content block should yield a result parameter that is used within the block',
         node: requestNode,
@@ -75,8 +75,8 @@ class AlwaysUseRequestContent extends Rule {
     }
 
     // First parameter is the result, second is state
-    const resultParam = blockParams[0];
-    const resultParamName = resultParam?.original;
+    const resultParamName = blockParams[0];
+    const stateParamName = blockParams[1];
     
     if (!resultParamName) {
       this.log({
@@ -86,10 +86,12 @@ class AlwaysUseRequestContent extends Rule {
       return;
     }
 
-    // Check if the result parameter is actually used in the block content
+    // Check if either the result or state parameter is actually used in the block content
     const isResultUsed = this.isParamUsedInBlock(resultParamName, contentBlock.node);
+    const isStateUsed = stateParamName ? this.isParamUsedInBlock(stateParamName, contentBlock.node) : false;
     
-    if (!isResultUsed) {
+    // At least one of the yielded parameters should be used
+    if (!isResultUsed && !isStateUsed) {
       this.log({
         message: `The <Request> component's content block yields a result parameter '${resultParamName}' that is not used within the block`,
         node: requestNode,
