@@ -58,12 +58,6 @@
       "typesPublish": false,
       "mirrorPublish": false
     },
-    "ember-template-lint-plugin-ember-data": {
-      "stage": "alpha",
-      "types": "private",
-      "typesPublish": false,
-      "mirrorPublish": false
-    },
     "ember-template-lint-plugin-warp-drive": {
       "stage": "alpha",
       "types": "private",

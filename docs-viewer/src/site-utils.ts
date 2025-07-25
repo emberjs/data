@@ -215,7 +215,6 @@ const FILTERED_NAV_ITEMS = ['Interfaces', 'Type Aliases'];
 const META_PACKAGES = [
   'ember-data',
   'warp-drive',
-  'ember-template-lint-plugin-ember-data',
   'ember-template-lint-plugin-warp-drive',
   'eslint-plugin-ember-data',
   'eslint-plugin-warp-drive',
