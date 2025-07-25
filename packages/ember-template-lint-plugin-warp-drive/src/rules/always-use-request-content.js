@@ -1,6 +1,6 @@
 import { Rule } from 'ember-template-lint';
 
-class AlwaysUseRequestContent extends Rule {
+export default class AlwaysUseRequestContent extends Rule {
   visitor() {
     return {
       ElementNode: (node) => {
@@ -13,16 +13,17 @@ class AlwaysUseRequestContent extends Rule {
         const namedBlocks = this.findNamedBlocks(node);
         const contentBlock = namedBlocks.find((block) => block.name === 'content');
         const otherBlocks = namedBlocks.filter((block) => block.name !== 'content');
-        
+
         // Check if there are any non-named-block children (default content)
-        const hasDefaultContent = node.children.some((child) => 
-          child.type !== 'ElementNode' || !child.tag.startsWith(':')
+        const hasDefaultContent = node.children.some(
+          (child) => child.type !== 'ElementNode' || !child.tag.startsWith(':')
         );
 
         // Case 1: Request with default content instead of named blocks
         if (hasDefaultContent && namedBlocks.length === 0) {
           this.log({
-            message: 'The <Request> component should use named blocks (e.g., :content, :loading, :error, :idle) instead of default content',
+            message:
+              'The <Request> component should use named blocks (e.g., :content, :loading, :error, :idle) instead of default content',
             node,
           });
           return;
@@ -31,7 +32,8 @@ class AlwaysUseRequestContent extends Rule {
         // Case 2: Request with no blocks at all
         if (namedBlocks.length === 0 && !hasDefaultContent) {
           this.log({
-            message: 'The <Request> component should have at least one named block (e.g., :content, :loading, :error, :idle)',
+            message:
+              'The <Request> component should have at least one named block (e.g., :content, :loading, :error, :idle)',
             node,
           });
           return;
@@ -41,34 +43,35 @@ class AlwaysUseRequestContent extends Rule {
         if (contentBlock) {
           this.validateContentBlock(contentBlock, node);
         }
-      }
+      },
     };
   }
 
   findNamedBlocks(requestNode) {
     const namedBlocks = [];
-    
+
     for (const child of requestNode.children) {
       if (child.type === 'ElementNode' && child.tag.startsWith(':')) {
         const blockName = child.tag.slice(1); // Remove the ':' prefix
         namedBlocks.push({
           name: blockName,
           node: child,
-          params: child.blockParams || []
+          params: child.blockParams || [],
         });
       }
     }
-    
+
     return namedBlocks;
   }
 
   validateContentBlock(contentBlock, requestNode) {
     const blockParams = contentBlock.node.blockParams;
-    
+
     // If no block params, the content block should yield at least the result
     if (!blockParams || blockParams.length === 0) {
       this.log({
-        message: 'The <Request> component\'s content block should yield a result parameter that is used within the block',
+        message:
+          "The <Request> component's content block should yield a result parameter that is used within the block",
         node: requestNode,
       });
       return;
@@ -77,10 +80,11 @@ class AlwaysUseRequestContent extends Rule {
     // First parameter is the result, second is state
     const resultParamName = blockParams[0];
     const stateParamName = blockParams[1];
-    
+
     if (!resultParamName) {
       this.log({
-        message: 'The <Request> component\'s content block should yield a result parameter that is used within the block',
+        message:
+          "The <Request> component's content block should yield a result parameter that is used within the block",
         node: requestNode,
       });
       return;
@@ -89,7 +93,7 @@ class AlwaysUseRequestContent extends Rule {
     // Check if either the result or state parameter is actually used in the block content
     const isResultUsed = this.isParamUsedInBlock(resultParamName, contentBlock.node);
     const isStateUsed = stateParamName ? this.isParamUsedInBlock(stateParamName, contentBlock.node) : false;
-    
+
     // At least one of the yielded parameters should be used
     if (!isResultUsed && !isStateUsed) {
       this.log({
@@ -112,7 +116,7 @@ class AlwaysUseRequestContent extends Rule {
       case 'Program':
         // Check all body statements
         return node.body?.some((child) => this.findVariableUsage(variableName, child)) || false;
-        
+
       case 'MustacheStatement':
       case 'SubExpression':
         // Check if the path references our variable
@@ -121,10 +125,10 @@ class AlwaysUseRequestContent extends Rule {
         }
         // Check parameters
         return node.params?.some((param) => this.findVariableUsage(variableName, param)) || false;
-        
+
       case 'PathExpression':
         return this.isPathReferencing(node, variableName);
-        
+
       case 'BlockStatement':
         // Check the path, params, and program
         if (this.isPathReferencing(node.path, variableName)) {
@@ -140,32 +144,35 @@ class AlwaysUseRequestContent extends Rule {
           return true;
         }
         return false;
-        
+
       case 'ElementNode':
         // Check attributes
         if (node.attributes?.some((attr) => this.findVariableUsage(variableName, attr.value))) {
           return true;
         }
         // Check modifiers
-        if (node.modifiers?.some((mod) => 
-          this.isPathReferencing(mod.path, variableName) ||
-          mod.params?.some((param) => this.findVariableUsage(variableName, param))
-        )) {
+        if (
+          node.modifiers?.some(
+            (mod) =>
+              this.isPathReferencing(mod.path, variableName) ||
+              mod.params?.some((param) => this.findVariableUsage(variableName, param))
+          )
+        ) {
           return true;
         }
         // Check children
         return node.children?.some((child) => this.findVariableUsage(variableName, child)) || false;
-        
+
       case 'TextNode':
         return false;
-        
+
       case 'ConcatStatement':
         return node.parts?.some((part) => this.findVariableUsage(variableName, part)) || false;
-        
+
       case 'AttrNode':
         // Check the attribute value
         return this.findVariableUsage(variableName, node.value);
-        
+
       default:
         // For any other node type, check if it has children to traverse
         if (node.children) {
@@ -177,18 +184,18 @@ class AlwaysUseRequestContent extends Rule {
 
   isPathReferencing(pathNode, variableName) {
     if (!pathNode) return false;
-    
+
     // For simple paths, check if it starts with our variable
     if (pathNode.type === 'PathExpression') {
       // Check if the path starts with our variable name
       // e.g., "result", "result.data", "result.data.name" all reference "result"
-      return pathNode.original === variableName || 
-             pathNode.original.startsWith(variableName + '.') ||
-             (pathNode.parts && pathNode.parts[0] === variableName);
+      return (
+        pathNode.original === variableName ||
+        pathNode.original.startsWith(variableName + '.') ||
+        (pathNode.parts && pathNode.parts[0] === variableName)
+      );
     }
-    
+
     return false;
   }
 }
-
-export default AlwaysUseRequestContent;
