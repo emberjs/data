@@ -1,6 +1,8 @@
 MIT License
 
-Copyright (c) 2025 EmberJS
+Copyright (c) 2017-2025 Ember.js and contributors
+Copyright (c) 2011-2017 Tilde, Inc. and contributors
+Copyright (c) 2011 LivingSocial Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

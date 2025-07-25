@@ -1,6 +1,6 @@
-const alwaysUseRequestContent = require('./rules/always-use-request-content.js');
+import alwaysUseRequestContent from './rules/always-use-request-content.js';
 
-module.exports = {
+export default {
   name: 'ember-template-lint-plugin-warp-drive',
   rules: {
     'always-use-request-content': alwaysUseRequestContent,

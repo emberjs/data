@@ -1,24 +1,20 @@
 # ember-template-lint-plugin-warp-drive
 
-[![npm version](https://badge.fury.io/js/ember-template-lint-plugin-warp-drive.svg)](https://badge.fury.io/js/ember-template-lint-plugin-warp-drive)
-
 Ember template lint rules for Applications using WarpDrive or EmberData.
 
-## Installation
+## Rules
 
-```bash
-npm install --save-dev ember-template-lint-plugin-warp-drive
-```
+- ✅ Recommended
+- 🐞 Helps prevent buggy code
+- 🏆 Enforces a best practice
 
-Or with pnpm:
-
-```bash
-pnpm add -D ember-template-lint-plugin-warp-drive
-```
+| Rule | Description | 🏷️ | ✨ |
+| ---- | ----------- | -- | -- |
+| [always-use-request-content](./docs/always-use-request-content.md) | Validates proper usage of `<Request>` component's content blocks | 🐞🏆 | ✅ |
 
 ## Usage
 
-Add the plugin to your `.template-lintrc.js` configuration:
+Add the plugin to your `.template-lintrc.js`:
 
 ```javascript
 module.exports = {
@@ -27,7 +23,7 @@ module.exports = {
 };
 ```
 
-Or configure individual rules:
+Or configure rules individually:
 
 ```javascript
 module.exports = {
@@ -37,72 +33,3 @@ module.exports = {
   },
 };
 ```
-
-## Rules
-
-### `always-use-request-content`
-
-Lints against using `<Request>` component's `:content` block without consuming the actual request result.
-
-Often this indicates an anti-pattern in which the result is being indirectly consumed by accessing the resource in the store via other means.
-
-#### Rule Details
-
-❌ **Bad** - Content block without yielded parameters:
-```hbs
-<Request @request={{@request}}>
-  <:content>Hello World</:content>
-</Request>
-```
-
-❌ **Bad** - Content block with yielded result but not using it:
-```hbs
-<Request @request={{@request}}>
-  <:content as |result|>Hello World</:content>
-</Request>
-```
-
-❌ **Bad** - Using default content instead of named blocks:
-```hbs
-<Request @request={{@request}}>
-  Hello World
-</Request>
-```
-
-❌ **Bad** - No blocks at all:
-```hbs
-<Request @request={{@request}} />
-```
-
-✅ **Good** - Content block that uses the yielded result:
-```hbs
-<Request @request={{@request}}>
-  <:content as |result|>{{result.data.attributes.name}}</:content>
-</Request>
-```
-
-✅ **Good** - Using other named blocks without content:
-```hbs
-<Request @request={{@request}}>
-  <:loading>Loading...</:loading>
-  <:error as |error|>{{error.message}}</:error>
-  <:idle>Waiting</:idle>
-</Request>
-```
-
-✅ **Good** - Content block using result in various contexts:
-```hbs
-<Request @request={{@request}}>
-  <:content as |result state|>
-    {{result.data.name}} - Online: {{state.isOnline}}
-  </:content>
-</Request>
-```
-
-## Contributing
-
-See the [Contributing](CONTRIBUTING.md) guide for details.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE.md).

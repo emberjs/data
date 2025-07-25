@@ -1,4 +1,4 @@
-const { Rule } = require('ember-template-lint');
+import { Rule } from 'ember-template-lint';
 
 class AlwaysUseRequestContent extends Rule {
   visitor() {
@@ -191,4 +191,4 @@ class AlwaysUseRequestContent extends Rule {
   }
 }
 
-module.exports = AlwaysUseRequestContent;
+export default AlwaysUseRequestContent;
