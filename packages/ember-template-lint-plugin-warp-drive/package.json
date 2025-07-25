@@ -35,7 +35,7 @@
     "LICENSE.md"
   ],
   "scripts": {
-    "test": "node tests/index.test.js",
+    "test": "node tests/always-use-request-content-test.js",
     "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "license": "MIT"

@@ -1,6 +1,8 @@
 # always-use-request-content
 
-🏷️ **Categories**: 🐞 Helps prevent buggy code, 🏆 Enforces a best practice
+| Rule | 🏷️ | ✨ |
+| ---- | -- | -- |
+| `always-use-request-content` | 🐞🏆 | ✅ |
 
 Validates proper usage of `<Request>` component's content blocks to ensure the yielded request result is actually consumed, helping prevent anti-patterns where the result is accessed indirectly through the store.
 

@@ -1,28 +1,22 @@
 import { generateRuleTests } from 'ember-template-lint';
 import plugin from '../src/index.js';
 
-// Simple test framework fallbacks for standalone testing
-const beforeEach = () => {};
-const describe = (name, fn) => {
-  console.log(`Running test suite: ${name}`);
+// Simple test framework fallbacks for mocha compatibility
+const groupMethodBefore = () => {};
+const groupingMethod = (name, fn) => {
+  console.log(`\n${name}`);
   fn();
 };
-const it = (name, fn) => {
-  console.log(`  Test: ${name}`);
-  try {
-    fn();
-    console.log('    ✓ passed');
-  } catch (error) {
-    console.log(`    ✗ failed: ${error.message}`);
-  }
+const testMethod = (name, fn) => {
+  console.log(`  ✓ ${name}`);
+  fn();
 };
 
 generateRuleTests({
   name: 'always-use-request-content',
-  
-  groupMethodBefore: beforeEach,
-  groupingMethod: describe,
-  testMethod: it,
+  groupMethodBefore,
+  groupingMethod,
+  testMethod,
   plugins: [plugin],
   
   config: true,

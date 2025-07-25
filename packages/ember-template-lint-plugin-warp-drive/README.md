@@ -4,8 +4,14 @@ Ember template lint rules for Applications using WarpDrive or EmberData.
 
 ## Rules
 
+- 🛠️ has Autofix
+- 〽️ has Partial Autofix
 - ✅ Recommended
+
+**🏷️ Categories**
+
 - 🐞 Helps prevent buggy code
+- ⚡️ Helps prevent performance issues
 - 🏆 Enforces a best practice
 
 | Rule | Description | 🏷️ | ✨ |
@@ -19,7 +25,7 @@ Add the plugin to your `.template-lintrc.js`:
 ```javascript
 module.exports = {
   plugins: ['ember-template-lint-plugin-warp-drive'],
-  extends: ['ember-template-lint-plugin-warp-drive:recommended'],
+  extends: ['warp-drive:recommended'],
 };
 ```
 
