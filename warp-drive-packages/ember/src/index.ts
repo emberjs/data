@@ -218,3 +218,6 @@ export { getPromiseState } from '@warp-drive/core/store/-private';
  * @return {RequestState}
  */
 export { getRequestState, type RequestLoadingState } from '@warp-drive/core/store/-private';
+
+export { Paginate } from './-private/paginate.gts';
+export { getPaginationState } from '@warp-drive/core/store/-private';
