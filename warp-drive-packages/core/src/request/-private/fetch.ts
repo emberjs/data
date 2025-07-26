@@ -92,7 +92,7 @@ const ERROR_STATUS_CODE_FOR = new Map([
   [511, 'Network Authentication Required'],
 ]);
 
-type ContentType = 'json' | 'jsonl' | 'text' | 'xml' | 'html' | 'xml2json' | (string & {});
+type ContentType = 'json' | 'text' | 'xml' | 'html' | 'xml2json' | (string & {});
 interface Parser {
   /**
    * Eventaully we want to support streaming,
@@ -141,7 +141,6 @@ const DEFAULT_XML_PARSER = {
 
 const DEFAULT_PARSERS = {
   json: DEFAULT_JSON_PARSER,
-  jsonl: DEFAULT_JSON_PARSER,
   html: DEFAULT_HTML_PARSER,
   xml: DEFAULT_XML_PARSER,
   text: DEFAULT_TEXT_PARSER,
