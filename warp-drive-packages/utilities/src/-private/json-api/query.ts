@@ -67,7 +67,7 @@ export function query<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): QueryRequestOptions<CollectionResourceDataDocument<T>, T>;
+): QueryRequestOptions<CollectionResourceDataDocument<T>>;
 export function query(
   type: string,
   query?: QueryParamsSource,
@@ -150,7 +150,7 @@ export function postQuery<T>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): PostQueryRequestOptions<CollectionResourceDataDocument<T>, T>;
+): PostQueryRequestOptions<CollectionResourceDataDocument<T>>;
 export function postQuery(
   type: string,
   query?: QueryParamsSource,

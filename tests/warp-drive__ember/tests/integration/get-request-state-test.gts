@@ -10,7 +10,7 @@ import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { buildBaseURL } from '@warp-drive/utilities';
 
-type RequestState<T, RT, E> = ReturnType<typeof getRequestState<RT, T, E>>;
+type RequestState<RT, E> = ReturnType<typeof getRequestState<RT, E>>;
 type UserResource = {
   data: {
     id: string;
@@ -277,10 +277,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state1: RequestState<UserResource, UserResource, unknown>;
-    function _getRequestState<RT, T = RT, E = unknown>(p: Future<RT>): RequestState<T, RT, E> {
-      state1 = getRequestState(p) as RequestState<UserResource, UserResource, E>;
-      return state1 as RequestState<T, RT, E>;
+    let state1: RequestState<UserResource, unknown> | undefined;
+    function _getRequestState(p: Future<UserResource>): RequestState<UserResource, unknown> {
+      state1 = getRequestState(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -301,7 +301,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
     await request;
     await rerender();
-    assert.equal(state1!, getRequestState(request));
+    assert.equal(state1, getRequestState(request));
     assert.deepEqual(state1!.result, {
       data: {
         id: '1',
@@ -319,10 +319,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state1: RequestState<UserResource, UserResource, unknown>;
-    function _getRequestState<RT, T = RT, E = unknown>(p: Future<RT>): RequestState<T, RT, E> {
-      state1 = getRequestState(p) as RequestState<UserResource, UserResource, E>;
-      return state1 as RequestState<T, RT, E>;
+    let state1: RequestState<UserResource, unknown> | undefined;
+    function _getRequestState(p: Future<UserResource>): RequestState<UserResource, unknown> {
+      state1 = getRequestState(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown) {
@@ -368,12 +368,12 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
   test('it transitions to error state correctly', async function (assert) {
     const url = await mockGETFailure(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    let state1: RequestState<UserResource, UserResource, unknown>;
-    function _getRequestState<RT, T = RT, E = unknown>(p: Future<RT>): RequestState<T, RT, E> {
-      state1 = getRequestState(p) as RequestState<UserResource, UserResource, E>;
-      return state1 as RequestState<T, RT, E>;
+    let state1: RequestState<UserResource, unknown> | undefined;
+    function _getRequestState(p: Future<UserResource>): RequestState<UserResource, unknown> {
+      state1 = getRequestState(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {
@@ -423,17 +423,17 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
   test('it renders only once when the promise error state is already cached', async function (assert) {
     const url = await mockGETFailure(this);
-    const request = this.manager.request({ url, method: 'GET' });
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
     try {
       await request;
     } catch {
       // ignore the error
     }
-    let state1: RequestState<UserResource, UserResource, unknown>;
-    function _getRequestState<RT, T = RT, E = unknown>(p: Future<RT>): RequestState<T, RT, E> {
-      state1 = getRequestState(p) as RequestState<UserResource, UserResource, E>;
-      return state1 as RequestState<T, RT, E>;
+    let state1: RequestState<UserResource, unknown> | undefined;
+    function _getRequestState(p: Future<UserResource>): RequestState<UserResource, unknown> {
+      state1 = getRequestState(p);
+      return state1;
     }
     let counter = 0;
     function countFor(_result: unknown, _error: unknown) {

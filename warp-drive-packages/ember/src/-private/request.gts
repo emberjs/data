@@ -59,7 +59,7 @@ export interface ContentFeatures<RT> {
   latestRequest?: Future<RT>;
 }
 
-interface RequestSignature<RT, T, E> {
+interface RequestSignature<RT, E> {
   Args: {
     /**
      * The request to monitor. This should be a `Future` instance returned
@@ -74,7 +74,7 @@ interface RequestSignature<RT, T, E> {
      * like the component to also initiate the request.
      *
      */
-    query?: StoreRequestInput<RT, T>;
+    query?: StoreRequestInput<RT>;
 
     /**
      * The store instance to use for making requests. If contexts are available,
@@ -178,7 +178,7 @@ interface RequestSignature<RT, T, E> {
      *
      */
     content: [value: RT, features: ContentFeatures<RT>];
-    always: [state: RequestState<RT, T, StructuredErrorDocument<E>>];
+    always: [state: RequestState<RT, StructuredErrorDocument<E>>];
   };
 }
 
@@ -399,7 +399,7 @@ interface RequestSignature<RT, T, E> {
  * @class <Request />
  * @public
  */
-export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
+export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
   /**
    * The store instance to use for making requests. If contexts are available, this
    * will be the `store` on the context, else it will be the store service.
@@ -419,8 +419,8 @@ export class Request<RT, T, E> extends Component<RequestSignature<RT, T, E>> {
     return store;
   }
 
-  _state: RequestSubscription<RT, T, E> | null = null;
-  get state(): RequestSubscription<RT, T, E> {
+  _state: RequestSubscription<RT, E> | null = null;
+  get state(): RequestSubscription<RT, E> {
     let { _state } = this;
     const { store } = this;
     if (_state && _state.store !== store) {

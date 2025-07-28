@@ -5,7 +5,7 @@ import type { FetchError } from '../request/-private/utils.ts';
 import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
 import type { ResourceKey } from './identifier.ts';
 import type { QueryParamsSerializationOptions } from './params.ts';
-import type { ExtractSuggestedCacheTypes, TypedRecordInstance, TypeFromInstanceOrString } from './record.ts';
+import type { TypeFromInstanceOrString } from './record.ts';
 import type { ResourceIdentifierObject } from './spec/json-api-raw.ts';
 import type { RequestSignature } from './symbols.ts';
 
@@ -35,7 +35,7 @@ export type HTTPMethod =
  * Use these options to adjust CacheHandler behavior for a request.
  *
  */
-export type CacheOptions<T = unknown> = {
+export type CacheOptions = {
   /**
    * A key that uniquely identifies this request. If not present, the url wil be used
    * as the key for any GET request, while all other requests will not be cached.
@@ -69,7 +69,10 @@ export type CacheOptions<T = unknown> = {
    * than to invalidate findRecord requests for one.
    *
    */
-  types?: T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
+  // TODO: Ideally this would be T extends TypedRecordInstance ? ExtractSuggestedCacheTypes<T>[] : string[];
+  // but that leads to `Type instantiation is excessively deep and possibly infinite.`
+  // issues when `T` has many properties.
+  types?: string[];
 
   /**
    * If true, the request will never be handled by the cache-manager and thus
@@ -85,27 +88,27 @@ export type FindRecordRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions?: CacheOptions<T>;
+  cacheOptions?: CacheOptions;
   op: 'findRecord';
   records: [ResourceIdentifierObject<TypeFromInstanceOrString<T>>];
   [RequestSignature]?: RT;
 };
 
-export type QueryRequestOptions<RT = unknown, T = unknown> = {
+export type QueryRequestOptions<RT = unknown> = {
   url: string;
   method: 'GET';
   headers: Headers;
-  cacheOptions?: CacheOptions<T>;
+  cacheOptions?: CacheOptions;
   op: 'query';
   [RequestSignature]?: RT;
 };
 
-export type PostQueryRequestOptions<RT = unknown, T = unknown> = {
+export type PostQueryRequestOptions<RT = unknown> = {
   url: string;
   method: 'POST' | 'QUERY';
   headers: Headers;
   body?: string | BodyInit | FormData;
-  cacheOptions: CacheOptions<T> & { key: string };
+  cacheOptions: CacheOptions & { key: string };
   op: 'query';
   [RequestSignature]?: RT;
 };
@@ -291,7 +294,7 @@ export interface ImmutableHeaders extends Headers {
  * properties specific to the RequestManager's capabilities.
  *
  */
-export interface RequestInfo<RT = unknown, T = unknown> extends Request {
+export interface RequestInfo<RT = unknown> extends Request {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -301,7 +304,7 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
   /**
    * @see {@link CacheOptions}
    */
-  cacheOptions?: CacheOptions<T>;
+  cacheOptions?: CacheOptions;
   store?: Store;
 
   op?: string;
@@ -340,8 +343,8 @@ export interface RequestInfo<RT = unknown, T = unknown> extends Request {
  * Immutable version of {@link RequestInfo}. This is what is passed to handlers.
  *
  */
-export type ImmutableRequestInfo<RT = unknown, T = unknown> = Readonly<Omit<RequestInfo<RT, T>, 'controller'>> & {
-  readonly cacheOptions?: Readonly<CacheOptions<T>>;
+export type ImmutableRequestInfo<RT = unknown> = Readonly<Omit<RequestInfo<RT>, 'controller'>> & {
+  readonly cacheOptions?: Readonly<CacheOptions>;
   readonly headers?: ImmutableHeaders;
   readonly data?: Readonly<Record<string, unknown>>;
   readonly options?: Readonly<Record<string, unknown>>;
