@@ -530,7 +530,7 @@ export class RequestSubscription<RT, T, E> {
       );
 
       const store = (request.store as Store | undefined) || this.store;
-      const requester = wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
+      const requester = !wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
 
       this._isUpdating = true;
       this._latestRequest = requester.request(request);
