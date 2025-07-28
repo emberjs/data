@@ -41,7 +41,7 @@ type ContentFeatures<RT> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface SubscriptionArgs<RT, T, E> {
+export interface SubscriptionArgs<RT, E> {
   /**
    * The request to monitor. This should be a `Future` instance returned
    * by either the `store.request` or `store.requestManager.request` methods.
@@ -55,7 +55,7 @@ export interface SubscriptionArgs<RT, T, E> {
    * like the component to also initiate the request.
    *
    */
-  query?: StoreRequestInput<RT, T>;
+  query?: StoreRequestInput<RT>;
 
   /**
    * The autorefresh behavior for the request. This can be a boolean, or any
@@ -100,7 +100,7 @@ export interface SubscriptionArgs<RT, T, E> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface RequestSubscription<RT, T, E> {
+export interface RequestSubscription<RT, E> {
   /**
    * The method to call when the component this subscription is attached to
    * unmounts.
@@ -113,7 +113,7 @@ export interface RequestSubscription<RT, T, E> {
  *
  * @hideconstructor
  */
-export class RequestSubscription<RT, T, E> {
+export class RequestSubscription<RT, E> {
   /**
    * Whether the browser reports that the network is online.
    */
@@ -198,17 +198,17 @@ export class RequestSubscription<RT, T, E> {
    *
    * @internal
    */
-  declare private _originalQuery: StoreRequestInput<RT, T> | undefined;
+  declare private _originalQuery: StoreRequestInput<RT> | undefined;
   /** @internal */
   declare private _subscription: object | null;
   /** @internal */
   declare private _subscribedTo: object | null;
   /** @internal */
-  declare private _args: SubscriptionArgs<RT, T, E>;
+  declare private _args: SubscriptionArgs<RT, E>;
   /** @internal */
   declare store: Store | RequestManager;
 
-  constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, T, E>) {
+  constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, E>) {
     this._args = args;
     this.store = store;
     this._subscribedTo = null;
@@ -505,7 +505,7 @@ export class RequestSubscription<RT, T, E> {
 
     if (shouldAttempt) {
       this._clearInterval();
-      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT, T>);
+      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT>);
       const realMode = mode === '_invalidated' ? null : mode;
       const val = realMode ?? this._args.autorefreshBehavior ?? 'policy';
       switch (val) {
@@ -645,8 +645,8 @@ export class RequestSubscription<RT, T, E> {
     }
   }
 
-  get reqState(): RequestState<RT, T, StructuredErrorDocument<E>> {
-    return getRequestState<RT, T, E>(this.request);
+  get reqState(): RequestState<RT, StructuredErrorDocument<E>> {
+    return getRequestState<RT, E>(this.request);
   }
 
   get result() {
@@ -664,10 +664,10 @@ function isStore(store: Store | RequestManager): store is Store {
   return 'requestManager' in store;
 }
 
-export function createRequestSubscription<RT, T, E>(
+export function createRequestSubscription<RT, E>(
   store: Store | RequestManager,
-  args: SubscriptionArgs<RT, T, E>
-): RequestSubscription<RT, T, E> {
+  args: SubscriptionArgs<RT, E>
+): RequestSubscription<RT, E> {
   return new RequestSubscription(store, args);
 }
 
@@ -683,7 +683,7 @@ function upgradeSubscription(sub: unknown): PrivateRequestSubscription {
   return sub as PrivateRequestSubscription;
 }
 
-function _DISPOSE<RT, T, E>(this: RequestSubscription<RT, T, E>) {
+function _DISPOSE<RT, E>(this: RequestSubscription<RT, E>) {
   const self = upgradeSubscription(this);
   self.isDestroyed = true;
   self._removeSubscriptions();

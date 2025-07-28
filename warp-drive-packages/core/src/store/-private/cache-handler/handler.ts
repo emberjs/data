@@ -24,15 +24,15 @@ import {
   isMutation,
 } from './utils.ts';
 
-export type LooseStoreRequestInfo<RT = unknown, T = unknown> = Omit<
-  ImmutableRequestInfo<RT, T>,
+export type LooseStoreRequestInfo<RT = unknown> = Omit<
+  ImmutableRequestInfo<RT>,
   'records' | 'headers' | typeof RequestSignature
 > & {
   records?: ResourceIdentifierObject[];
   headers?: Headers;
 };
 
-export type StoreRequestInput<RT = unknown, T = unknown> = ImmutableRequestInfo<RT, T> | LooseStoreRequestInfo<RT, T>;
+export type StoreRequestInput<RT = unknown> = ImmutableRequestInfo<RT> | LooseStoreRequestInfo<RT>;
 
 export interface StoreRequestContext extends RequestContext {
   request: ImmutableRequestInfo & { store: Store };
