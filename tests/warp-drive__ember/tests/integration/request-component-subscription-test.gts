@@ -238,4 +238,41 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x3');
     assert.verifySteps([`request: GET ${url}`]);
   });
+
+  test('When a request is refreshed the notifications are flushed', async function (assert) {
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this, { name: 'James Thoburn' });
+    const request = this.store.request<SingleResourceDataDocument<User>>({
+      url,
+      method: 'GET',
+      cacheOptions: { types: ['user'] },
+    });
+
+    assert.equal(request.lid?.lid, url, 'lid is set');
+
+    const outerResult = await request;
+    const record = outerResult.content.data;
+
+    await this.render(
+      <template>
+        {{! intentionally not using the state inside the Request component to ensure "name" was notified }}
+        {{record.name}}
+        <Request @request={{request}} @autorefresh={{true}} @autorefreshBehavior={{"reload"}}>
+          <:content></:content>
+        </Request>
+      </template>
+    );
+
+    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
+    assert.verifySteps([`request: GET ${url}`]);
+
+    // invalidate the cache
+    this.store.lifetimes.invalidateRequestsForType('user', this.store);
+
+    await settled();
+    await rerender();
+
+    assert.equal(this.element.textContent?.trim(), 'James Thoburn');
+    assert.verifySteps([`request: GET ${url}`]);
+  });
 });
