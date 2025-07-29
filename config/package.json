@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/internal-config",
   "private": true,
-  "version": "5.7.0-alpha.16",
+  "version": "5.7.0-alpha.17",
   "type": "module",
   "dependencies": {
     "@babel/cli": "^7.27.0",
