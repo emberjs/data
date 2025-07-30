@@ -588,5 +588,5 @@ export function getRequestState<RT, E>(
     RequestCache.set(future, state);
   }
 
-  return state;
+  return state as Readonly<RequestCacheRequestState<RT, StructuredErrorDocument<E>>>;
 }

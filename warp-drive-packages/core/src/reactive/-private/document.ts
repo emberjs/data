@@ -120,7 +120,7 @@ export class ReactiveDocument<T> {
 
   async #request(
     link: keyof PaginationLinks,
-    options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
+    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
   ): Promise<ReactiveDocument<T> | null> {
     const href = this.links?.[link];
     if (!href) {
@@ -144,7 +144,7 @@ export class ReactiveDocument<T> {
    * @return {Promise<Document>}
    */
   fetch(
-    options: RequestInfo<ReactiveDocument<T>, T> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
+    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
   ): Promise<ReactiveDocument<T>> {
     assert(`No self or related link`, this.links?.related || this.links?.self);
     options.cacheOptions = options.cacheOptions || {};
@@ -161,7 +161,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return {Promise<Document | null>}
    */
-  next(options?: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
+  next(options?: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
     return this.#request('next', options);
   }
 
@@ -174,7 +174,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return {Promise<Document | null>}
    */
-  prev(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
+  prev(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
     return this.#request('prev', options);
   }
 
@@ -187,7 +187,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return {Promise<Document | null>}
    */
-  first(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
+  first(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
     return this.#request('first', options);
   }
 
@@ -200,7 +200,7 @@ export class ReactiveDocument<T> {
    * @param {Object} options
    * @return {Promise<Document | null>}
    */
-  last(options: RequestInfo<ReactiveDocument<T>, T>): Promise<ReactiveDocument<T> | null> {
+  last(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
     return this.#request('last', options);
   }
 
