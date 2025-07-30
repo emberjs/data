@@ -6,7 +6,8 @@ import type {
   StructuredDataDocument,
   StructuredErrorDocument,
 } from '../../../types/request.ts';
-import type { PendingPromise, RejectedPromise, ResolvedPromise } from './promise-state.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { PendingPromise, PromiseState, RejectedPromise, ResolvedPromise } from './promise-state.ts';
 import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal.ts';
 
 const RequestCache = new WeakMap<Future<unknown>, RequestCacheRequestState>();
@@ -399,17 +400,17 @@ interface PrivateRequestState {
 }
 
 /**
- * RequestState extends the concept of PromiseState to provide a reactive
- * wrapper for a request `Future` which allows you write declarative code
+ * RequestState extends the concept of {@link PromiseState} to provide a reactive
+ * wrapper for a request {@link Future} which allows you write declarative code
  * around a Future's control flow.
  *
  * It is useful in both Template and JavaScript contexts, allowing you
  * to quickly derive behaviors and data from pending, error and success
  * states.
  *
- * The key difference between a Promise and a Future is that Futures provide
- * access to a stream of their content, the identity of the request (if any)
- * as well as the ability to attempt to abort the request.
+ * The key difference between a {@link Promise} and a Future is that Futures provide
+ * access to a {@link ReadableStream | stream} of their content, the {@link RequestKey} of the request (if any)
+ * as well as the ability to attempt to {@link Future.abort | abort} the request.
  *
  * ```ts
  * interface Future<T> extends Promise<T>> {
@@ -421,7 +422,7 @@ interface PrivateRequestState {
  *
  * These additional APIs allow us to craft even richer state experiences.
  *
- * To get the state of a request, use `getRequestState`.
+ * To get the state of a request, use {@link getRequestState}.
  *
  * See also:
  * - {@link PendingRequest}
