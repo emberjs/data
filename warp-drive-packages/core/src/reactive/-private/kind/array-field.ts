@@ -25,7 +25,9 @@ export function getArrayField(context: KindContext<ArrayField | SchemaArrayField
       context.editable ? cache.getAttr(resourceKey, path) : cache.getRemoteAttr(resourceKey, path)
     ) as unknown[];
 
-    if (!rawValue && field.kind === 'schema-array' && field.options?.defaultValue) {
+    // we only apply the defaultValue if the rawValue is undefined, this allows
+    // use of explicit null for the field.
+    if (!rawValue && typeof rawValue === 'undefined' && field.kind === 'schema-array' && field.options?.defaultValue) {
       rawValue = [];
     }
 
