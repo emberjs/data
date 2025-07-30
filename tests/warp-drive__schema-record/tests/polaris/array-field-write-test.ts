@@ -717,11 +717,7 @@ module('Writes | array fields', function (hooks) {
     const identifier = recordIdentifierFor(record);
     const cachedResourceData = store.cache.peek(identifier);
 
-    assert.deepEqual(
-      cachedResourceData?.attributes?.favoriteNumbers,
-      undefined,
-      'the cache values are correctly updated'
-    );
+    assert.deepEqual(cachedResourceData?.attributes?.favoriteNumbers, null, 'the cache values are correctly updated');
     record.favoriteNumbers = ['3', '4'];
     assert.deepEqual(record.favoriteNumbers.slice(), ['3', '4'], 'We have the correct array members');
   });
