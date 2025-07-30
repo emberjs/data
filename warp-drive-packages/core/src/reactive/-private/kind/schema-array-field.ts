@@ -9,7 +9,7 @@ import type { ManagedArray } from '../fields/managed-array.ts';
 export { getArrayField as getSchemaArrayField } from './array-field';
 
 export function setSchemaArrayField(context: KindContext<SchemaArrayField>): boolean {
-  const arrayValue = (context.value as ArrayValue)?.slice();
+  const arrayValue = context.value === null ? null : (context.value as ArrayValue)?.slice();
   const fieldSignal = peekInternalSignal(context.signals, context.path.at(-1)!);
   const peeked = fieldSignal?.value as ManagedArray | undefined | null;
 

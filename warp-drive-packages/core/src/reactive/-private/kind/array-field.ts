@@ -47,8 +47,9 @@ export function setArrayField(context: KindContext<ArrayField>): boolean {
   const peeked = fieldSignal?.value as ManagedArray | undefined;
 
   const transform = field.type ? schema.transformation(field) : null;
-  const rawValue = field.type
-    ? (value as ArrayValue).map((item) => transform!.serialize(item, (field.options as ObjectValue) ?? null, record))
+  // prettier-ignore
+  const rawValue = value === null ? null
+    : field.type ? (value as ArrayValue).map((item) => transform!.serialize(item, (field.options as ObjectValue) ?? null, record))
     : (value as ArrayValue)?.slice();
 
   cache.setAttr(context.resourceKey, context.path, rawValue);
