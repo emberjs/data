@@ -2039,6 +2039,12 @@ function calculateChangedKeys(
       continue;
     }
 
+    // TODO
+    // if key represents a 'schema-object' field AND
+    // the schema for the given 'schema-object' provides an identity hashFn
+    // then we should compare the values using that hashFn, taking into
+    // account that the field may be polymorphic, in which case we must run
+    // the hashFn to generate the concrete type first.
     if (original[key] !== value) {
       changedKeys.add(key);
     }
