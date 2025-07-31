@@ -133,4 +133,105 @@ module('Reads | array fields', function (hooks) {
     );
     assert.deepEqual(sourceArray, ['1', '2'], 'we did not mutate the source array');
   });
+
+  test('we can have null values for simple array fields', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
+
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: null });
+
+    assert.strictEqual(record.id, null, 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+    assert.strictEqual(record.favoriteNumbers, null);
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.strictEqual(cachedResourceData?.attributes?.favoriteNumbers, null, 'the value in the cache is null');
+    assert.deepEqual(
+      cachedResourceData?.attributes?.favoriteNumbers,
+      null,
+      'the cache values are correct for the array field'
+    );
+  });
+
+  test('we can update to null values for simple array fields', function (assert) {
+    const store = this.owner.lookup('service:store') as Store;
+    const { schema } = store;
+    registerDerivations(schema);
+
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+          {
+            name: 'favoriteNumbers',
+            kind: 'array',
+          },
+        ],
+      })
+    );
+
+    const sourceArray = ['1', '2'];
+    const record = store.createRecord<CreateUserType>('user', { name: 'Rey Skybarker', favoriteNumbers: sourceArray });
+
+    assert.strictEqual(record.id, null, 'id is accessible');
+    assert.strictEqual(record.$type, 'user', '$type is accessible');
+    assert.strictEqual(record.name, 'Rey Skybarker', 'name is accessible');
+    assert.true(Array.isArray(record.favoriteNumbers), 'we can access favoriteNumber array');
+    assert.deepEqual(record.favoriteNumbers?.slice(), ['1', '2'], 'We have the correct array members');
+    assert.strictEqual(record.favoriteNumbers, record.favoriteNumbers, 'We have a stable array reference');
+    assert.notStrictEqual(record.favoriteNumbers, sourceArray);
+
+    // test that the data entered the cache properly
+    const identifier = recordIdentifierFor(record);
+    const cachedResourceData = store.cache.peek(identifier);
+
+    assert.notStrictEqual(
+      cachedResourceData?.attributes?.favoriteNumbers,
+      sourceArray,
+      'with no transform we will still divorce the array reference'
+    );
+    assert.deepEqual(
+      cachedResourceData?.attributes?.favoriteNumbers,
+      ['1', '2'],
+      'the cache values are correct for the array field'
+    );
+
+    record.favoriteNumbers = null;
+    assert.strictEqual(record.favoriteNumbers, null);
+
+    // test that the data entered the cache properly
+    const cachedResourceData2 = store.cache.peek(identifier);
+
+    assert.strictEqual(cachedResourceData2?.attributes?.favoriteNumbers, null, 'the value in the cache is null');
+    assert.deepEqual(
+      cachedResourceData2?.attributes?.favoriteNumbers,
+      null,
+      'the cache values are correct for the array field'
+    );
+  });
 });
