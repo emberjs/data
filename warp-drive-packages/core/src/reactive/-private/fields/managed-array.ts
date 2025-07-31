@@ -156,6 +156,9 @@ export class ManagedArray {
         if (prop === 'owner') {
           return self.owner;
         }
+        if (prop === Context) {
+          return self[Context];
+        }
 
         const index = convertToInt(prop);
         if (_SIGNAL.isStale && (index !== null || SYNC_PROPS.has(prop) || isArrayGetter(prop))) {
