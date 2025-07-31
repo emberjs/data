@@ -17,6 +17,20 @@ export function getArrayField(context: KindContext<ArrayField | SchemaArrayField
   let managedArray = signal.value as ManagedArray | null;
 
   if (managedArray) {
+    // if the signal is stale, we need to check the rawValue has not become
+    // `null`.
+    if (signal.isStale) {
+      const { store, resourceKey, path, field } = context;
+      const { cache } = store;
+      const rawValue = cache.getAttr(resourceKey, path);
+      // if the rawValue is null or the rawValue is undefined and the field has no defaultValue
+      // we need to reset the managedArray to null
+      if (rawValue === null || (!rawValue && typeof rawValue === 'undefined' && !field.options?.defaultValue)) {
+        signal.value = null;
+        // TODO once we fix schema-object GC we should run Destroy here on the managed array
+        return null;
+      }
+    }
     return managedArray;
   } else {
     const { store, resourceKey, path, field } = context;
@@ -27,7 +41,7 @@ export function getArrayField(context: KindContext<ArrayField | SchemaArrayField
 
     // we only apply the defaultValue if the rawValue is undefined, this allows
     // use of explicit null for the field.
-    if (!rawValue && typeof rawValue === 'undefined' && field.kind === 'schema-array' && field.options?.defaultValue) {
+    if (!rawValue && typeof rawValue === 'undefined' && field.options?.defaultValue) {
       rawValue = [];
     }
 
