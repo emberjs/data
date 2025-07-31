@@ -403,6 +403,7 @@ module('Reads | schema-array fields', function (hooks) {
         ],
       })
     );
+    // TODO data should be rawValue not record identity .....
     function hashAddressIdentity<T extends object>(data: T, options: ObjectValue | null, prop: string | null): string {
       const newData = data as Address;
       return newData.type === 'business' ? newData.zip : newData.street;
