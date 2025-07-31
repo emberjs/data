@@ -129,19 +129,6 @@ interface RequestSignature<RT, E> {
   };
   Blocks: {
     /**
-     * The block to always render above any of the other blocks.
-     * This is useful for accessing the request state and features
-     * from code that is in chrome/framing around the state managed
-     * by the loading of the request.
-     */
-    before: [
-      state: RequestState<RT, StructuredErrorDocument<E>>,
-      /**
-       * Utilities to assist in recovering from the error.
-       */
-      features: ContentFeatures<RT>,
-    ];
-    /**
      * The block to render when the component is idle and waiting to be given a request.
      *
      */
@@ -192,18 +179,6 @@ interface RequestSignature<RT, E> {
      */
     content: [value: RT, features: ContentFeatures<RT>];
     always: [state: RequestState<RT, StructuredErrorDocument<E>>];
-    /**
-     * The block to always render above any of the other blocks.
-     * This is useful for accessing the request state and features
-     * from code that is in chrome/framing around the state managed
-     * by the loading of the request.
-     */
-    after: [
-      state: RequestState<RT, StructuredErrorDocument<E>> /**
-       * Utilities to assist in recovering from the error.
-       */,
-      features: ContentFeatures<RT>,
-    ];
   };
 }
 
@@ -466,8 +441,6 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
   }
 
   <template>
-    {{yield this.state.reqState this.state.contentFeatures to="before"}}
-
     {{#if (and this.state.isIdle (has-block "idle"))}}
       {{yield to="idle"}}
 
@@ -491,6 +464,5 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
     {{/if}}
 
     {{yield this.state.reqState to="always"}}
-    {{yield this.state.reqState this.state.contentFeatures to="after"}}
   </template>
 }
