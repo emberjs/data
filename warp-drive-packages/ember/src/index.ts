@@ -217,4 +217,4 @@ export { getPromiseState } from '@warp-drive/core/store/-private';
  * @param future
  * @return {RequestState}
  */
-export { getRequestState, type RequestLoadingState } from '@warp-drive/core/store/-private';
+export { getRequestState, createRequestSubscription, type RequestLoadingState } from '@warp-drive/core/store/-private';

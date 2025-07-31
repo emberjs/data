@@ -333,7 +333,7 @@ export class RequestSubscription<RT, E> {
     this._removeSubscriptions();
 
     // if we have a request, we need to subscribe to it
-    const { store } = this;
+    const store = this._getRequester();
     if (requestId && isStore(store)) {
       this._subscribedTo = requestId;
 
@@ -409,8 +409,9 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private _removeSubscriptions() {
-    if (this._subscription && isStore(this.store)) {
-      this.store.notifications.unsubscribe(this._subscription);
+    const store = this._getRequester();
+    if (this._subscription && isStore(store)) {
+      store.notifications.unsubscribe(this._subscription);
       this._subscribedTo = null;
       this._subscription = null;
     }
@@ -523,16 +524,8 @@ export class RequestSubscription<RT, E> {
           );
       }
 
-      const wasStoreRequest = request[EnableHydration] === true;
-      assert(
-        `Cannot supply a different store than was used to create the request`,
-        !request.store || request.store === this.store
-      );
-
-      const store = (request.store as Store | undefined) || this.store;
-      const requester = !wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
-
       this._isUpdating = true;
+      const requester = this._getRequester();
       this._latestRequest = requester.request(request);
 
       if (val !== 'refresh') {
@@ -547,6 +540,21 @@ export class RequestSubscription<RT, E> {
       // TODO probably want this
       // void this.scheduleInterval();
     }
+  }
+
+  /**
+   * @internal
+   */
+  private _getRequester() {
+    const request = (this.reqState.request ?? {}) as unknown as RequestInfo<RT>;
+
+    const wasStoreRequest = request[EnableHydration] === true;
+    assert(
+      `Cannot supply a different store than was used to create the request`,
+      !request.store || request.store === this.store
+    );
+    const store = (request.store as Store | undefined) || this.store;
+    return !wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
   }
 
   /**
@@ -622,8 +630,7 @@ export class RequestSubscription<RT, E> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    // @ts-expect-error TODO investigate this
-    return this.store.request(query);
+    return (this._getRequester() as Store).request(query);
   }
 
   @memoized
