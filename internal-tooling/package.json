@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/internal-tooling",
-  "version": "5.7.0-alpha.22",
+  "version": "5.7.0-alpha.23",
   "description": "Internal Tooling for the WarpDrive Project Monorepo | Unpublished",
   "private": true,
   "type": "module",
