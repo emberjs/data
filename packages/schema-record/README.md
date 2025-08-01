@@ -210,7 +210,7 @@ interface User {
   readonly lastName: string;
   readonly name: string;
   readonly pets: Readonly<Array<Dog | Pet>>;
-  [Checkout]: Promise<EditableUser>
+  [Checkout](): Promise<EditableUser>
 }>
 ```
 
