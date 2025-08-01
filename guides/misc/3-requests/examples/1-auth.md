@@ -47,6 +47,8 @@ const AuthHandler: Handler = {
     return next(Object.assign({}, context.request, { headers }));
   }
 }
+
+export default AuthHandler;
 ```
 
 This handler would need to be added to the request manager configuration:
