@@ -103,7 +103,8 @@ import { getOwner, setOwner } from '@ember/owner';
 import AuthHandler from './auth-handler';
 
 export default {
-  create(args) {
+  constructor(args) {
+    super(...arguments);
     const authHandler = new AuthHandler();
     setOwner(authHandler, getOwner(args));
 
