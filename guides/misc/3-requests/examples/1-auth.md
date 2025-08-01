@@ -54,7 +54,7 @@ This handler would need to be added to the request manager configuration:
 ```ts
 import RequestManager from '@ember-data/request';
 import Fetch from '@ember-data/request/fetch';
-import AuthHandler from './auth-handler.js';
+import AuthHandler from './auth-handler.ts';
 
 const manager = new RequestManager()
   .use([AuthHandler, Fetch]);
@@ -68,7 +68,7 @@ Handlers can also be defined as classes. This is useful when you need to inject 
 
 Lets imagine we are using [Ember Simple Auth](https://github.com/simplabs/ember-simple-auth) addon to handle authentication. In this case we need to inject `session` service to get the token.
 
-**app/services/auth-handler.js**
+**app/services/auth-handler.ts**
 
 ```ts
 import { service } from '@ember/service';
