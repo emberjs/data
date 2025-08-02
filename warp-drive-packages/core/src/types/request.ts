@@ -2,14 +2,13 @@
 import type { Fetch } from '../request/-private/fetch.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { FetchError } from '../request/-private/utils.ts';
+import type { Store } from '../store/-private.ts';
 import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
 import type { ResourceKey } from './identifier.ts';
 import type { QueryParamsSerializationOptions } from './params.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { ResourceIdentifierObject } from './spec/json-api-raw.ts';
 import type { RequestSignature } from './symbols.ts';
-
-type Store = unknown;
 
 export const SkipCache: '___(unique) Symbol(SkipCache)' = getOrSetUniversal('SkipCache', Symbol.for('wd:skip-cache'));
 export const EnableHydration: '___(unique) Symbol(EnableHydration)' = getOrSetUniversal(

@@ -1,7 +1,9 @@
 /* eslint-disable no-irregular-whitespace */
 
+import type { Store } from '../../store/-private';
 import type { RequestKey } from '../../types/identifier';
 import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from '../../types/request';
+import type { RequestManager } from './manager';
 
 export interface GodContext {
   controller: AbortController;
@@ -10,6 +12,7 @@ export interface GodContext {
   hasRequestedStream: boolean;
   id: number;
   identifier: RequestKey | null;
+  requester: RequestManager | Store;
 }
 
 export type Deferred<T> = {
@@ -34,9 +37,13 @@ export type DeferredStream = {
  * @public
  */
 export interface Future<T> extends Promise<StructuredDataDocument<T>> {
+  /** @internal */
   [IS_FUTURE]: true;
   /**
    * Cancel this request by firing the {@link AbortController}'s signal.
+   *
+   * This method can be used as an action or event handler as its
+   * context is bound to the Future instance.
    *
    * @privateRemarks
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AbortController/abort)
@@ -48,8 +55,10 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
   /**
    * Get the response stream, if any, once made available.
    *
+   * This method can be used as an action or event handler as its
+   * context is bound to the Future instance.
+   *
    * @public
-   * @return {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
 
@@ -58,18 +67,12 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    *  mostly useful for instrumentation and infrastructure.
    *
    * @param cb the callback to run
-   * @public
-   * @return {void}
    */
   onFinalize(cb: () => void): void;
 
   /**
    * The identifier of the associated request, if any, as
    * assigned by the CacheHandler.
-   *
-   * @property lid
-   * @type {RequestKey | null}
-   * @public
    */
   lid: RequestKey | null;
 
@@ -77,11 +80,17 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    * The id of the associated request, if any, as assigned
    * by the RequestManager
    *
-   * @property id
-   * @type {Number}
-   * @public
+   * This is not unique across Manager instances and cannot
+   * be used to identify or dedupe requests.
    */
   id: number;
+
+  /**
+   * The RequestManager or Store that initiated this request.
+   *
+   * @private
+   */
+  requester: RequestManager | Store;
 }
 
 export type DeferredFuture<T> = {
@@ -199,8 +208,6 @@ const manager = new RequestManager()
 
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
-
- @class (Interface) Handler
  @public
 */
 export interface Handler {
@@ -210,21 +217,18 @@ export interface Handler {
    * other handlers.
    *
    * @public
-   * @param context
-   * @param next
    */
   request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T>;
 }
 
 /**
- * The CacheHandler is identical to other handlers ecxept that it
+ * The CacheHandler is identical to other handlers except that it
  * is allowed to return a value synchronously. This is useful for
  * features like reducing microtask queueing when de-duping.
  *
  * A RequestManager may only have one CacheHandler, registered via
  * `manager.useCache(CacheHandler)`.
  *
- * @class (Interface) CacheHandler
  * @public
  */
 export interface CacheHandler {
@@ -234,8 +238,6 @@ export interface CacheHandler {
    * other handlers.
    *
    * @public
-   * @param context
-   * @param next
    */
   request<T = unknown>(
     context: RequestContext,

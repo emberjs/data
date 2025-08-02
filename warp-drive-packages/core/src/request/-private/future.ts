@@ -27,6 +27,7 @@ export function upgradePromise<T>(promise: Promise<StructuredDocument<T>>, futur
   (promise as Future<T>).onFinalize = future.onFinalize;
   (promise as Future<T>).id = future.id;
   (promise as Future<T>).lid = future.lid;
+  (promise as Future<T>).requester = future.requester;
 
   return promise as Future<T>;
 }
@@ -54,6 +55,7 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   };
   promise.id = owner.requestId;
   promise.lid = owner.god.identifier;
+  promise.requester = owner.god.requester;
 
   deferred.promise = promise;
   return deferred;

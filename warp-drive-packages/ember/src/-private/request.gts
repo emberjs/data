@@ -1,7 +1,10 @@
+import type { TOC } from '@ember/component/template-only';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
+import { cached } from '@glimmer/tracking';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
+import type { ComponentLike } from '@glint/template';
 
 import type { Store, StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -59,8 +62,19 @@ export interface ContentFeatures<RT> {
   latestRequest?: Future<RT>;
 }
 
+const DefaultChrome: TOC<{
+  Blocks: {
+    default: [];
+  };
+}> = <template>{{yield}}</template>;
+
 interface RequestSignature<RT, E> {
   Args: {
+    chrome?: ComponentLike<{
+      Blocks: { default: [] };
+      Args: { state: RequestState | null; features: ContentFeatures<RT> };
+    }>;
+    subscription?: RequestSubscription<RT, E>;
     /**
      * The request to monitor. This should be a `Future` instance returned
      * by either the `store.request` or `store.requestManager.request` methods.
@@ -423,9 +437,14 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
   get state(): RequestSubscription<RT, E> {
     let { _state } = this;
     const { store } = this;
-    if (_state && _state.store !== store) {
+    const { subscription } = this.args;
+    if (_state && (_state.store !== store || subscription)) {
       _state[DISPOSE]();
       _state = null;
+    }
+
+    if (subscription) {
+      return subscription;
     }
 
     if (!_state) {
@@ -435,34 +454,51 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
     return _state;
   }
 
+  /**
+   * The chrome component to use for rendering the request.
+   *
+   * @private
+   */
+  @cached
+  get Chrome(): ComponentLike<{
+    Blocks: { default: [] };
+    Args: { state: RequestState | null; features: ContentFeatures<RT> };
+  }> {
+    return this.args.chrome || DefaultChrome;
+  }
+
   willDestroy(): void {
-    this._state![DISPOSE]();
-    this._state = null;
+    if (this._state) {
+      this._state[DISPOSE]();
+      this._state = null;
+    }
   }
 
   <template>
-    {{#if (and this.state.isIdle (has-block "idle"))}}
-      {{yield to="idle"}}
+    <this.Chrome @state={{if this.state.isIdle null this.state.reqState}} @features={{this.state.contentFeatures}}>
+      {{#if (and this.state.isIdle (has-block "idle"))}}
+        {{yield to="idle"}}
 
-    {{else if this.state.isIdle}}
-      <Throw @error={{IdleBlockMissingError}} />
+      {{else if this.state.isIdle}}
+        <Throw @error={{IdleBlockMissingError}} />
 
-    {{else if this.state.reqState.isLoading}}
-      {{yield this.state.reqState.loadingState to="loading"}}
+      {{else if this.state.reqState.isLoading}}
+        {{yield this.state.reqState.loadingState to="loading"}}
 
-    {{else if (and this.state.reqState.isCancelled (has-block "cancelled"))}}
-      {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="cancelled"}}
+      {{else if (and this.state.reqState.isCancelled (has-block "cancelled"))}}
+        {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="cancelled"}}
 
-    {{else if (and this.state.reqState.isError (has-block "error"))}}
-      {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="error"}}
+      {{else if (and this.state.reqState.isError (has-block "error"))}}
+        {{yield (notNull this.state.reqState.reason) this.state.errorFeatures to="error"}}
 
-    {{else if this.state.reqState.isSuccess}}
-      {{yield this.state.result this.state.contentFeatures to="content"}}
+      {{else if this.state.reqState.isSuccess}}
+        {{yield this.state.result this.state.contentFeatures to="content"}}
 
-    {{else if (not this.state.reqState.isCancelled)}}
-      <Throw @error={{(notNull this.state.reqState.reason)}} />
-    {{/if}}
+      {{else if (not this.state.reqState.isCancelled)}}
+        <Throw @error={{(notNull this.state.reqState.reason)}} />
+      {{/if}}
 
-    {{yield this.state.reqState to="always"}}
+      {{yield this.state.reqState to="always"}}
+    </this.Chrome>
   </template>
 }

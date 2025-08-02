@@ -4,8 +4,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RequestManager, Store, StoreRequestInput } from '../../../index';
 import type { Future } from '../../../request';
 import type { RequestKey } from '../../../types/identifier';
-import type { RequestInfo, StructuredErrorDocument } from '../../../types/request';
-import { EnableHydration } from '../../../types/request';
+import type { StructuredErrorDocument } from '../../../types/request';
 import type { RequestState } from '../../-private';
 import { defineSignal, getRequestState, memoized } from '../../-private';
 
@@ -47,7 +46,7 @@ export interface SubscriptionArgs<RT, E> {
    * by either the `store.request` or `store.requestManager.request` methods.
    *
    */
-  request?: Future<RT>;
+  request?: Future<RT> | undefined | null;
 
   /**
    * A query to use for the request. This should be an object that can be
@@ -55,7 +54,7 @@ export interface SubscriptionArgs<RT, E> {
    * like the component to also initiate the request.
    *
    */
-  query?: StoreRequestInput<RT>;
+  query?: StoreRequestInput<RT> | undefined | null;
 
   /**
    * The autorefresh behavior for the request. This can be a boolean, or any
@@ -190,7 +189,7 @@ export class RequestSubscription<RT, E> {
    *
    * @internal
    */
-  declare private _originalRequest: Future<RT> | undefined;
+  declare private _originalRequest: Future<RT> | undefined | null;
 
   /**
    * The last query passed as an arg to the component,
@@ -198,7 +197,7 @@ export class RequestSubscription<RT, E> {
    *
    * @internal
    */
-  declare private _originalQuery: StoreRequestInput<RT> | undefined;
+  declare private _originalQuery: StoreRequestInput<RT> | undefined | null;
   /** @internal */
   declare private _subscription: object | null;
   /** @internal */
@@ -333,7 +332,7 @@ export class RequestSubscription<RT, E> {
     this._removeSubscriptions();
 
     // if we have a request, we need to subscribe to it
-    const { store } = this;
+    const store = this._getRequester();
     if (requestId && isStore(store)) {
       this._subscribedTo = requestId;
 
@@ -341,7 +340,7 @@ export class RequestSubscription<RT, E> {
         requestId,
         (_id: RequestKey, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
           // ignore subscription events that occur while our own component's request
-          // is ocurring
+          // is occurring
           if (this._isUpdating) {
             return;
           }
@@ -409,8 +408,9 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private _removeSubscriptions() {
-    if (this._subscription && isStore(this.store)) {
-      this.store.notifications.unsubscribe(this._subscription);
+    const store = this._getRequester();
+    if (this._subscription && isStore(store)) {
+      store.notifications.unsubscribe(this._subscription);
       this._subscribedTo = null;
       this._subscription = null;
     }
@@ -471,6 +471,12 @@ export class RequestSubscription<RT, E> {
     if (this.isIdle) {
       return;
     }
+
+    const { reqState } = this;
+    if (reqState.isPending) {
+      return;
+    }
+
     const canAttempt = Boolean(this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size));
 
     if (!canAttempt) {
@@ -505,35 +511,23 @@ export class RequestSubscription<RT, E> {
 
     if (shouldAttempt) {
       this._clearInterval();
-      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT>);
+      this._isUpdating = true;
+
       const realMode = mode === '_invalidated' ? null : mode;
       const val = realMode ?? this._args.autorefreshBehavior ?? 'policy';
       switch (val) {
         case 'reload':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
+          this._latestRequest = reqState.reload();
           break;
         case 'refresh':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
+          this._latestRequest = reqState.refresh();
           break;
         case 'policy':
+          this._latestRequest = reqState.refresh(true);
           break;
         default:
-          throw new Error(
-            `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
-          );
+          assert(`Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`);
       }
-
-      const wasStoreRequest = request[EnableHydration] === true;
-      assert(
-        `Cannot supply a different store than was used to create the request`,
-        !request.store || request.store === this.store
-      );
-
-      const store = (request.store as Store | undefined) || this.store;
-      const requester = !wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
-
-      this._isUpdating = true;
-      this._latestRequest = requester.request(request);
 
       if (val !== 'refresh') {
         this._localRequest = this._latestRequest;
@@ -547,6 +541,17 @@ export class RequestSubscription<RT, E> {
       // TODO probably want this
       // void this.scheduleInterval();
     }
+  }
+
+  /**
+   * @internal
+   */
+  private _getRequester() {
+    if (this._args.request) {
+      return this._args.request.requester;
+    }
+
+    return this.store;
   }
 
   /**
@@ -622,8 +627,7 @@ export class RequestSubscription<RT, E> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    // @ts-expect-error TODO investigate this
-    return this.store.request(query);
+    return (this.store as Store).request(query);
   }
 
   @memoized

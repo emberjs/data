@@ -43,7 +43,7 @@
  *
  * @module
  */
-export { Request } from './-private/request.gts';
+export { Request, type ContentFeatures } from './-private/request.gts';
 export { Await, Throw } from './-private/await.gts';
 
 /**
@@ -217,4 +217,4 @@ export { getPromiseState } from '@warp-drive/core/store/-private';
  * @param future
  * @return {RequestState}
  */
-export { getRequestState, type RequestLoadingState } from '@warp-drive/core/store/-private';
+export { getRequestState, createRequestSubscription, type RequestLoadingState } from '@warp-drive/core/store/-private';

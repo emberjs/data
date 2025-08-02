@@ -3,6 +3,8 @@ import { createConfig } from '@warp-drive/internal-config/vite/config.js';
 
 export const externals = [
   '@ember/template-compilation',
+  '@ember/component/template-only',
+  '@glint/template',
   '@ember/component', // unsure where this comes from
   '@ember/service',
   '@ember/owner',

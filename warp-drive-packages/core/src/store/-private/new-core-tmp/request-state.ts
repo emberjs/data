@@ -1,11 +1,16 @@
+import { assert } from '@warp-drive/build-config/macros';
+
 import type { Awaitable, Future } from '../../../request.ts';
 import { getPromiseResult, setPromiseResult } from '../../../request.ts';
+import type { RequestManager } from '../../../request/-private/manager.ts';
 import type {
   ImmutableRequestInfo,
+  RequestInfo,
   ResponseInfo,
   StructuredDataDocument,
   StructuredErrorDocument,
 } from '../../../types/request.ts';
+import type { Store } from '../store-service.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PendingPromise, PromiseState, RejectedPromise, ResolvedPromise } from './promise-state.ts';
 import { defineNonEnumerableSignal, defineSignal } from './reactivity/signal.ts';
@@ -99,6 +104,7 @@ async function watchStream(stream: ReadableStream<Uint8Array>, loadingState: Req
  * reactive properties that can be used to build UIs that respond
  * to the progress of a request.
  *
+ * @hideconstructor
  */
 export class RequestLoadingState {
   declare private _sizeHint: number;
@@ -285,11 +291,53 @@ export interface PendingRequest extends PendingPromise {
  */
 export interface ResolvedRequest<RT> extends ResolvedPromise<RT> {
   /**
+   * Retries the request with high (blocking) priority. This is the
+   * same as having passed `cacheOptions.reload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  reload(): Future<RT>;
+  /**
+   * Retries the request with low (non-blocking) priority. This is the
+   * same as having passed `cacheOptions.backgroundReload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  refresh(usePolicy?: boolean): Future<RT>;
+
+  /**
    * Whether the request is cancelled.
    *
    */
   isCancelled: false;
 
+  /**
+   * A lazily created {@link RequestLoadingState} instance
+   * which provides a number of reactive properties that can be used
+   * to build UIs that respond to the progress of a request.
+   */
   loadingState: RequestLoadingState;
   request: ImmutableRequestInfo<RT> | null;
   response: Response | ResponseInfo | null;
@@ -304,6 +352,43 @@ export interface ResolvedRequest<RT> extends ResolvedPromise<RT> {
  */
 export interface RejectedRequest<RT, E extends StructuredErrorDocument = StructuredErrorDocument>
   extends RejectedPromise<E> {
+  /**
+   * Retries the request with high (blocking) priority. This is the
+   * same as having passed `cacheOptions.reload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  reload(): Future<RT>;
+  /**
+   * Retries the request with low (non-blocking) priority. This is the
+   * same as having passed `cacheOptions.backgroundReload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  refresh(usePolicy?: boolean): Future<RT>;
+
   /**
    * Whether the request is cancelled.
    *
@@ -321,6 +406,43 @@ export interface RejectedRequest<RT, E extends StructuredErrorDocument = Structu
  *
  */
 export interface CancelledRequest<RT, E extends StructuredErrorDocument = StructuredErrorDocument> {
+  /**
+   * Retries the request with high (blocking) priority. This is the
+   * same as having passed `cacheOptions.reload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  reload(): Future<RT>;
+  /**
+   * Retries the request with low (non-blocking) priority. This is the
+   * same as having passed `cacheOptions.backgroundReload = true` on the original
+   * request.
+   *
+   * This will not change the existing request's state. To subscribe
+   * to the new request's state, use `getRequestState` on the returned
+   * {@link Future}.
+   *
+   * ```ts
+   * const future = state.reload();
+   * const state = getRequestState(future);
+   * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
+   */
+  refresh(usePolicy?: boolean): Future<RT>;
+
   /**
    * The status of the request.
    *
@@ -439,6 +561,29 @@ export type RequestCacheRequestState<RT = unknown, E extends StructuredErrorDocu
 
 const RequestStateProto = {};
 
+function performRefresh<RT = unknown>(
+  requester: RequestManager | Store,
+  request: RequestInfo<RT>,
+  isReload: boolean | null
+): Future<RT> {
+  const req = Object.assign({}, request);
+  const cacheOptions = Object.assign({}, req.cacheOptions);
+  if (isReload) {
+    // force direct to network
+    cacheOptions.reload = true;
+  } else if (isReload === false) {
+    // delete reload to ensure we use backgroundReload / policy
+    delete cacheOptions.reload;
+    cacheOptions.backgroundReload = true;
+  } else {
+    // delete props to ensure we use the policy
+    delete cacheOptions.backgroundReload;
+    delete cacheOptions.reload;
+  }
+  req.cacheOptions = cacheOptions;
+  return requester.request(req);
+}
+
 // TODO introduce a new mechanism for defining multiple properties
 // that share a common signal
 defineSignal(RequestStateProto, 'reason', null);
@@ -477,6 +622,25 @@ export function createRequestState<RT, E>(
   const promiseState = Object.create(RequestStateProto) as RequestCacheRequestState<RT, StructuredErrorDocument<E>> &
     PrivateRequestState;
   promiseState._request = future;
+  // @ts-expect-error - we still attach it for PendingState
+  promiseState.reload = (): Future<RT> => {
+    assert(
+      `Cannot reload a request that is still pending. Await or abort the original request first.`,
+      !promiseState.isPending
+    );
+
+    return performRefresh<RT>(future.requester, promiseState.request!, true);
+  };
+
+  // @ts-expect-error - we still attach it for PendingState
+  promiseState.refresh = (usePolicy: boolean = false): Future<RT> => {
+    assert(
+      `Cannot refresh a request that is still pending. Await or abort the original request first.`,
+      !promiseState.isPending
+    );
+
+    return performRefresh<RT>(future.requester, promiseState.request!, usePolicy === true ? null : false);
+  };
 
   if (state) {
     if (state.isError) {

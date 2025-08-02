@@ -3,11 +3,11 @@ import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { waitFor } from '../../store/-private/new-core-tmp/reactivity/configure';
 import { peekUniversalTransient, setUniversalTransient } from '../../types/-private';
 import type { RequestKey } from '../../types/identifier';
-import type { RequestInfo, StructuredErrorDocument } from '../../types/request';
+import { EnableHydration, type RequestInfo, type StructuredErrorDocument } from '../../types/request';
 import { assertValidRequest } from './debug';
 import { upgradePromise } from './future';
 import { clearRequestResult, getRequestResult, setPromiseResult } from './promise-cache';
-import type { CacheHandler, Future, GenericCreateArgs, Handler, ManagedRequestPriority } from './types';
+import type { CacheHandler, Future, GenericCreateArgs, GodContext, Handler, ManagedRequestPriority } from './types';
 import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
 
 /**
@@ -98,10 +98,11 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;
  * ```
  *
- * @class RequestManager
+ * @hideconstructor
  * @public
  */
 export class RequestManager {
+  /** @internal */
   #handlers: Handler[] = [];
   /** @internal */
   declare _hasCacheHandler: boolean;
@@ -157,8 +158,6 @@ export class RequestManager {
    * curry the request, or pass along a modified request.
    *
    * @public
-   * @param {Handler[]} newHandlers
-   * @return {ThisType}
    */
   use(newHandlers: Handler[]): this {
     const handlers = this.#handlers;
@@ -193,8 +192,6 @@ export class RequestManager {
    * Returns a Future that fulfills with a StructuredDocument
    *
    * @public
-   * @param {RequestInfo} request
-   * @return {Future}
    */
   request<RT>(request: RequestInfo<RT>): Future<RT> {
     const handlers = this.#handlers;
@@ -220,7 +217,8 @@ export class RequestManager {
       hasRequestedStream: false,
       id: requestId,
       identifier: null,
-    };
+      requester: request[EnableHydration] && request.store ? request.store : this,
+    } satisfies GodContext;
     const promise = executeNextHandler<RT>(handlers, request, 0, context);
 
     // the cache handler will set the result of the request synchronously
