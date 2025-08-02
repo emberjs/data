@@ -46,7 +46,7 @@ export interface SubscriptionArgs<RT, E> {
    * by either the `store.request` or `store.requestManager.request` methods.
    *
    */
-  request?: Future<RT>;
+  request?: Future<RT> | undefined | null;
 
   /**
    * A query to use for the request. This should be an object that can be
@@ -54,7 +54,7 @@ export interface SubscriptionArgs<RT, E> {
    * like the component to also initiate the request.
    *
    */
-  query?: StoreRequestInput<RT>;
+  query?: StoreRequestInput<RT> | undefined | null;
 
   /**
    * The autorefresh behavior for the request. This can be a boolean, or any
@@ -189,7 +189,7 @@ export class RequestSubscription<RT, E> {
    *
    * @internal
    */
-  declare private _originalRequest: Future<RT> | undefined;
+  declare private _originalRequest: Future<RT> | undefined | null;
 
   /**
    * The last query passed as an arg to the component,
@@ -197,7 +197,7 @@ export class RequestSubscription<RT, E> {
    *
    * @internal
    */
-  declare private _originalQuery: StoreRequestInput<RT> | undefined;
+  declare private _originalQuery: StoreRequestInput<RT> | undefined | null;
   /** @internal */
   declare private _subscription: object | null;
   /** @internal */
@@ -340,7 +340,7 @@ export class RequestSubscription<RT, E> {
         requestId,
         (_id: RequestKey, op: 'invalidated' | 'state' | 'added' | 'updated' | 'removed') => {
           // ignore subscription events that occur while our own component's request
-          // is ocurring
+          // is occurring
           if (this._isUpdating) {
             return;
           }

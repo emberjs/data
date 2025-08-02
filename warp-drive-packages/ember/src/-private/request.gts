@@ -70,7 +70,10 @@ const DefaultChrome: TOC<{
 
 interface RequestSignature<RT, E> {
   Args: {
-    chrome?: ComponentLike<{ state: ContentFeatures<RT> }>;
+    chrome?: ComponentLike<{
+      Blocks: { default: [] };
+      Args: { state: RequestState | null; features: ContentFeatures<RT> };
+    }>;
     subscription?: RequestSubscription<RT, E>;
     /**
      * The request to monitor. This should be a `Future` instance returned
@@ -457,7 +460,10 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
    * @private
    */
   @cached
-  get Chrome(): ComponentLike<{ state: ContentFeatures<RT> }> {
+  get Chrome(): ComponentLike<{
+    Blocks: { default: [] };
+    Args: { state: RequestState | null; features: ContentFeatures<RT> };
+  }> {
     return this.args.chrome || DefaultChrome;
   }
 
@@ -469,7 +475,7 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
   }
 
   <template>
-    <this.Chrome @state={{this.state.contentFeatures}}>
+    <this.Chrome @state={{if this.state.isIdle null this.state.reqState}} @features={{this.state.contentFeatures}}>
       {{#if (and this.state.isIdle (has-block "idle"))}}
         {{yield to="idle"}}
 

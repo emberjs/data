@@ -561,13 +561,12 @@ export type RequestCacheRequestState<RT = unknown, E extends StructuredErrorDocu
 
 const RequestStateProto = {};
 
-function performRefresh<RT = unknown, E extends StructuredErrorDocument = StructuredErrorDocument>(
+function performRefresh<RT = unknown>(
   requester: RequestManager | Store,
-  doc: StructuredDataDocument<RT> | E,
+  request: RequestInfo<RT>,
   isReload: boolean | null
 ): Future<RT> {
-  const { request } = doc;
-  const req = Object.assign({}, request) as RequestInfo<RT>;
+  const req = Object.assign({}, request);
   const cacheOptions = Object.assign({}, req.cacheOptions);
   if (isReload) {
     // force direct to network
@@ -630,11 +629,7 @@ export function createRequestState<RT, E>(
       !promiseState.isPending
     );
 
-    return performRefresh<RT, StructuredErrorDocument<E>>(
-      future.requester,
-      promiseState.isSuccess ? (promiseState.value as StructuredDataDocument<RT>) : promiseState.reason,
-      true
-    );
+    return performRefresh<RT>(future.requester, promiseState.request!, true);
   };
 
   // @ts-expect-error - we still attach it for PendingState
@@ -644,11 +639,7 @@ export function createRequestState<RT, E>(
       !promiseState.isPending
     );
 
-    return performRefresh<RT, StructuredErrorDocument<E>>(
-      future.requester,
-      promiseState.isSuccess ? (promiseState.value as StructuredDataDocument<RT>) : promiseState.reason,
-      usePolicy === true ? null : false
-    );
+    return performRefresh<RT>(future.requester, promiseState.request!, usePolicy === true ? null : false);
   };
 
   if (state) {

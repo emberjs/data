@@ -43,7 +43,7 @@
  *
  * @module
  */
-export { Request } from './-private/request.gts';
+export { Request, type ContentFeatures } from './-private/request.gts';
 export { Await, Throw } from './-private/await.gts';
 
 /**
