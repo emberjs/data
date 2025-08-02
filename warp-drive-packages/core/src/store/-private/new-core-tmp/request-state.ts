@@ -104,6 +104,7 @@ async function watchStream(stream: ReadableStream<Uint8Array>, loadingState: Req
  * reactive properties that can be used to build UIs that respond
  * to the progress of a request.
  *
+ * @hideconstructor
  */
 export class RequestLoadingState {
   declare private _sizeHint: number;
@@ -332,6 +333,11 @@ export interface ResolvedRequest<RT> extends ResolvedPromise<RT> {
    */
   isCancelled: false;
 
+  /**
+   * A lazily created {@link RequestLoadingState} instance
+   * which provides a number of reactive properties that can be used
+   * to build UIs that respond to the progress of a request.
+   */
   loadingState: RequestLoadingState;
   request: ImmutableRequestInfo<RT> | null;
   response: Response | ResponseInfo | null;
