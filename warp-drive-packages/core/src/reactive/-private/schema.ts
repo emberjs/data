@@ -725,6 +725,12 @@ export class SchemaService implements SchemaServiceInterface {
     return kinds[kind];
   }
 
+  /**
+   * Registers a {@link HashFn} for use with a {@link HashField} for
+   * either {@link ObjectSchema} identity or polymorphic type calculation.
+   *
+   * @public
+   */
   registerHashFn<T extends object>(hashFn: HashFn<T>): void {
     this._hashFns.set(hashFn[Type], hashFn as HashFn);
   }

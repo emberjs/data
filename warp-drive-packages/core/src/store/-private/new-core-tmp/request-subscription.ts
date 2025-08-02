@@ -4,8 +4,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RequestManager, Store, StoreRequestInput } from '../../../index';
 import type { Future } from '../../../request';
 import type { RequestKey } from '../../../types/identifier';
-import type { RequestInfo, StructuredErrorDocument } from '../../../types/request';
-import { EnableHydration } from '../../../types/request';
+import type { StructuredErrorDocument } from '../../../types/request';
 import type { RequestState } from '../../-private';
 import { defineSignal, getRequestState, memoized } from '../../-private';
 
@@ -472,6 +471,12 @@ export class RequestSubscription<RT, E> {
     if (this.isIdle) {
       return;
     }
+
+    const { reqState } = this;
+    if (reqState.isPending) {
+      return;
+    }
+
     const canAttempt = Boolean(this.isOnline && !this.isHidden && (mode || this.autorefreshTypes.size));
 
     if (!canAttempt) {
@@ -506,27 +511,23 @@ export class RequestSubscription<RT, E> {
 
     if (shouldAttempt) {
       this._clearInterval();
-      const request = Object.assign({}, this.reqState.request as unknown as RequestInfo<RT>);
+      this._isUpdating = true;
+
       const realMode = mode === '_invalidated' ? null : mode;
       const val = realMode ?? this._args.autorefreshBehavior ?? 'policy';
       switch (val) {
         case 'reload':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { reload: true });
+          this._latestRequest = reqState.reload();
           break;
         case 'refresh':
-          request.cacheOptions = Object.assign({}, request.cacheOptions, { backgroundReload: true });
+          this._latestRequest = reqState.refresh();
           break;
         case 'policy':
+          this._latestRequest = reqState.refresh(true);
           break;
         default:
-          throw new Error(
-            `Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`
-          );
+          assert(`Invalid ${mode ? 'update mode' : '@autorefreshBehavior'} for <Request />: ${isNeverString(val)}`);
       }
-
-      this._isUpdating = true;
-      const requester = this._getRequester();
-      this._latestRequest = requester.request(request);
 
       if (val !== 'refresh') {
         this._localRequest = this._latestRequest;
@@ -546,15 +547,11 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private _getRequester() {
-    const request = (this.reqState.request ?? {}) as unknown as RequestInfo<RT>;
+    if (this._args.request) {
+      return this._args.request.requester;
+    }
 
-    const wasStoreRequest = request[EnableHydration] === true;
-    assert(
-      `Cannot supply a different store than was used to create the request`,
-      !request.store || request.store === this.store
-    );
-    const store = (request.store as Store | undefined) || this.store;
-    return !wasStoreRequest && 'requestManager' in store ? store.requestManager : store;
+    return this.store;
   }
 
   /**
@@ -630,7 +627,7 @@ export class RequestSubscription<RT, E> {
       return request;
     }
     assert(`You must provide either @request or an @query arg with the <Request> component`, query);
-    return (this._getRequester() as Store).request(query);
+    return (this.store as Store).request(query);
   }
 
   @memoized

@@ -1,7 +1,9 @@
 /* eslint-disable no-irregular-whitespace */
 
+import type { Store } from '../../store/-private';
 import type { RequestKey } from '../../types/identifier';
 import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from '../../types/request';
+import type { RequestManager } from './manager';
 
 export interface GodContext {
   controller: AbortController;
@@ -10,6 +12,7 @@ export interface GodContext {
   hasRequestedStream: boolean;
   id: number;
   identifier: RequestKey | null;
+  requester: RequestManager | Store;
 }
 
 export type Deferred<T> = {
@@ -34,6 +37,7 @@ export type DeferredStream = {
  * @public
  */
 export interface Future<T> extends Promise<StructuredDataDocument<T>> {
+  /** @internal */
   [IS_FUTURE]: true;
   /**
    * Cancel this request by firing the {@link AbortController}'s signal.
@@ -49,7 +53,6 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    * Get the response stream, if any, once made available.
    *
    * @public
-   * @return {Promise<ReadableStream | null>}
    */
   getStream(): Promise<ReadableStream | null>;
 
@@ -58,18 +61,12 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    *  mostly useful for instrumentation and infrastructure.
    *
    * @param cb the callback to run
-   * @public
-   * @return {void}
    */
   onFinalize(cb: () => void): void;
 
   /**
    * The identifier of the associated request, if any, as
    * assigned by the CacheHandler.
-   *
-   * @property lid
-   * @type {RequestKey | null}
-   * @public
    */
   lid: RequestKey | null;
 
@@ -77,11 +74,17 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
    * The id of the associated request, if any, as assigned
    * by the RequestManager
    *
-   * @property id
-   * @type {Number}
-   * @public
+   * This is not unique across Manager instances and cannot
+   * be used to identify or dedupe requests.
    */
   id: number;
+
+  /**
+   * The RequestManager or Store that initiated this request.
+   *
+   * @private
+   */
+  requester: RequestManager | Store;
 }
 
 export type DeferredFuture<T> = {

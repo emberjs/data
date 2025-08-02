@@ -54,6 +54,7 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   };
   promise.id = owner.requestId;
   promise.lid = owner.god.identifier;
+  promise.requester = owner.god.requester;
 
   deferred.promise = promise;
   return deferred;
