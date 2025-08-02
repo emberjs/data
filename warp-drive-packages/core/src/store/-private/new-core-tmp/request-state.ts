@@ -302,6 +302,9 @@ export interface ResolvedRequest<RT> extends ResolvedPromise<RT> {
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   reload(): Future<RT>;
   /**
@@ -317,6 +320,9 @@ export interface ResolvedRequest<RT> extends ResolvedPromise<RT> {
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   refresh(usePolicy?: boolean): Future<RT>;
 
@@ -353,6 +359,9 @@ export interface RejectedRequest<RT, E extends StructuredErrorDocument = Structu
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   reload(): Future<RT>;
   /**
@@ -368,6 +377,9 @@ export interface RejectedRequest<RT, E extends StructuredErrorDocument = Structu
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   refresh(usePolicy?: boolean): Future<RT>;
 
@@ -401,6 +413,9 @@ export interface CancelledRequest<RT, E extends StructuredErrorDocument = Struct
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   reload(): Future<RT>;
   /**
@@ -416,6 +431,9 @@ export interface CancelledRequest<RT, E extends StructuredErrorDocument = Struct
    * const future = state.reload();
    * const state = getRequestState(future);
    * ```
+   *
+   * It is safe to pass this around as an "action" or "event" handler
+   * as its context is bound.
    */
   refresh(usePolicy?: boolean): Future<RT>;
 
@@ -535,37 +553,7 @@ export type RequestCacheRequestState<RT = unknown, E extends StructuredErrorDocu
   | RejectedRequest<RT, E>
   | CancelledRequest<RT, E>;
 
-const RequestStateProto = {
-  reload<RT = unknown, E extends StructuredErrorDocument = StructuredErrorDocument>(
-    this: RequestCacheRequestState<RT, E> & PrivateRequestState
-  ): Future<RT> {
-    assert(
-      `Cannot reload a request that is still pending. Await or abort the original request first.`,
-      !this.isPending
-    );
-
-    return performRefresh<RT, E>(
-      this._request.requester,
-      this.isSuccess ? (this.value as StructuredDataDocument<RT>) : this.reason,
-      true
-    );
-  },
-  refresh<RT = unknown, E extends StructuredErrorDocument = StructuredErrorDocument>(
-    this: RequestCacheRequestState<RT, E> & PrivateRequestState,
-    usePolicy: boolean = false
-  ): Future<RT> {
-    assert(
-      `Cannot refresh a request that is still pending. Await or abort the original request first.`,
-      !this.isPending
-    );
-
-    return performRefresh<RT, E>(
-      this._request.requester,
-      this.isSuccess ? (this.value as StructuredDataDocument<RT>) : this.reason,
-      usePolicy === true ? null : false
-    );
-  },
-};
+const RequestStateProto = {};
 
 function performRefresh<RT = unknown, E extends StructuredErrorDocument = StructuredErrorDocument>(
   requester: RequestManager | Store,
@@ -629,6 +617,33 @@ export function createRequestState<RT, E>(
   const promiseState = Object.create(RequestStateProto) as RequestCacheRequestState<RT, StructuredErrorDocument<E>> &
     PrivateRequestState;
   promiseState._request = future;
+  // @ts-expect-error - we still attach it for PendingState
+  promiseState.reload = (): Future<RT> => {
+    assert(
+      `Cannot reload a request that is still pending. Await or abort the original request first.`,
+      !promiseState.isPending
+    );
+
+    return performRefresh<RT, StructuredErrorDocument<E>>(
+      future.requester,
+      promiseState.isSuccess ? (promiseState.value as StructuredDataDocument<RT>) : promiseState.reason,
+      true
+    );
+  };
+
+  // @ts-expect-error - we still attach it for PendingState
+  promiseState.refresh = (usePolicy: boolean = false): Future<RT> => {
+    assert(
+      `Cannot refresh a request that is still pending. Await or abort the original request first.`,
+      !promiseState.isPending
+    );
+
+    return performRefresh<RT, StructuredErrorDocument<E>>(
+      future.requester,
+      promiseState.isSuccess ? (promiseState.value as StructuredDataDocument<RT>) : promiseState.reason,
+      usePolicy === true ? null : false
+    );
+  };
 
   if (state) {
     if (state.isError) {

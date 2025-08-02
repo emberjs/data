@@ -42,6 +42,9 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
   /**
    * Cancel this request by firing the {@link AbortController}'s signal.
    *
+   * This method can be used as an action or event handler as its
+   * context is bound to the Future instance.
+   *
    * @privateRemarks
    * [MDN Reference](https://developer.mozilla.org/docs/Web/API/AbortController/abort)
    *
@@ -51,6 +54,9 @@ export interface Future<T> extends Promise<StructuredDataDocument<T>> {
   abort(reason?: string): void;
   /**
    * Get the response stream, if any, once made available.
+   *
+   * This method can be used as an action or event handler as its
+   * context is bound to the Future instance.
    *
    * @public
    */
@@ -202,8 +208,6 @@ const manager = new RequestManager()
 
 Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
 
-
- @class (Interface) Handler
  @public
 */
 export interface Handler {
@@ -213,21 +217,18 @@ export interface Handler {
    * other handlers.
    *
    * @public
-   * @param context
-   * @param next
    */
   request<T = unknown>(context: RequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T>> | Future<T>;
 }
 
 /**
- * The CacheHandler is identical to other handlers ecxept that it
+ * The CacheHandler is identical to other handlers except that it
  * is allowed to return a value synchronously. This is useful for
  * features like reducing microtask queueing when de-duping.
  *
  * A RequestManager may only have one CacheHandler, registered via
  * `manager.useCache(CacheHandler)`.
  *
- * @class (Interface) CacheHandler
  * @public
  */
 export interface CacheHandler {
@@ -237,8 +238,6 @@ export interface CacheHandler {
    * other handlers.
    *
    * @public
-   * @param context
-   * @param next
    */
   request<T = unknown>(
     context: RequestContext,
