@@ -34,6 +34,7 @@ export function getObjectField(context: KindContext<ObjectField>): unknown {
       modeName: context.modeName,
       legacy: context.legacy,
       editable: context.editable,
+      destroyables: new Set(),
       path,
       field,
       record,

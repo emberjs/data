@@ -9,7 +9,7 @@ import type { ResourceKey } from '../../../types/identifier.ts';
 import type { ArrayValue, ObjectValue, Value } from '../../../types/json/raw.ts';
 import type { OpaqueRecordInstance } from '../../../types/record.ts';
 import type { ArrayField, HashField, SchemaArrayField } from '../../../types/schema/fields.ts';
-import type { KindContext, ObjectContext } from '../default-mode.ts';
+import type { Destroyable, KindContext, ObjectContext } from '../default-mode.ts';
 import { ReactiveResource } from '../record.ts';
 import type { SchemaService } from '../schema.ts';
 import { Context, Destroy, SOURCE } from '../symbols.ts';
@@ -290,6 +290,7 @@ export class ManagedArray {
             modeName: context.modeName,
             legacy: context.legacy,
             editable: context.editable,
+            destroyables: new Set<Destroyable>(),
             path: recordPath,
             field: field,
             value: objectType,
