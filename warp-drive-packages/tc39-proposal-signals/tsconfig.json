@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "../../@types/fastboot"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -36,7 +36,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
-    "types": ["ember-source/types"],
+    "types": [],
     "allowImportingTsExtensions": true,
     "paths": {
       "@warp-drive/core": ["../core/declarations"],
