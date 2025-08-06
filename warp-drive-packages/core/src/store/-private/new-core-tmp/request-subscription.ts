@@ -1,12 +1,12 @@
 import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { RequestManager, Store, StoreRequestInput } from '../../../index';
-import type { Future } from '../../../request';
-import type { RequestKey } from '../../../types/identifier';
-import type { StructuredErrorDocument } from '../../../types/request';
-import type { RequestState } from '../../-private';
-import { defineSignal, getRequestState, memoized } from '../../-private';
+import type { RequestManager, Store, StoreRequestInput } from '../../../index.ts';
+import type { Future } from '../../../request.ts';
+import type { RequestKey } from '../../../types/identifier.ts';
+import type { StructuredErrorDocument } from '../../../types/request.ts';
+import type { RequestState } from '../../-private.ts';
+import { defineSignal, getRequestState, memoized } from '../../-private.ts';
 
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
@@ -16,20 +16,32 @@ function isNeverString(val: never): string {
   return val;
 }
 
-interface ErrorFeatures {
+export interface ErrorFeatures {
   isHidden: boolean;
   isOnline: boolean;
   retry: () => Promise<void>;
 }
 
-type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
-type AutorefreshBehaviorCombos =
+export type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
+export type AutorefreshBehaviorCombos =
   | boolean
   | AutorefreshBehaviorType
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
   | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
 
-type ContentFeatures<RT> = {
+/**
+ * Utilities to assist in recovering from the error.
+ */
+export interface RecoveryFeatures {
+  isOnline: boolean;
+  isHidden: boolean;
+  retry: () => Promise<void>;
+}
+
+/**
+ * Utilities for keeping the request fresh
+ */
+export interface ContentFeatures<RT> {
   isOnline: boolean;
   isHidden: boolean;
   isRefreshing: boolean;
@@ -37,7 +49,7 @@ type ContentFeatures<RT> = {
   reload: () => Promise<void>;
   abort?: () => void;
   latestRequest?: Future<RT>;
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface SubscriptionArgs<RT, E> {
@@ -96,6 +108,18 @@ export interface SubscriptionArgs<RT, E> {
    *
    */
   autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
+}
+
+export interface RequestComponentArgs<RT, E> extends SubscriptionArgs<RT, E> {
+  /**
+   * The store instance to use for making requests. If contexts are available,
+   * the component will default to using the `store` on the context.
+   *
+   * This is required if the store is not available via context or should be
+   * different from the store provided via context.
+   *
+   */
+  store?: Store | RequestManager;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

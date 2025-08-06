@@ -50,18 +50,20 @@ export function createConfig(options, resolve) {
             },
           })
         : null,
-      babel(
-        options.babelConfigFile
-          ? {
-              configFile: options.babelConfigFile,
-              babelHelpers: 'bundled',
-              extensions: ['.js', '.ts', '.gjs', '.gts'],
-            }
-          : {
-              babelHelpers: 'bundled',
-              extensions: ['.js', '.ts', '.gjs', '.gts'],
-            }
-      ),
+      options.skipDefaultPlugins
+        ? false
+        : babel(
+            options.babelConfigFile
+              ? {
+                  configFile: options.babelConfigFile,
+                  babelHelpers: 'bundled',
+                  extensions: ['.js', '.ts', '.gjs', '.gts'],
+                }
+              : {
+                  babelHelpers: 'bundled',
+                  extensions: ['.js', '.ts', '.gjs', '.gts'],
+                }
+          ),
       options.compileTypes ? MoveTypesToDestination(options, resolve) : null,
       // options.compileTypes === true && options.rollupTypes === true
       //   ? dts({
@@ -71,7 +73,7 @@ export function createConfig(options, resolve) {
       //       afterDiagnostic: (diagnostic) => {},
       //     })
       //   : undefined,
-      options.fixModule ? FixModuleOutputPlugin : undefined,
+      !options.skipDefaultPlugins && options.fixModule ? FixModuleOutputPlugin : undefined,
       // options.compileTypes === true && options.rollupTypes === false ? CompileTypesPlugin(options.useGlint) : undefined,
     ]
       .concat(options.plugins || [])

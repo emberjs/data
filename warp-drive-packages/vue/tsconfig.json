@@ -1,0 +1,53 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "declarationDir": "declarations",
+    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "checkJs": false,
+    "alwaysStrict": true,
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "preserveConstEnums": false,
+    "experimentalDecorators": true,
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@warp-drive/core": ["../core/src"],
+      "@warp-drive/core/*": ["../core/src/*"]
+    },
+    "erasableSyntaxOnly": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force"
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
+}
