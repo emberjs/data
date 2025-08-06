@@ -26,11 +26,11 @@ interface RejectedPromise {
   reason: StructuredErrorDocument;
 }
 
-export interface IMUXHandlerOptions {
+export interface IMUXHandlerOptions<T = unknown> {
   checkFn: (context: RequestContext) => boolean;
   mergeFn: (
     request: RequestInfo,
-    response: StructuredDataDocument<unknown>,
+    response: StructuredDataDocument<T>,
     results: Array<ResolvedPromise | RejectedPromise>
   ) => unknown;
 }
