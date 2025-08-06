@@ -1,0 +1,64 @@
+{
+  "include": [
+    "src/**/*",
+    "../../@types/fastboot",
+    "../../@types/@glimmer/tracking.d.ts",
+    "../../@types/@glimmer/validator.d.ts"
+  ],
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  },
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "declarationDir": "declarations",
+    "emitDeclarationOnly": true,
+    "allowJs": false,
+    "checkJs": false,
+    "alwaysStrict": true,
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "experimentalDecorators": true,
+    // Enable faster builds
+    // but causes us to not rebuild properly
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "baseUrl": ".",
+    "types": ["ember-source/types"],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@warp-drive/core": ["../core/declarations"],
+      "@warp-drive/core/*": ["../core/declarations/*"],
+      "@glimmer/validator": ["../../@types/@glimmer/validator.d.ts"]
+    },
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force"
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
+}
