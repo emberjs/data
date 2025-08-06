@@ -22,7 +22,7 @@
     "build:pkg2": "vite build;",
     "prepack": "pnpm run build:pkg2",
     "sync": "echo \"syncing\"",
-    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
   },
   "files": [

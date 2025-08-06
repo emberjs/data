@@ -3,6 +3,7 @@ const RULES = [
   'blueprints/*',
   '!./tests/blueprints/*',
   'vendor/*',
+  '.svelte-kit/*',
 
   // # Declaration files
   '**/*.d.ts',
