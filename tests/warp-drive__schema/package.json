@@ -11,9 +11,7 @@
   },
   "license": "MIT",
   "author": "",
-  "devDependencies": {
-    "pnpm-sync-dependencies-meta-injected": "0.0.14"
-  },
+  "devDependencies": {},
   "scripts": {},
   "volta": {
     "extends": "../../package.json"

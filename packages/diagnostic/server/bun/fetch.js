@@ -30,8 +30,14 @@ export function handleBunFetch(config, state, req, server) {
   if (INDEX_PATHS.includes(url.pathname)) {
     if (bId && wId) {
       // serve test index.html
-      if (!config._realEntry && config.entry.indexOf('?')) {
-        config._realEntry = path.join(process.cwd(), config.entry.substr(0, config.entry.indexOf('?')));
+      if (!config._realEntry) {
+        debug(
+          `Setting real entry for browser ${bId} window ${wId} to ${config.entry} (without query params: ${config.entry.substr(0, config.entry.indexOf('?'))})`
+        );
+        config._realEntry = path.join(
+          process.cwd(),
+          config.entry.includes('?') ? config.entry.substr(0, config.entry.indexOf('?')) : config.entry
+        );
       }
       debug(`Serving entry ${config._realEntry} for browser ${bId} window ${wId}`);
 

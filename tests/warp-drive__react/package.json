@@ -1,0 +1,49 @@
+{
+  "name": "warp-drive__react",
+  "version": "5.7.0-alpha.24",
+  "description": "Provides tests for @warp-drive/react",
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/warp-drive__react"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:tests": "IS_TESTING=true vite build -m development --outDir dist-test",
+    "build:production": "NODE_ENV=production IS_TESTING=true vite build -m development --outDir dist-test",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "check:types": "glint --noEmit",
+    "start": "IS_TESTING=true vite build -m development --watch --outDir dist-test",
+    "test": "bun ./diagnostic.js",
+    "test:production": "bun ./diagnostic.js",
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/runtime": "^7.27.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-plugin-debug-macros": "^2.0.0",
+    "@embroider/macros": "^1.16.12",
+    "@warp-drive/react": "workspace:*",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/legacy": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/holodeck": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "vite": "^7.0.0",
+    "typescript": "^5.8.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@10.12.4"
+}
