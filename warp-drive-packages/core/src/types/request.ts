@@ -1,5 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '../request.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Fetch } from '../request/-private/fetch.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager } from '../request/-private/manager.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { FetchError } from '../request/-private/utils.ts';
 import type { Store } from '../store/-private.ts';
@@ -221,12 +225,17 @@ export interface StructuredErrorDocument<T = unknown> extends Error {
 export type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument<T>;
 
 /**
- * JavaScript's native Request class.
+ * The {@link RequestInit} interface accepted by the native {@link fetch} API.
  *
  * WarpDrive provides our own typings due to incompleteness in the native typings.
  *
+ * @privateRemarks
+ * - [MDN Reference (fetch)](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+ * - [MDN Reference (RequestInit)](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit)
+ * - [MDN Reference (Request)](https://developer.mozilla.org/docs/Web/API/Request)
+ *
  */
-interface Request {
+interface NativeRequestInit {
   /** Returns the cache mode associated with request, which is a string indicating how the request will interact with the browser's cache when fetching.
    */
   cache?: RequestCache;
@@ -289,11 +298,21 @@ export interface ImmutableHeaders extends Headers {
 }
 
 /**
- * Extends JavaScript's native {@link Request} object with additional
- * properties specific to the RequestManager's capabilities.
+ * Extends JavaScript's native {@link fetch} {@link NativeRequestInit | RequestInit} with additional
+ * properties specific to the {@link RequestManager | RequestManager's} capabilities.
  *
+ * This interface is used to define the shape of a request that can be made via
+ * either the {@link RequestManager.request} or {@link Store.request} methods.
+ *
+ * @privateRemarks
+ * - [MDN Reference (fetch)](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+ * - [MDN Reference (RequestInit)](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit)
+ * - [MDN Reference (Request)](https://developer.mozilla.org/docs/Web/API/Request)
+ *
+ * @public
+ * @since 4.12
  */
-export interface RequestInfo<RT = unknown> extends Request {
+export interface RequestInfo<RT = unknown> extends NativeRequestInit {
   /**
    * If provided, used instead of the AbortController auto-configured for each request by the RequestManager
    *
@@ -309,7 +328,7 @@ export interface RequestInfo<RT = unknown> extends Request {
   op?: string;
 
   /**
-   * The identifiers of the primary resources involved in the request
+   * The {@link ResourceKey | ResourceKeys} of the primary resources involved in the request
    * (if any). This may be used by handlers to perform transactional
    * operations on the store.
    *
@@ -327,7 +346,7 @@ export interface RequestInfo<RT = unknown> extends Request {
    */
   data?: Record<string, unknown>;
   /**
-   * options specifically intended for handlers
+   * options specifically intended for {@link Handler | Handlers}
    * to utilize to process the request
    *
    */

@@ -6,6 +6,8 @@
  */
 export { AutoCompress, SupportsRequestStreams } from './-private/handlers/auto-compress.ts';
 export { Gate } from './-private/handlers/gated.ts';
+export { MetaDocHandler } from './-private/handlers/meta-doc.ts';
+
 export {
   addTraceHeader,
   TAB_ASSIGNED,

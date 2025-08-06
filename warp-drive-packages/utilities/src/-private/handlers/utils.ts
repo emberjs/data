@@ -30,10 +30,14 @@ function getTabId() {
  * A unique identifier for the current browser tab
  * useful for observability/tracing and deduping
  * across multiple tabs.
+ *
+ * @group Constants
  */
 export const TAB_ID: string = getTabId();
 /**
  * The epoch seconds at which the tab id was generated
+ *
+ * @group Constants
  */
 export const TAB_ASSIGNED: number = Math.floor(Date.now() / 1000);
 
@@ -45,6 +49,8 @@ export const TAB_ASSIGNED: number = Math.floor(Date.now() / 1000);
  * to enable tracking the browser tab of origin across multiple requests.
  *
  * Follows the template: `Root=1-${now}-${uuidv4};TabId=1-${epochSeconds}-${tab-uuid}`
+ *
+ * @group Utility Functions
  */
 export function addTraceHeader(headers: Headers): Headers {
   const now = Math.floor(Date.now() / 1000);
@@ -57,6 +63,7 @@ export function addTraceHeader(headers: Headers): Headers {
  * Source: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html
  * As of 2024-12-05 the maximum URL length is 8192 bytes.
  *
+ * @group Constants
  */
 export const MAX_URL_LENGTH = 8192;
 
@@ -64,6 +71,8 @@ export const MAX_URL_LENGTH = 8192;
  * This assertion takes a URL and throws an error if the URL is longer than the maximum URL length.
  *
  * See also {@link MAX_URL_LENGTH}
+ *
+ * @group Utility Functions
  */
 export function assertInvalidUrlLength(url: string | undefined): void {
   assert(
