@@ -1,5 +1,5 @@
 import type { StoreRequestContext } from '@warp-drive/core';
-import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import type {
   RequestContext,
   RequestInfo,
@@ -28,7 +28,11 @@ interface RejectedPromise {
 
 export interface IMUXHandlerOptions {
   checkFn: (context: RequestContext) => boolean;
-  mergeFn: (results: Array<ResolvedPromise | RejectedPromise>) => unknown;
+  mergeFn: (
+    request: RequestInfo,
+    response: StructuredDataDocument<unknown>,
+    results: Array<ResolvedPromise | RejectedPromise>
+  ) => unknown;
 }
 
 /**
@@ -82,26 +86,38 @@ export interface IMUXHandlerOptions {
  * and return a response that combines the results of all requests.
  *
  * If the primary request fails, the handler will not process the additional requests.
+ *
  * If any of the additional requests fail, the handler can choose to either recover
  * from the error or propagate it, depending on the implementation.
  *
  * @group Handlers
  */
 export class IMUXHandler implements Handler {
-  constructor({}) {}
+  private config: IMUXHandlerOptions;
+  constructor(config: IMUXHandlerOptions) {
+    this.config = config;
+  }
+
   request<T>(context: StoreRequestContext, next: NextFn<T>): Promise<T | StructuredDataDocument<T> | Awaited<T>> {
-    if (!context.request.options?.imux) {
+    if (!isImuxRequest(context.request) || !this.config.checkFn(context)) {
       return next(context.request);
     }
 
-    return next(context.request).then((response) => {
-      return processResponse<T>(response);
+    // we trigger the primary request first since its the most important one
+    const primaryRequest = next(context.request);
+
+    const promises: Future<unknown>[] = [];
+    for (const request of context.request.options.imux.requests) {
+      promises.push(next(request));
+    }
+
+    return primaryRequest.then(async (result) => {
+      const results = await Promise.allSettled(promises);
+      return this.config.mergeFn(context.request, result, results) as StructuredDataDocument<T>;
     });
   }
 }
 
-function processResponse<T>(response: StructuredDataDocument<T>): T {
-  return {
-    meta: response.content,
-  } as T;
+function isImuxRequest(request: RequestInfo): request is RequestInfo & { options: { imux: IMUXRequestOptions } } {
+  return Boolean(request.options?.imux);
 }

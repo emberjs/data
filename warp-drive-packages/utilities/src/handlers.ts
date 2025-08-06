@@ -6,7 +6,7 @@
  */
 export { AutoCompress, SupportsRequestStreams } from './-private/handlers/auto-compress.ts';
 export { Gate } from './-private/handlers/gated.ts';
-export { IMUXHandler, type IMUXOptions } from './-private/handlers/imux.ts';
+export { IMUXHandler, type IMUXHandlerOptions, type IMUXRequestOptions } from './-private/handlers/imux.ts';
 export { MetaDocHandler } from './-private/handlers/meta-doc.ts';
 
 export {
