@@ -10,6 +10,8 @@ tmp
 unstable-preview-types
 packages/*/addon
 declarations
+.svelte-kit/
+
 
 # dependencies
 bower_components
