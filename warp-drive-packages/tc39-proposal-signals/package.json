@@ -1,7 +1,8 @@
 {
   "name": "@warp-drive/tc39-proposal-signals",
   "description": "Data bindings and utilities for the prototype TC39 Signals implementation",
-  "version": "5.6.0-alpha.14",
+  "version": "5.7.0-alpha.24",
+  "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
@@ -11,13 +12,12 @@
   },
   "homepage": "https://github.com/emberjs/data",
   "bugs": "https://github.com/emberjs/data/issues",
-  "keywords": [
-  ],
+  "keywords": [],
   "scripts": {
     "build:pkg": "vite build;",
     "prepack": "pnpm run build:pkg",
     "sync": "echo \"syncing\"",
-    "_temporarily_deactivated_lint": "eslint . --quiet --cache --cache-strategy=content",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
   },
   "files": [
@@ -38,14 +38,12 @@
       "default": "./dist/*.js"
     }
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "dependencies": {
     "signal-polyfill": "0.2.2",
     "@warp-drive/core": "workspace:*"
   },
-  "peerDependenciesMeta": {
-  },
+  "peerDependenciesMeta": {},
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-typescript": "^7.27.0",
