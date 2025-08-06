@@ -28,6 +28,7 @@
     { "path": "./warp-drive-packages/build-config" },
     { "path": "./warp-drive-packages/core" },
     { "path": "./warp-drive-packages/ember" },
+    { "path": "./warp-drive-packages/react" },
     { "path": "./warp-drive-packages/experiments" },
     { "path": "./warp-drive-packages/json-api" },
     { "path": "./warp-drive-packages/legacy" },
