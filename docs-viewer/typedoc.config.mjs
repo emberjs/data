@@ -44,13 +44,15 @@ const config = {
     hidePageTitle: false,
     groupReferencesByType: true,
     groupOrder: [
+      '*', // we put unknown specialized groups first
       'Classes',
       'Methods',
       'Properties',
       'Accessors',
+      'Constants',
       'Variables',
+      'Utility Functions',
       'Functions',
-      '*',
       'Interfaces',
       'Type Aliases',
       'Modules',

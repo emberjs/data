@@ -9,6 +9,7 @@ type CheckFn = (context: RequestContext) => boolean;
 
 /**
  *
+ * @group Handlers
  * @public
  */
 export class Gate implements Handler {

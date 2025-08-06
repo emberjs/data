@@ -848,7 +848,7 @@ export class Store extends BaseClass {
    * {@link CacheOptions.key | cache key} will have the request result
    * and document cached.
    *
-   * The cache key used is {@link RequestInfo.cacheOptions | RequestInfo.cacheOptions.key}
+   * The cache key used is {@link RequestInfo.cacheOptions.key | RequestInfo.cacheOptions.key}
    * if present, falling back to {@link RequestInfo.url}.
    *
    * Params are not serialized as part of the cache-key, so

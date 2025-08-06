@@ -58,7 +58,7 @@ export function query<T>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): QueryRequestOptions<CollectionResourceDataDocument<T>, T>;
+): QueryRequestOptions<CollectionResourceDataDocument<T>>;
 export function query(
   type: string,
   query?: QueryParamsSource,

@@ -6,6 +6,12 @@ function isCompressibleMethod(method?: HTTPMethod): boolean {
   return method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
 }
 
+/**
+ * Whether the browser supports `ReadableStream` as a request body
+ * in a `POST` request.
+ *
+ * @group Constants
+ */
 export const SupportsRequestStreams: boolean = (() => {
   let duplexAccessed = false;
 
@@ -173,7 +179,7 @@ const TypedArray = Object.getPrototypeOf(Uint8Array.prototype) as typeof Uint8Ar
  * }
  * ```
  *
- * @class AutoCompress
+ * @group Handlers
  * @public
  * @since 5.5.0
  */
