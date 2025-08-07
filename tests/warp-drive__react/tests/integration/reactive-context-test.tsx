@@ -21,6 +21,11 @@ class ReactiveTestClass {
   @signal nested = new InnerTestClass();
 }
 
+async function rerender() {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 async function render(test: { element?: HTMLDivElement; root?: Root }, Component: ReactNode): Promise<HTMLDivElement> {
   if (!test.element) {
     test.element = document.createElement("div");
@@ -62,9 +67,7 @@ module("Integration | <ReactiveContext />", function (hooks) {
 
     state!.value = 1;
     console.log("state updated");
-    await Promise.resolve();
-    await Promise.resolve();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await rerender();
 
     assert.equal(element!.textContent, "1", "Updated value is rendered");
     assert.equal(state!.value, 1, "Updated value is set correctly");
