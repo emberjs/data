@@ -24,13 +24,13 @@ export function entangleSignal<T extends object>(
   key: string | symbol,
   initialValue: unknown
 ): WarpDriveSignal {
-  let signal = peekInternalSignal(signals, key);
-  if (!signal) {
-    signal = createInternalSignal(signals, obj, key, initialValue);
+  let internalSignal = peekInternalSignal(signals, key);
+  if (!internalSignal) {
+    internalSignal = createInternalSignal(signals, obj, key, initialValue);
   }
 
-  consumeInternalSignal(signal);
-  return signal;
+  consumeInternalSignal(internalSignal);
+  return internalSignal;
 }
 
 export function createSignalDescriptor(key: string | symbol, intialValue: unknown): PropertyDescriptor {
@@ -42,12 +42,13 @@ export function createSignalDescriptor(key: string | symbol, intialValue: unknow
       return entangleSignal(signals, this, key, intialValue).value;
     },
     set(this: { [Signals]: SignalStore }, value: unknown) {
+      console.log('Setting signal value:', key, value);
       const signals = withSignalStore(this);
-      const signal = getOrCreateInternalSignal(signals, this, key, intialValue);
+      const internalSignal = getOrCreateInternalSignal(signals, this, key, intialValue);
 
-      if (signal.value !== value) {
-        signal.value = value;
-        notifyInternalSignal(signal);
+      if (internalSignal.value !== value) {
+        internalSignal.value = value;
+        notifyInternalSignal(internalSignal);
       }
     },
   };
@@ -78,13 +79,17 @@ export function defineNonEnumerableSignal<T extends object>(obj: T, key: string,
   Object.defineProperty(obj, key, desc);
 }
 
+interface DecoratorPropertyDescriptor extends PropertyDescriptor {
+  initializer?: () => unknown;
+}
+
 /**
  * Decorator version of creating a signal.
  */
 export function signal<T extends object, K extends keyof T & string>(
   target: T,
   key: K,
-  descriptor: PropertyDescriptor
+  descriptor?: DecoratorPropertyDescriptor
 ): void {
   // Error on `@signal()`, `@signal(...args)``
   assert(
@@ -102,7 +107,7 @@ export function signal<T extends object, K extends keyof T & string>(
     typeof target === 'object' && typeof key === 'string' && typeof descriptor === 'object' && arguments.length === 3
   );
 
-  return createSignalDescriptor(key, descriptor.value ?? null) as unknown as void;
+  return createSignalDescriptor(key, descriptor.initializer ? descriptor.initializer() : null) as unknown as void;
 }
 
 /**
@@ -165,36 +170,36 @@ export function gate<T extends object, K extends keyof T & string>(
 
   desc.get = function (this: T) {
     const signals = withSignalStore(this);
-    let signal = peekInternalSignal(signals, key);
-    if (!signal) {
-      signal = createInternalSignal(signals, this, key, getter.call(this));
-    } else if (signal.isStale) {
-      signal.isStale = false;
-      signal.value = getter.call(this);
+    let internalSignal = peekInternalSignal(signals, key);
+    if (!internalSignal) {
+      internalSignal = createInternalSignal(signals, this, key, getter.call(this));
+    } else if (internalSignal.isStale) {
+      internalSignal.isStale = false;
+      internalSignal.value = getter.call(this);
     }
 
-    consumeInternalSignal(signal);
-    return signal.value;
+    consumeInternalSignal(internalSignal);
+    return internalSignal.value;
   };
 
   if (setter) {
     desc.set = function (this: T, v: unknown) {
       const signals = withSignalStore(this);
-      let signal = peekInternalSignal(signals, key);
-      if (!signal) {
+      let internalSignal = peekInternalSignal(signals, key);
+      if (!internalSignal) {
         // we can't use `v` as initialValue here because setters don't
         // return the value and the final value may be different
         // than what the setter was called with.
-        signal = createInternalSignal(signals, this, key, undefined);
-        signal.isStale = true;
+        internalSignal = createInternalSignal(signals, this, key, undefined);
+        internalSignal.isStale = true;
       }
       setter.call(this, v);
       // when a gate is set, we do not notify the signal
       // as its update is controlled externally.
       // unless it specifically sets itself to be locally managed
       if (isLocal) {
-        signal.isStale = true;
-        notifyInternalSignal(signal);
+        internalSignal.isStale = true;
+        notifyInternalSignal(internalSignal);
       }
     };
   }
