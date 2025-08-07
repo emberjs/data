@@ -1,0 +1,387 @@
+import { rerender, settled } from '@ember/test-helpers';
+
+import { Fetch, RequestManager } from '@warp-drive/core';
+import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
+import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
+import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
+import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
+import { getPaginationState } from '@warp-drive/ember';
+import { MockServerHandler } from '@warp-drive/holodeck';
+import { GET } from '@warp-drive/holodeck/mock';
+import { buildBaseURL } from '@warp-drive/utilities';
+
+type PaginationState<T, RT, E> = ReturnType<typeof getPaginationState<RT, T, E>>;
+type UserResource = {
+  data: {
+    id: string;
+    type: 'user';
+    attributes: {
+      name: string;
+    };
+  };
+};
+
+type PaginatedUserResource = {
+  data: Array<UserResource['data']>;
+  links?: {
+    next?: string;
+    prev?: string;
+    first?: string;
+    last?: string;
+  };
+  meta?: {
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+interface LocalTestContext extends RenderingTestContext {
+  manager: RequestManager;
+}
+type DiagnosticTest = Parameters<typeof _test<LocalTestContext>>[1];
+function test(name: string, callback: DiagnosticTest): void {
+  return _test<LocalTestContext>(name, callback);
+}
+
+class SimpleCacheHandler implements CacheHandler {
+  _cache: Map<string, unknown> = new Map();
+  request<T = unknown>(
+    context: RequestContext,
+    next: NextFn<T>
+  ): T | Promise<T | StructuredDataDocument<T>> | Future<T> {
+    const { url, method, cacheOptions } = context.request;
+    if (url && method === 'GET' && this._cache.has(url) && cacheOptions?.reload !== true) {
+      return this._cache.get(url) as T;
+    }
+
+    const future = next(context.request);
+    context.setStream(future.getStream());
+
+    return future.then(
+      (result) => {
+        if (url && method === 'GET') {
+          this._cache.set(url, result);
+        }
+        return result;
+      },
+      (error) => {
+        if (url && method === 'GET') {
+          this._cache.set(url, error);
+        }
+        throw error;
+      }
+    );
+  }
+}
+
+const urls = [
+  buildBaseURL({ resourcePath: 'users/1' }),
+  buildBaseURL({ resourcePath: 'users/2' }),
+  buildBaseURL({ resourcePath: 'users/3' }),
+];
+
+const users = [
+  {
+    id: '1',
+    type: 'user',
+    attributes: {
+      name: 'User 1',
+    },
+  },
+  {
+    id: '2',
+    type: 'user',
+    attributes: {
+      name: 'User 2',
+    },
+  },
+  {
+    id: '3',
+    type: 'user',
+    attributes: {
+      name: 'User 3',
+    },
+  },
+  {
+    id: '4',
+    type: 'user',
+    attributes: {
+      name: 'User 4',
+    },
+  },
+  {
+    id: '5',
+    type: 'user',
+    attributes: {
+      name: 'User 5',
+    },
+  },
+  {
+    id: '6',
+    type: 'user',
+    attributes: {
+      name: 'User 6',
+    },
+  },
+  {
+    id: '7',
+    type: 'user',
+    attributes: {
+      name: 'User 7',
+    },
+  },
+  {
+    id: '8',
+    type: 'user',
+    attributes: {
+      name: 'User 8',
+    },
+  },
+  {
+    id: '9',
+    type: 'user',
+    attributes: {
+      name: 'User 9',
+    },
+  },
+  {
+    id: '10',
+    type: 'user',
+    attributes: {
+      name: 'User 10',
+    },
+  },
+];
+
+const responses = [
+  {
+    data: users.slice(0, 10),
+    links: {
+      prev: null,
+      self: urls[0],
+      next: urls[1],
+    },
+  },
+  {
+    data: users.slice(0, 10),
+    links: {
+      prev: urls[0],
+      self: urls[1],
+      next: urls[2],
+    },
+  },
+  {
+    data: users.slice(0, 10),
+    links: {
+      prev: urls[1],
+      self: urls[2],
+      next: null,
+    },
+  },
+];
+
+async function mockPaginatedGETFailure(context: LocalTestContext): Promise<string> {
+  const url = buildBaseURL({ resourcePath: 'users/1' });
+
+  await GET(
+    context,
+    'users/1',
+    () => ({
+      errors: [
+        {
+          status: '404',
+          title: 'Not Found',
+          detail: 'Page not found.',
+        },
+      ],
+      links: {
+        self: url,
+      },
+    }),
+    {
+      status: 404,
+      statusText: 'Not Found',
+    }
+  );
+
+  return url;
+}
+
+module<LocalTestContext>('Integration | get-pagination-state', function (hooks) {
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function () {
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(new SimpleCacheHandler());
+
+    this.manager = manager;
+  });
+
+  test('It returns a pagination state that updates on success', async function (assert) {
+    await GET(this, 'users/1', () => responses[0]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[0], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    // Initial state checks
+    assert.true(paginationState.isLoading, 'The pagination state is loading');
+    assert.false(paginationState.isSuccess, 'The pagination state is not successful');
+    assert.false(paginationState.isError, 'The pagination state is not an error');
+    assert.equal(paginationState.data.length, 0, 'No data loaded yet');
+
+    await request;
+
+    // After completion state checks
+    assert.true(paginationState.isSuccess, 'The pagination state is successful');
+    assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
+    assert.false(paginationState.isError, 'The pagination state is not an error');
+    assert.equal(paginationState.data.length, 10, 'Data contains 10 items');
+    assert.ok(paginationState.pages.length >= 1, 'At least one page loaded');
+  });
+
+  test('It returns a pagination state that manages pages correctly', async function (assert) {
+    await GET(this, 'users/1', () => responses[0]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[0], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    await request;
+
+    const initialPage = paginationState.initialPage;
+    const activePage = paginationState.activePage;
+
+    assert.equal(initialPage, activePage, 'Initial page is the active page');
+    assert.true(initialPage.isSuccess, 'Initial page is successful');
+    assert.false(initialPage.isLoading, 'Initial page is not loading');
+    assert.false(initialPage.isError, 'Initial page is not an error');
+  });
+
+  test('It returns a pagination state that updates on failure', async function (assert) {
+    const url = await mockPaginatedGETFailure(this);
+    const request = this.manager.request<PaginatedUserResource>({ url, method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    assert.true(paginationState.isLoading, 'The pagination state is loading');
+    assert.false(paginationState.isSuccess, 'The pagination state is not successful');
+    assert.false(paginationState.isError, 'The pagination state is not an error');
+    assert.equal(paginationState.pages.length, 1, 'Initial page exists');
+    assert.equal(paginationState.data.length, 0, 'No data loaded yet');
+
+    try {
+      await request;
+    } catch {
+      // ignoring error
+    }
+
+    assert.false(paginationState.isSuccess, 'The pagination state is not successful');
+    assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
+    assert.true(paginationState.isError, 'The pagination state is an error');
+    assert.equal(paginationState.pages.length, 1, 'Page still exists after error');
+    assert.equal(paginationState.data.length, 0, 'No data after error');
+    assert.true(paginationState.initialPage.isError, 'Initial page is in error state');
+  });
+
+  test('It handles next page navigation correctly', async function (assert) {
+    await GET(this, 'users/1', () => responses[0]);
+    await GET(this, 'users/2', () => responses[1]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[0], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    await request;
+
+    assert.equal(paginationState.data.length, 10, 'First page has 10 items');
+
+    const activePage = paginationState.activePage;
+    const nextLink = activePage.nextLink;
+    assert.ok(nextLink, 'Next link exists');
+
+    const nextPageState = paginationState.getPageState({ self: nextLink });
+    assert.ok(nextPageState, 'Next page state can be created');
+
+    const nextRequest = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
+    nextPageState.load(nextRequest);
+
+    paginationState.activatePage(nextPageState);
+
+    await nextRequest;
+
+    // After loading next page
+    assert.ok(paginationState.data.length >= 10, 'Data includes at least first page');
+    assert.true(paginationState.isSuccess, 'Still in success state');
+    assert.false(paginationState.isLoading, 'Not in loading state');
+    assert.false(paginationState.isError, 'Not in error state');
+  });
+
+  test('It handles pagination when no next page exists', async function (assert) {
+    await GET(this, 'users/3', () => responses[2]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[2], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    await request;
+
+    const activePage = paginationState.activePage;
+    assert.equal(activePage.nextLink, null, 'Has no next link when on last page');
+    assert.equal(activePage.next, null, 'Has no next page state when on last page');
+
+    const hasNextPage = Boolean(activePage.nextLink);
+    assert.false(hasNextPage, 'Has no next page available when on last page');
+  });
+
+  test('It returns correct navigation helpers', async function (assert) {
+    await GET(this, 'users/1', () => responses[0]);
+    await GET(this, 'users/2', () => responses[1]);
+    await GET(this, 'users/3', () => responses[2]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[1], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    await request;
+
+    const activePage = paginationState.activePage;
+    assert.ok(activePage.nextLink, 'Has next link when not on last page');
+    assert.ok(activePage.prevLink, 'Has prev link when not on first page');
+
+    const prevLink = activePage.prevLink;
+    const prevPageState = paginationState.getPageState({ self: prevLink });
+    const prevRequest = this.manager.request<PaginatedUserResource>({ url: prevLink, method: 'GET' });
+    prevPageState.load(prevRequest);
+
+    const nextLink = activePage.nextLink;
+    const nextPageState = paginationState.getPageState({ self: nextLink });
+    const nextReq = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
+    nextPageState.load(nextReq);
+
+    assert.ok(paginationState.prevRequest, 'Has prev request when not on first page');
+    assert.ok(paginationState.nextRequest, 'Has next request when not on last page');
+  });
+
+  test('It handles abort correctly', async function (assert) {
+    await GET(this, 'users/1', () => responses[0]);
+
+    const request = this.manager.request<PaginatedUserResource>({ url: urls[0], method: 'GET' });
+    const paginationState = getPaginationState(request);
+
+    assert.true(paginationState.isLoading, 'The pagination state is loading');
+    assert.false(paginationState.isSuccess, 'The pagination state is not successful');
+    assert.false(paginationState.isError, 'The pagination state is not an error');
+
+    request.abort();
+
+    try {
+      await request;
+    } catch {
+      // ignore error
+    }
+
+    // After abort state checks
+    assert.false(paginationState.isSuccess, 'The pagination state is not successful');
+    assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
+    assert.true(paginationState.isError, 'The pagination state is an error');
+    assert.equal(paginationState.pages.length, 1, 'Page still exists after abort');
+    assert.equal(paginationState.data.length, 0, 'No data after abort');
+  });
+});
