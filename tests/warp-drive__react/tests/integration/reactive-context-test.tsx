@@ -147,7 +147,7 @@ module("Integration | <ReactiveContext />", function () {
     // strict mode will call effect twice in development
     assert.verifySteps(
       DEBUG ? ["42", "42"] : ["42"],
-      DEBUG ? "Effect runs twice on innitial render in development mode" : "Effect runs on initial render"
+      DEBUG ? "Effect runs twice on initial render in development mode" : "Effect runs on initial render"
     );
 
     state!.value = 1;
