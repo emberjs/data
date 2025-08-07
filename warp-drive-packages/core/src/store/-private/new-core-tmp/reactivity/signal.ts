@@ -6,6 +6,7 @@ import {
   consumeInternalSignal,
   createInternalSignal,
   getOrCreateInternalSignal,
+  makeInitializer,
   notifyInternalSignal,
   peekInternalSignal,
   withSignalStore,
@@ -106,7 +107,10 @@ export function signal<T extends object, K extends keyof T & string>(
     typeof target === 'object' && typeof key === 'string' && typeof descriptor === 'object' && arguments.length === 3
   );
 
-  return createSignalDescriptor(key, descriptor.initializer ? descriptor.initializer() : null) as unknown as void;
+  return createSignalDescriptor(
+    key,
+    descriptor.initializer ? makeInitializer(descriptor.initializer) : null
+  ) as unknown as void;
 }
 
 /**
