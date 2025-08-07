@@ -78,6 +78,36 @@ export function defineNonEnumerableSignal<T extends object>(obj: T, key: string,
   Object.defineProperty(obj, key, desc);
 }
 
+/**
+ * Decorator version of creating a signal.
+ */
+export function signal<T extends object, K extends keyof T & string>(
+  target: T,
+  key: K,
+  descriptor: PropertyDescriptor
+): void {
+  // Error on `@signal()`, `@signal(...args)``
+  assert(
+    'You attempted to use @signal(), which is not necessary nor supported. Remove the parentheses and you will be good to go!',
+    target !== undefined
+  );
+  assert(
+    `You attempted to use @signal on with ${arguments.length > 1 ? 'arguments' : 'an argument'} ( @signal(${Array.from(
+      arguments
+    )
+      .map((d) => `'${d}'`)
+      .join(
+        ', '
+      )}) ), which is not supported. Dependencies are automatically tracked, so you can just use ${'`@signal`'}`,
+    typeof target === 'object' && typeof key === 'string' && typeof descriptor === 'object' && arguments.length === 3
+  );
+
+  return createSignalDescriptor(key, descriptor.value ?? null) as unknown as void;
+}
+
+/**
+ * Decorator version of creating a memoized getter
+ */
 export function memoized<T extends object, K extends keyof T & string>(
   target: T,
   key: K,
@@ -119,6 +149,9 @@ export function memoized<T extends object, K extends keyof T & string>(
   return descriptor;
 }
 
+/**
+ * Decorator version of creating a gate.
+ */
 export function gate<T extends object, K extends keyof T & string>(
   _target: T,
   key: K,

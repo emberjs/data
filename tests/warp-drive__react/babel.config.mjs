@@ -10,7 +10,14 @@ const Macros = buildMacros({
 });
 
 export default {
+  presets: [
+    [
+      '@babel/preset-react',
+      { useBuiltIns: true, runtime: 'automatic', development: process.env.NODE_ENV !== 'production' },
+    ],
+  ],
   plugins: [
+    ['module:decorator-transforms', { runtime: { import: 'decorator-transforms/runtime' } }],
     // babel-plugin-debug-macros is temporarily needed
     // to convert deprecation/warn calls into console.warn
     [
@@ -29,7 +36,7 @@ export default {
     ...Macros.babelMacros,
     [
       '@babel/plugin-transform-typescript',
-      { allExtensions: true, onlyRemoveTypeImports: true, allowDeclareFields: true },
+      { allExtensions: true, isTSX: true, onlyRemoveTypeImports: true, allowDeclareFields: true },
     ],
   ],
 };

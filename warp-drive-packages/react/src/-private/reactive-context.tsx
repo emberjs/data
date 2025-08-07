@@ -1,5 +1,5 @@
 import { Signal } from "signal-polyfill";
-import { createContext, JSX, useSyncExternalStore, type Context } from "react";
+import { createContext, type JSX, type ReactNode, useSyncExternalStore, type Context } from "react";
 
 export function useWatcher(): Signal.subtle.Watcher {
   let pending = false;
@@ -47,7 +47,7 @@ export function useWatcher(): Signal.subtle.Watcher {
 
 export const WatcherContext: Context<Signal.subtle.Watcher | null> = createContext<Signal.subtle.Watcher | null>(null);
 
-export function ReactiveContext({ children }: { children: JSX.Element }): JSX.Element {
+export function ReactiveContext({ children }: { children: ReactNode }): JSX.Element {
   const watcher = useWatcher();
   /**
    * Unlike other frameworks, React does not have a built-in way to provide

@@ -17,7 +17,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
     "disableReferencedProjectLoad": true,

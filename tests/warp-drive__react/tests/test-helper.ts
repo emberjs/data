@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import '@warp-drive/react/install';
 
 import { SHOULD_RECORD } from '@warp-drive/core/build-config/env';
 import { setupGlobalHooks } from '@warp-drive/diagnostic';

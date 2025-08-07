@@ -19,12 +19,13 @@
     "build:production": "NODE_ENV=production IS_TESTING=true vite build -m development --outDir dist-test",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "glint --noEmit",
-    "start": "IS_TESTING=true vite build -m development --watch --outDir dist-test",
+    "start": "IS_TESTING=true NODE_ENV=development vite build -m development --watch --outDir dist-test",
     "test": "bun ./diagnostic.js",
     "test:production": "bun ./diagnostic.js",
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
     "@babel/core": "^7.26.10",
     "@babel/runtime": "^7.27.0",
     "@babel/plugin-transform-typescript": "^7.28.0",
@@ -39,6 +40,11 @@
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "decorator-transforms": "^2.3.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "vite": "^7.0.0",
     "typescript": "^5.8.3"
   },

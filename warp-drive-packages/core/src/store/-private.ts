@@ -74,6 +74,7 @@ export {
 
 export { createMemo, type SignalHooks, waitFor } from './-private/new-core-tmp/reactivity/configure.ts';
 export {
+  signal,
   memoized,
   gate,
   entangleSignal,

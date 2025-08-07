@@ -5,6 +5,7 @@ export const entryPoints = ['./src/index.ts', './src/install.ts'];
 
 export default createConfig(
   {
+    esbuild: true,
     entryPoints,
     externals,
     plugins: [],
