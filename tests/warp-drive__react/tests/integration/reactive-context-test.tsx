@@ -24,7 +24,11 @@ class ReactiveTestClass {
 }
 
 async function rerender() {
+  // signal update
   await Promise.resolve();
+  // render
+  await Promise.resolve();
+  // running of effects
   await Promise.resolve();
 }
 
@@ -141,7 +145,10 @@ module("Integration | <ReactiveContext />", function () {
     assert.equal(element!.textContent, "0", "Initial value is rendered");
     assert.equal(state!.value, 0, "Initial value is set correctly");
     // strict mode will call effect twice in development
-    assert.verifySteps(DEBUG ? ["42", "42"] : ["42"]);
+    assert.verifySteps(
+      DEBUG ? ["42", "42"] : ["42"],
+      DEBUG ? "Effect runs twice on innitial render in development mode" : "Effect runs on initial render"
+    );
 
     state!.value = 1;
     await rerender();
