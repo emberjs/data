@@ -20,8 +20,8 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "glint --noEmit",
     "start": "IS_TESTING=true NODE_ENV=development vite build -m development --watch --outDir dist-test",
-    "test": "bun ./diagnostic.js",
-    "test:production": "bun ./diagnostic.js",
+    "test": "NODE_ENV=development bun ./diagnostic.js",
+    "test:production": "NODE_ENV=production bun ./diagnostic.js",
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
