@@ -42,15 +42,10 @@ async function render(test: { element?: HTMLDivElement; root?: Root }, Component
   return test.element;
 }
 
-module("Integration | <ReactiveContext />", function (hooks) {
+module("Integration | <ReactiveContext />", function () {
   test("it rerenders simple signals correctly", async function (assert) {
-    let state: ReactiveTestClass | null = null;
+    let state: ReactiveTestClass = new ReactiveTestClass();
     function TestComponent() {
-      const ref = useRef<ReactiveTestClass>(null);
-      if (!ref.current) {
-        ref.current = new ReactiveTestClass();
-      }
-      state = ref.current;
       return <div>{state.value}</div>;
     }
 
@@ -61,16 +56,13 @@ module("Integration | <ReactiveContext />", function (hooks) {
       </ReactiveContext>
     );
 
-    assert.true(state! instanceof ReactiveTestClass, "State is an instance of ReactiveTestClass");
     assert.equal(element!.textContent, "0", "Initial value is rendered");
     assert.equal(state!.value, 0, "Initial value is set correctly");
 
     state!.value = 1;
-    console.log("state updated");
     await rerender();
 
     assert.equal(element!.textContent, "1", "Updated value is rendered");
     assert.equal(state!.value, 1, "Updated value is set correctly");
-    console.log("test end");
   });
 });

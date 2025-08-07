@@ -42,7 +42,6 @@ export function createSignalDescriptor(key: string | symbol, intialValue: unknow
       return entangleSignal(signals, this, key, intialValue).value;
     },
     set(this: { [Signals]: SignalStore }, value: unknown) {
-      console.log('Setting signal value:', key, value);
       const signals = withSignalStore(this);
       const internalSignal = getOrCreateInternalSignal(signals, this, key, intialValue);
 
