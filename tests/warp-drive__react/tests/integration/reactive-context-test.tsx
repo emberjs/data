@@ -6,6 +6,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { flushSync } from "react-dom";
 import { StrictMode, useEffect, type ReactNode } from "react";
 import type { TestContext } from "@warp-drive/diagnostic/-types";
+import { DEBUG } from "@warp-drive/core/build-config/env";
 
 class InnerTestClass {
   @signal innerValue = 42;
@@ -140,7 +141,7 @@ module("Integration | <ReactiveContext />", function () {
     assert.equal(element!.textContent, "0", "Initial value is rendered");
     assert.equal(state!.value, 0, "Initial value is set correctly");
     // strict mode will call effect twice in development
-    assert.verifySteps(["42", "42"]);
+    assert.verifySteps(DEBUG ? ["42", "42"] : ["42"]);
 
     state!.value = 1;
     await rerender();

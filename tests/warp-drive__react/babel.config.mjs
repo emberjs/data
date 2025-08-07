@@ -1,5 +1,6 @@
 import { setConfig } from '@warp-drive/core/build-config';
 import { buildMacros } from '@embroider/macros/babel';
+import { macros } from '@warp-drive/core/build-config/babel-macros';
 
 const Macros = buildMacros({
   configure: (config) => {
@@ -17,6 +18,7 @@ export default {
     ],
   ],
   plugins: [
+    ...macros(),
     ['module:decorator-transforms', { runtime: { import: 'decorator-transforms/runtime' } }],
     // babel-plugin-debug-macros is temporarily needed
     // to convert deprecation/warn calls into console.warn
