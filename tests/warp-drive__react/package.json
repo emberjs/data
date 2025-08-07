@@ -15,13 +15,13 @@
     "test": "tests"
   },
   "scripts": {
-    "build:tests": "IS_TESTING=true vite build -m development --outDir dist-test",
-    "build:production": "NODE_ENV=production IS_TESTING=true vite build -m development --outDir dist-test",
+    "build:tests": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --outDir dist-test",
+    "build:production": "export IS_TESTING=true; export NODE_ENV=production; vite build --outDir dist-test",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "glint --noEmit",
-    "start": "IS_TESTING=true NODE_ENV=development vite build -m development --watch --outDir dist-test",
-    "test": "NODE_ENV=development bun ./diagnostic.js",
-    "test:production": "NODE_ENV=production bun ./diagnostic.js",
+    "start": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --watch --outDir dist-test",
+    "test": "export IS_TESTING=true; export NODE_ENV=development; bun ./diagnostic.js",
+    "test:production": "export IS_TESTING=true; export NODE_ENV=production; bun ./diagnostic.js",
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
