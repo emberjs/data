@@ -1,11 +1,8 @@
-/* eslint-disable no-console */
-import { module, test } from "@warp-drive/diagnostic";
+import { module, test, setupTest } from "@warp-drive/diagnostic/react";
+import { maybeRerender } from "@warp-drive/diagnostic/react/test-helpers";
 import { ReactiveContext } from "@warp-drive/react";
 import { signal, memoized } from "@warp-drive/core/store/-private";
-import { createRoot, type Root } from "react-dom/client";
-import { flushSync } from "react-dom";
-import { useEffect, StrictMode, type ReactNode } from "react";
-import type { TestContext } from "@warp-drive/diagnostic/-types";
+import { useEffect } from "react";
 import { DEBUG } from "@warp-drive/core/build-config/env";
 
 class InnerTestClass {
@@ -23,106 +20,77 @@ class ReactiveTestClass {
   @signal nested = new InnerTestClass();
 }
 
-async function rerender() {
-  // signal update
-  await Promise.resolve();
-  // render
-  await Promise.resolve();
-  // running of effects
-  await Promise.resolve();
-}
+module("Integration | <ReactiveContext />", function (hooks) {
+  setupTest(hooks);
 
-async function render(
-  test: TestContext & { element?: HTMLDivElement; root?: Root },
-  Component: ReactNode
-): Promise<HTMLDivElement> {
-  if (!test.element) {
-    test.element = document.createElement("div");
-    test.element.className = "react-test";
-    const mainElement = document.getElementById("react-testing")!;
-    mainElement.appendChild(test.element);
-    test.root = createRoot(test.element);
-  }
-
-  flushSync(() => {
-    test.root!.render(<StrictMode>{Component}</StrictMode>);
-  });
-
-  return test.element;
-}
-
-module("Integration | <ReactiveContext />", function () {
   test("it rerenders simple signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.value}</div>;
     }
 
-    const element = await render(
-      this,
+    await this.render(
       <ReactiveContext>
         <TestComponent />
       </ReactiveContext>
     );
 
-    assert.equal(element!.textContent, "0", "Initial value is rendered");
+    assert.dom().hasText("0", "Initial value is rendered");
     assert.equal(state!.value, 0, "Initial value is set correctly");
 
     state!.value = 1;
-    await rerender();
+    await maybeRerender();
 
-    assert.equal(element!.textContent, "1", "Updated value is rendered");
+    assert.dom().hasText("1", "Updated value is rendered");
     assert.equal(state!.value, 1, "Updated value is set correctly");
   });
 
   test("it rerenders computed signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.computedValue}</div>;
     }
 
-    const element = await render(
-      this,
+    await this.render(
       <ReactiveContext>
         <TestComponent />
       </ReactiveContext>
     );
 
-    assert.equal(element!.textContent, "0", "Initial value is rendered");
+    assert.dom().hasText("0", "Initial value is rendered");
     assert.equal(state!.computedValue, 0, "Initial value is set correctly");
 
     state!.value = 1;
-    await rerender();
+    await maybeRerender();
 
-    assert.equal(element!.textContent, "42", "Updated value is rendered");
+    assert.dom().hasText("42", "Updated value is rendered");
     assert.equal(state!.computedValue, 42, "Updated value is set correctly");
   });
 
   test("it rerenders nested signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.nested.innerValue}</div>;
     }
 
-    const element = await render(
-      this,
+    await this.render(
       <ReactiveContext>
         <TestComponent />
       </ReactiveContext>
     );
 
-    assert.equal(element!.textContent, "42", "Initial value is rendered");
+    assert.dom().hasText("42", "Initial value is rendered");
     assert.equal(state!.nested.innerValue, 42, "Initial value is set correctly");
 
     state!.nested.innerValue = 420;
-    await rerender();
+    await maybeRerender();
 
-    assert.equal(element!.textContent, "420", "Updated value is rendered");
+    assert.dom().hasText("420", "Updated value is rendered");
     assert.equal(state!.nested.innerValue, 420, "Updated value is set correctly");
   });
 
   test("it works with effects", async function (assert) {
-    const state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
 
     function TestComponent() {
       useEffect(() => {
@@ -131,14 +99,13 @@ module("Integration | <ReactiveContext />", function () {
       return <div>{state.value}</div>;
     }
 
-    const element = await render(
-      this,
+    await this.render(
       <ReactiveContext>
         <TestComponent />
       </ReactiveContext>
     );
 
-    assert.equal(element!.textContent, "0", "Initial value is rendered");
+    assert.dom().hasText("0", "Initial value is rendered");
     assert.equal(state!.value, 0, "Initial value is set correctly");
     // strict mode will call effect twice in development
     assert.verifySteps(
@@ -147,16 +114,16 @@ module("Integration | <ReactiveContext />", function () {
     );
 
     state!.value = 1;
-    await rerender();
+    await maybeRerender();
 
-    assert.equal(element!.textContent, "1", "Updated value is rendered");
+    assert.dom().hasText("1", "Updated value is rendered");
     assert.equal(state!.value, 1, "Updated value is set correctly");
     assert.verifySteps([], "Effect does not run on unrelated state change");
 
     state!.nested.innerValue = 420;
-    await rerender();
+    await maybeRerender();
 
-    assert.equal(element!.textContent, "1", "Value remains unchanged");
+    assert.dom().hasText("1", "Value remains unchanged after nested state change");
     assert.equal(state!.value, 1, "Value remains unchanged");
     assert.verifySteps(["420"], "Effect runs on nested state change");
   });
