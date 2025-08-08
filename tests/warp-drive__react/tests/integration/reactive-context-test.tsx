@@ -24,7 +24,7 @@ module("Integration | <ReactiveContext />", function (hooks) {
   setupTest(hooks);
 
   test("it rerenders simple signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.value}</div>;
     }
@@ -46,7 +46,7 @@ module("Integration | <ReactiveContext />", function (hooks) {
   });
 
   test("it rerenders computed signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.computedValue}</div>;
     }
@@ -68,7 +68,7 @@ module("Integration | <ReactiveContext />", function (hooks) {
   });
 
   test("it rerenders nested signals correctly", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
     function TestComponent() {
       return <div>{state.nested.innerValue}</div>;
     }
@@ -90,7 +90,7 @@ module("Integration | <ReactiveContext />", function (hooks) {
   });
 
   test("it works with effects", async function (assert) {
-    const state: ReactiveTestClass = new ReactiveTestClass();
+    const state = new ReactiveTestClass();
 
     function TestComponent() {
       useEffect(() => {
