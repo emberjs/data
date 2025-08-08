@@ -687,6 +687,9 @@ importers:
       debug:
         specifier: ^4.4.0
         version: 4.4.0
+      qunit-dom:
+        specifier: ^3.4.0
+        version: 3.4.0
       tmp:
         specifier: ^0.2.3
         version: 0.2.3
@@ -700,6 +703,9 @@ importers:
       '@babel/preset-env':
         specifier: ^7.26.9
         version: 7.27.2(@babel/core@7.27.1)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.27.1)
       '@babel/preset-typescript':
         specifier: ^7.27.0
         version: 7.27.1(@babel/core@7.27.1)
@@ -712,6 +718,12 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/react':
+        specifier: ^19.1.9
+        version: 19.1.9
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.7(@types/react@19.1.9)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3599,7 +3611,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/diagnostic':
         specifier: workspace:*
-        version: file:packages/diagnostic(@babel/core@7.27.1)
+        version: file:packages/diagnostic(91fa9405ded66bcb0704e914732448b6)
       '@warp-drive/holodeck':
         specifier: workspace:*
         version: file:packages/holodeck
@@ -6963,10 +6975,16 @@ packages:
     peerDependencies:
       '@ember/test-helpers': 5.2.0
       ember-cli-test-loader: '>= 3.1.0'
+      react: ^19.1.1
+      react-dom: ^19.1.1
     peerDependenciesMeta:
       '@ember/test-helpers':
         optional: true
       ember-cli-test-loader:
+        optional: true
+      react:
+        optional: true
+      react-dom:
         optional: true
 
   '@warp-drive/ember@file:warp-drive-packages/ember':
@@ -18755,12 +18773,16 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/diagnostic@file:packages/diagnostic(@babel/core@7.27.1)':
+  '@warp-drive/diagnostic@file:packages/diagnostic(91fa9405ded66bcb0704e914732448b6)':
     dependencies:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      qunit-dom: 3.4.0
       tmp: 0.2.3
+    optionalDependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -18770,6 +18792,7 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      qunit-dom: 3.4.0
       tmp: 0.2.3
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
@@ -18782,6 +18805,7 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      qunit-dom: 3.4.0
       tmp: 0.2.3
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
