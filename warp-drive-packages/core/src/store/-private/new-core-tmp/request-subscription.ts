@@ -51,6 +51,20 @@ export interface ContentFeatures<RT> {
   latestRequest?: Future<RT>;
 }
 
+export interface RequestArgs<RT, E> extends SubscriptionArgs<RT, E> {
+  subscription?: RequestSubscription<RT, E>;
+
+  /**
+   * The store instance to use for making requests. If contexts are available,
+   * the component will default to using the `store` on the context.
+   *
+   * This is required if the store is not available via context or should be
+   * different from the store provided via context.
+   *
+   */
+  store?: Store;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface SubscriptionArgs<RT, E> {
   /**
