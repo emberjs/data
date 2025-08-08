@@ -1,7 +1,9 @@
 import {
+  AutorefreshBehaviorCombos,
   createRequestSubscription,
   DISPOSE,
   RequestArgs,
+  signal,
   type ContentFeatures,
   type RecoveryFeatures,
   type RequestLoadingState,
@@ -9,13 +11,24 @@ import {
   type RequestSubscription,
 } from "@warp-drive/core/store/-private";
 import type { StructuredErrorDocument } from "@warp-drive/core/types/request";
-import { JSX, ReactNode, useEffect, useRef } from "react";
+import { JSX, ReactNode, useEffect, useMemo, useRef } from "react";
 import { useStore } from "./store-provider";
 import { ReactiveContext } from "./reactive-context";
+import { SubscriptionArgs } from "@warp-drive/core/store/-private";
+import { Future } from "@warp-drive/core/request";
+import { StoreRequestInput } from "@warp-drive/core";
 
 const IdleBlockMissingError = new Error(
   "No idle block provided for <Request> component, and no query or request was provided."
 );
+
+class ReactiveArgs<RT, E> implements SubscriptionArgs<RT, E> {
+  @signal request?: Future<RT> | undefined | null;
+  @signal query?: StoreRequestInput<RT> | undefined | null;
+  @signal autorefresh?: AutorefreshBehaviorCombos | undefined;
+  @signal autorefreshThreshold?: number | undefined;
+  @signal autorefreshBehavior?: "refresh" | "reload" | "policy";
+}
 
 interface ChromeComponentProps<RT> {
   children: ReactNode;
@@ -178,6 +191,12 @@ export function Request<RT, E>($props: RequestProps<RT, E>): JSX.Element {
   const store = $props.store ?? useStore();
   const Chrome = $props.chrome ?? DefaultChrome;
   const sink = useRef<RequestSubscription<RT, E> | null>(null);
+  const args = useRef<SubscriptionArgs<RT, E> | null>(null);
+
+  if (!args.current) {
+    args.current = useMemo(() => new ReactiveArgs<RT, E>(), []);
+  }
+  Object.assign(args.current, $props);
 
   if (sink.current && (sink.current.store !== store || $props.subscription)) {
     sink.current[DISPOSE]();
@@ -185,7 +204,7 @@ export function Request<RT, E>($props: RequestProps<RT, E>): JSX.Element {
   }
 
   if (!sink.current && !$props.subscription) {
-    sink.current = createRequestSubscription(store, $props);
+    sink.current = createRequestSubscription(store, args.current!);
   }
 
   useDisposable(sink.current);
