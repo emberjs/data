@@ -15,7 +15,7 @@ export function createConfig(options, resolve) {
   options.compileTypes = options.compileTypes ?? true;
 
   return defineConfig({
-    esbuild: false,
+    esbuild: options.esbuild ?? false,
     logLevel: 'error',
     reportCompressedSize: false,
     build: {
@@ -42,7 +42,7 @@ export function createConfig(options, resolve) {
     plugins: [
       options.compileTypes
         ? UnpluginIsolatedDecl({
-            include: `${options.srcDir}/**/*.{ts,gts}`,
+            include: `${options.srcDir}/**/*.{ts,gts,tsx}`,
             extraOutdir: 'declarations',
             transformerOptions: {
               stripInternal: true,
@@ -57,11 +57,11 @@ export function createConfig(options, resolve) {
               ? {
                   configFile: options.babelConfigFile,
                   babelHelpers: 'bundled',
-                  extensions: ['.js', '.ts', '.gjs', '.gts'],
+                  extensions: ['.js', '.ts', '.gjs', '.gts', '.jsx', '.tsx'],
                 }
               : {
                   babelHelpers: 'bundled',
-                  extensions: ['.js', '.ts', '.gjs', '.gts'],
+                  extensions: ['.js', '.ts', '.gjs', '.gts', '.jsx', '.tsx'],
                 }
           ),
       options.compileTypes ? MoveTypesToDestination(options, resolve) : null,

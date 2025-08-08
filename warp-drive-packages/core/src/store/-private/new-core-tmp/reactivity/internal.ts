@@ -5,6 +5,21 @@ import { ARRAY_SIGNAL, consumeSignal, createSignal, notifySignal, OBJECT_SIGNAL,
 
 export type { SignalRef };
 export { ARRAY_SIGNAL, OBJECT_SIGNAL };
+
+const INITIALIZER_PROTO = { isInitializer: true } as const;
+interface Initializer {
+  value: () => unknown;
+}
+export function makeInitializer(fn: () => unknown): Initializer {
+  // we use a prototype to ensure that the initializer is not enumerable
+  // and does not interfere with the signal's value.
+  return Object.assign(Object.create(INITIALIZER_PROTO), { value: fn }) as Initializer;
+}
+
+function isInitializer(obj: unknown): obj is Initializer {
+  return typeof obj === 'object' && obj !== null && Object.getPrototypeOf(obj) === INITIALIZER_PROTO;
+}
+
 /**
  * A WarpDriveSignal is a wrapper around a framework specific or TC39 signal
  * that enables us to store and manage the signal in a universal way.
@@ -191,7 +206,7 @@ export function createInternalSignal(
     key,
     context: obj,
     signal: createSignal(obj, key),
-    value: initialValue,
+    value: isInitializer(initialValue) ? initialValue.value.call(obj) : initialValue,
     isStale: false,
   };
 

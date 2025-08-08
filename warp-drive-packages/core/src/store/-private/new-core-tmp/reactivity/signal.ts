@@ -6,6 +6,7 @@ import {
   consumeInternalSignal,
   createInternalSignal,
   getOrCreateInternalSignal,
+  makeInitializer,
   notifyInternalSignal,
   peekInternalSignal,
   withSignalStore,
@@ -24,13 +25,13 @@ export function entangleSignal<T extends object>(
   key: string | symbol,
   initialValue: unknown
 ): WarpDriveSignal {
-  let signal = peekInternalSignal(signals, key);
-  if (!signal) {
-    signal = createInternalSignal(signals, obj, key, initialValue);
+  let internalSignal = peekInternalSignal(signals, key);
+  if (!internalSignal) {
+    internalSignal = createInternalSignal(signals, obj, key, initialValue);
   }
 
-  consumeInternalSignal(signal);
-  return signal;
+  consumeInternalSignal(internalSignal);
+  return internalSignal;
 }
 
 export function createSignalDescriptor(key: string | symbol, intialValue: unknown): PropertyDescriptor {
@@ -43,11 +44,11 @@ export function createSignalDescriptor(key: string | symbol, intialValue: unknow
     },
     set(this: { [Signals]: SignalStore }, value: unknown) {
       const signals = withSignalStore(this);
-      const signal = getOrCreateInternalSignal(signals, this, key, intialValue);
+      const internalSignal = getOrCreateInternalSignal(signals, this, key, intialValue);
 
-      if (signal.value !== value) {
-        signal.value = value;
-        notifyInternalSignal(signal);
+      if (internalSignal.value !== value) {
+        internalSignal.value = value;
+        notifyInternalSignal(internalSignal);
       }
     },
   };
@@ -78,6 +79,43 @@ export function defineNonEnumerableSignal<T extends object>(obj: T, key: string,
   Object.defineProperty(obj, key, desc);
 }
 
+interface DecoratorPropertyDescriptor extends PropertyDescriptor {
+  initializer?: () => unknown;
+}
+
+/**
+ * Decorator version of creating a signal.
+ */
+export function signal<T extends object, K extends keyof T & string>(
+  target: T,
+  key: K,
+  descriptor?: DecoratorPropertyDescriptor
+): void {
+  // Error on `@signal()`, `@signal(...args)``
+  assert(
+    'You attempted to use @signal(), which is not necessary nor supported. Remove the parentheses and you will be good to go!',
+    target !== undefined
+  );
+  assert(
+    `You attempted to use @signal on with ${arguments.length > 1 ? 'arguments' : 'an argument'} ( @signal(${Array.from(
+      arguments
+    )
+      .map((d) => `'${d}'`)
+      .join(
+        ', '
+      )}) ), which is not supported. Dependencies are automatically tracked, so you can just use ${'`@signal`'}`,
+    typeof target === 'object' && typeof key === 'string' && typeof descriptor === 'object' && arguments.length === 3
+  );
+
+  return createSignalDescriptor(
+    key,
+    descriptor.initializer ? makeInitializer(descriptor.initializer) : null
+  ) as unknown as void;
+}
+
+/**
+ * Decorator version of creating a memoized getter
+ */
 export function memoized<T extends object, K extends keyof T & string>(
   target: T,
   key: K,
@@ -119,6 +157,9 @@ export function memoized<T extends object, K extends keyof T & string>(
   return descriptor;
 }
 
+/**
+ * Decorator version of creating a gate.
+ */
 export function gate<T extends object, K extends keyof T & string>(
   _target: T,
   key: K,
@@ -132,36 +173,36 @@ export function gate<T extends object, K extends keyof T & string>(
 
   desc.get = function (this: T) {
     const signals = withSignalStore(this);
-    let signal = peekInternalSignal(signals, key);
-    if (!signal) {
-      signal = createInternalSignal(signals, this, key, getter.call(this));
-    } else if (signal.isStale) {
-      signal.isStale = false;
-      signal.value = getter.call(this);
+    let internalSignal = peekInternalSignal(signals, key);
+    if (!internalSignal) {
+      internalSignal = createInternalSignal(signals, this, key, getter.call(this));
+    } else if (internalSignal.isStale) {
+      internalSignal.isStale = false;
+      internalSignal.value = getter.call(this);
     }
 
-    consumeInternalSignal(signal);
-    return signal.value;
+    consumeInternalSignal(internalSignal);
+    return internalSignal.value;
   };
 
   if (setter) {
     desc.set = function (this: T, v: unknown) {
       const signals = withSignalStore(this);
-      let signal = peekInternalSignal(signals, key);
-      if (!signal) {
+      let internalSignal = peekInternalSignal(signals, key);
+      if (!internalSignal) {
         // we can't use `v` as initialValue here because setters don't
         // return the value and the final value may be different
         // than what the setter was called with.
-        signal = createInternalSignal(signals, this, key, undefined);
-        signal.isStale = true;
+        internalSignal = createInternalSignal(signals, this, key, undefined);
+        internalSignal.isStale = true;
       }
       setter.call(this, v);
       // when a gate is set, we do not notify the signal
       // as its update is controlled externally.
       // unless it specifically sets itself to be locally managed
       if (isLocal) {
-        signal.isStale = true;
-        notifyInternalSignal(signal);
+        internalSignal.isStale = true;
+        notifyInternalSignal(internalSignal);
       }
     };
   }

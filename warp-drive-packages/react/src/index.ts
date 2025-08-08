@@ -4,3 +4,4 @@
  *
  * @module
  */
+export { ReactiveContext } from './-private/reactive-context.tsx';

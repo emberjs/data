@@ -1,13 +1,5 @@
 {
-  "include": [
-    "src/**/*",
-    "../../@types/fastboot",
-    "../../@types/@glimmer/tracking.d.ts",
-    "../../@types/@glimmer/validator.d.ts"
-  ],
-  "glint": {
-    "environment": ["ember-loose", "ember-template-imports"]
-  },
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -20,6 +12,7 @@
     "alwaysStrict": true,
     "strict": true,
     "pretty": true,
+    "jsx": "react-jsx",
     "exactOptionalPropertyTypes": false,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
@@ -43,12 +36,13 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "baseUrl": ".",
-    "types": ["ember-source/types"],
+    "types": [],
     "allowImportingTsExtensions": true,
     "paths": {
       "@warp-drive/core": ["../core/declarations"],
       "@warp-drive/core/*": ["../core/declarations/*"],
-      "@glimmer/validator": ["../../@types/@glimmer/validator.d.ts"]
+      "@warp-drive/tc39-proposal-signals": ["../tc39-proposal-signals/declarations"],
+      "@warp-drive/tc39-proposal-signals/*": ["../tc39-proposal-signals/declarations/*"]
     },
     "erasableSyntaxOnly": true,
     "isolatedDeclarations": true,
