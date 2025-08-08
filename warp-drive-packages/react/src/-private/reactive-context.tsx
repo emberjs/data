@@ -1,13 +1,5 @@
 import { Signal } from "signal-polyfill";
-import {
-  createContext,
-  type JSX,
-  type ReactNode,
-  useSyncExternalStore,
-  type Context,
-  useContext,
-  useMemo,
-} from "react";
+import { createContext, type JSX, type ReactNode, useSyncExternalStore, type Context, useMemo } from "react";
 import { LOG_REACT_SIGNAL_INTEGRATION } from "@warp-drive/core/build-config/debugging";
 
 function _createWatcher() {

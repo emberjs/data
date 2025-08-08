@@ -58,6 +58,7 @@ export { getPromiseState, type PromiseState } from './-private/new-core-tmp/prom
 export {
   DISPOSE,
   createRequestSubscription,
+  type RequestArgs,
   type SubscriptionArgs,
   type RequestComponentArgs,
   type RequestSubscription,
