@@ -10,10 +10,6 @@ import {
 } from "react";
 import { LOG_REACT_SIGNAL_INTEGRATION } from "@warp-drive/core/build-config/debugging";
 
-export function useWatcherContext(): { watcher: Signal.subtle.Watcher } | null {
-  return useContext(WatcherContext);
-}
-
 function _createWatcher() {
   if (LOG_REACT_SIGNAL_INTEGRATION) {
     console.log(`[WarpDrive] Creating a Watcher`);
