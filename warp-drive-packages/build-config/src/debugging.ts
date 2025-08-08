@@ -176,3 +176,8 @@ export const DEBUG_RELATIONSHIP_NOTIFICATIONS: boolean = false;
  * @internal
  */
 export const __INTERNAL_LOG_NATIVE_MAP_SET_COUNTS: boolean = false;
+
+/**
+ * Helps when debugging React specific reactivity issues.
+ */
+export const LOG_REACT_SIGNAL_INTEGRATION: boolean = false;

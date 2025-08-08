@@ -4,7 +4,7 @@ import { ReactiveContext } from "@warp-drive/react";
 import { signal, memoized } from "@warp-drive/core/store/-private";
 import { createRoot, type Root } from "react-dom/client";
 import { flushSync } from "react-dom";
-import { StrictMode, useEffect, type ReactNode } from "react";
+import { useEffect, StrictMode, type ReactNode } from "react";
 import type { TestContext } from "@warp-drive/diagnostic/-types";
 import { DEBUG } from "@warp-drive/core/build-config/env";
 
@@ -122,16 +122,12 @@ module("Integration | <ReactiveContext />", function () {
   });
 
   test("it works with effects", async function (assert) {
-    let state: ReactiveTestClass = new ReactiveTestClass();
+    const state: ReactiveTestClass = new ReactiveTestClass();
 
     function TestComponent() {
       useEffect(() => {
         assert.step(String(state.nested.innerValue));
-      }, [
-        // react effect dependencies are referenctially compared (Object.is)
-        // so for an effect to rerun it must specify its exact reactive dependencies
-        state.nested.innerValue,
-      ]);
+      }, [state.nested.innerValue]);
       return <div>{state.value}</div>;
     }
 

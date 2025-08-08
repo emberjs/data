@@ -1,63 +1,105 @@
 import { Signal } from "signal-polyfill";
-import { createContext, type JSX, type ReactNode, useSyncExternalStore, type Context } from "react";
+import {
+  createContext,
+  type JSX,
+  type ReactNode,
+  useSyncExternalStore,
+  type Context,
+  useContext,
+  useMemo,
+} from "react";
+import { LOG_REACT_SIGNAL_INTEGRATION } from "@warp-drive/core/build-config/debugging";
 
-export function useWatcher(): { watcher: Signal.subtle.Watcher } | null {
-  let pending = false;
-  let destroyed = false;
-  let notifyReact: (() => void) | null = null;
+export function useWatcherContext(): { watcher: Signal.subtle.Watcher } | null {
+  return useContext(WatcherContext);
+}
 
-  // the extra wrapper returned here ensures that the context value for the watcher
-  // changes causing a re-render when the watcher is updated.
-  let snapshot: { watcher: Signal.subtle.Watcher } | null = null;
+function _createWatcher() {
+  if (LOG_REACT_SIGNAL_INTEGRATION) {
+    console.log(`[WarpDrive] Creating a Watcher`);
+  }
+  const state = {
+    pending: false,
+    destroyed: false,
+    notifyReact: null as (() => void) | null,
+    watcher: null as unknown as Signal.subtle.Watcher,
 
-  const clearWatcher = () => {
-    watcher.unwatch(...Signal.subtle.introspectSources(watcher));
+    // the extra wrapper returned here ensures that the context value for the watcher
+    // changes causing a re-render when the watcher is updated.
+    snapshot: null as { watcher: Signal.subtle.Watcher } | null,
   };
 
-  const watcher = new Signal.subtle.Watcher(() => {
-    if (!pending && !destroyed) {
-      pending = true;
+  const clearWatcher = () => {
+    state.watcher.unwatch(...Signal.subtle.introspectSources(state.watcher));
+  };
+
+  state.watcher = new Signal.subtle.Watcher(() => {
+    if (!state.pending && !state.destroyed) {
+      state.pending = true;
       queueMicrotask(() => {
-        pending = false;
-        if (destroyed) {
-          snapshot = null;
+        state.pending = false;
+        if (state.destroyed) {
+          if (LOG_REACT_SIGNAL_INTEGRATION) {
+            console.log(`[WarpDrive] Detected Watcher Destroyed During Notify Flush, clearing signals`);
+          }
+          state.snapshot = null;
           clearWatcher();
           return;
         }
 
+        if (LOG_REACT_SIGNAL_INTEGRATION) {
+          console.log(`[WarpDrive] Notifying React That The WatcherContext Has Updated`);
+        }
+
         // any time signals have changed, we notify React that our store has updated
-        snapshot = { watcher };
-        if (notifyReact) notifyReact();
+        state.snapshot = { watcher: state.watcher };
+        if (state.notifyReact) state.notifyReact();
 
         // tell the Watcher to start watching for changes again
         // by signaling that notifications have been flushed.
-        watcher.watch();
+        state.watcher.watch();
       });
-    } else if (destroyed) {
+    } else if (state.destroyed) {
+      if (LOG_REACT_SIGNAL_INTEGRATION) {
+        console.log(`[WarpDrive] Detected Watcher Destroyed During Notify, clearing signals`);
+      }
       // if we are destroyed, we clear the watcher signals
       // so that it does not continue to watch for changes.
+      state.snapshot = null;
       clearWatcher();
     }
   });
 
   // The watcher won't begin watching until we call `watcher.watch()`
-  watcher.watch();
-  snapshot = { watcher };
+  state.watcher.watch();
+  state.snapshot = { watcher: state.watcher };
+
+  return state;
+}
+
+export function useWatcher(): { watcher: Signal.subtle.Watcher } | null {
+  const state = useMemo(_createWatcher, []);
 
   return useSyncExternalStore(
     (notifyChanged: () => void) => {
-      destroyed = false;
-      notifyReact = notifyChanged;
+      if (LOG_REACT_SIGNAL_INTEGRATION) {
+        console.log(`[WarpDrive] Subscribing to Watcher`);
+      }
+      state.destroyed = false;
+      state.notifyReact = notifyChanged;
 
       // The watcher won't begin watching until we call `watcher.watch()`
-      watcher.watch();
+      state.watcher.watch();
 
       return () => {
-        destroyed = true;
-        notifyReact = null;
+        if (LOG_REACT_SIGNAL_INTEGRATION) {
+          console.log(`[WarpDrive] Deactivating Watcher Subscription`);
+        }
+        state.destroyed = true;
+        state.notifyReact = null;
       };
     },
-    () => snapshot
+    () => state.snapshot
   );
 }
 

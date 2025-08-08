@@ -17,6 +17,7 @@
 import { use } from 'react';
 import { Signal } from 'signal-polyfill';
 
+import { LOG_REACT_SIGNAL_INTEGRATION } from '@warp-drive/core/build-config/debugging';
 import { type HooksOptions, setupSignals, type SignalHooks } from '@warp-drive/core/configure';
 import { buildSignalConfig as _buildSignalConfig } from '@warp-drive/tc39-proposal-signals/install';
 
@@ -27,9 +28,17 @@ function tryConsumeContext(signal: Signal.State<unknown> | Signal.Computed<unkno
     // ensure signals are watched by our closest watcher
     const watcher = use(WatcherContext);
     watcher?.watcher.watch(signal);
+    if (LOG_REACT_SIGNAL_INTEGRATION) {
+      // eslint-disable-next-line no-console
+      console.log(`[WarpDrive] Consumed Context Signal`, signal, watcher);
+    }
   } catch {
     // if we are not in a React context, we will Error
     // so we just ignore it.
+    if (LOG_REACT_SIGNAL_INTEGRATION) {
+      // eslint-disable-next-line no-console
+      console.log(`[WarpDrive] No Context Available To Consume Signal`, signal);
+    }
   }
 }
 
@@ -38,6 +47,10 @@ export function buildSignalConfig(options: HooksOptions): SignalHooks<Signal.Sta
   const newConfig = Object.assign({}, config);
 
   newConfig.notifySignal = (signal: Signal.State<unknown>) => {
+    if (LOG_REACT_SIGNAL_INTEGRATION) {
+      // eslint-disable-next-line no-console
+      console.log(`[WarpDrive] Notifying Signal`, signal);
+    }
     config.notifySignal(signal);
   };
 

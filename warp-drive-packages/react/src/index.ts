@@ -4,4 +4,4 @@
  *
  * @module
  */
-export { ReactiveContext } from './-private/reactive-context.tsx';
+export { ReactiveContext, useWatcherContext } from './-private/reactive-context.tsx';
