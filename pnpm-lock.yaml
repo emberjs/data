@@ -678,6 +678,9 @@ importers:
 
   packages/diagnostic:
     dependencies:
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
@@ -18778,6 +18781,7 @@ snapshots:
 
   '@warp-drive/diagnostic@file:packages/diagnostic(91fa9405ded66bcb0704e914732448b6)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
@@ -18793,6 +18797,7 @@ snapshots:
 
   '@warp-drive/diagnostic@file:packages/diagnostic(b4f72904c966d6a0c2e84aaa4afdc14f)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
@@ -18807,6 +18812,7 @@ snapshots:
 
   '@warp-drive/diagnostic@file:packages/diagnostic(e4702f19c50cf386d1a9755f3bc0f463)':
     dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
