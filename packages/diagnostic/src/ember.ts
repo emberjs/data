@@ -91,7 +91,6 @@ export function setupTest<TC extends TestContext>(hooks: Hooks<TC>, opts?: Setup
     Object.defineProperty(this, 'h', {
       configurable: true,
       enumerable: true,
-      writable: false,
       get() {
         if (!helpers) {
           helpers = buildHelpers(this, {
@@ -191,7 +190,6 @@ export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, opt
     Object.defineProperty(this, 'h', {
       configurable: true,
       enumerable: true,
-      writable: false,
       get() {
         if (!helpers) {
           helpers = buildHelpers(this, {

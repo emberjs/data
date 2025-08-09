@@ -81,7 +81,6 @@ export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options
     Object.defineProperty(this, "h", {
       configurable: true,
       enumerable: true,
-      writable: false,
       get() {
         if (!helpers) {
           helpers = buildHelpers(this, {
