@@ -1,15 +1,16 @@
 import { module as _module, skip as _skip, test as _test, todo as _todo } from "./-define";
 import type { Hooks, ModuleCallback, TestCallback, TestContext } from "./-types";
 import { createRoot, type Root } from "react-dom/client";
-import { flushSync } from "react-dom";
-import { StrictMode, type ReactNode } from "react";
+import { act, StrictMode, type ReactNode } from "react";
 import { setup } from "qunit-dom";
+import { buildHelpers, TestHelpers } from "./helpers/install";
 
 export interface ReactTestContext extends TestContext {
   [IsRenderingContext]: boolean;
   element: HTMLDivElement;
   root: Root;
   render(app: ReactNode): Promise<void>;
+  h: TestHelpers;
 }
 
 export const IsRenderingContext: unique symbol = Symbol("isRenderingContext");
@@ -49,6 +50,9 @@ declare module "./-types" {
   }
 }
 
+// @ts-expect-error This is a private property used by the test framework
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options?: SetupContextOptions): void {
   hooks.beforeEach(async function (assert) {
     this.element = document.createElement("div");
@@ -68,10 +72,43 @@ export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options
     assert.dom.rootElement = rootElement;
 
     this.render = async (App: ReactNode) => {
-      flushSync(() => {
+      await act(async () => {
         this.root!.render(useStrict ? <StrictMode>{App}</StrictMode> : App);
       });
     };
+
+    let helpers: TestHelpers | null = null;
+    Object.defineProperty(this, "h", {
+      configurable: true,
+      enumerable: true,
+      writable: false,
+      get() {
+        if (!helpers) {
+          helpers = buildHelpers(this, {
+            render: async <T,>(fn: () => T): Promise<Awaited<T>> => {
+              let result: Awaited<T>;
+              await act(async () => {
+                result = await fn();
+              });
+              return result!;
+            },
+            rerender: async () => {
+              await act(async () => {});
+            },
+            settled: async () => {
+              // TODO integrate with WarpDrive's waitFor
+              // create a generic test-waiter registration system
+              await new Promise((resolve) => {
+                requestAnimationFrame(() => {
+                  setTimeout(resolve, 0);
+                });
+              });
+            },
+          });
+        }
+        return helpers;
+      },
+    });
   });
 
   hooks.afterEach(function () {

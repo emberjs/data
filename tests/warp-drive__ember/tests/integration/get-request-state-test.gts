@@ -1,5 +1,3 @@
-import { rerender, settled } from '@ember/test-helpers';
-
 import { Fetch, RequestManager } from '@warp-drive/core';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -298,9 +296,9 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
 
     assert.equal(state1!.result, null);
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Count:\n          1');
+    assert.dom().hasText('Count:\n          1');
     await request;
-    await rerender();
+    await this.h.rerender();
     assert.equal(state1, getRequestState(request));
     assert.deepEqual(state1!.result, {
       data: {
@@ -312,7 +310,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 2);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          2');
+    assert.dom().hasText('Chris ThoburnCount:\n          2');
   });
 
   test('it renders only once when the promise already has a result cached', async function (assert) {
@@ -349,9 +347,9 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          1');
+    assert.dom().hasText('Chris ThoburnCount:\n          1');
 
-    await settled();
+    await this.h.rerender();
 
     assert.deepEqual(state1!.result, {
       data: {
@@ -363,7 +361,7 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount:\n          1');
+    assert.dom().hasText('Chris ThoburnCount:\n          1');
   });
 
   test('it transitions to error state correctly', async function (assert) {
@@ -400,13 +398,13 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
     assert.equal(state1!.result, null, 'result is null');
     assert.equal(state1!.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'Pending\n          Count:\n          1');
+    assert.dom().hasText('Pending\n          Count:\n          1');
     try {
       await request;
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state1!.result, null, 'after rerender result is still null');
     assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -415,10 +413,11 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(
-      this.element.textContent?.trim(),
-      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          2`
-    );
+    assert
+      .dom()
+      .hasText(
+        `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          2`
+      );
   });
 
   test('it renders only once when the promise error state is already cached', async function (assert) {
@@ -464,11 +463,12 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(
-      this.element.textContent?.trim(),
-      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
-    );
-    await rerender();
+    assert
+      .dom()
+      .hasText(
+        `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
+      );
+    await this.h.rerender();
     assert.equal(state1!.result, null, 'after rerender result is still null');
     assert.true(state1!.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -477,9 +477,10 @@ module<LocalTestContext>('Integration | get-request-state', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(
-      this.element.textContent?.trim(),
-      `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
-    );
+    assert
+      .dom()
+      .hasText(
+        `[404 Not Found] GET (cors) - ${buildBaseURL({ resourcePath: 'users/2' })}\n          Count:\n          1`
+      );
   });
 });

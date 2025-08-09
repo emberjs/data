@@ -1,5 +1,3 @@
-import { rerender, settled } from '@ember/test-helpers';
-
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
@@ -37,8 +35,10 @@ class Logger implements Handler {
   deferred: ReturnType<typeof createDeferred> | undefined;
   deferredResponse: ReturnType<typeof createDeferred> | undefined;
   deferredRequest: ReturnType<typeof createDeferred>;
+  settled: () => Promise<void>;
 
-  constructor(assert: Diagnostic) {
+  constructor(assert: Diagnostic, settled: () => Promise<void>) {
+    this.settled = settled;
     this.assert = assert;
     this.deferMode = false;
     this.deferredRequest = createDeferred();
@@ -57,7 +57,7 @@ class Logger implements Handler {
     await this.deferred.promise;
     this.deferred = undefined;
     this.deferredResponse = undefined;
-    await settled();
+    await this.settled();
   }
 
   async request<T>(context: RequestContext, next: NextFn<T>) {
@@ -84,7 +84,7 @@ class Logger implements Handler {
 
 class TestStore extends Store {
   setupRequestManager(testContext: TestContext, assert: Diagnostic): Logger {
-    const logger = new Logger(assert);
+    const logger = new Logger(assert, testContext.h.settled);
     this.requestManager = new RequestManager()
       .use([logger, new MockServerHandler(testContext), Fetch])
       .useCache(CacheHandler);
@@ -177,18 +177,18 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
       </template>
     );
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
+    assert.dom().hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // invalidate the cache
     this.store.lifetimes.invalidateRequestsForType('user', this.store);
 
-    await settled();
-    await rerender();
+    await this.h.settled();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'James Thoburn');
+    assert.dom().hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -220,22 +220,22 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     );
     await this.logger.release();
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
+    assert.dom().hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
     await this.logger.nextPromise();
     await this.logger.release();
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x2');
+    assert.dom().hasText('Chris Thoburn x2');
     assert.verifySteps([`request: GET ${url}`]);
 
     await this.logger.nextPromise();
     await this.logger.release();
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn x3');
+    assert.dom().hasText('Chris Thoburn x3');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -263,16 +263,16 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
       </template>
     );
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn');
+    assert.dom().hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // invalidate the cache
     this.store.lifetimes.invalidateRequestsForType('user', this.store);
 
-    await settled();
-    await rerender();
+    await this.h.settled();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'James Thoburn');
+    assert.dom().hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 });

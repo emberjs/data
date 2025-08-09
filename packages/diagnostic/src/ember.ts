@@ -1,14 +1,25 @@
 import { run } from '@ember/runloop';
 import { precompileTemplate } from '@ember/template-compilation';
 import type { SetupContextOptions, TestContext as EmberTestContext } from '@ember/test-helpers';
-import { getTestMetadata, hasCalledSetupRenderingContext, setupContext, teardownContext } from '@ember/test-helpers';
+import {
+  getTestMetadata,
+  hasCalledSetupRenderingContext,
+  rerender,
+  settled,
+  setupContext,
+  teardownContext,
+} from '@ember/test-helpers';
 import type { Owner } from '@ember/test-helpers/build-owner';
+
+import { setup } from 'qunit-dom';
 
 import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
 
 import { module as _module, skip as _skip, test as _test, todo as _todo } from './-define';
 import isComponent from './-ember/is-component';
 import type { Hooks, ModuleCallback, TestCallback } from './-types';
+import type { TestHelpers } from './helpers/install';
+import { buildHelpers } from './helpers/install';
 import { setupGlobalHooks } from './internals/config';
 import { PublicTestInfo } from './internals/run';
 
@@ -16,7 +27,8 @@ import { PublicTestInfo } from './internals/run';
 const INVOKE_PROVIDED_COMPONENT = precompileTemplate('<this.ProvidedComponent />', { strictMode: false }) as object;
 
 export interface TestContext extends EmberTestContext {
-  element: HTMLDivElement;
+  element: HTMLElement;
+  h: TestHelpers;
 }
 export interface RenderingTestContext extends TestContext {
   [hasCalledSetupRenderingContext]: boolean;
@@ -65,11 +77,36 @@ const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default
 export function setupTest<TC extends TestContext>(hooks: Hooks<TC>, opts?: SetupContextOptions): void {
   const options = { waitForSettled: false, ...opts };
 
-  hooks.beforeEach(async function () {
+  hooks.beforeEach(async function (assert) {
     const testMetadata = getTestMetadata(this);
     testMetadata.framework = 'qunit';
 
     await setupContext(this, Object.assign({}, options));
+
+    assert.dom = () => {
+      throw new Error('You must use `setupRenderingTest` not `setupTest` before using `assert.dom`');
+    };
+
+    let helpers: TestHelpers | null = null;
+    Object.defineProperty(this, 'h', {
+      configurable: true,
+      enumerable: true,
+      writable: false,
+      get() {
+        if (!helpers) {
+          helpers = buildHelpers(this, {
+            render: async <T>(fn: () => T): Promise<Awaited<T>> => {
+              const result = await fn();
+              await settled();
+              return result;
+            },
+            rerender: rerender,
+            settled: settled,
+          });
+        }
+        return helpers;
+      },
+    });
   });
 
   hooks.afterEach(function (this: TestContext) {
@@ -88,14 +125,21 @@ function upgradeContext(context: TestContext): asserts context is RenderingTestC
 
 function upgradeOwner(owner: Owner): asserts owner is FullOwner {}
 
+declare module './-types' {
+  interface Diagnostic {
+    dom: Assert['dom'];
+  }
+}
+
 export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, options: SetupContextOptions = {}): void {
   const _options = { waitForSettled: false, ...options } as unknown as SetupContextOptions & {
     rootElement: HTMLDivElement;
     waitForSettled: boolean;
   };
 
-  hooks.beforeEach(async function () {
+  hooks.beforeEach(async function (assert) {
     upgradeContext(this);
+
     this.render = (template: object) => render(this, template);
     const opts = Object.assign({}, _options);
     const testMetadata = getTestMetadata(this);
@@ -108,6 +152,10 @@ export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, opt
     container!.appendChild(testContainer);
     opts.rootElement = testContainer;
     this.rootElement = testContainer;
+
+    setup(assert);
+    // @ts-expect-error this is private
+    assert.dom.rootElement = testContainer;
 
     await setupContext(this, opts);
 
@@ -137,6 +185,27 @@ export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, opt
       enumerable: true,
       value: testContainer,
       writable: false,
+    });
+
+    let helpers: TestHelpers | null = null;
+    Object.defineProperty(this, 'h', {
+      configurable: true,
+      enumerable: true,
+      writable: false,
+      get() {
+        if (!helpers) {
+          helpers = buildHelpers(this, {
+            render: async <T>(fn: () => T): Promise<Awaited<T>> => {
+              const result = await fn();
+              await settled();
+              return result;
+            },
+            rerender: rerender,
+            settled: settled,
+          });
+        }
+        return helpers;
+      },
     });
   });
 

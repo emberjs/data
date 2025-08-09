@@ -687,6 +687,9 @@ importers:
       debug:
         specifier: ^4.4.0
         version: 4.4.0
+      dom-element-descriptors:
+        specifier: ^0.5.1
+        version: 0.5.1
       qunit-dom:
         specifier: ^3.4.0
         version: 3.4.0
@@ -18778,6 +18781,7 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0
       tmp: 0.2.3
     optionalDependencies:
@@ -18792,6 +18796,7 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0
       tmp: 0.2.3
     optionalDependencies:
@@ -18805,6 +18810,7 @@ snapshots:
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
+      dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0
       tmp: 0.2.3
     optionalDependencies:

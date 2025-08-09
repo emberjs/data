@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/diagnostic",
-  "version": "0.0.3-alpha.71",
+  "version": "0.0.3-alpha.70",
   "private": true,
   "description": "⚡️ A Lightweight Modern Test Runner",
   "keywords": [
@@ -98,6 +98,7 @@
     "debug": "^4.4.0",
     "tmp": "^0.2.3",
     "@warp-drive/core": "workspace:*",
+    "dom-element-descriptors": "^0.5.1",
     "qunit-dom": "^3.4.0"
   },
   "devDependencies": {
