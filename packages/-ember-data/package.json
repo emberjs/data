@@ -78,7 +78,7 @@
     "@ember-data/serializer": "workspace:*",
     "@ember-data/store": "workspace:*",
     "@ember/edition-utils": "^1.2.0",
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.18.1",
     "@warp-drive/core-types": "workspace:*",
     "@ember-data/tracking": "workspace:*",
     "@warp-drive/ember": "workspace:*",
