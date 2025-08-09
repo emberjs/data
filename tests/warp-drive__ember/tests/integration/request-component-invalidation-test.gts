@@ -1,5 +1,3 @@
-import { rerender } from '@ember/test-helpers';
-
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
   instantiateRecord,
@@ -23,17 +21,6 @@ import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { JSONAPICache } from '@warp-drive/json-api';
 import { buildBaseURL } from '@warp-drive/utilities';
-
-function trim(str?: string | null): string {
-  if (!str) {
-    return '';
-  }
-  return str
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join(' ');
-}
 
 type User = {
   id: string;
@@ -152,9 +139,9 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       </template>
     );
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(trim(this.element.textContent), 'Chris Thoburn | is fresh');
+    assert.dom().hasText('Chris Thoburn | is fresh');
     assert.verifySteps([`request: GET ${url}`]);
 
     const req2 = this.store.request<SingleResourceDataDocument<User>>({
@@ -162,12 +149,12 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       method: 'GET',
       cacheOptions: { types: ['user'], backgroundReload: true },
     });
-    await rerender();
-    assert.equal(trim(this.element.textContent), 'Chris Thoburn | is refreshing');
+    await this.h.rerender();
+    assert.dom().hasText('Chris Thoburn | is refreshing');
 
     await req2;
     await this.store._getAllPending();
-    assert.equal(trim(this.element.textContent), 'Chris Thoburn x2 | is fresh');
+    assert.dom().hasText('Chris Thoburn x2 | is fresh');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -192,9 +179,9 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       </template>
     );
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(trim(this.element.textContent), 'Chris Thoburn');
+    assert.dom().hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // force expiration
@@ -204,12 +191,12 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
       method: 'GET',
       cacheOptions: { types: ['user'] },
     });
-    await rerender();
-    assert.equal(trim(this.element.textContent), 'Loading...');
+    await this.h.rerender();
+    assert.dom().hasText('Loading...');
 
     await req2;
-    await rerender();
-    assert.equal(trim(this.element.textContent), 'Chris Thoburn x2');
+    await this.h.rerender();
+    assert.dom().hasText('Chris Thoburn x2');
     assert.verifySteps([`request: GET ${url}`]);
   });
 });

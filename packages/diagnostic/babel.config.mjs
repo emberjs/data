@@ -1,3 +1,5 @@
+import { macros } from '@warp-drive/core/build-config/babel-macros';
+
 export default {
   presets: [
     [
@@ -6,6 +8,7 @@ export default {
     ],
   ],
   plugins: [
+    ...macros(),
     [
       '@babel/plugin-transform-typescript',
       { allExtensions: true, isTSX: true, onlyRemoveTypeImports: true, allowDeclareFields: true },

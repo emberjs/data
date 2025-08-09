@@ -1,17 +1,16 @@
-/* eslint-disable no-console */
 import { fn } from '@ember/helper';
 import { on } from '@ember/modifier';
-import { click, rerender, settled } from '@ember/test-helpers';
 import Component from '@glimmer/component';
-import { cached, tracked } from '@glimmer/tracking';
 
 import type { Store } from '@warp-drive/core';
 import { CacheHandler as StoreHandler, Fetch, RequestManager } from '@warp-drive/core';
 import { registerDerivations, withDefaults } from '@warp-drive/core/reactive';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
+import { memoized, signal } from '@warp-drive/core/store/-private';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
+import { setupOnError } from '@warp-drive/diagnostic';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
@@ -26,35 +25,6 @@ interface LocalTestContext extends RenderingTestContext {
 type DiagnosticTest = Parameters<typeof _test<LocalTestContext>>[1];
 function test(name: string, callback: DiagnosticTest): void {
   return _test<LocalTestContext>(name, callback);
-}
-
-function setupOnError(cb: (message: Error | string) => void) {
-  const originalLog = console.error;
-  // eslint-disable-next-line prefer-const
-  let cleanup!: () => void;
-  const handler = function (e: ErrorEvent | (Event & { reason: Error | string })) {
-    if (e instanceof ErrorEvent || e instanceof Event) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      cb('error' in e ? (e.error as string | Error) : e.reason);
-    } else {
-      cb(e);
-    }
-    cleanup();
-    return false;
-  };
-  cleanup = () => {
-    window.removeEventListener('unhandledrejection', handler, { capture: true });
-    window.removeEventListener('error', handler, { capture: true });
-    console.error = originalLog;
-  };
-  console.error = handler;
-
-  window.addEventListener('unhandledrejection', handler, { capture: true });
-  window.addEventListener('error', handler, { capture: true });
-
-  return cleanup;
 }
 
 type UserResource = {
@@ -183,9 +153,9 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     assert.equal(state.result, null);
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
     await request;
-    await rerender();
+    await this.h.rerender();
     assert.equal(state, getRequestState(request));
     assert.deepEqual(state.result, {
       data: {
@@ -197,7 +167,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       },
     });
     assert.equal(counter, 2);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+    assert.dom().hasText('Chris ThoburnCount: 2');
   });
 
   test('it renders only once when the promise already has a result cached', async function (assert) {
@@ -232,9 +202,9 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 1');
+    assert.dom().hasText('Chris ThoburnCount: 1');
 
-    await settled();
+    await this.h.settled();
 
     assert.deepEqual(state.result, {
       data: {
@@ -246,7 +216,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       },
     });
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 1');
+    assert.dom().hasText('Chris ThoburnCount: 1');
   });
 
   test('it transitions to error state correctly', async function (assert) {
@@ -273,13 +243,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null, 'result is null');
     assert.equal(state.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
     try {
       await request;
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -288,7 +258,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 2`);
+    assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 2`);
   });
 
   test('we can retry from error state', async function (assert) {
@@ -326,13 +296,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state2.result, null, 'result is null');
     assert.equal(state2.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
     try {
       await request;
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state2.result, null, 'after rerender result is still null');
     assert.true(state2.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -341,13 +311,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count:2Retry`);
+    assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count:2Retry`);
 
-    await click('[test-id="retry-button"]');
+    await this.h.click('[test-id="retry-button"]');
 
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 4');
+    assert.dom().hasText('Chris ThoburnCount: 4');
   });
 
   test('externally retriggered request works as expected', async function (assert) {
@@ -356,7 +326,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     const state2 = getRequestState(request);
 
     class RequestSource {
-      @tracked request: Future<UserResource> = request;
+      @signal request: Future<UserResource> = request;
     }
     const source = new RequestSource();
 
@@ -384,21 +354,21 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     assert.equal(state2, getRequestState(request), 'state is a stable reference');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     await request;
-    await rerender();
+    await this.h.rerender();
 
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+    assert.dom().hasText('Chris ThoburnCount: 2');
 
     const request2 = this.manager.request<UserResource>({ url, method: 'GET' });
     source.request = request2;
 
-    await rerender();
+    await this.h.rerender();
 
     assert.equal(counter, 3, 'counter is 3');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
+    assert.dom().hasText('Chris ThoburnCount: 3');
   });
 
   test('externally retriggered request works as expected (store CacheHandler)', async function (assert) {
@@ -432,7 +402,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     const state2 = getRequestState(request);
 
     class RequestSource {
-      @tracked request: Future<SingleResourceDataDocument<User>> = request;
+      @signal request: Future<SingleResourceDataDocument<User>> = request;
     }
     const source = new RequestSource();
 
@@ -460,26 +430,26 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     assert.equal(state2, getRequestState(request), 'state is a stable reference');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     await request;
-    await rerender();
+    await this.h.rerender();
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 2');
+    assert.dom().hasText('Chris ThoburnCount: 2');
 
     const request2 = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
     source.request = request2;
 
-    await rerender();
+    await this.h.rerender();
 
     assert.equal(counter, 3, 'counter is 3');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
+    assert.dom().hasText('Chris ThoburnCount: 3');
 
     await request2;
-    await rerender();
+    await this.h.rerender();
 
     assert.equal(counter, 3, 'counter is 3');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 3');
+    assert.dom().hasText('Chris ThoburnCount: 3');
   });
 
   test('it rethrows if error block is not present', async function (assert) {
@@ -505,7 +475,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null, 'result is null');
     assert.equal(state.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
     const cleanup = setupOnError((message) => {
       assert.step('render-error');
       assert.true(
@@ -518,7 +488,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     cleanup();
     assert.verifySteps(['render-error']);
     assert.equal(state.result, null, 'after rerender result is still null');
@@ -529,7 +499,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is still 1');
-    assert.equal(this.element.textContent?.trim(), '');
+    assert.dom().hasText('');
   });
 
   test('it transitions to cancelled state correctly', async function (assert) {
@@ -557,7 +527,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null, 'result is null');
     assert.equal(state.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     request.abort();
 
@@ -566,7 +536,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -575,7 +545,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), 'Cancelled The user aborted a request.Count: 2');
+    assert.dom().hasText('Cancelled The user aborted a request.Count: 2');
   });
 
   test('we can retry from cancelled state', async function (assert) {
@@ -615,7 +585,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state1.result, null, 'result is null');
     assert.equal(state1.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     request.abort();
 
@@ -624,7 +594,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state1.result, null, 'after rerender result is still null');
     assert.true(state1.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -633,13 +603,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), 'Cancelled:The user aborted a request.Count:2Retry');
+    assert.dom().hasText('Cancelled:The user aborted a request.Count:2Retry');
 
-    await click('[test-id="retry-button"]');
+    await this.h.click('[test-id="retry-button"]');
 
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
-    assert.equal(this.element.textContent?.trim(), 'Chris ThoburnCount: 4');
+    assert.dom().hasText('Chris ThoburnCount: 4');
   });
 
   test('it transitions to error state if cancelled block is not present', async function (assert) {
@@ -666,7 +636,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null, 'result is null');
     assert.equal(state.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     request.abort();
 
@@ -675,7 +645,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -684,7 +654,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 2, 'counter is 2');
-    assert.equal(this.element.textContent?.trim(), 'The user aborted a request.Count: 2');
+    assert.dom().hasText('The user aborted a request.Count: 2');
   });
 
   test('it does not rethrow for cancelled', async function (assert) {
@@ -710,7 +680,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null, 'result is null');
     assert.equal(state.error, null, 'error is null');
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), 'PendingCount: 1');
+    assert.dom().hasText('PendingCount: 1');
 
     const cleanup = setupOnError((message) => {
       assert.step('render-error');
@@ -722,7 +692,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     } catch {
       // ignore the error
     }
-    await rerender();
+    await this.h.rerender();
     cleanup();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
@@ -732,7 +702,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), '');
+    assert.dom().hasText('');
     assert.verifySteps([], 'no error should be thrown');
   });
 
@@ -770,8 +740,8 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 1`);
-    await rerender();
+    assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 1`);
+    await this.h.rerender();
     assert.equal(state.result, null, 'after rerender result is still null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
     assert.equal(
@@ -780,7 +750,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       'error message is correct'
     );
     assert.equal(counter, 1, 'counter is 1');
-    assert.equal(this.element.textContent?.trim(), `[404 Not Found] GET (cors) - ${url}Count: 1`);
+    assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 1`);
   });
 
   test('isOnline updates when expected', async function (assert) {
@@ -795,19 +765,19 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       </template>
     );
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Online: true');
+    assert.dom().hasText('Online: true');
     window.dispatchEvent(new Event('offline'));
 
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Online: false');
+    assert.dom().hasText('Online: false');
     window.dispatchEvent(new Event('online'));
 
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Online: true');
+    assert.dom().hasText('Online: true');
   });
 
   test('@autorefreshBehavior="reload" works as expected', async function (assert) {
@@ -831,23 +801,23 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       </template>
     );
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | Online: true');
+    assert.dom().hasText('Chris Thoburn | Online: true');
     window.dispatchEvent(new Event('offline'));
 
-    await rerender();
+    await this.h.rerender();
 
     // enable the auto-refresh threshold to trigger
     await new Promise((resolve) => setTimeout(resolve, 1));
 
-    assert.equal(this.element.textContent?.trim(), 'Chris Thoburn | Online: false');
+    assert.dom().hasText('Chris Thoburn | Online: false');
     window.dispatchEvent(new Event('online'));
 
     // let the event dispatch complete
     await new Promise((resolve) => setTimeout(resolve, 1));
-    await settled();
-    assert.equal(this.element.textContent?.trim(), 'James Thoburn | Online: true');
+    await this.h.settled();
+    assert.dom().hasText('James Thoburn | Online: true');
   });
 
   test('idle state does not error', async function (assert) {
@@ -864,7 +834,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       </template>
     );
 
-    assert.equal(this.element.textContent?.trim(), 'Waiting');
+    assert.dom().hasText('Waiting');
     assert.verifySteps([], 'no error should be thrown');
     cleanup();
   });
@@ -897,7 +867,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       );
     }
 
-    assert.equal(this.element.textContent?.trim(), '');
+    assert.dom().hasText('');
     assert.verifySteps(['render-error', 'render-error-caught'], 'error should be thrown');
     cleanup();
   });
@@ -909,7 +879,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     const url = await mockGETSuccess(this);
 
     class State {
-      @tracked request: ReturnType<typeof store.request> | undefined = undefined;
+      @signal request: ReturnType<typeof store.request> | undefined = undefined;
     }
     const state = new State();
     await this.render(
@@ -922,15 +892,15 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       </template>
     );
 
-    assert.equal(this.element.textContent?.trim(), 'Waiting');
+    assert.dom().hasText('Waiting');
 
     const request = store.request<UserResource>({ url, method: 'GET' });
     state.request = request;
 
     await request;
-    await rerender();
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Content');
+    assert.dom().hasText('Content');
   });
 
   test('request with an identity does not trigger a second request', async function (assert) {
@@ -968,14 +938,14 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await mockGETSuccess(this); // need this because we are planning on making two requests
 
     class Dependency {
-      @tracked trackedThing = 'value';
+      @signal trackedThing = 'value';
     }
     const dependency = new Dependency();
 
     let request: ReturnType<typeof store.request<SingleResourceDataDocument<User>>>;
     class Issuer extends Component {
       // Ensure that the request doesn't kick off until after the Request component renders.
-      @cached
+      @memoized
       get request() {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
         dependency.trackedThing; // subscribe to something tracked
@@ -1002,7 +972,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result, null);
     assert.verifySteps(['loading'], 'loading');
     await request!;
-    await rerender();
+    await this.h.rerender();
     assert.equal(state, getRequestState(request!));
     const record = store.peekRecord<User>('user', '1');
     assert.notEqual(record, null);
@@ -1010,9 +980,9 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(record!.name, 'Chris Thoburn');
     assert.verifySteps(['Chris Thoburn']);
 
-    dependency.trackedThing = 'value'; // trigger a notification
+    dependency.trackedThing = 'new-value'; // trigger a notification
 
-    await rerender();
+    await this.h.rerender();
     assert.notEqual(state, getRequestState(request!));
     assert.equal(state.result?.data, record);
     assert.equal(record!.name, 'Chris Thoburn');

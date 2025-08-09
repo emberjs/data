@@ -1,8 +1,5 @@
 import type { TOC } from '@ember/component/template-only';
 import { on } from '@ember/modifier';
-import { renderSettled } from '@ember/renderer';
-import { click, rerender, settled } from '@ember/test-helpers';
-import { tracked } from '@glimmer/tracking';
 
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import {
@@ -15,14 +12,14 @@ import {
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
 import { createDeferred } from '@warp-drive/core/request';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
-import type { RequestState } from '@warp-drive/core/store/-private';
+import { type RequestState, signal } from '@warp-drive/core/store/-private';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { RequestContext } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
-import type { RenderingTestContext, TestContext } from '@warp-drive/diagnostic/ember';
+import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { type ContentFeatures, createRequestSubscription, getRequestState, Request } from '@warp-drive/ember';
 import { MockServerHandler } from '@warp-drive/holodeck';
@@ -42,8 +39,10 @@ class Logger implements Handler {
   deferred: ReturnType<typeof createDeferred> | undefined;
   deferredResponse: ReturnType<typeof createDeferred> | undefined;
   deferredRequest: ReturnType<typeof createDeferred>;
+  settled: () => Promise<void>;
 
-  constructor(assert: Diagnostic) {
+  constructor(assert: Diagnostic, settled: () => Promise<void>) {
+    this.settled = settled;
     this.assert = assert;
     this.deferMode = false;
     this.deferredRequest = createDeferred();
@@ -62,7 +61,7 @@ class Logger implements Handler {
     await this.deferred.promise;
     this.deferred = undefined;
     this.deferredResponse = undefined;
-    await settled();
+    await this.settled();
   }
 
   async request<T>(context: RequestContext, next: NextFn<T>) {
@@ -88,8 +87,8 @@ class Logger implements Handler {
 }
 
 class TestStore extends Store {
-  setupRequestManager(testContext: TestContext, assert: Diagnostic): Logger {
-    const logger = new Logger(assert);
+  setupRequestManager(testContext: RenderingTestContext, assert: Diagnostic): Logger {
+    const logger = new Logger(assert, testContext.h.settled);
     this.requestManager = new RequestManager()
       .use([logger, new MockServerHandler(testContext), Fetch])
       .useCache(CacheHandler);
@@ -168,7 +167,7 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     await mockGETSuccess(this, { name: 'James Thoburn' });
 
     class State {
-      @tracked request: Future<SingleResourceDataDocument<User>> | undefined = undefined;
+      @signal request: Future<SingleResourceDataDocument<User>> | undefined = undefined;
     }
     const testState = new State();
     const CustomChrome: TOC<{
@@ -193,25 +192,25 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       </template>
     );
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: idle');
+    assert.dom('.custom-chrome h1').hasText('The State Is: idle');
     testState.request = this.store.request<SingleResourceDataDocument<User>>({
       url,
       method: 'GET',
     });
-    await renderSettled();
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: pending');
+    await this.h.rerender();
+    assert.dom('.custom-chrome h1').hasText('The State Is: pending');
 
     await testState.request;
-    await rerender();
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'Chris Thoburn');
+    await this.h.rerender();
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // click the reload button
-    await click(this.element.querySelector('.retry-button')!);
+    await this.h.click('.retry-button');
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'James Thoburn');
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -247,19 +246,19 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       </template>
     );
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: pending');
+    assert.dom('.custom-chrome h1').hasText('The State Is: pending');
 
     await request;
-    await rerender();
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'Chris Thoburn');
+    await this.h.rerender();
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // click the reload button
-    await click(this.element.querySelector('.retry-button')!);
+    await this.h.click('.retry-button');
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'James Thoburn');
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -273,7 +272,7 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     });
 
     class State {
-      @tracked request: Future<SingleResourceDataDocument<User>> = request;
+      @signal request: Future<SingleResourceDataDocument<User>> = request;
     }
     const testState = new State();
     const CustomChrome: TOC<{
@@ -298,12 +297,12 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       </template>
     );
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: pending');
+    assert.dom('.custom-chrome h1').hasText('The State Is: pending');
 
     await testState.request;
-    await rerender();
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'Chris Thoburn');
+    await this.h.rerender();
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // reload from getRequestState
@@ -312,19 +311,19 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     if (!state.isPending) {
       this.logger.deferMode = true;
       const promise = state.reload();
-      await renderSettled();
+      await this.h.rerender();
 
       // because we are not reloading the subscription, the component will only
       // show loading state IF the cachepolicy shows the request as stale. It is
       // not stale, so we expect the fulfilled state to still be shown.
-      assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
+      assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
 
       await this.logger.release();
       await promise;
     }
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'James Thoburn');
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 
@@ -338,7 +337,7 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     });
 
     class State {
-      @tracked request: Future<SingleResourceDataDocument<User>> = request;
+      @signal request: Future<SingleResourceDataDocument<User>> = request;
     }
     const testState = new State();
     const CustomChrome: TOC<{
@@ -363,12 +362,12 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       </template>
     );
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: pending');
+    assert.dom('.custom-chrome h1').hasText('The State Is: pending');
 
     await testState.request;
-    await rerender();
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'Chris Thoburn');
+    await this.h.rerender();
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('Chris Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
 
     // reload from getRequestState
@@ -379,21 +378,21 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       const requestKey = request.lid!;
       this.store.lifetimes.invalidateRequest(requestKey, this.store);
       const promise = state.reload();
-      await renderSettled();
+      await this.h.rerender();
 
       // because we are not reloading the subscription, the component will only
       // show loading state IF the cachepolicy shows the request as stale. It is
       // marked stale (invalidated), so we expect the pending state to be shown
       // but for only one request to be made.
-      assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: pending');
+      assert.dom('.custom-chrome h1').hasText('The State Is: pending');
 
       await this.logger.release();
       this.logger.deferMode = false;
       await promise;
     }
 
-    assert.equal(this.element.querySelector('.custom-chrome h1')?.textContent?.trim(), 'The State Is: fulfilled');
-    assert.equal(this.element.querySelector('p')!.textContent?.trim(), 'James Thoburn');
+    assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
+    assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
 });

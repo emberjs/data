@@ -1,5 +1,3 @@
-import { rerender, settled } from '@ember/test-helpers';
-
 import { type Awaitable, setPromiseResult } from '@warp-drive/core/request';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
@@ -29,11 +27,11 @@ module('Integration | <Await />', function (hooks) {
 
     assert.equal(state.result, null);
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Loading...Count: 1');
-    await rerender();
+    assert.dom().hasText('Loading...Count: 1');
+    await this.h.rerender();
     assert.equal(state.result, 'Our Data');
     assert.equal(counter, 2);
-    assert.equal(this.element.textContent?.trim(), 'Our DataCount: 2');
+    assert.dom().hasText('Our DataCount: 2');
   });
 
   test('it renders only once when the promise already has a result cached', async function (this: RenderingTestContext, assert) {
@@ -57,10 +55,10 @@ module('Integration | <Await />', function (hooks) {
       </template>
     );
 
-    assert.equal(this.element.textContent?.trim(), 'Our DataCount: 1');
-    await settled();
+    assert.dom().hasText('Our DataCount: 1');
+    await this.h.rerender();
 
-    assert.equal(this.element.textContent?.trim(), 'Our DataCount: 1');
+    assert.dom().hasText('Our DataCount: 1');
   });
 
   test('it transitions to error state correctly', async function (this: RenderingTestContext, assert) {
@@ -87,13 +85,13 @@ module('Integration | <Await />', function (hooks) {
     assert.equal(state.result, null);
     assert.equal(state.error, null);
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Loading...Count: 1');
-    await rerender();
+    assert.dom().hasText('Loading...Count: 1');
+    await this.h.rerender();
     assert.equal(state.result, null);
     assert.true(state.error instanceof Error);
     assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 2);
-    assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 2');
+    assert.dom().hasText('Our ErrorCount: 2');
   });
 
   test('it renders only once when the promise error state is already cached', async function (this: RenderingTestContext, assert) {
@@ -128,12 +126,12 @@ module('Integration | <Await />', function (hooks) {
     assert.true(state.error instanceof Error);
     assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 1');
-    await rerender();
+    assert.dom().hasText('Our ErrorCount: 1');
+    await this.h.rerender();
     assert.equal(state.result, null);
     assert.true(state.error instanceof Error);
     assert.equal((state.error as Error | undefined)?.message, 'Our Error');
     assert.equal(counter, 1);
-    assert.equal(this.element.textContent?.trim(), 'Our ErrorCount: 1');
+    assert.dom().hasText('Our ErrorCount: 1');
   });
 });

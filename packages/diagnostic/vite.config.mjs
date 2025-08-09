@@ -12,6 +12,7 @@ export const entryPoints = [
   './src/index.ts',
   './src/reporters/dom.ts',
   './src/runners/dom.ts',
+  './src/helpers/install.ts',
   './src/ember.ts',
   './src/react.tsx',
   './src/react/test-helpers.ts',
