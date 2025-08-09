@@ -1,3 +1,5 @@
+import { DEBUG } from '@warp-drive/build-config/env';
+
 import { IS_FUTURE, type StructuredDocument } from '../../types/request';
 import type { ContextOwner } from './context';
 import type { Deferred, DeferredFuture, Future } from './types';
@@ -29,6 +31,17 @@ export function upgradePromise<T>(promise: Promise<StructuredDocument<T>>, futur
   (promise as Future<T>).lid = future.lid;
   (promise as Future<T>).requester = future.requester;
 
+  if (DEBUG) {
+    // @ts-expect-error
+    promise.toJSON = () => {
+      const id = 'Future<' + (promise as Future<T>).id + '>';
+      if ((promise as Future<T>).lid) {
+        return `${id} (${(promise as Future<T>).lid!.lid})`;
+      }
+      return id;
+    };
+  }
+
   return promise as Future<T>;
 }
 
@@ -56,6 +69,17 @@ export function createFuture<T>(owner: ContextOwner): DeferredFuture<T> {
   promise.id = owner.requestId;
   promise.lid = owner.god.identifier;
   promise.requester = owner.god.requester;
+
+  if (DEBUG) {
+    // @ts-expect-error
+    promise.toJSON = () => {
+      const id = 'Future<' + promise.id + '>';
+      if (promise.lid) {
+        return `${id} (${promise.lid.lid})`;
+      }
+      return id;
+    };
+  }
 
   deferred.promise = promise;
   return deferred;

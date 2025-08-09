@@ -1009,7 +1009,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(record!.name, 'Chris Thoburn');
     assert.verifySteps(['Chris Thoburn']);
 
-    dependency.trackedThing = 'value'; // trigger a notification
+    dependency.trackedThing = 'new-value'; // trigger a notification
 
     await this.h.rerender();
     assert.notEqual(state, getRequestState(request!));
