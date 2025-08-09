@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { fn } from '@ember/helper';
 import { on } from '@ember/modifier';
 import Component from '@glimmer/component';
@@ -11,6 +10,7 @@ import { memoized, signal } from '@warp-drive/core/store/-private';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
+import { setupOnError } from '@warp-drive/diagnostic';
 import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
 import { getRequestState, Request } from '@warp-drive/ember';
@@ -25,35 +25,6 @@ interface LocalTestContext extends RenderingTestContext {
 type DiagnosticTest = Parameters<typeof _test<LocalTestContext>>[1];
 function test(name: string, callback: DiagnosticTest): void {
   return _test<LocalTestContext>(name, callback);
-}
-
-function setupOnError(cb: (message: Error | string) => void) {
-  const originalLog = console.error;
-  // eslint-disable-next-line prefer-const
-  let cleanup!: () => void;
-  const handler = function (e: ErrorEvent | (Event & { reason: Error | string })) {
-    if (e instanceof ErrorEvent || e instanceof Event) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      cb('error' in e ? (e.error as string | Error) : e.reason);
-    } else {
-      cb(e);
-    }
-    cleanup();
-    return false;
-  };
-  cleanup = () => {
-    window.removeEventListener('unhandledrejection', handler, { capture: true });
-    window.removeEventListener('error', handler, { capture: true });
-    console.error = originalLog;
-  };
-  console.error = handler;
-
-  window.addEventListener('unhandledrejection', handler, { capture: true });
-  window.addEventListener('error', handler, { capture: true });
-
-  return cleanup;
 }
 
 type UserResource = {

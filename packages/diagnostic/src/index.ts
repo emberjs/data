@@ -97,3 +97,32 @@ export async function start(): Promise<void> {
     instrument() && performance.measure('@warp-drive/diagnostic:run', report.start.name, report.end.name);
   DelegatingReporter.onSuiteFinish(report);
 }
+
+export function setupOnError(cb: (message: Error | string) => void): () => void {
+  const originalLog = console.error;
+  // eslint-disable-next-line prefer-const
+  let cleanup!: () => void;
+  const handler = function (e: ErrorEvent | (Event & { reason: Error | string })) {
+    if (e instanceof ErrorEvent || e instanceof Event) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      cb('error' in e ? (e.error as string | Error) : e.reason);
+    } else {
+      cb(e);
+    }
+    cleanup();
+    return false;
+  };
+  cleanup = () => {
+    window.removeEventListener('unhandledrejection', handler, { capture: true });
+    window.removeEventListener('error', handler, { capture: true });
+    console.error = originalLog;
+  };
+  console.error = handler;
+
+  window.addEventListener('unhandledrejection', handler, { capture: true });
+  window.addEventListener('error', handler, { capture: true });
+
+  return cleanup;
+}
