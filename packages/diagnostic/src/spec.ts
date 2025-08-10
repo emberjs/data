@@ -1,8 +1,6 @@
 import { module, skip, test, todo } from './-define';
 import type { Diagnostic as TestAssert, Hooks, TestContext } from './-types';
-import { setupRenderingTest } from './ember';
 import type { TestHelpers } from './helpers/install';
-import { setupTest } from './react';
 
 declare module './-types' {
   interface Diagnostic {
@@ -75,9 +73,15 @@ export interface SpecBuilder<LocalContext extends object, T extends { [key: stri
   build(): SuiteBuilder<LocalContext, T>;
 }
 
-const FrameworkSetup: Record<Framework, (hooks: Hooks) => void> = {
-  ember: setupRenderingTest,
-  react: setupTest,
+const FrameworkSetup: Record<Framework, () => Promise<(hooks: Hooks) => void>> = {
+  ember: async () => {
+    const { setupRenderingTest } = await import('./ember');
+    return setupRenderingTest;
+  },
+  react: async () => {
+    const { setupTest } = await import('./react');
+    return setupTest;
+  },
 };
 
 class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<LocalContext, object> }>
@@ -115,10 +119,12 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
     }
     this.isBuilt = true;
     return {
-      use: <N extends Framework>(framework: N, implement: (b: TestRunner<LocalContext, T>) => void) => {
+      use: async <N extends Framework>(framework: N, implement: (b: TestRunner<LocalContext, T>) => void) => {
         const { setup, specs, name: moduleName } = this;
+        const setupFramework = await FrameworkSetup[framework]();
+
         module(`Spec | ${moduleName} | ${framework}`, function (hooks) {
-          FrameworkSetup[framework](hooks);
+          setupFramework(hooks as Hooks<SpecTestContext<T>>);
           setup(hooks as Hooks<SpecTestContext<T>>);
           const TestsToImplement = new Set(Object.keys(specs));
           const testRunner: TestRunner<LocalContext, T> = {
