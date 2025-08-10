@@ -1,30 +1,55 @@
-import { fn } from '@ember/helper';
-import { on } from '@ember/modifier';
-import Component from '@glimmer/component';
-
-import type { Store } from '@warp-drive/core';
-import { CacheHandler as StoreHandler, Fetch, RequestManager } from '@warp-drive/core';
-import { registerDerivations, withDefaults } from '@warp-drive/core/reactive';
+import { CacheHandler as StoreHandler, Fetch, RequestManager, Store as DataStore } from '@warp-drive/core';
+import {
+  instantiateRecord,
+  registerDerivations,
+  SchemaService,
+  teardownRecord,
+  withDefaults,
+} from '@warp-drive/core/reactive';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
-import { memoized, signal } from '@warp-drive/core/store/-private';
+import { getRequestState, signal } from '@warp-drive/core/store/-private';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { Cache } from '@warp-drive/core/types/cache';
+import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
 import { setupOnError } from '@warp-drive/diagnostic';
-import type { RenderingTestContext } from '@warp-drive/diagnostic/ember';
-import { module, setupRenderingTest, test as _test } from '@warp-drive/diagnostic/ember';
-import { getRequestState, Request } from '@warp-drive/ember';
+import { spec } from '@warp-drive/diagnostic/spec';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
+import { JSONAPICache } from '@warp-drive/json-api';
 import { buildBaseURL } from '@warp-drive/utilities';
 
-// our tests use a rendering test context and add manager to it
-interface LocalTestContext extends RenderingTestContext {
-  manager: RequestManager;
+export default class Store extends DataStore {
+  constructor(args?: unknown) {
+    super(args);
+
+    const manager = (this.requestManager = new RequestManager());
+    manager.use([Fetch]);
+    manager.useCache(StoreHandler);
+  }
+
+  createSchemaService() {
+    return new SchemaService();
+  }
+
+  createCache(capabilities: CacheCapabilitiesManager): Cache {
+    return new JSONAPICache(capabilities);
+  }
+
+  instantiateRecord(identifier: ResourceKey, createArgs?: Record<string, unknown>) {
+    return instantiateRecord(this, identifier, createArgs);
+  }
+
+  teardownRecord(record: unknown): void {
+    return teardownRecord(record);
+  }
 }
-type DiagnosticTest = Parameters<typeof _test<LocalTestContext>>[1];
-function test(name: string, callback: DiagnosticTest): void {
-  return _test<LocalTestContext>(name, callback);
+
+// our tests use a rendering test context and add manager to it
+interface LocalTestContext {
+  manager: RequestManager;
 }
 
 type UserResource = {
@@ -120,9 +145,7 @@ async function mockRetrySuccess(context: LocalTestContext): Promise<string> {
   return url;
 }
 
-module<LocalTestContext>('Integration | <Request />', function (hooks) {
-  setupRenderingTest(hooks);
-
+export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks) {
   hooks.beforeEach(function () {
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
@@ -130,8 +153,9 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     this.manager = manager;
   });
-
-  test('it renders each stage of a request that succeeds', async function (assert) {
+})
+  .for('it renders each stage of a request that succeeds')
+  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -141,15 +165,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state.result, null);
     assert.equal(counter, 1);
@@ -168,9 +187,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     });
     assert.equal(counter, 2);
     assert.dom().hasText('Chris ThoburnCount: 2');
-  });
+  })
 
-  test('it renders only once when the promise already has a result cached', async function (assert) {
+  .for('it renders only once when the promise already has a result cached')
+  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -181,16 +201,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     }
 
     await request;
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:cancelled as |error|>Cancelled {{error.message}}<br />Count: {{countFor error}}</:cancelled>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.deepEqual(state.result, {
       data: {
@@ -217,9 +231,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     });
     assert.equal(counter, 1);
     assert.dom().hasText('Chris ThoburnCount: 1');
-  });
+  })
 
-  test('it transitions to error state correctly', async function (assert) {
+  .for('it transitions to error state correctly')
+  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -229,15 +244,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state, getRequestState(request), 'state is a stable reference');
     assert.equal(state.result, null, 'result is null');
@@ -259,10 +269,15 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 2`);
-  });
+  })
 
-  test('we can retry from error state', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('we can retry from error state')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+    retry: (state: { retry: () => void }) => void;
+  }>(async function (assert) {
+    const store = new Store();
     store.requestManager = this.manager;
 
     const url = await mockGETFailure(this);
@@ -279,18 +294,11 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return state1.retry();
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:error as |error state|>{{error.message}}<br />Count:
-            {{~countFor error~}}
-            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
-          </:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+      retry,
+    });
 
     assert.equal(state2, getRequestState(request), 'state is a stable reference');
     assert.equal(state2.result, null, 'result is null');
@@ -318,9 +326,14 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
     assert.dom().hasText('Chris ThoburnCount: 4');
-  });
+  })
 
-  test('externally retriggered request works as expected', async function (assert) {
+  .for('externally retriggered request works as expected')
+  .use<{
+    source: { request: Future<UserResource> };
+    countFor: (result: unknown) => number;
+    retry: (state: { retry: () => void }) => void;
+  }>(async function (assert) {
     const url = await mockRetrySuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state2 = getRequestState(request);
@@ -339,18 +352,11 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return state1.retry();
     }
 
-    await this.render(
-      <template>
-        <Request @request={{source.request}}>
-          <:loading as |state|>Pending<br />Count: {{countFor state}}</:loading>
-          <:error as |error state|>{{error.message}}<br />Count:
-            {{~countFor error~}}
-            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
-          </:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      source,
+      countFor,
+      retry,
+    });
 
     assert.equal(state2, getRequestState(request), 'state is a stable reference');
     assert.equal(counter, 1, 'counter is 1');
@@ -369,10 +375,22 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     assert.equal(counter, 3, 'counter is 3');
     assert.dom().hasText('Chris ThoburnCount: 3');
-  });
+  })
 
-  test('externally retriggered request works as expected (store CacheHandler)', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('externally retriggered request works as expected (store CacheHandler)')
+  .use<{
+    source: {
+      request: Future<
+        SingleResourceDataDocument<{
+          id: string;
+          name: string;
+        }>
+      >;
+    };
+    countFor: (result: unknown) => number;
+    retry: (state: { retry: () => void }) => void;
+  }>(async function (assert) {
+    const store = new Store();
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
     manager.useCache(StoreHandler);
@@ -415,18 +433,11 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return state1.retry();
     }
 
-    await this.render(
-      <template>
-        <Request @request={{source.request}}>
-          <:loading as |state|>Pending<br />Count: {{countFor state}}</:loading>
-          <:error as |error state|>{{error.message}}<br />Count:
-            {{~countFor error~}}
-            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
-          </:error>
-          <:content as |result|>{{result.data.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      source,
+      countFor,
+      retry,
+    });
 
     assert.equal(state2, getRequestState(request), 'state is a stable reference');
     assert.equal(counter, 1, 'counter is 1');
@@ -450,9 +461,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
 
     assert.equal(counter, 3, 'counter is 3');
     assert.dom().hasText('Chris ThoburnCount: 3');
-  });
+  })
 
-  test('it rethrows if error block is not present', async function (assert) {
+  .for('it rethrows if error block is not present')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+  }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -462,14 +477,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state, getRequestState(request), 'state is a stable reference');
     assert.equal(state.result, null, 'result is null');
@@ -500,9 +511,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 1, 'counter is still 1');
     assert.dom().hasText('');
-  });
+  })
 
-  test('it transitions to cancelled state correctly', async function (assert) {
+  .for('it transitions to cancelled state correctly')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+  }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -512,16 +527,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:cancelled as |error|>Cancelled {{error.message}}<br />Count: {{countFor error}}</:cancelled>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state, getRequestState(request), 'state is a stable reference');
     assert.equal(state.result, null, 'result is null');
@@ -546,10 +555,15 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText('Cancelled The user aborted a request.Count: 2');
-  });
+  })
 
-  test('we can retry from cancelled state', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('we can retry from cancelled state')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+    retry: (state: { retry: () => void }) => void;
+  }>(async function (assert) {
+    const store = new Store();
     store.requestManager = this.manager;
 
     const url = await mockGETFailure(this);
@@ -566,20 +580,11 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return state2.retry();
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:cancelled as |error state|>Cancelled:
-            {{~error.message~}}<br />Count:
-            {{~countFor error~}}
-            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
-          </:cancelled>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+      retry,
+    });
 
     assert.equal(state1, getRequestState(request), 'state is a stable reference');
     assert.equal(state1.result, null, 'result is null');
@@ -610,9 +615,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
     assert.dom().hasText('Chris ThoburnCount: 4');
-  });
+  })
 
-  test('it transitions to error state if cancelled block is not present', async function (assert) {
+  .for('it transitions to error state if cancelled block is not present')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+  }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -622,15 +631,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state, getRequestState(request), 'state is a stable reference');
     assert.equal(state.result, null, 'result is null');
@@ -655,9 +659,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText('The user aborted a request.Count: 2');
-  });
+  })
 
-  test('it does not rethrow for cancelled', async function (assert) {
+  .for('it does not rethrow for cancelled')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+  }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state = getRequestState(request);
@@ -667,14 +675,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state, getRequestState(request), 'state is a stable reference');
     assert.equal(state.result, null, 'result is null');
@@ -704,9 +708,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(counter, 1, 'counter is 1');
     assert.dom().hasText('');
     assert.verifySteps([], 'no error should be thrown');
-  });
+  })
 
-  test('it renders only once when the promise error state is already cached', async function (assert) {
+  .for('it renders only once when the promise error state is already cached')
+  .use<{
+    request: Future<UserResource>;
+    countFor: (result: unknown) => number;
+  }>(async function (assert) {
     const url = await mockGETFailure(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
@@ -722,15 +730,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       return ++counter;
     }
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:loading>Pending<br />Count: {{countFor request}}</:loading>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+      countFor,
+    });
 
     assert.equal(state.result, null, 'after render result is null');
     assert.true(state.error instanceof Error, 'error is an instance of Error');
@@ -751,19 +754,18 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     );
     assert.equal(counter, 1, 'counter is 1');
     assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 1`);
-  });
+  })
 
-  test('isOnline updates when expected', async function (assert) {
+  .for('isOnline updates when expected')
+  .use<{
+    request: Future<UserResource>;
+  }>(async function (assert) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    await this.render(
-      <template>
-        <Request @request={{request}}>
-          <:content as |result state|>Online: {{state.isOnline}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+    });
     await request;
     await this.h.rerender();
 
@@ -778,28 +780,23 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await this.h.rerender();
 
     assert.dom().hasText('Online: true');
-  });
+  })
 
-  test('@autorefreshBehavior="reload" works as expected', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('@autorefreshBehavior="reload" works as expected')
+  .use<{
+    request: Future<UserResource>;
+  }>(async function (assert) {
+    const store = new Store();
     store.requestManager = this.manager;
 
     const url = await mockGETSuccess(this);
     await mockGETSuccess(this, { name: 'James Thoburn' });
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
-    await this.render(
-      <template>
-        <Request
-          @request={{request}}
-          @autorefresh={{true}}
-          @autorefreshBehavior={{"reload"}}
-          @autorefreshThreshold={{0}}
-        >
-          <:content as |result state|>{{result.data.attributes.name}} | Online: {{state.isOnline}}</:content>
-        </Request>
-      </template>
-    );
+    await this.render({
+      request,
+    });
+
     await request;
     await this.h.rerender();
 
@@ -818,28 +815,22 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await new Promise((resolve) => setTimeout(resolve, 1));
     await this.h.settled();
     assert.dom().hasText('James Thoburn | Online: true');
-  });
+  })
 
-  test('idle state does not error', async function (assert) {
+  .for('idle state does not error')
+  .use<object>(async function (assert) {
     const cleanup = setupOnError((_message) => {
       assert.step('render-error');
     });
-    await this.render(
-      <template>
-        <Request>
-          <:idle>Waiting</:idle>
-          <:content>Content</:content>
-          <:error>Error</:error>
-        </Request>
-      </template>
-    );
+    await this.render({});
 
     assert.dom().hasText('Waiting');
     assert.verifySteps([], 'no error should be thrown');
     cleanup();
-  });
+  })
 
-  test('idle state errors if no idle block is present', async function (assert) {
+  .for('idle state errors if no idle block is present')
+  .use<object>(async function (assert) {
     const cleanup = setupOnError((message) => {
       assert.step('render-error');
 
@@ -849,14 +840,7 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       );
     });
     try {
-      await this.render(
-        <template>
-          <Request>
-            <:content>Content</:content>
-            <:error>Error</:error>
-          </Request>
-        </template>
-      );
+      await this.render({});
     } catch (e) {
       assert.step('render-error-caught');
       const message = e instanceof Error ? e.message : e;
@@ -870,10 +854,13 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.dom().hasText('');
     assert.verifySteps(['render-error', 'render-error-caught'], 'error should be thrown');
     cleanup();
-  });
+  })
 
-  test('idle state allows for transition to request states', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('idle state allows for transition to request states')
+  .use<{
+    state: { request: Future<unknown> | undefined };
+  }>(async function (assert) {
+    const store = new Store();
     store.requestManager = this.manager;
 
     const url = await mockGETSuccess(this);
@@ -882,15 +869,10 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
       @signal request: ReturnType<typeof store.request> | undefined = undefined;
     }
     const state = new State();
-    await this.render(
-      <template>
-        <Request @request={{state.request}}>
-          <:idle>Waiting</:idle>
-          <:content>Content</:content>
-          <:error>Error</:error>
-        </Request>
-      </template>
-    );
+
+    await this.render({
+      state,
+    });
 
     assert.dom().hasText('Waiting');
 
@@ -901,10 +883,19 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     await this.h.rerender();
 
     assert.dom().hasText('Content');
-  });
+  })
 
-  test('request with an identity does not trigger a second request', async function (assert) {
-    const store = this.owner.lookup('service:store') as Store;
+  .for('request with an identity does not trigger a second request')
+  .use<{
+    store: Store;
+    url: string;
+    countFor: (result: unknown) => number;
+    dependency: { trackedThing: string };
+    setRequest: (
+      req: Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>
+    ) => Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>;
+  }>(async function (assert) {
+    const store = new Store();
     store.lifetimes = {
       isHardExpired: () => true,
       isSoftExpired: () => true,
@@ -942,31 +933,25 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     }
     const dependency = new Dependency();
 
-    let request: ReturnType<typeof store.request<SingleResourceDataDocument<User>>>;
-    class Issuer extends Component {
-      // Ensure that the request doesn't kick off until after the Request component renders.
-      @memoized
-      get request() {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
-        dependency.trackedThing; // subscribe to something tracked
-        request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
-        return request;
-      }
-
-      <template>
-        <Request @request={{this.request}}>
-          <:loading>Pending<br />Count: {{countFor "loading"}}</:loading>
-          <:error as |error|>{{error.message}}<br />Count: {{countFor error.message}}</:error>
-          <:content as |result|>{{result.data.name}}<br />{{countFor result.data.name}}</:content>
-        </Request>
-      </template>
+    type Req = Future<SingleResourceDataDocument<User>>;
+    let request: Req;
+    function setRequest(req: Req): Req {
+      request = req;
+      return request;
     }
 
-    function countFor(thing: string | undefined) {
-      assert.step(thing ?? 'unknown step; this should never happen');
+    function countFor(thing: unknown): number {
+      assert.step((thing as string | undefined) ?? 'unknown step; this should never happen');
+      return 0;
     }
 
-    await this.render(<template><Issuer /></template>);
+    await this.render({
+      countFor,
+      dependency,
+      url,
+      setRequest,
+      store,
+    });
 
     const state = getRequestState(request!);
     assert.equal(state.result, null);
@@ -987,5 +972,5 @@ module<LocalTestContext>('Integration | <Request />', function (hooks) {
     assert.equal(state.result?.data, record);
     assert.equal(record!.name, 'Chris Thoburn');
     assert.verifySteps(['loading']);
-  });
-});
+  })
+  .build();
