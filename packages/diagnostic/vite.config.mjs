@@ -15,6 +15,7 @@ export const entryPoints = [
   './src/helpers/install.ts',
   './src/ember.ts',
   './src/react.tsx',
+  './src/spec.ts',
   './src/react/test-helpers.ts',
   './src/-types.ts',
 ];
