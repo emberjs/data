@@ -1,23 +1,22 @@
 import { module as _module, skip as _skip, test as _test, todo as _todo } from "./-define";
 import type { Hooks, ModuleCallback, TestCallback, TestContext } from "./-types";
 import { createRoot, type Root } from "react-dom/client";
-import { act as reactAct, StrictMode, type ReactNode } from "react";
+import { StrictMode, type ReactNode } from "react";
 import { setup } from "qunit-dom";
 import { buildHelpers, TestHelpers } from "./helpers/install";
-import { DEBUG } from "@warp-drive/core/build-config/env";
 import { flushSync } from "react-dom";
+import { SpecTestContext } from "./spec";
+import { settled } from "@warp-drive/react/install";
 
-const act = DEBUG
-  ? reactAct
-  : async (fn: () => void | Promise<void>) => {
-      await flushSync(fn);
+const act = async (fn: () => void | Promise<void>) => {
+  await flushSync(fn);
 
-      // make extra sure we caught everything since
-      // in prod builds we don't use react-act
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-    };
+  // make extra sure we caught everything since
+  // in prod builds we don't use react-act
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+};
 
 export interface ReactTestContext extends TestContext {
   [IsRenderingContext]: boolean;
@@ -64,8 +63,12 @@ declare module "./-types" {
   }
 }
 
-// @ts-expect-error This is a private property used by the test framework
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+// we do not use act because React incorrectly thinks updates can only come from internal
+// to itself when using it. TL;DR react never expects to be embedded or for external
+// reactive updates to occur.
+//
+// ts-expect-error This is a private property used by the test framework
+// globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options?: SetupContextOptions): void {
   hooks.beforeEach(async function (assert) {
@@ -109,13 +112,8 @@ export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options
               await act(async () => {});
             },
             settled: async () => {
-              // TODO integrate with WarpDrive's waitFor
-              // create a generic test-waiter registration system
-              await new Promise((resolve) => {
-                requestAnimationFrame(() => {
-                  setTimeout(resolve, 0);
-                });
-              });
+              await settled();
+              await act(async () => {});
             },
           });
         }
@@ -132,4 +130,11 @@ export function setupTest<TC extends ReactTestContext>(hooks: Hooks<TC>, options
     // @ts-expect-error Reset the context
     this.root = undefined;
   });
+}
+
+export function useReact(): { name: "react"; setup<TC extends SpecTestContext<object>>(hooks: Hooks<TC>): void } {
+  return {
+    name: "react",
+    setup: setupTest,
+  } as { name: "react"; setup<TC extends SpecTestContext<object>>(hooks: Hooks<TC>): void };
 }

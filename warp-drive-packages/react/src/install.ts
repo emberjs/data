@@ -18,6 +18,7 @@ import { use } from 'react';
 import { Signal } from 'signal-polyfill';
 
 import { LOG_REACT_SIGNAL_INTEGRATION } from '@warp-drive/core/build-config/debugging';
+import { TESTING } from '@warp-drive/core/build-config/env';
 import { type HooksOptions, setupSignals, type SignalHooks } from '@warp-drive/core/configure';
 import { buildSignalConfig as _buildSignalConfig } from '@warp-drive/tc39-proposal-signals/install';
 
@@ -39,6 +40,22 @@ function tryConsumeContext(signal: Signal.State<unknown> | Signal.Computed<unkno
       // eslint-disable-next-line no-console
       console.log(`[WarpDrive] No Context Available To Consume Signal`, signal);
     }
+  }
+}
+
+let pending: Promise<unknown>[];
+export async function settled(): Promise<void> {
+  if (TESTING) {
+    // in testing mode we provide a test waiter integration
+    if (!pending || !pending.length) return;
+    const current = pending ?? [];
+    pending = [];
+    await Promise.allSettled(current);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    return settled();
   }
 }
 
@@ -66,6 +83,18 @@ export function buildSignalConfig(options: HooksOptions): SignalHooks<Signal.Sta
 
       return memo.get();
     };
+  };
+
+  newConfig.waitFor = (promise) => {
+    if (TESTING) {
+      pending = pending || [];
+      const newPromise = promise.finally(() => {
+        pending = pending.filter((p) => p !== newPromise);
+      });
+      pending.push(newPromise);
+      return newPromise;
+    }
+    return promise;
   };
 
   return newConfig;

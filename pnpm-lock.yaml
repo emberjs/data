@@ -684,6 +684,9 @@ importers:
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/react':
+        specifier: workspace:*
+        version: file:warp-drive-packages/react(@babel/core@7.27.1)
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -18783,6 +18786,7 @@ snapshots:
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
@@ -18799,6 +18803,7 @@ snapshots:
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
@@ -18814,6 +18819,7 @@ snapshots:
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
       chalk: 5.4.1
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
