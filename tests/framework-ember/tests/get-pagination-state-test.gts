@@ -1,5 +1,3 @@
-import { rerender, settled } from '@ember/test-helpers';
-
 import { Fetch, RequestManager } from '@warp-drive/core';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -245,7 +243,7 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     await GET(this, 'users/1', () => responses[0]);
 
     const request = this.manager.request<PaginatedUserResource>({ url: urls[0], method: 'GET' });
-    const paginationState = getPaginationState(request);
+    const paginationState: PaginationState = getPaginationState(request);
 
     await request;
 
