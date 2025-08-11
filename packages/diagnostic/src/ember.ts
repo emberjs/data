@@ -22,6 +22,7 @@ import type { TestHelpers } from './helpers/install';
 import { buildHelpers } from './helpers/install';
 import { setupGlobalHooks } from './internals/config';
 import { PublicTestInfo } from './internals/run';
+import type { SpecTestContext } from './spec';
 
 // const OUTLET_TEMPLATE = hbs`{{outlet}}`;
 const INVOKE_PROVIDED_COMPONENT = precompileTemplate('<this.ProvidedComponent />', { strictMode: false }) as object;
@@ -350,4 +351,11 @@ export async function render(context: TestContext, template: object): Promise<vo
   run(() => {
     toplevelView.setOutletState(outletState);
   });
+}
+
+export function useEmber(): { name: 'ember'; setup<TC extends SpecTestContext<object>>(hooks: Hooks<TC>): void } {
+  return {
+    name: 'ember',
+    setup: setupRenderingTest,
+  } as { name: 'ember'; setup<TC extends SpecTestContext<object>>(hooks: Hooks<TC>): void };
 }

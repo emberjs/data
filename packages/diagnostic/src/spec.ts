@@ -64,7 +64,7 @@ export interface SuiteBuilder<
   LocalContext extends object,
   T extends { [key: string]: SpecTest<LocalContext, object> },
 > {
-  use<N extends Framework>(framework: N, implement: (b: TestRunner<LocalContext, T>) => void): void;
+  use(framework: FrameworkConfig, implement: (b: TestRunner<LocalContext, T>) => void): void;
 }
 
 export interface SpecBuilder<LocalContext extends object, T extends { [key: string]: SpecTest<LocalContext, object> }> {
@@ -73,16 +73,10 @@ export interface SpecBuilder<LocalContext extends object, T extends { [key: stri
   build(): SuiteBuilder<LocalContext, T>;
 }
 
-const FrameworkSetup: Record<Framework, () => Promise<(hooks: Hooks) => void>> = {
-  ember: async () => {
-    const { setupRenderingTest } = await import('./ember');
-    return setupRenderingTest;
-  },
-  react: async () => {
-    const { setupTest } = await import('./react');
-    return setupTest;
-  },
-};
+export interface FrameworkConfig {
+  name: Framework;
+  setup<TC extends SpecTestContext<object>>(hooks: Hooks<TC>): void;
+}
 
 class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<LocalContext, object> }>
   implements SpecBuilder<LocalContext, T>
@@ -119,12 +113,11 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
     }
     this.isBuilt = true;
     return {
-      use: async <N extends Framework>(framework: N, implement: (b: TestRunner<LocalContext, T>) => void) => {
+      use: (framework: FrameworkConfig, implement: (b: TestRunner<LocalContext, T>) => void) => {
         const { setup, specs, name: moduleName } = this;
-        const setupFramework = await FrameworkSetup[framework]();
 
-        module(`Spec | ${moduleName} | ${framework}`, function (hooks) {
-          setupFramework(hooks as Hooks<SpecTestContext<T>>);
+        module(`Spec | ${moduleName} | ${framework.name}`, function (hooks) {
+          framework.setup(hooks as Hooks<SpecTestContext<T>>);
           setup(hooks as Hooks<SpecTestContext<T>>);
           const TestsToImplement = new Set(Object.keys(specs));
           const testRunner: TestRunner<LocalContext, T> = {
@@ -203,7 +196,7 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
               }
               if (TestsToImplement.size > 0) {
                 throw new Error(
-                  `Expected the ${framework} implementation for the spec ${moduleName} to have tests for "${Array.from(
+                  `Expected the ${framework.name} implementation for the spec ${moduleName} to have tests for "${Array.from(
                     TestsToImplement
                   ).join(', ')}"`
                 );
@@ -216,7 +209,7 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
 
           if (TestsToImplement.size > 0) {
             throw new Error(
-              `Expected the ${framework} implementation for the spec ${moduleName} to have tests for "${Array.from(
+              `Expected the ${framework.name} implementation for the spec ${moduleName} to have tests for "${Array.from(
                 TestsToImplement
               ).join(', ')}"`
             );

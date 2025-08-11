@@ -5,11 +5,12 @@ import GlimmerComponent from '@glimmer/component';
 import { memoized } from '@warp-drive/core/store/-private';
 import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { Type } from '@warp-drive/core/types/symbols';
+import { useEmber } from '@warp-drive/diagnostic/ember';
 import { Request } from '@warp-drive/ember';
 
 import { RequestSpec } from './-spec';
 
-RequestSpec.use('ember', function (b) {
+RequestSpec.use(useEmber(), function (b) {
   b
     /* this comment just to make prettier behave */
 

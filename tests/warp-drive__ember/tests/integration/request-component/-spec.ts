@@ -155,124 +155,134 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   });
 })
   .for('it renders each stage of a request that succeeds')
-  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
-    const url = await mockGETSuccess(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETSuccess(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
-    }
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
 
-    await this.render({
-      request,
-      countFor,
-    });
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
 
-    assert.equal(state.result, null);
-    assert.equal(counter, 1);
-    assert.dom().hasText('PendingCount: 1');
-    await request;
-    await this.h.rerender();
-    assert.equal(state, getRequestState(request));
-    assert.deepEqual(state.result, {
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
+      assert.equal(state.result, null);
+      assert.equal(counter, 1);
+      assert.dom().hasText('PendingCount: 1');
+      await request;
+      await this.h.rerender();
+      assert.equal(state, getRequestState(request));
+      assert.deepEqual(state.result, {
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
         },
-      },
-    });
-    assert.equal(counter, 2);
-    assert.dom().hasText('Chris ThoburnCount: 2');
-  })
+      });
+      assert.equal(counter, 2);
+      assert.dom().hasText('Chris ThoburnCount: 2');
+    }
+  )
 
   .for('it renders only once when the promise already has a result cached')
-  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
-    const url = await mockGETSuccess(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETSuccess(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
+
+      await request;
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
+
+      assert.deepEqual(state.result, {
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
+        },
+      });
+      assert.equal(counter, 1);
+      assert.dom().hasText('Chris ThoburnCount: 1');
+
+      await this.h.settled();
+
+      assert.deepEqual(state.result, {
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Chris Thoburn',
+          },
+        },
+      });
+      assert.equal(counter, 1);
+      assert.dom().hasText('Chris ThoburnCount: 1');
     }
-
-    await request;
-    await this.render({
-      request,
-      countFor,
-    });
-
-    assert.deepEqual(state.result, {
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
-      },
-    });
-    assert.equal(counter, 1);
-    assert.dom().hasText('Chris ThoburnCount: 1');
-
-    await this.h.settled();
-
-    assert.deepEqual(state.result, {
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Chris Thoburn',
-        },
-      },
-    });
-    assert.equal(counter, 1);
-    assert.dom().hasText('Chris ThoburnCount: 1');
-  })
+  )
 
   .for('it transitions to error state correctly')
-  .use<{ request: Future<UserResource>; countFor: (result: unknown) => number }>(async function (assert) {
-    const url = await mockGETFailure(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETFailure(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
+
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
+
+      assert.equal(state, getRequestState(request), 'state is a stable reference');
+      assert.equal(state.result, null, 'result is null');
+      assert.equal(state.error, null, 'error is null');
+      assert.equal(counter, 1, 'counter is 1');
+      assert.dom().hasText('PendingCount: 1');
+      try {
+        await request;
+      } catch {
+        // ignore the error
+      }
+      await this.h.rerender();
+      assert.equal(state.result, null, 'after rerender result is still null');
+      assert.true(state.error instanceof Error, 'error is an instance of Error');
+      assert.equal(
+        (state.error as Error | undefined)?.message,
+        `[404 Not Found] GET (cors) - ${url}`,
+        'error message is correct'
+      );
+      assert.equal(counter, 2, 'counter is 2');
+      assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 2`);
     }
-
-    await this.render({
-      request,
-      countFor,
-    });
-
-    assert.equal(state, getRequestState(request), 'state is a stable reference');
-    assert.equal(state.result, null, 'result is null');
-    assert.equal(state.error, null, 'error is null');
-    assert.equal(counter, 1, 'counter is 1');
-    assert.dom().hasText('PendingCount: 1');
-    try {
-      await request;
-    } catch {
-      // ignore the error
-    }
-    await this.h.rerender();
-    assert.equal(state.result, null, 'after rerender result is still null');
-    assert.true(state.error instanceof Error, 'error is an instance of Error');
-    assert.equal(
-      (state.error as Error | undefined)?.message,
-      `[404 Not Found] GET (cors) - ${url}`,
-      'error message is correct'
-    );
-    assert.equal(counter, 2, 'counter is 2');
-    assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count: 2`);
-  })
+  )
 
   .for('we can retry from error state')
   .use<{
+    store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
     retry: (state: { retry: () => void }) => void;
@@ -295,6 +305,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store: store.requestManager,
       request,
       countFor,
       retry,
@@ -322,14 +333,16 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count:2Retry`);
 
     await this.h.click('[test-id="retry-button"]');
+    await this.h.settled();
 
-    assert.verifySteps(['retry']);
+    assert.verifySteps(['retry'], 'we called retry');
     assert.equal(counter, 4, 'counter is 4');
     assert.dom().hasText('Chris ThoburnCount: 4');
   })
 
   .for('externally retriggered request works as expected')
   .use<{
+    store: Store | RequestManager;
     source: { request: Future<UserResource> };
     countFor: (result: unknown) => number;
     retry: (state: { retry: () => void }) => void;
@@ -353,6 +366,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store: this.manager,
       source,
       countFor,
       retry,
@@ -379,6 +393,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
 
   .for('externally retriggered request works as expected (store CacheHandler)')
   .use<{
+    store: Store | RequestManager;
     source: {
       request: Future<
         SingleResourceDataDocument<{
@@ -434,6 +449,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store,
       source,
       countFor,
       retry,
@@ -464,101 +480,102 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   })
 
   .for('it rethrows if error block is not present')
-  .use<{
-    request: Future<UserResource>;
-    countFor: (result: unknown) => number;
-  }>(async function (assert) {
-    const url = await mockGETFailure(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETFailure(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
-    }
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
 
-    await this.render({
-      request,
-      countFor,
-    });
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
 
-    assert.equal(state, getRequestState(request), 'state is a stable reference');
-    assert.equal(state.result, null, 'result is null');
-    assert.equal(state.error, null, 'error is null');
-    assert.equal(counter, 1, 'counter is 1');
-    assert.dom().hasText('PendingCount: 1');
-    const cleanup = setupOnError((message) => {
-      assert.step('render-error');
-      assert.true(
-        typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
+      assert.equal(state, getRequestState(request), 'state is a stable reference');
+      assert.equal(state.result, null, 'result is null');
+      assert.equal(state.error, null, 'error is null');
+      assert.equal(counter, 1, 'counter is 1');
+      assert.dom().hasText('PendingCount: 1');
+      const cleanup = setupOnError((message) => {
+        assert.step('render-error');
+        assert.true(
+          typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
+          'error message is correct'
+        );
+      });
+      try {
+        await request;
+      } catch {
+        // ignore the error
+      }
+      await this.h.rerender();
+      cleanup();
+      assert.verifySteps(['render-error']);
+      assert.equal(state.result, null, 'after rerender result is still null');
+      assert.true(state.error instanceof Error, 'error is an instance of Error');
+      assert.equal(
+        (state.error as Error | undefined)?.message,
+        `[404 Not Found] GET (cors) - ${url}`,
         'error message is correct'
       );
-    });
-    try {
-      await request;
-    } catch {
-      // ignore the error
+      assert.equal(counter, 1, 'counter is still 1');
+      assert.dom().hasText('');
     }
-    await this.h.rerender();
-    cleanup();
-    assert.verifySteps(['render-error']);
-    assert.equal(state.result, null, 'after rerender result is still null');
-    assert.true(state.error instanceof Error, 'error is an instance of Error');
-    assert.equal(
-      (state.error as Error | undefined)?.message,
-      `[404 Not Found] GET (cors) - ${url}`,
-      'error message is correct'
-    );
-    assert.equal(counter, 1, 'counter is still 1');
-    assert.dom().hasText('');
-  })
+  )
 
   .for('it transitions to cancelled state correctly')
-  .use<{
-    request: Future<UserResource>;
-    countFor: (result: unknown) => number;
-  }>(async function (assert) {
-    const url = await mockGETFailure(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETFailure(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
+
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
+
+      assert.equal(state, getRequestState(request), 'state is a stable reference');
+      assert.equal(state.result, null, 'result is null');
+      assert.equal(state.error, null, 'error is null');
+      assert.equal(counter, 1, 'counter is 1');
+      assert.dom().hasText('PendingCount: 1');
+
+      request.abort();
+
+      try {
+        await request;
+      } catch {
+        // ignore the error
+      }
+      await this.h.rerender();
+      assert.equal(state.result, null, 'after rerender result is still null');
+      assert.true(state.error instanceof Error, 'error is an instance of Error');
+      assert.equal(
+        (state.error as Error | undefined)?.message,
+        'The user aborted a request.',
+        'error message is correct'
+      );
+      assert.equal(counter, 2, 'counter is 2');
+      assert.dom().hasText('Cancelled The user aborted a request.Count: 2');
     }
-
-    await this.render({
-      request,
-      countFor,
-    });
-
-    assert.equal(state, getRequestState(request), 'state is a stable reference');
-    assert.equal(state.result, null, 'result is null');
-    assert.equal(state.error, null, 'error is null');
-    assert.equal(counter, 1, 'counter is 1');
-    assert.dom().hasText('PendingCount: 1');
-
-    request.abort();
-
-    try {
-      await request;
-    } catch {
-      // ignore the error
-    }
-    await this.h.rerender();
-    assert.equal(state.result, null, 'after rerender result is still null');
-    assert.true(state.error instanceof Error, 'error is an instance of Error');
-    assert.equal(
-      (state.error as Error | undefined)?.message,
-      'The user aborted a request.',
-      'error message is correct'
-    );
-    assert.equal(counter, 2, 'counter is 2');
-    assert.dom().hasText('Cancelled The user aborted a request.Count: 2');
-  })
+  )
 
   .for('we can retry from cancelled state')
   .use<{
+    store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
     retry: (state: { retry: () => void }) => void;
@@ -581,6 +598,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store: this.manager,
       request,
       countFor,
       retry,
@@ -618,51 +636,52 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   })
 
   .for('it transitions to error state if cancelled block is not present')
-  .use<{
-    request: Future<UserResource>;
-    countFor: (result: unknown) => number;
-  }>(async function (assert) {
-    const url = await mockGETFailure(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
-    const state = getRequestState(request);
+  .use<{ store: Store | RequestManager; request: Future<UserResource>; countFor: (result: unknown) => number }>(
+    async function (assert) {
+      const url = await mockGETFailure(this);
+      const request = this.manager.request<UserResource>({ url, method: 'GET' });
+      const state = getRequestState(request);
 
-    let counter = 0;
-    function countFor(_result: unknown) {
-      return ++counter;
+      let counter = 0;
+      function countFor(_result: unknown) {
+        return ++counter;
+      }
+
+      await this.render({
+        store: this.manager,
+        request,
+        countFor,
+      });
+
+      assert.equal(state, getRequestState(request), 'state is a stable reference');
+      assert.equal(state.result, null, 'result is null');
+      assert.equal(state.error, null, 'error is null');
+      assert.equal(counter, 1, 'counter is 1');
+      assert.dom().hasText('PendingCount: 1');
+
+      request.abort();
+
+      try {
+        await request;
+      } catch {
+        // ignore the error
+      }
+      await this.h.rerender();
+      assert.equal(state.result, null, 'after rerender result is still null');
+      assert.true(state.error instanceof Error, 'error is an instance of Error');
+      assert.equal(
+        (state.error as Error | undefined)?.message,
+        'The user aborted a request.',
+        'error message is correct'
+      );
+      assert.equal(counter, 2, 'counter is 2');
+      assert.dom().hasText('The user aborted a request.Count: 2');
     }
-
-    await this.render({
-      request,
-      countFor,
-    });
-
-    assert.equal(state, getRequestState(request), 'state is a stable reference');
-    assert.equal(state.result, null, 'result is null');
-    assert.equal(state.error, null, 'error is null');
-    assert.equal(counter, 1, 'counter is 1');
-    assert.dom().hasText('PendingCount: 1');
-
-    request.abort();
-
-    try {
-      await request;
-    } catch {
-      // ignore the error
-    }
-    await this.h.rerender();
-    assert.equal(state.result, null, 'after rerender result is still null');
-    assert.true(state.error instanceof Error, 'error is an instance of Error');
-    assert.equal(
-      (state.error as Error | undefined)?.message,
-      'The user aborted a request.',
-      'error message is correct'
-    );
-    assert.equal(counter, 2, 'counter is 2');
-    assert.dom().hasText('The user aborted a request.Count: 2');
-  })
+  )
 
   .for('it does not rethrow for cancelled')
   .use<{
+    store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
   }>(async function (assert) {
@@ -676,6 +695,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store: this.manager,
       request,
       countFor,
     });
@@ -712,6 +732,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
 
   .for('it renders only once when the promise error state is already cached')
   .use<{
+    store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
   }>(async function (assert) {
@@ -731,6 +752,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     }
 
     await this.render({
+      store: this.manager,
       request,
       countFor,
     });
@@ -758,18 +780,21 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
 
   .for('isOnline updates when expected')
   .use<{
+    store: Store | RequestManager;
     request: Future<UserResource>;
   }>(async function (assert) {
     const url = await mockGETSuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
     await this.render({
+      store: this.manager,
       request,
     });
     await request;
     await this.h.rerender();
 
     assert.dom().hasText('Online: true');
+
     window.dispatchEvent(new Event('offline'));
 
     await this.h.rerender();
@@ -783,9 +808,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   })
 
   .for('@autorefreshBehavior="reload" works as expected')
-  .use<{
-    request: Future<UserResource>;
-  }>(async function (assert) {
+  .use<{ store: Store | RequestManager; request: Future<UserResource> }>(async function (assert) {
     const store = new Store();
     store.requestManager = this.manager;
 
@@ -794,6 +817,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
 
     await this.render({
+      store: this.manager,
       request,
     });
 
@@ -818,11 +842,11 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   })
 
   .for('idle state does not error')
-  .use<object>(async function (assert) {
+  .use<{ store: Store | RequestManager }>(async function (assert) {
     const cleanup = setupOnError((_message) => {
       assert.step('render-error');
     });
-    await this.render({});
+    await this.render({ store: this.manager });
 
     assert.dom().hasText('Waiting');
     assert.verifySteps([], 'no error should be thrown');
@@ -830,34 +854,49 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
   })
 
   .for('idle state errors if no idle block is present')
-  .use<object>(async function (assert) {
-    const cleanup = setupOnError((message) => {
+  .use<{ store: Store | RequestManager }>(async function (assert) {
+    const cleanup = setupOnError((error) => {
       assert.step('render-error');
 
+      const message = error instanceof Error ? error.message : error;
+
       assert.true(
-        typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
-        'error message is correct'
+        // prettier-ignore
+        typeof message === 'string' &&
+          (
+            // ember
+            message.startsWith('\n\nError occurred:\n\n- While rendering:') ||
+            // react
+            message.includes('No idle block provided for <Request> component, and no query or request was provided.')
+          ),
+        `error message is correct: ${message}`
       );
     });
     try {
-      await this.render({});
-    } catch (e) {
-      assert.step('render-error-caught');
-      const message = e instanceof Error ? e.message : e;
-      assert.true(
-        typeof message === 'string' &&
-          message.includes('No idle block provided for <Request> component, and no query or request was provided'),
-        `error message is correct: ${String(message)}`
-      );
+      await this.render({
+        store: this.manager,
+      });
+    } catch {
+      // some frameworks such as React don't throw the error and so its not catchable.
+      // TODO consider if this should be something exposed to the spec and used to
+      // toggle test behavior.
+      // assert.step('render-error-caught');
+      // const message = e instanceof Error ? e.message : e;
+      // assert.true(
+      //   typeof message === 'string' &&
+      //     message.includes('No idle block provided for <Request> component, and no query or request was provided'),
+      //   `error message is correct: ${String(message)}`
+      // );
     }
 
     assert.dom().hasText('');
-    assert.verifySteps(['render-error', 'render-error-caught'], 'error should be thrown');
+    assert.verifySteps(['render-error' /* 'render-error-caught' */], 'error should be thrown');
     cleanup();
   })
 
   .for('idle state allows for transition to request states')
   .use<{
+    store: Store | RequestManager;
     state: { request: Future<unknown> | undefined };
   }>(async function (assert) {
     const store = new Store();
@@ -871,6 +910,7 @@ export const RequestSpec = spec<LocalTestContext>('<Request />', function (hooks
     const state = new State();
 
     await this.render({
+      store,
       state,
     });
 
