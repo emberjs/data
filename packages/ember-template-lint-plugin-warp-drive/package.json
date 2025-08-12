@@ -1,19 +1,20 @@
 {
-  "name": "eslint-plugin-warp-drive",
-  "description": "ESLint rules for Applications using WarpDrive or EmberData",
+  "name": "ember-template-lint-plugin-warp-drive",
+  "description": "Ember template lint rules for Applications using WarpDrive or EmberData",
   "keywords": [
-    "eslint",
-    "eslint-plugin",
+    "ember-template-lint",
+    "ember-template-lint-plugin",
     "EmberData",
     "WarpDrive"
   ],
   "main": "./src/index.js",
-  "version": "5.7.0-alpha.26",
+  "version": "5.7.0-alpha.15",
+  "type": "module",
   "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/emberjs/data.git",
-    "directory": "packages/eslint-plugin-warp-drive"
+    "directory": "packages/ember-template-lint-plugin-warp-drive"
   },
   "volta": {
     "extends": "../../package.json"
@@ -21,20 +22,12 @@
   "exports": {
     ".": {
       "default": "./src/index.js"
-    },
-    "./recommended": {
-      "default": "./src/recommended.js"
     }
   },
-  "dependencies": {
-    "requireindex": "^1.2.0",
-    "@warp-drive/core": "workspace:*",
-    "@warp-drive/utilities": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",
-    "@babel/plugin-proposal-decorators": "7.25.9",
-    "@babel/core": "^7.26.10",
+    "ember-template-lint": "^7.0.8",
     "eslint": "^9.24.0",
     "mocha": "^11.1.0"
   },
