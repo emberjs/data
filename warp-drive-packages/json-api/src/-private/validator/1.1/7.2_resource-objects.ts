@@ -256,7 +256,7 @@ function validateResourceAttributes(
     if (!field && actualField) {
       reporter.warn(
         [...path, key],
-        `Expected the ${actualField.kind} field to not have its own resource data. Likely this field should either not be returned in this payload or the field definition should be updated in the schema.`
+        `Expected the ${actualField.kind} field "${key}" to not have its own data in the ResourceObject's attributes. Likely this field should either not be returned in this payload or the field definition should be updated in the schema.`
       );
     } else if (!field) {
       if (key.includes(':')) {
@@ -309,7 +309,7 @@ function validateResourceRelationships(
     if (!field && actualField) {
       reporter.warn(
         [...path, key],
-        `Expected the ${actualField.kind} field to not have its own resource data. Likely this field should either not be returned in this payload or the field definition should be updated in the schema.`
+        `Expected the ${actualField.kind} field "${key}" to not have its own data in the ResourceObject's relationships. Likely this field should either not be returned in this payload or the field definition should be updated in the schema.`
       );
     } else if (!field) {
       if (key.includes(':')) {
