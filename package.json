@@ -204,7 +204,8 @@
       "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
       "@ember/test-helpers@5.2.0": "patches/@ember__test-helpers@5.2.0.patch",
       "ember-source@4.4.5": "patches/ember-source@4.4.5.patch",
-      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch"
+      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch",
+      "qunit-dom": "patches/qunit-dom.patch"
     }
   }
 }

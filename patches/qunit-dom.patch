@@ -1,0 +1,29 @@
+diff --git a/dist/es/install.d.ts b/dist/es/install.d.ts
+index 5f23394d466a6f61523b86741d69f5908ea7ccf8..fc785779c00dc375cedd5e15978dfe9cddaf4ada 100644
+--- a/dist/es/install.d.ts
++++ b/dist/es/install.d.ts
+@@ -1,9 +1,16 @@
+ import DOMAssertions from './assertions.js';
+ import type { IDOMElementDescriptor } from 'dom-element-descriptors';
++
++export type RootElement = Element | Document | ShadowRoot | null;
++
++export interface DomAssert {
++  dom(target?: string | Element | IDOMElementDescriptor | null, rootElement?: RootElement): DOMAssertions;
++}
++
+ declare global {
+-    type RootElement = Element | Document | ShadowRoot | null;
+     interface Assert {
+         dom(target?: string | Element | IDOMElementDescriptor | null, rootElement?: RootElement): DOMAssertions;
+     }
+ }
++
+ export default function (assert: Assert): void;
+diff --git a/dist/es/qunit-dom.d.ts b/dist/es/qunit-dom.d.ts
+index 0b78f2211fa1f25e9e64a95957d86a95e57243a6..29d5e8525dacea1eca1edb46af70f1a651433a86 100644
+--- a/dist/es/qunit-dom.d.ts
++++ b/dist/es/qunit-dom.d.ts
+@@ -1 +1,2 @@
+ export { setup } from './qunit-dom-modules.js';
++export type { DomAssert, RootElement } from './install.js';
