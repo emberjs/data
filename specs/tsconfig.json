@@ -1,0 +1,76 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "alwaysStrict": true,
+    "downlevelIteration": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDeclarationOnly": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": false,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": false,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "verbatimModuleSyntax": true,
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "declarations",
+    "types": [],
+    // "baseUrl": ".",
+    "paths": {
+      "@warp-drive/diagnostic": ["../packages/diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/holodeck": ["../packages/holodeck/unstable-preview-types"],
+      "@warp-drive/holodeck/*": ["../packages/holodeck/unstable-preview-types/*"],
+      "@warp-drive/core": ["../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/json-api": ["../warp-drive-packages/json-api/declarations"],
+      "@warp-drive/json-api/*": ["../warp-drive-packages/json-api/declarations/*"],
+      "@warp-drive/utilities": ["../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../warp-drive-packages/utilities/declarations/*"]
+    },
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "erasableSyntaxOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "checkJs": false
+  },
+  "references": [
+    {
+      "path": "../packages/diagnostic"
+    },
+    {
+      "path": "../warp-drive-packages/core"
+    },
+    {
+      "path": "../warp-drive-packages/utilities"
+    },
+    {
+      "path": "../warp-drive-packages/json-api"
+    },
+    {
+      "path": "../packages/holodeck"
+    }
+  ]
+}

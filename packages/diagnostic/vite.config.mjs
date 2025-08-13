@@ -14,6 +14,7 @@ export const entryPoints = [
   './src/runners/dom.ts',
   './src/helpers/install.ts',
   './src/ember.ts',
+  './src/ember-classic.ts',
   './src/react.tsx',
   './src/spec.ts',
   './src/react/test-helpers.ts',

@@ -115,6 +115,7 @@ export const CacheHandler: CacheHandlerType = {
         DEDUPE.set(identifier, { priority: { blocking: true }, promise });
         store.notifications.notify(identifier, 'state', null);
       }
+      store.requestManager._pending.set(context.id, promise);
       return promise;
     }
 

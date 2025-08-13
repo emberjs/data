@@ -1,0 +1,81 @@
+{
+  "include": ["tests/**/*", "start.ts"],
+  "glint": {
+    "environment": ["ember-loose", "ember-template-imports"]
+  },
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
+    "disableReferencedProjectLoad": true,
+    "baseUrl": ".",
+    "noImplicitOverride": false,
+    "incremental": true,
+    "declaration": true,
+    "types": ["ember-source/types", "vite/client"],
+    // "baseUrl": ".",
+    "paths": {
+      "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
+      "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
+      "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
+      "@warp-drive-internal/spec": ["../../specs/declarations"],
+      "@warp-drive-internal/spec/*": ["../../specs/declarations/*"],
+      "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
+      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/json-api": ["../../warp-drive-packages/json-api/declarations"],
+      "@warp-drive/json-api/*": ["../../warp-drive-packages/json-api/declarations/*"],
+      "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
+  },
+  "references": [
+    {
+      "path": "../../specs"
+    },
+    {
+      "path": "../../packages/diagnostic"
+    },
+    {
+      "path": "../../warp-drive-packages/ember"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
+    },
+    {
+      "path": "../../warp-drive-packages/utilities"
+    },
+    {
+      "path": "../../warp-drive-packages/json-api"
+    },
+    {
+      "path": "../../packages/holodeck"
+    }
+  ]
+}

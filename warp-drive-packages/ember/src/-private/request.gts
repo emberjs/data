@@ -21,6 +21,8 @@ import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 import { and, Throw } from './await.gts';
 
+export type { ContentFeatures, RecoveryFeatures };
+
 function notNull(x: null): never;
 function notNull<T>(x: T): Exclude<T, null>;
 function notNull<T>(x: T | null) {

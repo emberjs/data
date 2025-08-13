@@ -37,10 +37,10 @@
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@glimmer/component": "^2.0.0",
-    "@glint/core": "unstable",
-    "@glint/environment-ember-loose": "unstable",
-    "@glint/environment-ember-template-imports": "unstable",
-    "@glint/template": "unstable",
+    "@glint/core": "alpha",
+    "@glint/environment-ember-loose": "alpha",
+    "@glint/environment-ember-template-imports": "alpha",
+    "@glint/template": "alpha",
     "@types/semver": "^7.7.0",
     "@warp-drive/internal-docs-viewer": "workspace:*",
     "@warp-drive/internal-tooling": "workspace:*",
@@ -167,10 +167,10 @@
       "broccoli-funnel": "^3.0.8",
       "broccoli-merge-trees": "^4.2.0",
       "@glimmer/validator": "^0.94.8",
-      "@glint/core": "unstable",
-      "@glint/environment-ember-loose": "unstable",
-      "@glint/environment-ember-template-imports": "unstable",
-      "@glint/template": "unstable",
+      "@glint/core": "alpha",
+      "@glint/environment-ember-loose": "alpha",
+      "@glint/environment-ember-template-imports": "alpha",
+      "@glint/template": "alpha",
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
@@ -204,7 +204,8 @@
       "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
       "@ember/test-helpers@5.2.0": "patches/@ember__test-helpers@5.2.0.patch",
       "ember-source@4.4.5": "patches/ember-source@4.4.5.patch",
-      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch"
+      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch",
+      "qunit-dom": "patches/qunit-dom.patch"
     }
   }
 }
