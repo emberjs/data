@@ -54,25 +54,16 @@ function fixViteHijack(filePath) {
   return filePath.replace('/node_modules/.vite-temp/', '/');
 }
 
-export function external(manual = [], allowDevDeps = false) {
+export function external(manual = []) {
   const pkg = loadConfig();
   const deps = Object.keys(pkg.dependencies || {});
   const peers = Object.keys(pkg.peerDependencies || {});
-  const devDeps = allowDevDeps ? Object.keys(pkg.devDependencies || {}) : [];
-  const all = new Set([...deps, ...peers, ...manual, ...devDeps]);
+  const all = new Set([...deps, ...peers, ...manual]);
 
   // console.log({ externals: result });
   return function (id) {
     if (all.has(id)) {
       return true;
-    }
-
-    if (allowDevDeps) {
-      for (const dep of devDeps) {
-        if (id.startsWith(dep + '/') && dep.startsWith('@warp-drive/')) {
-          return true;
-        }
-      }
     }
 
     for (const dep of deps) {
