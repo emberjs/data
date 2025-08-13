@@ -59,7 +59,7 @@ export async function settled(): Promise<void> {
   }
 }
 
-export function buildSignalConfig(options: HooksOptions): SignalHooks<Signal.State<unknown>> {
+export function buildSignalConfig(options: HooksOptions): SignalHooks {
   const config = _buildSignalConfig(options);
   const newConfig = Object.assign({}, config);
 
@@ -97,7 +97,7 @@ export function buildSignalConfig(options: HooksOptions): SignalHooks<Signal.Sta
     return promise;
   };
 
-  return newConfig;
+  return newConfig as SignalHooks;
 }
 
 setupSignals(buildSignalConfig);
