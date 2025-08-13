@@ -2849,6 +2849,75 @@ importers:
         specifier: ^7.1.2
         version: 7.1.2(terser@5.39.1)
 
+  tests/framework-react:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.28.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.0)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.0)
+      '@babel/runtime':
+        specifier: ^7.27.0
+        version: 7.27.1
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.18.1(@babel/core@7.28.0)
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.0)
+      '@types/react':
+        specifier: ^19.1.9
+        version: 19.1.9
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.7(@types/react@19.1.9)
+      '@warp-drive-internal/specs':
+        specifier: workspace:*
+        version: file:specs(3ed1292504f5d125058a4eb778d5fb23)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/react':
+        specifier: workspace:*
+        version: file:warp-drive-packages/react(@babel/core@7.28.0)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+      babel-plugin-debug-macros:
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.28.0)
+      decorator-transforms:
+        specifier: ^2.3.0
+        version: 2.3.0(@babel/core@7.28.0)
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.0.0
+        version: 7.1.2
+
   tests/full-data-asset-size-app:
     devDependencies:
       '@babel/core':
@@ -3610,75 +3679,6 @@ importers:
       webpack:
         specifier: 5.99.5
         version: 5.99.5
-
-  tests/warp-drive__react:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.27.1
-      '@babel/plugin-transform-typescript':
-        specifier: ^7.28.0
-        version: 7.28.0(@babel/core@7.27.1)
-      '@babel/preset-react':
-        specifier: ^7.27.1
-        version: 7.27.1(@babel/core@7.27.1)
-      '@babel/runtime':
-        specifier: ^7.27.0
-        version: 7.27.1
-      '@embroider/macros':
-        specifier: ^1.16.12
-        version: 1.17.3(@babel/core@7.27.1)
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.27.1)
-      '@types/react':
-        specifier: ^19.1.9
-        version: 19.1.9
-      '@types/react-dom':
-        specifier: ^19.1.7
-        version: 19.1.7(@types/react@19.1.9)
-      '@warp-drive/core':
-        specifier: workspace:*
-        version: file:warp-drive-packages/core(@babel/core@7.27.1)
-      '@warp-drive/diagnostic':
-        specifier: workspace:*
-        version: file:packages/diagnostic(91fa9405ded66bcb0704e914732448b6)
-      '@warp-drive/holodeck':
-        specifier: workspace:*
-        version: file:packages/holodeck
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config
-      '@warp-drive/json-api':
-        specifier: workspace:*
-        version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
-      '@warp-drive/legacy':
-        specifier: workspace:*
-        version: file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
-      '@warp-drive/react':
-        specifier: workspace:*
-        version: file:warp-drive-packages/react(@babel/core@7.27.1)
-      '@warp-drive/utilities':
-        specifier: workspace:*
-        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
-      babel-plugin-debug-macros:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.27.1)
-      decorator-transforms:
-        specifier: ^2.3.0
-        version: 2.3.0(@babel/core@7.27.1)
-      react:
-        specifier: ^19.1.1
-        version: 19.1.1
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.1.1(react@19.1.1)
-      typescript:
-        specifier: 5.9.2
-        version: 5.9.2
-      vite:
-        specifier: ^7.0.0
-        version: 7.0.0
 
   tests/warp-drive__schema: {}
 
@@ -16275,10 +16275,22 @@ snapshots:
       '@babel/core': 7.27.1
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-transform-react-display-name@7.28.0(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+
   '@babel/plugin-transform-react-jsx-development@7.27.1(@babel/core@7.27.1)':
     dependencies:
       '@babel/core': 7.27.1
       '@babel/plugin-transform-react-jsx': 7.27.1(@babel/core@7.27.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/plugin-transform-react-jsx-development@7.27.1(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/plugin-transform-react-jsx': 7.27.1(@babel/core@7.28.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -16293,9 +16305,26 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-react-jsx@7.27.1(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-module-imports': 7.27.1
+      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.0)
+      '@babel/types': 7.28.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-react-pure-annotations@7.27.1(@babel/core@7.27.1)':
     dependencies:
       '@babel/core': 7.27.1
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-transform-react-pure-annotations@7.27.1(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
       '@babel/helper-annotate-as-pure': 7.27.3
       '@babel/helper-plugin-utils': 7.27.1
 
@@ -16975,6 +17004,18 @@ snapshots:
       '@babel/plugin-transform-react-jsx': 7.27.1(@babel/core@7.27.1)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.27.1)
       '@babel/plugin-transform-react-pure-annotations': 7.27.1(@babel/core@7.27.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/preset-react@7.27.1(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+      '@babel/helper-validator-option': 7.27.1
+      '@babel/plugin-transform-react-display-name': 7.28.0(@babel/core@7.28.0)
+      '@babel/plugin-transform-react-jsx': 7.27.1(@babel/core@7.28.0)
+      '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.28.0)
+      '@babel/plugin-transform-react-pure-annotations': 7.27.1(@babel/core@7.28.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -18015,6 +18056,20 @@ snapshots:
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
+      find-up: 5.0.0
+      lodash: 4.17.21
+      resolve: 1.22.10
+      semver: 7.7.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@embroider/macros@1.18.1(@babel/core@7.28.0)':
+    dependencies:
+      '@embroider/shared-internals': 3.0.0
+      assert-never: 1.4.0
+      babel-import-util: 3.0.1
+      ember-cli-babel: 8.2.0(@babel/core@7.28.0)
       find-up: 5.0.0
       lodash: 4.17.21
       resolve: 1.22.10
@@ -19345,6 +19400,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@rollup/plugin-babel@6.0.4(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-module-imports': 7.27.1
+      '@rollup/pluginutils': 5.1.4
+    transitivePeerDependencies:
+      - supports-color
+
   '@rollup/plugin-babel@6.0.4(@babel/core@7.28.0)(rollup@4.46.2)':
     dependencies:
       '@babel/core': 7.28.0
@@ -20167,6 +20230,19 @@ snapshots:
       - '@glint/template'
       - supports-color
 
+  '@warp-drive-internal/specs@file:specs(3ed1292504f5d125058a4eb778d5fb23)':
+    dependencies:
+      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic': file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
+      '@warp-drive/holodeck': file:packages/holodeck
+      '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@glint/template'
+      - supports-color
+
   '@warp-drive/build-config@file:warp-drive-packages/build-config':
     dependencies:
       '@embroider/addon-shim': 1.10.0
@@ -20229,23 +20305,6 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/diagnostic@file:packages/diagnostic(91fa9405ded66bcb0704e914732448b6)':
-    dependencies:
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
-      '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
-      chalk: 5.4.1
-      debug: 4.4.0
-      dom-element-descriptors: 0.5.1
-      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
-      tmp: 0.2.3
-    optionalDependencies:
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
   '@warp-drive/diagnostic@file:packages/diagnostic(95275fd08d3f482da7a1ed0e352c071a)':
     dependencies:
       '@embroider/macros': 1.17.3(@babel/core@7.28.0)
@@ -20288,6 +20347,23 @@ snapshots:
       tmp: 0.2.3
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@warp-drive/diagnostic@file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)':
+    dependencies:
+      '@embroider/macros': 1.17.3(@babel/core@7.28.0)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
+      chalk: 5.4.1
+      debug: 4.4.0
+      dom-element-descriptors: 0.5.1
+      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+      tmp: 0.2.3
+    optionalDependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -21244,9 +21320,9 @@ snapshots:
       babel-import-util: 2.1.1
       semver: 7.7.2
 
-  babel-plugin-debug-macros@2.0.0(@babel/core@7.27.1):
+  babel-plugin-debug-macros@2.0.0(@babel/core@7.28.0):
     dependencies:
-      '@babel/core': 7.27.1
+      '@babel/core': 7.28.0
       babel-import-util: 2.1.1
       semver: 7.7.2
 
