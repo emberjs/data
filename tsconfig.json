@@ -33,6 +33,7 @@
     { "path": "./warp-drive-packages/experiments" },
     { "path": "./warp-drive-packages/json-api" },
     { "path": "./warp-drive-packages/legacy" },
-    { "path": "./warp-drive-packages/utilities" }
+    { "path": "./warp-drive-packages/utilities" },
+    { "path": "./specs" }
   ]
 }

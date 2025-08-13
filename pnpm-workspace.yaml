@@ -6,4 +6,5 @@ packages:
   - "docs-viewer"
   - "!docs-viewer/projects/*"
   - "tests/*"
+  - "specs"
   - "config"

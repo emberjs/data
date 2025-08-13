@@ -1,0 +1,72 @@
+{
+  "name": "@warp-drive-internal/specs",
+  "version": "5.7.0-alpha.26",
+  "description": "Provides Specs for Framework Integrations",
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "specs"
+  },
+  "license": "MIT",
+  "author": "",
+  "scripts": {
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "sync": "echo \"syncing\"",
+    "start": "vite"
+  },
+  "files": [
+    "dist",
+    "declarations",
+    "addon-main.cjs"
+  ],
+  "exports": {
+    ".": {
+      "types": "./declarations/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./declarations/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "peerDependencies": {
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/holodeck": "workspace:*"
+  },
+  "dependencies": {
+    "@embroider/macros": "^1.16.12"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/holodeck": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "decorator-transforms": "^2.3.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  },
+  "volta": {
+    "extends": "../package.json"
+  },
+  "packageManager": "pnpm@10.12.4",
+  "ember-addon": {
+    "main": "addon-main.cjs",
+    "type": "addon",
+    "version": 2
+  },
+  "ember": {
+    "edition": "octane"
+  }
+}

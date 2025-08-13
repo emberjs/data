@@ -62,7 +62,7 @@ export interface RequestArgs<RT, E> extends SubscriptionArgs<RT, E> {
    * different from the store provided via context.
    *
    */
-  store?: Store;
+  store?: Store | RequestManager;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

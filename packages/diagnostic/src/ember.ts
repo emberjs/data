@@ -13,14 +13,11 @@ import type { Owner } from '@ember/test-helpers/build-owner';
 
 import { setup } from 'qunit-dom';
 
-import AbstractTestLoader from 'ember-cli-test-loader/test-support/index';
-
 import { module as _module, skip as _skip, test as _test, todo as _todo } from './-define';
 import isComponent from './-ember/is-component';
 import type { Hooks, ModuleCallback, TestCallback } from './-types';
 import type { TestHelpers } from './helpers/install';
 import { buildHelpers } from './helpers/install';
-import { setupGlobalHooks } from './internals/config';
 import { PublicTestInfo } from './internals/run';
 import type { SpecTestContext } from './spec';
 
@@ -66,14 +63,6 @@ type FullOwner = Owner & {
   lookup: (name: RegistryKey) => unknown;
   register: (name: RegistryKey, value: unknown) => void;
 };
-
-// fix bug with embroider/webpack/auto-import and test-loader
-// prettier-ignore
-// @ts-expect-error
-const CLITestLoader: typeof AbstractTestLoader = AbstractTestLoader.default
-  // @ts-expect-error
-  ? AbstractTestLoader.default as typeof AbstractTestLoader
-  : AbstractTestLoader;
 
 export function setupTest<TC extends TestContext>(hooks: Hooks<TC>, opts?: SetupContextOptions): void {
   const options = { waitForSettled: false, ...opts };
@@ -215,47 +204,7 @@ export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, opt
   });
 }
 
-let moduleLoadFailures: Error[] = [];
-
-class TestLoader extends CLITestLoader {
-  moduleLoadFailure(moduleName: string, error: Error) {
-    moduleLoadFailures.push(error);
-  }
-}
-
-/**
-   Load tests following the default patterns:
-
-   * The module name ends with `-test`
-   * The module name ends with `.jshint`
-
- */
-function loadTests() {
-  TestLoader.load();
-}
-
-export function configure(): void {
-  setupGlobalHooks((hooks) => {
-    hooks.onSuiteFinish(() => {
-      const length = moduleLoadFailures.length;
-
-      try {
-        if (length === 0) {
-          // do nothing
-        } else if (length === 1) {
-          throw moduleLoadFailures[0];
-        } else {
-          throw new Error('\n' + moduleLoadFailures.join('\n'));
-        }
-      } finally {
-        // ensure we release previously captured errors.
-        moduleLoadFailures = [];
-      }
-    });
-  });
-
-  loadTests();
-}
+export function configure(): void {}
 
 export function isRenderingTestContext(context: TestContext): context is RenderingTestContext {
   return hasCalledSetupRenderingContext in context;

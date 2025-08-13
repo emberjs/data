@@ -1,0 +1,73 @@
+{
+  "name": "framework-ember",
+  "version": "5.7.0-alpha.26",
+  "description": "Provides spec test implementation for @warp-drive/ember",
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/framework-ember"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:tests": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --outDir dist-test",
+    "build:production": "export IS_TESTING=true; export NODE_ENV=production; vite build --outDir dist-test",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "check:types": "glint --noEmit",
+    "start": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --watch --outDir dist-test",
+    "test": "export IS_TESTING=true; export NODE_ENV=development; bun ./diagnostic.js",
+    "test:production": "export IS_TESTING=true; export NODE_ENV=production; bun ./diagnostic.js",
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-typescript": "^7.25.2",
+    "@babel/runtime": "^7.25.6",
+    "@ember/test-helpers": "5.2.0",
+    "@embroider/core": "^4.1.0",
+    "@embroider/macros": "^1.18.0",
+    "decorator-transforms": "^2.2.2",
+    "@embroider/vite": "^1.1.5",
+    "@glimmer/component": "^2.0.0",
+    "@glint/core": "unstable",
+    "@glint/environment-ember-loose": "unstable",
+    "@glint/environment-ember-template-imports": "unstable",
+    "@glint/template": "unstable",
+    "@glint/tsserver-plugin": "unstable",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-plugin-ember-template-compilation": "^2.2.5",
+    "ember-resolver": "^13.1.0",
+    "ember-source": "^6.3.0",
+    "ember-strict-application-resolver": "^0.1.0",
+    "rollup": "^4.46.2",
+    "typescript": "^5.8.3",
+    "vite": "^7.1.2",
+    "@ember/test-waiters": "^4.1.0",
+    "@warp-drive/ember": "workspace:*",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/legacy": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/holodeck": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "@warp-drive-internal/specs": "workspace:*"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "ember-addon": {
+    "version": 2,
+    "type": "addon",
+    "main": "addon-main.cjs"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@10.12.4"
+}
