@@ -1025,7 +1025,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     window.dispatchEvent(new Event('online'));
 
     // let the event dispatch complete
-    await new Promise((resolve) => setTimeout(resolve, 1));
+    await new Promise((resolve) => setTimeout(resolve, DEBUG ? 1 : 100));
 
     if (PRODUCTION) {
       await store._getAllPending();
