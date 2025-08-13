@@ -1,6 +1,11 @@
+import { setup as ignoreSetup } from 'qunit-dom';
+
 import { module, skip, test, todo } from './-define';
 import type { Diagnostic as TestAssert, Hooks, TestContext } from './-types';
 import type { TestHelpers } from './helpers/install';
+
+// just to trigger the TS consumption
+ignoreSetup({} as Assert);
 
 declare module './-types' {
   interface Diagnostic {
