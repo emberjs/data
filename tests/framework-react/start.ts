@@ -6,7 +6,7 @@ import { start } from '@warp-drive/diagnostic/runners/dom';
 import { setConfig, setIsRecording, setTestId } from '@warp-drive/holodeck';
 import { setBuildURLConfig } from '@warp-drive/utilities';
 
-import.meta.glob('./integration/**/*-test.tsx', { eager: true });
+import.meta.glob('./tests/**/*-test.tsx', { eager: true });
 
 if (SHOULD_RECORD) {
   // eslint-disable-next-line no-console
