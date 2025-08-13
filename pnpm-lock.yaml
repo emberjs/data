@@ -2764,6 +2764,228 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
 
+  tests/legacy:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.10
+        version: 7.27.1
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.27.0
+        version: 7.28.0(@babel/core@7.27.1)
+      '@babel/runtime':
+        specifier: ^7.27.0
+        version: 7.27.1
+      '@ember-data/adapter':
+        specifier: workspace:*
+        version: file:packages/adapter(@babel/core@7.27.1)
+      '@ember-data/debug':
+        specifier: workspace:*
+        version: file:packages/debug(0208a9a2500316d5486b36e646116827)
+      '@ember-data/graph':
+        specifier: workspace:*
+        version: file:packages/graph(@babel/core@7.27.1)
+      '@ember-data/json-api':
+        specifier: workspace:*
+        version: file:packages/json-api(@babel/core@7.27.1)
+      '@ember-data/legacy-compat':
+        specifier: workspace:*
+        version: file:packages/legacy-compat(@babel/core@7.27.1)
+      '@ember-data/model':
+        specifier: workspace:*
+        version: file:packages/model(@babel/core@7.27.1)
+      '@ember-data/request':
+        specifier: workspace:*
+        version: file:packages/request(@babel/core@7.27.1)
+      '@ember-data/request-utils':
+        specifier: workspace:*
+        version: file:packages/request-utils(0dae2b69c7eb594698e489e5a64666f5)
+      '@ember-data/serializer':
+        specifier: workspace:*
+        version: file:packages/serializer(@babel/core@7.27.1)
+      '@ember-data/store':
+        specifier: workspace:*
+        version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember-data/unpublished-test-infra':
+        specifier: workspace:*
+        version: file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)
+      '@ember/edition-utils':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@ember/optional-features':
+        specifier: ^2.2.0
+        version: 2.2.0
+      '@ember/string':
+        specifier: ^4.0.1
+        version: 4.0.1
+      '@ember/test-helpers':
+        specifier: 5.2.0
+        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
+      '@ember/test-waiters':
+        specifier: ^4.1.0
+        version: 4.1.0(@babel/core@7.27.1)
+      '@embroider/macros':
+        specifier: ^1.16.12
+        version: 1.17.3(@babel/core@7.27.1)
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/core':
+        specifier: unstable
+        version: 2.0.1-unstable.bbbd81c(typescript@5.8.3)
+      '@glint/environment-ember-loose':
+        specifier: unstable
+        version: 2.0.1-unstable.bbbd81c(214a613b2299c14e1c05d07843827cb7)
+      '@glint/environment-ember-template-imports':
+        specifier: unstable
+        version: 2.0.1-unstable.bbbd81c(8b8de311f1862a6db045bf2582ef313c)
+      '@glint/template':
+        specifier: unstable
+        version: 1.6.1-unstable.bbbd81c
+      '@types/qunit':
+        specifier: 2.19.10
+        version: 2.19.10
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:warp-drive-packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.27.1)
+      '@warp-drive/core-types':
+        specifier: workspace:*
+        version: file:packages/core-types(@babel/core@7.27.1)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(71230f815b7f822a1df7a93bc6010582)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(1de66b2f75e72c94246e46fd9714e1be)
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(5221ed1180c1a83543b99dcfc0fa8e42)
+      '@warp-drive/schema-record':
+        specifier: workspace:*
+        version: file:packages/schema-record(@babel/core@7.27.1)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(1de66b2f75e72c94246e46fd9714e1be)
+      broccoli-concat:
+        specifier: ^4.2.5
+        version: 4.2.5
+      broccoli-merge-trees:
+        specifier: ^4.2.0
+        version: 4.2.0
+      broccoli-stew:
+        specifier: ^3.0.0
+        version: 3.0.0
+      broccoli-string-replace:
+        specifier: ^0.1.2
+        version: 0.1.2
+      broccoli-test-helper:
+        specifier: ^2.0.0
+        version: 2.0.0
+      broccoli-uglify-sourcemap:
+        specifier: ^4.0.0
+        version: 4.0.0
+      ember-auto-import:
+        specifier: ^2.10.0
+        version: 2.10.0
+      ember-cached-decorator-polyfill:
+        specifier: ^1.0.2
+        version: 1.0.2(41c06fd0fbe1f8e2dd80a4aba9cca239)
+      ember-cli:
+        specifier: ~6.3.1
+        version: 6.3.1
+      ember-cli-babel:
+        specifier: ^8.2.0
+        version: 8.2.0(@babel/core@7.27.1)
+      ember-cli-dependency-checker:
+        specifier: ^3.3.3
+        version: 3.3.3(ember-cli@6.3.1)
+      ember-cli-htmlbars:
+        specifier: ^6.3.0
+        version: 6.3.0
+      ember-cli-inject-live-reload:
+        specifier: ^2.1.0
+        version: 2.1.0
+      ember-cli-terser:
+        specifier: ~4.0.2
+        version: 4.0.2
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.27.1)
+      ember-data:
+        specifier: workspace:*
+        version: file:packages/-ember-data(161060b426f3947fa15e00df6e9f9dad)
+      ember-decorators-polyfill:
+        specifier: ^1.1.5
+        version: 1.1.5(@babel/core@7.27.1)
+      ember-disable-prototype-extensions:
+        specifier: ^1.1.3
+        version: 1.1.3
+      ember-exam:
+        specifier: ^9.1.0
+        version: 9.1.0(b1393dba3b0c1e20eac9fd751e160d4c)
+      ember-inflector:
+        specifier: 6.0.0
+        version: 6.0.0(@babel/core@7.27.1)
+      ember-load-initializers:
+        specifier: ^3.0.1
+        version: 3.0.1(b487de3a9f030158d919bd6d1b3e6bca)
+      ember-maybe-import-regenerator:
+        specifier: ^1.0.0
+        version: 1.0.0(@babel/core@7.27.1)
+      ember-qunit:
+        specifier: 8.0.2
+        version: 8.0.2(ca67145bec9be8a09a1442423c10a4d3)
+      ember-resolver:
+        specifier: ^13.1.0
+        version: 13.1.0(41c06fd0fbe1f8e2dd80a4aba9cca239)
+      ember-route-template:
+        specifier: ^1.0.3
+        version: 1.0.3
+      ember-source:
+        specifier: ~6.3.0
+        version: 6.3.0(@glimmer/component@2.0.0)
+      ember-source-channel-url:
+        specifier: ^3.0.0
+        version: 3.0.0
+      ember-strict-resolver:
+        specifier: ^1.3.0
+        version: 1.3.0(@babel/core@7.27.1)
+      ember-template-imports:
+        specifier: 4.3.0
+        version: 4.3.0
+      ember-try:
+        specifier: ^4.0.0
+        version: 4.0.0
+      loader.js:
+        specifier: ^4.7.0
+        version: 4.7.0
+      pretender:
+        specifier: ^3.4.7
+        version: 3.4.7
+      qunit:
+        specifier: 2.19.4
+        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      qunit-dom:
+        specifier: ^3.4.0
+        version: 3.4.0
+      testem:
+        specifier: ~3.11.0
+        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      webpack:
+        specifier: 5.99.5
+        version: 5.99.5
+
   tests/main:
     devDependencies:
       '@babel/core':
@@ -5807,12 +6029,32 @@ packages:
     peerDependencies:
       typescript: 5.8.3
 
+  '@glint/core@2.0.1-unstable.bbbd81c':
+    resolution: {integrity: sha512-ZCptOuXA3hU+njt5QmiwNvNu6VqPveZy6s67ZdgcFFLFSpgvwWhbr44N+UgPNkgu9h5CJhAGvNDcc9xmt+6I3A==}
+    hasBin: true
+    peerDependencies:
+      typescript: 5.8.3
+
   '@glint/environment-ember-loose@1.4.1-unstable.d17c1f1':
     resolution: {integrity: sha512-ATLTHSTBHn4Rf/Cn/WB+hcHo66wgHVv7xUJ8uLIRrBGIHjlb1LeTtLuqdo5u3lQ1MhZvp2o3GkpgqM+Q+roTsQ==}
     peerDependencies:
       '@glimmer/component': '>=1.1.2'
       '@glint/core': 1.4.1-unstable.d17c1f1
       '@glint/template': 1.4.1-unstable.d17c1f1
+      ember-cli-htmlbars: ^6.3.0
+      ember-modifier: ^3.2.7 || ^4.0.0
+    peerDependenciesMeta:
+      ember-cli-htmlbars:
+        optional: true
+      ember-modifier:
+        optional: true
+
+  '@glint/environment-ember-loose@2.0.1-unstable.bbbd81c':
+    resolution: {integrity: sha512-nPW3kQDSatcC2nrDjyYtjMRIZdlHDInPOwpfYn53iQX1oSCTCusTVCf/yx8j3QRf2wxFUZS7xaw7w/j1wXzRkA==}
+    peerDependencies:
+      '@glimmer/component': '>=1.1.2'
+      '@glint/core': 2.0.1-unstable.bbbd81c
+      '@glint/template': 1.6.1-unstable.bbbd81c
       ember-cli-htmlbars: ^6.3.0
       ember-modifier: ^3.2.7 || ^4.0.0
     peerDependenciesMeta:
@@ -5828,8 +6070,18 @@ packages:
       '@glint/environment-ember-loose': 1.4.1-unstable.d17c1f1
       '@glint/template': 1.4.1-unstable.d17c1f1
 
+  '@glint/environment-ember-template-imports@2.0.1-unstable.bbbd81c':
+    resolution: {integrity: sha512-iQ8xJ9SU6lfHcnkEkoFG0AglY3pxupi2gMe27ZYq6gau8Bj6/QcTtOmmp06ukfNOkAE/dVNCNa+czwCqBHjahQ==}
+    peerDependencies:
+      '@glint/core': 2.0.1-unstable.bbbd81c
+      '@glint/environment-ember-loose': 2.0.1-unstable.bbbd81c
+      '@glint/template': 1.6.1-unstable.bbbd81c
+
   '@glint/template@1.4.1-unstable.d17c1f1':
     resolution: {integrity: sha512-qmqQ9EkUlXV15gUVLZRr/lqfCUDdtrjj4Tu8lBbeO2hT19/b5i9Z3viuVlCxAtfGAJg8uMRJ/2weuKiBrxmsBg==}
+
+  '@glint/template@1.6.1-unstable.bbbd81c':
+    resolution: {integrity: sha512-9GxYfMbJEYma9cTzp1r85vTRU6WCqe0yj5UiK1kCNYIUU24NT8pGZY3nICC5wrJuCxfL0r8Rym8oNuzAvdoywA==}
 
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
@@ -16689,7 +16941,7 @@ snapshots:
   '@embroider/macros@1.16.13(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 2.9.0
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.bbbd81c
       assert-never: 1.4.0
       babel-import-util: 2.1.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -16704,7 +16956,7 @@ snapshots:
   '@embroider/macros@1.17.0-alpha.8(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 3.0.0-alpha.5
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.bbbd81c
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -16719,7 +16971,7 @@ snapshots:
   '@embroider/macros@1.17.1-unstable.f9c81e9(@babel/core@7.27.1)':
     dependencies:
       '@embroider/shared-internals': 3.0.1-unstable.f9c81e9
-      '@glint/template': 1.4.1-unstable.d17c1f1
+      '@glint/template': 1.6.1-unstable.bbbd81c
       assert-never: 1.4.0
       babel-import-util: 3.0.1
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
@@ -17418,6 +17670,31 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@glint/core@2.0.1-unstable.bbbd81c(typescript@5.8.3)':
+    dependencies:
+      '@glimmer/syntax': 0.94.9
+      '@volar/kit': 2.4.12(typescript@5.8.3)
+      '@volar/language-core': 2.4.12
+      '@volar/language-server': 2.4.12
+      '@volar/language-service': 2.4.12
+      '@volar/source-map': 2.4.12
+      '@volar/test-utils': 2.4.12
+      '@volar/typescript': 2.4.12
+      computeds: 0.0.1
+      escape-string-regexp: 4.0.0
+      semver: 7.7.2
+      silent-error: 1.1.1
+      typescript: 5.8.3
+      uuid: 8.3.2
+      volar-service-html: 0.0.64(@volar/language-service@2.4.12)
+      volar-service-typescript: 0.0.65(@volar/language-service@2.4.12)
+      vscode-languageserver-protocol: 3.17.5
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-uri: 3.1.0
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@glint/environment-ember-loose@1.4.1-unstable.d17c1f1(5a946f0f8b88f696ad9761bdcad60909)':
     dependencies:
       '@glimmer/component': 2.0.0
@@ -17431,6 +17708,14 @@ snapshots:
       '@glimmer/component': 2.0.0
       '@glint/core': 1.4.1-unstable.d17c1f1(typescript@5.8.3)
       '@glint/template': 1.4.1-unstable.d17c1f1
+
+  '@glint/environment-ember-loose@2.0.1-unstable.bbbd81c(214a613b2299c14e1c05d07843827cb7)':
+    dependencies:
+      '@glimmer/component': 2.0.0
+      '@glint/core': 2.0.1-unstable.bbbd81c(typescript@5.8.3)
+      '@glint/template': 1.6.1-unstable.bbbd81c
+    optionalDependencies:
+      ember-cli-htmlbars: 6.3.0
 
   '@glint/environment-ember-template-imports@1.4.1-unstable.d17c1f1(77b3fa966b7843dd358f757c73c95bee)':
     dependencies:
@@ -17446,7 +17731,16 @@ snapshots:
       '@glint/template': 1.4.1-unstable.d17c1f1
       content-tag: 3.1.3
 
+  '@glint/environment-ember-template-imports@2.0.1-unstable.bbbd81c(8b8de311f1862a6db045bf2582ef313c)':
+    dependencies:
+      '@glint/core': 2.0.1-unstable.bbbd81c(typescript@5.8.3)
+      '@glint/environment-ember-loose': 2.0.1-unstable.bbbd81c(214a613b2299c14e1c05d07843827cb7)
+      '@glint/template': 1.6.1-unstable.bbbd81c
+      content-tag: 3.1.3
+
   '@glint/template@1.4.1-unstable.d17c1f1': {}
+
+  '@glint/template@1.6.1-unstable.bbbd81c': {}
 
   '@gwhitney/detect-indent@7.0.1': {}
 
@@ -22171,7 +22465,7 @@ snapshots:
       '@babel/generator': 7.27.1
       '@babel/parser': 7.27.2
       '@babel/plugin-syntax-typescript': 7.27.1(@babel/core@7.27.1)
-      '@babel/plugin-transform-typescript': 7.27.1(@babel/core@7.27.1)
+      '@babel/plugin-transform-typescript': 7.28.0(@babel/core@7.27.1)
       '@babel/traverse': 7.27.1
       '@lint-todo/utils': 13.1.1
       aria-query: 5.3.2
