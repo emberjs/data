@@ -1014,6 +1014,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
     assert.dom().hasText('Chris Thoburn | Online: true');
     window.dispatchEvent(new Event('offline'));
+    await new Promise((resolve) => setTimeout(resolve, 1));
 
     await this.h.rerender();
 
@@ -1025,7 +1026,13 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
     // let the event dispatch complete
     await new Promise((resolve) => setTimeout(resolve, 1));
-    await this.h.settled();
+
+    if (PRODUCTION) {
+      await store._getAllPending();
+      await this.h.rerender();
+    } else {
+      await this.h.settled();
+    }
     assert.dom().hasText('James Thoburn | Online: true');
   })
 
