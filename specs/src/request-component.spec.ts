@@ -177,7 +177,7 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
       store: Store | RequestManager;
       request: Future<UserResource>;
       countFor: (result: unknown) => number;
-      retry: (state: { retry: () => void }) => void;
+      retry: (state: { retry: () => Promise<void> }) => void;
     }
   >;
   'externally retriggered request works as expected': SpecTest<
@@ -186,7 +186,7 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
       store: Store | RequestManager;
       source: { request: Future<UserResource> };
       countFor: (result: unknown) => number;
-      retry: (state: { retry: () => void }) => void;
+      retry: (state: { retry: () => Promise<void> }) => void;
     }
   >;
   'externally retriggered request works as expected (store CacheHandler)': SpecTest<
@@ -202,7 +202,7 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
         >;
       };
       countFor: (result: unknown) => number;
-      retry: (state: { retry: () => void }) => void;
+      retry: (state: { retry: () => Promise<void> }) => void;
     }
   >;
   'it rethrows if error block is not present': SpecTest<
@@ -227,7 +227,7 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
       store: Store | RequestManager;
       request: Future<UserResource>;
       countFor: (result: unknown) => number;
-      retry: (state: { retry: () => void }) => void;
+      retry: (state: { retry: () => Promise<void> }) => void;
     }
   >;
   'it transitions to error state if cancelled block is not present': SpecTest<
@@ -444,7 +444,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
-    retry: (state: { retry: () => void }) => void;
+    retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
     const store = new Store();
     store.requestManager = this.manager;
@@ -453,14 +453,16 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     await mockRetrySuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state2 = getRequestState(request);
+    let retryPromise: Promise<unknown> | null = null;
 
     let counter = 0;
     function countFor(_result: unknown) {
       return ++counter;
     }
-    function retry(state1: { retry: () => void }) {
+    function retry(state1: { retry: () => Promise<void> }) {
       assert.step('retry');
-      return state1.retry();
+      retryPromise = state1.retry();
+      return retryPromise;
     }
 
     await this.render({
@@ -496,7 +498,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     if (PRODUCTION) {
       // we don't have test waiters in production
       // for all frameworks.
-      await store._getAllPending();
+      await retryPromise!;
       await this.h.rerender();
     } else {
       await this.h.settled();
@@ -512,7 +514,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     store: Store | RequestManager;
     source: { request: Future<UserResource> };
     countFor: (result: unknown) => number;
-    retry: (state: { retry: () => void }) => void;
+    retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
     const url = await mockRetrySuccess(this);
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
@@ -527,7 +529,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     function countFor(_result: unknown) {
       return ++counter;
     }
-    function retry(state1: { retry: () => void }) {
+    function retry(state1: { retry: () => Promise<void> }) {
       assert.step('retry');
       return state1.retry();
     }
@@ -570,7 +572,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       >;
     };
     countFor: (result: unknown) => number;
-    retry: (state: { retry: () => void }) => void;
+    retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
     const store = new Store();
     const manager = new RequestManager();
@@ -610,7 +612,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     function countFor(_result: unknown) {
       return ++counter;
     }
-    function retry(state1: { retry: () => void }) {
+    function retry(state1: { retry: () => Promise<void> }) {
       assert.step('retry');
       return state1.retry();
     }
@@ -669,9 +671,14 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       assert.equal(state.error, null, 'error is null');
       assert.equal(counter, 1, 'counter is 1');
       assert.dom().hasText('PendingCount: 1');
-      const cleanup = setupOnError((message) => {
+      const cleanup = setupOnError((error) => {
         assert.step('render-error');
-        const matches = typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:');
+        const message = error instanceof Error ? error.message : error;
+        const matches =
+          typeof message === 'string' &&
+          (PRODUCTION
+            ? message.startsWith('[404 Not Found] GET (cors) - ')
+            : message.startsWith('\n\nError occurred:\n\n- While rendering:'));
         assert.true(matches, 'error message is correct');
         if (!matches) {
           throw new Error(`Unmatched Error Encountered`, { cause: message });
@@ -682,8 +689,14 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       } catch {
         // ignore the error
       }
+      if (PRODUCTION) {
+        // for whatever reason the rethrow isn't immediate in production
+        // and is hard to capture
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
       await this.h.rerender();
       cleanup();
+
       assert.verifySteps(['render-error']);
       assert.equal(state.result, null, 'after rerender result is still null');
       assert.true(state.error instanceof Error, 'error is an instance of Error');
@@ -746,7 +759,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     store: Store | RequestManager;
     request: Future<UserResource>;
     countFor: (result: unknown) => number;
-    retry: (state: { retry: () => void }) => void;
+    retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
     const store = new Store();
     store.requestManager = this.manager;
@@ -756,13 +769,15 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const state1 = getRequestState(request);
 
+    let retryPromise: Promise<unknown> | null = null;
     let counter = 0;
     function countFor(_result: unknown) {
       return ++counter;
     }
-    function retry(state2: { retry: () => void }) {
+    function retry(state2: { retry: () => Promise<void> }) {
       assert.step('retry');
-      return state2.retry();
+      retryPromise = state2.retry();
+      return retryPromise;
     }
 
     await this.render({
@@ -799,7 +814,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     await this.h.click('[test-id="retry-button"]');
 
     if (PRODUCTION) {
-      await store._getAllPending();
+      await retryPromise!;
       await this.h.rerender();
     }
 
