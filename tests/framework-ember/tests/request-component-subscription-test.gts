@@ -1,4 +1,5 @@
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
+import { PRODUCTION } from '@warp-drive/core/build-config/env';
 import {
   instantiateRecord,
   registerDerivations,
@@ -185,8 +186,15 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     // invalidate the cache
     this.store.lifetimes.invalidateRequestsForType('user', this.store);
 
-    await this.h.settled();
-    await this.h.rerender();
+    if (PRODUCTION) {
+      // we don't have test waiters in production
+      // for all frameworks.
+      await this.store._getAllPending();
+      await this.h.rerender();
+    } else {
+      await this.h.settled();
+      await this.h.rerender();
+    }
 
     assert.dom().hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
@@ -269,8 +277,15 @@ module<LocalTestContext>('Integration | <Request /> | Invalidation', function (h
     // invalidate the cache
     this.store.lifetimes.invalidateRequestsForType('user', this.store);
 
-    await this.h.settled();
-    await this.h.rerender();
+    if (PRODUCTION) {
+      // we don't have test waiters in production
+      // for all frameworks.
+      await this.store._getAllPending();
+      await this.h.rerender();
+    } else {
+      await this.h.settled();
+      await this.h.rerender();
+    }
 
     assert.dom().hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);

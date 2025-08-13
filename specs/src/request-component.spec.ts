@@ -1,4 +1,5 @@
 import { CacheHandler as StoreHandler, Fetch, RequestManager, Store as DataStore } from '@warp-drive/core';
+import { DEBUG, PRODUCTION } from '@warp-drive/core/build-config/env';
 import {
   instantiateRecord,
   registerDerivations,
@@ -491,7 +492,15 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.dom().hasText(`[404 Not Found] GET (cors) - ${url}Count:2Retry`);
 
     await this.h.click('[test-id="retry-button"]');
-    await this.h.settled();
+
+    if (PRODUCTION) {
+      // we don't have test waiters in production
+      // for all frameworks.
+      await store._getAllPending();
+      await this.h.rerender();
+    } else {
+      await this.h.settled();
+    }
 
     assert.verifySteps(['retry'], 'we called retry');
     assert.equal(counter, 4, 'counter is 4');
@@ -662,10 +671,11 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       assert.dom().hasText('PendingCount: 1');
       const cleanup = setupOnError((message) => {
         assert.step('render-error');
-        assert.true(
-          typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:'),
-          'error message is correct'
-        );
+        const matches = typeof message === 'string' && message.startsWith('\n\nError occurred:\n\n- While rendering:');
+        assert.true(matches, 'error message is correct');
+        if (!matches) {
+          throw new Error(`Unmatched Error Encountered`, { cause: message });
+        }
       });
       try {
         await request;
@@ -787,6 +797,11 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.dom().hasText('Cancelled:The user aborted a request.Count:2Retry');
 
     await this.h.click('[test-id="retry-button"]');
+
+    if (PRODUCTION) {
+      await store._getAllPending();
+      await this.h.rerender();
+    }
 
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
@@ -1048,7 +1063,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     }
 
     assert.dom().hasText('');
-    assert.verifySteps(['render-error' /* 'render-error-caught' */], 'error should be thrown');
+    assert.verifySteps(DEBUG ? ['render-error' /* 'render-error-caught' */] : [], 'error should be thrown');
     cleanup();
   })
 

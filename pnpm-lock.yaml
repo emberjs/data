@@ -2775,7 +2775,7 @@ importers:
         version: 1.18.1(a09592f6fca6cd9ea37222143b6b8bfd)
       '@embroider/vite':
         specifier: ^1.1.5
-        version: 1.1.6(6d6ef19a26bcebb8275f9b2e00139c30)
+        version: 1.1.6(591977437fdd7ce551b780abad71d0b2)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -2814,7 +2814,7 @@ importers:
         version: file:packages/holodeck
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:config(terser@5.39.1)
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
@@ -2842,12 +2842,15 @@ importers:
       rollup:
         specifier: ^4.46.2
         version: 4.46.2
+      terser:
+        specifier: ^5.39.0
+        version: 5.39.1
       typescript:
         specifier: 5.8.3
         version: 5.8.3
       vite:
         specifier: ^7.1.2
-        version: 7.1.2
+        version: 7.1.2(terser@5.39.1)
 
   tests/full-data-asset-size-app:
     devDependencies:
@@ -18202,7 +18205,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@embroider/vite@1.1.6(6d6ef19a26bcebb8275f9b2e00139c30)':
+  '@embroider/vite@1.1.6(591977437fdd7ce551b780abad71d0b2)':
     dependencies:
       '@babel/core': 7.28.0
       '@embroider/core': 4.1.3(@glint/template@1.6.0-alpha.2)
@@ -18220,7 +18223,7 @@ snapshots:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.39.1
-      vite: 7.1.2
+      vite: 7.1.2(terser@5.39.1)
     transitivePeerDependencies:
       - '@glint/template'
       - bufferutil
@@ -29618,6 +29621,18 @@ snapshots:
       tinyglobby: 0.2.14
     optionalDependencies:
       fsevents: 2.3.3
+
+  vite@7.1.2(terser@5.39.1):
+    dependencies:
+      esbuild: 0.25.4
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      fsevents: 2.3.3
+      terser: 5.39.1
 
   vitefu@1.1.1(vite@7.0.0):
     optionalDependencies:

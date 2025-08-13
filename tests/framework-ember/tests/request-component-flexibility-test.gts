@@ -2,6 +2,7 @@ import type { TOC } from '@ember/component/template-only';
 import { on } from '@ember/modifier';
 
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
+import { PRODUCTION } from '@warp-drive/core/build-config/env';
 import {
   instantiateRecord,
   registerDerivations,
@@ -209,6 +210,13 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     // click the reload button
     await this.h.click('.retry-button');
 
+    if (PRODUCTION) {
+      // we don't have test waiters in production
+      // for all frameworks.
+      await this.store._getAllPending();
+      await this.h.rerender();
+    }
+
     assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
     assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
@@ -256,6 +264,13 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
 
     // click the reload button
     await this.h.click('.retry-button');
+
+    if (PRODUCTION) {
+      // we don't have test waiters in production
+      // for all frameworks.
+      await this.store._getAllPending();
+      await this.h.rerender();
+    }
 
     assert.dom('.custom-chrome h1').hasText('The State Is: fulfilled');
     assert.dom('p').hasText('James Thoburn');
