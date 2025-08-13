@@ -3,7 +3,7 @@ import type { SingleResourceDataDocument } from "@warp-drive/core/types/spec/doc
 import type { Type } from "@warp-drive/core/types/symbols";
 import { ReactiveContext, Request } from "@warp-drive/react";
 
-import { RequestSpec } from "./-spec";
+import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
 import { useReact } from "@warp-drive/diagnostic/react";
 
 function CountFor({ countFor, data }: { countFor: (thing?: unknown) => number; data: unknown }) {
@@ -590,6 +590,7 @@ RequestSpec.use(useReact(), function (b) {
       );
     })
 
+    // @ts-expect-error - we need to improve our typing to not have the generic
     // If there's a typeerror here, we are missing a test.
     .never(null);
 });

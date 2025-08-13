@@ -1,5 +1,5 @@
 {
-  "name": "warp-drive__react",
+  "name": "framework-react",
   "version": "5.7.0-alpha.30",
   "description": "Provides tests for @warp-drive/react",
   "private": true,
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:emberjs/data.git",
-    "directory": "tests/warp-drive__react"
+    "directory": "tests/framework-react"
   },
   "license": "MIT",
   "author": "",
@@ -34,7 +34,7 @@
     "@embroider/macros": "^1.18.1",
     "@warp-drive/react": "workspace:*",
     "@warp-drive/core": "workspace:*",
-    "@warp-drive/legacy": "workspace:*",
+    "@warp-drive-internal/specs": "workspace:*",
     "@warp-drive/utilities": "workspace:*",
     "@warp-drive/json-api": "workspace:*",
     "@warp-drive/diagnostic": "workspace:*",

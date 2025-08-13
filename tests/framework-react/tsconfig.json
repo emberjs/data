@@ -1,8 +1,5 @@
 {
-  "include": ["tests/integration/app/**/*", "config/**/*", "tests/**/*", "../../@types/@glimmer"],
-  "glint": {
-    "environment": ["ember-loose", "ember-template-imports"]
-  },
+  "include": ["tests/**/*", "start.ts"],
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "module": "esnext",
@@ -24,12 +21,11 @@
     "noImplicitOverride": false,
     "incremental": true,
     "declaration": true,
-    "types": ["ember-source/types"],
+    "types": ["vite/client"],
     // "baseUrl": ".",
     "paths": {
-      "warp-drive__react/*": ["tests/*"],
-      "@ember-data/unpublished-test-infra": ["../../packages/unpublished-test-infra/unstable-preview-types"],
-      "@ember-data/unpublished-test-infra/*": ["../../packages/unpublished-test-infra/unstable-preview-types/*"],
+      "@warp-drive-internal/specs": ["../../specs/declarations"],
+      "@warp-drive-internal/specs/*": ["../../specs/declarations/*"],
       "@warp-drive/react": ["../../warp-drive-packages/react/declarations"],
       "@warp-drive/react/*": ["../../warp-drive-packages/react/declarations/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
@@ -56,6 +52,9 @@
   },
   "references": [
     {
+      "path": "../../specs"
+    },
+    {
       "path": "../../packages/diagnostic"
     },
     {
@@ -65,18 +64,11 @@
       "path": "../../warp-drive-packages/core"
     },
     {
-      "path": "../../warp-drive-packages/legacy"
-    },
-    {
       "path": "../../warp-drive-packages/utilities"
     },
     {
       "path": "../../warp-drive-packages/json-api"
     },
-    {
-      "path": "../../packages/unpublished-test-infra"
-    },
-
     {
       "path": "../../packages/holodeck"
     }
