@@ -14,6 +14,7 @@ import type { Type } from '@warp-drive/core-types/symbols';
 import { module, test, todo } from '@warp-drive/diagnostic';
 import { instantiateRecord, registerDerivations, teardownRecord, withDefaults } from '@warp-drive/schema-record';
 
+import type { ReactiveDocument } from '../../../../../warp-drive-packages/core/src/reactive';
 import { TestSchema } from '../../utils/schema';
 
 interface User {
@@ -1369,7 +1370,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       },
     });
     const user = store.peekRecord<User>(userIdentifier);
-    const reactiveDocument = store._instanceCache.getDocument<User | null>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User | null>;
     const cacheDocument = store.cache.peek(documentIdentifier);
 
     assert.equal(user?.name, 'Wesley', 'The name is correct');
@@ -1422,7 +1423,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       type: 'user',
     } as const) as PersistedResourceKey;
     const user = store.peekRecord<User>(userIdentifier);
-    const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User | null>;
     const cacheDocument = store.cache.peek(documentIdentifier);
 
     assert.equal(user?.name, 'Wesley', 'The name is correct');
@@ -1474,7 +1475,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1539,7 +1540,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1612,7 +1613,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1678,7 +1679,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1764,7 +1765,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 2, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1834,7 +1835,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 2, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1904,7 +1905,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 2, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -1975,7 +1976,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 2, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -2034,7 +2035,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -2096,7 +2097,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       included: [],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -2180,7 +2181,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       ],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);
@@ -2257,7 +2258,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       ],
     });
 
-    const reactiveDocument = store._instanceCache.getDocument<User[]>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument(documentIdentifier) as ReactiveDocument<User[]>;
     assert.equal(reactiveDocument.data?.length, 1, 'The document has one resource');
 
     const cacheDocument = store.cache.peek(documentIdentifier);

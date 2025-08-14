@@ -104,8 +104,6 @@ function installDebugInfo(ModelKlass: typeof Model) {
    - Groups all hasMany relationships in "Has Many" group.
    - Groups all flags in "Flags" group.
    - Flags relationship CPs as expensive properties.
-
-   @internal
    */
   (ModelKlass.prototype as unknown as { _debugInfo: typeof debugInfo })._debugInfo = debugInfo;
 }

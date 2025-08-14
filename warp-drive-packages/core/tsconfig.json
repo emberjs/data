@@ -11,6 +11,7 @@
     "alwaysStrict": true,
     "downlevelIteration": false,
     "skipLibCheck": true,
+    "disableSourceOfProjectReferenceRedirect": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,

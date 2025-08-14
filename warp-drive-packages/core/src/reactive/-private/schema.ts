@@ -387,7 +387,6 @@ fromIdentity[Type] = '@identity';
  * ```
  *
  * @public
- * @param {SchemaService} schema
  */
 export function registerDerivations(schema: SchemaServiceInterface): void {
   schema.registerDerivation(fromIdentity);
@@ -464,7 +463,6 @@ interface InternalTrait {
 /**
  * A SchemaService designed to work with dynamically registered schemas.
  *
- * @class SchemaService
  * @public
  */
 export class SchemaService implements SchemaServiceInterface {
@@ -486,6 +484,7 @@ export class SchemaService implements SchemaServiceInterface {
     object: Map<string, ProcessedExtension>;
     array: Map<string, ProcessedExtension>;
   };
+  /** @internal */
   declare _cachedFieldExtensionsByField: {
     object: Map<object, ProcessedExtension['features'] | null>;
     array: Map<object, ProcessedExtension['features'] | null>;

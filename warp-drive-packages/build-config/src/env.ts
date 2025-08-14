@@ -33,7 +33,7 @@
  * }
  * ```
  *
- * @internal
+ * @private
  */
 export const DEBUG: boolean = true;
 /**
@@ -64,7 +64,7 @@ export const DEBUG: boolean = true;
  * }
  * ```
  *
- * @internal
+ * @private
  */
 export const PRODUCTION: boolean = true;
 /**
@@ -102,13 +102,13 @@ export const PRODUCTION: boolean = true;
  * }
  * ```
  *
- * @internal
+ * @private
  */
 export const TESTING: boolean = true;
 /**
  * Indicates whether Holodeck is in a forced global recording mode.
  *
- * @internal
+ * @private
  */
 export const IS_RECORDING: boolean = true;
 /**
@@ -116,7 +116,7 @@ export const IS_RECORDING: boolean = true;
  *
  * This is determined by the presence of the `CI` environment variable.
  *
- * @internal
+ * @private
  */
 export const IS_CI: boolean = true;
 /**
@@ -125,6 +125,6 @@ export const IS_CI: boolean = true;
  * This is always true in a non-CI environment, and is true if
  * `IS_RECORDING` is true.
  *
- * @internal
+ * @private
  */
 export const SHOULD_RECORD: boolean = true;

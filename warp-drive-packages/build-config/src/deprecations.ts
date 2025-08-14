@@ -102,7 +102,7 @@
  * @module
  */
 
-/** @internal */
+/** @private */
 export const DEPRECATE_CATCH_ALL: boolean = true;
 
 /**

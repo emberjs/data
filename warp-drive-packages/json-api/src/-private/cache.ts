@@ -392,27 +392,31 @@ export class JSONAPICache implements Cache {
   }
 
   /** @internal */
-  _putDocument<T extends ResourceErrorDocument>(
+  private _putDocument<T extends ResourceErrorDocument>(
     doc: StructuredErrorDocument<T>,
     data: undefined,
     included: undefined
   ): ResourceErrorDocument;
-  _putDocument<T extends ResourceMetaDocument>(
+  /** @internal */
+  private _putDocument<T extends ResourceMetaDocument>(
     doc: StructuredDataDocument<T>,
     data: undefined,
     included: undefined
   ): ResourceMetaDocument;
-  _putDocument<T extends SingleResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: PersistedResourceKey | null,
     included: PersistedResourceKey[] | undefined
   ): SingleResourceDataDocument;
-  _putDocument<T extends CollectionResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends CollectionResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: PersistedResourceKey[],
     included: PersistedResourceKey[] | undefined
   ): CollectionResourceDataDocument;
-  _putDocument<T extends ResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends ResourceDocument>(
     doc: StructuredDocument<T>,
     data: PersistedResourceKey[] | PersistedResourceKey | null | undefined,
     included: PersistedResourceKey[] | undefined
@@ -720,7 +724,7 @@ export class JSONAPICache implements Cache {
    * utilize this method to fork the cache.
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   fork(): Promise<Cache> {
     throw new Error(`Not Implemented`);
@@ -734,7 +738,7 @@ export class JSONAPICache implements Cache {
    * utilize this method to merge the caches.
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   merge(_cache: Cache): Promise<void> {
     throw new Error(`Not Implemented`);
@@ -771,7 +775,7 @@ export class JSONAPICache implements Cache {
    * ```
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   diff(): Promise<Change[]> {
     throw new Error(`Not Implemented`);
@@ -787,7 +791,7 @@ export class JSONAPICache implements Cache {
    * via `cache.hydrate`.
    *
    * @category SSR Support
-   * @internal
+   * @private
    */
   dump(): Promise<ReadableStream<unknown>> {
     throw new Error(`Not Implemented`);
@@ -806,7 +810,7 @@ export class JSONAPICache implements Cache {
    * via data-only SSR modes.
    *
    * @category SSR Support
-   * @internal
+   * @private
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
     throw new Error('Not Implemented');

@@ -13,7 +13,7 @@
  * Asserts are removed from production builds, making this a "zero cost abstraction"
  * so liberal usage of this function to ensure runtime correctness is encouraged.
  *
- * @internal
+ * @private
  */
 export function assert(message: string, condition: unknown): asserts condition;
 export function assert(message: string): never;

@@ -10,6 +10,7 @@
     "pretty": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
+    "disableSourceOfProjectReferenceRedirect": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,

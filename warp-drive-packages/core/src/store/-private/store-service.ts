@@ -421,7 +421,6 @@ export interface Store {
    * be sourced from directly registered schemas, then will fallback
    * to sourcing a schema from available models if no schema is found.
    *
-   * @return {SchemaService}
    * @public
    */
   createSchemaService(): SchemaService;
@@ -699,7 +698,7 @@ export class Store extends BaseClass {
   /** @internal */
   declare _isDestroyed: boolean;
 
-  /** @internal */
+  /** @private */
   get isDestroying(): boolean {
     return this._isDestroying;
   }
@@ -707,7 +706,7 @@ export class Store extends BaseClass {
   set isDestroying(value: boolean) {
     this._isDestroying = value;
   }
-  /** @internal */
+  /** @private */
   get isDestroyed(): boolean {
     return this._isDestroyed;
   }
@@ -1529,7 +1528,7 @@ export class Store extends BaseClass {
     return cache as ReturnType<this['createCache']>;
   }
 
-  /** @internal */
+  /** @private */
   destroy(): void {
     if (this.isDestroyed) {
       // @ember/test-helpers will call destroy multiple times

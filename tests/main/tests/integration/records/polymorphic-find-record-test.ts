@@ -44,10 +44,12 @@ module('integration/records/polymorphic-find-record - Polymorphic findRecord', f
     const person2 = store.peekRecord('person', '1');
     assert.strictEqual(employee, person, 'peekRecord returns the same instance for concrete type');
     assert.strictEqual(person2, person, 'peekRecord returns the same instance for abstract type');
+    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'identifier cache contains backreferences');
 
     person.unloadRecord();
     await settled();
+    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 0, 'identifier cache is empty');
   });
 });

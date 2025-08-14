@@ -6,6 +6,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import Model, { attr } from '@ember-data/model';
 import { createDeferred } from '@ember-data/request';
 import type Store from '@ember-data/store';
+import { Type } from '@warp-drive/core-types/symbols';
 
 module('Integration | Record | concurrent saves', function (hooks) {
   setupTest(hooks);
@@ -22,6 +23,8 @@ module('Integration | Record | concurrent saves', function (hooks) {
     class User extends Model {
       @attr declare firstName: string;
       @attr declare lastName: string;
+
+      declare [Type]: 'user';
     }
 
     const gates = [createDeferred<Record<string, unknown>>(), createDeferred<Record<string, unknown>>()];
@@ -50,7 +53,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.push({
+    const user = store.push<User>({
       data: {
         id: '1',
         type: 'user',
@@ -59,7 +62,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as User;
+    });
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());
@@ -122,6 +125,8 @@ module('Integration | Record | concurrent saves', function (hooks) {
     class User extends Model {
       @attr declare firstName: string;
       @attr declare lastName: string;
+
+      declare [Type]: 'user';
     }
 
     const gates = [createDeferred<Record<string, unknown>>(), createDeferred<Record<string, unknown>>()];
@@ -150,7 +155,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.push({
+    const user = store.push<User>({
       data: {
         id: '1',
         type: 'user',
@@ -159,7 +164,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as User;
+    });
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());
@@ -233,6 +238,8 @@ module('Integration | Record | concurrent saves', function (hooks) {
     class User extends Model {
       @attr declare firstName: string;
       @attr declare lastName: string;
+
+      declare [Type]: 'user';
     }
 
     const gates = [createDeferred<Record<string, unknown>>(), createDeferred<Record<string, unknown>>()];
@@ -261,7 +268,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
     );
 
     const store = this.owner.lookup('service:store') as Store;
-    const user = store.push({
+    const user = store.push<User>({
       data: {
         id: '1',
         type: 'user',
@@ -270,7 +277,7 @@ module('Integration | Record | concurrent saves', function (hooks) {
           lastName: 'Huff-menne',
         },
       },
-    }) as User;
+    });
 
     user.firstName = 'Krystan';
     resultPromises.push(user.save());

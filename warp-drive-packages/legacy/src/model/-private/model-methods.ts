@@ -18,12 +18,14 @@ import type { MaybeBelongsToFields, MaybeHasManyFields } from './type-utils.ts';
 
 export interface MinimalLegacyRecord {
   errors: Errors;
+  /** @internal */
   ___recordState: RecordState;
   currentState: RecordState;
   isDestroyed: boolean;
   isDestroying: boolean;
   isReloading: boolean;
   isValid: boolean;
+  /** @internal */
   [RecordStore]: Store;
 
   deleteRecord(): void;

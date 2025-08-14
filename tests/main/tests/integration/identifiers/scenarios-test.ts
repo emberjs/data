@@ -183,6 +183,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 1, 'We made one call to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -204,6 +205,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 1, 'We made one call to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -234,6 +236,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 2, 'We made two calls to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -417,6 +420,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -440,6 +444,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -469,6 +474,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       assert.strictEqual(lidCache.size, 2, `We should have both lids in the cache still since one is a backreference`);
       assert.deepEqual(
@@ -504,6 +510,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierByUsername.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -556,6 +563,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierByUsername.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -589,6 +597,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -621,6 +630,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
+      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(

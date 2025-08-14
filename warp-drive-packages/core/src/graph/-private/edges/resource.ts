@@ -8,8 +8,7 @@ import { createState } from '../-state.ts';
 /**
  * Stores the data for one side of a "single" resource relationship.
  *
- * @class ResourceEdge
- * @internal
+ * @private
  */
 export interface ResourceEdge {
   definition: UpgradedMeta;

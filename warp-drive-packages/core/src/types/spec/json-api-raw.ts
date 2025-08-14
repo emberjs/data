@@ -22,7 +22,8 @@ export interface PaginationLinks extends Links {
  * to address data that may not be available synchronously.
  *
  * [JSON:API Spec](https://jsonapi.org/format/#document-resource-identifier-objects)
- * @internal
+ *
+ * @private
  */
 export interface ExistingResourceIdentifierObject<T extends string = string> {
   id: string;
@@ -42,7 +43,7 @@ export interface ExistingResourceIdentifierObject<T extends string = string> {
    * is `lid` considered optional.
    *
    * [Identifiers RFC](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md#ember-data--identifiers)
-   * @internal
+   *
    */
   lid?: string;
 
@@ -51,7 +52,7 @@ export interface ExistingResourceIdentifierObject<T extends string = string> {
    * `ember-data` ignores `meta` on `ResourceIdentifierObjects`
    *
    * @ignored this property goes un-utilized and will be lost
-   * @internal
+   * @private
    */
   meta?: Meta;
 }
@@ -60,7 +61,7 @@ export interface ExistingResourceIdentifierObject<T extends string = string> {
  * Serves as a reference to a resource created on the client
  * but not yet persisted.
  *
- * @internal
+ * @private
  */
 export interface NewResourceIdentifierObject<T extends string = string> {
   /**
@@ -70,7 +71,6 @@ export interface NewResourceIdentifierObject<T extends string = string> {
    *
    * `id` will be `null` in this case.
    *
-   * @internal
    */
   id: string | null;
   type: T;
@@ -78,7 +78,6 @@ export interface NewResourceIdentifierObject<T extends string = string> {
   /**
    * Resources newly created on the client _will always_
    * have an `lid` assigned immediately and available.
-   * @internal
    */
   lid: string;
 }
@@ -116,7 +115,6 @@ export type ResourceRelationshipsObject<T = ExistingResourceIdentifierObject | N
 
 /**
  * Contains the data for an existing resource in JSON:API format
- * @internal
  */
 export interface ExistingResourceObject<T extends string = string> extends ExistingResourceIdentifierObject<T> {
   meta?: Meta;
@@ -161,7 +159,7 @@ export type CollectionResourceDocument<T extends string = string> = Document & {
  * These documents should follow the JSON:API spec but do not
  * have the same level of guarantees as their `spec` counterparts.
  *
- * @internal
+ * @private
  */
 export type JsonApiDocument<T extends string = string> =
   | EmptyResourceDocument
