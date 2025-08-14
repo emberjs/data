@@ -134,7 +134,7 @@ export function Throw({ error }: { error: Error }): never {
  *   return (
  *    <Request
  *       query={findRecord('user', $props.id)}
- *       states={{}
+ *       states={{
  *         idle: () => <div>Waiting for User Selection</div>,
  *         loading: ({ state }) => <div>Loading user data...</div>,
  *         cancelled: ({ error, features }) => (
