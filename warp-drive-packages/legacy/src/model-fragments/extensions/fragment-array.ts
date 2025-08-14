@@ -1,8 +1,8 @@
-import type Model from '@ember-data/model';
+import type Model from '../../model';
 import { cached, tracked } from '@glimmer/tracking';
 import type { CAUTION_MEGA_DANGER_ZONE_Extension } from '@warp-drive/core/reactive';
 import type { ManagedArray } from '@warp-drive/core/reactive/-private/fields/managed-array';
-import { Context } from '@warp-drive/schema-record/-private';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 import type { WithFragmentArray } from '../index.js';
 import { Fragment } from './fragment.js';
@@ -13,10 +13,8 @@ export class FragmentArray<T extends Fragment> {
   @tracked isDestroyed = false;
 
   @cached
-  get hasDirtyAttributes() {
-    const { path, resourceKey, store } = (this as unknown as ManagedArray)[
-      Context
-    ];
+  get hasDirtyAttributes(): boolean {
+    const { path, resourceKey, store } = (this as unknown as ManagedArray)[Context];
     const record = store.peekRecord(resourceKey) as Model;
 
     if (record.hasDirtyAttributes && path) {
@@ -27,7 +25,7 @@ export class FragmentArray<T extends Fragment> {
     return false;
   }
 
-  addFragment(fragment?: T) {
+  addFragment(fragment?: T): Fragment[] | undefined {
     if (!fragment) {
       return;
     }
@@ -35,7 +33,7 @@ export class FragmentArray<T extends Fragment> {
     return (this as unknown as WithFragmentArray<T>).addObject(fragment);
   }
 
-  createFragment(fragment?: T) {
+  createFragment(fragment?: T): Fragment | undefined {
     if (!fragment) {
       return;
     }
@@ -43,7 +41,7 @@ export class FragmentArray<T extends Fragment> {
     return (this as unknown as WithFragmentArray<T>).pushObject(fragment);
   }
 
-  removeFragment(fragment?: T) {
+  removeFragment(fragment?: T): void {
     if (!fragment) {
       return;
     }
@@ -55,7 +53,7 @@ export class FragmentArray<T extends Fragment> {
     }
   }
 
-  rollbackAttributes() {
+  rollbackAttributes(): void {
     for (const fragment of this as unknown as WithFragmentArray<T>) {
       // @ts-expect-error TODO: fix these types
       fragment?.rollbackAttributes?.();
@@ -63,7 +61,11 @@ export class FragmentArray<T extends Fragment> {
   }
 }
 
-export const FragmentArrayExtension = {
+export const FragmentArrayExtension: {
+  kind: 'array';
+  name: 'fragment-array';
+  features: typeof FragmentArray;
+} = {
   kind: 'array' as const,
   name: 'fragment-array' as const,
   features: FragmentArray,
