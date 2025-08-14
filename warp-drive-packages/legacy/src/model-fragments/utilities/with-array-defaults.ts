@@ -1,4 +1,4 @@
-import { singularize } from 'ember-inflector';
+import { singularize } from '@warp-drive/utilities/string';
 
 /**
  * Used as a helper to setup the relevant parts of an array
@@ -9,7 +9,14 @@ import { singularize } from 'ember-inflector';
  */
 export function withArrayDefaults<ArrayName extends string>(
   arrayName: ArrayName
-) {
+): {
+  kind: 'array';
+  name: ArrayName;
+  type: `array:${string}`;
+  options: {
+    arrayExtensions: string[];
+  };
+} {
   return {
     kind: 'array' as const,
     name: arrayName,
