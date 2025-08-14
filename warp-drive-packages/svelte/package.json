@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/svelte",
   "description": "Data bindings and utilities for Svelte",
-  "version": "5.7.0-alpha.26",
+  "version": "5.7.0-alpha.27",
   "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
