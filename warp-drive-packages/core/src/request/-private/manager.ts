@@ -105,7 +105,7 @@ export class RequestManager {
   /** @internal */
   declare private _handlers: Handler[];
   /** @internal */
-  declare _hasCacheHandler: boolean;
+  declare private _hasCacheHandler: boolean;
   /**
    * A map of pending requests from request.id to their
    * associated CacheHandler promise.
@@ -114,9 +114,9 @@ export class RequestManager {
    *
    * @internal
    */
-  declare _pending: Map<number, Promise<unknown>>;
+  declare private _pending: Map<number, Promise<unknown>>;
   /** @internal */
-  declare _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
+  declare private _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
