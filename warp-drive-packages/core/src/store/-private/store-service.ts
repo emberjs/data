@@ -1613,6 +1613,15 @@ export interface PrivateStore extends Store {
  * @private
  */
 export function assertPrivateStore(store: unknown): asserts store is PrivateStore {}
+/**
+ * Upgrade the type for Store to PrivateStore, which will also
+ * upgrade any associated types to their private equivalents.
+ *
+ * @private
+ */
+export function isPrivateStore(store: unknown): PrivateStore {
+  return store as PrivateStore;
+}
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.getSchemaDefinitionService = function (): SchemaService {

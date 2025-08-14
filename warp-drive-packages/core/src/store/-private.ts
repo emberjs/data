@@ -39,6 +39,9 @@ export {
 } from './-private/record-arrays/legacy-query.ts';
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager.ts';
 
+// leaked for test/legacy use. You will get in trouble for this.
+export { assertPrivateStore, isPrivateStore } from './-private/store-service.ts';
+
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './-private/caches/instance-cache.ts';
 
