@@ -6,10 +6,17 @@
  * @param fragmentName The optional name of the fragment. If not provided, it will default to the fragmentType.
  * @returns The schema for a fragment
  */
-export function withFragmentDefaults<
-  FragmentType extends string,
-  FragmentName extends string,
->(fragmentType: FragmentType, fragmentName?: FragmentName) {
+export function withFragmentDefaults<FragmentType extends string, FragmentName extends string>(
+  fragmentType: FragmentType,
+  fragmentName?: FragmentName
+): {
+  kind: 'schema-object';
+  type: `fragment:${FragmentType}`;
+  name: FragmentType | FragmentName;
+  options: {
+    objectExtensions: string[];
+  };
+} {
   return {
     kind: 'schema-object' as const,
     type: `fragment:${fragmentType}` as const,

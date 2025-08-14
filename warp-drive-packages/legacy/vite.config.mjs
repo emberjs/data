@@ -49,6 +49,9 @@ export const entryPoints = [
 
   // store
   './src/store.ts',
+
+  // model-fragments
+  './src/model-fragments.ts',
 ];
 
 export default createConfig(
