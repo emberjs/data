@@ -392,12 +392,19 @@ if (DEBUG) {
 export class CacheKeyManager {
   /** @internal */
   declare _cache: StableCache;
+  /** @internal */
   declare private _generate: GenerationMethod;
+  /** @internal */
   declare private _update: UpdateMethod;
+  /** @internal */
   declare private _forget: ForgetMethod;
+  /** @internal */
   declare private _reset: ResetMethod;
+  /** @internal */
   declare private _merge: MergeMethod;
+  /** @internal */
   declare private _keyInfoForResource: KeyInfoMethod;
+  /** @internal */
   declare private _id: number;
 
   constructor() {
