@@ -65,6 +65,7 @@ export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>)
   const maybeFactory = getModelFactory(this, type);
   const klass = maybeFactory && maybeFactory.class ? maybeFactory.class : null;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const ignoreType = !klass || !klass.isModel || this._forceShim;
   if (!ignoreType) {
     return klass;

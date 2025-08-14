@@ -58,8 +58,11 @@ export function saveRecordBuilder<T extends TypedRecordInstance>(
   }
   assert(
     `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     store._instanceCache.recordIsLoaded(identifier)
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   if (resourceIsFullyDeleted(store._instanceCache, identifier)) {
     throw new Error('cannot build saveRecord request for deleted record');
   }
