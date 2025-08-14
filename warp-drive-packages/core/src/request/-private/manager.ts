@@ -103,7 +103,7 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  */
 export class RequestManager {
   /** @internal */
-  #handlers: Handler[] = [];
+  declare private _handlers: Handler[];
   /** @internal */
   declare _hasCacheHandler: boolean;
   /**
@@ -122,6 +122,7 @@ export class RequestManager {
     Object.assign(this, options);
     this._pending = new Map();
     this._deduped = new Map();
+    this._handlers = [];
   }
 
   /**
@@ -138,7 +139,7 @@ export class RequestManager {
       if (this._hasCacheHandler) {
         throw new Error(`\`RequestManager.useCache(<handler>)\` May only be invoked once.`);
       }
-      if (Object.isFrozen(this.#handlers)) {
+      if (Object.isFrozen(this._handlers)) {
         throw new Error(
           `\`RequestManager.useCache(<handler>)\` May only be invoked prior to any request having been made.`
         );
@@ -146,7 +147,7 @@ export class RequestManager {
       this._hasCacheHandler = true;
     }
     cacheHandler[IS_CACHE_HANDLER] = true;
-    this.#handlers.unshift(cacheHandler as Handler);
+    this._handlers.unshift(cacheHandler as Handler);
     return this;
   }
 
@@ -160,7 +161,7 @@ export class RequestManager {
    * @public
    */
   use(newHandlers: Handler[]): this {
-    const handlers = this.#handlers;
+    const handlers = this._handlers;
     if (DEBUG) {
       if (Object.isFrozen(handlers)) {
         throw new Error(`Cannot add a Handler to a RequestManager after a request has been made`);
@@ -194,7 +195,7 @@ export class RequestManager {
    * @public
    */
   request<RT>(request: RequestInfo<RT>): Future<RT> {
-    const handlers = this.#handlers;
+    const handlers = this._handlers;
     if (DEBUG) {
       if (!Object.isFrozen(handlers)) {
         Object.freeze(handlers);
