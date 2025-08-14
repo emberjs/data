@@ -156,7 +156,7 @@ export class ContextOwner {
 }
 
 export class Context {
-  #owner: ContextOwner;
+  declare private ___owner: ContextOwner;
   declare request: ImmutableRequestInfo;
   declare id: number;
   declare private _isCacheHandler: boolean;
@@ -164,16 +164,16 @@ export class Context {
 
   constructor(owner: ContextOwner, isCacheHandler: boolean) {
     this.id = owner.requestId;
-    this.#owner = owner;
+    this.___owner = owner;
     this.request = owner.enhancedRequest;
     this._isCacheHandler = isCacheHandler;
     this._finalized = false;
   }
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void {
-    this.#owner.setStream(stream);
+    this.___owner.setStream(stream);
   }
   setResponse(response: ResponseInfo | Response | null): void {
-    this.#owner.setResponse(response);
+    this.___owner.setResponse(response);
   }
 
   setIdentifier(identifier: RequestKey): void {
@@ -181,11 +181,11 @@ export class Context {
       `setIdentifier may only be used synchronously from a CacheHandler`,
       identifier && this._isCacheHandler && !this._finalized
     );
-    this.#owner.god.identifier = identifier;
+    this.___owner.god.identifier = identifier;
   }
 
   get hasRequestedStream(): boolean {
-    return this.#owner.hasRequestedStream;
+    return this.___owner.hasRequestedStream;
   }
 
   _finalize(): void {

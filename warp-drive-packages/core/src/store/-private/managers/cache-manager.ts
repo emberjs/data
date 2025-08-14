@@ -31,10 +31,10 @@ import type { StoreRequestContext } from '../cache-handler/handler.ts';
 export class CacheManager implements Cache {
   version = '2' as const;
 
-  #cache: Cache;
+  declare private ___cache: Cache;
 
   constructor(cache: Cache) {
-    this.#cache = cache;
+    this.___cache = cache;
   }
 
   // Cache Management
@@ -63,7 +63,7 @@ export class CacheManager implements Cache {
    * @public
    */
   put<T>(doc: StructuredDocument<T> | { content: T }): ResourceDocument {
-    return this.#cache.put(doc);
+    return this.___cache.put(doc);
   }
 
   /**
@@ -74,7 +74,7 @@ export class CacheManager implements Cache {
    * @return {void}
    */
   patch(op: Operation | Operation[]): void {
-    this.#cache.patch(op);
+    this.___cache.patch(op);
   }
 
   /**
@@ -85,7 +85,7 @@ export class CacheManager implements Cache {
    * @param mutation
    */
   mutate(mutation: LocalRelationshipOperation): void {
-    this.#cache.mutate(mutation);
+    this.___cache.mutate(mutation);
   }
 
   /**
@@ -122,13 +122,13 @@ export class CacheManager implements Cache {
   peek(cacheKey: ResourceKey): unknown;
   peek(cacheKey: RequestKey): ResourceDocument | null;
   peek(cacheKey: ResourceKey | RequestKey): unknown {
-    return this.#cache.peek(cacheKey as ResourceKey);
+    return this.___cache.peek(cacheKey as ResourceKey);
   }
 
   peekRemoteState(cacheKey: ResourceKey): unknown;
   peekRemoteState(cacheKey: RequestKey): ResourceDocument | null;
   peekRemoteState(cacheKey: ResourceKey | RequestKey): unknown {
-    return this.#cache.peekRemoteState(cacheKey as ResourceKey);
+    return this.___cache.peekRemoteState(cacheKey as ResourceKey);
   }
   /**
    * Peek the Cache for the existing request data associated with
@@ -139,7 +139,7 @@ export class CacheManager implements Cache {
    * @public
    */
   peekRequest(key: RequestKey): StructuredDocument<ResourceDocument> | null {
-    return this.#cache.peekRequest(key);
+    return this.___cache.peekRequest(key);
   }
 
   /**
@@ -149,7 +149,7 @@ export class CacheManager implements Cache {
    * @return if `hasRecord` is true then calculated key changes should be returned
    */
   upsert(key: ResourceKey, data: unknown, hasRecord: boolean): void | string[] {
-    return this.#cache.upsert(key, data, hasRecord);
+    return this.___cache.upsert(key, data, hasRecord);
   }
 
   // Cache Forking Support
@@ -166,7 +166,7 @@ export class CacheManager implements Cache {
    * @return {Promise<Cache>}
    */
   fork(): Promise<Cache> {
-    return this.#cache.fork();
+    return this.___cache.fork();
   }
 
   /**
@@ -181,7 +181,7 @@ export class CacheManager implements Cache {
    * @return {Promise<void>}
    */
   merge(cache: Cache): Promise<void> {
-    return this.#cache.merge(cache);
+    return this.___cache.merge(cache);
   }
 
   /**
@@ -217,7 +217,7 @@ export class CacheManager implements Cache {
    * @public
    */
   diff(): Promise<Change[]> {
-    return this.#cache.diff();
+    return this.___cache.diff();
   }
 
   // SSR Support
@@ -232,7 +232,7 @@ export class CacheManager implements Cache {
    * @public
    */
   dump(): Promise<ReadableStream<unknown>> {
-    return this.#cache.dump();
+    return this.___cache.dump();
   }
 
   /**
@@ -252,7 +252,7 @@ export class CacheManager implements Cache {
    * @public
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
-    return this.#cache.hydrate(stream);
+    return this.___cache.hydrate(stream);
   }
 
   // Cache
@@ -270,7 +270,7 @@ export class CacheManager implements Cache {
    * @public
    */
   clientDidCreate(key: ResourceKey, options?: Record<string, unknown>): Record<string, unknown> {
-    return this.#cache.clientDidCreate(key, options);
+    return this.___cache.clientDidCreate(key, options);
   }
 
   /**
@@ -281,7 +281,7 @@ export class CacheManager implements Cache {
    * @param key
    */
   willCommit(key: ResourceKey, context: StoreRequestContext): void {
-    this.#cache.willCommit(key, context);
+    this.___cache.willCommit(key, context);
   }
 
   /**
@@ -291,7 +291,7 @@ export class CacheManager implements Cache {
    * @public
    */
   didCommit(key: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
-    return this.#cache.didCommit(key, result);
+    return this.___cache.didCommit(key, result);
   }
 
   /**
@@ -301,7 +301,7 @@ export class CacheManager implements Cache {
    * @public
    */
   commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
-    this.#cache.commitWasRejected(key, errors);
+    this.___cache.commitWasRejected(key, errors);
   }
 
   /**
@@ -311,7 +311,7 @@ export class CacheManager implements Cache {
    * @public
    */
   unloadRecord(key: ResourceKey): void {
-    this.#cache.unloadRecord(key);
+    this.___cache.unloadRecord(key);
   }
 
   // Granular Resource Data APIs
@@ -323,7 +323,7 @@ export class CacheManager implements Cache {
    * @public
    */
   getAttr(key: ResourceKey, propertyName: string): Value | undefined {
-    return this.#cache.getAttr(key, propertyName);
+    return this.___cache.getAttr(key, propertyName);
   }
 
   /**
@@ -332,7 +332,7 @@ export class CacheManager implements Cache {
    * @public
    */
   getRemoteAttr(key: ResourceKey, propertyName: string): Value | undefined {
-    return this.#cache.getRemoteAttr(key, propertyName);
+    return this.___cache.getRemoteAttr(key, propertyName);
   }
 
   /**
@@ -341,7 +341,7 @@ export class CacheManager implements Cache {
    * @public
    */
   setAttr(key: ResourceKey, propertyName: string, value: Value): void {
-    this.#cache.setAttr(key, propertyName, value);
+    this.___cache.setAttr(key, propertyName, value);
   }
 
   /**
@@ -350,7 +350,7 @@ export class CacheManager implements Cache {
    * @public
    */
   changedAttrs(key: ResourceKey): ChangedAttributesHash {
-    return this.#cache.changedAttrs(key);
+    return this.___cache.changedAttrs(key);
   }
 
   /**
@@ -359,7 +359,7 @@ export class CacheManager implements Cache {
    * @public
    */
   hasChangedAttrs(key: ResourceKey): boolean {
-    return this.#cache.hasChangedAttrs(key);
+    return this.___cache.hasChangedAttrs(key);
   }
 
   /**
@@ -369,7 +369,7 @@ export class CacheManager implements Cache {
    * @return the names of attributes that were restored
    */
   rollbackAttrs(key: ResourceKey): string[] {
-    return this.#cache.rollbackAttrs(key);
+    return this.___cache.rollbackAttrs(key);
   }
 
   // Relationships
@@ -400,7 +400,7 @@ export class CacheManager implements Cache {
    * @public
    */
   changedRelationships(key: ResourceKey): Map<string, RelationshipDiff> {
-    return this.#cache.changedRelationships(key);
+    return this.___cache.changedRelationships(key);
   }
 
   /**
@@ -409,7 +409,7 @@ export class CacheManager implements Cache {
    * @public
    */
   hasChangedRelationships(key: ResourceKey): boolean {
-    return this.#cache.hasChangedRelationships(key);
+    return this.___cache.hasChangedRelationships(key);
   }
 
   /**
@@ -423,7 +423,7 @@ export class CacheManager implements Cache {
    * @return the names of relationships that were restored
    */
   rollbackRelationships(key: ResourceKey): string[] {
-    return this.#cache.rollbackRelationships(key);
+    return this.___cache.rollbackRelationships(key);
   }
 
   /**
@@ -433,7 +433,7 @@ export class CacheManager implements Cache {
    * @return resource relationship object
    */
   getRelationship(key: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    return this.#cache.getRelationship(key, propertyName);
+    return this.___cache.getRelationship(key, propertyName);
   }
 
   /**
@@ -443,7 +443,7 @@ export class CacheManager implements Cache {
    * @return resource relationship object
    */
   getRemoteRelationship(key: ResourceKey, propertyName: string): ResourceRelationship | CollectionRelationship {
-    return this.#cache.getRemoteRelationship(key, propertyName);
+    return this.___cache.getRemoteRelationship(key, propertyName);
   }
 
   // Resource State
@@ -456,7 +456,7 @@ export class CacheManager implements Cache {
    * @public
    */
   setIsDeleted(key: ResourceKey, isDeleted: boolean): void {
-    this.#cache.setIsDeleted(key, isDeleted);
+    this.___cache.setIsDeleted(key, isDeleted);
   }
 
   /**
@@ -465,7 +465,7 @@ export class CacheManager implements Cache {
    * @public
    */
   getErrors(key: ResourceKey): ApiError[] {
-    return this.#cache.getErrors(key);
+    return this.___cache.getErrors(key);
   }
 
   /**
@@ -474,7 +474,7 @@ export class CacheManager implements Cache {
    * @public
    */
   isEmpty(key: ResourceKey): boolean {
-    return this.#cache.isEmpty(key);
+    return this.___cache.isEmpty(key);
   }
 
   /**
@@ -484,7 +484,7 @@ export class CacheManager implements Cache {
    * @public
    */
   isNew(key: ResourceKey): boolean {
-    return this.#cache.isNew(key);
+    return this.___cache.isNew(key);
   }
 
   /**
@@ -494,7 +494,7 @@ export class CacheManager implements Cache {
    * @public
    */
   isDeleted(key: ResourceKey): boolean {
-    return this.#cache.isDeleted(key);
+    return this.___cache.isDeleted(key);
   }
 
   /**
@@ -504,6 +504,6 @@ export class CacheManager implements Cache {
    * @public
    */
   isDeletionCommitted(key: ResourceKey): boolean {
-    return this.#cache.isDeletionCommitted(key);
+    return this.___cache.isDeletionCommitted(key);
   }
 }
