@@ -44,7 +44,8 @@ export function createConfig(options, resolve) {
         ? UnpluginIsolatedDecl({
             include: `${options.srcDir}/**/*.{ts,gts,tsx}`,
             extraOutdir: 'declarations',
-            transformerOptions: {
+            sourcemap: true,
+            transformOptions: {
               stripInternal: true,
               sourcemap: true,
             },

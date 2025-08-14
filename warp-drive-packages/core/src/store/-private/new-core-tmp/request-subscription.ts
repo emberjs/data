@@ -392,6 +392,7 @@ export class RequestSubscription<RT, E> {
               break;
             }
             case 'state': {
+              // @ts-expect-error _deduped is private
               const latest = store.requestManager._deduped.get(requestId);
               const priority = latest?.priority;
               const state = this.reqState;
@@ -584,7 +585,7 @@ export class RequestSubscription<RT, E> {
   /**
    * @internal
    */
-  private _getRequester() {
+  private _getRequester(): Store | RequestManager {
     if (this._args.request) {
       return this._args.request.requester;
     }

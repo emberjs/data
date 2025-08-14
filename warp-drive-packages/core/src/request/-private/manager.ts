@@ -98,7 +98,6 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;
  * ```
  *
- * @hideconstructor
  * @public
  */
 export class RequestManager {

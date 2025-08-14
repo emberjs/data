@@ -96,6 +96,7 @@ export const CacheHandler: CacheHandlerType = {
     }
 
     // used to dedupe existing requests that match
+    // @ts-expect-error _deduped is private
     const DEDUPE = store.requestManager._deduped;
     const activeRequest = identifier && DEDUPE.get(identifier);
     const peeked = identifier ? store.cache.peekRequest(identifier) : null;
@@ -115,6 +116,7 @@ export const CacheHandler: CacheHandlerType = {
         DEDUPE.set(identifier, { priority: { blocking: true }, promise });
         store.notifications.notify(identifier, 'state', null);
       }
+      // @ts-expect-error _pending is private
       store.requestManager._pending.set(context.id, promise);
       return promise;
     }
@@ -130,6 +132,7 @@ export const CacheHandler: CacheHandlerType = {
         DEDUPE.set(identifier, { priority: { blocking: false }, promise });
         store.notifications.notify(identifier, 'state', null);
       }
+      // @ts-expect-error _pending is private
       store.requestManager._pending.set(context.id, promise);
     }
 
@@ -220,6 +223,7 @@ function handleFetchSuccess<T>(
   document: StructuredDataDocument<T>
 ): ResourceDataDocument | void {
   const { request } = context;
+  // @ts-expect-error _pending is private
   store.requestManager._pending.delete(context.id);
   store._enableAsyncFlush = true;
   let response: ResourceDataDocument;
@@ -232,6 +236,7 @@ function handleFetchSuccess<T>(
     store.lifetimes.didRequest(context.request, document.response, options.identifier, store);
   }
 
+  // @ts-expect-error _pending is private
   const finalPriority = getPriority(options.identifier, store.requestManager._deduped, options.priority);
   if (finalPriority.blocking) {
     return response!;
@@ -274,6 +279,7 @@ function handleFetchError<T>(
   options: UpdateOptions,
   error: StructuredErrorDocument<T>
 ): ResourceErrorDocument | void {
+  // @ts-expect-error _pending is private
   store.requestManager._pending.delete(context.id);
   if (context.request.signal?.aborted) {
     throw error;
@@ -293,6 +299,7 @@ function handleFetchError<T>(
     throw error;
   }
 
+  // @ts-expect-error _deduped is private
   const finalPriority = getPriority(options.identifier, store.requestManager._deduped, options.priority);
   if (finalPriority.blocking) {
     const newError = cloneError(error);

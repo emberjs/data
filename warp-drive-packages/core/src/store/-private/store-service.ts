@@ -825,6 +825,7 @@ export class Store extends BaseClass {
       pending.forEach((requests) => {
         all.push(...requests.map((v) => v[RequestPromise]!));
       });
+      // @ts-expect-error _pending is private
       this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
         length: number;
