@@ -1,9 +1,9 @@
-import type Model from '@ember-data/model';
+import type Model from '../../model';
 import { cached, tracked } from '@glimmer/tracking';
-import type { Value } from '@warp-drive/core-types/json/raw';
+import type { Value } from '@warp-drive/core/types/json/raw';
 import type { CAUTION_MEGA_DANGER_ZONE_Extension } from '@warp-drive/core/reactive';
-import type { SchemaRecord } from '@warp-drive/schema-record';
-import { Context } from '@warp-drive/schema-record/-private';
+import type { ReactiveResource as SchemaRecord } from '@warp-drive/core/reactive';
+import { Context } from '@warp-drive/core/reactive/-private';
 
 export class Fragment {
   // We might want to check the parent values once we move this code to warp-drive.
@@ -11,10 +11,8 @@ export class Fragment {
   @tracked isDestroyed = false;
 
   @cached
-  get hasDirtyAttributes() {
-    const { path, resourceKey, store } = (this as unknown as SchemaRecord)[
-      Context
-    ];
+  get hasDirtyAttributes(): boolean {
+    const { path, resourceKey, store } = (this as unknown as SchemaRecord)[Context];
     const record = store.peekRecord(resourceKey) as Model;
 
     if (record.hasDirtyAttributes && path) {
@@ -29,12 +27,12 @@ export class Fragment {
     return true;
   }
 
-  get $type() {
+  get $type(): string | null | undefined {
     const { field } = (this as unknown as SchemaRecord)[Context];
     return field?.type;
   }
 
-  rollbackAttributes(this: SchemaRecord) {
+  rollbackAttributes(this: SchemaRecord): void {
     const { path, resourceKey, store } = this[Context];
 
     if (path) {
@@ -44,7 +42,11 @@ export class Fragment {
   }
 }
 
-export const FragmentExtension = {
+export const FragmentExtension: {
+  kind: 'object';
+  name: 'fragment';
+  features: typeof Fragment;
+} = {
   kind: 'object' as const,
   name: 'fragment' as const,
   features: Fragment,

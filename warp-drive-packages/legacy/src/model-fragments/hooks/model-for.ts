@@ -1,18 +1,10 @@
-import type Store from '@ember-data/store';
-import type { ModelSchema } from '@warp-drive/core-types';
-import type { Value } from '@warp-drive/core-types/json/raw';
-import type {
-  TypeFromInstance,
-  TypedRecordInstance,
-} from '@warp-drive/core-types/record';
-import type {
-  LegacyAttributeField,
-  LegacyRelationshipField,
-} from '@warp-drive/core-types/schema/fields';
+import type { Store } from '@warp-drive/core';
+import type { ModelSchema } from '@warp-drive/core/types';
+import type { Value } from '@warp-drive/core/types/json/raw';
+import type { TypeFromInstance, TypedRecordInstance } from '@warp-drive/core/types/record';
+import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
 
-type KeyOrString<T> = keyof T & string extends never
-  ? string
-  : keyof T & string;
+type KeyOrString<T> = keyof T & string extends never ? string : keyof T & string;
 
 // if modelFor turns out to be a bottleneck we should replace with a Map
 // and clear it during store teardown.
@@ -37,34 +29,19 @@ export function getShimClass<T>(
   return shim;
 }
 
-const AttributeKinds = [
-  'field',
-  'attribute',
-  'object',
-  'array',
-  'schema-object',
-  'schema-array',
-] as const;
+const AttributeKinds = ['field', 'attribute', 'object', 'array', 'schema-object', 'schema-array'] as const;
 
 // Mimics the static apis of @ember-data/model
 export class ShimModelClass<T = unknown> implements ModelSchema<T> {
   declare __store: Store;
-  declare modelName: T extends TypedRecordInstance
-    ? TypeFromInstance<T>
-    : string;
-  constructor(
-    store: Store,
-    modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string
-  ) {
+  declare modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
+  constructor(store: Store, modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string) {
     this.__store = store;
     this.modelName = modelName;
   }
 
   get fields(): Map<KeyOrString<T>, 'attribute' | 'belongsTo' | 'hasMany'> {
-    const fields = new Map<
-      KeyOrString<T>,
-      'attribute' | 'belongsTo' | 'hasMany'
-    >();
+    const fields = new Map<KeyOrString<T>, 'attribute' | 'belongsTo' | 'hasMany'>();
     const fieldSchemas = this.__store.schema.fields({ type: this.modelName });
 
     fieldSchemas.forEach((schema, key) => {
@@ -126,27 +103,23 @@ export class ShimModelClass<T = unknown> implements ModelSchema<T> {
     callback: (key: K, relationship: LegacyRelationshipField) => void,
     binding?: T
   ): void {
-    this.__store.schema
-      .fields({ type: this.modelName })
-      .forEach((schema, key) => {
-        if (schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
-          callback.call(binding, key as K, schema);
-        }
-      });
+    this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
+      if (schema.kind === 'belongsTo' || schema.kind === 'hasMany') {
+        callback.call(binding, key as K, schema);
+      }
+    });
   }
 
   eachTransformedAttribute<K extends KeyOrString<T>>(
     callback: (key: K, type: string | null) => void,
     binding?: T
   ): void {
-    this.__store.schema
-      .fields({ type: this.modelName })
-      .forEach((schema, key) => {
-        if (schema.kind === 'attribute') {
-          const type = schema.type;
-          if (type) callback.call(binding, key as K, type);
-        }
-      });
+    this.__store.schema.fields({ type: this.modelName }).forEach((schema, key) => {
+      if (schema.kind === 'attribute') {
+        const type = schema.type;
+        if (type) callback.call(binding, key as K, type);
+      }
+    });
   }
 }
 

@@ -6,28 +6,20 @@ import {
   EmberObjectExtension,
 } from '@warp-drive/legacy/compat/extensions';
 
-import { modelFor } from '#src/hooks/model-for.ts';
+import { modelFor } from '../hooks/model-for.ts';
 import FragmentArrayExtension from '../extensions/fragment-array.ts';
 import FragmentExtension from '../extensions/fragment.ts';
 
-export function registerFragmentExtensions(store: Store) {
+export function registerFragmentExtensions(store: Store): void {
   store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentExtension);
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(
-    FragmentArrayExtension
-  );
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(
-    EmberArrayLikeExtension
-  );
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(
-    EmberObjectArrayExtension
-  );
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(
-    EmberObjectExtension
-  );
+  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentArrayExtension);
+  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberArrayLikeExtension);
+  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberObjectArrayExtension);
+  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberObjectExtension);
   store.modelFor = modelFor;
 }
 
-export function initialize(application: ApplicationInstance) {
+export function initialize(application: ApplicationInstance): void {
   const store = application.lookup('service:store') as Store | undefined;
 
   if (store) {
@@ -41,5 +33,5 @@ export function initialize(application: ApplicationInstance) {
 
 export default {
   name: 'fragment-extensions',
-  initialize,
+  initialize: initialize as typeof initialize,
 };
