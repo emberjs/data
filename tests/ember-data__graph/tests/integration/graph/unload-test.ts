@@ -33,6 +33,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -60,11 +61,13 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -107,6 +110,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -136,6 +140,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -145,6 +150,7 @@ module('Integration | Graph | Unload', function (hooks) {
             rest.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -153,6 +159,7 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -195,6 +202,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -222,17 +230,20 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -275,6 +286,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -304,6 +316,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -314,6 +327,7 @@ module('Integration | Graph | Unload', function (hooks) {
             order.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -322,11 +336,13 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -369,6 +385,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -396,11 +413,13 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -443,6 +462,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -472,6 +492,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -481,6 +502,7 @@ module('Integration | Graph | Unload', function (hooks) {
             rest.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -489,6 +511,7 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -531,6 +554,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -558,17 +582,20 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -611,6 +638,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -640,6 +668,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -650,6 +679,7 @@ module('Integration | Graph | Unload', function (hooks) {
             order.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -658,11 +688,13 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -705,6 +737,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -732,11 +765,13 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -779,6 +814,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -808,6 +844,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -817,6 +854,7 @@ module('Integration | Graph | Unload', function (hooks) {
             rest.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -825,6 +863,7 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -867,6 +906,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -894,17 +934,20 @@ module('Integration | Graph | Unload', function (hooks) {
         assert.equal(bestFriend2.remoteState, identifier, 'precond - bestFriend is set');
 
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             order.forEach((i) => graph.unload(i));
             order.forEach((i) => graph.unload(i));
           });
         } else {
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -947,6 +990,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
       function permutation(order: ResourceKey[], unloadTogether: boolean) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         store._join(() => {
           graph.push({
             op: 'updateRelationship',
@@ -976,6 +1020,7 @@ module('Integration | Graph | Unload', function (hooks) {
         const first = order[0];
         const rest = order.slice(1);
         if (unloadTogether) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -986,6 +1031,7 @@ module('Integration | Graph | Unload', function (hooks) {
             order.forEach((i) => graph.unload(i));
           });
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           store._join(() => {
             graph.push({
               op: 'deleteRecord',
@@ -994,11 +1040,13 @@ module('Integration | Graph | Unload', function (hooks) {
             });
           });
           rest.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
           });
           order.forEach((i) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             store._join(() => {
               graph.unload(i);
             });
@@ -1042,6 +1090,7 @@ module('Integration | Graph | Unload', function (hooks) {
       const identifier2 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '2' });
       const identifier3 = cacheKeyManager.getOrCreateRecordIdentifier({ type: 'user', id: '3' });
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       store._join(() => {
         graph.push({
           op: 'updateRelationship',
@@ -1068,6 +1117,7 @@ module('Integration | Graph | Unload', function (hooks) {
       assert.equal(bestFriend.localState, null, 'precond - bestFriend is not set');
       assert.equal(bestFriend.remoteState, null, 'precond - bestFriend is not set');
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       store._join(() => {
         graph.push({
           op: 'deleteRecord',
@@ -1081,6 +1131,7 @@ module('Integration | Graph | Unload', function (hooks) {
         });
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       store._join(() => {
         graph.unload(identifier);
       });

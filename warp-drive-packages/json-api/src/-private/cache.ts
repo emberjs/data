@@ -485,6 +485,7 @@ export class JSONAPICache implements Cache {
       }
 
       upgradeCapabilities(this._capabilities);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this._capabilities._store._join(() => {
         for (const operation of op) {
           patchCache(this, operation);
@@ -703,6 +704,7 @@ export class JSONAPICache implements Cache {
     const store = this._capabilities._store;
     if (!store._cbs) {
       let result: void | string[] = undefined;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       store._run(() => {
         result = cacheUpsert(this, identifier, data, calculateChanges);
       });
@@ -1617,6 +1619,7 @@ export class JSONAPICache implements Cache {
   rollbackRelationships(identifier: ResourceKey): string[] {
     upgradeCapabilities(this._capabilities);
     let result!: string[];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     this._capabilities._store._join(() => {
       result = this.__graph.rollback(identifier);
     });

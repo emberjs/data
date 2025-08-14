@@ -20,7 +20,7 @@ const DEFAULT_MAX_CACHE_SIZE = 10_000;
  * and by `@warp-drive/utilities/string`. It is not intended
  * for use outside of these modules at this time.
  *
- * @internal
+ * @private
  */
 export class LRUCache<T, V> {
   declare size: number;
@@ -100,7 +100,7 @@ export const STRING_DASHERIZE_CACHE: LRUCache<string, string> = new LRUCache<str
  * This version is only in this location to support a deprecated
  * behavior in the core package and will be removed in a future.
  *
- * @internal
+ * @private
  */
 export function dasherize(str: string): string {
   return STRING_DASHERIZE_CACHE.get(str);

@@ -538,7 +538,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     );
   }
 
-  /** @internal */
+  /** @private */
   // @ts-expect-error destroy should not return a value, but ember's types force it to
   destroy(): this {
     const identifier = recordIdentifierFor(this);

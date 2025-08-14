@@ -163,6 +163,7 @@ function handleFetchSuccess<T>(
   document: StructuredDataDocument<T>
 ): T {
   let response: ResourceDataDocument;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   store._join(() => {
     response = updateCacheForSuccess<T>(store, request, document) as ResourceDataDocument;
   });
@@ -213,6 +214,7 @@ function handleFetchError<T>(
     throw error;
   }
   let response: ResourceErrorDocument | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   store._join(() => {
     response = updateCacheForError(store, request, error);
   });

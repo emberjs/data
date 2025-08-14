@@ -88,7 +88,7 @@ export const StoreMap: Map<unknown, Store> = getOrSetGlobal('StoreMap', new Map<
 
 /**
  * We may eventually make this public, but its likely better for this to be killed off
- * @internal
+ * @private
  */
 export function storeFor(record: OpaqueRecordInstance, ignoreMissing: boolean): Store | null {
   const store = StoreMap.get(record);
