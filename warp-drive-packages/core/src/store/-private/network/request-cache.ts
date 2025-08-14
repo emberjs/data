@@ -65,9 +65,13 @@ function hasRecordIdentifier(op: Operation): op is RecordOperation {
 export class RequestStateService {
   /** @internal */
   _pending: Map<ResourceKey, InternalRequest[]> = new Map();
+  /** @internal */
   private _done: Map<ResourceKey, InternalRequest[]> = new Map();
+  /** @internal */
   private _subscriptions: Map<ResourceKey, RequestSubscription[]> = new Map();
+  /** @internal */
   private _toFlush: InternalRequest[] = [];
+  /** @internal */
   private _store: Store;
 
   constructor(store: Store) {
@@ -127,6 +131,7 @@ export class RequestStateService {
     assert(`Expected a well formed  query`);
   }
 
+  /** @internal */
   private _triggerSubscriptions(req: InternalRequest): void {
     if (req.state === 'pending') {
       this._flushRequest(req);
@@ -141,6 +146,7 @@ export class RequestStateService {
     }
   }
 
+  /** @internal */
   private _flush(): void {
     this._toFlush.forEach((req) => {
       this._flushRequest(req);
@@ -251,4 +257,17 @@ export class RequestStateService {
     }
     return null;
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateRequestStateService extends RequestStateService {
+  _pending: Map<ResourceKey, InternalRequest[]>;
+  _clearEntries(identifier: ResourceKey): void;
+  _enqueue<T>(promise: Promise<T>, queryRequest: Request): Promise<T>;
 }

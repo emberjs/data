@@ -113,9 +113,9 @@ export class RequestManager {
    *
    * @internal
    */
-  declare private _pending: Map<number, Promise<unknown>>;
+  declare _pending: Map<number, Promise<unknown>>;
   /** @internal */
-  declare private _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
+  declare _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 
   constructor(options?: GenericCreateArgs) {
     Object.assign(this, options);
@@ -293,4 +293,23 @@ export class RequestManager {
   static create(options?: GenericCreateArgs): RequestManager {
     return new this(options);
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateRequestManager extends RequestManager {
+  /**
+   * A map of pending requests from request.id to their
+   * associated CacheHandler promise.
+   *
+   * This queue is managed by the CacheHandler
+   *
+   */
+  _pending: Map<number, Promise<unknown>>;
+  _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 }

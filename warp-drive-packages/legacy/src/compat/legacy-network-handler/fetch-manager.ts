@@ -57,11 +57,17 @@ interface PendingSaveItem {
 }
 
 export class FetchManager {
+  /**
+   * @internal
+   */
   declare isDestroyed: boolean;
-  declare requestCache: RequestStateService;
+  declare private requestCache: RequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
+  /**
+   * @internal
+   */
   declare _pendingFetch: Map<string, Map<PersistedResourceKey, PendingFetchItem[]>>;
-  declare _store: Store;
+  declare private _store: Store;
 
   constructor(store: Store) {
     this._store = store;

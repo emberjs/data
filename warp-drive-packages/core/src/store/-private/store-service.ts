@@ -19,7 +19,7 @@ import type { Graph } from '../../graph/-private.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ReactiveDocument } from '../../reactive/-private/document.ts';
 import type { Future } from '../../request.ts';
-import type { RequestManager } from '../../request/-private/manager.ts';
+import type { PrivateRequestManager, RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
 import type { PersistedResourceKey, ResourceKey } from '../../types/identifier.ts';
 import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.ts';
@@ -52,6 +52,7 @@ import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
+import type { PrivateRequestStateService } from './network/request-cache.ts';
 import { RequestPromise, RequestStateService } from './network/request-cache.ts';
 import type { LegacyLiveArray } from './record-arrays/legacy-live-array.ts';
 import { coerceId, ensureStringId } from './utils/coerce-id.ts';
@@ -690,8 +691,10 @@ export class Store extends BaseClass {
    */
   declare _enableAsyncFlush: boolean | null;
 
-  // DEBUG-only properties
-  /** @internal */
+  /**
+   * Available in DEBUG Only
+   * @internal
+   */
   declare DISABLE_WAITER?: boolean;
   /** @internal */
   declare _isDestroying: boolean;
@@ -824,7 +827,6 @@ export class Store extends BaseClass {
       pending.forEach((requests) => {
         all.push(...requests.map((v) => v[RequestPromise]!));
       });
-      // @ts-expect-error _pending is private
       this.requestManager._pending.forEach((v) => all.push(v));
       const promise: Promise<unknown[]> & { length: number } = Promise.allSettled(all) as Promise<unknown[]> & {
         length: number;
@@ -1555,6 +1557,62 @@ export class Store extends BaseClass {
     return new this(args);
   }
 }
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateStore extends Store {
+  readonly recordArrayManager: RecordArrayManager;
+  requestManager: PrivateRequestManager;
+  _schema: SchemaService;
+  _graph?: Graph;
+  _requestCache: PrivateRequestStateService;
+  _instanceCache: InstanceCache;
+  _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
+  _forceShim: boolean;
+  /**
+   * Async flush buffers notifications until flushed
+   * by finalization of a future configured by store.request
+   *
+   * This is useful for ensuring that notifications are delivered
+   * prior to the promise resolving but without risk of promise
+   * interleaving.
+   */
+  _enableAsyncFlush: boolean | null;
+
+  /**
+   * Available in DEBUG Only
+   */
+  DISABLE_WAITER?: boolean;
+  _isDestroying: boolean;
+  _isDestroyed: boolean;
+  isDestroying: boolean;
+  isDestroyed: boolean;
+  _run(cb: () => void): void;
+  /**
+   * Executes the callback, ensurng that any work that calls
+   * store._schedule is executed after in the right order.
+   *
+   * When queues already exist, scheduled callbacks will
+   * join the existing queue.
+   *
+   */
+  _join(cb: () => void): void;
+  _schedule(name: 'coalesce' | 'sync' | 'notify', cb: () => void): void;
+  _getAllPending(): (Promise<unknown[]> & { length: number }) | void;
+}
+
+/**
+ * Upgrade the type for Store to PrivateStore, which will also
+ * upgrade any associated types to their private equivalents.
+ *
+ * @private
+ */
+export function assertPrivateStore(store: unknown): asserts store is PrivateStore {}
 
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   Store.prototype.getSchemaDefinitionService = function (): SchemaService {

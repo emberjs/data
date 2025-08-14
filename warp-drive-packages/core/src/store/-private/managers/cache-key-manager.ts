@@ -36,8 +36,6 @@ import { coerceId } from '../utils/coerce-id.ts';
 import { normalizeModelName } from '../utils/normalize-model-name.ts';
 import installPolyfill from '../utils/uuid-polyfill.ts';
 
-type ResourceData = unknown;
-
 type TypeFromIdentifier<T> = T extends { type: infer U } ? U : string;
 
 type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
@@ -332,12 +330,7 @@ function defaultKeyInfoMethod(resource: unknown, known: ResourceKey | null): Key
   return { type, id };
 }
 
-function defaultGenerationMethod(data: ImmutableRequestInfo, bucket: 'document'): string | null;
-function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 'record'): string;
-function defaultGenerationMethod(
-  data: ImmutableRequestInfo | ResourceData | { type: string },
-  bucket: CacheKeyType
-): string | null {
+function defaultGenerationMethod(data: unknown, bucket: CacheKeyType): string | null {
   if (bucket === 'record') {
     if (hasLid(data)) {
       return data.lid;
