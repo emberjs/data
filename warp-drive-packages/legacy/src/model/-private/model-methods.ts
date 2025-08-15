@@ -4,7 +4,7 @@ import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { assertPrivateStore } from '@warp-drive/core/store/-private.js';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
