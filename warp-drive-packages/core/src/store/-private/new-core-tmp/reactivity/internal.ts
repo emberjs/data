@@ -46,7 +46,7 @@ function isInitializer(obj: unknown): obj is Initializer {
  * - the "key" or "name" of the signal
  * - the "object identity" or "context" to which the signal is attached
  *
- * @internal
+ * @private
  */
 export interface WarpDriveSignal {
   /**
@@ -115,7 +115,7 @@ export interface WarpDriveSignal {
    *   },
    * });
    *
-   * @internal
+   * @private
    */
   signal: SignalRef;
 
@@ -123,7 +123,7 @@ export interface WarpDriveSignal {
    * The last "value" computed for this signal when
    * a signal is also used for storage.
    *
-   * @internal
+   * @private
    */
   value: unknown;
 
@@ -133,7 +133,7 @@ export interface WarpDriveSignal {
    * `value` cache and when using the signal as a
    * "gate"
    *
-   * @internal
+   * @private
    */
   isStale: boolean;
 }
@@ -154,7 +154,7 @@ export interface WarpDriveSignal {
  * initializeSignalStore(obj);
  * ```
  *
- * @internal
+ * @private
  */
 export const Signals: '___(unique) Symbol(Signals)' = getOrSetGlobal('Signals', Symbol('Signals'));
 export type SignalStore = Map<string | symbol, WarpDriveSignal>;
@@ -162,7 +162,7 @@ export type SignalStore = Map<string | symbol, WarpDriveSignal>;
 /**
  * A type util to recast the object as having a signal store.
  *
- * @internal
+ * @private
  */
 export function upgradeWithSignals<T extends object>(obj: T): asserts obj is T & { [Signals]: SignalStore } {}
 
@@ -171,7 +171,7 @@ export function upgradeWithSignals<T extends object>(obj: T): asserts obj is T &
  * if it does not already exist and returns the associated
  * signal store.
  *
- * @internal
+ * @private
  */
 export function withSignalStore<T extends object>(obj: T): SignalStore {
   upgradeWithSignals(obj);
@@ -188,7 +188,7 @@ export function withSignalStore<T extends object>(obj: T): SignalStore {
  * Useful for pre-warming the shape of an object to ensure
  * a key-transition to add it is not required later.
  *
- * @internal
+ * @private
  */
 export function initializeSignalStore<T extends object>(obj: T): asserts obj is T & { [Signals]: SignalStore } {
   upgradeWithSignals(obj);

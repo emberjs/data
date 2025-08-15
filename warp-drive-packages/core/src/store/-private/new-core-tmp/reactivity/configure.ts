@@ -43,7 +43,7 @@ export const OBJECT_SIGNAL: '___(unique) Symbol(#{})' = getOrSetGlobal('#{}', Sy
  *
  * It may be an array of signals or a single signal.
  *
- * @internal
+ * @private
  */
 export type SignalRef = unknown;
 /**
@@ -180,7 +180,7 @@ export function setupSignals<T>(buildConfig: (options: HooksOptions) => SignalHo
 /**
  * Internal method for consuming the configured `createSignal` hook
  *
- * @internal
+ * @private
  */
 export function createSignal(obj: object, key: string | symbol): SignalRef {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
@@ -191,7 +191,7 @@ export function createSignal(obj: object, key: string | symbol): SignalRef {
 /**
  * Internal method for consuming the configured `consumeSignal` hook
  *
- * @internal
+ * @private
  */
 export function consumeSignal(signal: SignalRef): void {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');
@@ -203,7 +203,7 @@ export function consumeSignal(signal: SignalRef): void {
 /**
  * Internal method for consuming the configured `notifySignal` hook
  *
- * @internal
+ * @private
  */
 export function notifySignal(signal: SignalRef): void {
   const signalHooks: SignalHooks | null = peekTransient('signalHooks');

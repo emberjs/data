@@ -988,9 +988,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    */
   // @ts-expect-error no return is necessary, but Ember's types are forcing it
   notifyPropertyChange(prop: string): this {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const signals = withSignalStore(this);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     entangleSignal(signals, this, prop, undefined);
     super.notifyPropertyChange(prop);
   }
