@@ -1,6 +1,6 @@
 import { recordIdentifierFor, storeFor, type StoreRequestInput } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { InstanceCache } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, type InstanceCache } from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core/types';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
@@ -48,6 +48,7 @@ export function saveRecordBuilder<T extends TypedRecordInstance>(
   options: Record<string, unknown> = {}
 ): SaveRecordRequestInput<TypeFromInstance<T>, T> {
   const store = storeFor(record, true);
+  assertPrivateStore(store);
   assert(`Unable to initiate save for a record in a disconnected state`, store);
   const identifier = recordIdentifierFor<T>(record);
 
@@ -60,6 +61,7 @@ export function saveRecordBuilder<T extends TypedRecordInstance>(
     `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
     store._instanceCache.recordIsLoaded(identifier)
   );
+
   if (resourceIsFullyDeleted(store._instanceCache, identifier)) {
     throw new Error('cannot build saveRecord request for deleted record');
   }

@@ -98,14 +98,13 @@ import { executeNextHandler, IS_CACHE_HANDLER } from './utils';
  * type StructuredDocument<T> = StructuredDataDocument<T> | StructuredErrorDocument;
  * ```
  *
- * @hideconstructor
  * @public
  */
 export class RequestManager {
   /** @internal */
   declare private _handlers: Handler[];
   /** @internal */
-  declare _hasCacheHandler: boolean;
+  declare private _hasCacheHandler: boolean;
   /**
    * A map of pending requests from request.id to their
    * associated CacheHandler promise.
@@ -294,4 +293,23 @@ export class RequestManager {
   static create(options?: GenericCreateArgs): RequestManager {
     return new this(options);
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateRequestManager extends RequestManager {
+  /**
+   * A map of pending requests from request.id to their
+   * associated CacheHandler promise.
+   *
+   * This queue is managed by the CacheHandler
+   *
+   */
+  _pending: Map<number, Promise<unknown>>;
+  _deduped: Map<RequestKey, { priority: ManagedRequestPriority; promise: Promise<unknown> }>;
 }

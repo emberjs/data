@@ -1,7 +1,7 @@
 import { getOwner, setOwner } from '@ember/application';
 
 import { assert } from '@warp-drive/core/build-config/macros';
-import { setRecordIdentifier, type Store, StoreMap } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, setRecordIdentifier, type Store, StoreMap } from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 
@@ -50,6 +50,7 @@ export function teardownRecord(record: Model): void {
 export function modelFor<T>(type: TypeFromInstance<T>): typeof Model | void;
 export function modelFor(type: string): typeof Model | void;
 export function modelFor<T>(this: Store, modelName: TypeFromInstanceOrString<T>): typeof Model | void {
+  assertPrivateStore(this);
   assert(
     `Attempted to call store.modelFor(), but the store instance has already been destroyed.`,
     !this.isDestroyed && !this.isDestroying

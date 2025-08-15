@@ -2,6 +2,7 @@ import Cache from '@ember-data/json-api';
 import type { ImmutableRequestInfo } from '@ember-data/request';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { isPrivateStore, type PrivateStore } from '@warp-drive/core/store/-private';
 import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type {
@@ -93,8 +94,8 @@ class TestStore extends Store {
   }
 }
 
-function setupRecord<T extends string>(store: Store, record: ExistingResourceObject<T>): PersistedResourceKey<T>;
-function setupRecord(store: Store, record: ExistingResourceObject): PersistedResourceKey {
+function setupRecord<T extends string>(store: PrivateStore, record: ExistingResourceObject<T>): PersistedResourceKey<T>;
+function setupRecord(store: PrivateStore, record: ExistingResourceObject): PersistedResourceKey {
   const identifier = store.cacheKeyManager.getOrCreateRecordIdentifier(record);
   store.cache.patch({
     op: 'add',
@@ -105,7 +106,7 @@ function setupRecord(store: Store, record: ExistingResourceObject): PersistedRes
   return identifier;
 }
 
-function setupDocument(store: Store, url: string, doc: ResourceDataDocument<ExistingResourceObject>) {
+function setupDocument(store: PrivateStore, url: string, doc: ResourceDataDocument<ExistingResourceObject>) {
   const requestDoc = {
     request: {
       url,
@@ -135,7 +136,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add a resource to the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const user = {
       id: '1',
@@ -159,7 +160,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can perform bulk operations on the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const user = {
       id: '1',
@@ -204,7 +205,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove a resource from the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const user = {
       id: '1',
@@ -236,7 +237,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can update a resource in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -305,7 +306,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can update a single resource field (an attribute) in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const user = {
       id: '1',
@@ -340,7 +341,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can update a single resource field (a relationship) in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const user = {
       id: '1',
@@ -409,7 +410,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to a resource relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -459,7 +460,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from a resource relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -511,7 +512,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to a collection relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -561,7 +562,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add multiple to a collection relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -628,7 +629,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to a collection relationship in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -753,7 +754,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add multiple to a collection relationship in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -853,7 +854,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from a collection relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -967,7 +968,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove multiple from a collection relationship in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -1079,7 +1080,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from a collection relationship in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -1218,7 +1219,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove multiple from a collection relationship in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const cache = store.cache;
     const identifier = setupRecord(store, {
       id: '1',
@@ -1357,7 +1358,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to data on a single resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/user/1', {
       data: null,
     });
@@ -1406,7 +1407,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from data on a single resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/user/1', {
       data: {
         id: '2',
@@ -1422,7 +1423,7 @@ module('Integration | <JSONAPICache>.patch', function () {
       type: 'user',
     } as const) as PersistedResourceKey;
     const user = store.peekRecord<User>(userIdentifier);
-    const reactiveDocument = store._instanceCache.getDocument<User>(documentIdentifier);
+    const reactiveDocument = store._instanceCache.getDocument<User | null>(documentIdentifier);
     const cacheDocument = store.cache.peek(documentIdentifier);
 
     assert.equal(user?.name, 'Wesley', 'The name is correct');
@@ -1455,7 +1456,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to data on a collection resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1525,7 +1526,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add multiple to data on a collection resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1593,7 +1594,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to data on a collection resource document in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1664,7 +1665,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add multiple to data on a collection resource document in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1733,7 +1734,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from data on a collection resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1803,7 +1804,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove multiple from data on a collection resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1873,7 +1874,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from data on a collection resource document in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -1944,7 +1945,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove multiple from data on a collection resource document in the cache with an index', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -2015,7 +2016,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add to included on a resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -2077,7 +2078,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can add multiple to included on a resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -2146,7 +2147,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove from included on a resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {
@@ -2223,7 +2224,7 @@ module('Integration | <JSONAPICache>.patch', function () {
   });
 
   test('We can remove multiple from included on a resource document in the cache', function (assert) {
-    const store = new TestStore();
+    const store = isPrivateStore(new TestStore());
     const documentIdentifier = setupDocument(store, '/api/v1/users', {
       data: [
         {

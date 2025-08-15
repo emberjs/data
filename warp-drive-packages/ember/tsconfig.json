@@ -13,6 +13,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "declarationDir": "declarations",
     "emitDeclarationOnly": true,
     "allowJs": false,

@@ -4,6 +4,7 @@ import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import { ENABLE_LEGACY_REQUEST_METHODS } from '@warp-drive/core/build-config/deprecations';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
@@ -18,12 +19,14 @@ import type { MaybeBelongsToFields, MaybeHasManyFields } from './type-utils.ts';
 
 export interface MinimalLegacyRecord {
   errors: Errors;
+  /** @internal */
   ___recordState: RecordState;
   currentState: RecordState;
   isDestroyed: boolean;
   isDestroying: boolean;
   isReloading: boolean;
   isValid: boolean;
+  /** @internal */
   [RecordStore]: Store;
 
   deleteRecord(): void;
@@ -36,6 +39,7 @@ export function rollbackAttributes<T extends MinimalLegacyRecord>(this: T): void
   const { currentState } = this;
   const { isNew } = currentState;
   const store = this[RecordStore];
+  assertPrivateStore(store);
 
   store._join(() => {
     store.cache.rollbackAttrs(recordIdentifierFor(this));

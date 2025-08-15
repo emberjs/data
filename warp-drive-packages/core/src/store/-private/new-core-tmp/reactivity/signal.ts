@@ -17,7 +17,7 @@ import {
  *
  * Use when you need to ensure a signal exists and is subscribed to.
  *
- * @internal
+ * @private
  */
 export function entangleSignal<T extends object>(
   signals: SignalStore,
@@ -62,7 +62,7 @@ export function createSignalDescriptor(key: string | symbol, intialValue: unknow
  * The signal will be lazily created when accessed and scoped to the
  * instance of the object.
  *
- * @internal
+ * @private
  */
 export function defineSignal<T extends object>(obj: T, key: string, v?: unknown): void {
   Object.defineProperty(obj, key, createSignalDescriptor(key, v));
@@ -71,7 +71,7 @@ export function defineSignal<T extends object>(obj: T, key: string, v?: unknown)
 /**
  * Define a non-enumerable signal property.
  *
- * @internal
+ * @private
  */
 export function defineNonEnumerableSignal<T extends object>(obj: T, key: string, v?: unknown): void {
   const desc = createSignalDescriptor(key, v);
@@ -159,6 +159,8 @@ export function memoized<T extends object, K extends keyof T & string>(
 
 /**
  * Decorator version of creating a gate.
+ *
+ * @private
  */
 export function gate<T extends object, K extends keyof T & string>(
   _target: T,

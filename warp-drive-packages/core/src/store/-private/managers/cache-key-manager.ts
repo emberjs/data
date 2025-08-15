@@ -36,8 +36,6 @@ import { coerceId } from '../utils/coerce-id.ts';
 import { normalizeModelName } from '../utils/normalize-model-name.ts';
 import installPolyfill from '../utils/uuid-polyfill.ts';
 
-type ResourceData = unknown;
-
 type TypeFromIdentifier<T> = T extends { type: infer U } ? U : string;
 
 type NarrowIdentifierIfPossible<T> = T extends ExistingResourceIdentifierObject
@@ -332,12 +330,7 @@ function defaultKeyInfoMethod(resource: unknown, known: ResourceKey | null): Key
   return { type, id };
 }
 
-function defaultGenerationMethod(data: ImmutableRequestInfo, bucket: 'document'): string | null;
-function defaultGenerationMethod(data: ResourceData | { type: string }, bucket: 'record'): string;
-function defaultGenerationMethod(
-  data: ImmutableRequestInfo | ResourceData | { type: string },
-  bucket: CacheKeyType
-): string | null {
+function defaultGenerationMethod(data: unknown, bucket: CacheKeyType): string | null {
   if (bucket === 'record') {
     if (hasLid(data)) {
       return data.lid;
@@ -391,13 +384,20 @@ if (DEBUG) {
  */
 export class CacheKeyManager {
   /** @internal */
-  declare _cache: StableCache;
+  _cache: StableCache;
+  /** @internal */
   declare private _generate: GenerationMethod;
+  /** @internal */
   declare private _update: UpdateMethod;
+  /** @internal */
   declare private _forget: ForgetMethod;
+  /** @internal */
   declare private _reset: ResetMethod;
+  /** @internal */
   declare private _merge: MergeMethod;
+  /** @internal */
   declare private _keyInfoForResource: KeyInfoMethod;
+  /** @internal */
   declare private _id: number;
 
   constructor() {
@@ -426,7 +426,7 @@ export class CacheKeyManager {
    * we allow late binding of this private internal merge so that
    * the cache can insert itself here to handle elimination of duplicates
    *
-   * @private
+   * @internal
    */
   __configureMerge(method: MergeMethod | null): void {
     this._merge = method || defaultMergeMethod;
@@ -437,15 +437,16 @@ export class CacheKeyManager {
     return this._getRecordIdentifier(resource, 2);
   }
 
-  /**
-   * @private
-   */
+  /** @internal */
   private _getRecordIdentifier(
     resource: { type: string; id: string | null; lid?: string },
     shouldGenerate: 2
   ): ResourceKey;
+  /** @internal */
   private _getRecordIdentifier(resource: unknown, shouldGenerate: 1): ResourceKey;
+  /** @internal */
   private _getRecordIdentifier(resource: unknown, shouldGenerate: 0): ResourceKey | undefined;
+  /** @internal */
   private _getRecordIdentifier(resource: unknown, shouldGenerate: 0 | 1 | 2): ResourceKey | undefined {
     if (LOG_IDENTIFIERS) {
       // eslint-disable-next-line no-console
@@ -695,7 +696,7 @@ export class CacheKeyManager {
   }
 
   /**
-   * @private
+   * @internal
    */
   _mergeRecordIdentifiers(
     keyInfo: KeyInfo,
@@ -784,6 +785,31 @@ export class CacheKeyManager {
     NEW_IDENTIFIERS.clear();
     this._reset();
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateCacheKeyManager extends CacheKeyManager {
+  _cache: StableCache;
+  /**
+   * Internal hook to allow management of merge conflicts with identifiers.
+   *
+   * we allow late binding of this private internal merge so that
+   * the cache can insert itself here to handle elimination of duplicates
+   */
+  __configureMerge(method: MergeMethod | null): void;
+  _mergeRecordIdentifiers(
+    keyInfo: KeyInfo,
+    identifier: ResourceKey,
+    existingIdentifier: ResourceKey,
+    data: unknown
+  ): ResourceKey;
+  destroy(): void;
 }
 
 function makeResourceKey(

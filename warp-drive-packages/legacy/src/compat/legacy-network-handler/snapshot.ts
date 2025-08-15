@@ -1,6 +1,7 @@
 import type { Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { FindRecordOptions } from '@warp-drive/core/types';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
@@ -93,6 +94,7 @@ export class Snapshot<R = unknown> {
     this._hasManyRelationships = Object.create(null) as Record<string, Snapshot[]>;
     this._hasManyIds = Object.create(null) as Record<string, RecordId[]>;
 
+    assertPrivateStore(store);
     const hasRecord = !!store._instanceCache.peek(identifier);
     this.modelName = identifier.type;
     this.identifier = identifier;

@@ -120,6 +120,14 @@ export interface ReactiveResourceArray<T = unknown> extends Omit<Array<T>, '[]'>
   [Context]: ReactiveResourceArrayContext;
 }
 
+export interface PrivateReactiveResourceArray<T = unknown> extends Omit<Array<T>, '[]'> {
+  isDestroying: boolean;
+  isDestroyed: boolean;
+  destroy: (this: ReactiveResourceArray, clear: boolean) => void;
+  [IS_COLLECTION]: boolean;
+  [Context]: ReactiveResourceArrayContext;
+}
+
 export interface TargetArray extends Array<ResourceKey> {
   /** @internal */
   [Context]: ReactiveResourceArrayContext;

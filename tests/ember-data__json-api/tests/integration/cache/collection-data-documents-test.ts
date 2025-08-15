@@ -3,6 +3,7 @@ import type { StructuredDataDocument } from '@ember-data/request';
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
@@ -231,7 +232,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     );
 
     let responseDocument: CollectionResourceDataDocument;
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       responseDocument = store.cache.put(
         asStructuredDocument({
           content: {
@@ -378,7 +379,7 @@ module('Integration | @ember-data/json-api Cache.put(<CollectionDataDocument>)',
     );
 
     let responseDocument: CollectionResourceDataDocument;
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       responseDocument = store.cache.put(
         asStructuredDocument({
           content: {

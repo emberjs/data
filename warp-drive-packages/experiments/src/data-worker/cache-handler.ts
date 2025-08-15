@@ -2,6 +2,7 @@ import type { Store, StoreRequestContext } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheHandler as CacheHandlerType, Future, NextFn } from '@warp-drive/core/request';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { RequestKey } from '@warp-drive/core/types/identifier';
 import type {
   StructuredDataDocument,
@@ -163,6 +164,7 @@ function handleFetchSuccess<T>(
   document: StructuredDataDocument<T>
 ): T {
   let response: ResourceDataDocument;
+  assertPrivateStore(store);
   store._join(() => {
     response = updateCacheForSuccess<T>(store, request, document) as ResourceDataDocument;
   });
@@ -212,6 +214,7 @@ function handleFetchError<T>(
   if (request.signal?.aborted) {
     throw error;
   }
+  assertPrivateStore(store);
   let response: ResourceErrorDocument | undefined;
   store._join(() => {
     response = updateCacheForError(store, request, error);

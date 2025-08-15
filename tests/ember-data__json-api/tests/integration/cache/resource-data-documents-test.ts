@@ -3,6 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation, NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { PersistedResourceKey, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import { resourceSchema } from '@warp-drive/core-types/schema/fields';
 import type { SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
@@ -200,7 +201,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       }
     });
 
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       const responseDocument = store.cache.put(
         asStructuredDocument({
           request: {
@@ -217,7 +218,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     });
 
     isUpdating = true;
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       const responseDocument2 = store.cache.put(
         asStructuredDocument({
           request: {
@@ -345,7 +346,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     );
 
     let responseDocument: SingleResourceDataDocument;
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       responseDocument = store.cache.put(
         asStructuredDocument({
           content: {
@@ -497,7 +498,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
       ],
     });
 
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       store.cache.put(
         asStructuredDocument({
           content: {
@@ -529,7 +530,7 @@ module('Integration | @ember-data/json-api Cache.put(<ResourceDataDocument>)', f
     const name5 = store.cache.getAttr(identifier, 'name');
     assert.equal(name5, 'Name 2', 'The default value was regenerated');
 
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       store.cache.put(
         asStructuredDocument({
           content: {

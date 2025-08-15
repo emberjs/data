@@ -17,6 +17,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { CacheKeyType, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -412,7 +413,7 @@ module('Integration | Identifiers - configuration', function (hooks) {
       testMethod(identifier);
     });
 
-    const store = this.owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(this.owner.lookup('service:store'));
     const userByUsernamePromise = store.findRecord('user', '@runspired');
     const userByIdPromise = store.findRecord('user', '1');
 

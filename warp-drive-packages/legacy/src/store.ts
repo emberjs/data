@@ -1,7 +1,13 @@
 import type { Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import type { LegacyLiveArray, LegacyQueryArray } from '@warp-drive/core/store/-private';
-import { constructResource, ensureStringId, recordIdentifierFor, storeFor } from '@warp-drive/core/store/-private';
+import type { LegacyLiveArray, LegacyQueryArray, PrivateStore } from '@warp-drive/core/store/-private';
+import {
+  assertPrivateStore,
+  constructResource,
+  ensureStringId,
+  recordIdentifierFor,
+  storeFor,
+} from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import type { OpaqueRecordInstance, TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import { SkipCache } from '@warp-drive/core/types/request';
@@ -47,6 +53,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
 
     const identifier = this.cacheKeyManager.getOrCreateRecordIdentifier(resource);
     options = options || {};
+    assertPrivateStore(this);
 
     if (options.preload) {
       // force reload if we preload to ensure we don't resolve the promise
@@ -158,7 +165,6 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
     return promise.then((document) => document.content);
   };
 
-  // @ts-expect-error RecordReference private store shouldn't matter
   StoreKlass.prototype.getReference = function (
     resource: string | ResourceIdentifierObject,
     id: string | number
@@ -183,6 +189,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
     );
 
     const identifier: ResourceKey = this.cacheKeyManager.getOrCreateRecordIdentifier(resourceIdentifier);
+    assertPrivateStore(this);
 
     const cache = upgradeInstanceCaches(this._instanceCache.__instances).reference;
     let reference = cache.get(identifier);
@@ -218,6 +225,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
       // but just in case we reject here to prevent bad things.
       return Promise.reject(new Error(`Record Is Disconnected`));
     }
+    assertPrivateStore(this);
     assert(
       `Cannot initiate a save request for an unloaded record: ${identifier.lid}`,
       this._instanceCache.recordIsLoaded(identifier)
@@ -253,7 +261,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
 
 export { Store };
 
-type Caches = Store['_instanceCache']['__instances'];
+type Caches = PrivateStore['_instanceCache']['__instances'];
 function upgradeInstanceCaches(cache: Caches): Caches & { reference: WeakMap<ResourceKey, RecordReference> } {
   const withReferences = cache as Caches & { reference: WeakMap<ResourceKey, RecordReference> };
   if (!withReferences.reference) {

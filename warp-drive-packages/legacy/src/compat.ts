@@ -20,7 +20,7 @@ export { LegacyNetworkHandler } from './compat/legacy-network-handler/legacy-net
 
 export type { MinimumAdapterInterface, MinimumSerializerInterface, SerializerOptions, AdapterPayload };
 
-export type LegacyStoreCompat = {
+export interface LegacyStoreCompat extends Store {
   _fetchManager: FetchManager;
   adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
   adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
@@ -33,9 +33,9 @@ export type LegacyStoreCompat = {
 
   _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
   _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
-};
+}
 
-export type CompatStore = Store & LegacyStoreCompat;
+export type CompatStore = LegacyStoreCompat;
 
 /**
     Returns an instance of the adapter for a given type. For

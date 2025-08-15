@@ -101,22 +101,17 @@ export function temporaryConvertToLegacy(
  * }
  * ```
  *
- *
- * @class UpgradedMeta
- * @internal
+ * @private
  */
 export interface UpgradedMeta {
   kind: 'implicit' | RelationshipFieldKind;
   /**
    * The field name on `this` record
-   *
-   * @internal
    */
   key: string;
   /**
    * The `type` of the related record
    *
-   * @internal
    */
   type: string;
   isAsync: boolean;
@@ -129,12 +124,10 @@ export interface UpgradedMeta {
   inverseKind: 'implicit' | RelationshipFieldKind;
   /**
    * The field name on the opposing record
-   * @internal
    */
   inverseKey: string;
   /**
    * The `type` of `this` record
-   * @internal
    */
   inverseType: string;
   inverseIsAsync: boolean;
@@ -167,7 +160,6 @@ export interface EdgeDefinition {
    * If the relationship is polymorphic, this will be true if
    * it points back at the same abstract type.
    *
-   * @internal
    */
   isSelfReferential: boolean;
 
@@ -176,7 +168,6 @@ export interface EdgeDefinition {
    * if the relationship also points back at the same
    * field.
    *
-   * @internal
    */
   isReflexive: boolean;
 }

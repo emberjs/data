@@ -18,6 +18,5 @@
   based on a special symbol prsent on record instances that implement the
   `TypedRecordInstance` interface.
 
-  @internal
 */
 export type OpaqueRecordInstance = unknown;

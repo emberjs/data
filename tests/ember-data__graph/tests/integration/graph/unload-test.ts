@@ -1,6 +1,6 @@
-import type { Store } from '@warp-drive/core';
-import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
+import type { ResourceEdge } from '@warp-drive/core/graph/-private';
 import { graphFor } from '@warp-drive/core/graph/-private';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
@@ -9,16 +9,10 @@ import Model, { attr, belongsTo } from '@warp-drive/legacy/model';
 module('Integration | Graph | Unload', function (hooks) {
   setupTest(hooks);
 
-  let store: Store;
-  let graph: Graph;
-  hooks.beforeEach(function () {
-    const { owner } = this;
-    store = owner.lookup('service:store') as Store;
-    graph = graphFor(store);
-  });
-
   module('Randomized Chaos', function () {
     test('(sync relationships) can separately safely unload related identifiers from the graph', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -93,6 +87,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(sync relationships) can separately safely unload related identifiers from the graph following a delete', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -181,6 +177,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(sync relationships) can separately safely unload related identifiers from the graph multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -261,6 +259,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(sync relationships) can separately safely unload related identifiers from the graph following a delete multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -355,6 +355,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Async relationships) can separately safely unload related identifiers from the graph', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -429,6 +431,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Async relationships) can separately safely unload related identifiers from the graph following a delete', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -517,6 +521,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Async relationships) can separately safely unload related identifiers from the graph multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -597,6 +603,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Async relationships) can separately safely unload related identifiers from the graph following a delete multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -691,6 +699,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Mixed relationships) can separately safely unload related identifiers from the graph', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -765,6 +775,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Mixed relationships) can separately safely unload related identifiers from the graph following a delete', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -853,6 +865,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Mixed relationships) can separately safely unload related identifiers from the graph multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -933,6 +947,8 @@ module('Integration | Graph | Unload', function (hooks) {
     });
 
     test('(Mixed relationships) can separately safely unload related identifiers from the graph following a delete multiple times', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {
@@ -1029,6 +1045,8 @@ module('Integration | Graph | Unload', function (hooks) {
 
   module('Specific Scenarios', function () {
     test('Unload of a record with a deleted implicitly related record', function (assert) {
+      const store = isPrivateStore(this.owner.lookup('service:store'));
+      const graph = graphFor(store);
       const { owner } = this;
       const { cacheKeyManager } = store;
       class User extends Model {

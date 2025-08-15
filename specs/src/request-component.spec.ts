@@ -1028,6 +1028,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     await new Promise((resolve) => setTimeout(resolve, DEBUG ? 1 : 100));
 
     if (PRODUCTION) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await store._getAllPending();
       await this.h.rerender();
     } else {

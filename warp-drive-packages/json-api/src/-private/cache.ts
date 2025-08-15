@@ -5,7 +5,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@warp-drive/core/graph/-private';
-import { isRequestKey, isResourceKey, logGroup } from '@warp-drive/core/store/-private';
+import { assertPrivateCapabilities, isRequestKey, isResourceKey, logGroup } from '@warp-drive/core/store/-private';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core/types/cache';
 import type { Change } from '@warp-drive/core/types/cache/change';
@@ -65,13 +65,10 @@ import { validateDocument } from './validator/index.ts';
 import { isErrorDocument, isMetaDocument } from './validator/utils.ts';
 
 type CacheKeyManager = Store['cacheKeyManager'];
-type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
-
-function upgradeCapabilities(obj: unknown): asserts obj is InternalCapabilitiesManager {}
 
 const EMPTY_ITERATOR = {
   iterator() {
@@ -392,27 +389,31 @@ export class JSONAPICache implements Cache {
   }
 
   /** @internal */
-  _putDocument<T extends ResourceErrorDocument>(
+  private _putDocument<T extends ResourceErrorDocument>(
     doc: StructuredErrorDocument<T>,
     data: undefined,
     included: undefined
   ): ResourceErrorDocument;
-  _putDocument<T extends ResourceMetaDocument>(
+  /** @internal */
+  private _putDocument<T extends ResourceMetaDocument>(
     doc: StructuredDataDocument<T>,
     data: undefined,
     included: undefined
   ): ResourceMetaDocument;
-  _putDocument<T extends SingleResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends SingleResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: PersistedResourceKey | null,
     included: PersistedResourceKey[] | undefined
   ): SingleResourceDataDocument;
-  _putDocument<T extends CollectionResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends CollectionResourceDocument>(
     doc: StructuredDataDocument<T>,
     data: PersistedResourceKey[],
     included: PersistedResourceKey[] | undefined
   ): CollectionResourceDataDocument;
-  _putDocument<T extends ResourceDocument>(
+  /** @internal */
+  private _putDocument<T extends ResourceDocument>(
     doc: StructuredDocument<T>,
     data: PersistedResourceKey[] | PersistedResourceKey | null | undefined,
     included: PersistedResourceKey[] | undefined
@@ -480,7 +481,7 @@ export class JSONAPICache implements Cache {
         logGroup('cache', 'patch', '<BATCH>', String(op.length) + ' operations', '', '');
       }
 
-      upgradeCapabilities(this._capabilities);
+      assertPrivateCapabilities(this._capabilities);
       this._capabilities._store._join(() => {
         for (const operation of op) {
           patchCache(this, operation);
@@ -578,7 +579,7 @@ export class JSONAPICache implements Cache {
         });
       }
 
-      upgradeCapabilities(this._capabilities);
+      assertPrivateCapabilities(this._capabilities);
       const store = this._capabilities._store;
       const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
@@ -641,7 +642,7 @@ export class JSONAPICache implements Cache {
         });
       }
 
-      upgradeCapabilities(this._capabilities);
+      assertPrivateCapabilities(this._capabilities);
       const store = this._capabilities._store;
       const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
@@ -695,10 +696,11 @@ export class JSONAPICache implements Cache {
    * @return if `calculateChanges` is true then calculated key changes should be returned
    */
   upsert(identifier: ResourceKey, data: ExistingResourceObject, calculateChanges?: boolean): void | string[] {
-    upgradeCapabilities(this._capabilities);
+    assertPrivateCapabilities(this._capabilities);
     const store = this._capabilities._store;
     if (!store._cbs) {
       let result: void | string[] = undefined;
+
       store._run(() => {
         result = cacheUpsert(this, identifier, data, calculateChanges);
       });
@@ -720,7 +722,7 @@ export class JSONAPICache implements Cache {
    * utilize this method to fork the cache.
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   fork(): Promise<Cache> {
     throw new Error(`Not Implemented`);
@@ -734,7 +736,7 @@ export class JSONAPICache implements Cache {
    * utilize this method to merge the caches.
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   merge(_cache: Cache): Promise<void> {
     throw new Error(`Not Implemented`);
@@ -771,7 +773,7 @@ export class JSONAPICache implements Cache {
    * ```
    *
    * @category Cache Forking
-   * @internal
+   * @private
    */
   diff(): Promise<Change[]> {
     throw new Error(`Not Implemented`);
@@ -787,7 +789,7 @@ export class JSONAPICache implements Cache {
    * via `cache.hydrate`.
    *
    * @category SSR Support
-   * @internal
+   * @private
    */
   dump(): Promise<ReadableStream<unknown>> {
     throw new Error(`Not Implemented`);
@@ -806,7 +808,7 @@ export class JSONAPICache implements Cache {
    * via data-only SSR modes.
    *
    * @category SSR Support
-   * @internal
+   * @private
    */
   hydrate(stream: ReadableStream<unknown>): Promise<void> {
     throw new Error('Not Implemented');
@@ -1250,7 +1252,7 @@ export class JSONAPICache implements Cache {
       } else {
         const attrSchema = getCacheFields(this, identifier).get(attribute);
 
-        upgradeCapabilities(this._capabilities);
+        assertPrivateCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
         if (schemaHasLegacyDefaultValueFn(attrSchema)) {
           cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
@@ -1319,7 +1321,7 @@ export class JSONAPICache implements Cache {
       } else {
         const attrSchema = getCacheFields(this, identifier).get(attribute);
 
-        upgradeCapabilities(this._capabilities);
+        assertPrivateCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
         if (schemaHasLegacyDefaultValueFn(attrSchema)) {
           cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
@@ -1611,8 +1613,9 @@ export class JSONAPICache implements Cache {
    * @return the names of relationships that were restored
    */
   rollbackRelationships(identifier: ResourceKey): string[] {
-    upgradeCapabilities(this._capabilities);
+    assertPrivateCapabilities(this._capabilities);
     let result!: string[];
+
     this._capabilities._store._join(() => {
       result = this.__graph.rollback(identifier);
     });
@@ -2088,7 +2091,7 @@ function _isLoading(
   capabilities: CacheCapabilitiesManager,
   identifier: ResourceKey
 ): boolean {
-  upgradeCapabilities(capabilities);
+  assertPrivateCapabilities(capabilities);
   // TODO refactor things such that the cache is not required to know
   // about isLoading
   const req = capabilities._store.getRequestStateService();

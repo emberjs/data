@@ -48,7 +48,7 @@ export default class Store extends BaseStore {
   serializerFor = serializerFor;
   normalize = normalize;
 
-  override destroy() {
+  destroy() {
     cleanup.call(this);
     super.destroy();
   }

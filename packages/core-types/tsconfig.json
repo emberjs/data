@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "emitDeclarationOnly": true,
     "allowJs": false,
     "checkJs": false,

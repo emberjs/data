@@ -26,7 +26,10 @@ export type { CreateRecordProperties } from './-private/store-service.ts';
 // to also eliminate
 export { coerceId, ensureStringId } from './-private/utils/coerce-id.ts';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix.ts';
-export { type ReactiveResourceArray } from './-private/record-arrays/resource-array.ts';
+export {
+  type ReactiveResourceArray,
+  type PrivateReactiveResourceArray,
+} from './-private/record-arrays/resource-array.ts';
 export {
   type LegacyLiveArray,
   /** @deprecated use LegacyLiveArray or ReactiveResourceArray */
@@ -38,6 +41,13 @@ export {
   type LegacyQueryArray as CollectionRecordArray,
 } from './-private/record-arrays/legacy-query.ts';
 export { RecordArrayManager, fastPush } from './-private/managers/record-array-manager.ts';
+
+// leaked for test/legacy use. You will get in trouble for this.
+export { assertPrivateStore, isPrivateStore, type PrivateStore } from './-private/store-service.ts';
+export {
+  assertPrivateCapabilities,
+  type PrivateCacheCapabilitiesManager,
+} from './-private/managers/cache-capabilities-manager.ts';
 
 // leaked for private use / test use, should investigate removing
 export { _clearCaches } from './-private/caches/instance-cache.ts';

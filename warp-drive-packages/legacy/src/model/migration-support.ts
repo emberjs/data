@@ -26,7 +26,8 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '@warp-drive/core/reactive';
 import { Context } from '@warp-drive/core/reactive/-private';
 import type { ExtensibleField } from '@warp-drive/core/reactive/-private/schema';
-import { notifyInternalSignal } from '@warp-drive/core/store/-private';
+import type { PrivateReactiveResourceArray } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, notifyInternalSignal } from '@warp-drive/core/store/-private';
 import type { SchemaService } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
@@ -413,6 +414,7 @@ export function registerDerivations(schema: SchemaService): void {
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getBelongsTo(field.name);
       },
       set(store: Store, record: object, cacheKey: ResourceKey, field: LegacyBelongsToField, value: unknown) {
+        assertPrivateStore(store);
         store._join(() => {
           // FIXME field.name here should likely be field.sourceKey || field.name
           lookupLegacySupport(record as unknown as MinimalLegacyRecord).setDirtyBelongsTo(field.name, value);
@@ -425,6 +427,7 @@ export function registerDerivations(schema: SchemaService): void {
         return lookupLegacySupport(record as unknown as MinimalLegacyRecord).getHasMany(field.name);
       },
       set(store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField, value: unknown[]) {
+        assertPrivateStore(store);
         store._join(() => {
           const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
           // FIXME field.name here should likely be field.sourceKey || field.name
@@ -446,7 +449,7 @@ export function registerDerivations(schema: SchemaService): void {
         }
 
         if (manyArray) {
-          notifyInternalSignal(manyArray[Context].signal);
+          notifyInternalSignal((manyArray as unknown as PrivateReactiveResourceArray)[Context].signal);
 
           return true;
         }

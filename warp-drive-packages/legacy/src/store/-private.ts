@@ -1,6 +1,12 @@
 import type { NotificationType } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { defineSignal, ensureStringId, type InstanceCache, recordIdentifierFor } from '@warp-drive/core/store/-private';
+import {
+  assertPrivateStore,
+  defineSignal,
+  ensureStringId,
+  type InstanceCache,
+  recordIdentifierFor,
+} from '@warp-drive/core/store/-private';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { NewResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
@@ -54,6 +60,7 @@ export function preloadData(store: Store, identifier: NewResourceKey, preload: R
     }
   });
   const cache = store.cache;
+  assertPrivateStore(store);
   const hasRecord = Boolean(store._instanceCache.peek(identifier));
   cache.upsert(identifier, jsonPayload, hasRecord);
 }

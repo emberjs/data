@@ -70,9 +70,9 @@ export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
   /** @internal */
   isAsync: boolean;
 
-  /** @internal */
+  /** @private */
   key: string;
-  /** @internal */
+  /** @private */
   modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string;
 
   /**
@@ -135,14 +135,14 @@ export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
   */
   save: () => Promise<LegacyManyArray<T>>;
 
-  /** @internal */
+  /** @private */
   destroy: () => void;
 }
 
 /**
  * The options for {@link createLegacyManyArray}
  *
- * @internal
+ * @private
  */
 export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptions {
   isLoaded: boolean;
@@ -157,7 +157,7 @@ export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptio
 /**
  * Creates a {@link LegacyManyArray}
  *
- * @internal
+ * @private
  */
 export function createLegacyManyArray<T>(options: LegacyManyArrayCreateOptions): LegacyManyArray<T> {
   const extensions = options.store.schema.CAUTION_MEGA_DANGER_ZONE_arrayExtensions

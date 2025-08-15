@@ -3,7 +3,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph } from '@warp-drive/core/graph/-private';
 import type { RelatedCollection as ManyArray } from '@warp-drive/core/store/-private';
-import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
 import type { BaseFinderOptions } from '@warp-drive/core/types';
 import type { CollectionRelationship } from '@warp-drive/core/types/cache/relationship';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
@@ -525,6 +525,7 @@ export default class HasManyReference<
     if ('meta' in dataDoc) {
       newData.meta = dataDoc.meta;
     }
+    assertPrivateStore(store);
     store._join(() => {
       this.graph.push({
         op: 'updateRelationship',
@@ -547,6 +548,7 @@ export default class HasManyReference<
 
     return relationship.data
       ? relationship.data.every((identifier) => {
+          assertPrivateStore(this.store);
           return this.store._instanceCache.recordIsLoaded(identifier, true) === true;
         })
       : false;

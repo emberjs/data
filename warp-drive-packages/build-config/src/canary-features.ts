@@ -120,7 +120,7 @@
 /**
  * We use this for some tests etc.
  *
- * @internal
+ * @private
  */
 export const SAMPLE_FEATURE_FLAG: boolean | null = null;
 

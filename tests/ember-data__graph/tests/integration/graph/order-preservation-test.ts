@@ -1,5 +1,5 @@
-import type { Store } from '@warp-drive/core';
 import { graphFor } from '@warp-drive/core/graph/-private';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
@@ -42,7 +42,7 @@ module('Graph | Order Preservation', function (hooks) {
     innerHooks.beforeEach(function (assert) {
       const { owner } = this;
 
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
@@ -131,7 +131,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when doing a full replace of a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -201,7 +201,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when adding to a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -336,7 +336,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when removing from a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -413,7 +413,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when adding via the inverse hasMany of a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -503,7 +503,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when removing via the inverse hasMany of a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -596,7 +596,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when adding via the inverse belongsTo of a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {
@@ -657,7 +657,7 @@ module('Graph | Order Preservation', function (hooks) {
 
     test('order is preserved when removing via the inverse belongsTo of a hasMany', function (assert) {
       const { owner } = this;
-      const store = owner.lookup('service:store') as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
 
       function identifier(type: string, id: string) {

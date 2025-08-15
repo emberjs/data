@@ -1,7 +1,7 @@
 import type { NotificationType, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import type { Graph, ResourceEdge } from '@warp-drive/core/graph/-private';
-import { defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, defineNonEnumerableSignal, memoized } from '@warp-drive/core/store/-private';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypeFromInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import type {
@@ -494,6 +494,7 @@ export default class BelongsToReference<
     if ('meta' in doc) {
       newData.meta = doc.meta;
     }
+    assertPrivateStore(store);
     store._join(() => {
       this.graph.push({
         op: 'updateRelationship',

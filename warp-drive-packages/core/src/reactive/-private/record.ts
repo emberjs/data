@@ -86,7 +86,7 @@ export interface ReactiveResource {
    *
    * @returns a promise that resolves to the editable record
    * @throws if the record is already editable or if the record is embedded
-   * @internal
+   * @private
    */
   [Checkout]<T>(): Promise<T>;
 }
