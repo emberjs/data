@@ -41,7 +41,6 @@
     "@glint/tsserver-plugin": "alpha",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-ember-template-compilation": "^2.2.5",
-    "ember-resolver": "^13.1.0",
     "ember-source": "^6.3.0",
     "ember-strict-application-resolver": "^0.1.0",
     "rollup": "^4.46.2",
