@@ -1,3 +1,5 @@
+import type { Diagnostic } from '../../internals/diagnostic';
+
 /**
  * The public API for the test context, which test authors can depend on being
  * available.
@@ -8,6 +10,8 @@
 export interface HelperContext {
   element: HTMLElement | null;
   config: HelperConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  assert: Diagnostic<any>;
 }
 
 export interface HelperConfig {

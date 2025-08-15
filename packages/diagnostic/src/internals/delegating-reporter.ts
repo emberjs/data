@@ -51,6 +51,11 @@ export const DelegatingReporter: Reporter = {
       reporter.onModuleFinish(report);
     }
   },
+  updateTimeline(test): void {
+    for (const reporter of Reporters) {
+      reporter.updateTimeline(test);
+    }
+  },
   onDiagnostic(report) {
     for (const reporter of Reporters) {
       reporter.onDiagnostic(report);

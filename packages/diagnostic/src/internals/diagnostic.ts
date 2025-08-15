@@ -1,5 +1,5 @@
 import type { GlobalConfig, TestContext, TestInfo } from '../-types';
-import type { DiagnosticReport, Reporter, TestReport } from '../-types/report';
+import type { DiagnosticReport, InteractionEvent, Reporter, TestReport } from '../-types/report';
 import equiv from '../legacy/equiv';
 
 class InternalCompat<TC extends TestContext> {
@@ -42,6 +42,12 @@ export class Diagnostic<TC extends TestContext> {
     this.test = new InternalCompat(this);
   }
 
+  pushInteraction(interaction: InteractionEvent): void {
+    const timestamp = this.__config.params.instrument ? performance.now() : null;
+    this.__report.timeline.push({ event: interaction, timestamp });
+    this.__reporter.updateTimeline(this.__report);
+  }
+
   pushResult(
     result: Pick<DiagnosticReport, 'actual' | 'expected' | 'message' | 'passed' | 'stack'> & { result?: boolean }
   ): void {
@@ -49,6 +55,10 @@ export class Diagnostic<TC extends TestContext> {
       testId: this.__currentTest.id,
     });
     this.__report.result.diagnostics.push(diagnostic);
+
+    const timestamp = this.__config.params.instrument ? performance.now() : null;
+    this.__report.timeline.push({ event: diagnostic, timestamp });
+    this.__reporter.updateTimeline(this.__report);
 
     if (!diagnostic.passed) {
       this.__report.result.passed = false;

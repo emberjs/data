@@ -131,7 +131,13 @@ export class DOMReporter implements Reporter {
     this.scheduleUpdate();
   }
 
-  onDiagnostic(_diagnostic: DiagnosticReport): void {
+  updateTimeline(test: TestReport): void {
+    console.log(test.timeline.slice());
+    // TODO fancy timeline rendering
+    this.scheduleUpdate();
+  }
+
+  onDiagnostic(diagnostic: DiagnosticReport): void {
     this.scheduleUpdate();
   }
 

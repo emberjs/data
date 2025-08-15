@@ -62,6 +62,23 @@ export function registerHook(helperName: string, label: HookLabel, hook: Hook): 
   };
 }
 
+function registerStarHook(hook: Hook): HookUnregister {
+  let hooksForHelper = registeredHooks.get('*');
+
+  if (hooksForHelper === undefined) {
+    hooksForHelper = new Set<Hook>();
+    registeredHooks.set('*', hooksForHelper);
+  }
+
+  hooksForHelper.add(hook);
+
+  return {
+    unregister() {
+      hooksForHelper.delete(hook);
+    },
+  };
+}
+
 /**
  * Runs all hooks registered for a specific test helper.
  *
@@ -79,6 +96,13 @@ export function runHooks(helperName: string, label: HookLabel, ...args: unknown[
   const hooks = registeredHooks.get(getHelperKey(helperName, label)) || new Set<Hook>();
   const promises: Array<void | Promise<void>> = [];
 
+  const starHooks = registeredHooks.get('*') || new Set<Hook>();
+  starHooks.forEach((hook) => {
+    const hookResult = hook(helperName, label);
+
+    promises.push(hookResult);
+  });
+
   hooks.forEach((hook) => {
     const hookResult = hook(...args);
 
@@ -88,6 +112,9 @@ export function runHooks(helperName: string, label: HookLabel, ...args: unknown[
   return Promise.all(promises).then(() => {});
 }
 
+export const TEST_CONTEXT: unique symbol = Symbol('scope');
+
+let EventSeries = 0;
 export async function withHooks<T = Promise<void>>(options: {
   scope: HelperContext;
   name: string;
@@ -95,15 +122,21 @@ export async function withHooks<T = Promise<void>>(options: {
   cb: () => T;
   args?: unknown[];
 }): Promise<Awaited<T>> {
+  const series = `traceId:${EventSeries++}`;
+  const token = registerStarHook((type: string, subtype: string) => {
+    options.scope.assert.pushInteraction({ type, subtype, series });
+  });
   if (options.render) {
     return await options.scope.config.render(() =>
       runHooks(options.name, 'start', ...(options.args ?? []))
         .then(options.cb)
         .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
+        .finally(token.unregister)
     );
   }
   return await Promise.resolve()
     .then(() => runHooks(options.name, 'start', ...(options.args ?? [])))
     .then(options.cb)
-    .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])));
+    .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
+    .finally(token.unregister);
 }

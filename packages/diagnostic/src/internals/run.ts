@@ -1,6 +1,7 @@
 import type { HooksCallback, ModuleInfo, TestContext, TestInfo } from '../-types';
 import type { ModuleReport, TestReport } from '../-types/report';
 import { getChain } from '../-utils';
+import { TEST_CONTEXT } from '../helpers/-dom/helper-hooks';
 import { Config, groupLogs, instrument } from './config';
 import { DelegatingReporter } from './delegating-reporter';
 import { Diagnostic } from './diagnostic';
@@ -26,12 +27,6 @@ export async function runTest<TC extends TestContext>(
     return;
   }
 
-  const testContext = {
-    [PublicTestInfo]: {
-      id: test.id,
-      name: test.testName,
-    },
-  } as unknown as TC;
   const testReport: TestReport = {
     id: test.id,
     name: test.name,
@@ -46,9 +41,17 @@ export async function runTest<TC extends TestContext>(
       failed: false,
     },
     module: moduleReport,
+    timeline: [],
   };
   testReport.start = instrument() && performance.mark(`test:${test.module.moduleName} > ${test.name}:start`);
   const Assert = new Diagnostic(DelegatingReporter, Config, test, testReport);
+  const testContext = {
+    [PublicTestInfo]: {
+      id: test.id,
+      name: test.testName,
+    },
+    [TEST_CONTEXT]: Assert,
+  } as unknown as TC;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   groupLogs() && console.groupCollapsed(test.name);
