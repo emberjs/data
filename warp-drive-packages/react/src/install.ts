@@ -25,15 +25,23 @@ import { buildSignalConfig as _buildSignalConfig } from '@warp-drive/tc39-propos
 import { WatcherContext } from './-private/reactive-context';
 
 function tryConsumeContext(signal: Signal.State<unknown> | Signal.Computed<unknown>): void {
+  // eslint-disable-next-line no-console
+  const logError = console.error;
   try {
+    // eslint-disable-next-line no-console
+    console.error = () => {};
     // ensure signals are watched by our closest watcher
     const watcher = use(WatcherContext);
+    // eslint-disable-next-line no-console
+    console.error = logError;
     watcher?.watcher.watch(signal);
     if (LOG_REACT_SIGNAL_INTEGRATION) {
       // eslint-disable-next-line no-console
       console.log(`[WarpDrive] Consumed Context Signal`, signal, watcher);
     }
   } catch {
+    // eslint-disable-next-line no-console
+    console.error = logError;
     // if we are not in a React context, we will Error
     // so we just ignore it.
     if (LOG_REACT_SIGNAL_INTEGRATION) {
