@@ -1573,6 +1573,7 @@ export interface PrivateStore extends Store {
   _schema: SchemaService;
   _graph?: Graph;
   _requestCache: PrivateRequestStateService;
+  getRequestStateService(): PrivateRequestStateService;
   _instanceCache: InstanceCache;
   _cbs: { coalesce?: () => void; sync?: () => void; notify?: () => void } | null;
   _forceShim: boolean;

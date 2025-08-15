@@ -7,11 +7,12 @@ import { createDeferred } from '@warp-drive/core/request';
 import type {
   FindRecordQuery,
   InstanceCache,
+  PrivateStore,
   Request,
-  RequestStateService,
   SaveRecordMutation,
 } from '@warp-drive/core/store/-private';
-import { coerceId, waitFor } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, coerceId, waitFor } from '@warp-drive/core/store/-private';
+import type { PrivateRequestStateService } from '@warp-drive/core/store/-private/network/request-cache.js';
 import type { FindRecordOptions, ModelSchema } from '@warp-drive/core/types';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
@@ -56,20 +57,27 @@ interface PendingSaveItem {
   queryRequest: Request;
 }
 
+/**
+ * @private
+ */
 export class FetchManager {
   /**
    * @internal
    */
   declare isDestroyed: boolean;
-  declare private requestCache: RequestStateService;
+  /** @internal */
+  declare private requestCache: PrivateRequestStateService;
   // fetches pending in the runloop, waiting to be coalesced
   /**
    * @internal
    */
   declare _pendingFetch: Map<string, Map<PersistedResourceKey, PendingFetchItem[]>>;
-  declare private _store: Store;
+
+  /** @internal */
+  declare private _store: PrivateStore;
 
   constructor(store: Store) {
+    assertPrivateStore(store);
     this._store = store;
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
@@ -89,7 +97,7 @@ export class FetchManager {
 
     It schedules saving to happen at the end of the run loop.
 
-    @internal
+    @private
   */
   scheduleSave(identifier: ResourceKey, options: FetchMutationOptions): Promise<null | SingleResourceDocument> {
     const resolver = createDeferred<SingleResourceDocument | null>();
@@ -282,6 +290,17 @@ export class FetchManager {
   destroy(): void {
     this.isDestroyed = true;
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateFetchManager extends FetchManager {
+  _pendingFetch: Map<string, Map<PersistedResourceKey, PendingFetchItem[]>>;
 }
 
 function _isEmpty(instanceCache: InstanceCache, identifier: ResourceKey): boolean {
