@@ -57,7 +57,7 @@ const SLICE_BATCH_SIZE = 4761;
  * Sincerely,
  *   - runspired (Chris Thoburn) 08/21/2022
  *
- * @internal
+ * @private
  * @param target the array to push into
  * @param source the items to push into target
  */
@@ -87,37 +87,44 @@ type CollectionInit = LegacyQueryInit | AnonymousRequestCollectionInit | Request
 type ChangeSet = Map<ResourceKey, 'add' | 'del'>;
 
 /**
-  @class RecordArrayManager
-  @internal
+  @hideconstructor
+  @private
 */
 export class RecordArrayManager {
-  declare store: Store;
-  declare isDestroying: boolean;
-  declare isDestroyed: boolean;
-  /**
-   *
-   */
-  declare _set: Map<ReactiveResourceArray, Set<ResourceKey>>;
+  /** @internal */
+  declare private store: Store;
+
+  /** @internal */
+  declare private isDestroying: boolean;
+
+  /** @internal */
+  declare private isDestroyed: boolean;
+  /** @internal */
+  declare private _set: Map<ReactiveResourceArray, Set<ResourceKey>>;
   /**
    * LiveArray (peekAll/findAll) array instances
    * keyed by their ResourceType.
+   *
+   * @internal
    */
   declare _live: Map<string, LegacyLiveArray>;
-  /**
-   *
-   */
+  /** @internal */
   declare _managed: Set<ReactiveResourceArray>;
   /**
    * Buffered changes to apply keyed by the array to
    * which to apply them to.
+   *
+   * @internal
    */
   declare _pending: Map<ReactiveResourceArray, ChangeSet>;
   /**
    * An inverse map from ResourceKey to the list
    * of arrays it can be found in, useful for fast updates
    * when state changes to a resource occur.
+   *
+   * @internal
    */
-  declare _identifiers: Map<ResourceKey, Set<ReactiveResourceArray>>;
+  declare private _identifiers: Map<ResourceKey, Set<ReactiveResourceArray>>;
   /**
    * When we do not yet have a LiveArray, this keeps track of
    * the added/removed identifiers to enable us to more efficiently
@@ -125,14 +132,19 @@ export class RecordArrayManager {
    *
    * It's possible that using a Set and only storing additions instead of
    * additions and deletes would be more efficient.
+   *
+   * @internal
    */
-  declare _staged: Map<string, ChangeSet>;
-  declare _subscription: UnsubscribeToken;
-  declare _documentSubscription: UnsubscribeToken;
+  declare private _staged: Map<string, ChangeSet>;
+  /** @internal */
+  declare private _subscription: UnsubscribeToken;
+  /** @internal */
+  declare private _documentSubscription: UnsubscribeToken;
   /**
    * KeyedArrays are arrays associated to a specific RequestKey.
+   * @internal
    */
-  declare _keyedArrays: Map<string, ReactiveResourceArray>;
+  declare private _keyedArrays: Map<string, ReactiveResourceArray>;
   /**
    * The visibility set tracks whether a given identifier should
    * be shown in RecordArrays. It is used to dedupe added/removed
@@ -142,8 +154,9 @@ export class RecordArrayManager {
    * reduce its size by instead migrating to it functioning as
    * an exclusion list. Any entry not in the list would be considered
    * visible.
+   * @internal
    */
-  declare _visibilitySet: Map<ResourceKey, boolean>;
+  declare private _visibilitySet: Map<ResourceKey, boolean>;
 
   constructor(options: { store: Store }) {
     this.store = options.store;
@@ -171,6 +184,7 @@ export class RecordArrayManager {
     this._subscribeToResourceChanges();
   }
 
+  /** @internal */
   private _subscribeToResourceChanges() {
     this._subscription = this.store.notifications.subscribe(
       'resource',
@@ -198,6 +212,7 @@ export class RecordArrayManager {
     );
   }
 
+  /** @internal */
   _syncArray(array: ReactiveResourceArray): void {
     const pending = this._pending.get(array);
     const isLegacyQuery = isLegacyQueryArray(array);
@@ -240,9 +255,7 @@ export class RecordArrayManager {
     Get the `RecordArray` for a modelName, which contains all loaded records of
     given modelName.
 
-    @internal
-    @param {String} modelName
-    @return {RecordArray}
+    @private
   */
   liveArrayFor(type: string): LegacyLiveArray {
     let array = this._live.get(type);
@@ -322,7 +335,7 @@ export class RecordArrayManager {
     return array;
   }
 
-  dirtyArray(array: ReactiveResourceArray, delta: number, shouldSyncFromCache: boolean): void {
+  private dirtyArray(array: ReactiveResourceArray, delta: number, shouldSyncFromCache: boolean): void {
     if (array === FAKE_ARR) {
       return;
     }
@@ -336,7 +349,8 @@ export class RecordArrayManager {
     }
   }
 
-  _getPendingFor(
+  /** @internal */
+  private _getPendingFor(
     identifier: ResourceKey,
     includeManaged: boolean,
     isRemove?: boolean
@@ -393,6 +407,9 @@ export class RecordArrayManager {
     return pending;
   }
 
+  /**
+   * @private
+   */
   populateManagedArray(
     array: ReactiveResourceArray,
     identifiers: ResourceKey[],
@@ -420,7 +437,8 @@ export class RecordArrayManager {
     associate(this._identifiers, array, identifiers);
   }
 
-  identifierAdded(identifier: ResourceKey): void {
+  /** @internal */
+  private identifierAdded(identifier: ResourceKey): void {
     const changeSets = this._getPendingFor(identifier, false);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -436,7 +454,8 @@ export class RecordArrayManager {
     }
   }
 
-  identifierRemoved(identifier: ResourceKey): void {
+  /** @internal */
+  private identifierRemoved(identifier: ResourceKey): void {
     const changeSets = this._getPendingFor(identifier, true, true);
     if (changeSets) {
       changeSets.forEach((changes, array) => {
@@ -452,7 +471,8 @@ export class RecordArrayManager {
     }
   }
 
-  identifierChanged(identifier: ResourceKey): void {
+  /** @internal */
+  private identifierChanged(identifier: ResourceKey): void {
     const newState = this.store._instanceCache.recordIsLoaded(identifier, true);
 
     // if the change matches the most recent direct added/removed
@@ -475,6 +495,9 @@ export class RecordArrayManager {
     this._subscribeToResourceChanges();
   }
 
+  /**
+   * @internal
+   */
   clear(isClear = true): void {
     for (const array of this._live.values()) {
       array.destroy(isClear);
@@ -499,6 +522,20 @@ export class RecordArrayManager {
     this.store.notifications.unsubscribe(this._documentSubscription);
     this.isDestroyed = true;
   }
+}
+
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateRecordArrayManager extends RecordArrayManager {
+  _live: Map<string, LegacyLiveArray>;
+  _pending: Map<ReactiveResourceArray, ChangeSet>;
+  _managed: Set<ReactiveResourceArray>;
+  clear(isClear?: boolean): void;
 }
 
 function associate(

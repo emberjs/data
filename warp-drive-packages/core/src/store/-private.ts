@@ -26,7 +26,10 @@ export type { CreateRecordProperties } from './-private/store-service.ts';
 // to also eliminate
 export { coerceId, ensureStringId } from './-private/utils/coerce-id.ts';
 export type { NativeProxy } from './-private/record-arrays/native-proxy-type-fix.ts';
-export { type ReactiveResourceArray } from './-private/record-arrays/resource-array.ts';
+export {
+  type ReactiveResourceArray,
+  type PrivateReactiveResourceArray,
+} from './-private/record-arrays/resource-array.ts';
 export {
   type LegacyLiveArray,
   /** @deprecated use LegacyLiveArray or ReactiveResourceArray */

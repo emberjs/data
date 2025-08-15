@@ -1,6 +1,6 @@
 import type { Store } from '@warp-drive/core';
 import { Context } from '@warp-drive/core/reactive/-private';
-import type { LegacyLiveArray } from '@warp-drive/core/store/-private';
+import type { LegacyLiveArray, PrivateReactiveResourceArray } from '@warp-drive/core/store/-private';
 import type { FindAllOptions, ModelSchema } from '@warp-drive/core/types';
 import type { ResourceKey } from '@warp-drive/core/types/identifier';
 
@@ -11,49 +11,30 @@ import type { Snapshot } from './snapshot.ts';
   Instances are provided to consuming application's
   adapters for certain `findAll` requests.
 
-  @class SnapshotRecordArray
+  @hideconstructor
   @public
 */
 export class SnapshotRecordArray {
-  declare _snapshots: Snapshot[] | null;
-  declare _type: ModelSchema | null;
-  declare modelName: string;
-  declare __store: Store;
+  /**
+   * An array of snapshots
+   *
+   * @internal
+   */
+  declare private _snapshots: Snapshot[] | null;
 
-  declare adapterOptions?: Record<string, unknown>;
-  declare include?: string | string[];
+  /** @internal */
+  declare private _type: ModelSchema | null;
 
   /**
-    SnapshotRecordArray is not directly instantiable.
-    Instances are provided to consuming application's
-    adapters and serializers for certain requests.
-
-    @private
-    @constructor
-    @param {Store} store
-    @param {String} type
-    @param options
+   * The ResourceType of the underlying records for the {@link Snapshot | Snapshots} in the array
    */
-  constructor(store: Store, type: string, options: FindAllOptions = {}) {
-    this.__store = store;
-    /**
-      An array of snapshots
-      @private
-      @property _snapshots
-      @type {Array}
-    */
-    this._snapshots = null;
+  declare modelName: string;
 
-    /**
-    The modelName of the underlying records for the snapshots in the array, as a Model
-    @property modelName
-    @public
-    @type {Model}
-  */
-    this.modelName = type;
+  /** @internal */
+  declare private __store: Store;
 
-    /**
-      A hash of adapter options passed into the store method for this request.
+  /**
+   *  A hash of adapter options passed into the store method for this request.
 
       Example
 
@@ -69,15 +50,10 @@ export class SnapshotRecordArray {
         }
       }
       ```
-
-      @property adapterOptions
-      @public
-      @type {Object}
-    */
-    this.adapterOptions = options.adapterOptions;
-
-    /**
-      The relationships to include for this request.
+   */
+  declare adapterOptions?: Record<string, unknown>;
+  /**
+   * The relationships to include for this request.
 
       Example
 
@@ -92,20 +68,32 @@ export class SnapshotRecordArray {
         }
       }
       ```
+   */
+  declare include?: string | string[];
 
-      @property include
-      @public
-      @type {String|Array}
-    */
+  /**
+    SnapshotRecordArray is not directly instantiable.
+    Instances are provided to consuming application's
+    adapters and serializers for certain requests.
+
+    @private
+    @constructor
+    @param {Store} store
+    @param {String} type
+    @param options
+   */
+  constructor(store: Store, type: string, options: FindAllOptions = {}) {
+    this.__store = store;
+    this._snapshots = null;
+    this.modelName = type;
+    this.adapterOptions = options.adapterOptions;
     this.include = options.include;
   }
 
   /**
     An array of records
 
-    @property _recordArray
-    @private
-    @type {Array}
+    @internal
   */
   get _recordArray(): LegacyLiveArray {
     return this.__store.peekAll(this.modelName);
@@ -125,10 +113,6 @@ export class SnapshotRecordArray {
         }
       });
       ```
-
-      @property length
-      @public
-      @type {Number}
     */
   get length(): number {
     return this._recordArray.length;
@@ -168,7 +152,8 @@ export class SnapshotRecordArray {
     upgradeStore(this.__store);
 
     const { _fetchManager } = this.__store;
-    this._snapshots = this._recordArray[Context].source.map((identifier: ResourceKey) =>
+    const LiveArrayContext = (this._recordArray as unknown as PrivateReactiveResourceArray)[Context];
+    this._snapshots = LiveArrayContext.source.map((identifier: ResourceKey) =>
       _fetchManager.createSnapshot(identifier)
     );
 

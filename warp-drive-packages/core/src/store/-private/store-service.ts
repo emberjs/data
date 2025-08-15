@@ -51,7 +51,9 @@ import {
 import type { PrivateCacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
+import type { PrivateNotificationManager } from './managers/notification-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
+import type { PrivateRecordArrayManager } from './managers/record-array-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
 import type { PrivateRequestStateService } from './network/request-cache.ts';
 import { RequestPromise, RequestStateService } from './network/request-cache.ts';
@@ -1292,6 +1294,7 @@ export class Store extends BaseClass {
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${String(type)}`,
       !type || typeof type === 'string'
     );
+    assertPrivateStore(this);
 
     this._join(() => {
       this._enableAsyncFlush = true;
@@ -1567,7 +1570,8 @@ export class Store extends BaseClass {
  * @private
  */
 export interface PrivateStore extends Store {
-  readonly recordArrayManager: RecordArrayManager;
+  readonly recordArrayManager: PrivateRecordArrayManager;
+  notifications: PrivateNotificationManager;
   requestManager: PrivateRequestManager;
   cacheKeyManager: PrivateCacheKeyManager;
   _schema: SchemaService;

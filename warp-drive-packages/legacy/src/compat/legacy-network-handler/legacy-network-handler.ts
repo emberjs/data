@@ -3,7 +3,7 @@ import { LOG_REQUESTS } from '@warp-drive/core/build-config/debugging';
 import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future, Handler, NextFn } from '@warp-drive/core/request';
-import { type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
+import { assertPrivateStore, type LegacyQueryArray, waitFor } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { ImmutableRequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -174,6 +174,7 @@ function saveRecord<T>(context: StoreRequestContext): Promise<T> {
   const { options, record: identifier } = data as { record: ResourceKey; options: Record<string, unknown> };
 
   upgradeStore(store);
+  assertPrivateStore(store);
 
   store.cache.willCommit(identifier, context);
 
@@ -291,6 +292,7 @@ function findRecord<T>(context: StoreRequestContext): Promise<T> {
     options: { reload?: boolean; backgroundReload?: boolean };
   };
   upgradeStore(store);
+  assertPrivateStore(store);
   let promise: Promise<ResourceKey>;
 
   // if not loaded start loading
@@ -363,6 +365,7 @@ function findAll<T>(context: StoreRequestContext): Promise<T> {
     options: { reload?: boolean; backgroundReload?: boolean };
   };
   upgradeStore(store);
+  assertPrivateStore(store);
   const adapter = store.adapterFor(type);
 
   assert(`You tried to load all records but you have no adapter (for ${type})`, adapter);
@@ -447,6 +450,7 @@ function _findAll<T>(
 function query<T>(context: StoreRequestContext): Promise<T> {
   const { store, data } = context.request;
   upgradeStore(store);
+  assertPrivateStore(store);
   let { options } = data as {
     options: { _recordArray?: LegacyQueryArray; adapterOptions?: Record<string, unknown> };
   };

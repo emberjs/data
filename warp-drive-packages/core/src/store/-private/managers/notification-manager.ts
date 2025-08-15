@@ -304,6 +304,17 @@ export default class NotificationManager {
   }
 }
 
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateNotificationManager extends NotificationManager {
+  _flush(): void;
+}
+
 function _flushNotification(
   cache: NotificationManager['_cache'],
   cacheKey: ResourceKey,

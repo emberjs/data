@@ -3,10 +3,12 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ResourceEdge, UpgradedMeta } from '@warp-drive/core/graph/-private';
 import { Context } from '@warp-drive/core/reactive/-private';
-import type { LegacyManyArray } from '@warp-drive/core/store/-private';
+import type { LegacyManyArray, PrivateReactiveResourceArray, PrivateStore } from '@warp-drive/core/store/-private';
 import {
+  assertPrivateStore,
   createLegacyManyArray,
   fastPush,
+  isPrivateStore,
   isResourceKey,
   notifyInternalSignal,
   recordIdentifierFor,
@@ -57,23 +59,26 @@ export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport 
 }
 
 export class LegacySupport {
-  declare record: MinimalLegacyRecord;
-  declare store: Store;
-  declare graph: Graph;
-  declare cache: Cache;
-  declare references: Record<string, BelongsToReference | HasManyReference>;
-  declare identifier: ResourceKey;
-  declare _manyArrayCache: Record<string, LegacyManyArray>;
+  declare private record: MinimalLegacyRecord;
+  /** @internal */
+  declare store: PrivateStore;
+  declare private graph: Graph;
+  declare private cache: Cache;
+  declare private references: Record<string, BelongsToReference | HasManyReference>;
+  declare private identifier: ResourceKey;
+  declare private _manyArrayCache: Record<string, LegacyManyArray>;
+  /** @internal */
   declare _relationshipPromisesCache: Record<string, Promise<LegacyManyArray | OpaqueRecordInstance>>;
+  /** @internal */
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
-  declare _pending: Record<string, Promise<ResourceKey | null> | undefined>;
+  declare private _pending: Record<string, Promise<ResourceKey | null> | undefined>;
 
-  declare isDestroying: boolean;
-  declare isDestroyed: boolean;
+  declare private isDestroying: boolean;
+  declare private isDestroyed: boolean;
 
   constructor(record: MinimalLegacyRecord, identifier: ResourceKey) {
     this.record = record;
-    this.store = storeFor(record, false)!;
+    this.store = isPrivateStore(storeFor(record, false)!);
     this.identifier = identifier;
     this.cache = this.store.cache;
 
@@ -96,7 +101,7 @@ export class LegacySupport {
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
-    const currentState = array[Context].source;
+    const currentState = (array as unknown as PrivateReactiveResourceArray)[Context].source;
     const identifier = this.identifier;
 
     const [identifiers, jsonApi] = this._getCurrentState(identifier, array.key);
@@ -242,7 +247,6 @@ export class LegacySupport {
 
         manyArray = createLegacyManyArray({
           store: this.store,
-          // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
           manager: this,
           source: identifiers,
           type: definition.type,
@@ -699,7 +703,7 @@ function handleCompletedRelationshipRequest(
   if (isHasMany) {
     // we don't notify the record property here to avoid refetch
     // only the many array
-    notifyInternalSignal((value as LegacyManyArray)[Context].signal);
+    notifyInternalSignal((value as unknown as PrivateReactiveResourceArray)[Context].signal);
   }
 
   if (error) {
@@ -747,6 +751,7 @@ function extractIdentifierFromRecord(record: PromiseProxyRecord | OpaqueRecordIn
 }
 
 function anyUnloaded(store: Store, relationship: CollectionEdge) {
+  assertPrivateStore(store);
   const graph = store._graph;
   assert(`Expected a Graph instance to be available`, graph);
   const relationshipData = graph.getData(
@@ -764,6 +769,7 @@ function anyUnloaded(store: Store, relationship: CollectionEdge) {
 }
 
 export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelationshipDocument): boolean {
+  assertPrivateStore(store);
   const instanceCache = store._instanceCache;
   const identifiers = resource.data;
 
