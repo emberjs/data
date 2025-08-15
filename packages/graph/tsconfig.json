@@ -12,7 +12,7 @@
     "exactOptionalPropertyTypes": false,
     "downlevelIteration": true,
     "skipLibCheck": true,
-    "disableSourceOfProjectReferenceRedirect": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,

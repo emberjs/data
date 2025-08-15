@@ -19,7 +19,7 @@
     // Best practices
     "strict": true,
     "skipLibCheck": true,
-    "disableSourceOfProjectReferenceRedirect": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "noFallthroughCasesInSwitch": true,
 
     // Some stricter flags (disabled by default)
