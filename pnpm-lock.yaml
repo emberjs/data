@@ -2830,9 +2830,6 @@ importers:
       decorator-transforms:
         specifier: ^2.2.2
         version: 2.3.0(@babel/core@7.28.0)
-      ember-resolver:
-        specifier: ^13.1.0
-        version: 13.1.0(822b50f26fd237bd8f2e30b62aa11870)
       ember-source:
         specifier: ^6.3.0
         version: 6.3.0(@glimmer/component@2.0.0)
@@ -17869,7 +17866,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.0
       '@babel/parser': 7.28.0
-      '@babel/traverse': 7.27.1
+      '@babel/traverse': 7.28.0
       '@embroider/macros': 1.18.1(a09592f6fca6cd9ea37222143b6b8bfd)
       '@embroider/reverse-exports': 0.1.2
       '@embroider/shared-internals': 3.0.0
@@ -23641,15 +23638,6 @@ snapshots:
   ember-resolver@13.1.0(41c06fd0fbe1f8e2dd80a4aba9cca239):
     dependencies:
       ember-cli-babel: 8.2.0(@babel/core@7.27.1)
-    optionalDependencies:
-      ember-source: 6.3.0(@glimmer/component@2.0.0)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  ember-resolver@13.1.0(822b50f26fd237bd8f2e30b62aa11870):
-    dependencies:
-      ember-cli-babel: 8.2.0(@babel/core@7.28.0)
     optionalDependencies:
       ember-source: 6.3.0(@glimmer/component@2.0.0)
     transitivePeerDependencies:
