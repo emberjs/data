@@ -47,7 +47,7 @@ export class DOMReporter implements Reporter {
       this.element.innerHTML = '';
     }
     const fragment = document.createDocumentFragment();
-    this.suite = renderSuite(fragment, report);
+    this.suite = renderSuite(this, fragment, report);
     this.element.appendChild(fragment);
     this.suiteReport = report;
     this._socket?.emit('suite-start', report);
@@ -145,6 +145,12 @@ export class DOMReporter implements Reporter {
   }
 
   _updateRender(): void {
+    const frame = document.getElementById('warp-drive__diagnostic-fixture');
+    if (this.settings.params.container.value === false) {
+      frame?.classList.add('visible');
+    } else {
+      frame?.classList.remove('visible');
+    }
     // render infos
     // render any tests
     let i = 0;
@@ -317,7 +323,7 @@ function classForTestStatus(test: TestReport) {
   return statusForTest(test);
 }
 
-function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): SuiteLayout {
+function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteReport: SuiteReport): SuiteLayout {
   const results = new Map<TestReport, HTMLElement[] | null>();
   const cleanup: (() => void)[] = [];
 
@@ -327,7 +333,7 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
   element.appendChild(header);
 
   const title = document.createElement('h1');
-  title.innerHTML = `<span class="logo-main">@warp-drive/</span><span class="logo-pink">diagnostic</span>`;
+  title.innerHTML = `<span class="logo-main">@warp-drive/</span><span class="logo-secondary">diagnostic</span>`;
   header.appendChild(title);
 
   const paramsList = document.createElement('ul');
@@ -358,6 +364,8 @@ function renderSuite(element: DocumentFragment, suiteReport: SuiteReport): Suite
     function update() {
       value.value = input.checked;
       updateConfigValue(key, value.value);
+      // schedule re-render
+      reporter.scheduleUpdate();
     }
 
     input.addEventListener('change', update);

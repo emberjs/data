@@ -3,22 +3,18 @@
   --heading-color: #17abab;
   --heading-2-color: #e617ab;
   */
-  --brand-pink: hsl(317, 82%, 50%);
-  --brand-green: hsl(180, 76%, 50%);
-  --brand-blue: 212, 92%;
-  --brand-yellow: #deb008;
-  --brand-main: var(--brand-green);
-  --brand-secondary: var(--brand-pink);
+  --brand-main: #ffc474;
+  --brand-secondary: #bbb;
   --primary-color: 212, 92%;
   --secondary-color: #536390;
-  --heading-3-color: #deb008;
-  --heading-4-color: #0868de;
   --heading-2-color: #999;
   --font-color: #fff;
   --bg-color: #191919;
-  --bg-color-2: #222222;
   --bg-color-3: #292929;
   --heading-color: #292922;
+  --brand-font:
+    "Graphik", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
 }
 
 html {
@@ -53,18 +49,7 @@ tr.diagnostic-checks.expanded {
 #warp-drive__diagnostic {
   box-sizing: border-box;
   color: var(--font-color);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: var(--brand-font);
   width: 100%;
   position: relative;
   min-height: 100%;
@@ -90,12 +75,12 @@ tr.diagnostic-checks.expanded {
 
 #warp-drive__diagnostic h1 {
   box-sizing: border-box;
-  font-size: 1.5em;
+  font-size: 1rem;
   font-weight: normal;
-  color: var(--heading-color);
+  color: var(--brand-main);
   margin: 0;
   padding: 0;
-  line-height: 3rem;
+  line-height: 1.5rem;
   float: left;
   display: block;
 }
@@ -113,7 +98,7 @@ tr.diagnostic-checks.expanded {
 
 #warp-drive__diagnostic-header ul li {
   box-sizing: border-box;
-  font-size: 0.85em;
+  font-size: 0.75em;
   float: right;
   margin: 0.25em 0.5em;
 }
@@ -121,21 +106,21 @@ tr.diagnostic-checks.expanded {
 #warp-drive__diagnostic-header {
   min-width: 800px;
   box-sizing: border-box;
-  height: 4.5rem;
+  height: 3.5rem;
   padding: 0.5rem;
   background: var(--bg-color-3);
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
-  border-bottom: 0.1rem solid hsl(var(--brand-blue), 50%);
+  border-bottom: 1px solid var(--brand-main);
 }
 
 #warp-drive__diagnostic h1 span.logo-main {
   color: var(--brand-main);
-  font-weight: 500;
+  font-weight: 300;
 }
 
-#warp-drive__diagnostic h1 span.logo-pink {
+#warp-drive__diagnostic h1 span.logo-secondary {
   color: var(--brand-secondary);
-  font-weight: 300;
+  font-weight: 100;
 }
 
 #warp-drive__diagnostic .text-blue {
@@ -206,4 +191,28 @@ tr.diagnostic-checks.expanded {
   color: yellow;
   font-size: 0.75em;
   line-height: 0.75rem;
+}
+#warp-drive__diagnostic-fixture.visible {
+  background: repeating-conic-gradient(#e5e5e5 0 25%, #999 0 50%) 50% / 0.5rem 0.5rem;
+  position: fixed;
+  z-index: 1000;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 1.25rem;
+  min-width: 20vw;
+  min-height: 10vmin;
+  max-width: 50vw;
+  max-height: 50vh;
+}
+
+#warp-drive__diagnostic-fixture.visible > div#react-testing {
+  display: flex;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+#warp-drive__diagnostic-fixture.visible > div#react-testing > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
