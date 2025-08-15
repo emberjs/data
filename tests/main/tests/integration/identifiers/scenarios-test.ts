@@ -14,6 +14,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { CacheKeyType, RequestKey, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -171,7 +172,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord id then queryRecord with username`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordById = await store.findRecord('user', '1');
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
@@ -183,7 +184,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 1, 'We made one call to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -193,7 +193,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       );
     });
     test(`queryRecord with username then findRecord with id`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsername = await store.queryRecord('user', { username: '@runspired' });
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = await store.findRecord('user', '1');
@@ -205,7 +205,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 1, 'We made one call to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -215,7 +214,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       );
     });
     test(`queryRecord with username and findRecord with id in parallel`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsernamePromise1 = store.queryRecord('user', { username: '@runspired' });
       const recordByIdPromise = store.findRecord('user', '1');
       const recordByUsernamePromise2 = store.queryRecord('user', { username: '@runspired' });
@@ -236,7 +235,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(calls.queryRecord, 2, 'We made two calls to Adapter.queryRecord');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -407,7 +405,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by id then by username as id`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordById = (await store.findRecord('user', '1')) as User;
       const identifierById = recordIdentifierFor(recordById);
       const recordByUsername = await store.findRecord('user', '@runspired');
@@ -420,7 +418,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -431,7 +428,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by username as id then by id`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = (await store.findRecord('user', '1')) as User;
@@ -444,7 +441,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -455,7 +451,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord username and findRecord id in parallel`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsernamePromise = store.findRecord('user', '@runspired');
       const recordByIdPromise = store.findRecord('user', '1');
 
@@ -474,7 +470,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       assert.strictEqual(lidCache.size, 2, `We should have both lids in the cache still since one is a backreference`);
       assert.deepEqual(
@@ -497,7 +492,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord by username and again`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsername = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = (await store.findRecord('user', '@runspired')) as User;
@@ -510,7 +505,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierByUsername.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -550,7 +544,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
         the "id" position.
     */
     test(`findRecord by username and reload`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsername = (await store.findRecord('user', '@runspired')) as User;
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordByUsername2 = (await store.findRecord('user', '@runspired', { reload: true })) as User;
@@ -563,7 +557,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierByUsername.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -574,7 +567,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`push id then findRecord username`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordById = store.push({
         data: {
           type: 'user',
@@ -597,7 +590,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
@@ -608,7 +600,7 @@ module('Integration | Identifiers - scenarios', function (hooks) {
     });
 
     test(`findRecord username then push id`, async function (assert) {
-      const store = this.owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(this.owner.lookup('service:store'));
       const recordByUsername = await store.findRecord('user', '@runspired');
       const identifierByUsername = recordIdentifierFor(recordByUsername);
       const recordById = store.push({
@@ -630,7 +622,6 @@ module('Integration | Identifiers - scenarios', function (hooks) {
       assert.strictEqual(identifierById.id, '1', 'The identifier id is correct');
 
       // ensure we truly are in a good state internally
-      // @ts-expect-error _cache is private
       const lidCache = store.cacheKeyManager._cache.resources;
       const lids = [...lidCache.values()];
       assert.strictEqual(
