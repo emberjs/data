@@ -4,17 +4,23 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { CacheCapabilitiesManager as StoreWrapper } from '../../-types/q/cache-capabilities-manager.ts';
 import type { SchemaService } from '../../-types/q/schema-service.ts';
-import type { Store } from '../store-service.ts';
+import type { PrivateStore, Store } from '../store-service.ts';
 import type { CacheKeyManager } from './cache-key-manager.ts';
 import { isRequestKey, isResourceKey } from './cache-key-manager.ts';
 import type { NotificationType } from './notification-manager.ts';
 
 export interface CacheCapabilitiesManager {
+  /** @deprecated - use {@link CacheCapabilitiesManager.schema} */
   getSchemaDefinitionService(): SchemaService;
 }
 export class CacheCapabilitiesManager implements StoreWrapper {
-  declare _willNotify: boolean;
-  declare _pendingNotifies: Map<ResourceKey, Set<string>>;
+  /** @internal */
+  declare private _willNotify: boolean;
+
+  /** @internal */
+  declare private _pendingNotifies: Map<ResourceKey, Set<string>>;
+
+  /** @internal */
   declare _store: Store;
 
   constructor(_store: Store) {
@@ -32,7 +38,8 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     return this.cacheKeyManager;
   }
 
-  _scheduleNotification(identifier: ResourceKey, key: string): void {
+  /** @internal */
+  private _scheduleNotification(identifier: ResourceKey, key: string): void {
     let pending = this._pendingNotifies.get(identifier);
 
     if (!pending) {
@@ -57,7 +64,8 @@ export class CacheCapabilitiesManager implements StoreWrapper {
     }
   }
 
-  _flushNotifications(): void {
+  /** @internal */
+  private _flushNotifications(): void {
     if (this._willNotify === false) {
       return;
     }
@@ -113,9 +121,22 @@ export class CacheCapabilitiesManager implements StoreWrapper {
   }
 }
 
+/**
+ * This type exists for internal use only for
+ * where intimate contracts still exist either for
+ * the Test Suite or for Legacy code.
+ *
+ * @private
+ */
+export interface PrivateCacheCapabilitiesManager extends CacheCapabilitiesManager {
+  _store: PrivateStore;
+}
+
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   CacheCapabilitiesManager.prototype.getSchemaDefinitionService = function () {
     // FIXME add deprecation for this
-    return this._store.schema;
+    return this.schema;
   };
 }
+
+export function assertPrivateCapabilities(manager: unknown): asserts manager is PrivateCacheCapabilitiesManager {}

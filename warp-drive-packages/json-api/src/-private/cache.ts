@@ -5,7 +5,7 @@ import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CollectionEdge, Graph, GraphEdge, ImplicitEdge, ResourceEdge } from '@warp-drive/core/graph/-private';
 import { graphFor, isBelongsTo, peekGraph } from '@warp-drive/core/graph/-private';
-import { isRequestKey, isResourceKey, logGroup } from '@warp-drive/core/store/-private';
+import { assertPrivateCapabilities, isRequestKey, isResourceKey, logGroup } from '@warp-drive/core/store/-private';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { Cache, ChangedAttributesHash, RelationshipDiff } from '@warp-drive/core/types/cache';
 import type { Change } from '@warp-drive/core/types/cache/change';
@@ -65,13 +65,10 @@ import { validateDocument } from './validator/index.ts';
 import { isErrorDocument, isMetaDocument } from './validator/utils.ts';
 
 type CacheKeyManager = Store['cacheKeyManager'];
-type InternalCapabilitiesManager = CacheCapabilitiesManager & { _store: Store };
 
 function isImplicit(relationship: GraphEdge): relationship is ImplicitEdge {
   return relationship.definition.isImplicit;
 }
-
-function upgradeCapabilities(obj: unknown): asserts obj is InternalCapabilitiesManager {}
 
 const EMPTY_ITERATOR = {
   iterator() {
@@ -484,8 +481,7 @@ export class JSONAPICache implements Cache {
         logGroup('cache', 'patch', '<BATCH>', String(op.length) + ' operations', '', '');
       }
 
-      upgradeCapabilities(this._capabilities);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      assertPrivateCapabilities(this._capabilities);
       this._capabilities._store._join(() => {
         for (const operation of op) {
           patchCache(this, operation);
@@ -583,7 +579,7 @@ export class JSONAPICache implements Cache {
         });
       }
 
-      upgradeCapabilities(this._capabilities);
+      assertPrivateCapabilities(this._capabilities);
       const store = this._capabilities._store;
       const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
@@ -646,7 +642,7 @@ export class JSONAPICache implements Cache {
         });
       }
 
-      upgradeCapabilities(this._capabilities);
+      assertPrivateCapabilities(this._capabilities);
       const store = this._capabilities._store;
       const attrs = getCacheFields(this, identifier);
       attrs.forEach((attr, key) => {
@@ -700,11 +696,11 @@ export class JSONAPICache implements Cache {
    * @return if `calculateChanges` is true then calculated key changes should be returned
    */
   upsert(identifier: ResourceKey, data: ExistingResourceObject, calculateChanges?: boolean): void | string[] {
-    upgradeCapabilities(this._capabilities);
+    assertPrivateCapabilities(this._capabilities);
     const store = this._capabilities._store;
     if (!store._cbs) {
       let result: void | string[] = undefined;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
       store._run(() => {
         result = cacheUpsert(this, identifier, data, calculateChanges);
       });
@@ -1256,7 +1252,7 @@ export class JSONAPICache implements Cache {
       } else {
         const attrSchema = getCacheFields(this, identifier).get(attribute);
 
-        upgradeCapabilities(this._capabilities);
+        assertPrivateCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
         if (schemaHasLegacyDefaultValueFn(attrSchema)) {
           cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
@@ -1325,7 +1321,7 @@ export class JSONAPICache implements Cache {
       } else {
         const attrSchema = getCacheFields(this, identifier).get(attribute);
 
-        upgradeCapabilities(this._capabilities);
+        assertPrivateCapabilities(this._capabilities);
         const defaultValue = getDefaultValue(attrSchema, identifier, this._capabilities._store);
         if (schemaHasLegacyDefaultValueFn(attrSchema)) {
           cached.defaultAttrs = cached.defaultAttrs || (Object.create(null) as Record<string, Value>);
@@ -1617,9 +1613,9 @@ export class JSONAPICache implements Cache {
    * @return the names of relationships that were restored
    */
   rollbackRelationships(identifier: ResourceKey): string[] {
-    upgradeCapabilities(this._capabilities);
+    assertPrivateCapabilities(this._capabilities);
     let result!: string[];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
     this._capabilities._store._join(() => {
       result = this.__graph.rollback(identifier);
     });
@@ -2095,7 +2091,7 @@ function _isLoading(
   capabilities: CacheCapabilitiesManager,
   identifier: ResourceKey
 ): boolean {
-  upgradeCapabilities(capabilities);
+  assertPrivateCapabilities(capabilities);
   // TODO refactor things such that the cache is not required to know
   // about isLoading
   const req = capabilities._store.getRequestStateService();

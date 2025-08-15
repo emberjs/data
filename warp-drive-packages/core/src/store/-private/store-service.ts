@@ -48,6 +48,7 @@ import {
   recordIdentifierFor,
   storeFor,
 } from './caches/instance-cache.ts';
+import type { PrivateCacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import NotificationManager from './managers/notification-manager.ts';
@@ -1568,6 +1569,7 @@ export class Store extends BaseClass {
 export interface PrivateStore extends Store {
   readonly recordArrayManager: RecordArrayManager;
   requestManager: PrivateRequestManager;
+  cacheKeyManager: PrivateCacheKeyManager;
   _schema: SchemaService;
   _graph?: Graph;
   _requestCache: PrivateRequestStateService;
