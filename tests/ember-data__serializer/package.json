@@ -1,6 +1,6 @@
 {
   "name": "ember-data__serializer",
-  "version": "5.7.0-alpha.28",
+  "version": "5.7.0-alpha.29",
   "private": true,
   "description": "Tests for the @ember-data/serializer package",
   "repository": {
