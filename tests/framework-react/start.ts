@@ -40,5 +40,6 @@ void start({
   groupLogs: false,
   instrument: true,
   hideReport: false,
+  container: false,
   useDiagnostic: true,
 });

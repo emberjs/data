@@ -545,11 +545,15 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.equal(counter, 1, 'counter is 1');
     assert.dom().hasText('PendingCount: 1');
 
+    await this.h.pauseTest();
+
     await request;
     await this.h.rerender();
 
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText('Chris ThoburnCount: 2');
+
+    await this.h.pauseTest();
 
     const request2 = this.manager.request<UserResource>({ url, method: 'GET' });
     source.request = request2;
@@ -558,6 +562,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
     assert.equal(counter, 3, 'counter is 3');
     assert.dom().hasText('Chris ThoburnCount: 3');
+    await this.h.pauseTest();
   })
 
   .for('externally retriggered request works as expected (store CacheHandler)')
