@@ -1,7 +1,6 @@
-// Remove once @hasMany is typed
-import type { Store } from '@warp-drive/core';
 import { DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE } from '@warp-drive/core/build-config/deprecations';
 import { graphFor } from '@warp-drive/core/graph/-private';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
@@ -32,7 +31,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
 
       owner.register('model:app', App);
       owner.register('model:config', Config);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
         return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
@@ -98,7 +97,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
 
       owner.register('model:app', App);
       owner.register('model:config', Config);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const appIdentifier = identifier({ type: 'app', id: '1' });
       const configIdentifier1 = identifier({ type: 'config', id: '1' });
@@ -167,7 +166,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       owner.register('model:app', App);
       owner.register('model:namespace', Namespace);
       owner.register('model:config', Config);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const appIdentifier = identifier('app', '1');
 
@@ -489,7 +488,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
       owner.register('model:namespace', Namespace);
       owner.register('model:config', Config);
       owner.register('model:cluster', Cluster);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const appIdentifier = identifier('app', '1');
       const configIdentifier = identifier('config', '1');
@@ -767,7 +766,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
         owner.register('model:app', App);
         owner.register('model:namespace', Namespace);
         owner.register('model:config', Config);
-        const store = owner.lookup('service:store') as unknown as Store;
+        const store = isPrivateStore(owner.lookup('service:store'));
         const graph = graphFor(store);
         const appIdentifier = identifier('app', '1');
 
@@ -908,7 +907,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     const { owner } = this;
     owner.register('model:user', User);
     owner.register('model:comment', Comment);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
 
     // watch for changes
@@ -1057,7 +1056,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     const { owner } = this;
     owner.register('model:user', User);
     owner.register('model:comment', Comment);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
 
     // watch for changes
@@ -1197,7 +1196,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     const { owner } = this;
     owner.register('model:user', User);
     owner.register('model:comment', Comment);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
 
     // watch for changes
@@ -1346,7 +1345,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     const { owner } = this;
     owner.register('model:user', User);
     owner.register('model:comment', Comment);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
 
     // watch for changes
@@ -1502,7 +1501,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     owner.register('model:app', App);
     owner.register('model:namespace', Namespace);
     owner.register('model:config', Config);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
     const appIdentifier = identifier('app', '1');
 
@@ -1826,7 +1825,7 @@ module('Integration | Graph | Diff Preservation', function (hooks) {
     owner.register('model:namespace', Namespace);
     owner.register('model:config', Config);
     owner.register('model:cluster', Cluster);
-    const store = owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(owner.lookup('service:store'));
     const graph = graphFor(store);
     const appIdentifier = identifier('app', '1');
     const configIdentifier = identifier('config', '1');

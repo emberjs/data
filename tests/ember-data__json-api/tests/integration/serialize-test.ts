@@ -3,6 +3,7 @@ import { serializePatch, serializeResources } from '@ember-data/json-api/request
 import type { NotificationType } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core-types';
 import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
@@ -162,7 +163,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       // set the attr back to initial state to remove it from diff
       store.cache.setAttr(user1Identifier, 'firstName', 'Chris');
 
-      store._join(() => {
+      isPrivateStore(store)._join(() => {
         // change a belongsTo relationship
         store.cache.mutate({
           op: 'replaceRelatedRecord',
@@ -191,7 +192,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
       );
       store.cache.rollbackRelationships(user1Identifier);
 
-      store._join(() => {
+      isPrivateStore(store)._join(() => {
         // change a hasMany relationship
         store.cache.mutate({
           op: 'add',
@@ -223,7 +224,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
         'Correctly serializes changed hasMany relationships'
       );
 
-      store._join(() => {
+      isPrivateStore(store)._join(() => {
         // change a hasMany relationship
         store.cache.mutate({
           op: 'remove',
@@ -253,7 +254,7 @@ module('Integration | @ember-data/json-api/request', function (hooks) {
         'Correctly serializes changed hasMany relationships'
       );
 
-      store._join(() => {
+      isPrivateStore(store)._join(() => {
         // change a hasMany relationship
         store.cache.mutate({
           op: 'replaceRelatedRecords',

@@ -1,7 +1,7 @@
-import type { Store } from '@warp-drive/core';
 import { recordIdentifierFor } from '@warp-drive/core';
 import type { Graph } from '@warp-drive/core/graph/-private';
 import { graphFor } from '@warp-drive/core/graph/-private';
+import type { PrivateStore } from '@warp-drive/core/store/-private';
 import { Type } from '@warp-drive/core/types/symbols';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
@@ -12,11 +12,11 @@ import { stateOf } from './edge-removal/setup';
 module('Integration | Graph | Edges', function (hooks) {
   setupTest(hooks);
 
-  let store: Store;
+  let store: PrivateStore;
   let graph: Graph;
   hooks.beforeEach(function () {
     const { owner } = this;
-    store = owner.lookup('service:store') as Store;
+    store = owner.lookup('service:store') as PrivateStore;
     graph = graphFor(store);
   });
 

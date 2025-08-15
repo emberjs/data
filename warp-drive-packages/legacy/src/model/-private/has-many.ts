@@ -4,6 +4,7 @@ import { computed } from '@ember/object';
 import { DEPRECATE_NON_STRICT_TYPES } from '@warp-drive/core/build-config/deprecations';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 import { dasherize, singularize } from '@warp-drive/utilities/string';
@@ -79,6 +80,8 @@ function _hasMany<T, Async extends boolean>(
       const support = lookupLegacySupport(this);
       const manyArray = support.getManyArray(key);
       assert(`You must pass an array of records to set a hasMany relationship`, Array.isArray(records));
+
+      assertPrivateStore(this[RecordStore]);
       this[RecordStore]._join(() => {
         manyArray.splice(0, manyArray.length, ...records);
       });

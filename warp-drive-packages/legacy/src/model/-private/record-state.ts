@@ -68,21 +68,33 @@ root
     invalid
     inFlight
 
-  @internal
+  @hideconstructor
+  @private
 */
 export default class RecordState {
-  declare store: Store;
-  declare identifier: ResourceKey;
-  declare record: MinimalLegacyRecord;
-  declare rs: RequestStateService;
+  /** @internal */
+  declare private store: Store;
+  /** @internal */
+  declare private identifier: ResourceKey;
+  /** @internal */
+  declare private record: MinimalLegacyRecord;
+  /** @internal */
+  declare private rs: RequestStateService;
 
-  declare pendingCount: number;
-  declare fulfilledCount: number;
-  declare rejectedCount: number;
-  declare cache: Cache;
-  declare _errorRequests: RequestCacheRequestState[];
-  declare _lastError: RequestCacheRequestState | null;
-  declare handler: object;
+  /** @internal */
+  declare private pendingCount: number;
+  /** @internal */
+  declare private fulfilledCount: number;
+  /** @internal */
+  declare private rejectedCount: number;
+  /** @internal */
+  declare private cache: Cache;
+  /** @internal */
+  declare private _errorRequests: RequestCacheRequestState[];
+  /** @internal */
+  declare private _lastError: RequestCacheRequestState | null;
+  /** @internal */
+  declare private handler: object;
 
   constructor(record: MinimalLegacyRecord) {
     const store = storeFor(record, false)!;

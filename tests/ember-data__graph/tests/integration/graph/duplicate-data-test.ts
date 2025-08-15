@@ -1,7 +1,7 @@
-import type { Store } from '@warp-drive/core';
 import { DEPRECATE_NON_UNIQUE_PAYLOADS } from '@warp-drive/core/build-config/deprecations';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { graphFor } from '@warp-drive/core/graph/-private';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 import Model, { attr, hasMany } from '@warp-drive/legacy/model';
@@ -32,7 +32,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       owner.register('model:app', App);
       owner.register('model:config', Config);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
         return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
@@ -95,7 +95,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
       owner.register('model:app', App);
       owner.register('model:config', Config);
-      const store = owner.lookup('service:store') as unknown as Store;
+      const store = isPrivateStore(owner.lookup('service:store'));
       const graph = graphFor(store);
       const identifier = (obj: { type: string; id: string | null; lid?: string }) => {
         return store.cacheKeyManager.getOrCreateRecordIdentifier(obj);
@@ -154,7 +154,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
         owner.register('model:app', App);
         owner.register('model:config', Config);
-        const store = owner.lookup('service:store') as unknown as Store;
+        const store = isPrivateStore(owner.lookup('service:store'));
         const graph = graphFor(store);
         const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
 
@@ -200,7 +200,7 @@ module('Integration | Graph | Duplicate Data', function (hooks) {
 
         owner.register('model:app', App);
         owner.register('model:config', Config);
-        const store = owner.lookup('service:store') as unknown as Store;
+        const store = isPrivateStore(owner.lookup('service:store'));
         const graph = graphFor(store);
         const appIdentifier = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'app', id: '1' });
         const configIdentifier1 = store.cacheKeyManager.getOrCreateRecordIdentifier({ type: 'config', id: '1' });

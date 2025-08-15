@@ -1,5 +1,6 @@
 // Remove this disable once @belongsTo is typed
 import { recordIdentifierFor } from '@warp-drive/core';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { ResourceKey } from '@warp-drive/core/types';
 import type { CollectionResourceDocument } from '@warp-drive/core/types/spec/json-api-raw';
 import type { Diagnostic } from '@warp-drive/diagnostic/-types';
@@ -91,6 +92,7 @@ function makeRel(id: string | null, isMany: boolean): BestFriendRel<UserRef | Us
 
 export async function setInitialState(context: Context, config: TestConfig, assert: Diagnostic): Promise<TestState> {
   const { owner, store, graph } = context;
+  assertPrivateStore(store);
   const { cacheKeyManager } = store;
   const isMany = config.relType === 'hasMany';
 
@@ -269,6 +271,7 @@ export function testFinalState(
 ) {
   const { graph, store } = context;
   const { chrisIdentifier, johnIdentifier } = testState;
+  assertPrivateStore(store);
 
   const chrisBestFriend = graph.get(chrisIdentifier, 'bestFriends');
   const chrisState = stateOf(store._graph!, chrisBestFriend);

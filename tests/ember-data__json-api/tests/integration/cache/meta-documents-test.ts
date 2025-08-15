@@ -3,6 +3,7 @@ import type { StructuredDataDocument, StructuredDocument } from '@ember-data/req
 import type { DocumentCacheOperation } from '@ember-data/store';
 import Store from '@ember-data/store';
 import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { PersistedResourceKey, RequestKey } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
 import { module, test } from '@warp-drive/diagnostic';
@@ -320,7 +321,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
       }
     });
 
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       const responseDocument = store.cache.put(
         asStructuredDocument({
           request: {
@@ -336,7 +337,7 @@ module('Integration | @ember-data/json-api Cach.put(<MetaDocument>)', function (
     });
 
     isUpdating = true;
-    store._run(() => {
+    isPrivateStore(store)._run(() => {
       const responseDocument2 = store.cache.put(
         asStructuredDocument({
           request: {

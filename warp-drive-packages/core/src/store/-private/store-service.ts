@@ -1613,6 +1613,7 @@ export interface PrivateStore extends Store {
   _getAllPending(): (Promise<unknown[]> & { length: number }) | void;
 }
 
+
 /**
  * Upgrade the type for Store to PrivateStore, which will also
  * upgrade any associated types to their private equivalents.
