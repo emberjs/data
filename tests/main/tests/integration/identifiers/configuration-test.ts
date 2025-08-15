@@ -17,6 +17,7 @@ import {
   setIdentifierResetMethod,
   setIdentifierUpdateMethod,
 } from '@ember-data/store';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 import type { CacheKeyType, ResourceKey } from '@warp-drive/core-types/identifier';
 import type { ExistingResourceObject, ResourceIdentifierObject } from '@warp-drive/core-types/spec/json-api-raw';
 
@@ -412,12 +413,11 @@ module('Integration | Identifiers - configuration', function (hooks) {
       testMethod(identifier);
     });
 
-    const store = this.owner.lookup('service:store') as unknown as Store;
+    const store = isPrivateStore(this.owner.lookup('service:store'));
     const userByUsernamePromise = store.findRecord('user', '@runspired');
     const userByIdPromise = store.findRecord('user', '1');
 
     assert.strictEqual(generateLidCalls, 2, 'We generated two lids');
-    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'We have 2 identifiers in the cache');
     generateLidCalls = 0;
 
@@ -431,7 +431,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
     });
 
     assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
-    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'We still have 2 identifiers in the cache');
     generateLidCalls = 0;
 
@@ -444,7 +443,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
 
     assert.strictEqual(generateLidCalls, 2, 'We generated no new lids when we looked up the originals');
     assert.strictEqual(
-      // @ts-expect-error _cache is private
       store.cacheKeyManager._cache.resources.size,
       2,
       'We keep a back reference identifier in the cache'
@@ -492,7 +490,6 @@ module('Integration | Identifiers - configuration', function (hooks) {
     store.unloadRecord(recordA);
     await settled();
     assert.strictEqual(
-      // @ts-expect-error _cache is private
       store.cacheKeyManager._cache.resources.size,
       0,
       'We have no identifiers or backreferences in the cache'
