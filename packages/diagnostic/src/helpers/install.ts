@@ -1,5 +1,6 @@
 import type { IDOMElementDescriptor } from 'dom-element-descriptors';
 
+import { PublicTestInfo } from '../-define.ts';
 import { assert } from '../-utils.ts';
 import type { HelperConfig } from './-dom/-helper-context.ts';
 import type { Target } from './-dom/-target.ts';
@@ -93,10 +94,16 @@ const DEFAULT_RENDER_CONFIG = {
 
   @public
 */
-export function buildHelpers<T extends { element?: HTMLElement | null }>(
-  context: T,
-  config?: HelperConfig
-): TestHelpers {
+export function buildHelpers<
+  T extends {
+    element?: HTMLElement | null;
+    [PublicTestInfo]: {
+      id: string;
+      name: string;
+    };
+  },
+>(context: T, config?: HelperConfig): TestHelpers {
+  const info = context[PublicTestInfo];
   const element = context.element ?? null;
   const scope = {
     element,
@@ -128,14 +135,21 @@ export function buildHelpers<T extends { element?: HTMLElement | null }>(
       resume();
       // @ts-expect-error - this is a global variable that we set to resume the test
       globalThis.resumeTest = resume = undefined;
+      // @ts-expect-error - this is a global variable that we set to resume the test
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      globalThis.pausedTests.delete(info.id);
     },
     pauseTest: () => {
-      console.info('Testing paused. Use `resumeTest()` to continue.');
+      console.info(`Testing paused for test "${info.name}". Use \`resumeTest()\` to continue.`);
+      // @ts-expect-error - this is a global variable that we set to resume the test
+      globalThis.pausedTests ??= new Set<string>();
+      // @ts-expect-error - this is a global variable that we set to resume the test
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      globalThis.pausedTests.add(info.id);
 
       return new Promise((resolve) => {
         resume = resolve;
         // @ts-expect-error - this is a global variable that we set to resume the test
-
         globalThis.resumeTest = helpers.resumeTest;
       });
     },

@@ -6,7 +6,7 @@ type SuiteLayout = {
   report: HTMLElement;
   current: HTMLElement;
   resultsList: HTMLElement;
-  results: Map<TestReport, HTMLElement[] | null>;
+  results: Map<TestReport, { finalized: boolean; dom: HTMLElement[] | null }>;
   cleanup: (() => void)[];
   updateStats: () => void;
 };
@@ -51,6 +51,7 @@ export class DOMReporter implements Reporter {
     this.element.appendChild(fragment);
     this.suiteReport = report;
     this._socket?.emit('suite-start', report);
+    this.currentTests.clear();
   }
 
   onSuiteFinish(report: SuiteReport): void {
@@ -58,6 +59,7 @@ export class DOMReporter implements Reporter {
   }
 
   onTestStart(test: TestReport): void {
+    this.suite.results.set(test, { finalized: false, dom: null });
     this.scheduleUpdate();
     if (this._socket) {
       const compatTestReport = {
@@ -83,7 +85,6 @@ export class DOMReporter implements Reporter {
 
     if (this._socket) {
       const compatTestReport = this.currentTests.get(test.id)!;
-      console.log(compatTestReport.id, test.name);
       this.currentTests.delete(test.id);
       compatTestReport.failed += test.result.failed ? 1 : 0;
       compatTestReport.passed += test.result.passed ? 1 : 0;
@@ -118,7 +119,7 @@ export class DOMReporter implements Reporter {
     }
     // @ts-expect-error
     test.moduleName = test.module.name;
-    this.suite.results.set(test, null);
+    this.suite.results.get(test)!.finalized = true;
     this.scheduleUpdate();
   }
 
@@ -156,25 +157,89 @@ export class DOMReporter implements Reporter {
     let i = 0;
     const fragment = document.createDocumentFragment();
     const isDebug = this.settings.params.debug.value;
-    this.suite.results.forEach((elements, test) => {
-      i++;
-      if (elements) {
-        return;
-      }
-      const tr = document.createElement('tr');
-      elements = [tr];
-      fragment.appendChild(tr);
+
+    const updateResultHTMLForTest = (test: TestReport, state: { finalized: boolean; dom: HTMLElement[] }) => {
+      const id = test.id;
+      // @ts-expect-error - this is a global variable that we set to resume the test
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const testIsPaused = globalThis.pausedTests?.has(id) as boolean;
+
+      const [tr, checksTr] = state.dom as HTMLTableRowElement[];
+      tr.innerHTML = '';
+      tr.className = '';
+      checksTr.innerHTML = '';
       tr.classList.add(classForTestStatus(test));
-      const checksTr = document.createElement('tr');
+      if (!state.finalized) {
+        tr.classList.add('pending');
+      } else {
+        tr.classList.remove('pending');
+      }
 
       makeRow(tr, checksTr, [
         i + '.',
-        `${iconForTestStatus(test)} ${labelForTestStatus(test)}`,
-        durationForTest(test),
+        state.finalized
+          ? `${iconForTestStatus(test)} ${labelForTestStatus(test)}`
+          : testIsPaused
+            ? '‼️ PAUSED'
+            : '🕝 Pending',
+        testIsPaused ? RESUME : durationForTest(test),
         `${test.module.name} > `,
         `${test.name} (${test.result.diagnostics.length})`,
         [getURL(test.id), getURL(test.module.id, 'module')],
       ]);
+
+      if (testIsPaused) {
+        checksTr.classList.add('expanded');
+      }
+
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      checksTr.appendChild(td);
+      const pre = document.createElement('pre');
+      pre.textContent = test.result.diagnostics
+        .map((d) => {
+          const checkText = `\t${d.passed ? '✅' : '❌'} – ${d.message}`;
+          if (isDebug) {
+            return d.passed ? checkText : `${checkText}\n${diffResult(d, 2)}`;
+          }
+        })
+        .join('\n');
+      td.appendChild(pre);
+    };
+
+    const createResultHTMLForTest = (test: TestReport, state: { finalized: boolean; dom: HTMLElement[] | null }) => {
+      const id = test.id;
+      // @ts-expect-error - this is a global variable that we set to resume the test
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const testIsPaused = globalThis.pausedTests?.has(id) as boolean;
+
+      const tr = document.createElement('tr');
+      const elements = [tr];
+      fragment.appendChild(tr);
+      tr.classList.add(classForTestStatus(test));
+      if (!state.finalized) {
+        tr.classList.add('pending');
+      } else {
+        tr.classList.remove('pending');
+      }
+      const checksTr = document.createElement('tr');
+
+      makeRow(tr, checksTr, [
+        i + '.',
+        state.finalized
+          ? `${iconForTestStatus(test)} ${labelForTestStatus(test)}`
+          : testIsPaused
+            ? '‼️ PAUSED'
+            : '🕝 Pending',
+        testIsPaused ? RESUME : durationForTest(test),
+        `${test.module.name} > `,
+        `${test.name} (${test.result.diagnostics.length})`,
+        [getURL(test.id), getURL(test.module.id, 'module')],
+      ]);
+
+      if (testIsPaused) {
+        checksTr.classList.add('expanded');
+      }
 
       checksTr.classList.add('diagnostic-checks');
       fragment.appendChild(checksTr);
@@ -193,19 +258,49 @@ export class DOMReporter implements Reporter {
       td.appendChild(pre);
 
       elements.push(checksTr);
+      state.dom = elements;
+    };
 
-      this.suite.results.set(test, elements);
+    this.suite.results.forEach((elements, test) => {
+      i++;
+      // @ts-expect-error
+      if (elements.dom && elements.finalizedComplete) {
+        return;
+      } else if (elements.dom) {
+        if (elements.finalized) {
+          // @ts-expect-error
+          elements.finalizedComplete = true;
+        }
+        updateResultHTMLForTest(test, elements as { finalized: boolean; dom: HTMLElement[] });
+      } else {
+        createResultHTMLForTest(test, elements);
+      }
     });
     this.suite.resultsList.appendChild(fragment);
     this.suite.updateStats();
   }
 }
 
+const RESUME = {} as 'Symbol(RESUME PLAYING)';
+
 function makeRow(tr: HTMLTableRowElement, checksTr: HTMLTableRowElement, cells: Array<string | [string, string]>) {
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i];
     const td = document.createElement('td');
-    if (i === 3) {
+
+    if (i === 2 && cell === RESUME) {
+      const text = document.createTextNode('▶️ resume');
+      td.appendChild(text);
+      td.addEventListener(
+        'click',
+        () => {
+          // @ts-expect-error
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          globalThis.resumeTest();
+        },
+        { once: true }
+      );
+    } else if (i === 3) {
       const strong = document.createElement('strong');
       const text = document.createTextNode(cell as string);
       strong.appendChild(text);
@@ -324,7 +419,7 @@ function classForTestStatus(test: TestReport) {
 }
 
 function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteReport: SuiteReport): SuiteLayout {
-  const results = new Map<TestReport, HTMLElement[] | null>();
+  const results = new Map<TestReport, { finalized: boolean; dom: HTMLElement[] | null }>();
   const cleanup: (() => void)[] = [];
 
   // ==== Create the Header Section
@@ -378,7 +473,9 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
   // ==== Create the Controls Section
   const controls = document.createElement('div');
   controls.id = 'warp-drive__diagnostic-controls';
-  element.appendChild(controls);
+
+  // todo bring this back via showControls
+  //element.appendChild(controls);
 
   function runPrev() {
     updateSuiteState(2);

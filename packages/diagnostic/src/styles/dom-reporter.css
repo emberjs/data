@@ -175,6 +175,14 @@ tr.diagnostic-checks.expanded {
 #warp-drive__diagnostic table tr:nth-last-of-type(odd) {
   background: rgba(0, 0, 0, 0.8);
 }
+#warp-drive__diagnostic table tr.pending.passed td:nth-child(2) {
+  color: yellowgreen;
+  font-weight: bold;
+}
+#warp-drive__diagnostic table tr.pending.failed td:nth-child(2) {
+  color: orangered;
+  font-weight: bold;
+}
 #warp-drive__diagnostic table tr.passed td:nth-child(2) {
   color: green;
 }
