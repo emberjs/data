@@ -5,7 +5,15 @@ import type { NotificationType, Store } from '@warp-drive/core';
 import { recordIdentifierFor, storeFor } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
-import { coerceId, defineGate, entangleSignal, gate, memoized, withSignalStore } from '@warp-drive/core/store/-private';
+import {
+  assertPrivateStore,
+  coerceId,
+  defineGate,
+  entangleSignal,
+  gate,
+  memoized,
+  withSignalStore,
+} from '@warp-drive/core/store/-private';
 import type { ModelSchema, ResourceKey } from '@warp-drive/core/types';
 import type { ChangedAttributesHash } from '@warp-drive/core/types/cache';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
@@ -859,13 +867,13 @@ class Model extends EmberObject implements MinimalLegacyRecord {
     const normalizedId = coerceId(id);
     const identifier = recordIdentifierFor(this);
     const didChange = normalizedId !== identifier.id;
+    assertPrivateStore(this.store);
     assert(
       `Cannot set ${identifier.type} record's id to ${id}, because id is already ${identifier.id}`,
       !didChange || identifier.id === null
     );
 
     if (normalizedId !== null && didChange) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.store._instanceCache.setRecordId(identifier, normalizedId);
       this.store.notifications.notify(identifier, 'identity', null);
     }
@@ -1050,8 +1058,8 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    ```
 
    @public
-   @param {Function} callback the callback to invoke
-   @param {any} binding the value to which the callback's `this` should be bound
+   @param callback the callback to invoke
+   @param binding the value to which the callback's `this` should be bound
    */
   eachRelationship<T>(
     callback: (this: NoInfer<T> | undefined, key: MaybeRelationshipFields<this>, meta: LegacyRelationshipField) => void,
@@ -1148,9 +1156,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
 
     @public
-   @param {String} name the name of the relationship
-   @param {store} store an instance of Store
-   @return {Model} the type of the relationship, or undefined
+   @param name the name of the relationship
+   @param store an instance of Store
+   @return the type of the relationship, or undefined
    */
   static typeForRelationship(name: string, store: Store): ModelSchema | undefined {
     assert(
@@ -1198,9 +1206,9 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    ```
 
     @public
-   @param {String} name the name of the relationship
-   @param {Store} store
-   @return {Object} the inverse relationship, or null
+   @param name the name of the relationship
+   @param store
+   @return the inverse relationship, or null
    */
   static inverseFor(name: string, store: Store): LegacyRelationshipField | null {
     assert(
