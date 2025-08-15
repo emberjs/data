@@ -242,7 +242,10 @@ export class RequestSubscription<RT, E> {
   declare private _subscribedTo: object | null;
   /** @internal */
   declare private _args: SubscriptionArgs<RT, E>;
-  /** @internal */
+  /**
+   * The Store this subscription subscribes to or the RequestManager
+   * which issues this request.
+   */
   declare store: Store | RequestManager;
 
   constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, E>) {

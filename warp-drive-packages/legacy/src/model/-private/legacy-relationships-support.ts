@@ -65,8 +65,9 @@ export class LegacySupport {
   declare private graph: Graph;
   declare private cache: Cache;
   declare private references: Record<string, BelongsToReference | HasManyReference>;
-  declare private identifier: ResourceKey;
-  declare private _manyArrayCache: Record<string, LegacyManyArray>;
+  declare identifier: ResourceKey;
+  /** @internal */
+  declare _manyArrayCache: Record<string, LegacyManyArray>;
   /** @internal */
   declare _relationshipPromisesCache: Record<string, Promise<LegacyManyArray | OpaqueRecordInstance>>;
   /** @internal */
@@ -247,6 +248,7 @@ export class LegacySupport {
 
         manyArray = createLegacyManyArray({
           store: this.store,
+          // @ts-expect-error Typescript doesn't have a way for us to thread the generic backwards so it infers unknown instead of T
           manager: this,
           source: identifiers,
           type: definition.type,

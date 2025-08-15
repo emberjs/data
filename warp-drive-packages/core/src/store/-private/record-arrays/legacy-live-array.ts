@@ -83,7 +83,7 @@ export interface LegacyLiveArray<T = unknown> extends LegacyArray<T> {
 /**
  * The options for {@link createLegacyLiveArray}
  *
- * @internal
+ * @private
  */
 export interface LegacyLiveArrayCreateOptions {
   store: Store;

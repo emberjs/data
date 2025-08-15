@@ -12,6 +12,7 @@ import type Store from '@ember-data/store';
 import { recordIdentifierFor } from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 
 const service = s.service ?? s.inject;
 const StoreTypesMap = new WeakMap<Store, Map<string, boolean>>();
@@ -36,7 +37,7 @@ type WrappedRecord<T> = {
 };
 type WrappedTypeCallback = (types: WrappedType[]) => void;
 
-function debugInfo(this: Model) {
+function debugInfo<T extends Model>(this: T) {
   const relationships: { belongsTo?: []; hasMany?: [] } = {};
   const expensiveProperties: string[] = [];
 
@@ -176,6 +177,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       },
     ];
 
+    assertPrivateStore(store);
     Object.keys(store.cacheKeyManager._cache.resourcesByType).forEach((type) => {
       discoveredTypes.set(type, false);
     });

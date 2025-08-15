@@ -3,6 +3,7 @@ import { computed } from '@ember/object';
 
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+import { assertPrivateStore } from '@warp-drive/core/store/-private';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
@@ -103,6 +104,7 @@ function _belongsTo<T, Async extends boolean>(
           );
         }
       }
+      assertPrivateStore(this[RecordStore]);
       this[RecordStore]._join(() => {
         support.setDirtyBelongsTo(key, value);
       });

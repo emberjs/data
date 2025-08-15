@@ -142,7 +142,7 @@ export interface LegacyManyArray<T = unknown> extends ReactiveResourceArray<T> {
 /**
  * The options for {@link createLegacyManyArray}
  *
- * @internal
+ * @private
  */
 export interface LegacyManyArrayCreateOptions extends LegacyLiveArrayCreateOptions {
   isLoaded: boolean;
