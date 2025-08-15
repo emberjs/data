@@ -2,11 +2,11 @@ import { settled } from '@ember/test-helpers';
 
 import { module, test } from 'qunit';
 
-import type Store from 'ember-data/store';
 import { setupTest } from 'ember-qunit';
 
 import Model, { attr } from '@ember-data/model';
 import { recordIdentifierFor } from '@ember-data/store';
+import { isPrivateStore } from '@warp-drive/core/store/-private';
 
 class Person extends Model {
   @attr declare name: string;
@@ -20,7 +20,7 @@ module('integration/records/polymorphic-find-record - Polymorphic findRecord', f
     this.owner.register('model:person', Person);
     this.owner.register('model:employee', Employee);
 
-    const store = this.owner.lookup('service:store') as Store;
+    const store = isPrivateStore(this.owner.lookup('service:store'));
     const adapter = store.adapterFor('application');
 
     adapter.findRecord = () => {
@@ -44,12 +44,10 @@ module('integration/records/polymorphic-find-record - Polymorphic findRecord', f
     const person2 = store.peekRecord('person', '1');
     assert.strictEqual(employee, person, 'peekRecord returns the same instance for concrete type');
     assert.strictEqual(person2, person, 'peekRecord returns the same instance for abstract type');
-    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 2, 'identifier cache contains backreferences');
 
     person.unloadRecord();
     await settled();
-    // @ts-expect-error _cache is private
     assert.strictEqual(store.cacheKeyManager._cache.resources.size, 0, 'identifier cache is empty');
   });
 });
