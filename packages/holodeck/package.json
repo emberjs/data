@@ -24,7 +24,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "hono": "^4.7.8",
-    "@hono/node-server": "^1.14.1"
+    "@hono/node-server": "^1.18.2"
   },
   "type": "module",
   "files": [
