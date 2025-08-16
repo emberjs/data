@@ -44,7 +44,7 @@
     }
   },
   "peerDependencies": {
-    "svelte": "^3.0"
+    "svelte": "^5.38.1"
   },
   "dependencies": {
     "@embroider/macros": "^1.16.12",
