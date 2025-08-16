@@ -65,7 +65,7 @@
     "@glint/template": "alpha",
     "decorator-transforms": "^2.3.0",
     "@embroider/addon-dev": "^7.1.3",
-    "@ember/test-helpers": "5.2.0",
+    "@ember/test-helpers": "5.2.2",
     "@ember/test-waiters": "^4.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",

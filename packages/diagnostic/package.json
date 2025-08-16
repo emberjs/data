@@ -74,7 +74,7 @@
     "start": "vite"
   },
   "peerDependencies": {
-    "@ember/test-helpers": "5.2.0",
+    "@ember/test-helpers": "5.2.2",
     "ember-cli-test-loader": ">= 3.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
@@ -114,7 +114,7 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "bun-types": "^1.2.10",
-    "@ember/test-helpers": "5.2.0",
+    "@ember/test-helpers": "5.2.2",
     "ember-source": "~6.3.0",
     "@glimmer/component": "^2.0.0",
     "ember-cli-test-loader": "^3.1.0",
