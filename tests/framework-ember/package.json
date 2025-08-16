@@ -25,9 +25,9 @@
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/plugin-transform-typescript": "^7.25.2",
-    "@babel/runtime": "^7.25.6",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
     "@ember/test-helpers": "5.2.0",
     "@embroider/core": "^4.1.0",
     "@embroider/macros": "^1.18.0",
