@@ -28,7 +28,20 @@ export interface TestReport {
     failed: boolean;
   };
   module: ModuleReport;
+  timeline: TimelineEntry[];
 }
+
+export interface InteractionEvent {
+  type: string;
+  subtype: string;
+  series: string | null;
+}
+
+export interface TimelineEntry {
+  event: DiagnosticReport | InteractionEvent;
+  timestamp: number | null;
+}
+
 export interface ModuleReport {
   id: string;
   name: string;
@@ -55,4 +68,5 @@ export interface Reporter {
   onModuleStart: (module: ModuleReport) => void;
   onModuleFinish: (module: ModuleReport) => void;
   onDiagnostic: (diagnostic: DiagnosticReport) => void;
+  updateTimeline: (test: TestReport) => void;
 }

@@ -7,7 +7,7 @@ export type CompatTestReport = {
   failed: number;
   passed: number;
   total: number;
-  runDuration: number;
+  runDuration: number | null;
   skipped: boolean;
   todo: boolean;
   testId: string;
@@ -18,11 +18,21 @@ export interface Emitter {
   emit(name: 'test-start' | 'test-finish', data: CompatTestReport): void;
 }
 
-export type ParamConfig = {
-  id: string;
-  label: string;
-  value: boolean | string;
-};
+export type ParamConfig =
+  | {
+      id: string;
+      label: string;
+      value: boolean;
+      defaultValue: boolean;
+      reload?: boolean;
+    }
+  | {
+      id: string;
+      label: string;
+      value: string;
+      defaultValue: string;
+      reload?: boolean;
+    };
 
 export type GlobalHooksStorage<TC extends TestContext> = {
   onSuiteStart: GlobalCallback[];
@@ -34,17 +44,22 @@ export type GlobalHooksStorage<TC extends TestContext> = {
 };
 
 export type GlobalConfig<TC extends TestContext = TestContext> = {
+  name: {
+    org: string;
+    package: string;
+  };
   params: {
     [key in
       | 'search'
-      | 'concurrency'
-      | 'tryCatch'
+      | 'useConcurrency'
+      | 'noTryCatch'
       | 'instrument'
       | 'hideReport'
       | 'memory'
       | 'groupLogs'
       | 'debug'
-      | 'container']: ParamConfig;
+      | 'hidecontainer'
+      | 'timeline']: ParamConfig;
   };
   tests: Set<string>;
   modules: Set<string>;

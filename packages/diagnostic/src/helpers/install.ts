@@ -2,6 +2,7 @@ import type { IDOMElementDescriptor } from 'dom-element-descriptors';
 
 import { PublicTestInfo } from '../-define.ts';
 import { assert } from '../-utils.ts';
+import type { Diagnostic } from '../internals/diagnostic.ts';
 import type { HelperConfig } from './-dom/-helper-context.ts';
 import type { Target } from './-dom/-target.ts';
 import { blur } from './-dom/blur.ts';
@@ -12,6 +13,7 @@ import { find } from './-dom/find.ts';
 import { findAll } from './-dom/find-all.ts';
 import type { KeyboardEventType } from './-dom/fire-event.ts';
 import { focus } from './-dom/focus.ts';
+import { TEST_CONTEXT, withHooks } from './-dom/helper-hooks.ts';
 import { scrollTo } from './-dom/scroll-to.ts';
 import { select } from './-dom/select.ts';
 import { tab } from './-dom/tab.ts';
@@ -108,6 +110,9 @@ export function buildHelpers<
   const scope = {
     element,
     config: config ?? DEFAULT_RENDER_CONFIG,
+    // @ts-expect-error private API
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    assert: context[TEST_CONTEXT] as Diagnostic<any>,
   };
   let resume: ((value?: void | PromiseLike<void>) => void) | undefined;
 
@@ -128,10 +133,23 @@ export function buildHelpers<
     typeIn: typeIn.bind(scope),
     waitFor: waitFor.bind(scope),
     waitUntil: waitUntil.bind(scope),
-    rerender: scope.config.rerender,
-    settled: scope.config.settled,
+    rerender: () =>
+      withHooks({
+        scope,
+        name: 'rerender',
+        render: false,
+        cb: scope.config.rerender,
+      }),
+    settled: () =>
+      withHooks({
+        scope,
+        name: 'settled',
+        render: false,
+        cb: scope.config.settled,
+      }),
     resumeTest: () => {
       assert('Testing has not been paused. There is nothing to resume.', !!resume);
+      scope.assert.pushInteraction({ type: 'pauseTest', subtype: 'end', series: null });
       resume();
       // @ts-expect-error - this is a global variable that we set to resume the test
       globalThis.resumeTest = resume = undefined;
@@ -140,6 +158,7 @@ export function buildHelpers<
       globalThis.pausedTests.delete(info.id);
     },
     pauseTest: () => {
+      scope.assert.pushInteraction({ type: 'pauseTest', subtype: 'start', series: null });
       console.info(`Testing paused for test "${info.name}". Use \`resumeTest()\` to continue.`);
       // @ts-expect-error - this is a global variable that we set to resume the test
       globalThis.pausedTests ??= new Set<string>();

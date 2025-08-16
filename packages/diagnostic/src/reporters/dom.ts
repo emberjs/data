@@ -60,7 +60,6 @@ export class DOMReporter implements Reporter {
 
   onTestStart(test: TestReport): void {
     this.suite.results.set(test, { finalized: false, dom: null });
-    this.scheduleUpdate();
     if (this._socket) {
       const compatTestReport = {
         id: this.nextTestId++,
@@ -77,6 +76,10 @@ export class DOMReporter implements Reporter {
       this.currentTests.set(test.id, compatTestReport);
       this._socket.emit('test-start', compatTestReport);
     }
+    if (this.settings.params.hideReport.value) {
+      return;
+    }
+    this.scheduleUpdate();
   }
 
   onTestFinish(test: TestReport): void {
@@ -91,7 +94,7 @@ export class DOMReporter implements Reporter {
       compatTestReport.skipped = test.skipped;
       compatTestReport.todo = test.todo;
       compatTestReport.total = test.result.diagnostics.length;
-      compatTestReport.runDuration = test.end!.startTime - test.start!.startTime;
+      compatTestReport.runDuration = test.end ? test.end.startTime - test.start!.startTime : null;
       compatTestReport.items = test.result.diagnostics.map((d) => {
         // more expensive to serialize the whole diagnostic
         if (this.settings.params.debug.value) {
@@ -114,12 +117,13 @@ export class DOMReporter implements Reporter {
       this.settings.params.debug.value && console.log(test);
     }
 
-    if (this.settings.params.hideReport.value) {
-      return;
-    }
     // @ts-expect-error
     test.moduleName = test.module.name;
     this.suite.results.get(test)!.finalized = true;
+
+    if (this.settings.params.hideReport.value) {
+      return;
+    }
     this.scheduleUpdate();
   }
 
@@ -131,7 +135,18 @@ export class DOMReporter implements Reporter {
     this.scheduleUpdate();
   }
 
-  onDiagnostic(_diagnostic: DiagnosticReport): void {
+  updateTimeline(test: TestReport): void {
+    if (this.settings.params.hideReport.value) {
+      return;
+    }
+    console.log('timeline', test.timeline.slice());
+    this.scheduleUpdate();
+  }
+
+  onDiagnostic(diagnostic: DiagnosticReport): void {
+    if (this.settings.params.hideReport.value) {
+      return;
+    }
     this.scheduleUpdate();
   }
 
@@ -147,15 +162,37 @@ export class DOMReporter implements Reporter {
 
   _updateRender(): void {
     const frame = document.getElementById('warp-drive__diagnostic-fixture');
-    if (this.settings.params.container.value === false) {
+    if (this.settings.params.hidecontainer.value === false) {
       frame?.classList.add('visible');
     } else {
       frame?.classList.remove('visible');
     }
+
+    if (this.settings.params.hideReport.value) {
+      if (!this.suite.resultsList.hidden) {
+        this.suite.resultsList.innerHTML = '';
+        this.suite.resultsList.hidden = true;
+      }
+      this.suite.updateStats();
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    if (this.suite.resultsList.hidden) {
+      // render the DOM we have so far again
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const [_test, state] of this.suite.results) {
+        if (state.dom) {
+          fragment.appendChild(state.dom[0]);
+          fragment.appendChild(state.dom[1]);
+        }
+      }
+      this.suite.resultsList.hidden = false;
+    }
+
     // render infos
     // render any tests
     let i = 0;
-    const fragment = document.createDocumentFragment();
     const isDebug = this.settings.params.debug.value;
 
     const updateResultHTMLForTest = (test: TestReport, state: { finalized: boolean; dom: HTMLElement[] }) => {
@@ -339,7 +376,10 @@ function getURL(id: string, type: 'test' | 'module' = 'test') {
   return currentURL.href;
 }
 
-function durationForTest(test: TestReport) {
+function durationForTest(test: TestReport | SuiteReport) {
+  if (test.start && !test.end) {
+    return '--';
+  }
   if (!test.start || !test.end) {
     return 'N/A';
   }
@@ -448,7 +488,8 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
     input.id = value.id;
     input.name = value.id;
 
-    if (typeof value.value === 'string') {
+    const isText = typeof value.defaultValue === 'string';
+    if (typeof value.defaultValue === 'string') {
       input.type = 'text';
       input.value = value.value;
     } else {
@@ -457,8 +498,7 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
     }
 
     function update() {
-      value.value = input.checked;
-      updateConfigValue(key, value.value);
+      updateConfigValue(value, isText ? input.value : input.checked);
       // schedule re-render
       reporter.scheduleUpdate();
     }
@@ -542,6 +582,8 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
   statsHeader.appendChild(document.createElement('th')).innerText = 'Under Construction';
   statsHeader.appendChild(document.createElement('th')).innerText = 'Skipped';
   statsHeader.appendChild(document.createElement('th')).innerText = 'Todo';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Pending';
+  statsHeader.appendChild(document.createElement('th')).innerText = 'Elapsed';
   statsHeader.appendChild(document.createElement('th')).innerText = 'Total';
 
   const clipboardButton = document.createElement('th');
@@ -552,9 +594,9 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
       '',
       `### Testing Status`,
       '',
-      `| Passing | Failing | Broken | Under Construction | Skipped | Todo | Total |`,
-      `| ------- | ------- | ------ | ------------------ | ------- | ---- | ----- |`,
-      `| ${STATS_CELLS.passing.innerText} | ${STATS_CELLS.failing.innerText} | ${STATS_CELLS.broken.innerText} | ${STATS_CELLS.underConstruction.innerText} | ${STATS_CELLS.skipped.innerText} | ${STATS_CELLS.todo.innerText} | ${STATS_CELLS.total.innerText} |`,
+      `| Passing | Failing | Broken | Under Construction | Skipped | Todo | Pending | Elapsed | Total |`,
+      `| ------- | ------- | ------ | ------------------ | ------- | ---- | ------- | ------- | ----- |`,
+      `| ${STATS_CELLS.passing.innerText} | ${STATS_CELLS.failing.innerText} | ${STATS_CELLS.broken.innerText} | ${STATS_CELLS.underConstruction.innerText} | ${STATS_CELLS.skipped.innerText} | ${STATS_CELLS.todo.innerText} | ${STATS_CELLS.pending.innerText} | ${STATS_CELLS.elapsed.innerText} | ${STATS_CELLS.total.innerText} |`,
       '',
     ].join('\n');
     const statusText = Array.from(results.keys())
@@ -577,6 +619,8 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
     underConstruction: statsRow.appendChild(document.createElement('td')),
     skipped: statsRow.appendChild(document.createElement('td')),
     todo: statsRow.appendChild(document.createElement('td')),
+    pending: statsRow.appendChild(document.createElement('td')),
+    elapsed: statsRow.appendChild(document.createElement('td')),
     total: statsRow.appendChild(document.createElement('td')),
   };
   statsRow.appendChild(document.createElement('td'));
@@ -585,13 +629,17 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
     const passed = suiteReport.passed - suiteReport.skipped - suiteReport.todo;
     const tests = Array.from(results.keys());
     const broken = tests.filter((test) => statusForTest(test) === 'broken').length;
+    const pending = tests.filter((test) => results.get(test)!.finalized !== true).length;
     const underConstruction = tests.filter((test) => statusForTest(test) === 'underConstruction').length;
     const failed = suiteReport.failed - broken - underConstruction;
     const total = suiteReport.passed + suiteReport.failed;
+    const elapsed = durationForTest(suiteReport);
 
     STATS_CELLS.passing.innerText = `✅ ${passed}`;
     STATS_CELLS.failing.innerText = `❌ ${failed}`;
     STATS_CELLS.broken.innerText = `💥 ${broken}`;
+    STATS_CELLS.pending.innerText = `🕝 ${pending}`;
+    STATS_CELLS.elapsed.innerText = `⌛️ ${elapsed}`;
     STATS_CELLS.underConstruction.innerText = `🚧 ${underConstruction}`;
     STATS_CELLS.skipped.innerText = `⚠️ ${suiteReport.skipped}`;
     STATS_CELLS.todo.innerText = `🛠️ ${suiteReport.todo}`;

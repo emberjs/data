@@ -1,4 +1,6 @@
 /* global Testem */
+import { IS_CI } from '@warp-drive/core/build-config/env';
+
 import type {
   GlobalCallback,
   GlobalConfig,
@@ -10,13 +12,52 @@ import type {
 } from '../-types';
 import { assert } from '../-utils';
 
-const urlParams = new URLSearchParams(window.location.search);
+const url = new URL(window.location.href);
+const urlParams = url.searchParams;
 
-const search = urlParams.get('search');
 const tests = new Set(urlParams.getAll('t'));
 const modules = new Set(urlParams.getAll('m'));
 
+export type ParamConfigScaffold =
+  | {
+      id: string;
+      label: string;
+      value: boolean;
+      reload?: boolean;
+    }
+  | {
+      id: string;
+      label: string;
+      value: string;
+      reload?: boolean;
+    };
+
+function withParam<T extends ParamConfigScaffold>(value: T): ParamConfig {
+  const val = value as ParamConfig;
+  val.defaultValue = value.value;
+  const param = urlParams.get(value.id);
+
+  if (param === null) {
+    return val;
+  }
+
+  if (typeof value.value === 'boolean') {
+    // '' is treated as true, 'false' or '0' as false
+    value.value = param === 'false' || param === '0' ? false : true;
+  } else if (typeof value.value === 'string') {
+    value.value = param;
+  } else {
+    throw new Error(`Unexpected parameter type for ${(value as ParamConfig).id}: ${typeof param}`);
+  }
+
+  return val;
+}
+
 export const Config: GlobalConfig = {
+  name: {
+    org: '@warp-drive/',
+    package: 'diagnostic',
+  },
   globalHooks: {
     beforeEach: [],
     afterEach: [],
@@ -34,51 +75,61 @@ export const Config: GlobalConfig = {
   modules,
   tests,
   params: {
-    search: {
+    search: withParam({
       id: 'search',
       label: 'Filter Tests',
-      value: search ?? '',
-    },
-    hideReport: {
+      value: '',
+      reload: true,
+    }),
+    hideReport: withParam({
       id: 'hideReport',
       label: 'Hide Report',
-      value: true,
-    },
-    concurrency: {
-      id: 'concurrency',
+      value: IS_CI ? true : false,
+    }),
+    useConcurrency: withParam({
+      id: 'useConcurrency',
       label: 'Enable Concurrency',
       value: false,
-    },
-    memory: {
+      reload: true,
+    }),
+    memory: withParam({
       id: 'memory',
       label: 'Instrument Memory',
       value: false,
-    },
-    instrument: {
+      reload: true,
+    }),
+    instrument: withParam({
       id: 'performance',
       label: 'Instrument Performance',
-      value: true,
-    },
-    groupLogs: {
+      value: IS_CI ? false : true,
+      reload: true,
+    }),
+    groupLogs: withParam({
       id: 'groupLogs',
       label: 'Group Logs',
-      value: true,
-    },
-    debug: {
+      value: false,
+    }),
+    debug: withParam({
       id: 'debug',
       label: 'Debug Mode',
-      value: false,
-    },
-    container: {
-      id: 'container',
+      value: IS_CI ? false : true,
+    }),
+    timeline: withParam({
+      id: 'timeline',
+      label: 'Show Timeline',
+      value: IS_CI ? false : true,
+    }),
+    hidecontainer: withParam({
+      id: 'hidecontainer',
       label: 'Hide Container',
       value: true,
-    },
-    tryCatch: {
-      id: 'tryCatch',
+    }),
+    noTryCatch: withParam({
+      id: 'noTryCatch',
       label: 'No Try/Catch',
-      value: true,
-    },
+      value: false,
+      reload: true,
+    }),
   },
   totals: {
     tests: 0,
@@ -151,13 +202,17 @@ export function setupGlobalHooks<TC extends TestContext>(cb: (hooks: GlobalHooks
 }
 
 export type ConfigOptions = {
+  org: string;
+  package: string;
   concurrency: number;
+  useConcurrency: boolean;
   instrument: boolean;
-  tryCatch: boolean;
+  noTryCatch: boolean;
   debug: boolean;
   groupLogs: boolean;
   memory: boolean;
-  container: boolean;
+  hidecontainer: boolean;
+  timeline: boolean;
   hideReport: boolean;
   params: Record<string, ParamConfig>;
   useTestem: boolean;
@@ -165,14 +220,15 @@ export type ConfigOptions = {
   testTimeoutMs: number;
 };
 const configOptions = [
-  'concurrency',
-  'tryCatch',
+  'useConcurrency',
+  'noTryCatch',
   'instrument',
   'hideReport',
+  'timeline',
   'memory',
   'groupLogs',
   'debug',
-  'container',
+  'hidecontainer',
 ] as const;
 export function configure(options: Partial<ConfigOptions>): void {
   if (options.useTestem && options.useDiagnostic) {
@@ -191,12 +247,28 @@ export function configure(options: Partial<ConfigOptions>): void {
 
   if ('concurrency' in options && typeof options.concurrency === 'number') {
     Config.concurrency = options.concurrency;
-    // @ts-expect-error
-    options.concurrency = options.concurrency > 1;
   }
+
+  Config.name = { org: '@warp-drive/', package: 'diagnostic' };
+
+  if ('org' in options && typeof options.org === 'string') {
+    Config.name.org = options.org;
+  } else if ('package' in options && typeof options.package === 'string') {
+    Config.name.org = '';
+  }
+  if ('package' in options && typeof options.package === 'string') {
+    Config.name.package = options.package;
+  } else if ('org' in options && typeof options.org === 'string') {
+    Config.name.package = '';
+  }
+
   configOptions.forEach((key) => {
     if (key in options && typeof options[key] === 'boolean') {
-      Config.params[key].value = options[key];
+      const param = Config.params[key];
+      // only copy over if not overridden by the URL
+      if (param.value === param.defaultValue) {
+        Config.params[key].value = options[key];
+      }
     }
     // don't allow setting these params via configure
     if (options.params?.[key]) {
@@ -215,14 +287,14 @@ export function getSettings(): {
   useDiagnostic: boolean;
   concurrency: number;
   params: {
-    concurrency: ParamConfig;
-    tryCatch: ParamConfig;
+    useConcurrency: ParamConfig;
+    noTryCatch: ParamConfig;
     instrument: ParamConfig;
     hideReport: ParamConfig;
     memory: ParamConfig;
     groupLogs: ParamConfig;
     debug: ParamConfig;
-    container: ParamConfig;
+    hidecontainer: ParamConfig;
     search: ParamConfig;
   };
 } {
@@ -248,4 +320,20 @@ export function groupLogs(): string | boolean {
 // 3 - forward
 // 4 - restart
 export function updateSuiteState(value: number): void {}
-export function updateConfigValue(key: string, value: boolean): void {}
+export function updateConfigValue<T extends ParamConfig>(paramConfig: T, newValue: T['value']): void {
+  // update our value
+  paramConfig.value = newValue;
+  // update the URL
+  if (paramConfig.value === paramConfig.defaultValue) {
+    urlParams.delete(paramConfig.id);
+  } else if (typeof paramConfig.value === 'boolean') {
+    urlParams.set(paramConfig.id, paramConfig.value ? 'true' : 'false');
+  }
+
+  history.replaceState(null, '', url.toString());
+
+  // if the config specifies reload, reload
+  if (paramConfig.reload) {
+    location.reload();
+  }
+}

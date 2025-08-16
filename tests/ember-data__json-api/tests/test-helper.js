@@ -25,10 +25,5 @@ setupGlobalHooks((hooks) => {
 configure();
 
 start({
-  tryCatch: true,
-  debug: IS_CI ? false : true,
-  groupLogs: false,
-  instrument: true,
-  hideReport: IS_CI ? true : false,
   useDiagnostic: true,
 });
