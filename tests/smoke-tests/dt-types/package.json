@@ -100,7 +100,7 @@
     "expect-type": "^1.2.1",
     "globals": "^16.0.0",
     "loader.js": "^4.7.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "prettier-plugin-ember-template-tag": "^2.0.5",
     "qunit": "^2.22.0",
     "qunit-dom": "^3.4.0",
