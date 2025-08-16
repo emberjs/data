@@ -69,7 +69,7 @@
     "@ember/test-waiters": "^4.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
-    "babel-plugin-ember-template-compilation": "^2.4.1",
+    "babel-plugin-ember-template-compilation": "^3.0.0",
     "ember-template-imports": "^4.3.0",
     "ember-source": "~6.3.0",
     "rollup": "^4.40.0",
