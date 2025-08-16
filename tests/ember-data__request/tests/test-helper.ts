@@ -28,11 +28,7 @@ setupGlobalHooks((hooks) => {
 configure();
 
 void start({
-  tryCatch: false,
-  debug: true, // IS_CI ? false : true,
-  hideReport: IS_CI ? true : false,
   concurrency: 10,
-  groupLogs: false,
-  instrument: true,
+  useConcurrency: true,
   useDiagnostic: true,
 });

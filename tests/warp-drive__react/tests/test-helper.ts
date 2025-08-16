@@ -35,11 +35,5 @@ setupGlobalHooks((hooks) => {
 });
 
 void start({
-  tryCatch: false,
-  debug: true,
-  concurrency: 1,
-  groupLogs: false,
-  instrument: true,
-  hideReport: false,
   useDiagnostic: true,
 });

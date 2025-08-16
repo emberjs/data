@@ -107,7 +107,7 @@ export const Config: GlobalConfig = {
     groupLogs: withParam({
       id: 'groupLogs',
       label: 'Group Logs',
-      value: true,
+      value: false,
     }),
     debug: withParam({
       id: 'debug',

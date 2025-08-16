@@ -22,9 +22,5 @@ configure();
 
 setApplication(Application.create(config.APP));
 start({
-  tryCatch: false,
-  groupLogs: false,
-  instrument: true,
-  hideReport: true,
   useDiagnostic: true,
 });

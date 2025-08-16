@@ -23,10 +23,5 @@ configure();
 
 setApplication(Application.create(config.APP));
 void start({
-  tryCatch: false,
-  debug: IS_CI ? false : true,
-  groupLogs: false,
-  instrument: true,
-  hideReport: IS_CI ? true : false,
   useDiagnostic: true,
 });
