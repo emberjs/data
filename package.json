@@ -78,7 +78,7 @@
     "pnpm": "10.14.0"
   },
   "volta": {
-    "node": "24.3.0",
+    "node": "24.5.0",
     "pnpm": "10.14.0"
   },
   "packageManager": "pnpm@10.14.0",
