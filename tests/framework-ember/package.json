@@ -31,7 +31,7 @@
     "@ember/test-helpers": "5.2.0",
     "@embroider/core": "^4.1.0",
     "@embroider/macros": "^1.18.0",
-    "decorator-transforms": "^2.2.2",
+    "decorator-transforms": "^2.3.0",
     "@embroider/vite": "^1.1.5",
     "@glimmer/component": "^2.0.0",
     "@glint/core": "alpha",
