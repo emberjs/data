@@ -55,7 +55,7 @@
     "@warp-drive/utilities": "workspace:*",
     "ember-source": "~6.3.0",
     "decorator-transforms": "^2.3.0",
-    "expect-type": "^1.2.1",
+    "expect-type": "^1.2.2",
     "typescript": "^5.9.2",
     "vite": "^7.0.0"
   },
