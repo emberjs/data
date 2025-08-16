@@ -71,7 +71,7 @@
     "broccoli-uglify-sourcemap": "^4.0.0",
     "ember-auto-import": "2.10.0",
     "ember-cached-decorator-polyfill": "^1.0.2",
-    "ember-cli": "~6.3.1",
+    "ember-cli": "~6.6.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
