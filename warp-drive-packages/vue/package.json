@@ -63,7 +63,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "rollup": "^4.40.0",
-    "vue": "^3.5.17",
+    "vue": "^3.5.18",
     "vue-tsc": "^2.2.10",
     "typescript": "^5.9.2",
     "vite": "^5.4.15"
