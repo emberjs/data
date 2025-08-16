@@ -22,6 +22,12 @@ import { GET } from '@warp-drive/holodeck/mock';
 import { JSONAPICache } from '@warp-drive/json-api';
 import { buildBaseURL } from '@warp-drive/utilities';
 
+type User = {
+  id: string;
+  name: string;
+  [Type]: 'user';
+};
+
 class Store extends DataStore {
   constructor(args?: unknown) {
     super(args);
@@ -32,7 +38,22 @@ class Store extends DataStore {
   }
 
   createSchemaService(): SchemaService {
-    return new SchemaService();
+    const schema = new SchemaService();
+    registerDerivations(schema);
+    schema.registerResource(
+      withDefaults({
+        type: 'user',
+        identity: { name: 'id', kind: '@id' },
+        fields: [
+          {
+            name: 'name',
+            kind: 'field',
+          },
+        ],
+      })
+    );
+
+    return schema;
   }
 
   createCache(capabilities: CacheCapabilitiesManager): Cache {
@@ -516,8 +537,11 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     countFor: (result: unknown) => number;
     retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
-    const url = await mockRetrySuccess(this);
-    const request = this.manager.request<UserResource>({ url, method: 'GET' });
+    const store = new Store();
+    store.requestManager = this.manager;
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this, { name: 'runspired' });
+    const request = store.request<UserResource>({ url, method: 'GET' });
     const state2 = getRequestState(request);
 
     class RequestSource {
@@ -535,7 +559,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     }
 
     await this.render({
-      store: this.manager,
+      store,
       source,
       countFor,
       retry,
@@ -554,14 +578,12 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.dom().hasText('Chris ThoburnCount: 2');
 
     await this.h.pauseTest();
-
-    const request2 = this.manager.request<UserResource>({ url, method: 'GET' });
-    source.request = request2;
-
+    await store.request<UserResource>({ url, method: 'GET', cacheOptions: { reload: true } });
     await this.h.rerender();
 
     assert.equal(counter, 3, 'counter is 3');
-    assert.dom().hasText('Chris ThoburnCount: 3');
+    assert.dom().hasText('runspiredCount: 3');
+
     await this.h.pauseTest();
   })
 
@@ -585,24 +607,6 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     manager.useCache(StoreHandler);
     store.requestManager = manager;
     this.manager = manager;
-
-    registerDerivations(store.schema);
-    store.schema.registerResource(
-      withDefaults({
-        type: 'user',
-        identity: { name: 'id', kind: '@id' },
-        fields: [
-          {
-            name: 'name',
-            kind: 'field',
-          },
-        ],
-      })
-    );
-    type User = {
-      id: string;
-      name: string;
-    };
 
     const url = await mockRetrySuccess(this);
     const request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
@@ -1146,25 +1150,6 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     manager.useCache(StoreHandler);
     store.requestManager = manager;
     this.manager = manager;
-
-    registerDerivations(store.schema);
-    store.schema.registerResource(
-      withDefaults({
-        type: 'user',
-        identity: { name: 'id', kind: '@id' },
-        fields: [
-          {
-            name: 'name',
-            kind: 'field',
-          },
-        ],
-      })
-    );
-    type User = {
-      id: string;
-      name: string;
-      [Type]: 'user';
-    };
 
     const url = await mockGETSuccess(this);
     await mockGETSuccess(this); // need this because we are planning on making two requests
