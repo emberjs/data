@@ -21,12 +21,10 @@ overrides:
   webpack: 5.99.5
   qunit: 2.19.4
   ember-compatibility-helpers: ^1.2.7
-  testem: ~3.11.0
+  testem: ~3.16.0
   typescript: 5.9.2
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
-
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
 
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
@@ -73,13 +71,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -1305,8 +1303,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -2232,7 +2230,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)
+        version: file:packages/unpublished-test-infra(f375398e67ba2cf1ccd85aa086841419)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2303,8 +2301,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -2352,7 +2350,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)
+        version: file:packages/unpublished-test-infra(f375398e67ba2cf1ccd85aa086841419)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2447,8 +2445,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -2658,7 +2656,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)
+        version: file:packages/unpublished-test-infra(f375398e67ba2cf1ccd85aa086841419)
       '@ember/optional-features':
         specifier: ^2.2.0
         version: 2.2.0
@@ -2741,8 +2739,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -2781,19 +2779,19 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
       '@glint/tsserver-plugin':
         specifier: alpha
-        version: 2.0.0-alpha.3
+        version: 2.0.0-alpha.4
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.28.0)(rollup@4.46.2)
@@ -2952,7 +2950,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(e0526f5a91b9fd2decd282f94baf6cc0)
+        version: file:packages/unpublished-test-infra(02bcae19bbb9632e1b0c6bfb7bac3c45)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2976,13 +2974,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3122,8 +3120,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -3716,7 +3714,7 @@ importers:
         version: file:packages/store(71230f815b7f822a1df7a93bc6010582)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(e0526f5a91b9fd2decd282f94baf6cc0)
+        version: file:packages/unpublished-test-infra(02bcae19bbb9632e1b0c6bfb7bac3c45)
       '@ember/edition-utils':
         specifier: ^1.2.0
         version: 1.2.0
@@ -3734,13 +3732,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3829,8 +3827,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       testem:
-        specifier: ~3.11.0
-        version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+        specifier: ~3.16.0
+        version: 3.16.0
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -3953,13 +3951,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -5224,7 +5222,7 @@ packages:
       '@warp-drive/core-types': workspace:*
       '@warp-drive/diagnostic': workspace:*
       qunit: 2.19.4
-      testem: ~3.11.0
+      testem: ~3.16.0
     peerDependenciesMeta:
       '@warp-drive/diagnostic':
         optional: true
@@ -5858,8 +5856,8 @@ packages:
   '@glimmer/wire-format@0.94.8':
     resolution: {integrity: sha512-A+Cp5m6vZMAEu0Kg/YwU2dJZXyYxVJs2zI57d3CP6NctmX7FsT8WjViiRUmt5abVmMmRH5b8BUovqY6GSMAdrw==}
 
-  '@glint/core@2.0.0-alpha.3':
-    resolution: {integrity: sha512-PCiajENyPfNkFfSDhqIcQ0DXzJZrPc1g7v5o8FyLDtvSwmM+/wlmpI4yJDXgo2TGJKFowjSOY1MKFRMiEd36GA==}
+  '@glint/core@2.0.0-alpha.4':
+    resolution: {integrity: sha512-tGQNKlwZ/1BhNnxP6No+yIxaff3ta7dh2gEaNFSYZMOA+hBldHeDzxUJH0w2QtbCy/6ZaM+Ujepvfp+mpiY+9A==}
     hasBin: true
     peerDependencies:
       typescript: 5.9.2
@@ -5888,8 +5886,8 @@ packages:
   '@glint/template@1.6.0-alpha.2':
     resolution: {integrity: sha512-T1jnkJ4g9kj4CQFdax6/AE8rdd8S5+1/88l63w1xPjfSByhKt3ES6Noko3fPx9WhV7gZxalgg6sjBoZlhPZabg==}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
-    resolution: {integrity: sha512-VPg0rVOu7Ql+ji28/mYO10J7xDpd4bEOEAF+Bu8i8cNIlLaKQoNqlrhMjChxPyS87Neiys69Kdh6lGzJ904xeg==}
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
+    resolution: {integrity: sha512-m24oz/QVo7Qes2WjwsLbTExlerKm5a6IPrcW+CPDMArtvn9rFSxDxcoiK/x6f7xy0dfud3Ej1iHe0hO4KAu0qA==}
 
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
@@ -11076,17 +11074,8 @@ packages:
   lodash._isiterateecall@3.0.9:
     resolution: {integrity: sha512-De+ZbrMu6eThFti/CSzhRvTKMgQToLxbij58LMfM8JnYDNSOjkjTCIaa8ixglOeGh2nyPlakbt5bJWJ7gvpYlQ==}
 
-  lodash.assignin@4.2.0:
-    resolution: {integrity: sha512-yX/rx6d/UTVh7sSVWVSIMjfnz95evAgDFdb1ZozC35I9mSFCkmzptOzevxjgbQUsc78NR44LVHWjsoMQXy9FDg==}
-
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
-
-  lodash.castarray@4.4.0:
-    resolution: {integrity: sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==}
-
-  lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
 
   lodash.debounce@3.1.1:
     resolution: {integrity: sha512-lcmJwMpdPAtChA4hfiwxTtgFeNAaow701wWUgVUqeD0XJF7vMXIN+bu/2FJSGxT0NUbZy9g9VFrlOFfPjl+0Ew==}
@@ -11096,9 +11085,6 @@ packages:
 
   lodash.defaultsdeep@4.6.1:
     resolution: {integrity: sha512-3j8wdDzYuWO3lM3Reg03MuQR957t287Rpcxp1njpEa8oDrikb+FwGdW3n+FELh/A6qib6yPit0j/pv9G/yeAqA==}
-
-  lodash.find@4.6.0:
-    resolution: {integrity: sha512-yaRZoAV3Xq28F1iafWN1+a0rflOej93l1DQUejs3SZ41h2O9UJBoS9aueGjPDgAl4B6tPC0NuuchLKaDQQ3Isg==}
 
   lodash.flatten@3.0.2:
     resolution: {integrity: sha512-jCXLoNcqQRbnT/KWZq2fIREHWeczrzpTR0vsycm96l/pu5hGeAntVBG0t7GuM/2wFqmnZs3d1eGptnAH2E8+xQ==}
@@ -11121,9 +11107,6 @@ packages:
 
   lodash.uniq@4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
-
-  lodash.uniqby@4.7.0:
-    resolution: {integrity: sha512-e/zcLx6CSbmaEgFHCA7BnoQKyCtKMxnuWrJygbwPs/AIn+IMKl66L8/s+wBUn5LRw2pZx3bUHibiV1b6aTWIww==}
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -13286,8 +13269,8 @@ packages:
     resolution: {integrity: sha512-790e9vJKdfddWNOaxW1/V9FcMk48cPEl3eJSj2i8Hh1fX89qArEJ6cp3DBnaECpGXc3xKJVWbc1jeNlWYWgiMg==}
     engines: {node: '>= 16'}
 
-  testem@3.11.0:
-    resolution: {integrity: sha512-q0U126/nnRH54ZDrr6j1Ai5zK6vOm2rdY/5VJrbqcEPQgOWoLB6zrymWUs7BqN2/yRsdorocl9E9ZEwm7LLIZQ==}
+  testem@3.16.0:
+    resolution: {integrity: sha512-TKQ3CuG/u+vDa7IUQgRQHN753wjDlgYMWE45KF5WkXyWjTNxXHPrY0qPBmHWI+kDYWc3zsJqzbS7pdzt5sc33A==}
     engines: {node: '>= 7.*'}
     hasBin: true
 
@@ -17345,6 +17328,22 @@ snapshots:
       - '@babel/core'
       - supports-color
 
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(02bcae19bbb9632e1b0c6bfb7bac3c45)':
+    dependencies:
+      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
+      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(76488ac0278dbc81b19b9e3897c72999)
+      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
+      chalk: 4.1.2
+      semver: 7.7.2
+    optionalDependencies:
+      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
+      testem: 3.16.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(41d0cb42daba7e43464e6deec8933cd7)':
     dependencies:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -17386,22 +17385,6 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(b9b7193b35824fc88b0285b42f152aad)':
-    dependencies:
-      '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
-      '@embroider/macros': 1.17.3(@babel/core@7.27.1)
-      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
-      chalk: 4.1.2
-      semver: 7.7.2
-    optionalDependencies:
-      qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(d5197230415c7a1fc4fd5ad0fddeb631)':
     dependencies:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
@@ -17417,10 +17400,10 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(e0526f5a91b9fd2decd282f94baf6cc0)':
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(f375398e67ba2cf1ccd85aa086841419)':
     dependencies:
       '@ember-data/store': file:packages/store(71230f815b7f822a1df7a93bc6010582)
-      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(76488ac0278dbc81b19b9e3897c72999)
+      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(41c06fd0fbe1f8e2dd80a4aba9cca239)
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.27.1)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
@@ -17428,7 +17411,7 @@ snapshots:
       semver: 7.7.2
     optionalDependencies:
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
+      testem: 3.16.0
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -18709,7 +18692,7 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.6
 
-  '@glint/core@2.0.0-alpha.3(typescript@5.9.2)':
+  '@glint/core@2.0.0-alpha.4(typescript@5.9.2)':
     dependencies:
       '@glimmer/syntax': 0.94.9
       '@volar/kit': 2.4.12(typescript@5.9.2)
@@ -18734,39 +18717,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
     optionalDependencies:
       ember-cli-htmlbars: 6.3.0
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
   '@glint/template@1.6.0-alpha.2': {}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@volar/language-core': 2.4.12
       '@volar/typescript': 2.4.12
       jiti: 2.4.2
@@ -19710,13 +19693,13 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/cookie@0.6.0': {}
 
   '@types/cors@2.8.18':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/debug@4.1.12':
     dependencies:
@@ -19762,7 +19745,7 @@ snapshots:
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/hast@3.0.4':
     dependencies:
@@ -19787,7 +19770,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/linkify-it@5.0.0': {}
 
@@ -19838,7 +19821,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/rimraf@2.0.5':
     dependencies:
@@ -19852,7 +19835,7 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -19864,7 +19847,7 @@ snapshots:
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/supports-color@8.1.3': {}
 
@@ -22479,12 +22462,6 @@ snapshots:
       lodash: 4.17.21
       mustache: 4.2.0
 
-  consolidate@0.16.0(mustache@4.2.0):
-    dependencies:
-      bluebird: 3.7.2
-    optionalDependencies:
-      mustache: 4.2.0
-
   content-disposition@0.5.4:
     dependencies:
       safe-buffer: 5.2.1
@@ -23290,7 +23267,7 @@ snapshots:
       sort-package-json: 2.15.1
       symlink-or-copy: 1.3.1
       temp: 0.9.4
-      testem: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)(lodash@4.17.21)
+      testem: 3.16.0
       tiny-lr: 2.0.0
       tree-sync: 2.1.0
       walk-sync: 3.0.0
@@ -23966,7 +23943,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.18
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -26252,13 +26229,7 @@ snapshots:
 
   lodash._isiterateecall@3.0.9: {}
 
-  lodash.assignin@4.2.0: {}
-
   lodash.camelcase@4.3.0: {}
-
-  lodash.castarray@4.4.0: {}
-
-  lodash.clonedeep@4.5.0: {}
 
   lodash.debounce@3.1.1:
     dependencies:
@@ -26267,8 +26238,6 @@ snapshots:
   lodash.debounce@4.0.8: {}
 
   lodash.defaultsdeep@4.6.1: {}
-
-  lodash.find@4.6.0: {}
 
   lodash.flatten@3.0.2:
     dependencies:
@@ -26286,8 +26255,6 @@ snapshots:
   lodash.omit@4.5.0: {}
 
   lodash.uniq@4.5.0: {}
-
-  lodash.uniqby@4.7.0: {}
 
   lodash@4.17.21: {}
 
@@ -28809,96 +28776,7 @@ snapshots:
       stringify-object-es5: 2.5.0
       theredoc: 1.0.0
 
-  testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5):
-    dependencies:
-      '@xmldom/xmldom': 0.8.10
-      backbone: 1.6.1
-      bluebird: 3.7.2
-      charm: 1.0.2
-      commander: 2.20.3
-      compression: 1.8.0
-      consolidate: 0.16.0(mustache@4.2.0)
-      execa: 1.0.0
-      express: 4.21.2
-      fireworm: 0.7.2
-      glob: 7.2.3
-      http-proxy: 1.18.1
-      js-yaml: 3.14.1
-      lodash.assignin: 4.2.0
-      lodash.castarray: 4.4.0
-      lodash.clonedeep: 4.5.0
-      lodash.find: 4.6.0
-      lodash.uniqby: 4.7.0
-      mkdirp: 3.0.1
-      mustache: 4.2.0
-      node-notifier: 10.0.1
-      npmlog: 6.0.2
-      printf: 0.6.1
-      rimraf: 3.0.2
-      socket.io: 4.8.1
-      spawn-args: 0.2.0
-      styled_string: 0.0.1
-      tap-parser: 7.0.0
-      tmp: 0.0.33
-    transitivePeerDependencies:
-      - arc-templates
-      - atpl
-      - babel-core
-      - bracket-template
-      - bufferutil
-      - coffee-script
-      - debug
-      - dot
-      - dust
-      - dustjs-helpers
-      - dustjs-linkedin
-      - eco
-      - ect
-      - ejs
-      - haml-coffee
-      - hamlet
-      - hamljs
-      - handlebars
-      - hogan.js
-      - htmling
-      - jade
-      - jazz
-      - jqtpl
-      - just
-      - liquid-node
-      - liquor
-      - lodash
-      - marko
-      - mote
-      - nunjucks
-      - plates
-      - pug
-      - qejs
-      - ractive
-      - razor-tmpl
-      - react
-      - react-dom
-      - slm
-      - squirrelly
-      - supports-color
-      - swig
-      - swig-templates
-      - teacup
-      - templayed
-      - then-jade
-      - then-pug
-      - tinyliquid
-      - toffee
-      - twig
-      - twing
-      - underscore
-      - utf-8-validate
-      - vash
-      - velocityjs
-      - walrus
-      - whiskers
-
-  testem@3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)(lodash@4.17.21):
+  testem@3.16.0:
     dependencies:
       '@xmldom/xmldom': 0.8.10
       backbone: 1.6.1
@@ -28913,11 +28791,7 @@ snapshots:
       glob: 7.2.3
       http-proxy: 1.18.1
       js-yaml: 3.14.1
-      lodash.assignin: 4.2.0
-      lodash.castarray: 4.4.0
-      lodash.clonedeep: 4.5.0
-      lodash.find: 4.6.0
-      lodash.uniqby: 4.7.0
+      lodash: 4.17.21
       mkdirp: 3.0.1
       mustache: 4.2.0
       node-notifier: 10.0.1
@@ -28956,7 +28830,6 @@ snapshots:
       - just
       - liquid-node
       - liquor
-      - lodash
       - marko
       - mote
       - nunjucks
