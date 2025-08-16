@@ -21,11 +21,11 @@
     "fixtures": "bun run ./fixtures/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/runtime": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
     "@ember/optional-features": "^2.2.0",
-    "@babel/plugin-transform-runtime": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
+    "@babel/plugin-transform-runtime": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.0",
     "@ember-data/request": "workspace:*",
