@@ -41,7 +41,7 @@
     "@warp-drive/holodeck": "workspace:*"
   },
   "dependencies": {
-    "@embroider/macros": "^1.16.12"
+    "@embroider/macros": "^1.18.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
