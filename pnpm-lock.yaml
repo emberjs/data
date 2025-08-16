@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -73,13 +71,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -2781,19 +2779,19 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
       '@glint/tsserver-plugin':
         specifier: alpha
-        version: 2.0.0-alpha.3
+        version: 2.0.0-alpha.4
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.28.0)(rollup@4.46.2)
@@ -2976,13 +2974,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3734,13 +3732,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3866,17 +3864,17 @@ importers:
         specifier: ^7.20.5
         version: 7.20.5
       '@types/node':
-        specifier: ^20.17.32
-        version: 20.17.46
+        specifier: ^20.19.10
+        version: 20.19.11
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(5329c024b4ebf34f915440665ecbd07d)
+        version: file:config(08d339ab80698bc6d2b26efaef736218)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
       vite:
         specifier: ^7.0.0
-        version: 7.0.0(@types/node@20.17.46)
+        version: 7.0.0(@types/node@20.19.11)
 
   warp-drive-packages/core:
     dependencies:
@@ -3953,13 +3951,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -5858,8 +5856,8 @@ packages:
   '@glimmer/wire-format@0.94.8':
     resolution: {integrity: sha512-A+Cp5m6vZMAEu0Kg/YwU2dJZXyYxVJs2zI57d3CP6NctmX7FsT8WjViiRUmt5abVmMmRH5b8BUovqY6GSMAdrw==}
 
-  '@glint/core@2.0.0-alpha.3':
-    resolution: {integrity: sha512-PCiajENyPfNkFfSDhqIcQ0DXzJZrPc1g7v5o8FyLDtvSwmM+/wlmpI4yJDXgo2TGJKFowjSOY1MKFRMiEd36GA==}
+  '@glint/core@2.0.0-alpha.4':
+    resolution: {integrity: sha512-tGQNKlwZ/1BhNnxP6No+yIxaff3ta7dh2gEaNFSYZMOA+hBldHeDzxUJH0w2QtbCy/6ZaM+Ujepvfp+mpiY+9A==}
     hasBin: true
     peerDependencies:
       typescript: 5.9.2
@@ -5888,8 +5886,8 @@ packages:
   '@glint/template@1.6.0-alpha.2':
     resolution: {integrity: sha512-T1jnkJ4g9kj4CQFdax6/AE8rdd8S5+1/88l63w1xPjfSByhKt3ES6Noko3fPx9WhV7gZxalgg6sjBoZlhPZabg==}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
-    resolution: {integrity: sha512-VPg0rVOu7Ql+ji28/mYO10J7xDpd4bEOEAF+Bu8i8cNIlLaKQoNqlrhMjChxPyS87Neiys69Kdh6lGzJ904xeg==}
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
+    resolution: {integrity: sha512-m24oz/QVo7Qes2WjwsLbTExlerKm5a6IPrcW+CPDMArtvn9rFSxDxcoiK/x6f7xy0dfud3Ej1iHe0hO4KAu0qA==}
 
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
@@ -6869,6 +6867,9 @@ packages:
 
   '@types/node@20.17.46':
     resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
+
+  '@types/node@20.19.11':
+    resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
 
   '@types/node@24.0.6':
     resolution: {integrity: sha512-ZOyn+gOs749xU7ovp+Ibj0g1o3dFRqsfPnT22C2t5JzcRvgsEDpGawPbCISGKLudJk9Y0wiu9sYd6kUh0pc9TA==}
@@ -13646,6 +13647,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
   undici-types@7.8.0:
     resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
@@ -18709,7 +18713,7 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.6
 
-  '@glint/core@2.0.0-alpha.3(typescript@5.9.2)':
+  '@glint/core@2.0.0-alpha.4(typescript@5.9.2)':
     dependencies:
       '@glimmer/syntax': 0.94.9
       '@volar/kit': 2.4.12(typescript@5.9.2)
@@ -18734,39 +18738,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
     optionalDependencies:
       ember-cli-htmlbars: 6.3.0
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
   '@glint/template@1.6.0-alpha.2': {}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@volar/language-core': 2.4.12
       '@volar/typescript': 2.4.12
       jiti: 2.4.2
@@ -19686,7 +19690,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/broccoli-plugin@3.0.4':
     dependencies:
@@ -19710,13 +19714,13 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/cookie@0.6.0': {}
 
   '@types/cors@2.8.18':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/debug@4.1.12':
     dependencies:
@@ -19743,7 +19747,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -19757,12 +19761,12 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/hast@3.0.4':
     dependencies:
@@ -19787,7 +19791,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/linkify-it@5.0.0': {}
 
@@ -19818,6 +19822,10 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
+  '@types/node@20.19.11':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/node@24.0.6':
     dependencies:
       undici-types: 7.8.0
@@ -19838,12 +19846,12 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/rsvp@4.0.9': {}
 
@@ -19852,19 +19860,19 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
       '@types/send': 0.17.4
 
   '@types/sizzle@2.3.9': {}
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   '@types/supports-color@8.1.3': {}
 
@@ -20399,7 +20407,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(5329c024b4ebf34f915440665ecbd07d)':
+  '@warp-drive/internal-config@file:config(08d339ab80698bc6d2b26efaef736218)':
     dependencies:
       '@babel/cli': 7.27.2(@babel/core@7.27.1)
       '@babel/core': 7.27.1
@@ -20426,7 +20434,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.26.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.0.0(@types/node@20.17.46)
+      vite: 7.0.0(@types/node@20.19.11)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -22008,7 +22016,7 @@ snapshots:
 
   bun-types@1.2.13:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
 
   bun-types@1.2.17:
     dependencies:
@@ -23966,7 +23974,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.18
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -25934,7 +25942,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.0.6
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -29357,6 +29365,8 @@ snapshots:
 
   undici-types@6.19.8: {}
 
+  undici-types@6.21.0: {}
+
   undici-types@7.8.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
@@ -29551,7 +29561,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@7.0.0(@types/node@20.17.46):
+  vite@7.0.0(@types/node@20.19.11):
     dependencies:
       esbuild: 0.25.4
       fdir: 6.4.6(picomatch@4.0.2)
@@ -29560,7 +29570,7 @@ snapshots:
       rollup: 4.40.2
       tinyglobby: 0.2.14
     optionalDependencies:
-      '@types/node': 20.17.46
+      '@types/node': 20.19.11
       fsevents: 2.3.3
 
   vite@7.0.0(@types/node@24.0.6):
