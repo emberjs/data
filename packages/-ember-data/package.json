@@ -109,7 +109,7 @@
     "@types/qunit": "2.19.10",
     "@ember/test-helpers": "5.2.0",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-source": "~6.3.0",
+    "ember-source": "~6.6.0",
     "eslint": "^9.24.0",
     "vite": "^7.0.0",
     "typescript": "^5.9.2",

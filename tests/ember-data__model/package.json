@@ -56,8 +56,8 @@
     "ember-cli-test-loader": "^3.1.0",
     "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-resolver": "^13.1.0",
-    "ember-source": "~6.3.0",
+    "ember-resolver": "^13.1.1",
+    "ember-source": "~6.6.0",
     "loader.js": "^4.7.0",
     "typescript": "^5.9.2",
     "webpack": "^5.99.5"
