@@ -19,7 +19,7 @@
     "@types/bun": "^1.2.10",
     "typescript": "^5.9.2",
     "chalk": "5.4.1",
-    "debug": "4.4.0",
+    "debug": "4.4.1",
     "@types/debug": "4.1.12",
     "comment-json": "^4.2.5",
     "@pnpm/find-workspace-dir": "1000.1.0",
