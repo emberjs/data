@@ -50,7 +50,7 @@
     "@warp-drive/core": "workspace:*",
     "rollup": "^4.40.0",
     "typescript": "^5.9.2",
-    "vite": "^5.4.15"
+    "vite": "^5.4.19"
   },
   "volta": {
     "extends": "../../package.json"
