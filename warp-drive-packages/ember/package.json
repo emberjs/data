@@ -73,7 +73,7 @@
     "ember-template-imports": "^4.3.0",
     "ember-source": "~6.3.0",
     "rollup": "^4.40.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0",
     "ember-provide-consume-context": "^0.7.0"
   },

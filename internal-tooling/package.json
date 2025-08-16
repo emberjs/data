@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@types/bun": "^1.2.10",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "chalk": "5.4.1",
     "debug": "4.4.0",
     "@types/debug": "4.1.12",
