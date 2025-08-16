@@ -71,7 +71,7 @@
     "@warp-drive/core": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.4.1",
     "ember-template-imports": "^4.3.0",
-    "ember-source": "~6.3.0",
+    "ember-source": "~6.6.0",
     "rollup": "^4.40.0",
     "typescript": "^5.9.2",
     "vite": "^7.0.0",
