@@ -19,7 +19,7 @@
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
-    "vitepress": "^1.6.3",
+    "vitepress": "^1.6.4",
     "@types/bun": "^1.2.10",
     "typescript": "^5.9.2",
     "chalk": "5.4.1",
