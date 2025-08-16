@@ -79,7 +79,7 @@ export default async function launchDefault(overrides = {}) {
     debug: overrides.debug ?? false,
     headless: overrides.headless ?? false,
     useExisting: overrides.useExisting ?? false,
-    protocol: overrides.protocol ?? 'http',
+    protocol: overrides.protocol ?? 'https',
     key: overrides.key ?? null,
     cert: overrides.cert ?? null,
     hostname: overrides.hostname ?? 'localhost',
