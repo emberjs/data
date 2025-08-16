@@ -57,7 +57,7 @@
     "ember-resolver": "^13.1.0",
     "ember-source": "~6.3.0",
     "loader.js": "^4.7.0",
-    "terser": "^5.39.0",
+    "terser": "^5.43.1",
     "vite": "^7.0.0",
     "vite-bundle-analyzer": "^0.23.0",
     "vite-plugin-compression2": "^2.2.0",

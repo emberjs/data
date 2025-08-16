@@ -44,7 +44,7 @@
     "ember-source": "^6.3.0",
     "ember-strict-application-resolver": "^0.1.0",
     "rollup": "^4.46.2",
-    "terser": "^5.39.0",
+    "terser": "^5.43.1",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
     "@ember/test-waiters": "^4.1.0",
