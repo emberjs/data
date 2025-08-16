@@ -23,7 +23,7 @@
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-mocha": "^10.5.0",
+    "eslint-plugin-mocha": "^11.1.0",
     "eslint-plugin-n": "^17.16.2",
     "eslint-plugin-qunit": "^8.1.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
