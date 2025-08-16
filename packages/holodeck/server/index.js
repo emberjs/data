@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { homedir } from 'os';
 import path from 'path';
+import { threadId, parentPort } from 'node:worker_threads';
 
 const isBun = typeof Bun !== 'undefined';
 const DEBUG =
@@ -306,6 +307,7 @@ export function startNodeServer() {
 export function startWorker() {
   // listen for launch message
   globalThis.onmessage = async (event) => {
+    console.log('starting holodeck worker');
     const { options } = event.data;
 
     const { server } = await _createServer(options);
@@ -321,6 +323,16 @@ export function startWorker() {
   };
 }
 
+async function waitForLog(server, logMessage) {
+  for await (const chunk of server.stdout) {
+    process.stdout.write(chunk);
+    const txt = new TextDecoder().decode(chunk);
+    if (txt.includes(logMessage)) {
+      return;
+    }
+  }
+}
+
 /*
 { port?: number, projectRoot: string }
 */
@@ -329,12 +341,14 @@ export async function createServer(options, useBun = false) {
     const CURRENT_FILE = new URL(import.meta.url).pathname;
     const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
     const server = Bun.spawn(['node', START_FILE, JSON.stringify(options)], {
-      env: process.env,
+      env: Object.assign({}, process.env, { FORCE_COLOR: 1 }),
       cwd: process.cwd(),
       stdin: 'inherit',
-      stdout: 'inherit',
+      stdout: 'pipe',
       stderr: 'inherit',
     });
+
+    await waitForLog(server, 'Serving Holodeck HTTP Mocks');
 
     return {
       terminate() {
@@ -344,6 +358,7 @@ export async function createServer(options, useBun = false) {
     };
   }
 
+  console.log('starting holodeck worker');
   const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
   worker.postMessage({
@@ -351,7 +366,15 @@ export async function createServer(options, useBun = false) {
     options,
   });
 
-  return worker;
+  return new Promise((resolve) => {
+    // @ts-expect-error
+    worker.onmessage((v) => {
+      console.log('worker message received', v);
+      if (v.data === 'launched') {
+        resolve(worker);
+      }
+    });
+  });
 }
 
 async function _createServer(options) {
@@ -387,8 +410,12 @@ async function _createServer(options) {
   });
 
   console.log(
-    `\tMock server running at ${chalk.yellow('https://') + chalk.magenta((options.hostname ?? 'localhost') + ':') + chalk.yellow(options.port ?? DEFAULT_PORT)}`
+    `\tServing Holodeck HTTP Mocks from ${chalk.yellow('https://') + chalk.magenta((options.hostname ?? 'localhost') + ':') + chalk.yellow(options.port ?? DEFAULT_PORT)}\n`
   );
+
+  if (typeof threadId === 'number' && threadId !== 0) {
+    parentPort.postMessage('launched');
+  }
 
   return { app, server };
 }
