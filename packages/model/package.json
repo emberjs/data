@@ -65,7 +65,7 @@
     "@babel/preset-typescript": "^7.27.0",
     "@warp-drive/internal-config": "workspace:*",
     "expect-type": "^1.2.1",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0"
   },
   "volta": {

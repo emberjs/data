@@ -29,7 +29,7 @@
   "dependencies": {
     "jscodeshift": "^17.3.0",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@ember-data/codemods": "workspace:*",

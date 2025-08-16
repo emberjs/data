@@ -28,7 +28,7 @@
     "eslint-plugin-qunit": "^8.1.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "rollup": "^4.40.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0"
   },
   "volta": {

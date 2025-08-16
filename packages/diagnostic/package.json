@@ -118,7 +118,7 @@
     "ember-source": "~6.3.0",
     "@glimmer/component": "^2.0.0",
     "ember-cli-test-loader": "^3.1.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0"
   },
   "volta": {
