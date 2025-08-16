@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -73,13 +71,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -288,8 +286,8 @@ importers:
         specifier: ^1.5.2
         version: 1.5.2(vite@7.0.0)
       vitepress-plugin-llms:
-        specifier: ^1.1.4
-        version: 1.1.4
+        specifier: ^1.7.3
+        version: 1.7.3
       vitepress-plugin-tabs:
         specifier: ^0.7.1
         version: 0.7.1(8ad53f0ef284b2dc1589dc1efaaf62e6)
@@ -2781,19 +2779,19 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
       '@glint/tsserver-plugin':
         specifier: alpha
-        version: 2.0.0-alpha.3
+        version: 2.0.0-alpha.4
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.28.0)(rollup@4.46.2)
@@ -2976,13 +2974,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3734,13 +3732,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+        version: 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)
+        version: 2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -3953,13 +3951,13 @@ importers:
         version: 2.0.0
       '@glint/core':
         specifier: alpha
-        version: 2.0.0-alpha.3(typescript@5.9.2)
+        version: 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/environment-ember-loose':
         specifier: alpha
-        version: 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/environment-ember-template-imports':
         specifier: alpha
-        version: 2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
       '@glint/template':
         specifier: alpha
         version: 1.6.0-alpha.2
@@ -5858,8 +5856,8 @@ packages:
   '@glimmer/wire-format@0.94.8':
     resolution: {integrity: sha512-A+Cp5m6vZMAEu0Kg/YwU2dJZXyYxVJs2zI57d3CP6NctmX7FsT8WjViiRUmt5abVmMmRH5b8BUovqY6GSMAdrw==}
 
-  '@glint/core@2.0.0-alpha.3':
-    resolution: {integrity: sha512-PCiajENyPfNkFfSDhqIcQ0DXzJZrPc1g7v5o8FyLDtvSwmM+/wlmpI4yJDXgo2TGJKFowjSOY1MKFRMiEd36GA==}
+  '@glint/core@2.0.0-alpha.4':
+    resolution: {integrity: sha512-tGQNKlwZ/1BhNnxP6No+yIxaff3ta7dh2gEaNFSYZMOA+hBldHeDzxUJH0w2QtbCy/6ZaM+Ujepvfp+mpiY+9A==}
     hasBin: true
     peerDependencies:
       typescript: 5.9.2
@@ -5888,8 +5886,8 @@ packages:
   '@glint/template@1.6.0-alpha.2':
     resolution: {integrity: sha512-T1jnkJ4g9kj4CQFdax6/AE8rdd8S5+1/88l63w1xPjfSByhKt3ES6Noko3fPx9WhV7gZxalgg6sjBoZlhPZabg==}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
-    resolution: {integrity: sha512-VPg0rVOu7Ql+ji28/mYO10J7xDpd4bEOEAF+Bu8i8cNIlLaKQoNqlrhMjChxPyS87Neiys69Kdh6lGzJ904xeg==}
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
+    resolution: {integrity: sha512-m24oz/QVo7Qes2WjwsLbTExlerKm5a6IPrcW+CPDMArtvn9rFSxDxcoiK/x6f7xy0dfud3Ej1iHe0hO4KAu0qA==}
 
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
@@ -5946,6 +5944,14 @@ packages:
   '@inquirer/figures@1.0.11':
     resolution: {integrity: sha512-eOg92lvrn/aRUqbxRyvpEWnrvRuTYRifixHkYVpJiygTgVSBIHDqLh0SrMQXkafvULg3ck11V7xvR+zcgvpHFw==}
     engines: {node: '>=18'}
+
+  '@isaacs/balanced-match@4.0.1':
+    resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
+    engines: {node: 20 || >=22}
+
+  '@isaacs/brace-expansion@5.0.0':
+    resolution: {integrity: sha512-ZT55BDLV0yv0RBm2czMiZ+SqCGO7AvmOM3G/w2xhVPH+te0aKgFjmBvGlL1dH+ql2tgGO3MVrbb3jCKyvpgnxA==}
+    engines: {node: 20 || >=22}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -11462,6 +11468,10 @@ packages:
     resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
     engines: {node: 20 || >=22}
 
+  minimatch@10.0.3:
+    resolution: {integrity: sha512-IPZ167aShDZZUMdRk66cyQAW3qr0WzbHkPdMYa8bzZhlHhO3jALbKdxcaak7W9FfT2rZNpQuUu4Od7ILEpXSaw==}
+    engines: {node: 20 || >=22}
+
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
@@ -13397,8 +13407,8 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
 
-  tokenx@0.4.1:
-    resolution: {integrity: sha512-LCMniis0WsHel07xh3K9OIt5c9Xla1awtOoWBmUHZBQR7pvTvgGFuYpLiCZWohXPC1YuZORnN0+fCVYI/ie8Jg==}
+  tokenx@1.1.0:
+    resolution: {integrity: sha512-KCjtiC2niPwTSuz4ktM82Ki5bjqBwYpssiHDsGr5BpejN/B3ksacRvrsdoxljdMIh2nCX78alnDkeemBmYUmTA==}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -13942,8 +13952,8 @@ packages:
     peerDependencies:
       vite: '*'
 
-  vitepress-plugin-llms@1.1.4:
-    resolution: {integrity: sha512-/+xrVWpd03B5bGsWN+R+TN0P3kqM/jaDWiddmpFxPuw7vJdoE9mAqAZx1ywzhHEeBCepDMt069l1VRyitmEU6A==}
+  vitepress-plugin-llms@1.7.3:
+    resolution: {integrity: sha512-XhTVbUrKwrzrwlRKd/zT2owvjwi5cdB21HgDRcHqp9PYK4Fy+mBYJUoTcLaJ5IKD1DDrJZMo0DuJeyC5RSDI9Q==}
 
   vitepress-plugin-tabs@0.7.1:
     resolution: {integrity: sha512-jxJvsicxnMSIYX9b8mAFLD2nwyKUcMO10dEt4nDSbinZhM8cGvAmMFOHPdf6TBX6gYZRl+/++/iYHtoM14fERQ==}
@@ -18709,7 +18719,7 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.6
 
-  '@glint/core@2.0.0-alpha.3(typescript@5.9.2)':
+  '@glint/core@2.0.0-alpha.4(typescript@5.9.2)':
     dependencies:
       '@glimmer/syntax': 0.94.9
       '@volar/kit': 2.4.12(typescript@5.9.2)
@@ -18734,39 +18744,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
 
-  '@glint/environment-ember-loose@2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)':
+  '@glint/environment-ember-loose@2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)':
     dependencies:
       '@glimmer/component': 2.0.0
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@glint/template': 1.6.0-alpha.2
     optionalDependencies:
       ember-cli-htmlbars: 6.3.0
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(543b5ef1b3828574f3fb7e0db7c8d0f4)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(16cd01190347de5f081b75edf0eb3dba)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(6988d98d3badfd8f3de0796431786a7e)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(e4825fc0d38b869953debfa829dfc207)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
-  '@glint/environment-ember-template-imports@2.0.0-alpha.3(cccd834d3ea37a3663e89afd17054450)':
+  '@glint/environment-ember-template-imports@2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
-      '@glint/environment-ember-loose': 2.0.0-alpha.3(911dc4eb0de62f5841fcabb4d28929f5)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose': 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
       '@glint/template': 1.6.0-alpha.2
       content-tag: 3.1.3
 
   '@glint/template@1.6.0-alpha.2': {}
 
-  '@glint/tsserver-plugin@2.0.0-alpha.3':
+  '@glint/tsserver-plugin@2.0.0-alpha.4':
     dependencies:
-      '@glint/core': 2.0.0-alpha.3(typescript@5.9.2)
+      '@glint/core': 2.0.0-alpha.4(typescript@5.9.2)
       '@volar/language-core': 2.4.12
       '@volar/typescript': 2.4.12
       jiti: 2.4.2
@@ -18837,6 +18847,12 @@ snapshots:
       - supports-color
 
   '@inquirer/figures@1.0.11': {}
+
+  '@isaacs/balanced-match@4.0.1': {}
+
+  '@isaacs/brace-expansion@5.0.0':
+    dependencies:
+      '@isaacs/balanced-match': 4.0.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -20611,7 +20627,7 @@ snapshots:
       vite: 7.1.2
       vitepress: 1.6.3(typescript@5.9.2)
       vitepress-plugin-group-icons: 1.5.2(vite@7.1.2)
-      vitepress-plugin-llms: 1.1.4
+      vitepress-plugin-llms: 1.7.3
       vitepress-plugin-tabs: 0.7.1(8ad53f0ef284b2dc1589dc1efaaf62e6)
       vue: 3.5.17(typescript@5.9.2)
     transitivePeerDependencies:
@@ -26753,6 +26769,10 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.1
 
+  minimatch@10.0.3:
+    dependencies:
+      '@isaacs/brace-expansion': 5.0.0
+
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.11
@@ -29102,7 +29122,7 @@ snapshots:
 
   toidentifier@1.0.1: {}
 
-  tokenx@0.4.1: {}
+  tokenx@1.1.0: {}
 
   totalist@3.0.1: {}
 
@@ -29644,18 +29664,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress-plugin-llms@1.1.4:
+  vitepress-plugin-llms@1.7.3:
     dependencies:
       byte-size: 9.0.1
       gray-matter: 4.0.3
+      markdown-it: 14.1.0
       markdown-title: 1.0.2
       millify: 6.1.0
-      minimatch: 10.0.1
+      minimatch: 10.0.3
+      path-to-regexp: 8.2.0
       picocolors: 1.1.1
       remark: 15.0.1
       remark-frontmatter: 5.0.0
-      tokenx: 0.4.1
+      tokenx: 1.1.0
       unist-util-remove: 4.0.0
+      unist-util-visit: 5.0.0
     transitivePeerDependencies:
       - '@75lb/nature'
       - supports-color
