@@ -25,27 +25,31 @@ function _createWatcher() {
     if (!state.pending && !state.destroyed) {
       state.pending = true;
       queueMicrotask(() => {
-        state.pending = false;
-        if (state.destroyed) {
-          if (LOG_REACT_SIGNAL_INTEGRATION) {
-            console.log(`[WarpDrive] Detected Watcher Destroyed During Notify Flush, clearing signals`);
-          }
-          state.snapshot = null;
-          clearWatcher();
-          return;
-        }
+        queueMicrotask(() => {
+          queueMicrotask(() => {
+            state.pending = false;
+            if (state.destroyed) {
+              if (LOG_REACT_SIGNAL_INTEGRATION) {
+                console.log(`[WarpDrive] Detected Watcher Destroyed During Notify Flush, clearing signals`);
+              }
+              state.snapshot = null;
+              clearWatcher();
+              return;
+            }
 
-        if (LOG_REACT_SIGNAL_INTEGRATION) {
-          console.log(`[WarpDrive] Notifying React That The WatcherContext Has Updated`);
-        }
+            if (LOG_REACT_SIGNAL_INTEGRATION) {
+              console.log(`[WarpDrive] Notifying React That The WatcherContext Has Updated`);
+            }
 
-        // any time signals have changed, we notify React that our store has updated
-        state.snapshot = { watcher: state.watcher };
-        if (state.notifyReact) state.notifyReact();
+            // any time signals have changed, we notify React that our store has updated
+            state.snapshot = { watcher: state.watcher };
+            if (state.notifyReact) state.notifyReact();
 
-        // tell the Watcher to start watching for changes again
-        // by signaling that notifications have been flushed.
-        state.watcher.watch();
+            // tell the Watcher to start watching for changes again
+            // by signaling that notifications have been flushed.
+            state.watcher.watch();
+          });
+        });
       });
     } else if (state.destroyed) {
       if (LOG_REACT_SIGNAL_INTEGRATION) {
