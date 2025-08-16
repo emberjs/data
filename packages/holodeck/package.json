@@ -22,9 +22,9 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "chalk": "^5.3.0",
-    "hono": "^4.7.8",
-    "@hono/node-server": "^1.14.1"
+    "chalk": "^5.5.0",
+    "hono": "^4.9.2",
+    "@hono/node-server": "^1.18.2"
   },
   "type": "module",
   "files": [

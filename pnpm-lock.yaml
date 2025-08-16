@@ -817,14 +817,14 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.14.1
-        version: 1.14.1(hono@4.7.9)
+        specifier: ^1.18.2
+        version: 1.18.2(hono@4.9.2)
       chalk:
-        specifier: ^5.3.0
-        version: 5.4.1
+        specifier: ^5.5.0
+        version: 5.5.0
       hono:
-        specifier: ^4.7.8
-        version: 4.7.9
+        specifier: ^4.9.2
+        version: 4.9.2
     devDependencies:
       '@babel/core':
         specifier: ^7.26.10
@@ -5898,8 +5898,8 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@hono/node-server@1.14.1':
-    resolution: {integrity: sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==}
+  '@hono/node-server@1.18.2':
+    resolution: {integrity: sha512-icgNvC0vRYivzyuSSaUv9ttcwtN8fDyd1k3AOIBDJgYd84tXRZSS6na8X54CY/oYoFTNhEmZraW/Rb9XYwX4KA==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -8136,6 +8136,10 @@ packages:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
+  chalk@5.5.0:
+    resolution: {integrity: sha512-1tm8DTaJhPBG3bIkVeZt1iZM9GfSX2lzOeDVZH9R9ffRHpmHvxZ/QhgQH/aDTkswQVt+YHdXAdS/In/30OjCbg==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
   char-regex@1.0.2:
     resolution: {integrity: sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==}
     engines: {node: '>=10'}
@@ -10357,8 +10361,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.7.9:
-    resolution: {integrity: sha512-/EsCoR5h7N4yu01TDu9GMCCJa6ZLk5ZJIWFFGNawAXmd1Tp53+Wir4xm0D2X19bbykWUlzQG0+BvPAji6p9E8Q==}
+  hono@4.9.2:
+    resolution: {integrity: sha512-UG2jXGS/gkLH42l/1uROnwXpkjvvxkl3kpopL3LBo27NuaDPI6xHNfuUSilIHcrBkPfl4y0z6y2ByI455TjNRw==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -17162,7 +17166,7 @@ snapshots:
 
   '@ember-data/codemods@file:packages/codemods':
     dependencies:
-      chalk: 5.4.1
+      chalk: 5.5.0
       commander: 13.1.0
       ignore: 7.0.4
       jscodeshift: 17.3.0
@@ -18778,9 +18782,9 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.14.1(hono@4.7.9)':
+  '@hono/node-server@1.18.2(hono@4.9.2)':
     dependencies:
-      hono: 4.7.9
+      hono: 4.9.2
 
   '@html-next/vertical-collection@4.0.2(@babel/core@7.27.1)':
     dependencies:
@@ -20234,7 +20238,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
-      chalk: 5.4.1
+      chalk: 5.5.0
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
@@ -20251,7 +20255,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.28.0)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
-      chalk: 5.4.1
+      chalk: 5.5.0
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
@@ -20267,7 +20271,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.28.0)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
-      chalk: 5.4.1
+      chalk: 5.5.0
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
@@ -20281,7 +20285,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
-      chalk: 5.4.1
+      chalk: 5.5.0
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
@@ -20297,7 +20301,7 @@ snapshots:
       '@embroider/macros': 1.17.3(@babel/core@7.27.1)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.27.1)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.27.1)
-      chalk: 5.4.1
+      chalk: 5.5.0
       debug: 4.4.0
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
@@ -20338,17 +20342,17 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck':
     dependencies:
-      '@hono/node-server': 1.14.1(hono@4.7.9)
-      chalk: 5.4.1
-      hono: 4.7.9
+      '@hono/node-server': 1.18.2(hono@4.9.2)
+      chalk: 5.5.0
+      hono: 4.9.2
 
   '@warp-drive/holodeck@file:packages/holodeck(8250aaf3fba4dddb524469c77acd3b5f)':
     dependencies:
       '@ember-data/request': file:packages/request(@babel/core@7.27.1)
-      '@hono/node-server': 1.14.1(hono@4.7.9)
+      '@hono/node-server': 1.18.2(hono@4.9.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.27.1)
-      chalk: 5.4.1
-      hono: 4.7.9
+      chalk: 5.5.0
+      hono: 4.9.2
 
   '@warp-drive/internal-config@file:config':
     dependencies:
@@ -22170,6 +22174,8 @@ snapshots:
 
   chalk@5.4.1: {}
 
+  chalk@5.5.0: {}
+
   char-regex@1.0.2: {}
 
   char-width-table-consumer@1.0.0:
@@ -23515,7 +23521,7 @@ snapshots:
   ember-exam@9.1.0(e414ca2693750e650022a791fbf9d8e8):
     dependencies:
       '@babel/core': 7.28.0
-      chalk: 5.4.1
+      chalk: 5.5.0
       cli-table3: 0.6.5
       debug: 4.4.0
       ember-auto-import: 2.10.0
@@ -23859,7 +23865,7 @@ snapshots:
       '@babel/traverse': 7.27.1
       '@lint-todo/utils': 13.1.1
       aria-query: 5.3.2
-      chalk: 5.4.1
+      chalk: 5.5.0
       ci-info: 4.2.0
       content-tag: 3.1.3
       content-tag-utils: 0.3.1
@@ -25435,7 +25441,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.7.9: {}
+  hono@4.9.2: {}
 
   hookable@5.5.3: {}
 

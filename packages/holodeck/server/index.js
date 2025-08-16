@@ -268,8 +268,12 @@ function createTestHandler(projectRoot) {
       }
     } catch (e) {
       if (e instanceof HTTPException) {
+        console.log(`HTTPException Encountered`);
+        console.error(e);
         throw e;
       }
+      console.log(`500 MOCK_SERVER_ERROR Encountered`);
+      console.error(e);
       context.header('Content-Type', 'application/vnd.api+json');
       context.status(500);
       return context.body(
