@@ -36,7 +36,7 @@
     "ember-cli": "~6.3.1",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-source": "~6.3.0",
-    "mocha": "^11.1.0",
+    "mocha": "^11.7.1",
     "silent-error": "^1.1.1"
   },
   "volta": {
