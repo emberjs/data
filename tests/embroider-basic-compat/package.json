@@ -23,8 +23,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/runtime": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/string": "^4.0.1",

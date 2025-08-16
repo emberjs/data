@@ -47,9 +47,9 @@
     "fuse.js": "7.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
-    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
     "@types/json-to-ast": "^2.1.4",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
