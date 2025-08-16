@@ -56,9 +56,9 @@
     "comment-json": "^4.2.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
-    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
     "@warp-drive/internal-config": "workspace:*",
     "@types/node": "^24.0.6",
     "@types/debug": "^4.1.12",

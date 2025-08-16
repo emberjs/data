@@ -22,8 +22,8 @@
     "test:examples": "ember test --test-port=0"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/runtime": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
     "@ember-data/debug": "workspace:*",
     "@ember-data/graph": "workspace:*",
     "@ember-data/json-api": "workspace:*",

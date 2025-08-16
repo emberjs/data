@@ -46,9 +46,9 @@
     "@embroider/macros": "^1.16.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
-    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
     "@types/jquery": "^3.5.32",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
