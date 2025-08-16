@@ -45,7 +45,7 @@
   },
   "peerDependencies": {},
   "dependencies": {
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.18.1",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/tc39-proposal-signals": "workspace:*",
     "signal-polyfill": "^0.2.2",
@@ -60,7 +60,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/runtime": "^7.27.0",
     "decorator-transforms": "^2.3.0",
-    "@embroider/addon-dev": "^7.1.3",
+    "@embroider/addon-dev": "^7.1.5",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@types/react": "^19.1.9",
