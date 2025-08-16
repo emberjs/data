@@ -113,6 +113,10 @@ tr.diagnostic-checks.expanded {
   border-bottom: 1px solid var(--brand-main);
 }
 
+#warp-drive__diagnostic h1 span.logo-main::before {
+  background-image: url("/NCC-1701-a-gold_100.svg");
+}
+
 #warp-drive__diagnostic h1 span.logo-main {
   color: var(--brand-main);
   font-weight: 300;

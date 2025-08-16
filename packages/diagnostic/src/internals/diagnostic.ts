@@ -43,9 +43,11 @@ export class Diagnostic<TC extends TestContext> {
   }
 
   pushInteraction(interaction: InteractionEvent): void {
-    const timestamp = this.__config.params.instrument ? performance.now() : null;
-    this.__report.timeline.push({ event: interaction, timestamp });
-    this.__reporter.updateTimeline(this.__report);
+    if (this.__config.params.timeline.value) {
+      const timestamp = this.__config.params.instrument ? performance.now() : null;
+      this.__report.timeline.push({ event: interaction, timestamp });
+      this.__reporter.updateTimeline(this.__report);
+    }
   }
 
   pushResult(
@@ -56,9 +58,11 @@ export class Diagnostic<TC extends TestContext> {
     });
     this.__report.result.diagnostics.push(diagnostic);
 
-    const timestamp = this.__config.params.instrument ? performance.now() : null;
-    this.__report.timeline.push({ event: diagnostic, timestamp });
-    this.__reporter.updateTimeline(this.__report);
+    if (this.__config.params.timeline.value) {
+      const timestamp = this.__config.params.instrument ? performance.now() : null;
+      this.__report.timeline.push({ event: diagnostic, timestamp });
+      this.__reporter.updateTimeline(this.__report);
+    }
 
     if (!diagnostic.passed) {
       this.__report.result.passed = false;
@@ -70,7 +74,7 @@ export class Diagnostic<TC extends TestContext> {
 
   equal<T>(actual: T, expected: T, message?: string): void {
     if (actual !== expected) {
-      if (this.__config.params.tryCatch.value) {
+      if (!this.__config.params.noTryCatch.value) {
         try {
           throw new Error(message || `Expected ${String(actual)} to equal ${String(expected)}`);
         } catch (err) {
@@ -104,7 +108,7 @@ export class Diagnostic<TC extends TestContext> {
 
   notEqual<T>(actual: T, expected: T, message?: string): void {
     if (actual === expected) {
-      if (this.__config.params.tryCatch.value) {
+      if (!this.__config.params.noTryCatch.value) {
         try {
           throw new Error(message || `Expected ${String(actual)} to not equal ${String(expected)}`);
         } catch (err) {
@@ -139,7 +143,7 @@ export class Diagnostic<TC extends TestContext> {
   deepEqual<T>(actual: T, expected: T, message?: string): void {
     const isEqual = equiv(actual, expected, true);
     if (!isEqual) {
-      if (this.__config.params.tryCatch.value) {
+      if (!this.__config.params.noTryCatch.value) {
         try {
           throw new Error(message || `Expected items to be equivalent`);
         } catch (err) {
@@ -190,7 +194,7 @@ export class Diagnostic<TC extends TestContext> {
   satisfies<T extends object, J extends T>(actual: J, expected: T, message?: string): void {
     const isEqual = equiv(actual, expected, false);
     if (!isEqual) {
-      if (this.__config.params.tryCatch.value) {
+      if (!this.__config.params.noTryCatch.value) {
         try {
           throw new Error(message || `Expected items to be equivalent`);
         } catch (err) {
@@ -225,7 +229,7 @@ export class Diagnostic<TC extends TestContext> {
   notDeepEqual<T>(actual: T, expected: T, message?: string): void {
     const isEqual = equiv(actual, expected, true);
     if (isEqual) {
-      if (this.__config.params.tryCatch.value) {
+      if (!this.__config.params.noTryCatch.value) {
         try {
           throw new Error(message || `Expected items to not be equivalent`);
         } catch (err) {

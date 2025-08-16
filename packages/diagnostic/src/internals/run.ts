@@ -80,7 +80,7 @@ export async function runTest<TC extends TestContext>(
         actual: false,
         expected: true,
       });
-      if (!Config.params.tryCatch.value) {
+      if (Config.params.noTryCatch.value) {
         throw err;
       }
     }
@@ -102,7 +102,7 @@ export async function runTest<TC extends TestContext>(
       actual: false,
       expected: true,
     });
-    if (!Config.params.tryCatch.value) {
+    if (Config.params.noTryCatch.value) {
       throw err;
     }
   } finally {
@@ -117,7 +117,7 @@ export async function runTest<TC extends TestContext>(
           actual: false,
           expected: true,
         });
-        if (!Config.params.tryCatch.value) {
+        if (Config.params.noTryCatch.value) {
           // eslint-disable-next-line no-unsafe-finally
           throw e;
         }
@@ -171,7 +171,11 @@ export async function runModule<TC extends TestContext>(
   const beforeChain = getChain<TC>(Config.globalHooks, module, parents, 'beforeEach');
   const afterChain = getChain<TC>(Config.globalHooks, module, parents, 'afterEach');
 
-  if (Config.params.concurrency.value && Config.concurrency > 1) {
+  console.log({
+    value: Config.params.useConcurrency.value,
+    concurrency: Config.concurrency,
+  });
+  if (Config.params.useConcurrency.value && Config.concurrency > 1) {
     const tests = module.tests.byOrder;
     let remainingTests = tests.length;
     let currentTest = 0;

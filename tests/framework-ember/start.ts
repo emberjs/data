@@ -60,11 +60,7 @@ setApplication(
 );
 
 void start({
-  tryCatch: false,
-  debug: true,
-  concurrency: 1,
-  groupLogs: false,
-  instrument: true,
-  hideReport: false,
-  useDiagnostic: true,
+  org: '@warp-drive/',
+  package: 'ember',
+  concurrency: 2,
 });

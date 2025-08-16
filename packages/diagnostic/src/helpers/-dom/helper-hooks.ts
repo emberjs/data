@@ -1,3 +1,4 @@
+import { Config } from '../../internals/config';
 import type { HelperContext } from './-helper-context';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,21 +123,34 @@ export async function withHooks<T = Promise<void>>(options: {
   cb: () => T;
   args?: unknown[];
 }): Promise<Awaited<T>> {
-  const series = `traceId:${EventSeries++}`;
-  const token = registerStarHook((type: string, subtype: string) => {
-    options.scope.assert.pushInteraction({ type, subtype, series });
-  });
+  if (Config.params.timeline.value) {
+    const series = `traceId:${EventSeries++}`;
+    const token = registerStarHook((type: string, subtype: string) => {
+      options.scope.assert.pushInteraction({ type, subtype, series });
+    });
+    if (options.render) {
+      return await options.scope.config.render(() =>
+        runHooks(options.name, 'start', ...(options.args ?? []))
+          .then(options.cb)
+          .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
+          .finally(token.unregister)
+      );
+    }
+    return await Promise.resolve()
+      .then(() => runHooks(options.name, 'start', ...(options.args ?? [])))
+      .then(options.cb)
+      .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
+      .finally(token.unregister);
+  }
   if (options.render) {
     return await options.scope.config.render(() =>
       runHooks(options.name, 'start', ...(options.args ?? []))
         .then(options.cb)
         .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
-        .finally(token.unregister)
     );
   }
   return await Promise.resolve()
     .then(() => runHooks(options.name, 'start', ...(options.args ?? [])))
     .then(options.cb)
-    .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])))
-    .finally(token.unregister);
+    .finally(() => runHooks(options.name, 'end', ...(options.args ?? [])));
 }
