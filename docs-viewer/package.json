@@ -19,23 +19,23 @@
     "preview": "vitepress preview docs.warp-drive.io"
   },
   "dependencies": {
-    "vitepress": "^1.6.3",
+    "vitepress": "^1.6.4",
     "@types/bun": "^1.2.10",
     "typescript": "^5.9.2",
-    "chalk": "5.4.1",
-    "debug": "4.4.0",
-    "@pnpm/find-workspace-dir": "1000.1.0",
+    "chalk": "5.6.0",
+    "debug": "4.4.1",
+    "@pnpm/find-workspace-dir": "1000.1.2",
     "@types/debug": "4.1.12",
-    "typedoc": "^0.28.4",
-    "typedoc-plugin-markdown": "^4.6.3",
+    "typedoc": "^0.28.10",
+    "typedoc-plugin-markdown": "^4.8.1",
     "typedoc-plugin-no-inherit": "^1.6.1",
-    "typedoc-plugin-mdn-links": "^5.0.2",
+    "typedoc-plugin-mdn-links": "^5.0.8",
     "typedoc-vitepress-theme": "^1.1.2",
-    "vitepress-plugin-llms": "^1.1.4",
-    "vitepress-plugin-group-icons": "^1.5.2",
+    "vitepress-plugin-llms": "^1.7.3",
+    "vitepress-plugin-group-icons": "^1.6.3",
     "vitepress-plugin-tabs": "^0.7.1",
-    "vue": "^3.5.17",
-    "vite": "^7.0.0"
+    "vue": "^3.5.18",
+    "vite": "^7.1.2"
   },
   "volta": {
     "extends": "../package.json"

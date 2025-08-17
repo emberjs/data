@@ -83,7 +83,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "ember-source": "~6.6.0",
     "typescript": "^5.9.2",
-    "vite": "^7.0.0",
+    "vite": "^7.1.2",
     "qunit": "^2.20.1",
     "testem": "^3.12.0"
   },
