@@ -31,7 +31,7 @@
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-debug-macros": "^2.0.0",
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.18.1",
     "@warp-drive/react": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/legacy": "workspace:*",

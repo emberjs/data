@@ -46,7 +46,7 @@
     "@ember/string": "^4.0.1",
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.0",
-    "@embroider/macros": "^1.16.12",
+    "@embroider/macros": "^1.18.1",
     "@glimmer/component": "^2.0.0",
     "@glint/core": "alpha",
     "@glint/environment-ember-loose": "alpha",
