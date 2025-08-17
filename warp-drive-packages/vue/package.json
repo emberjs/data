@@ -44,7 +44,7 @@
     }
   },
   "peerDependencies": {
-    "svelte": "^3.0"
+    "vue": "^3.0"
   },
   "dependencies": {
     "@embroider/macros": "^1.18.1",
@@ -59,14 +59,14 @@
     "@babel/runtime": "^7.28.2",
     "decorator-transforms": "^2.3.0",
     "@embroider/addon-dev": "^7.1.5",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "rollup": "^4.40.0",
-    "vue": "^3.5.17",
-    "vue-tsc": "^2.2.10",
+    "vue": "^3.5.18",
+    "vue-tsc": "^3.0.5",
     "typescript": "^5.9.2",
-    "vite": "^5.4.15"
+    "vite": "^7.1.2"
   },
   "volta": {
     "extends": "../../package.json"

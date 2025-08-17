@@ -56,7 +56,7 @@
     "@babel/preset-typescript": "^7.27.1",
     "@warp-drive/internal-config": "workspace:*",
     "expect-type": "^1.2.1",
-    "vite": "^7.0.0"
+    "vite": "^7.1.2"
   },
   "ember": {
     "edition": "octane"

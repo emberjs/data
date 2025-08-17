@@ -52,7 +52,7 @@
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
     "@warp-drive/internal-config": "workspace:*",
-    "vite": "^7.0.0",
+    "vite": "^7.1.2",
     "typescript": "^5.9.2"
   },
   "ember": {

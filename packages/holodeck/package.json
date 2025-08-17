@@ -60,7 +60,7 @@
     "@ember-data/request": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "vite": "^7.0.0"
+    "vite": "^7.1.2"
   },
   "exports": {
     ".": {
