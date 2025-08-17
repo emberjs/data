@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -4231,8 +4229,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^5.4.15
-        version: 5.4.19
+        specifier: ^7.1.2
+        version: 7.1.2
 
   warp-drive-packages/utilities:
     dependencies:
