@@ -37,7 +37,7 @@
     }
   },
   "peerDependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "^5.38.1"
   },
   "dependencies": {
     "@warp-drive/core": "workspace:*"
