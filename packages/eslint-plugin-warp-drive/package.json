@@ -28,7 +28,7 @@
   "devDependencies": {
     "@warp-drive/internal-config": "workspace:*",
     "@babel/plugin-proposal-decorators": "7.28.0",
-    "@babel/core": "^7.28.0",
+    "@babel/core": "^7.28.3",
     "eslint": "^9.24.0",
     "mocha": "^11.1.0"
   },

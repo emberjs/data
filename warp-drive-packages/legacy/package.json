@@ -46,7 +46,7 @@
     "@embroider/macros": "^1.18.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
+    "@babel/core": "^7.28.3",
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
     "@types/jquery": "^3.5.32",

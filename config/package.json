@@ -4,8 +4,8 @@
   "version": "5.7.0-alpha.29",
   "type": "module",
   "dependencies": {
-    "@babel/cli": "^7.28.0",
-    "@babel/core": "^7.28.0",
+    "@babel/cli": "^7.28.3",
+    "@babel/core": "^7.28.3",
     "@babel/eslint-parser": "7.28.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
