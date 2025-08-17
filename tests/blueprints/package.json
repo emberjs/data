@@ -15,7 +15,7 @@
     "test:blueprints": "mocha tests"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
+    "@babel/core": "^7.28.0",
     "@ember-data/adapter": "workspace:*",
     "@ember-data/debug": "workspace:*",
     "@ember-data/graph": "workspace:*",

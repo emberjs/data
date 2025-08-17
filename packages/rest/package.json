@@ -51,10 +51,10 @@
     "version": 2
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/plugin-transform-typescript": "^7.27.0",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
     "@warp-drive/internal-config": "workspace:*",
     "vite": "^7.0.0"
   },
