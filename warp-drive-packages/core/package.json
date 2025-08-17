@@ -52,7 +52,7 @@
     "@babel/preset-typescript": "^7.27.1",
     "@warp-drive/internal-config": "workspace:*",
     "decorator-transforms": "^2.3.0",
-    "ember-source": "~6.3.0",
+    "ember-source": "~6.6.0",
     "expect-type": "^1.2.1",
     "typescript": "^5.9.2",
     "vite": "^7.0.0"
