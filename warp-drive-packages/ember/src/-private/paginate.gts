@@ -7,8 +7,8 @@ import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 import type { Document, Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Future } from '@warp-drive/core/request';
-import type { PaginationState } from '@warp-drive/core/store/-private';
-import { getPaginationState, type Page } from '@warp-drive/core/store/-private';
+import { getPaginationState, createPaginationSubscription, DISPOSE } from '@warp-drive/core/store/-private';
+import type { PaginationState, Page } from '@warp-drive/core/store/-private';
 import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 import { Request } from './request.gts';
@@ -21,11 +21,33 @@ function notNull<T>(x: T | null) {
   return x;
 }
 
+const not = (x: unknown) => !x;
+const IdleBlockMissingError = new Error(
+  'No idle block provided for <Request> component, and no query or request was provided.'
+);
+
 let consume = service;
 if (macroCondition(moduleExists('ember-provide-consume-context'))) {
   const { consume: contextConsume } = importSync('ember-provide-consume-context') as { consume: typeof service };
   consume = contextConsume;
 }
+
+type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
+type AutorefreshBehaviorCombos =
+  | boolean
+  | AutorefreshBehaviorType
+  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType}`
+  | `${AutorefreshBehaviorType},${AutorefreshBehaviorType},${AutorefreshBehaviorType}`;
+
+type ContentFeatures<RT> = {
+  isOnline: boolean;
+  isHidden: boolean;
+  isRefreshing: boolean;
+  refresh: () => Promise<void>;
+  reload: () => Promise<void>;
+  abort?: () => void;
+  latestRequest?: Future<RT>;
+};
 
 interface PaginateSignature<RT, T, E> {
   Args: {
@@ -37,6 +59,14 @@ interface PaginateSignature<RT, T, E> {
     request?: Future<RT>;
 
     /**
+     * A query to use for the request. This should be an object that can be
+     * passed to `store.request`. Use this in place of `@request` if you would
+     * like the component to also initiate the request.
+     *
+     */
+    query?: StoreRequestInput<RT, T>;
+
+    /**
      * The store instance to use for making requests. If contexts are available,
      * the component will default to using the `store` on the context.
      *
@@ -45,9 +75,89 @@ interface PaginateSignature<RT, T, E> {
      *
      */
     store?: Store;
+
+    /**
+     * The autorefresh behavior for the request. This can be a boolean, or any
+     * combination of the following values: `'online'`, `'interval'`, `'invalid'`.
+     *
+     * - `'online'`: Refresh the request when the browser comes back online
+     * - `'interval'`: Refresh the request at a specified interval
+     * - `'invalid'`: Refresh the request when the store emits an invalidation
+     *
+     * If `true`, this is equivalent to `'online,invalid'`.
+     *
+     * Defaults to `false`.
+     *
+     */
+    autorefresh?: AutorefreshBehaviorCombos;
+
+    /**
+     * The number of milliseconds to wait before refreshing the request when the
+     * browser comes back online or the network becomes available.
+     *
+     * This also controls the interval at which the request will be refreshed if
+     * the `interval` autorefresh type is enabled.
+     *
+     * Defaults to `30_000` (30 seconds).
+     *
+     */
+    autorefreshThreshold?: number;
+
+    /**
+     * The behavior of the request initiated by autorefresh. This can be one of
+     * the following values:
+     *
+     * - `'refresh'`: Refresh the request in the background
+     * - `'reload'`: Force a reload of the request
+     * - `'policy'` (**default**): Let the store's configured CachePolicy decide whether to
+     *    reload, refresh, or do nothing.
+     *
+     * Defaults to `'policy'`.
+     *
+     */
+    autorefreshBehavior?: 'refresh' | 'reload' | 'policy';
   };
   Blocks: {
-    default: [state: PaginationState<T, StructuredErrorDocument<E>>];
+    /**
+     * The block to render when the component is idle and waiting to be given a request.
+     *
+     */
+    idle: [];
+
+    /**
+     * The block to render when the request is loading.
+     *
+     */
+    loading: [state: RequestLoadingState];
+
+    /**
+     * The block to render when the request was cancelled.
+     *
+     */
+    cancelled: [
+      error: StructuredErrorDocument<E>,
+      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+    ];
+
+    /**
+     * The block to render when the request failed. If this block is not provided,
+     * the error will be rethrown.
+     *
+     * Thus it is required to provide an error block and proper error handling if
+     * you do not want the error to crash the application.
+     *
+     */
+    error: [
+      error: StructuredErrorDocument<E>,
+      features: { isOnline: boolean; isHidden: boolean; retry: () => Promise<void> },
+    ];
+
+    /**
+     * The block to render when the request succeeded.
+     *
+     */
+    content: [state: PaginationState<RT, T, StructuredErrorDocument<E>>, features: ContentFeatures<RT>];
+    always: [state: PaginationState<RT, T, StructuredErrorDocument<E>>];
   };
 }
 
@@ -288,9 +398,25 @@ export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
     return store;
   }
 
-  get state(): PaginationState<RT, T, E> {
-    assert('The `request` argument is required for the <Paginate> component.', this.args.request);
-    return getPaginationState<RT, T, E>(this.args.request, this.loadPage);
+  _state: PaginationSubscription<RT, T, E> | null = null;
+  get state(): PaginationSubscription<RT, T, E> {
+    let { _state } = this;
+    const { store } = this;
+    if (_state && _state.store !== store) {
+      _state[DISPOSE]();
+      _state = null;
+    }
+
+    if (!_state) {
+      this._state = _state = createPaginationSubscription(store, this.args);
+    }
+
+    return _state;
+  }
+
+  willDestroy(): void {
+    this._state![DISPOSE]();
+    this._state = null;
   }
 
   get initialState(): Readonly<PaginationState<RT, T, E>> {
@@ -331,43 +457,29 @@ export class Paginate<RT, T, E> extends Component<PaginateSignature<RT, T, E>> {
     return this.state.nextRequest;
   }
 
-  loadPrev = (): void => {
-    const { prev } = this.state;
-    if (prev) {
-      this.loadPage(prev);
-    }
-  };
-
-  loadNext = (): void => {
-    const { next } = this.state;
-    if (next) {
-      this.loadPage(next);
-    }
-  };
-
-  loadPage = (url: string): Future<RT> => {
-    const page = this.state.getPageState({ self: url });
-    if (!page.request) {
-      const request = this.store.request({ method: 'GET', url });
-      page.load(request);
-    }
-    this.state.activatePage(page);
-  };
-
   <template>
-    {{#if this.initialState.isLoading}}
-      {{yield this to="loading"}}
+    {{#if (and this.state.isIdle (has-block "idle"))}}
+      {{yield to="idle"}}
 
-    {{else if (and this.initialState.isCancelled (has-block "cancelled"))}}
-      {{yield (notNull this.initialState.reason) this to="cancelled"}}
+    {{else if this.state.isIdle}}
+      <Throw @error={{IdleBlockMissingError}} />
 
-    {{else if (and this.initialState.isError (has-block "error"))}}
-      {{yield (notNull this.initialState.reason) this to="error"}}
+    {{else if this.state.paginationState.isLoading}}
+      {{yield this.state.paginationState.loadingState to="loading"}}
 
-    {{else if this.initialState.isSuccess}}
-      {{yield this to="content"}}
+    {{else if (and this.state.paginationState.isCancelled (has-block "cancelled"))}}
+      {{yield (notNull this.state.paginationState.reason) this.state.errorFeatures to="cancelled"}}
+
+    {{else if (and this.state.paginationState.isError (has-block "error"))}}
+      {{yield (notNull this.state.paginationState.reason) this.state.errorFeatures to="error"}}
+
+    {{else if this.state.paginationState.isSuccess}}
+      {{yield this.state.paginationState this.state.contentFeatures to="content"}}
+
+    {{else if (not this.state.paginationState.isCancelled)}}
+      <Throw @error={{(notNull this.state.paginationState.reason)}} />
     {{/if}}
 
-    {{yield this to="always"}}
+    {{yield this.state.paginationState this.state.contentFeatures to="always"}}
   </template>
 }
