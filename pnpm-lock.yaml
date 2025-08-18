@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -464,17 +462,17 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
       '@types/node':
-        specifier: ^24.0.6
-        version: 24.0.6
+        specifier: ^24.3.0
+        version: 24.3.0
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(@types/node@24.0.6)
+        version: file:config(@types/node@24.3.0)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
       vite:
         specifier: ^7.1.2
-        version: 7.1.2(@types/node@24.0.6)
+        version: 7.1.2(@types/node@24.3.0)
 
   packages/active-record:
     dependencies:
@@ -6932,8 +6930,8 @@ packages:
   '@types/node@20.17.46':
     resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
 
-  '@types/node@24.0.6':
-    resolution: {integrity: sha512-ZOyn+gOs749xU7ovp+Ibj0g1o3dFRqsfPnT22C2t5JzcRvgsEDpGawPbCISGKLudJk9Y0wiu9sYd6kUh0pc9TA==}
+  '@types/node@24.3.0':
+    resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -13746,8 +13744,8 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  undici-types@7.8.0:
-    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
+  undici-types@7.10.0:
+    resolution: {integrity: sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -19027,9 +19025,9 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
-  '@types/node@24.0.6':
+  '@types/node@24.3.0':
     dependencies:
-      undici-types: 7.8.0
+      undici-types: 7.10.0
 
   '@types/qs@6.9.18': {}
 
@@ -19625,7 +19623,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(@types/node@24.0.6)':
+  '@warp-drive/internal-config@file:config(@types/node@24.3.0)':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.0)
       '@babel/core': 7.28.0
@@ -19652,7 +19650,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.26.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2(@types/node@24.0.6)
+      vite: 7.1.2(@types/node@24.3.0)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -21138,7 +21136,7 @@ snapshots:
 
   bun-types@1.2.17:
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 20.17.46
 
   byte-size@9.0.1: {}
 
@@ -28421,7 +28419,7 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici-types@7.8.0: {}
+  undici-types@7.10.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -28633,7 +28631,7 @@ snapshots:
       '@types/node': 20.17.46
       fsevents: 2.3.3
 
-  vite@7.1.2(@types/node@24.0.6):
+  vite@7.1.2(@types/node@24.3.0):
     dependencies:
       esbuild: 0.25.4
       fdir: 6.4.6(picomatch@4.0.3)
@@ -28642,7 +28640,7 @@ snapshots:
       rollup: 4.46.2
       tinyglobby: 0.2.14
     optionalDependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
       fsevents: 2.3.3
 
   vite@7.1.2(terser@5.39.1):
