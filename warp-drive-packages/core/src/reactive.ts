@@ -320,6 +320,7 @@ export { getExpensiveRequestSubscription } from './store/-private/new-core-tmp/e
 export {
   createRequestSubscription,
   getRequestState,
+  createPaginationSubscription,
   getPaginationState,
   type RequestState,
   type PaginationState,

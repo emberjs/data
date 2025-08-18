@@ -69,8 +69,18 @@ export class PageState<RT = unknown, T = unknown, E = unknown> {
   }
 
   @memoized
+  get isCancelled(): boolean {
+    return Boolean(this.state?.isCancelled);
+  }
+
+  @memoized
   get isError(): boolean {
     return Boolean(this.state?.isError);
+  }
+
+  @memoized
+  get reason(): StructuredErrorDocument<E> | null {
+    return this.state?.reason;
   }
 
   @memoized
@@ -95,9 +105,10 @@ export class PageState<RT = unknown, T = unknown, E = unknown> {
     return url ? this.manager.getPageState({ self: url, prev: this.selfLink }) : null;
   }
 
-  load = (request: Future<unknown>): void => {
+  load = async (request: Future<unknown>): Promise<void> => {
     this.request = request as Future<RT>;
     this.state = getRequestState<RT, T, E>(this.request);
+    await this.request;
   };
 }
 
@@ -202,6 +213,11 @@ export class PaginationState<RT = unknown, T = unknown, E = unknown> {
   }
 
   @memoized
+  get activePageRequest(): Future<RT> | null {
+    return this.activePage.request;
+  }
+
+  @memoized
   get prevRequest(): Future<RT> | null {
     if (!this.firstPage) return null;
 
@@ -215,8 +231,8 @@ export class PaginationState<RT = unknown, T = unknown, E = unknown> {
     return this.lastPage.request;
   }
 
-  activatePage = (page: Readonly<PageState<RT, T, E>>): void => {
-    this.activePage = page;
+  activatePage = (page: Readonly<PageState<unknown, unknown, unknown>>): void => {
+    this.activePage = page as Readonly<PageState<RT, T, E>>;
   };
 
   getPageState = (options: PageStateCreateOptions): Readonly<PageState<RT, T, E>> => {

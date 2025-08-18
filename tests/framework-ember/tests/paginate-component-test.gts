@@ -184,7 +184,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
     await GET(this, 'users/3', () => responses[2]);
 
     const request = this.manager.request<UserResource>({ url: urls[1], method: 'GET' });
-    const state = getPaginationState(request);
+    const paginationState = getPaginationState(request);
 
     let counter = 0;
     function countFor(_result: unknown) {
@@ -199,21 +199,21 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
           <:loading>
             <span data-test-pending>Pending<br />Count: {{countFor request}}</span>
           </:loading>
-          <:content as |pagination|>
-            {{#if pagination.hasPrev}}
-              <Request @request={{pagination.prevRequest}}>
-                <:idle><button {{on "click" pagination.loadPrev}} data-test-load-prev>Load Previous</button></:idle>
+          <:content as |pages state|>
+            {{#if pages.prev}}
+              <Request @request={{pages.prevRequest}}>
+                <:idle><button {{on "click" state.loadPrev}} data-test-load-prev>Load Previous</button></:idle>
                 <:loading><span data-test-loading-prev>Pending<br />Count: {{countFor request}}</span></:loading>
               </Request>
             {{/if}}
 
-            {{#each pagination.data as |user|}}
+            {{#each pages.data as |user|}}
               <span data-test-user-name>{{user.attributes.name}}<br />Count: {{countFor user}}</span>
             {{/each}}
 
-            {{#if pagination.hasNext}}
-              <Request @request={{pagination.nextRequest}}>
-                <:idle><button {{on "click" pagination.loadNext}} data-test-load-next>Load Next</button></:idle>
+            {{#if pages.next}}
+              <Request @request={{pages.nextRequest}}>
+                <:idle><button {{on "click" state.loadNext}} data-test-load-next>Load Next</button></:idle>
                 <:loading><span data-test-loading-next>Pending<br />Count: {{countFor request}}</span></:loading>
               </Request>
             {{/if}}
@@ -225,34 +225,34 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
 
     assert.equal(counter, 1);
     assert.equal(this.element.querySelector('[data-test-pending]').textContent?.trim(), 'PendingCount: 1');
-    assert.true(state.isLoading, 'Initially in loading state');
-    assert.false(state.isSuccess, 'Initially not in success state');
-    assert.false(state.isError, 'Initially not in error state');
-    assert.equal(state.pages.length, 1, '1 page initially');
-    assert.equal(state.data.length, 0, 'No data initially');
-    assert.equal(state.initialPage.state, getRequestState(request));
+    assert.true(paginationState.isLoading, 'Initially in loading state');
+    assert.false(paginationState.isSuccess, 'Initially not in success state');
+    assert.false(paginationState.isError, 'Initially not in error state');
+    assert.equal(paginationState.pages.length, 1, '1 page initially');
+    assert.equal(paginationState.data.length, 0, 'No data initially');
+    assert.equal(paginationState.initialPage.state, getRequestState(request));
 
     await request;
     await rerender();
-    assert.equal(state.pages.length, 3, '3 pages');
-    assert.equal(state.data.length, 1, '1 loaded record');
-    assert.deepEqual(state.data, [users[1]]);
+    assert.equal(paginationState.pages.length, 3, '3 pages');
+    assert.equal(paginationState.data.length, 1, '1 loaded record');
+    assert.deepEqual(paginationState.data, [users[1]]);
     assert.equal(counter, 2);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Leo EuclidesCount: 2');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-prev]');
-    assert.equal(state.pages.length, 3, '3 pages');
-    assert.equal(state.data.length, 2, '2 loaded records');
-    assert.deepEqual(state.data, [users[0], users[1]]);
+    assert.equal(paginationState.pages.length, 3, '3 pages');
+    assert.equal(paginationState.data.length, 2, '2 loaded records');
+    assert.deepEqual(paginationState.data, [users[0], users[1]]);
     assert.equal(counter, 4);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Chris ThoburnCount: 4');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 2, '2 users rendered');
 
     await click('[data-test-load-next]');
-    assert.equal(state.pages.length, 4, '4 pages');
-    assert.equal(state.data.length, 3, '3 loaded records');
-    assert.deepEqual(state.data, [users[0], users[1], users[2]]);
+    assert.equal(paginationState.pages.length, 4, '4 pages');
+    assert.equal(paginationState.data.length, 3, '3 loaded records');
+    assert.deepEqual(paginationState.data, [users[0], users[1], users[2]]);
     assert.equal(counter, 6);
     assert.equal(
       this.element.querySelector('[data-test-user-name]:nth-of-type(3)').textContent.trim(),
@@ -270,7 +270,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
     await GET(this, 'users/3', () => responses[2]);
 
     const request = this.manager.request<UserResource>({ url: urls[1], method: 'GET' });
-    const state = getPaginationState(request);
+    const paginationState = getPaginationState(request);
 
     let counter = 0;
     function countFor(_result: unknown) {
@@ -285,8 +285,8 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
           <:loading>
             <span data-test-pending>Pending<br />Count: {{countFor request}}</span>
           </:loading>
-          <:content as |pagination|>
-            <Request @request={{pagination.activePageRequest}}>
+          <:content as |pages state|>
+            <Request @request={{pages.activePageRequest}}>
               <:idle><span data-test-idle>No page is active</span></:idle>
               <:content as |content|>
                 {{#each content.data as |user|}}
@@ -297,7 +297,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
             </Request>
 
             {{#each urls as |url index|}}
-              <button {{on "click" (fn pagination.loadPage url)}} data-test-load-page={{index}}>{{index}}</button>
+              <button {{on "click" (fn state.loadPage url)}} data-test-load-page={{index}}>{{index}}</button>
             {{/each}}
           </:content>
           <:error as |error|>{{error.message}}<br />Count: {{countFor error}}</:error>
@@ -307,53 +307,57 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
 
     assert.equal(counter, 1);
     assert.equal(this.element.querySelector('[data-test-pending]').textContent?.trim(), 'PendingCount: 1');
-    assert.true(state.isLoading, 'Initially in loading state');
-    assert.false(state.isSuccess, 'Initially not in success state');
-    assert.false(state.isError, 'Initially not in error state');
-    assert.equal(state.pages.length, 1, '1 page initially');
-    assert.equal(state.data.length, 0, 'No data initially');
-    assert.equal(state.initialPage.state, getRequestState(request), 'Initial page state matches request state');
+    assert.true(paginationState.isLoading, 'Initially in loading state');
+    assert.false(paginationState.isSuccess, 'Initially not in success state');
+    assert.false(paginationState.isError, 'Initially not in error state');
+    assert.equal(paginationState.pages.length, 1, '1 page initially');
+    assert.equal(paginationState.data.length, 0, 'No data initially');
+    assert.equal(
+      paginationState.initialPage.state,
+      getRequestState(request),
+      'Initial page state matches request state'
+    );
 
     await request;
     await rerender();
-    assert.equal(state.pages.length, 3, '3 pages');
-    assert.deepEqual(state.activePage.value.data, [users[1]]);
+    assert.equal(paginationState.pages.length, 3, '3 pages');
+    assert.deepEqual(paginationState.activePage.value.data, [users[1]]);
     assert.equal(counter, 2);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Leo EuclidesCount: 2');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-page="0"]');
-    assert.equal(state.pages.length, 3, '3 pages');
-    assert.equal(state.data.length, 2, '2 loaded records');
-    assert.deepEqual(state.activePage.value.data, [users[0]]);
+    assert.equal(paginationState.pages.length, 3, '3 pages');
+    assert.equal(paginationState.data.length, 2, '2 loaded records');
+    assert.deepEqual(paginationState.activePage.value.data, [users[0]]);
     assert.equal(counter, 4);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Chris ThoburnCount: 4');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-page="5"]');
-    assert.equal(state.pages.length, 2, '2 pages');
-    assert.deepEqual(state.activePage.value.data, [users[5]]);
+    assert.equal(paginationState.pages.length, 2, '2 pages');
+    assert.deepEqual(paginationState.activePage.value.data, [users[5]]);
     assert.equal(counter, 6);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Mia SinekCount: 6');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-page="4"]');
-    assert.equal(state.pages.length, 3, '3 pages');
-    assert.deepEqual(state.activePage.value.data, [users[4]]);
+    assert.equal(paginationState.pages.length, 3, '3 pages');
+    assert.deepEqual(paginationState.activePage.value.data, [users[4]]);
     assert.equal(counter, 8);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Jane PortmanCount: 8');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-page="3"]');
-    assert.equal(state.pages.length, 6, '6 pages');
-    assert.deepEqual(state.activePage.value.data, [users[3]]);
+    assert.equal(paginationState.pages.length, 6, '6 pages');
+    assert.deepEqual(paginationState.activePage.value.data, [users[3]]);
     assert.equal(counter, 10);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Benedikt DeickeCount: 10');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');
 
     await click('[data-test-load-page="2"]');
-    assert.equal(state.pages.length, 6, '6 pages');
-    assert.deepEqual(state.activePage.value.data, [users[2]]);
+    assert.equal(paginationState.pages.length, 6, '6 pages');
+    assert.deepEqual(paginationState.activePage.value.data, [users[2]]);
     assert.equal(counter, 12);
     assert.equal(this.element.querySelector('[data-test-user-name]').textContent.trim(), 'Mehul ChaudhariCount: 12');
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 1, '1 user rendered');

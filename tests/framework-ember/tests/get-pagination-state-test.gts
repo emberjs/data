@@ -300,7 +300,7 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.ok(nextPageState, 'Next page state can be created');
 
     const nextRequest = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
-    nextPageState.load(nextRequest);
+    const nextPage = nextPageState.load(nextRequest);
 
     paginationState.activatePage(nextPageState);
 
@@ -330,8 +330,8 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
   });
 
   test('It returns correct navigation helpers', async function (assert) {
-    await GET(this, 'users/1', () => responses[0]);
     await GET(this, 'users/2', () => responses[1]);
+    await GET(this, 'users/1', () => responses[0]);
     await GET(this, 'users/3', () => responses[2]);
 
     const request = this.manager.request<PaginatedUserResource>({ url: urls[1], method: 'GET' });
@@ -346,15 +346,17 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     const prevLink = activePage.prevLink;
     const prevPageState = paginationState.getPageState({ self: prevLink });
     const prevRequest = this.manager.request<PaginatedUserResource>({ url: prevLink, method: 'GET' });
-    prevPageState.load(prevRequest);
+    const prevPage = prevPageState.load(prevRequest);
 
     const nextLink = activePage.nextLink;
     const nextPageState = paginationState.getPageState({ self: nextLink });
     const nextReq = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
-    nextPageState.load(nextReq);
+    const nextPage = nextPageState.load(nextReq);
 
     assert.ok(paginationState.prevRequest, 'Has prev request when not on first page');
+    assert.ok(prevPage, 'Prev page');
     assert.ok(paginationState.nextRequest, 'Has next request when not on last page');
+    assert.ok(nextPage, 'Next page');
   });
 
   test('It handles abort correctly', async function (assert) {
