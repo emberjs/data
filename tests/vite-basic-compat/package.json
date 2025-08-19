@@ -86,7 +86,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-ember-template-tag": "^2.0.5",
     "qunit": "^2.22.0",
-    "qunit-dom": "^3.4.0",
+    "qunit-dom": "^3.5.0",
     "tracked-built-ins": "^4.0.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.30.1",

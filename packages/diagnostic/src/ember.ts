@@ -11,7 +11,7 @@ import {
 } from '@ember/test-helpers';
 import type { Owner } from '@ember/test-helpers/build-owner';
 
-import { setup } from 'qunit-dom';
+import { type Assert as DomAssert, setup } from 'qunit-dom';
 
 import { module as _module, skip as _skip, test as _test, todo as _todo } from './-define';
 import isComponent from './-ember/is-component';
@@ -116,7 +116,7 @@ function upgradeOwner(owner: Owner): asserts owner is FullOwner {}
 
 declare module './-types' {
   interface Diagnostic {
-    dom: Assert['dom'];
+    dom: DomAssert['dom'];
   }
 }
 
@@ -142,9 +142,7 @@ export function setupRenderingTest<TC extends TestContext>(hooks: Hooks<TC>, opt
     opts.rootElement = testContainer;
     this.rootElement = testContainer;
 
-    setup(assert);
-    // @ts-expect-error this is private
-    assert.dom.rootElement = testContainer;
+    setup(assert, { getRootElement: () => testContainer });
 
     await setupContext(this, opts);
 
