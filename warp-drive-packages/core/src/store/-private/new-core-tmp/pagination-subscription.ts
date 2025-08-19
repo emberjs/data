@@ -28,7 +28,7 @@ type ContentFeatures<RT> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface PaginationSubscription<RT, T, E> {
+export interface PaginationSubscription<RT, E> {
   /**
    * The method to call when the component this subscription is attached to
    * unmounts.
@@ -41,17 +41,17 @@ export interface PaginationSubscription<RT, T, E> {
  *
  * @hideconstructor
  */
-export class PaginationSubscription<RT, T, E> {
+export class PaginationSubscription<RT, E> {
   /** @internal */
   declare private isDestroyed: boolean;
   /** @internal */
   declare private _subscribedTo: object | null;
   /** @internal */
-  declare private _args: SubscriptionArgs<RT, T, E>;
+  declare private _args: SubscriptionArgs<RT, E>;
   /** @internal */
   declare store: Store | RequestManager;
 
-  constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, T, E>) {
+  constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, E>) {
     this._args = args;
     this.store = store;
     this.isDestroyed = false;
@@ -110,7 +110,7 @@ export class PaginationSubscription<RT, T, E> {
   };
 
   /**
-   * features to yield to the error slot of a component
+   * Error features to yield to the error slot of a component
    */
   @memoized
   get errorFeatures(): ErrorFeatures {
@@ -122,7 +122,7 @@ export class PaginationSubscription<RT, T, E> {
   }
 
   /**
-   * features to yield to the content slot of a component
+   * Content features to yield to the content slot of a component
    */
   @memoized
   get contentFeatures(): ContentFeatures<RT> {
@@ -147,8 +147,8 @@ export class PaginationSubscription<RT, T, E> {
    * @internal
    */
   @memoized
-  get _requestSubscription(): RequestSubscription<RT, T, E> {
-    return createRequestSubscription<RT, T, E>(this.store, this._args);
+  get _requestSubscription(): RequestSubscription<RT, E> {
+    return createRequestSubscription<RT, E>(this.store, this._args);
   }
 
   @memoized
@@ -157,28 +157,28 @@ export class PaginationSubscription<RT, T, E> {
   }
 
   @memoized
-  get paginationState(): PaginationState<RT, T, StructuredErrorDocument<E>> {
-    return getPaginationState<RT, T, E>(this.request);
+  get paginationState(): PaginationState<RT, StructuredErrorDocument<E>> {
+    return getPaginationState<RT, E>(this.request);
   }
 }
 
-export function createPaginationSubscription<RT, T, E>(
+export function createPaginationSubscription<RT, E>(
   store: Store | RequestManager,
-  args: SubscriptionArgs<RT, T, E>
-): PaginationSubscription<RT, T, E> {
+  args: SubscriptionArgs<RT, E>
+): PaginationSubscription<RT, E> {
   return new PaginationSubscription(store, args);
 }
 
 interface PrivatePaginationSubscription {
   isDestroyed: boolean;
-  _requestSubscription: RequestSubscription<unknown, unknown, unknown>;
+  _requestSubscription: RequestSubscription<unknown, unknown>;
 }
 
 function upgradeSubscription(sub: unknown): PrivatePaginationSubscription {
   return sub as PrivatePaginationSubscription;
 }
 
-function _DISPOSE<RT, T, E>(this: PaginationSubscription<RT, T, E>) {
+function _DISPOSE<RT, E>(this: PaginationSubscription<RT, E>) {
   const self = upgradeSubscription(this);
   self.isDestroyed = true;
   self._requestSubscription?.[DISPOSE]?.();
