@@ -62,15 +62,6 @@ class SimpleCacheHandler implements CacheHandler {
   }
 }
 
-const urls = [
-  buildBaseURL({ resourcePath: 'users/1' }),
-  buildBaseURL({ resourcePath: 'users/2' }),
-  buildBaseURL({ resourcePath: 'users/3' }),
-  buildBaseURL({ resourcePath: 'users/4' }),
-  buildBaseURL({ resourcePath: 'users/5' }),
-  buildBaseURL({ resourcePath: 'users/6' }),
-];
-
 const users = [
   {
     id: '1',
@@ -116,57 +107,6 @@ const users = [
   },
 ];
 
-const responses = [
-  {
-    data: [users[0]],
-    links: {
-      prev: null,
-      self: urls[0],
-      next: urls[1],
-    },
-  },
-  {
-    data: [users[1]],
-    links: {
-      prev: urls[0],
-      self: urls[1],
-      next: urls[2],
-    },
-  },
-  {
-    data: [users[2]],
-    links: {
-      prev: urls[1],
-      self: urls[2],
-      next: urls[3],
-    },
-  },
-  {
-    data: [users[3]],
-    links: {
-      prev: urls[2],
-      self: urls[3],
-      next: urls[4],
-    },
-  },
-  {
-    data: [users[4]],
-    links: {
-      prev: urls[3],
-      self: urls[4],
-      next: urls[5],
-    },
-  },
-  {
-    data: [users[5]],
-    links: {
-      prev: urls[4],
-      self: urls[5],
-      next: null,
-    },
-  },
-];
-
 module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
   setupRenderingTest(hooks);
 
@@ -179,11 +119,36 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
   });
 
   test('it renders each stage of a infinite collection pagination', async function (assert) {
-    await GET(this, 'users/2', () => responses[1]);
-    await GET(this, 'users/1', () => responses[0]);
-    await GET(this, 'users/3', () => responses[2]);
+    const url = buildBaseURL({ resourcePath: 'users/2' });
 
-    const request = this.manager.request<UserResource>({ url: urls[1], method: 'GET' });
+    await GET(this, 'users/2', () => ({
+      data: [users[1]],
+      links: {
+        prev: buildBaseURL({ resourcePath: 'users/1' }),
+        self: url,
+        next: buildBaseURL({ resourcePath: 'users/3' }),
+      },
+    }));
+
+    await GET(this, 'users/1', () => ({
+      data: [users[0]],
+      links: {
+        prev: null,
+        self: buildBaseURL({ resourcePath: 'users/1' }),
+        next: url,
+      },
+    }));
+
+    await GET(this, 'users/3', () => ({
+      data: [users[2]],
+      links: {
+        prev: url,
+        self: buildBaseURL({ resourcePath: 'users/3' }),
+        next: null,
+      },
+    }));
+
+    const request = this.manager.request<UserResource>({ url, method: 'GET' });
     const paginationState = getPaginationState(request);
 
     let counter = 0;
@@ -201,7 +166,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
           </:loading>
           <:content as |pages state|>
             {{#if pages.prev}}
-              <Request @request={{pages.prevRequest}}>
+              <Request @request={{pages.prevRequest}} @store={{manager}}>
                 <:idle><button {{on "click" state.loadPrev}} data-test-load-prev>Load Previous</button></:idle>
                 <:loading><span data-test-loading-prev>Pending<br />Count: {{countFor request}}</span></:loading>
               </Request>
@@ -212,7 +177,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
             {{/each}}
 
             {{#if pages.next}}
-              <Request @request={{pages.nextRequest}}>
+              <Request @request={{pages.nextRequest}} @store={{manager}}>
                 <:idle><button {{on "click" state.loadNext}} data-test-load-next>Load Next</button></:idle>
                 <:loading><span data-test-loading-next>Pending<br />Count: {{countFor request}}</span></:loading>
               </Request>
@@ -230,7 +195,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
     assert.false(paginationState.isError, 'Initially not in error state');
     assert.equal(paginationState.pages.length, 1, '1 page initially');
     assert.equal(paginationState.data.length, 0, 'No data initially');
-    assert.equal(paginationState.initialPage.state, getRequestState(request));
+    assert.equal(paginationState.initialPage.state, getRequestState(request), 'Initial page is a stable reference');
 
     await request;
     await rerender();
@@ -250,7 +215,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
     assert.equal(this.element.querySelectorAll('[data-test-user-name]').length, 2, '2 users rendered');
 
     await click('[data-test-load-next]');
-    assert.equal(paginationState.pages.length, 4, '4 pages');
+    assert.equal(paginationState.pages.length, 3, '4 pages');
     assert.equal(paginationState.data.length, 3, '3 loaded records');
     assert.deepEqual(paginationState.data, [users[0], users[1], users[2]]);
     assert.equal(counter, 6);
@@ -262,12 +227,68 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
   });
 
   test('it renders the currently selected page', async function (assert) {
-    await GET(this, 'users/2', () => responses[1]);
-    await GET(this, 'users/1', () => responses[0]);
-    await GET(this, 'users/6', () => responses[5]);
-    await GET(this, 'users/5', () => responses[4]);
-    await GET(this, 'users/4', () => responses[3]);
-    await GET(this, 'users/3', () => responses[2]);
+    const urls = [
+      buildBaseURL({ resourcePath: 'users/1' }),
+      buildBaseURL({ resourcePath: 'users/2' }),
+      buildBaseURL({ resourcePath: 'users/3' }),
+      buildBaseURL({ resourcePath: 'users/4' }),
+      buildBaseURL({ resourcePath: 'users/5' }),
+      buildBaseURL({ resourcePath: 'users/6' }),
+    ];
+
+    await GET(this, 'users/2', () => ({
+      data: [users[1]],
+      links: {
+        prev: urls[0],
+        self: urls[1],
+        next: urls[2],
+      },
+    }));
+
+    await GET(this, 'users/1', () => ({
+      data: [users[0]],
+      links: {
+        prev: null,
+        self: urls[0],
+        next: urls[1],
+      },
+    }));
+
+    await GET(this, 'users/6', () => ({
+      data: [users[5]],
+      links: {
+        prev: urls[4],
+        self: urls[5],
+        next: urls[6],
+      },
+    }));
+
+    await GET(this, 'users/5', () => ({
+      data: [users[4]],
+      links: {
+        prev: urls[3],
+        self: urls[4],
+        next: urls[5],
+      },
+    }));
+
+    await GET(this, 'users/4', () => ({
+      data: [users[3]],
+      links: {
+        prev: urls[2],
+        self: urls[3],
+        next: urls[4],
+      },
+    }));
+
+    await GET(this, 'users/3', () => ({
+      data: [users[2]],
+      links: {
+        prev: urls[1],
+        self: urls[2],
+        next: urls[3],
+      },
+    }));
 
     const request = this.manager.request<UserResource>({ url: urls[1], method: 'GET' });
     const paginationState = getPaginationState(request);
@@ -286,7 +307,7 @@ module<LocalTestContext>('Integration | <Paginate />', function (hooks) {
             <span data-test-pending>Pending<br />Count: {{countFor request}}</span>
           </:loading>
           <:content as |pages state|>
-            <Request @request={{pages.activePageRequest}}>
+            <Request @request={{pages.activePageRequest}} @store={{manager}}>
               <:idle><span data-test-idle>No page is active</span></:idle>
               <:content as |content|>
                 {{#each content.data as |user|}}
