@@ -5,9 +5,10 @@ import type { KindContext } from '../default-mode';
 
 export function getGenericField(context: KindContext<GenericField>): unknown {
   const signal = entangleInitiallyStaleSignal(context.signals, context.record, context.path.at(-1)!, null);
-  if (!signal.isStale) {
-    return signal.value;
-  }
+  // FIXME we should be able to cache the computation here, but some tests fail.
+  // if (!signal.isStale) {
+  //   return signal.value;
+  // }
   signal.isStale = false;
   const { cache, schema } = context.store;
   const rawValue = context.editable
@@ -16,13 +17,14 @@ export function getGenericField(context: KindContext<GenericField>): unknown {
 
   const { field } = context;
   if (!field.type) {
-    signal.value = rawValue;
+    // signal.value = rawValue;
     return rawValue;
   }
 
   const transform = schema.transformation(field);
-  signal.value = transform.hydrate(rawValue, field.options ?? null, context.record);
-  return signal.value;
+  // signal.value = transform.hydrate(rawValue, field.options ?? null, context.record);
+  // return signal.value;
+  return transform.hydrate(rawValue, field.options ?? null, context.record);
 }
 
 export function setGenericField(context: KindContext<GenericField>): boolean {
