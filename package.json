@@ -46,7 +46,7 @@
     "@warp-drive/internal-tooling": "workspace:*",
     "badge-maker": "4.1.0",
     "bun-types": "^1.2.10",
-    "chalk": "^4.1.2",
+    "chalk": "^5.6.0",
     "co": "^4.6.0",
     "command-line-args": "^6.0.1",
     "comment-json": "^4.2.5",
