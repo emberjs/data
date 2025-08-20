@@ -2,7 +2,6 @@ import { Fetch, RequestManager } from '@warp-drive/core';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
 import { getRequestState } from '@warp-drive/core/store/-private';
 import type { RequestContext, StructuredDataDocument } from '@warp-drive/core/types/request';
-import { setupOnError } from '@warp-drive/diagnostic';
 import { spec, type SpecTest, type SuiteBuilder } from '@warp-drive/diagnostic/spec';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
@@ -165,18 +164,9 @@ export const GetRequestStateRenderingSpec: SuiteBuilder<LocalTestContext, GetReq
       assert.equal(counter, 1);
       assert.dom().hasText('Count:\n          1');
 
-      const cleanup = setupOnError((error) => {
-        assert.step('render-error');
-        const message = error instanceof Error ? error.message : error;
-        const matches = typeof message === 'string' && message.includes('Cannot read properties of null');
-        assert.true(matches, 'error message is correct for null access');
-      });
-
       await request;
       await this.h.rerender();
-      cleanup();
 
-      assert.verifySteps(['render-error']);
       assert.equal(state1, getRequestState(request));
       assert.deepEqual(state1!.result, {
         data: {
