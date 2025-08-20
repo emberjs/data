@@ -3,20 +3,49 @@ import type { SingleResourceDataDocument } from "@warp-drive/core/types/spec/doc
 import type { Type } from "@warp-drive/core/types/symbols";
 import { ReactiveContext, Request } from "@warp-drive/react";
 
-import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
+// import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
+import { RequestSpec } from "./request-component.spec";
 import { useReact } from "@warp-drive/diagnostic/react";
+import { DEBUG } from "@warp-drive/core/build-config/env";
 
-function CountFor({ countFor, data }: { countFor: (thing?: unknown) => number; data: unknown }) {
-  const count = useRef<boolean>(false);
-  let invokedCount = 1;
+function debugDedupe<T>(getValue: () => T): T {
+  const count = useRef<{ invoked: number; last: T }>({ invoked: 0, last: null as unknown as T });
 
-  if (count.current === false) {
-    count.current = true;
+  // in debug we need to skip every second invocation
+  if (DEBUG) {
+    if (count.current.invoked % 2 === 1) {
+      count.current.last = getValue();
+    }
+    count.current.invoked++;
   } else {
-    invokedCount = countFor(data);
+    count.current.last = getValue();
   }
 
-  return <>{invokedCount}</>;
+  return count.current.last;
+}
+
+function useBetterMemo<T>(getValue: () => T, deps: React.DependencyList) {
+  const count = useRef<{ invoked: number; last: T }>({ invoked: 0, last: null as unknown as T });
+
+  return useMemo(() => {
+    // in debug we need to skip every second invocation
+    if (DEBUG) {
+      if (count.current.invoked % 2 === 0) {
+        count.current.last = getValue();
+      }
+      count.current.invoked++;
+    } else {
+      count.current.last = getValue();
+    }
+
+    return count.current.last;
+  }, deps);
+}
+
+function CountFor({ countFor, data }: { countFor: (thing?: unknown) => number; data: unknown }) {
+  const value = debugDedupe(() => countFor(data));
+
+  return <>{value}</>;
 }
 
 RequestSpec.use(useReact(), function (b) {
@@ -197,7 +226,7 @@ RequestSpec.use(useReact(), function (b) {
             ),
             content: ({ result }) => (
               <>
-                {result.data.attributes.name}
+                {result.data?.name}
                 <br />
                 Count: <CountFor countFor={countFor} data={result} />
               </>
@@ -525,16 +554,29 @@ RequestSpec.use(useReact(), function (b) {
     .test("idle state allows for transition to request states", function (props) {
       const { store, state } = props;
 
+      // by wrapping our invocation in another component, we Ensure
+      // that the transpiled output has not eagerly accessed state.request before
+      // it is being rendered.
+      function TestComponent() {
+        return (
+          <Request
+            store={store}
+            request={state.request}
+            states={{
+              idle: () => <>Waiting</>,
+              content: ({ result }) => <>Content</>,
+              error: ({ error }) => <>Error</>,
+            }}
+          />
+        );
+      }
+
+      // the extra <ReactiveContext /> wrapper is because
+      // we need `{store.request}` to be reactive as an input argument.
       return (
-        <Request
-          store={store}
-          request={state.request}
-          states={{
-            idle: () => <>Waiting</>,
-            content: ({ result }) => <>Content</>,
-            error: ({ error }) => <>Error</>,
-          }}
-        />
+        <ReactiveContext>
+          <TestComponent />
+        </ReactiveContext>
       );
     })
 
@@ -548,7 +590,8 @@ RequestSpec.use(useReact(), function (b) {
 
       function Issuer() {
         // Ensure that the request doesn't kick off until after the Request component renders.
-        const request = useMemo(() => {
+        const request = useBetterMemo(() => {
+          console.log("making request");
           return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: "GET" }));
         }, [dependency.trackedThing]);
 

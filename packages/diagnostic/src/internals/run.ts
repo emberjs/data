@@ -171,10 +171,6 @@ export async function runModule<TC extends TestContext>(
   const beforeChain = getChain<TC>(Config.globalHooks, module, parents, 'beforeEach');
   const afterChain = getChain<TC>(Config.globalHooks, module, parents, 'afterEach');
 
-  console.log({
-    value: Config.params.useConcurrency.value,
-    concurrency: Config.concurrency,
-  });
   if (Config.params.useConcurrency.value && Config.concurrency > 1) {
     const tests = module.tests.byOrder;
     let remainingTests = tests.length;

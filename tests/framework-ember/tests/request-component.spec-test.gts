@@ -66,6 +66,7 @@ RequestSpec.use(useEmber(), function (b) {
 
     .test('externally retriggered request works as expected', function (props) {
       const { source, countFor, retry, store } = props;
+      const arr = (...args: unknown[]) => args;
 
       return <template>
         <Request @store={{store}} @request={{source.request}}>
@@ -74,7 +75,8 @@ RequestSpec.use(useEmber(), function (b) {
             {{~countFor error~}}
             <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
           </:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+          <:content as |result state|>{{result.data.name}}<br />Count:
+            {{countFor (arr result.data.name state.isRefreshing state.latestRequest)}}</:content>
         </Request>
       </template>;
     })

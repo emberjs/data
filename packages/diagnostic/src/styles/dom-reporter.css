@@ -75,12 +75,12 @@ tr.diagnostic-checks.expanded {
 
 #warp-drive__diagnostic h1 {
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: normal;
   color: var(--brand-main);
   margin: 0;
   padding: 0;
-  line-height: 1.5rem;
+  line-height: 1.2rem;
   float: left;
   display: block;
 }
@@ -122,8 +122,14 @@ tr.diagnostic-checks.expanded {
   font-weight: 300;
 }
 
-#warp-drive__diagnostic h1 span.logo-secondary {
+#warp-drive__diagnostic h1 span.logo-diagnostic {
   color: var(--brand-secondary);
+  font-weight: 100;
+  font-size: 0.5em;
+}
+
+#warp-drive__diagnostic h1 span.logo-secondary {
+  color: lightblue;
   font-weight: 100;
 }
 

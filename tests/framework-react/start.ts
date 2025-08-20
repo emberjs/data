@@ -34,5 +34,6 @@ setupGlobalHooks((hooks) => {
 });
 
 void start({
-  useDiagnostic: true,
+  org: '@warp-drive/',
+  package: 'react',
 });

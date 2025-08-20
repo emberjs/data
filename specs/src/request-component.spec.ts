@@ -2,6 +2,7 @@ import { CacheHandler as StoreHandler, Fetch, RequestManager, Store as DataStore
 import { DEBUG, PRODUCTION } from '@warp-drive/core/build-config/env';
 import {
   instantiateRecord,
+  type ReactiveDocument,
   registerDerivations,
   SchemaService,
   teardownRecord,
@@ -205,7 +206,7 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
     LocalTestContext,
     {
       store: Store | RequestManager;
-      source: { request: Future<UserResource> };
+      source: { request: Future<ReactiveDocument<User>> };
       countFor: (result: unknown) => number;
       retry: (state: { retry: () => Promise<void> }) => void;
     }
@@ -533,19 +534,23 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
   .for('externally retriggered request works as expected')
   .use<{
     store: Store | RequestManager;
-    source: { request: Future<UserResource> };
+    source: { request: Future<ReactiveDocument<User>> };
     countFor: (result: unknown) => number;
     retry: (state: { retry: () => Promise<void> }) => void;
   }>(async function (assert) {
     const store = new Store();
-    store.requestManager = this.manager;
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(StoreHandler);
+    store.requestManager = manager;
+
     const url = await mockGETSuccess(this);
     await mockGETSuccess(this, { name: 'runspired' });
-    const request = store.request<UserResource>({ url, method: 'GET' });
+    const request = store.request<ReactiveDocument<User>>({ url, method: 'GET' });
     const state2 = getRequestState(request);
 
     class RequestSource {
-      @signal request: Future<UserResource> = request;
+      @signal request: Future<ReactiveDocument<User>> = request;
     }
     const source = new RequestSource();
 
@@ -569,22 +574,25 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.equal(counter, 1, 'counter is 1');
     assert.dom().hasText('PendingCount: 1');
 
-    await this.h.pauseTest();
-
     await request;
     await this.h.rerender();
 
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText('Chris ThoburnCount: 2');
 
-    await this.h.pauseTest();
-    await store.request<UserResource>({ url, method: 'GET', cacheOptions: { reload: true } });
+    await store.request<User>({ url, method: 'GET', cacheOptions: { backgroundReload: true } });
+
+    // the new request triggers a background reload which notifies the request state.
+    assert.equal(counter, 3, 'counter is 3');
+    assert.dom().hasText('Chris ThoburnCount: 3');
+
+    // ensure background request has completed
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    await store._getAllPending();
     await this.h.rerender();
 
-    assert.equal(counter, 3, 'counter is 3');
-    assert.dom().hasText('runspiredCount: 3');
-
-    await this.h.pauseTest();
+    assert.equal(counter, 4, 'counter is 4');
+    assert.dom().hasText('runspiredCount: 4');
   })
 
   .for('externally retriggered request works as expected (store CacheHandler)')

@@ -2,11 +2,14 @@ import { Signal } from "signal-polyfill";
 import { createContext, type JSX, type ReactNode, useSyncExternalStore, type Context, useMemo } from "react";
 import { LOG_REACT_SIGNAL_INTEGRATION } from "@warp-drive/core/build-config/debugging";
 
+let watcherId = 0;
 function _createWatcher() {
+  const id = watcherId++;
   if (LOG_REACT_SIGNAL_INTEGRATION) {
-    console.log(`[WarpDrive] Creating a Watcher`);
+    console.log(`[WarpDrive] Creating a WatcherContext:${id}`);
   }
   const state = {
+    watcherId: id,
     pending: false,
     destroyed: false,
     notifyReact: null as (() => void) | null,
@@ -21,7 +24,8 @@ function _createWatcher() {
     state.watcher.unwatch(...Signal.subtle.introspectSources(state.watcher));
   };
 
-  state.watcher = new Signal.subtle.Watcher(() => {
+  state.watcher = new Signal.subtle.Watcher((...args) => {
+    console.log(`${state.watcherId} notified`, args, state.watcher);
     if (!state.pending && !state.destroyed) {
       state.pending = true;
       queueMicrotask(() => {
@@ -38,7 +42,9 @@ function _createWatcher() {
             }
 
             if (LOG_REACT_SIGNAL_INTEGRATION) {
-              console.log(`[WarpDrive] Notifying React That The WatcherContext Has Updated`);
+              console.log(`[WarpDrive] Notifying React That WatcherContext:${state.watcherId} Has Updated`);
+              console.log("all signals", new Set(Signal.subtle.introspectSources(state.watcher)));
+              console.log("dirty signals", new Set(state.watcher.getPending()));
             }
 
             // any time signals have changed, we notify React that our store has updated

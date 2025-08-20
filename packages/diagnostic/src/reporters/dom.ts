@@ -466,15 +466,16 @@ function renderSuite(reporter: DOMReporter, element: DocumentFragment, suiteRepo
   const header = document.createElement('header');
   header.id = 'warp-drive__diagnostic-header';
   element.appendChild(header);
+  const settings = getSettings();
 
   const title = document.createElement('h1');
-  title.innerHTML = `<span class="logo-main">@warp-drive/</span><span class="logo-secondary">diagnostic</span>`;
+  title.innerHTML = `<span class="logo-main">${settings.name.org}</span><span class="logo-secondary">${settings.name.package}</span><span class="logo-diagnostic"> | Diagnostic</span>`;
   header.appendChild(title);
 
   const paramsList = document.createElement('ul');
   header.appendChild(paramsList);
 
-  const params = getSettings().params;
+  const params = settings.params;
   type Params = keyof typeof params;
   const keys = Object.keys(params) as Params[];
   keys.forEach((key) => {
