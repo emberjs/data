@@ -2,17 +2,21 @@ import { type Awaitable, createDeferred, setPromiseResult } from '@warp-drive/co
 import { getPromiseState } from '@warp-drive/core/store/-private';
 import { spec, type SpecTest, type SuiteBuilder } from '@warp-drive/diagnostic/spec';
 
-interface LocalTestContext {}
+interface LocalTestContext {
+  unused: null;
+}
 
 type PromiseState<T, E> = ReturnType<typeof getPromiseState<T, E>>;
-const SecretSymbol = Symbol.for('LegacyPromiseProxy');
+const SecretSymbol = Symbol.for('LegacyPromiseProxy') as unknown as 'Symbol(<LegacyPromiseProxy>)';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
 interface PromiseProxy<T, E> extends Promise<T> {}
 class PromiseProxy<T, E> {
   promise: Awaitable<T, E>;
 
   constructor(promise: Awaitable<T, E>) {
-    (this as any)[SecretSymbol] = true;
+    // @ts-expect-error - can't type symbol props with isolated declarations
+    this[SecretSymbol] = true;
     this.promise = promise;
   }
 
