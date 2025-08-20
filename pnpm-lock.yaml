@@ -47,9 +47,6 @@ patchedDependencies:
   ember-source@4.4.5:
     hash: c4ad8e3def33c3f12f4d7d0931ea823b63e5f00d95b397206e9c19b38f4ac7a8
     path: patches/ember-source@4.4.5.patch
-  qunit-dom:
-    hash: 14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd
-    path: patches/qunit-dom.patch
   qunit@2.19.4:
     hash: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
     path: patches/qunit@2.19.4.patch
@@ -700,8 +697,8 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       tmp:
         specifier: ^0.2.3
         version: 0.2.3
@@ -2300,8 +2297,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       testem:
         specifier: ~3.11.0
         version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
@@ -2444,8 +2441,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       testem:
         specifier: ~3.11.0
         version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
@@ -2612,8 +2609,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -2738,8 +2735,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       testem:
         specifier: ~3.11.0
         version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
@@ -3119,8 +3116,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       testem:
         specifier: ~3.11.0
         version: 3.11.0(patch_hash=cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5)
@@ -3452,8 +3449,8 @@ importers:
         specifier: 2.19.4
         version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       tracked-built-ins:
         specifier: ^4.0.0
         version: 4.0.0(@babel/core@7.28.0)
@@ -3823,8 +3820,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       qunit-dom:
-        specifier: ^3.4.0
-        version: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+        specifier: ^3.5.0
+        version: 3.5.0
       silent-error:
         specifier: ^1.1.1
         version: 1.1.1
@@ -12421,8 +12418,8 @@ packages:
     resolution: {integrity: sha512-uHg5kcjyEGX85Rh9mimWoXsqeGmJZxfNLqmVxA5O2xJW+JAlQ0r0JFA07lHqlOQcegs5CAhvioKUXpjicDra6g==}
     engines: {node: 10.* || 12.* || >= 14.*}
 
-  qunit-dom@3.4.0:
-    resolution: {integrity: sha512-N5PYbJ20RD3JZN4whINdl7dDfxScUy7eNuO8IwUtBWC7d6SH+BqtBqVZdRn9evxLQVzuask6OGvMy4gdpiCceg==}
+  qunit-dom@3.5.0:
+    resolution: {integrity: sha512-eemLM5bflWafzmBnwlYbjf9NrjEkV2j7NO7mTvsMzQBJbEaq2zFvUFDtHV9JaK0TT5mgRZt034LCUewYGmjjjQ==}
 
   qunit-theme-ember@1.0.0:
     resolution: {integrity: sha512-vdMVVo6ecdCkWttMTKeyq1ZTLGHcA6zdze2zhguNuc3ritlJMhOXY5RDseqazOwqZVfCg3rtlmL3fMUyIzUyFQ==}
@@ -19440,7 +19437,7 @@ snapshots:
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
-      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+      qunit-dom: 3.5.0
       tmp: 0.2.3
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
@@ -19457,7 +19454,7 @@ snapshots:
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
-      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+      qunit-dom: 3.5.0
       tmp: 0.2.3
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
@@ -19473,7 +19470,7 @@ snapshots:
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
-      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+      qunit-dom: 3.5.0
       tmp: 0.2.3
     transitivePeerDependencies:
       - '@babel/core'
@@ -19487,7 +19484,7 @@ snapshots:
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
-      qunit-dom: 3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd)
+      qunit-dom: 3.5.0
       tmp: 0.2.3
     optionalDependencies:
       react: 19.1.1
@@ -26663,7 +26660,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  qunit-dom@3.4.0(patch_hash=14693206a45eecb4cd1f31c9e8879327abb21b7653f11f1275d1feb26aca3dbd):
+  qunit-dom@3.5.0:
     dependencies:
       dom-element-descriptors: 0.5.1
 

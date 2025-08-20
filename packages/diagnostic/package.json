@@ -101,7 +101,7 @@
     "@warp-drive/react": "workspace:*",
     "@embroider/macros": "^1.18.1",
     "dom-element-descriptors": "^0.5.1",
-    "qunit-dom": "^3.4.0"
+    "qunit-dom": "^3.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
