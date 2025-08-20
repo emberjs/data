@@ -7,7 +7,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import { recordIdentifierFor } from '../../index.ts';
 import type { Store, WarpDriveSignal } from '../../store/-private.ts';
-import { createMemo, withSignalStore } from '../../store/-private.ts';
+import { createInternalMemo, withSignalStore } from '../../store/-private.ts';
 import type { SchemaService as SchemaServiceInterface } from '../../types.ts';
 import { getOrSetGlobal } from '../../types/-private.ts';
 import type { ResourceKey } from '../../types/identifier.ts';
@@ -423,10 +423,9 @@ function makeCachedDerivation<R, T, FM extends ObjectValue | null>(
     const signals = withSignalStore(record as object);
     let signal = signals.get(prop);
     if (!signal) {
-      signal = createMemo(record as object, prop, () => {
+      signal = createInternalMemo(signals, record as object, prop, () => {
         return derivation(record, options, prop);
       }) as unknown as WarpDriveSignal; // a total lie, for convenience of reusing the storage
-      signals.set(prop, signal);
     }
 
     return (signal as unknown as () => T)();

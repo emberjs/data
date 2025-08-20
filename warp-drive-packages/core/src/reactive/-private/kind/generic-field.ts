@@ -1,10 +1,15 @@
-import { entangleSignal } from '../../../store/-private';
+import { entangleInitiallyStaleSignal } from '../../../store/-private';
 import type { Value } from '../../../types/json/raw';
 import type { GenericField } from '../../../types/schema/fields';
 import type { KindContext } from '../default-mode';
 
 export function getGenericField(context: KindContext<GenericField>): unknown {
-  entangleSignal(context.signals, context.record, context.path.at(-1)!, null);
+  const signal = entangleInitiallyStaleSignal(context.signals, context.record, context.path.at(-1)!, null);
+  // FIXME we should be able to cache the computation here, but some tests fail.
+  // if (!signal.isStale) {
+  //   return signal.value;
+  // }
+  signal.isStale = false;
   const { cache, schema } = context.store;
   const rawValue = context.editable
     ? cache.getAttr(context.resourceKey, context.path)
@@ -12,10 +17,13 @@ export function getGenericField(context: KindContext<GenericField>): unknown {
 
   const { field } = context;
   if (!field.type) {
+    // signal.value = rawValue;
     return rawValue;
   }
 
   const transform = schema.transformation(field);
+  // signal.value = transform.hydrate(rawValue, field.options ?? null, context.record);
+  // return signal.value;
   return transform.hydrate(rawValue, field.options ?? null, context.record);
 }
 

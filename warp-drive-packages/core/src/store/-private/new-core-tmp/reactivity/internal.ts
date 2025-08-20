@@ -1,7 +1,16 @@
+import { DEBUG } from '@warp-drive/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal } from '../../../../types/-private.ts';
-import { ARRAY_SIGNAL, consumeSignal, createSignal, notifySignal, OBJECT_SIGNAL, type SignalRef } from './configure.ts';
+import {
+  ARRAY_SIGNAL,
+  consumeSignal,
+  createMemo,
+  createSignal,
+  notifySignal,
+  OBJECT_SIGNAL,
+  type SignalRef,
+} from './configure.ts';
 
 export type { SignalRef };
 export { ARRAY_SIGNAL, OBJECT_SIGNAL };
@@ -228,6 +237,27 @@ export function getOrCreateInternalSignal(
   return signal;
 }
 
+export function createInternalMemo<T>(
+  signals: SignalStore,
+  object: object,
+  key: string | symbol,
+  fn: () => T
+): () => T {
+  assert(`Expected no signal/memo to exist for key "${String(key)}"`, !peekInternalSignal(signals, key));
+  if (DEBUG) {
+    return withFrame(signals, object, key, fn);
+  } else {
+    const memo = createMemo(object, key, fn);
+    signals.set(key, memo as unknown as WarpDriveSignal);
+    return memo;
+  }
+}
+
+export function consumeInternalMemo<T>(fn: () => T): T {
+  TrackingFrame?.signals.add(fn as unknown as WarpDriveSignal);
+  return fn();
+}
+
 export function peekInternalSignal(
   signals: SignalStore | undefined,
   key: string | symbol
@@ -236,6 +266,7 @@ export function peekInternalSignal(
 }
 
 export function consumeInternalSignal(signal: WarpDriveSignal): void {
+  TrackingFrame?.signals.add(signal);
   consumeSignal(signal.signal);
 }
 
@@ -244,4 +275,206 @@ export function notifyInternalSignal(signal: WarpDriveSignal | undefined): void 
     signal.isStale = true;
     notifySignal(signal.signal);
   }
+}
+
+interface TrackingFrame {
+  object: object;
+  key: string | symbol;
+  signals: Set<WarpDriveSignal>;
+  parent: TrackingFrame | null;
+}
+
+let TrackingFrame: TrackingFrame | null = null;
+
+/**
+ * This is currently just for signals debugging, but it could be used in production
+ * if we wanted to eliminate the need for frameworks to implement createMemo / to
+ * allow us to add our own Watcher.
+ *
+ * @internal
+ */
+function withFrame<T>(signals: SignalStore, object: object, key: string | symbol, fn: () => T): () => T {
+  const frameSignals = new Set<WarpDriveSignal>();
+  const frameFn = () => {
+    if (frameSignals.size) {
+      frameSignals.clear();
+    }
+    TrackingFrame = {
+      object,
+      key,
+      signals: frameSignals,
+      parent: TrackingFrame,
+    };
+    try {
+      return fn();
+    } finally {
+      TrackingFrame = TrackingFrame.parent;
+    }
+  };
+  const memo = createMemo(object, key, frameFn);
+  // @ts-expect-error
+  memo.signals = frameSignals;
+  signals.set(key, memo as unknown as WarpDriveSignal);
+
+  return memo;
+}
+
+function isMemo(obj: unknown): obj is { signals: Set<WarpDriveSignal> } {
+  // @ts-expect-error
+  return typeof obj === 'function' && obj.signals instanceof Set;
+}
+
+if (DEBUG) {
+  // @ts-expect-error adding to global API
+  globalThis.debugWarpDriveSignals = (obj: object, key?: string | symbol): boolean => {
+    upgradeWithSignals(obj);
+    const signals = obj[Signals];
+    if (!signals) {
+      log('The object has no associated signals');
+      return false;
+    }
+
+    if (key) {
+      const signal = signals.get(key);
+      if (!signal) {
+        log(`No signal found for key "${String(key)}"`);
+        return false;
+      }
+      log(signal);
+      if (isMemo(signal)) {
+        colorizeLines(printMemo(signal, key));
+        return true;
+      } else {
+        colorizeLines(printSignal(signal, key));
+        return true;
+      }
+    }
+
+    const lines: string[] = [];
+    for (const [k, signal] of signals) {
+      if (isMemo(signal)) continue;
+      printSignal(signal, k, lines);
+    }
+    for (const [k, signal] of signals) {
+      if (isMemo(signal)) {
+        printMemo(signal, k, lines);
+      }
+    }
+
+    log(signals);
+    colorizeLines(lines);
+
+    return true;
+  };
+}
+
+const LightColors = {
+  red: 'color: red;',
+  green: 'color: green;',
+  reset: 'color: inherit;',
+};
+const DarkColors = {
+  red: 'color: red;',
+  green: 'color: lightgreen;',
+  reset: 'color: inherit;',
+};
+function isLightMode() {
+  if (window?.matchMedia?.('(prefers-color-scheme: light)').matches) {
+    return true;
+  }
+  return false;
+}
+
+const RED = {} as unknown as string;
+const GREEN = {} as unknown as string;
+const RESET = {} as unknown as string;
+const EOL = {} as unknown as string;
+
+function colorizeLines(lines: string[]): void {
+  const Colors = isLightMode() ? LightColors : DarkColors;
+  const colors = [];
+  let line = '';
+
+  for (const str of lines) {
+    if (str === RED) {
+      colors.push(Colors.red);
+      line += '%c';
+    } else if (str === GREEN) {
+      colors.push(Colors.green);
+      line += '%c';
+    } else if (str === RESET) {
+      colors.push(Colors.reset);
+      line += '%c';
+    } else if (str === EOL) {
+      line += '\n';
+    } else {
+      line += str;
+    }
+  }
+
+  log(line, ...colors);
+}
+
+function log(...args: unknown[]): void {
+  // eslint-disable-next-line no-console
+  console.log(...args);
+}
+
+function isDirty(signal: WarpDriveSignal): boolean {
+  return signal.isStale;
+}
+
+function isDirtyMemo(memo: { signals: Set<WarpDriveSignal> }): boolean {
+  // iterate simple signals first to get fastest answer
+  for (const signal of memo.signals) {
+    if (isMemo(signal)) continue;
+    if (isDirty(signal)) {
+      return true;
+    }
+  }
+  for (const signal of memo.signals) {
+    if (isMemo(signal)) {
+      return isDirtyMemo(signal);
+    }
+  }
+  return false;
+}
+
+function printSignal(signal: WarpDriveSignal, key: string | symbol, lines: string[] = [], depth = 0): string[] {
+  const _dirty = isDirty(signal);
+  lines.push(
+    `${''.padStart(depth * 2, ' ')}${_dirty ? '❌' : '✅'} `,
+    _dirty ? RED : GREEN,
+    `${String(key)}`,
+    RESET,
+    EOL
+  );
+  return lines;
+}
+
+function printMemo(
+  memo: { signals: Set<WarpDriveSignal> },
+  key: string | symbol,
+  lines: string[] = [],
+  depth = 0
+): string[] {
+  const _dirty = isDirtyMemo(memo);
+  lines.push(
+    `${''.padStart(depth * 2, ' ')}${_dirty ? '❌' : '✅'} `,
+    _dirty ? RED : GREEN,
+    `<memo> ${String(key)}`,
+    RESET,
+    `: (consumes ${memo.signals.size} signals)`,
+    EOL
+  );
+  for (const signal of memo.signals) {
+    if (isMemo(signal)) continue;
+    printSignal(signal, signal.key, lines, depth + 1);
+  }
+  for (const signal of memo.signals) {
+    if (isMemo(signal)) {
+      printMemo(signal, signal.key, lines, depth + 1);
+    }
+  }
+  return lines;
 }
