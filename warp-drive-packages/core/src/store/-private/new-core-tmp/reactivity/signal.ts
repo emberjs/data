@@ -1,9 +1,9 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import { createMemo } from './configure.ts';
 import type { Signals, SignalStore, WarpDriveSignal } from './internal.ts';
 import {
   consumeInternalSignal,
+  createInternalMemo,
   createInternalSignal,
   getOrCreateInternalSignal,
   makeInitializer,
@@ -34,13 +34,31 @@ export function entangleSignal<T extends object>(
   return internalSignal;
 }
 
+export function entangleInitiallyStaleSignal<T extends object>(
+  signals: SignalStore,
+  obj: T,
+  key: string | symbol,
+  initialValue: unknown
+): WarpDriveSignal {
+  let internalSignal = peekInternalSignal(signals, key);
+  if (!internalSignal) {
+    internalSignal = createInternalSignal(signals, obj, key, initialValue);
+    internalSignal.isStale = true; // mark it as stale
+  }
+
+  consumeInternalSignal(internalSignal);
+  return internalSignal;
+}
+
 export function createSignalDescriptor(key: string | symbol, intialValue: unknown): PropertyDescriptor {
   return {
     enumerable: true,
     configurable: false,
     get(this: { [Signals]: SignalStore }) {
       const signals = withSignalStore(this);
-      return entangleSignal(signals, this, key, intialValue).value;
+      const internalSignal = entangleSignal(signals, this, key, intialValue);
+      internalSignal.isStale = false; // reset stale state
+      return internalSignal.value;
     },
     set(this: { [Signals]: SignalStore }, value: unknown) {
       const signals = withSignalStore(this);
@@ -148,8 +166,7 @@ export function memoized<T extends object, K extends keyof T & string>(
 
     let memoSignal = signals.get(key);
     if (!memoSignal) {
-      memoSignal = createMemo(this, key, getter.bind(this)) as unknown as WarpDriveSignal;
-      signals.set(key, memoSignal);
+      memoSignal = createInternalMemo(signals, this, key, getter.bind(this)) as unknown as WarpDriveSignal;
     }
     return (memoSignal as unknown as () => unknown)();
   };

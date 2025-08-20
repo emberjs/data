@@ -83,12 +83,13 @@ export {
   type RequestCacheRequestState as RequestState,
 } from './-private/new-core-tmp/request-state.ts';
 
-export { createMemo, type SignalHooks, waitFor } from './-private/new-core-tmp/reactivity/configure.ts';
+export { type SignalHooks, waitFor } from './-private/new-core-tmp/reactivity/configure.ts';
 export {
   signal,
   memoized,
   gate,
   entangleSignal,
+  entangleInitiallyStaleSignal,
   defineSignal,
   defineGate,
   defineNonEnumerableSignal,
@@ -99,6 +100,7 @@ export {
   Signals,
   type WarpDriveSignal,
   peekInternalSignal,
+  createInternalMemo,
   withSignalStore,
   notifyInternalSignal,
   consumeInternalSignal,
