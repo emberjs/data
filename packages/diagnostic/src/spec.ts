@@ -135,7 +135,7 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
                 const context = this as LocalContext & SpecTestContext<T>;
 
                 const frameworkRender = context.render.bind(context);
-                context.render = async (props) => {
+                context.render = (props) => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                   return frameworkRender(impl(props));
                 };
@@ -158,7 +158,7 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
                 const context = this as LocalContext & SpecTestContext<T>;
 
                 const frameworkRender = context.render.bind(context);
-                context.render = async (props) => {
+                context.render = (props) => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                   return frameworkRender(impl(props));
                 };
@@ -181,7 +181,7 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
                 const context = this as LocalContext & SpecTestContext<T>;
 
                 const frameworkRender = context.render.bind(context);
-                context.render = async (props) => {
+                context.render = (props) => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                   return frameworkRender(impl(props));
                 };
