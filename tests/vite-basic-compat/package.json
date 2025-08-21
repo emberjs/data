@@ -51,8 +51,8 @@
     "@tsconfig/ember": "^3.0.10",
     "@types/qunit": "2.19.10",
     "@types/rsvp": "^4.0.9",
-    "@typescript-eslint/eslint-plugin": "^8.30.1",
-    "@typescript-eslint/parser": "^8.30.1",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
@@ -89,7 +89,7 @@
     "qunit-dom": "^3.5.0",
     "tracked-built-ins": "^4.0.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.30.1",
+    "typescript-eslint": "^8.40.0",
     "vite": "^7.1.2"
   },
   "ember": {
