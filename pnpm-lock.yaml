@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -4153,19 +4151,19 @@ importers:
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.31.1
-        version: 2.31.1(63a7c36bda07019adeb6855fa3455e4e)
+        version: 2.31.1(2aee0de8556242e44664e792254e73f4)
       '@sveltejs/package':
         specifier: ^2.4.1
-        version: 2.4.1(svelte@5.38.1)(typescript@5.9.2)
+        version: 2.4.1(svelte@5.38.2)(typescript@5.9.2)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.1.2
-        version: 6.1.2(svelte@5.38.1)(vite@7.1.2)
+        version: 6.1.2(svelte@5.38.2)(vite@7.1.2)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
       svelte:
-        specifier: ^5.38.1
-        version: 5.38.1
+        specifier: ^5.38.2
+        version: 5.38.2
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -13280,8 +13278,8 @@ packages:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: 5.9.2
 
-  svelte@5.38.1:
-    resolution: {integrity: sha512-fO6CLDfJYWHgfo6lQwkQU2vhCiHc2MBl6s3vEhK+sSZru17YL4R5s1v14ndRpqKAIkq8nCz6MTk1yZbESZWeyQ==}
+  svelte@5.38.2:
+    resolution: {integrity: sha512-iAcp/oFAWauVSGILdD67n7DiwgLHXZzWZIdzl7araRxu72jUr7PFAo2Iie7gXt0IbnlYvhxCb9GT3ZJUquO3PA==}
     engines: {node: '>=18'}
 
   svg-tags@1.0.0:
@@ -18792,11 +18790,11 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
-  '@sveltejs/kit@2.31.1(63a7c36bda07019adeb6855fa3455e4e)':
+  '@sveltejs/kit@2.31.1(2aee0de8556242e44664e792254e73f4)':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.1)
-      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.2)
+      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.2)(vite@7.1.2)
       '@types/cookie': 0.6.0
       acorn: 8.14.1
       cookie: 0.6.0
@@ -18808,37 +18806,37 @@ snapshots:
       sade: 1.8.1
       set-cookie-parser: 2.7.1
       sirv: 3.0.1
-      svelte: 5.38.1
+      svelte: 5.38.2
       vite: 7.1.2
 
-  '@sveltejs/package@2.4.1(svelte@5.38.1)(typescript@5.9.2)':
+  '@sveltejs/package@2.4.1(svelte@5.38.2)(typescript@5.9.2)':
     dependencies:
       chokidar: 4.0.3
       kleur: 4.1.5
       sade: 1.8.1
       semver: 7.7.2
-      svelte: 5.38.1
-      svelte2tsx: 0.7.40(svelte@5.38.1)(typescript@5.9.2)
+      svelte: 5.38.2
+      svelte2tsx: 0.7.40(svelte@5.38.2)(typescript@5.9.2)
     transitivePeerDependencies:
       - typescript
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.0(63a7c36bda07019adeb6855fa3455e4e)':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.0(2aee0de8556242e44664e792254e73f4)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.2)
+      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.2)(vite@7.1.2)
       debug: 4.4.1
-      svelte: 5.38.1
+      svelte: 5.38.2
       vite: 7.1.2
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@6.1.2(svelte@5.38.1)(vite@7.1.2)':
+  '@sveltejs/vite-plugin-svelte@6.1.2(svelte@5.38.2)(vite@7.1.2)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.0(63a7c36bda07019adeb6855fa3455e4e)
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.0(2aee0de8556242e44664e792254e73f4)
       debug: 4.4.1
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.17
-      svelte: 5.38.1
+      svelte: 5.38.2
       vite: 7.1.2
       vitefu: 1.1.1(vite@7.1.2)
     transitivePeerDependencies:
@@ -18933,7 +18931,7 @@ snapshots:
 
   '@types/eslint@9.6.1':
     dependencies:
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.7': {}
@@ -27760,14 +27758,14 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.40(svelte@5.38.1)(typescript@5.9.2):
+  svelte2tsx@0.7.40(svelte@5.38.2)(typescript@5.9.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 5.38.1
+      svelte: 5.38.2
       typescript: 5.9.2
 
-  svelte@5.38.1:
+  svelte@5.38.2:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.0
