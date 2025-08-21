@@ -3,8 +3,8 @@
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = async function (defaults) {
-  const { setConfig } = await import('@warp-drive/build-config');
-  const { macros } = await import('@warp-drive/build-config/babel-macros');
+  const { setConfig } = await import('@warp-drive/core/build-config');
+  const { macros } = await import('@warp-drive/core/build-config/babel-macros');
 
   const app = new EmberApp(defaults, {
     babel: {
