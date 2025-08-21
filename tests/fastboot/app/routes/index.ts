@@ -1,8 +1,8 @@
 import Route from '@ember/routing/route';
 import * as s from '@ember/service';
 
-import { query } from '@ember-data/json-api/request';
-import { setBuildURLConfig } from '@ember-data/request-utils';
+import { setBuildURLConfig } from '@warp-drive/utilities';
+import { query } from '@warp-drive/utilities/json-api';
 
 import type Person from '../models/person';
 import type Store from '../services/store';

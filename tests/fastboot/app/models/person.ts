@@ -1,6 +1,6 @@
-import type { AsyncBelongsTo, AsyncHasMany } from '@ember-data/model';
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
-import type { Type } from '@warp-drive/core-types/symbols';
+import type { Type } from '@warp-drive/core/types/symbols';
+import type { AsyncBelongsTo, AsyncHasMany } from '@warp-drive/legacy/model';
+import Model, { attr, belongsTo, hasMany } from '@warp-drive/legacy/model';
 
 export default class Person extends Model {
   @attr()

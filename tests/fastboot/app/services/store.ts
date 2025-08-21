@@ -1,13 +1,10 @@
-import JSONAPICache from '@ember-data/json-api';
-import type Model from '@ember-data/model';
-import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@ember-data/model';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import DataStore, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
-import type { ResourceKey } from '@warp-drive/core-types';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
+import type { CacheCapabilitiesManager, ModelSchema, ResourceKey } from '@warp-drive/core/types';
+import { JSONAPICache } from '@warp-drive/json-api';
+import type { Model } from '@warp-drive/legacy/model';
+import { buildSchema, instantiateRecord, modelFor, teardownRecord } from '@warp-drive/legacy/model';
 
-export default class Store extends DataStore {
+export default class AppStore extends Store {
   requestManager = new RequestManager().use([Fetch]).useCache(CacheHandler);
 
   createSchemaService(): ReturnType<typeof buildSchema> {
