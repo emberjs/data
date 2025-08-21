@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -814,8 +812,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.18.2
-        version: 1.18.2(hono@4.9.2)
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.2)
       chalk:
         specifier: ^5.5.0
         version: 5.5.0
@@ -5915,8 +5913,8 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@hono/node-server@1.18.2':
-    resolution: {integrity: sha512-icgNvC0vRYivzyuSSaUv9ttcwtN8fDyd1k3AOIBDJgYd84tXRZSS6na8X54CY/oYoFTNhEmZraW/Rb9XYwX4KA==}
+  '@hono/node-server@1.19.0':
+    resolution: {integrity: sha512-1k8/8OHf5VIymJEcJyVksFpT+AQ5euY0VA5hUkCnlKpD4mr8FSbvXaHblxeTTEr90OaqWzAkQaqD80qHZQKxBA==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -17941,7 +17939,7 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.18.2(hono@4.9.2)':
+  '@hono/node-server@1.19.0(hono@4.9.2)':
     dependencies:
       hono: 4.9.2
 
@@ -19512,14 +19510,14 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@hono/node-server': 1.19.0(hono@4.9.2)
       chalk: 5.6.0
       hono: 4.9.2
 
   '@warp-drive/holodeck@file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)':
     dependencies:
       '@ember-data/request': file:packages/request(@babel/core@7.28.0)
-      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@hono/node-server': 1.19.0(hono@4.9.2)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
       chalk: 5.6.0
       hono: 4.9.2
