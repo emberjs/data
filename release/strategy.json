@@ -123,6 +123,12 @@
       "types": "stable",
       "typesPublish": false,
       "mirrorPublish": true
+    },
+    "@warp-drive/react": {
+      "stage": "stable",
+      "types": "stable",
+      "typesPublish": false,
+      "mirrorPublish": true
     }
   }
 }

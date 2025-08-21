@@ -2,7 +2,6 @@
   "name": "@warp-drive/react",
   "description": "Data bindings and utilities for React applications using WarpDrive",
   "version": "5.7.0-alpha.30",
-  "private": true,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
