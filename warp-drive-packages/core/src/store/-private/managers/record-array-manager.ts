@@ -335,6 +335,7 @@ export class RecordArrayManager {
     return array;
   }
 
+  /** @internal */
   private dirtyArray(array: ReactiveResourceArray, delta: number, shouldSyncFromCache: boolean): void {
     if (array === FAKE_ARR) {
       return;

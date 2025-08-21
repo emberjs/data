@@ -156,10 +156,13 @@ export class ContextOwner {
 }
 
 export class Context {
+  /** @internal */
   declare private ___owner: ContextOwner;
   declare request: ImmutableRequestInfo;
   declare id: number;
+  /** @internal */
   declare private _isCacheHandler: boolean;
+  /** @internal */
   declare private _finalized: boolean;
 
   constructor(owner: ContextOwner, isCacheHandler: boolean) {
@@ -188,6 +191,7 @@ export class Context {
     return this.___owner.hasRequestedStream;
   }
 
+  /** @private */
   _finalize(): void {
     this._finalized = true;
   }
