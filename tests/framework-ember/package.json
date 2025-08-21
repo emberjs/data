@@ -43,7 +43,7 @@
     "babel-plugin-ember-template-compilation": "^2.2.5",
     "ember-source": "^6.6.0",
     "ember-strict-application-resolver": "^0.1.0",
-    "rollup": "^4.46.2",
+    "rollup": "^4.46.3",
     "terser": "^5.39.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
