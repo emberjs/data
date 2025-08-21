@@ -60,7 +60,7 @@
     "ember-source": "~6.6.0",
     "loader.js": "^4.7.0",
     "typescript": "^5.9.2",
-    "webpack": "^5.99.5"
+    "webpack": "^5.101.3"
   },
   "ember": {
     "edition": "octane"
