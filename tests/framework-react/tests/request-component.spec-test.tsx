@@ -3,26 +3,11 @@ import type { SingleResourceDataDocument } from "@warp-drive/core/types/spec/doc
 import type { Type } from "@warp-drive/core/types/symbols";
 import { ReactiveContext, Request } from "@warp-drive/react";
 
-// import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
-import { RequestSpec } from "./request-component.spec";
+import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
+// import { RequestSpec } from "./request-component.spec";
 import { useReact } from "@warp-drive/diagnostic/react";
 import { DEBUG } from "@warp-drive/core/build-config/env";
-
-function debugDedupe<T>(getValue: () => T): T {
-  const count = useRef<{ invoked: number; last: T }>({ invoked: 0, last: null as unknown as T });
-
-  // in debug we need to skip every second invocation
-  if (DEBUG) {
-    if (count.current.invoked % 2 === 1) {
-      count.current.last = getValue();
-    }
-    count.current.invoked++;
-  } else {
-    count.current.last = getValue();
-  }
-
-  return count.current.last;
-}
+import { getRequestState } from "@warp-drive/core/store/-private";
 
 function useBetterMemo<T>(getValue: () => T, deps: React.DependencyList) {
   const count = useRef<{ invoked: number; last: T }>({ invoked: 0, last: null as unknown as T });
@@ -43,7 +28,7 @@ function useBetterMemo<T>(getValue: () => T, deps: React.DependencyList) {
 }
 
 function CountFor({ countFor, data }: { countFor: (thing?: unknown) => number; data: unknown }) {
-  const value = debugDedupe(() => countFor(data));
+  const value = useBetterMemo(() => countFor(data), [data]);
 
   return <>{value}</>;
 }
@@ -224,11 +209,12 @@ RequestSpec.use(useReact(), function (b) {
                 </button>
               </>
             ),
-            content: ({ result }) => (
+            content: ({ result, features: state }) => (
               <>
                 {result.data?.name}
                 <br />
-                Count: <CountFor countFor={countFor} data={result} />
+                Count:{" "}
+                <CountFor countFor={countFor} data={[result.data?.name, state.isRefreshing, state.latestRequest]} />
               </>
             ),
           }}
@@ -262,15 +248,63 @@ RequestSpec.use(useReact(), function (b) {
                 </button>
               </>
             ),
-            content: ({ result }) => (
+            content: ({ result, features: state }) => (
               <>
                 {result.data!.name}
                 <br />
-                Count: <CountFor countFor={countFor} data={result} />
+                Count:{" "}
+                <CountFor countFor={countFor} data={[result.data?.name, state.isRefreshing, state.latestRequest]} />
               </>
             ),
           }}
         />
+      );
+    })
+
+    .test("externally updated request arg works as expected", function (props) {
+      const { store, source, countFor, retry } = props;
+
+      function TestComponent() {
+        return (
+          <Request
+            store={store}
+            request={source.request}
+            states={{
+              loading: ({ state }) => (
+                <>
+                  Pending
+                  <br />
+                  Count: <CountFor countFor={countFor} data={state} />
+                </>
+              ),
+              error: ({ error, features }) => (
+                <>
+                  {error.message}
+                  <br />
+                  Count:
+                  <CountFor countFor={countFor} data={error.message} />
+                  <button onClick={() => retry(features)} test-id="retry-button">
+                    Retry
+                  </button>
+                </>
+              ),
+              content: ({ result, features: state }) => (
+                <>
+                  {result.data!.name}
+                  <br />
+                  Count:{" "}
+                  <CountFor countFor={countFor} data={[result.data?.name, state.isRefreshing, state.latestRequest]} />
+                </>
+              ),
+            }}
+          />
+        );
+      }
+
+      return (
+        <ReactiveContext>
+          <TestComponent />
+        </ReactiveContext>
       );
     })
 
@@ -580,58 +614,117 @@ RequestSpec.use(useReact(), function (b) {
       );
     })
 
-    .test("request with an identity does not trigger a second request", function (props) {
-      const { countFor, dependency, url, setRequest, store } = props;
-      type User = {
-        id: string;
-        name: string;
-        [Type]: "user";
-      };
+    .test(
+      "request with an identity does NOT trigger a second request if the CachePolicy says it is not expired",
+      function (props) {
+        const { countFor, dependency, url, setRequest, store } = props;
+        type User = {
+          id: string;
+          name: string;
+          [Type]: "user";
+        };
 
-      function Issuer() {
-        // Ensure that the request doesn't kick off until after the Request component renders.
-        const request = useBetterMemo(() => {
-          console.log("making request");
-          return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: "GET" }));
-        }, [dependency.trackedThing]);
+        function Issuer() {
+          // Ensure that the request doesn't kick off until after the Request component renders.
+          const request = useBetterMemo(() => {
+            return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: "GET" }));
+          }, [dependency.trackedThing]);
+
+          return (
+            <Request
+              store={store}
+              request={request}
+              states={{
+                loading: () => (
+                  <>
+                    Pending
+                    <br />
+                    Count: <CountFor countFor={countFor} data={"loading"} />
+                  </>
+                ),
+                error: ({ error }) => (
+                  <>
+                    {error.message}
+                    <br />
+                    Count: <CountFor countFor={countFor} data={error.message} />
+                  </>
+                ),
+                content: ({ result }) => (
+                  <>
+                    {(result as SingleResourceDataDocument<User>)?.data?.name}
+                    <br />
+                    <CountFor countFor={countFor} data={(result as SingleResourceDataDocument<User>)?.data?.name} />
+                  </>
+                ),
+              }}
+            />
+          );
+        }
 
         return (
-          <Request
-            store={store}
-            request={request}
-            states={{
-              loading: () => (
-                <>
-                  Pending
-                  <br />
-                  Count: <CountFor countFor={countFor} data={"loading"} />
-                </>
-              ),
-              error: ({ error }) => (
-                <>
-                  {error.message}
-                  <br />
-                  Count: <CountFor countFor={countFor} data={error.message} />
-                </>
-              ),
-              content: ({ result }) => (
-                <>
-                  {(result as SingleResourceDataDocument<User>)?.data?.name}
-                  <br />
-                  <CountFor countFor={countFor} data={(result as SingleResourceDataDocument<User>)?.data?.name} />
-                </>
-              ),
-            }}
-          />
+          <ReactiveContext>
+            <Issuer />
+          </ReactiveContext>
         );
       }
+    )
 
-      return (
-        <ReactiveContext>
-          <Issuer />
-        </ReactiveContext>
-      );
-    })
+    .test(
+      "request with an identity DOES trigger a second request if the CachePolicy says it is expired",
+      function (props) {
+        const { countFor, dependency, url, setRequest, store } = props;
+        type User = {
+          id: string;
+          name: string;
+          [Type]: "user";
+        };
+
+        function Issuer() {
+          // Ensure that the request doesn't kick off until after the Request component renders.
+          const request = useBetterMemo(() => {
+            return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: "GET" }));
+          }, [dependency.trackedThing]);
+
+          const reqState = getRequestState(request);
+
+          return (
+            <Request
+              store={store}
+              request={request}
+              states={{
+                loading: () => (
+                  <>
+                    Pending
+                    <br />
+                    Count: <CountFor countFor={countFor} data={reqState.isPending ? "loading" : "loaded"} />
+                  </>
+                ),
+                error: ({ error }) => (
+                  <>
+                    {error.message}
+                    <br />
+                    Count: <CountFor countFor={countFor} data={error.message} />
+                  </>
+                ),
+                content: ({ result }) => (
+                  <>
+                    {(result as SingleResourceDataDocument<User>)?.data?.name}
+                    <br />
+                    <CountFor countFor={countFor} data={(result as SingleResourceDataDocument<User>)?.data?.name} />
+                  </>
+                ),
+              }}
+            />
+          );
+        }
+
+        return (
+          <ReactiveContext>
+            <Issuer />
+          </ReactiveContext>
+        );
+      }
+    )
 
     // @ts-expect-error - we need to improve our typing to not have the generic
     // If there's a typeerror here, we are missing a test.

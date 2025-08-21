@@ -9,6 +9,7 @@ import {
   withDefaults,
 } from '@warp-drive/core/reactive';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
+import type { RecoveryFeatures } from '@warp-drive/core/store/-private';
 import { getRequestState, signal } from '@warp-drive/core/store/-private';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import type { Cache } from '@warp-drive/core/types/cache';
@@ -154,15 +155,18 @@ async function mockGETFailure(context: LocalTestContext): Promise<string> {
 
   return url;
 }
-async function mockRetrySuccess(context: LocalTestContext): Promise<string> {
+async function mockRetrySuccess(context: LocalTestContext, attributes?: { name: string }): Promise<string> {
   const url = buildBaseURL({ resourcePath: 'users/2' });
   await GET(context, 'users/2', () => ({
     data: {
       id: '2',
       type: 'user',
-      attributes: {
-        name: 'Chris Thoburn',
-      },
+      attributes: Object.assign(
+        {
+          name: 'Chris Thoburn',
+        },
+        attributes
+      ),
     },
   }));
   return url;
@@ -224,7 +228,23 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
         >;
       };
       countFor: (result: unknown) => number;
-      retry: (state: { retry: () => Promise<void> }) => void;
+      retry: (state: RecoveryFeatures) => void;
+    }
+  >;
+  'externally updated request arg works as expected': SpecTest<
+    LocalTestContext,
+    {
+      store: Store | RequestManager;
+      source: {
+        request: Future<
+          SingleResourceDataDocument<{
+            id: string;
+            name: string;
+          }>
+        >;
+      };
+      countFor: (result: unknown) => number;
+      retry: (state: RecoveryFeatures) => void;
     }
   >;
   'it rethrows if error block is not present': SpecTest<
@@ -309,7 +329,19 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
       state: { request: Future<unknown> | undefined };
     }
   >;
-  'request with an identity does not trigger a second request': SpecTest<
+  'request with an identity does NOT trigger a second request if the CachePolicy says it is not expired': SpecTest<
+    LocalTestContext,
+    {
+      store: Store;
+      url: string;
+      countFor: (result: unknown) => number;
+      dependency: { trackedThing: string };
+      setRequest: (
+        req: Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>
+      ) => Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>;
+    }
+  >;
+  'request with an identity DOES trigger a second request if the CachePolicy says it is expired': SpecTest<
     LocalTestContext,
     {
       store: Store;
@@ -607,7 +639,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       >;
     };
     countFor: (result: unknown) => number;
-    retry: (state: { retry: () => Promise<void> }) => void;
+    retry: (state: RecoveryFeatures) => void;
   }>(async function (assert) {
     const store = new Store();
     const manager = new RequestManager();
@@ -616,7 +648,8 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     store.requestManager = manager;
     this.manager = manager;
 
-    const url = await mockRetrySuccess(this);
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this, { name: 'runspired' });
     const request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
     const state2 = getRequestState(request);
 
@@ -629,8 +662,8 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     function countFor(_result: unknown) {
       return ++counter;
     }
-    function retry(state1: { retry: () => Promise<void> }) {
-      assert.step('retry');
+    function retry(state1: RecoveryFeatures) {
+      assert.step('this retry should not be called');
       return state1.retry();
     }
 
@@ -650,8 +683,11 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.equal(counter, 2, 'counter is 2');
     assert.dom().hasText('Chris ThoburnCount: 2');
 
-    const request2 = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
-    source.request = request2;
+    const request2 = store.request<SingleResourceDataDocument<User>>({
+      url,
+      method: 'GET',
+      cacheOptions: { reload: true },
+    });
 
     await this.h.rerender();
 
@@ -661,8 +697,82 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     await request2;
     await this.h.rerender();
 
+    assert.equal(counter, 4, 'counter is 4');
+    assert.dom().hasText('runspiredCount: 4');
+  })
+
+  .for('externally updated request arg works as expected')
+  .use<{
+    store: Store | RequestManager;
+    source: {
+      request: Future<
+        SingleResourceDataDocument<{
+          id: string;
+          name: string;
+        }>
+      >;
+    };
+    countFor: (result: unknown) => number;
+    retry: (state: RecoveryFeatures) => void;
+  }>(async function (assert) {
+    const store = new Store();
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(StoreHandler);
+    store.requestManager = manager;
+    this.manager = manager;
+
+    const url = await mockGETSuccess(this);
+    const url2 = await mockRetrySuccess(this, { name: 'runspired' });
+    const request = store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' });
+    const state2 = getRequestState(request);
+
+    class RequestSource {
+      @signal request: Future<SingleResourceDataDocument<User>> = request;
+    }
+    const source = new RequestSource();
+
+    let counter = 0;
+    function countFor(_result: unknown) {
+      return ++counter;
+    }
+    function retry(state1: RecoveryFeatures) {
+      assert.step('this retry should not be called');
+      return state1.retry();
+    }
+
+    await this.render({
+      store,
+      source,
+      countFor,
+      retry,
+    });
+
+    assert.equal(state2, getRequestState(request), 'state is a stable reference');
+    assert.equal(counter, 1, 'counter is 1');
+    assert.dom().hasText('PendingCount: 1');
+
+    await request;
+    await this.h.rerender();
+    assert.equal(counter, 2, 'counter is 2');
+    assert.dom().hasText('Chris ThoburnCount: 2');
+
+    const request2 = store.request<SingleResourceDataDocument<User>>({
+      url: url2,
+      method: 'GET',
+    });
+    source.request = request2;
+
+    await this.h.rerender();
+
     assert.equal(counter, 3, 'counter is 3');
-    assert.dom().hasText('Chris ThoburnCount: 3');
+    assert.dom().hasText('PendingCount: 3');
+
+    await request2;
+    await this.h.rerender();
+
+    assert.equal(counter, 4, 'counter is 4');
+    assert.dom().hasText('runspiredCount: 4');
   })
 
   .for('it rethrows if error block is not present')
@@ -693,9 +803,12 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
         const message = error instanceof Error ? error.message : error;
         const matches =
           typeof message === 'string' &&
-          (PRODUCTION
+          // ember
+          ((PRODUCTION
             ? message.startsWith('[404 Not Found] GET (cors) - ')
-            : message.startsWith('\n\nError occurred:\n\n- While rendering:'));
+            : message.startsWith('\n\nError occurred:\n\n- While rendering:')) ||
+            // react
+            message.startsWith('[404 Not Found] GET (cors) - '));
         assert.true(matches, 'error message is correct');
         if (!matches) {
           throw new Error(`Unmatched Error Encountered`, { cause: message });
@@ -830,10 +943,8 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
     await this.h.click('[test-id="retry-button"]');
 
-    if (PRODUCTION) {
-      await retryPromise!;
-      await this.h.rerender();
-    }
+    await retryPromise!;
+    await this.h.rerender();
 
     assert.verifySteps(['retry']);
     assert.equal(counter, 4, 'counter is 4');
@@ -1138,7 +1249,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.dom().hasText('Content');
   })
 
-  .for('request with an identity does not trigger a second request')
+  .for('request with an identity does NOT trigger a second request if the CachePolicy says it is not expired')
   .use<{
     store: Store;
     url: string;
@@ -1150,8 +1261,8 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
   }>(async function (assert) {
     const store = new Store();
     store.lifetimes = {
-      isHardExpired: () => true,
-      isSoftExpired: () => true,
+      isHardExpired: () => false,
+      isSoftExpired: () => false,
     };
     const manager = new RequestManager();
     manager.use([new MockServerHandler(this), Fetch]);
@@ -1160,7 +1271,6 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     this.manager = manager;
 
     const url = await mockGETSuccess(this);
-    await mockGETSuccess(this); // need this because we are planning on making two requests
 
     class Dependency {
       @signal trackedThing = 'value';
@@ -1170,13 +1280,15 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     type Req = Future<SingleResourceDataDocument<User>>;
     let request: Req;
     function setRequest(req: Req): Req {
+      assert.step('set-request');
       request = req;
       return request;
     }
 
+    let count = 0;
     function countFor(thing: unknown): number {
       assert.step((thing as string | undefined) ?? 'unknown step; this should never happen');
-      return 0;
+      return count++;
     }
 
     await this.render({
@@ -1187,9 +1299,9 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
       store,
     });
 
+    assert.verifySteps(['set-request', 'loading'], 'loading');
     const state = getRequestState(request!);
     assert.equal(state.result, null);
-    assert.verifySteps(['loading'], 'loading');
     await request!;
     await this.h.rerender();
     assert.equal(state, getRequestState(request!));
@@ -1205,6 +1317,90 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.notEqual(state, getRequestState(request!));
     assert.equal(state.result?.data, record);
     assert.equal(record!.name, 'Chris Thoburn');
-    assert.verifySteps(['loading']);
+    assert.verifySteps(['set-request', 'Chris Thoburn']);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    await store._getAllPending();
+    await this.h.rerender();
+
+    assert.verifySteps([]);
+  })
+
+  .for('request with an identity DOES trigger a second request if the CachePolicy says it is expired')
+  .use<{
+    store: Store;
+    url: string;
+    countFor: (result: unknown) => number;
+    dependency: { trackedThing: string };
+    setRequest: (
+      req: Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>
+    ) => Future<SingleResourceDataDocument<{ id: string; name: string; [Type]: 'user' }>>;
+  }>(async function (assert) {
+    const store = new Store();
+    store.lifetimes = {
+      isHardExpired: () => true,
+      isSoftExpired: () => false,
+    };
+    const manager = new RequestManager();
+    manager.use([new MockServerHandler(this), Fetch]);
+    manager.useCache(StoreHandler);
+    store.requestManager = manager;
+    this.manager = manager;
+
+    const url = await mockGETSuccess(this);
+    await mockGETSuccess(this, { name: 'runspired' });
+
+    class Dependency {
+      @signal trackedThing = 'value';
+    }
+    const dependency = new Dependency();
+
+    type Req = Future<SingleResourceDataDocument<User>>;
+    let request: Req;
+    function setRequest(req: Req): Req {
+      assert.step('set-request');
+      request = req;
+      return request;
+    }
+
+    let count = 0;
+    function countFor(thing: unknown): number {
+      assert.step((thing as string | undefined) ?? 'unknown step; this should never happen');
+      return count++;
+    }
+
+    await this.render({
+      countFor,
+      dependency,
+      url,
+      setRequest,
+      store,
+    });
+
+    assert.verifySteps(['set-request', 'loading'], 'loading');
+    const state = getRequestState(request!);
+    assert.equal(state.result, null);
+    await request!;
+    await this.h.rerender();
+    assert.equal(state, getRequestState(request!));
+    const record = store.peekRecord<User>('user', '1');
+    assert.notEqual(record, null);
+    assert.equal(state.result?.data, record);
+    assert.equal(record!.name, 'Chris Thoburn');
+    assert.verifySteps(['Chris Thoburn']);
+
+    dependency.trackedThing = 'new-value'; // trigger a notification
+
+    await this.h.rerender();
+    assert.notEqual(state, getRequestState(request!));
+    assert.equal(state.result?.data, record);
+    assert.equal(record!.name, 'Chris Thoburn');
+    assert.verifySteps(['set-request', 'loading']);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    await store._getAllPending();
+    await this.h.rerender();
+
+    assert.verifySteps(['runspired']);
   })
   .build();

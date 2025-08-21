@@ -17,6 +17,7 @@ import { ReactiveContext } from "./reactive-context";
 import { SubscriptionArgs } from "@warp-drive/core/store/-private";
 import { Future } from "@warp-drive/core/request";
 import { StoreRequestInput } from "@warp-drive/core";
+import { DEBUG } from "@warp-drive/core/build-config/env";
 
 const IdleBlockMissingError = new Error(
   "No idle block provided for <Request> component, and no query or request was provided."
@@ -172,7 +173,21 @@ export function Request<RT, E>($props: RequestProps<RT, E>): JSX.Element {
   );
 }
 
+function isStrictModeRender(): boolean {
+  const count = useRef<number>(0);
+
+  // in debug we need to skip every second invocation
+  if (DEBUG) {
+    if (count.current++ % 2 === 1) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function InternalRequest<RT, E>($props: RequestProps<RT, E>): JSX.Element {
+  const isStrict = isStrictModeRender();
   const store = $props.store ?? useStore();
   const Chrome = $props.chrome ?? DefaultChrome;
   const sink = useRef<RequestSubscription<RT, E> | null>(null);
@@ -192,8 +207,11 @@ function InternalRequest<RT, E>($props: RequestProps<RT, E>): JSX.Element {
     sink.current = createRequestSubscription(store, args.current!);
   }
 
-  const initialized = useRef<null | { disposable: { [DISPOSE]: () => void } | null; dispose: () => void }>(null);
-  useEffect(() => {
+  const initialized = useRef<null | {
+    disposable: { [DISPOSE]: () => void } | null;
+    dispose: () => void;
+  }>(null);
+  const effect = () => {
     if (sink.current && (!initialized.current || initialized.current.disposable !== sink.current)) {
       initialized.current = {
         disposable: sink.current,
@@ -206,15 +224,29 @@ function InternalRequest<RT, E>($props: RequestProps<RT, E>): JSX.Element {
     }
 
     return sink.current ? initialized.current!.dispose : undefined;
-  }, [sink.current]);
+  };
+  let maybeEffect = effect;
+
+  if (DEBUG) {
+    if (isStrict) {
+      maybeEffect = () => {
+        if (initialized.current) {
+          return effect();
+        }
+        return () => {
+          // initialize our actual effect
+          effect();
+          // in strict mode we don't want to run the teardown
+          // for the second invocation
+        };
+      };
+    }
+  }
+
+  useEffect(maybeEffect, [sink.current]);
 
   const state = $props.subscription ?? sink.current!;
   const slots = $props.states;
-
-  console.log({
-    state,
-    slots,
-  });
 
   return (
     <Chrome state={state.isIdle ? null : state.reqState} features={state.contentFeatures}>

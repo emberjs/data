@@ -1,3 +1,4 @@
+import { LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
 import { ReactiveDocument } from '../../../reactive/-private/document.ts';
@@ -14,6 +15,7 @@ import type { ResourceDataDocument, ResourceDocument, ResourceErrorDocument } fr
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import type { RequestSignature } from '../../../types/symbols.ts';
+import { log } from '../debug/utils.ts';
 import type { Store } from '../store-service.ts';
 import {
   calcShouldBackgroundFetch,
@@ -104,7 +106,20 @@ export const CacheHandler: CacheHandlerType = {
     if (calcShouldFetch(store, context.request, !!peeked, identifier)) {
       if (activeRequest) {
         activeRequest.priority = { blocking: true };
+        if (LOG_REQUESTS) {
+          log('request', '', 'DEDUPED', identifier.lid, 'blocking', '');
+        }
         return activeRequest.promise as Promise<T>;
+      }
+      if (LOG_REQUESTS) {
+        log(
+          'request',
+          '',
+          'ISSUED',
+          identifier?.lid ?? context.request.url ?? context.request.op ?? '<unknown request>',
+          'blocking',
+          ''
+        );
       }
       let promise = fetchContentAndHydrate(next, context, identifier, { blocking: true });
       if (identifier) {
@@ -113,7 +128,9 @@ export const CacheHandler: CacheHandlerType = {
           store.notifications.notify(identifier, 'state', null);
         });
         DEDUPE.set(identifier, { priority: { blocking: true }, promise });
-        store.notifications.notify(identifier, 'state', null);
+        queueMicrotask(() => {
+          store.notifications.notify(identifier, 'state', null);
+        });
       }
       store.requestManager._pending.set(context.id, promise);
       return promise;
@@ -128,9 +145,43 @@ export const CacheHandler: CacheHandlerType = {
           store.notifications.notify(identifier, 'state', null);
         });
         DEDUPE.set(identifier, { priority: { blocking: false }, promise });
-        store.notifications.notify(identifier, 'state', null);
+        queueMicrotask(() => {
+          store.notifications.notify(identifier, 'state', null);
+        });
+      }
+      if (LOG_REQUESTS) {
+        if (activeRequest && identifier) {
+          log(
+            'request',
+            '',
+            'DEDUPED',
+            identifier.lid,
+            activeRequest.priority.blocking ? 'blocking' : 'non-blocking',
+            ''
+          );
+        } else {
+          log(
+            'request',
+            '',
+            'ISSUED',
+            identifier?.lid ?? context.request.url ?? context.request.op ?? '<unknown request>',
+            'non-blocking',
+            ''
+          );
+        }
       }
       store.requestManager._pending.set(context.id, promise);
+    }
+
+    if (LOG_REQUESTS) {
+      log(
+        'request',
+        '',
+        'CACHE-HIT',
+        identifier?.lid ?? context.request.url ?? context.request.op ?? '<unknown request>',
+        'cached',
+        ''
+      );
     }
 
     assert(`Expected a peeked request to be present`, peeked);
