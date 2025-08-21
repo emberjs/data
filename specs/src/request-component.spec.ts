@@ -1214,7 +1214,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     }
 
     assert.dom().hasText('');
-    assert.verifySteps(DEBUG ? ['render-error' /* 'render-error-caught' */] : [], 'error should be thrown');
+    assert.verifySteps(['render-error' /* 'render-error-caught' */], 'error should be thrown');
     cleanup();
   })
 
