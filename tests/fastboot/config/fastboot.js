@@ -8,6 +8,7 @@ module.exports = function (environment) {
         AbortController,
         DOMException,
         Response,
+        queueMicrotask,
         ReadableStream:
           typeof ReadableStream !== 'undefined' ? ReadableStream : require('node:stream/web').ReadableStream,
         WritableStream:
