@@ -16,12 +16,6 @@ function isNeverString(val: never): string {
   return val;
 }
 
-export interface ErrorFeatures {
-  isHidden: boolean;
-  isOnline: boolean;
-  retry: () => Promise<void>;
-}
-
 export type AutorefreshBehaviorType = 'online' | 'interval' | 'invalid';
 export type AutorefreshBehaviorCombos =
   | boolean
@@ -37,6 +31,9 @@ export interface RecoveryFeatures {
   isHidden: boolean;
   retry: () => Promise<void>;
 }
+
+/** @deprecated use {@link RecoveryFeatures} */
+export type ErrorFeatures = RecoveryFeatures;
 
 /**
  * Utilities for keeping the request fresh
@@ -615,7 +612,7 @@ export class RequestSubscription<RT, E> {
    * features to yield to the error slot of a component
    */
   @memoized
-  get errorFeatures(): ErrorFeatures {
+  get errorFeatures(): RecoveryFeatures {
     return {
       isHidden: this.isHidden,
       isOnline: this.isOnline,

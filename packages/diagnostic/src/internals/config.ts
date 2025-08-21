@@ -283,6 +283,10 @@ export function configure(options: Partial<ConfigOptions>): void {
 }
 
 export function getSettings(): {
+  name: {
+    org: string;
+    package: string;
+  };
   useTestem: boolean;
   useDiagnostic: boolean;
   concurrency: number;
@@ -299,6 +303,7 @@ export function getSettings(): {
   };
 } {
   return {
+    name: Config.name,
     useTestem: Config.useTestem,
     useDiagnostic: Config.useDiagnostic,
     concurrency: Config.concurrency,

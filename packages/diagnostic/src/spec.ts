@@ -22,6 +22,7 @@ export interface SpecTestContext<T extends object> extends TestContext {
   element: HTMLElement;
   render(context: T): Promise<void>;
   h: TestHelpers;
+  framework: Framework;
 }
 
 export interface SpecTest<LocalContext extends object, T extends object> {
@@ -120,6 +121,9 @@ class Spec<LocalContext extends object, T extends { [key: string]: SpecTest<Loca
 
         module(`Spec | ${moduleName} | ${framework.name}`, function (hooks) {
           framework.setup(hooks as Hooks<SpecTestContext<T>>);
+          (hooks as Hooks<SpecTestContext<T>>).beforeEach(function (this: SpecTestContext<T>) {
+            this.framework = framework.name;
+          });
           setup(hooks as Hooks<SpecTestContext<T>>);
           const TestsToImplement = new Set(Object.keys(specs));
           const testRunner: TestRunner<LocalContext, T> = {

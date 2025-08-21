@@ -2,11 +2,59 @@ import { Signal } from "signal-polyfill";
 import { createContext, type JSX, type ReactNode, useSyncExternalStore, type Context, useMemo } from "react";
 import { LOG_REACT_SIGNAL_INTEGRATION } from "@warp-drive/core/build-config/debugging";
 
-function _createWatcher() {
-  if (LOG_REACT_SIGNAL_INTEGRATION) {
-    console.log(`[WarpDrive] Creating a Watcher`);
+let nextFlush: Promise<void> | null = null;
+let watchers: WatcherState[] = [];
+let watcherId = 0;
+
+interface WatcherState {
+  watcherId: number;
+  pending: boolean;
+  destroyed: boolean;
+  notifyReact: (() => void) | null;
+  watcher: Signal.subtle.Watcher;
+
+  // the extra wrapper returned here ensures that the context value for the watcher
+  // changes causing a re-render when the watcher is updated.
+  snapshot: { watcher: Signal.subtle.Watcher } | null;
+}
+
+function clearWatcher(state: WatcherState) {
+  state.watcher.unwatch(...Signal.subtle.introspectSources(state.watcher));
+}
+
+function flush(state: WatcherState) {
+  state.pending = false;
+  if (state.destroyed) {
+    if (LOG_REACT_SIGNAL_INTEGRATION) {
+      console.log(`[WarpDrive] Detected Watcher Destroyed During Notify Flush, clearing signals`);
+    }
+    state.snapshot = null;
+    clearWatcher(state);
+    return;
   }
-  const state = {
+
+  if (LOG_REACT_SIGNAL_INTEGRATION) {
+    console.log(`[WarpDrive] Notifying React That WatcherContext:${state.watcherId} Has Updated`);
+    console.log("all signals", new Set(Signal.subtle.introspectSources(state.watcher)));
+    console.log("dirty signals", new Set(state.watcher.getPending()));
+  }
+
+  // any time signals have changed, we notify React that our store has updated
+  state.snapshot = { watcher: state.watcher };
+  if (state.notifyReact) state.notifyReact();
+
+  // tell the Watcher to start watching for changes again
+  // by signaling that notifications have been flushed.
+  state.watcher.watch();
+}
+
+function _createWatcher() {
+  const id = watcherId++;
+  if (LOG_REACT_SIGNAL_INTEGRATION) {
+    console.log(`[WarpDrive] Creating a WatcherContext:${id}`);
+  }
+  const state: WatcherState = {
+    watcherId: id,
     pending: false,
     destroyed: false,
     notifyReact: null as (() => void) | null,
@@ -17,36 +65,35 @@ function _createWatcher() {
     snapshot: null as { watcher: Signal.subtle.Watcher } | null,
   };
 
-  const clearWatcher = () => {
-    state.watcher.unwatch(...Signal.subtle.introspectSources(state.watcher));
-  };
-
-  state.watcher = new Signal.subtle.Watcher(() => {
+  state.watcher = new Signal.subtle.Watcher((...args) => {
+    if (LOG_REACT_SIGNAL_INTEGRATION) {
+      console.log(`watcher ${state.watcherId} notified`, args, state.watcher);
+    }
     if (!state.pending && !state.destroyed) {
+      watchers.push(state);
       state.pending = true;
-      queueMicrotask(() => {
-        state.pending = false;
-        if (state.destroyed) {
-          if (LOG_REACT_SIGNAL_INTEGRATION) {
-            console.log(`[WarpDrive] Detected Watcher Destroyed During Notify Flush, clearing signals`);
-          }
-          state.snapshot = null;
-          clearWatcher();
-          return;
-        }
 
-        if (LOG_REACT_SIGNAL_INTEGRATION) {
-          console.log(`[WarpDrive] Notifying React That The WatcherContext Has Updated`);
-        }
+      if (!nextFlush) {
+        nextFlush = new Promise((resolve) => {
+          queueMicrotask(() => {
+            queueMicrotask(() => {
+              queueMicrotask(() => {
+                watchers.forEach(flush);
+                if (LOG_REACT_SIGNAL_INTEGRATION) {
+                  console.log(
+                    "Flushed watcher:",
+                    watchers.map((w) => w.watcherId)
+                  );
+                }
+                watchers = [];
+                nextFlush = null;
 
-        // any time signals have changed, we notify React that our store has updated
-        state.snapshot = { watcher: state.watcher };
-        if (state.notifyReact) state.notifyReact();
-
-        // tell the Watcher to start watching for changes again
-        // by signaling that notifications have been flushed.
-        state.watcher.watch();
-      });
+                resolve();
+              });
+            });
+          });
+        });
+      }
     } else if (state.destroyed) {
       if (LOG_REACT_SIGNAL_INTEGRATION) {
         console.log(`[WarpDrive] Detected Watcher Destroyed During Notify, clearing signals`);
@@ -54,7 +101,7 @@ function _createWatcher() {
       // if we are destroyed, we clear the watcher signals
       // so that it does not continue to watch for changes.
       state.snapshot = null;
-      clearWatcher();
+      clearWatcher(state);
     }
   });
 

@@ -38,6 +38,15 @@ function badge(isLight: boolean, color: string, bgColor: string, border: number)
 }
 
 function colorForBucket(isLight: boolean, scope: SCOPE, bucket: string) {
+  if (scope === 'request') {
+    return bucket === 'blocking'
+      ? badge(isLight, 'red', 'transparent', 0)
+      : bucket === 'cached'
+        ? badge(isLight, 'lightgreen', 'transparent', 0)
+        : bucket === 'non-blocking'
+          ? badge(isLight, 'orange', 'transparent', 0)
+          : badge(isLight, 'gray', 'transparent', 0);
+  }
   if (scope === 'notify') {
     return bucket === 'added'
       ? badge(isLight, 'lightgreen', 'transparent', 0)
@@ -85,6 +94,7 @@ export function logGroup(
   console.groupCollapsed(..._log(scope, prefix, subScop1, subScop2, subScop3, subScop4));
 }
 
+export function log(scope: 'request', prefix: string, type: string, lid: string, bucket: string, key: string): void;
 export function log(scope: 'cache', prefix: string, type: string, lid: string, bucket: string, key: string): void;
 export function log(scope: 'reactive-ui', prefix: string, type: string, lid: string, bucket: string, key: ''): void;
 export function log(scope: 'notify', prefix: string, type: string, lid: string, bucket: string, key: string): void;
@@ -124,6 +134,7 @@ function _log(
 ): string[] {
   const isLight = isLightMode();
   switch (scope) {
+    case 'request':
     case 'reactive-ui':
     case 'notify': {
       const scopePath = prefix ? `[${prefix}] ${scope}` : scope;

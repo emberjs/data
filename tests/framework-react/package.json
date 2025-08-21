@@ -1,0 +1,55 @@
+{
+  "name": "framework-react",
+  "version": "5.7.0-alpha.30",
+  "description": "Provides tests for @warp-drive/react",
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "directory": "tests/framework-react"
+  },
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:tests": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --outDir dist-test",
+    "build:production": "export IS_TESTING=true; export NODE_ENV=production; vite build --outDir dist-test",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "check:types": "glint --noEmit",
+    "start": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --watch --outDir dist-test",
+    "test": "export IS_TESTING=true; export NODE_ENV=development; bun ./diagnostic.js",
+    "test:production": "export IS_TESTING=true; export NODE_ENV=production; bun ./diagnostic.js",
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.27.1",
+    "@babel/core": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "babel-plugin-debug-macros": "^2.0.0",
+    "@embroider/macros": "^1.18.1",
+    "@warp-drive/react": "workspace:*",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive-internal/specs": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/diagnostic": "workspace:*",
+    "@warp-drive/holodeck": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "decorator-transforms": "^2.3.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "vite": "^7.1.2",
+    "typescript": "^5.9.2"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "packageManager": "pnpm@10.14.0"
+}

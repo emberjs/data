@@ -2846,6 +2846,75 @@ importers:
         specifier: ^7.1.2
         version: 7.1.2(terser@5.39.1)
 
+  tests/framework-react:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.0
+        version: 7.28.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.0)
+      '@babel/preset-react':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.0)
+      '@babel/runtime':
+        specifier: ^7.28.2
+        version: 7.28.3
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.0)
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.0)
+      '@types/react':
+        specifier: ^19.1.9
+        version: 19.1.9
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.7(@types/react@19.1.9)
+      '@warp-drive-internal/specs':
+        specifier: workspace:*
+        version: file:specs(3ed1292504f5d125058a4eb778d5fb23)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/react':
+        specifier: workspace:*
+        version: file:warp-drive-packages/react(@babel/core@7.28.0)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+      babel-plugin-debug-macros:
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.28.0)
+      decorator-transforms:
+        specifier: ^2.3.0
+        version: 2.3.0(@babel/core@7.28.0)
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.2
+
   tests/full-data-asset-size-app:
     devDependencies:
       '@babel/core':
@@ -3607,75 +3676,6 @@ importers:
       webpack:
         specifier: 5.99.5
         version: 5.99.5
-
-  tests/warp-drive__react:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.28.0
-        version: 7.28.0
-      '@babel/plugin-transform-typescript':
-        specifier: ^7.28.0
-        version: 7.28.0(@babel/core@7.28.0)
-      '@babel/preset-react':
-        specifier: ^7.27.1
-        version: 7.27.1(@babel/core@7.28.0)
-      '@babel/runtime':
-        specifier: ^7.28.2
-        version: 7.28.3
-      '@embroider/macros':
-        specifier: ^1.18.1
-        version: 1.18.1(@babel/core@7.28.0)
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.28.0)
-      '@types/react':
-        specifier: ^19.1.9
-        version: 19.1.9
-      '@types/react-dom':
-        specifier: ^19.1.7
-        version: 19.1.7(@types/react@19.1.9)
-      '@warp-drive/core':
-        specifier: workspace:*
-        version: file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/diagnostic':
-        specifier: workspace:*
-        version: file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
-      '@warp-drive/holodeck':
-        specifier: workspace:*
-        version: file:packages/holodeck
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config
-      '@warp-drive/json-api':
-        specifier: workspace:*
-        version: file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
-      '@warp-drive/legacy':
-        specifier: workspace:*
-        version: file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
-      '@warp-drive/react':
-        specifier: workspace:*
-        version: file:warp-drive-packages/react(@babel/core@7.28.0)
-      '@warp-drive/utilities':
-        specifier: workspace:*
-        version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
-      babel-plugin-debug-macros:
-        specifier: ^2.0.0
-        version: 2.0.0(@babel/core@7.28.0)
-      decorator-transforms:
-        specifier: ^2.3.0
-        version: 2.3.0(@babel/core@7.28.0)
-      react:
-        specifier: ^19.1.1
-        version: 19.1.1
-      react-dom:
-        specifier: ^19.1.1
-        version: 19.1.1(react@19.1.1)
-      typescript:
-        specifier: 5.9.2
-        version: 5.9.2
-      vite:
-        specifier: ^7.1.2
-        version: 7.1.2
 
   tests/warp-drive__schema: {}
 
@@ -19372,6 +19372,18 @@ snapshots:
       vue: 3.5.18(typescript@5.9.2)
     transitivePeerDependencies:
       - typescript
+
+  '@warp-drive-internal/specs@file:specs(3ed1292504f5d125058a4eb778d5fb23)':
+    dependencies:
+      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic': file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
+      '@warp-drive/holodeck': file:packages/holodeck
+      '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
 
   '@warp-drive-internal/specs@file:specs(a09ff956d66afb3b9e9c44fe256cb391)':
     dependencies:

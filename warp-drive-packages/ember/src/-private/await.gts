@@ -1,6 +1,7 @@
 import type Owner from '@ember/owner';
 import Component from '@glimmer/component';
 
+import { PRODUCTION } from '@warp-drive/core/build-config/env';
 import type { Awaitable } from '@warp-drive/core/request';
 import { getPromiseState, type PromiseState } from '@warp-drive/core/store/-private';
 
@@ -29,8 +30,14 @@ export class Throw<T> extends Component<ThrowSignature<T>> {
     super(owner, args);
     // this error is opaque (user supplied) so we don't validate it
     // as an Error instance.
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
-    throw this.args.error;
+
+    if (PRODUCTION) {
+      // eslint-disable-next-line no-console
+      console.error(this.args.error);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
+      throw this.args.error;
+    }
   }
   <template></template>
 }

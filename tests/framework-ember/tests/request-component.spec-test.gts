@@ -9,6 +9,8 @@ import { useEmber } from '@warp-drive/diagnostic/ember';
 import { Request } from '@warp-drive/ember';
 import { RequestSpec } from '@warp-drive-internal/specs/request-component.spec';
 
+const arr = (...args: unknown[]) => args;
+
 RequestSpec.use(useEmber(), function (b) {
   b
     /* this comment just to make prettier behave */
@@ -74,7 +76,8 @@ RequestSpec.use(useEmber(), function (b) {
             {{~countFor error~}}
             <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
           </:error>
-          <:content as |result|>{{result.data.attributes.name}}<br />Count: {{countFor result}}</:content>
+          <:content as |result state|>{{result.data.name}}<br />Count:
+            {{countFor (arr result.data.name state.isRefreshing state.latestRequest)}}</:content>
         </Request>
       </template>;
     })
@@ -89,7 +92,24 @@ RequestSpec.use(useEmber(), function (b) {
             {{~countFor error~}}
             <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
           </:error>
-          <:content as |result|>{{result.data.name}}<br />Count: {{countFor result}}</:content>
+          <:content as |result state|>{{result.data.name}}<br />Count:
+            {{countFor (arr result.data.name state.isRefreshing state.latestRequest)}}</:content>
+        </Request>
+      </template>;
+    })
+
+    .test('externally updated request arg works as expected', function (props) {
+      const { source, countFor, retry, store } = props;
+
+      return <template>
+        <Request @store={{store}} @request={{source.request}}>
+          <:loading as |state|>Pending<br />Count: {{countFor state}}</:loading>
+          <:error as |error state|>{{error.message}}<br />Count:
+            {{~countFor error~}}
+            <button {{on "click" (fn retry state)}} test-id="retry-button">Retry</button>
+          </:error>
+          <:content as |result state|>{{result.data.name}}<br />Count:
+            {{countFor (arr result.data.name state.isRefreshing state.latestRequest)}}</:content>
         </Request>
       </template>;
     })
@@ -231,33 +251,67 @@ RequestSpec.use(useEmber(), function (b) {
       </template>;
     })
 
-    .test('request with an identity does not trigger a second request', function (props) {
-      const { countFor, dependency, url, setRequest, store } = props;
-      type User = {
-        id: string;
-        name: string;
-        [Type]: 'user';
-      };
-      class Issuer extends GlimmerComponent {
-        // Ensure that the request doesn't kick off until after the Request component renders.
-        @memoized
-        get request() {
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
-          dependency.trackedThing; // subscribe to something tracked
-          return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' }));
+    .test(
+      'request with an identity does NOT trigger a second request if the CachePolicy says it is not expired',
+      function (props) {
+        const { countFor, dependency, url, setRequest, store } = props;
+        type User = {
+          id: string;
+          name: string;
+          [Type]: 'user';
+        };
+        class Issuer extends GlimmerComponent {
+          // Ensure that the request doesn't kick off until after the Request component renders.
+          @memoized
+          get request() {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
+            dependency.trackedThing; // subscribe to something tracked
+            return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' }));
+          }
+
+          <template>
+            <Request @store={{store}} @request={{this.request}}>
+              <:loading>Pending<br />Count: {{countFor "loading"}}</:loading>
+              <:error as |error|>{{error.message}}<br />Count: {{countFor error.message}}</:error>
+              <:content as |result|>{{result.data.name}}<br />{{countFor result.data.name}}</:content>
+            </Request>
+          </template>
         }
 
-        <template>
-          <Request @store={{store}} @request={{this.request}}>
-            <:loading>Pending<br />Count: {{countFor "loading"}}</:loading>
-            <:error as |error|>{{error.message}}<br />Count: {{countFor error.message}}</:error>
-            <:content as |result|>{{result.data.name}}<br />{{countFor result.data.name}}</:content>
-          </Request>
-        </template>
+        return <template><Issuer /></template>;
       }
+    )
 
-      return <template><Issuer /></template>;
-    })
+    .test(
+      'request with an identity DOES trigger a second request if the CachePolicy says it is expired',
+      function (props) {
+        const { countFor, dependency, url, setRequest, store } = props;
+        type User = {
+          id: string;
+          name: string;
+          [Type]: 'user';
+        };
+        class Issuer extends GlimmerComponent {
+          // Ensure that the request doesn't kick off until after the Request component renders.
+          @memoized
+          get request() {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- This is intentional.
+            dependency.trackedThing; // subscribe to something tracked
+            return setRequest(store.request<SingleResourceDataDocument<User>>({ url, method: 'GET' }));
+          }
+
+          <template>
+            <Request @store={{store}} @request={{this.request}}>
+              <:loading>Pending<br />Count: {{countFor "loading"}}</:loading>
+              <:error as |error|>{{error.message}}<br />Count: {{countFor error.message}}</:error>
+              <:content as |result|>{{result.data.name}}<br />{{countFor result.data.name}}</:content>
+            </Request>
+          </template>
+        }
+
+        return <template><Issuer /></template>;
+      }
+    )
 
     // @ts-expect-error need to figure out how to do this for "compiled" versions of this type
     // If there's a typeerror here, we are missing a test.
