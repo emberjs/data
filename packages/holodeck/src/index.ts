@@ -1,4 +1,7 @@
-import type { Handler, NextFn, RequestContext, RequestInfo, StructuredDataDocument } from '@ember-data/request';
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { RequestContext, RequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
+import type { MinimumAdapterInterface } from '@warp-drive/legacy/compat';
+import type { Store } from '@warp-drive/legacy/store';
 
 import type { ScaffoldGenerator } from './mock';
 
@@ -64,6 +67,73 @@ export class MockServerHandler implements Handler {
       throw e;
     }
   }
+}
+
+function setupHolodeckFetch(owner: object, request: RequestInfo): RequestInfo {
+  const test = TEST_IDS.get(owner);
+  if (!test) {
+    throw new Error(`MockServerHandler is not configured with a testId. Use setTestId to set the testId for each test`);
+  }
+
+  const firstChar = request.url!.includes('?') ? '&' : '?';
+  const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${test.request++}`;
+  request.url = request.url + queryForTest;
+
+  request.mode = 'cors';
+  request.credentials = 'omit';
+  request.referrerPolicy = '';
+
+  return request;
+}
+
+interface AdapterForFn {
+  adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
+  adapterFor(this: Store, modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined;
+}
+
+/*
+  _fetchRequest(options: FetchRequestInit): Promise<Response> {
+    const fetchFunction = fetch();
+
+    return fetchFunction(options.url, options);
+  }
+*/
+interface PrivateAdapter {
+  _fetchRequest(options: RequestInfo): Promise<Response>;
+  hasOverriddenFetch: boolean;
+  useFetch: boolean;
+}
+
+function upgradeAdapter(adapter: unknown): asserts adapter is PrivateAdapter {}
+
+export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn {
+  return function holodeckAdapterFor(
+    this: Store,
+    modelName: string,
+    _allowMissing?: true
+  ): MinimumAdapterInterface | undefined {
+    const adapter = fn.adapterFor.call(this, modelName, _allowMissing);
+
+    if (adapter) {
+      upgradeAdapter(adapter);
+
+      if (!adapter.hasOverriddenFetch) {
+        adapter.hasOverriddenFetch = true;
+        adapter.useFetch = true;
+        const originalFetch = adapter._fetchRequest?.bind(adapter);
+
+        adapter._fetchRequest = function (options: RequestInfo) {
+          if (!originalFetch) {
+            throw new Error(`Adapter ${String(modelName)} does not implement _fetchRequest`);
+          }
+          const req = setupHolodeckFetch(owner, options);
+          return originalFetch(req);
+        };
+      }
+    }
+
+    return adapter;
+  } as unknown as AdapterForFn;
 }
 
 export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean): Promise<void> {

@@ -838,15 +838,18 @@ importers:
       '@babel/runtime':
         specifier: ^7.28.2
         version: 7.28.3
-      '@ember-data/request':
+      '@warp-drive/core':
         specifier: workspace:*
-        version: file:packages/request(@babel/core@7.28.0)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.28.0)
+        version: file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       vite:
         specifier: ^7.1.2
         version: 7.1.2
@@ -1334,7 +1337,7 @@ importers:
         version: file:packages/diagnostic(@babel/core@7.28.0)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck
+        version: file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -1899,7 +1902,7 @@ importers:
         version: file:warp-drive-packages/ember(eb15727c3983f602abb27ba6c74a4940)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)
+        version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2124,7 +2127,7 @@ importers:
         version: file:warp-drive-packages/ember(eb15727c3983f602abb27ba6c74a4940)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)
+        version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2775,7 +2778,7 @@ importers:
         version: 6.0.4(@babel/core@7.28.0)(rollup@4.46.2)
       '@warp-drive-internal/specs':
         specifier: workspace:*
-        version: file:specs(a09ff956d66afb3b9e9c44fe256cb391)
+        version: file:specs(6eba480e47d4519795fe1df9df5f6d26)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
@@ -2787,7 +2790,7 @@ importers:
         version: file:warp-drive-packages/ember(eb15727c3983f602abb27ba6c74a4940)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck
+        version: file:packages/holodeck(d1462c923e64f4e7db7e218ace111de9)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config(terser@5.39.1)
@@ -2853,7 +2856,7 @@ importers:
         version: 19.1.7(@types/react@19.1.9)
       '@warp-drive-internal/specs':
         specifier: workspace:*
-        version: file:specs(3ed1292504f5d125058a4eb778d5fb23)
+        version: file:specs(8a82861e60351de0d148b96287b542b8)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
@@ -2862,7 +2865,7 @@ importers:
         version: file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck
+        version: file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2913,7 +2916,7 @@ importers:
         version: 6.0.4(@babel/core@7.28.0)
       '@warp-drive-internal/specs':
         specifier: workspace:*
-        version: file:specs(ba1901c72dc62cdcd9d689b6c85b1bec)
+        version: file:specs(9d62df2303676833b78750f97f2cdaaa)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
@@ -2922,7 +2925,7 @@ importers:
         version: file:packages/diagnostic(@babel/core@7.28.0)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck
+        version: file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -2976,7 +2979,7 @@ importers:
         version: 1.5.0(@babel/core@7.28.0)
       '@warp-drive-internal/specs':
         specifier: workspace:*
-        version: file:specs(ba1901c72dc62cdcd9d689b6c85b1bec)
+        version: file:specs(9d62df2303676833b78750f97f2cdaaa)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
@@ -2985,7 +2988,7 @@ importers:
         version: file:packages/diagnostic(@babel/core@7.28.0)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck
+        version: file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3171,7 +3174,7 @@ importers:
         version: file:warp-drive-packages/ember(eb15727c3983f602abb27ba6c74a4940)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)
+        version: file:packages/holodeck(d1462c923e64f4e7db7e218ace111de9)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -3717,7 +3720,7 @@ importers:
         version: file:warp-drive-packages/experiments(6fb350908ec74e8bbaefbfdf6af1258a)
       '@warp-drive/holodeck':
         specifier: workspace:*
-        version: file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)
+        version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -7426,8 +7429,9 @@ packages:
     engines: {node: '>= 18.20.8'}
     hasBin: true
     peerDependencies:
-      '@ember-data/request': workspace:*
-      '@warp-drive/core-types': workspace:*
+      '@warp-drive/core': workspace:*
+      '@warp-drive/legacy': workspace:*
+      '@warp-drive/utilities': workspace:*
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
@@ -19693,36 +19697,36 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@warp-drive-internal/specs@file:specs(3ed1292504f5d125058a4eb778d5fb23)':
-    dependencies:
-      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
-      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/diagnostic': file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
-      '@warp-drive/holodeck': file:packages/holodeck
-      '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
-
-  '@warp-drive-internal/specs@file:specs(a09ff956d66afb3b9e9c44fe256cb391)':
+  '@warp-drive-internal/specs@file:specs(6eba480e47d4519795fe1df9df5f6d26)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)
-      '@warp-drive/holodeck': file:packages/holodeck
+      '@warp-drive/holodeck': file:packages/holodeck(d1462c923e64f4e7db7e218ace111de9)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive-internal/specs@file:specs(ba1901c72dc62cdcd9d689b6c85b1bec)':
+  '@warp-drive-internal/specs@file:specs(8a82861e60351de0d148b96287b542b8)':
+    dependencies:
+      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic': file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)
+      '@warp-drive/holodeck': file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
+      '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@warp-drive-internal/specs@file:specs(9d62df2303676833b78750f97f2cdaaa)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/diagnostic': file:packages/diagnostic(@babel/core@7.28.0)
-      '@warp-drive/holodeck': file:packages/holodeck
+      '@warp-drive/holodeck': file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)
       '@warp-drive/json-api': file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
     transitivePeerDependencies:
@@ -19854,17 +19858,27 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@warp-drive/holodeck@file:packages/holodeck':
+  '@warp-drive/holodeck@file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)':
     dependencies:
       '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       chalk: 5.6.0
       hono: 4.9.2
 
-  '@warp-drive/holodeck@file:packages/holodeck(f6192c49b647f045a1777f17d65e4855)':
+  '@warp-drive/holodeck@file:packages/holodeck(d1462c923e64f4e7db7e218ace111de9)':
     dependencies:
-      '@ember-data/request': file:packages/request(@babel/core@7.28.0)
       '@hono/node-server': 1.18.2(hono@4.9.2)
-      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+      chalk: 5.6.0
+      hono: 4.9.2
+
+  '@warp-drive/holodeck@file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)':
+    dependencies:
+      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
       hono: 4.9.2
 
