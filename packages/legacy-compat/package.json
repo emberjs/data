@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/legacy-compat",
   "description": "Compatibility Shims for Older EmberData",
-  "version": "5.7.0-alpha.31",
+  "version": "5.7.0-alpha.32",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {

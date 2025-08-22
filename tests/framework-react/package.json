@@ -1,6 +1,6 @@
 {
   "name": "framework-react",
-  "version": "5.7.0-alpha.31",
+  "version": "5.7.0-alpha.32",
   "description": "Provides tests for @warp-drive/react",
   "private": true,
   "keywords": [],
