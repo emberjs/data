@@ -1,6 +1,6 @@
 import path from 'path';
 // @ts-expect-error missing from Bun types
-import { globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { globSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const DefaultOpenGroups: string[] = [];
 const AlwaysOpenGroups: string[] = ['configuration.setup'];
@@ -271,6 +271,9 @@ export async function postProcessApiDocs() {
   const dir = path.join(__dirname, '../tmp/api');
   const outDir = path.join(__dirname, '../docs.warp-drive.io/api');
   mkdirSync(outDir, { recursive: true });
+
+  // remove the `_media` directory that typedoc generates
+  rmSync(path.join(dir, '_media'), { recursive: true, force: true });
 
   // cleanup and prepare the sidebar items
   const sidebarPath = path.join(outDir, 'typedoc-sidebar.json');

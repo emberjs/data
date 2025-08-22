@@ -21,6 +21,7 @@
     "noImplicitOverride": false,
     "composite": true,
     "incremental": true,
+    "listFiles": true,
     "rootDir": "src",
     "baseUrl": ".",
     "declaration": true,

@@ -11,9 +11,6 @@ const config = {
     '../packages/adapter',
     '../warp-drive-packages/build-config',
     '../packages/core-types',
-    // Won't work until we figure out how
-    // to get typedoc to work with glint
-    // '../packages/ember',
     '../packages/graph',
     '../packages/json-api',
     '../packages/legacy-compat',
@@ -39,6 +36,9 @@ const config = {
   packageOptions: {
     entryFileName: 'index',
     readme: 'none',
+    excludePrivate: true,
+    projectDocuments: [],
+    excludeProtected: true,
     excludeInternal: true,
     // inheritNone: true,
     useCodeBlocks: true,
@@ -73,6 +73,9 @@ const config = {
   },
   readme: 'none',
   tsconfig: '../tsconfig.json',
+  projectDocuments: [],
+  excludePrivate: true,
+  excludeProtected: true,
   excludeInternal: true,
   useCodeBlocks: true,
   hidePageTitle: false,

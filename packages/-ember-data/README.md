@@ -21,7 +21,7 @@
   <br>
   universal, typed, reactive, and ready to scale.
   <br/><br/>
-<p>
+</p>
 
 ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
