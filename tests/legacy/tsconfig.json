@@ -1,5 +1,5 @@
 {
-  "include": ["app/**/*", "config/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
+  "include": ["tests/app/**/*", "config/**/*", "tests/**/*", "../../@types/ember-data-qunit-asserts"],
   "glint": {
     "environment": ["ember-loose", "ember-template-imports"]
   },
@@ -26,7 +26,7 @@
     "declaration": true,
     "types": ["ember-source/types"],
     "paths": {
-      "main-test-app/*": ["./app/*"],
+      "main-test-app/*": ["tests/app/*"],
       "@ember-data/adapter": ["../../packages/adapter/unstable-preview-types"],
       "@ember-data/adapter/*": ["../../packages/adapter/unstable-preview-types/*"],
       "@ember-data/debug": ["../../packages/debug/unstable-preview-types"],

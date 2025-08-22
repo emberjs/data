@@ -2,7 +2,7 @@
 import { globalIgnores } from '@warp-drive/internal-config/eslint/ignore.js';
 import * as node from '@warp-drive/internal-config/eslint/node.js';
 import * as typescript from '@warp-drive/internal-config/eslint/typescript.js';
-import * as qunit from '@warp-drive/internal-config/eslint/qunit.js';
+import * as diagnostic from '@warp-drive/internal-config/eslint/diagnostic.js';
 import * as js from '@warp-drive/internal-config/eslint/browser.js';
 import * as gts from '@warp-drive/internal-config/eslint/gts.js';
 
@@ -25,7 +25,6 @@ const AllowedImports = [
   '@glimmer/component',
   '@glimmer/tracking',
   '@glimmer/validator',
-  'qunit',
 ];
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
@@ -97,7 +96,7 @@ export default [
   node.cjs(),
 
   // Test Support ================
-  qunit.ember({
+  diagnostic.browser({
     allowedImports: AllowedImports,
   }),
 ];

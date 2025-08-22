@@ -6,3 +6,4 @@ export { registerFragmentExtensions } from './model-fragments/instance-initializ
 export { modelFor } from './model-fragments/hooks/model-for.ts';
 export { FragmentArray, FragmentArrayExtension } from './model-fragments/extensions/fragment-array.ts';
 export { Fragment, FragmentExtension } from './model-fragments/extensions/fragment.ts';
+export type { WithFragment, WithFragmentArray } from './model-fragments/index.ts';
