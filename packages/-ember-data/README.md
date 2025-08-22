@@ -81,7 +81,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add ember-data
 ```
 

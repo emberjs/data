@@ -25,7 +25,7 @@ We intend to make this Graph public API after some additional iteration during t
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add @ember-data/graph
 ```
 

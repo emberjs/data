@@ -38,7 +38,7 @@ This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Req
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add @ember-data/request
 ```
 

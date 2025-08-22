@@ -48,13 +48,13 @@ pnpm install @warp-drive/schema
 
 Scaffold the schema for a `User` resource
 
-```no-highlight
+```sh
 npx -p @warp-drive/schema resource user
 ```
 
 Parse Schemas
 
-```no-highlight
+```sh
 npx -p @warp-drive/schema parse <path/to/schema.json>
 ```
 

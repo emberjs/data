@@ -23,7 +23,7 @@ This package provides an in-memory document and resource [Cache](https://github.
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add @ember-data/json-api
 ```
 

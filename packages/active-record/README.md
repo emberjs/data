@@ -23,7 +23,7 @@ This package provides utilities for working with **Active**Record APIs with [*Em
 
 Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add @ember-data/active-record
 ```
 

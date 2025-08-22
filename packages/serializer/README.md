@@ -27,7 +27,7 @@ This package is currently installed when installing `ember-data`.
 
 If installing `@ember-data/` packages individually install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
 
-```no-highlight
+```sh
 pnpm add @ember-data/serializer
 ```
 
@@ -50,7 +50,7 @@ If using `ember-data` no additional setup is necesssary.
 
 To use legacy serializers you will need to have installed and configured the LegacyNetworkHandler from [@ember-data/legacy-compat](https://github.com/emberjs/data/blob/main/packages/-ember-data)
 
-```no-highlight
+```sh
 pnpm add @ember-data/legacy-compat
 ```
 
