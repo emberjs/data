@@ -43,8 +43,11 @@ export interface ModelSchemaProvider {
   doesTypeExist(type: string): boolean;
 }
 export class ModelSchemaProvider implements SchemaService {
+  /** @internal */
   declare private store: ModelStore;
+  /** @internal */
   declare private _schemas: Map<string, InternalSchema>;
+  /** @internal */
   declare private _typeMisses: Set<string>;
 
   constructor(store: ModelStore) {
@@ -98,6 +101,7 @@ export class ModelSchemaProvider implements SchemaService {
   registerHashFn(hashFn: HashFn): void {
     assert(`registerHashFn is not available with @ember-data/model's SchemaService`);
   }
+  /** @internal */
   private _loadModelSchema(type: string): InternalSchema {
     const modelClass = this.store.modelFor(type) as typeof Model;
     const attributeMap = modelClass.attributes;

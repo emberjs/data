@@ -30,12 +30,19 @@ type RecordId = string | null;
   @public
 */
 export class Snapshot<R = unknown> {
+  /** @internal */
   declare private __attributes: Record<keyof R & string, unknown> | null;
+  /** @internal */
   declare private _belongsToRelationships: Record<string, Snapshot>;
+  /** @internal */
   declare private _belongsToIds: Record<string, RecordId>;
+  /** @internal */
   declare private _hasManyRelationships: Record<string, Snapshot[]>;
+  /** @internal */
   declare private _hasManyIds: Record<string, RecordId[]>;
+  /** @internal */
   declare private _changedAttributes: ChangedAttributesHash;
+  /** @internal */
   declare private _store: Store;
 
   /**
