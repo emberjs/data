@@ -17,6 +17,7 @@ export const externals = [
   '@ember/array',
   '@ember/array/proxy',
   '@ember/polyfills',
+  '@glimmer/tracking',
 ];
 export const entryPoints = [
   './src/index.ts',

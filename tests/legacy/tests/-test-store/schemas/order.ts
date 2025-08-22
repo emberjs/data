@@ -1,9 +1,8 @@
 import type { ObjectSchema } from '@warp-drive/core-types/schema/fields';
 import type { Type } from '@warp-drive/core-types/symbols';
+import type { WithFragment, WithFragmentArray } from '@warp-drive/legacy/model-fragments';
+import { withFragmentArrayDefaults, withFragmentDefaults } from '@warp-drive/legacy/model-fragments';
 
-import type { WithFragment, WithFragmentArray } from '#src/index.ts';
-import { withFragmentArrayDefaults } from '#src/utilities/with-fragment-array-defaults.ts';
-import { withFragmentDefaults } from '#src/utilities/with-fragment-defaults.ts';
 import type { Product } from './product';
 
 export const OrderSchema = {
