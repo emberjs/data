@@ -46,7 +46,7 @@
     "rollup": "^4.46.2",
     "terser": "^5.39.0",
     "typescript": "^5.9.2",
-    "vite": "^7.1.2",
+    "vite": "^7.1.3",
     "@ember/test-waiters": "^4.1.0",
     "@warp-drive/ember": "workspace:*",
     "@warp-drive/core": "workspace:*",
