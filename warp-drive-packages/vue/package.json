@@ -19,8 +19,8 @@
     "warpdrive"
   ],
   "scripts": {
-    "build:pkg2": "vite build;",
-    "prepack": "pnpm run build:pkg2",
+    "build:pkg": "vite build;",
+    "prepack": "pnpm run build:pkg",
     "sync": "echo \"syncing\"",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "start": "vite"
