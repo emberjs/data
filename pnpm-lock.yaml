@@ -2894,6 +2894,63 @@ importers:
         specifier: ^7.1.2
         version: 7.1.2
 
+  tests/framework-svelte:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.0
+        version: 7.28.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.0)
+      '@babel/runtime':
+        specifier: ^7.28.2
+        version: 7.28.3
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.0)
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.0)
+      '@warp-drive-internal/specs':
+        specifier: workspace:*
+        version: file:specs(ba1901c72dc62cdcd9d689b6c85b1bec)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(@babel/core@7.28.0)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/svelte':
+        specifier: workspace:*
+        version: file:warp-drive-packages/svelte(@babel/core@7.28.0)(svelte@5.38.2)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
+      babel-plugin-debug-macros:
+        specifier: ^2.0.0
+        version: 2.0.0(@babel/core@7.28.0)
+      decorator-transforms:
+        specifier: ^2.3.0
+        version: 2.3.0(@babel/core@7.28.0)
+      svelte:
+        specifier: ^5.38.2
+        version: 5.38.2
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.2
+
   tests/framework-vue:
     devDependencies:
       '@babel/core':
@@ -7399,6 +7456,11 @@ packages:
 
   '@warp-drive/schema-record@file:packages/schema-record':
     resolution: {directory: packages/schema-record, type: directory}
+
+  '@warp-drive/svelte@file:warp-drive-packages/svelte':
+    resolution: {directory: warp-drive-packages/svelte, type: directory}
+    peerDependencies:
+      svelte: ^5.0.0
 
   '@warp-drive/tc39-proposal-signals@file:warp-drive-packages/tc39-proposal-signals':
     resolution: {directory: warp-drive-packages/tc39-proposal-signals, type: directory}
@@ -13415,6 +13477,10 @@ packages:
 
   svelte@5.38.1:
     resolution: {integrity: sha512-fO6CLDfJYWHgfo6lQwkQU2vhCiHc2MBl6s3vEhK+sSZru17YL4R5s1v14ndRpqKAIkq8nCz6MTk1yZbESZWeyQ==}
+    engines: {node: '>=18'}
+
+  svelte@5.38.2:
+    resolution: {integrity: sha512-iAcp/oFAWauVSGILdD67n7DiwgLHXZzWZIdzl7araRxu72jUr7PFAo2Iie7gXt0IbnlYvhxCb9GT3ZJUquO3PA==}
     engines: {node: '>=18'}
 
   svg-tags@1.0.0:
@@ -20148,6 +20214,14 @@ snapshots:
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
+  '@warp-drive/svelte@file:warp-drive-packages/svelte(@babel/core@7.28.0)(svelte@5.38.2)':
+    dependencies:
+      '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      svelte: 5.38.2
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -28050,6 +28124,23 @@ snapshots:
       typescript: 5.9.2
 
   svelte@5.38.1:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/sourcemap-codec': 1.5.0
+      '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.1)
+      '@types/estree': 1.0.8
+      acorn: 8.14.1
+      aria-query: 5.3.2
+      axobject-query: 4.1.0
+      clsx: 2.1.1
+      esm-env: 1.2.2
+      esrap: 2.1.0
+      is-reference: 3.0.3
+      locate-character: 3.0.0
+      magic-string: 0.30.17
+      zimmerframe: 1.1.2
+
+  svelte@5.38.2:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.0

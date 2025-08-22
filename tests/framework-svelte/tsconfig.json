@@ -1,0 +1,76 @@
+{
+  "include": ["tests/**/*", "start.ts"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "jsx": "preserve",
+    "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "noImplicitOverride": false,
+    "incremental": true,
+    "declaration": true,
+    "types": ["vite/client"],
+    // "baseUrl": ".",
+    "paths": {
+      "@warp-drive-internal/specs": ["../../specs/declarations"],
+      "@warp-drive-internal/specs/*": ["../../specs/declarations/*"],
+      "@warp-drive/svelte": ["../../warp-drive-packages/svelte/declarations"],
+      "@warp-drive/svelte/*": ["../../warp-drive-packages/svelte/declarations/*"],
+      "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
+      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/json-api": ["../../warp-drive-packages/json-api/declarations"],
+      "@warp-drive/json-api/*": ["../../warp-drive-packages/json-api/declarations/*"],
+      "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
+  },
+  "references": [
+    {
+      "path": "../../specs"
+    },
+    {
+      "path": "../../packages/diagnostic"
+    },
+    {
+      "path": "../../warp-drive-packages/svelte"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
+    },
+    {
+      "path": "../../warp-drive-packages/utilities"
+    },
+    {
+      "path": "../../warp-drive-packages/json-api"
+    },
+    {
+      "path": "../../packages/holodeck"
+    }
+  ]
+}
