@@ -1,6 +1,6 @@
 {
   "name": "framework-vue",
-  "version": "5.7.0-alpha.32",
+  "version": "5.7.0-alpha.33",
   "description": "Provides tests for @warp-drive/vue",
   "private": true,
   "keywords": [],
