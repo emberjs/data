@@ -1,6 +1,5 @@
-import { module, test } from 'qunit';
-
-import { withArrayDefaults } from '#src/utilities/with-array-defaults.ts';
+import { module, test } from '@warp-drive/diagnostic/ember';
+import { withArrayDefaults } from '@warp-drive/legacy/model-fragments';
 
 module('Unit | withArrayDefaults', function () {
   test('Creates correct schema for an array', function (assert) {

@@ -1,6 +1,5 @@
-import { module, test } from 'qunit';
-
-import { withFragmentArrayDefaults } from '#src/utilities/with-fragment-array-defaults.ts';
+import { module, test } from '@warp-drive/diagnostic/ember';
+import { withFragmentArrayDefaults } from '@warp-drive/legacy/model-fragments';
 
 module('Unit | withFragmentArrayDefaults', function () {
   test('Creates correct schema for a fragment-array', function (assert) {

@@ -1,7 +1,6 @@
 import type { ObjectSchema } from '@warp-drive/core-types/schema/fields';
 import type { Type } from '@warp-drive/core-types/symbols';
-
-import type { WithFragment } from '#src/index.ts';
+import type { WithFragment } from '@warp-drive/legacy/model-fragments';
 
 export const ProductSchema = {
   type: 'fragment:product',

@@ -1,6 +1,5 @@
-import { module, test } from 'qunit';
-
-import { withFragmentDefaults } from '#src/utilities/with-fragment-defaults.ts';
+import { module, test } from '@warp-drive/diagnostic/ember';
+import { withFragmentDefaults } from '@warp-drive/legacy/model-fragments';
 
 module('Unit | withFragmentDefaults', function () {
   test('Creates correct schema for a fragment', function (assert) {

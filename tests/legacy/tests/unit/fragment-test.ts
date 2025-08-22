@@ -1,24 +1,21 @@
-import { type TestContext } from '@ember/test-helpers';
-import { module, test, todo } from 'qunit';
+import { recordIdentifierFor } from '@warp-drive/core';
+import type { TestContext } from '@warp-drive/diagnostic/ember';
+import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
 
-import { recordIdentifierFor } from '@ember-data/store';
-
-import { type Name, NameSchema } from '../dummy/models/name';
-import { type Passenger, PassengerSchema } from '../dummy/models/passenger';
-import { type Person, PersonSchema } from '../dummy/models/person';
-import { type Prefix, PrefixSchema } from '../dummy/models/prefix';
-import { type Vehicle, VehicleSchema } from '../dummy/models/vehicle';
-import { type Zoo, ZooSchema } from '../dummy/models/zoo';
-import { Store } from '../dummy/services/app-store';
-import { setupApplicationTest } from '../helpers';
-import Pretender from 'pretender';
+import { type Name, NameSchema } from '../-test-store/schemas/name';
+import { type Passenger, PassengerSchema } from '../-test-store/schemas/passenger';
+import { type Person, PersonSchema } from '../-test-store/schemas/person';
+import { type Prefix, PrefixSchema } from '../-test-store/schemas/prefix';
+import { type Vehicle, VehicleSchema } from '../-test-store/schemas/vehicle';
+import { type Zoo, ZooSchema } from '../-test-store/schemas/zoo';
+import { Store } from '../-test-store/store';
 
 interface AppTestContext extends TestContext {
   store: Store;
 }
 
 module('Unit - `Fragment`', function (hooks) {
-  setupApplicationTest(hooks);
+  setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: AppTestContext) {
     this.owner.register('service:store', Store);
@@ -53,16 +50,8 @@ module('Unit - `Fragment`', function (hooks) {
     const passenger = vehicle.passenger as Passenger;
     const name = passenger.name as Name;
 
-    assert.strictEqual(
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      passenger.toString(),
-      'Record<vehicle:1 (@lid:vehicle-1)>'
-    );
-    assert.strictEqual(
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      name.toString(),
-      'Record<vehicle:1 (@lid:vehicle-1)>'
-    );
+    assert.equal(passenger.toString(), 'Record<vehicle:1 (@lid:vehicle-1)>');
+    assert.equal(name.toString(), 'Record<vehicle:1 (@lid:vehicle-1)>');
   });
 
   test("changes to fragments are indicated in the owner record's `changedAttributes`", async function (this: AppTestContext, assert) {
@@ -87,17 +76,9 @@ module('Unit - `Fragment`', function (hooks) {
 
     name.set('last', 'Baratheon');
 
-    const [oldName, newName] = person.changedAttributes().name!;
-    assert.deepEqual(
-      oldName,
-      { first: 'Loras', last: 'Tyrell' },
-      'old fragment is indicated in the diff object'
-    );
-    assert.deepEqual(
-      newName,
-      { first: 'Loras', last: 'Baratheon' },
-      'new fragment is indicated in the diff object'
-    );
+    const [oldName, newName] = person.changedAttributes().name;
+    assert.deepEqual(oldName, { first: 'Loras', last: 'Tyrell' }, 'old fragment is indicated in the diff object');
+    assert.deepEqual(newName, { first: 'Loras', last: 'Baratheon' }, 'new fragment is indicated in the diff object');
   });
 
   test('fragmentArrays default to empty arrays on access and can be mutated', async function (this: AppTestContext, assert) {
@@ -122,11 +103,7 @@ module('Unit - `Fragment`', function (hooks) {
 
     prefixes.push({ name: 'Lord' } as Prefix);
 
-    assert.propEqual(
-      prefixes,
-      [{ name: 'Lord' }],
-      'new prefix is added to the fragment array'
-    );
+    assert.propEqual(prefixes, [{ name: 'Lord' }], 'new prefix is added to the fragment array');
   });
 
   test("fragment properties that are set to null are indicated in the owner record's `changedAttributes`", async function (this: AppTestContext, assert) {
@@ -148,16 +125,8 @@ module('Unit - `Fragment`', function (hooks) {
 
     // @ts-expect-error TODO: fix this type error
     const [oldName, newName] = person.changedAttributes().name;
-    assert.deepEqual(
-      oldName,
-      { first: 'Rob', last: 'Stark' },
-      'old fragment is indicated in the diff object'
-    );
-    assert.deepEqual(
-      newName,
-      null,
-      'new fragment is indicated in the diff object'
-    );
+    assert.deepEqual(oldName, { first: 'Rob', last: 'Stark' }, 'old fragment is indicated in the diff object');
+    assert.deepEqual(newName, null, 'new fragment is indicated in the diff object');
   });
 
   test("fragment properties that are initially null are indicated in the owner record's `changedAttributes`", async function (this: AppTestContext, assert) {
@@ -178,27 +147,14 @@ module('Unit - `Fragment`', function (hooks) {
     });
 
     const [oldName, newName] = person.changedAttributes().name;
-    assert.deepEqual(
-      oldName,
-      null,
-      'old fragment is indicated in the diff object'
-    );
-    assert.deepEqual(
-      newName,
-      { first: 'Rob', last: 'Stark' },
-      'new fragment is indicated in the diff object'
-    );
+    assert.deepEqual(oldName, null, 'old fragment is indicated in the diff object');
+    assert.deepEqual(newName, { first: 'Rob', last: 'Stark' }, 'new fragment is indicated in the diff object');
 
     const identifier = recordIdentifierFor(person);
     this.store.cache.willCommit(identifier, null);
 
-    const [oldNameAfterWillCommit, newNameAfterWillCommit] =
-      person.changedAttributes().name;
-    assert.deepEqual(
-      oldNameAfterWillCommit,
-      null,
-      'old fragment is indicated in the diff object'
-    );
+    const [oldNameAfterWillCommit, newNameAfterWillCommit] = person.changedAttributes().name;
+    assert.deepEqual(oldNameAfterWillCommit, null, 'old fragment is indicated in the diff object');
     assert.deepEqual(
       newNameAfterWillCommit,
       { first: 'Rob', last: 'Stark' },
@@ -213,11 +169,7 @@ module('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    assert.strictEqual(
-      person.changedAttributes().name,
-      undefined,
-      'changedAttributes is reset after commit'
-    );
+    assert.equal(person.changedAttributes().name, undefined, 'changedAttributes is reset after commit');
   });
 
   todo(
@@ -238,27 +190,14 @@ module('Unit - `Fragment`', function (hooks) {
         last: 'Stark',
       });
 
-      const [oldName, newName] = person.changedAttributes().name!;
-      assert.deepEqual(
-        oldName,
-        null,
-        'old fragment is indicated in the diff object'
-      );
-      assert.deepEqual(
-        newName,
-        { first: 'Rob', last: 'Stark' },
-        'new fragment is indicated in the diff object'
-      );
+      const [oldName, newName] = person.changedAttributes().name;
+      assert.deepEqual(oldName, null, 'old fragment is indicated in the diff object');
+      assert.deepEqual(newName, { first: 'Rob', last: 'Stark' }, 'new fragment is indicated in the diff object');
 
       // what is missing here?
 
-      const [oldNameAfterWillCommit, newNameAfterWillCommit] =
-        person.changedAttributes().name!;
-      assert.deepEqual(
-        oldNameAfterWillCommit,
-        null,
-        'old fragment is indicated in the diff object'
-      );
+      const [oldNameAfterWillCommit, newNameAfterWillCommit] = person.changedAttributes().name;
+      assert.deepEqual(oldNameAfterWillCommit, null, 'old fragment is indicated in the diff object');
       assert.deepEqual(
         newNameAfterWillCommit,
         { first: 'Rob', last: 'Stark' },
@@ -275,11 +214,7 @@ module('Unit - `Fragment`', function (hooks) {
         },
       });
 
-      assert.strictEqual(
-        person.changedAttributes().name,
-        undefined,
-        'changedAttributes is reset after commit'
-      );
+      assert.equal(person.changedAttributes().name, undefined, 'changedAttributes is reset after commit');
     }
   );
 
@@ -304,8 +239,8 @@ module('Unit - `Fragment`', function (hooks) {
     // @ts-expect-error TODO: fix this type error
     name.rollbackAttributes();
 
-    assert.strictEqual(name.last, 'Snow', 'fragment properties are restored');
-    assert.ok(!name.hasDirtyAttributes, 'fragment is in clean state');
+    assert.equal(name.last, 'Snow', 'fragment properties are restored');
+    assert.notOk(name.hasDirtyAttributes, 'fragment is in clean state');
   });
 
   test('fragments unloaded/reload w/ relationship', function (this: AppTestContext, assert) {
@@ -395,10 +330,7 @@ module('Unit - `Fragment`', function (hooks) {
     //   'Elephant fragment has the right name.',
     // );
 
-    assert.ok(
-      zoo !== origZoo,
-      'A different instance of the zoo model was loaded'
-    );
+    assert.ok(zoo !== origZoo, 'A different instance of the zoo model was loaded');
     // TODO: look at this after we enable polymorphism
     // assert.ok(zoo.star !== origZoo.star, 'Fragments were not reused');
   });
@@ -414,7 +346,7 @@ module('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    assert.strictEqual(person.name, null);
+    assert.equal(person.name, null);
   });
 
   test('can be updated to null', function (this: AppTestContext, assert) {
@@ -431,7 +363,7 @@ module('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    assert.strictEqual(person.name!.first, 'Eddard');
+    assert.equal(person.name!.first, 'Eddard');
 
     this.store.push({
       data: {
@@ -443,14 +375,12 @@ module('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    assert.strictEqual(person.name, null);
+    assert.equal(person.name, null);
   });
 
   module('fragment bug when initially set to `null`', function (hooks) {
-    let server: Pretender;
     hooks.beforeEach(function () {
-      server = new Pretender();
-      server.post('/people', () => {
+      POST(this.owner, '/people', () => {
         return [
           200,
           { 'Content-Type': 'application/json' },
@@ -498,11 +428,7 @@ module('Unit - `Fragment`', function (hooks) {
         },
         'name is correctly loaded'
       );
-      assert.propEqual(
-        person.names?.slice(),
-        [{ first: 'John', last: 'Doe', prefixes: [] }],
-        'names is correct'
-      );
+      assert.propEqual(person.names?.slice(), [{ first: 'John', last: 'Doe', prefixes: [] }], 'names is correct');
     });
 
     test('`person` fragments/fragment arrays are initially `null`', async function (this: AppTestContext, assert) {
@@ -512,7 +438,7 @@ module('Unit - `Fragment`', function (hooks) {
         names: null,
       });
 
-      assert.strictEqual(person.names, null, 'names is null');
+      assert.equal(person.names, null, 'names is null');
       assert.notOk(person.nickName, 'nickName is not set');
 
       await person.save();
@@ -527,11 +453,7 @@ module('Unit - `Fragment`', function (hooks) {
         },
         'name is correctly loaded'
       );
-      assert.propEqual(
-        person.names?.slice(),
-        [{ first: 'John', last: 'Doe', prefixes: [] }],
-        'names is correct'
-      );
+      assert.propEqual(person.names?.slice(), [{ first: 'John', last: 'Doe', prefixes: [] }], 'names is correct');
     });
   });
 });

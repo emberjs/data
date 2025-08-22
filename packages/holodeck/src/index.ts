@@ -250,10 +250,29 @@ function setupHolodeckFetch(owner: object, request: RequestInfo): { request: Req
 
   const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${test.request[method][url]++}`;
   request.url = url + queryForTest;
+  request.method = method;
 
   request.mode = 'cors';
   request.credentials = 'omit';
   request.referrerPolicy = '';
+
+  // since holodeck currently runs on a separate port
+  // and we don't want to trigger cors pre-flight
+  // we convert PUT to POST to keep the request in the
+  // "simple" cors category.
+  if (request.method === 'PUT') {
+    request.method = 'POST';
+  }
+
+  const headers = new Headers(request.headers);
+  if (headers.has('Content-Type')) {
+    // under the rules of simple-cors, content-type can only be
+    // one of three things, none of which are what folks typically
+    // set this to. Since holodeck always expects body to be JSON
+    // this "just works".
+    headers.set('Content-Type', 'text/plain');
+    request.headers = headers;
+  }
 
   return { request, queryForTest };
 }
@@ -313,6 +332,7 @@ export function installAdapterFor(owner: object, store: Store): void {
             throw new Error(`Adapter ${String(modelName)} does not implement _fetchRequest`);
           }
           const { request } = setupHolodeckFetch(owner, options);
+
           return originalFetch(request);
         };
       }

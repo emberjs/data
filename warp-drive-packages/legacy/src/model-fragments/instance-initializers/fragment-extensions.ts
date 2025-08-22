@@ -1,10 +1,6 @@
 import type ApplicationInstance from '@ember/application/instance';
 import type { Store } from '@warp-drive/core';
-import {
-  EmberArrayLikeExtension,
-  EmberObjectArrayExtension,
-  EmberObjectExtension,
-} from '@warp-drive/legacy/compat/extensions';
+import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtension } from '../../compat/extensions';
 
 import { modelFor } from '../hooks/model-for.ts';
 import FragmentArrayExtension from '../extensions/fragment-array.ts';
