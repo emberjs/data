@@ -309,6 +309,7 @@ export class RequestSubscription<RT, E> {
   // if we need to react to those changes, we can
   // use a modifier or internal component or some
   // such to trigger a re-run of this function.
+  /** @internal */
   private async _scheduleInterval() {
     const { autorefreshThreshold } = this._args;
     const hasValidThreshold = typeof autorefreshThreshold === 'number' && autorefreshThreshold > 0;
@@ -346,6 +347,7 @@ export class RequestSubscription<RT, E> {
     }, autorefreshThreshold) as unknown as number;
   }
 
+  /** @internal */
   private _clearInterval() {
     if (this._nextInterval) {
       clearTimeout(this._nextInterval);

@@ -261,6 +261,7 @@ export default class NotificationManager {
     this._onFlushCB = cb;
   }
 
+  /** @internal */
   private _scheduleNotify(): boolean {
     const asyncFlush = this.store._enableAsyncFlush;
 

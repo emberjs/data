@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress';
+import { defineConfig, type Plugin } from 'vitepress';
 import { getGuidesStructure, postProcessApiDocs } from '../../src/site-utils.ts';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 
@@ -8,7 +8,22 @@ import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
 
 const GuidesStructure = await getGuidesStructure(false);
-
+const plugin = groupIconVitePlugin({
+  customIcon: {
+    ember: 'vscode-icons:file-type-ember',
+    emberjs: 'vscode-icons:file-type-ember',
+    'ember.js': 'vscode-icons:file-type-ember',
+    'Ember.js': 'vscode-icons:file-type-ember',
+    glimmer: 'vscode-icons:file-type-glimmer',
+    glimmerjs: 'vscode-icons:file-type-glimmer',
+    'glimmer.js': 'vscode-icons:file-type-glimmer',
+    'glimmer-ts': 'vscode-icons:file-type-glimmer',
+    'glimmer-js': 'vscode-icons:file-type-glimmer',
+    '.gts': 'vscode-icons:file-type-glimmer',
+    '.gjs': 'vscode-icons:file-type-glimmer',
+    '.hbs': 'vscode-icons:file-type-ember',
+  },
+}) as unknown as Plugin[];
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'WarpDrive',
@@ -21,25 +36,7 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [
-      llmstxt(),
-      groupIconVitePlugin({
-        customIcon: {
-          ember: 'vscode-icons:file-type-ember',
-          emberjs: 'vscode-icons:file-type-ember',
-          'ember.js': 'vscode-icons:file-type-ember',
-          'Ember.js': 'vscode-icons:file-type-ember',
-          glimmer: 'vscode-icons:file-type-glimmer',
-          glimmerjs: 'vscode-icons:file-type-glimmer',
-          'glimmer.js': 'vscode-icons:file-type-glimmer',
-          'glimmer-ts': 'vscode-icons:file-type-glimmer',
-          'glimmer-js': 'vscode-icons:file-type-glimmer',
-          '.gts': 'vscode-icons:file-type-glimmer',
-          '.gjs': 'vscode-icons:file-type-glimmer',
-          '.hbs': 'vscode-icons:file-type-ember',
-        },
-      }),
-    ],
+    plugins: [llmstxt(), plugin],
   },
 
   // just until we have the guides and docs in a better state
@@ -109,14 +106,12 @@ export default defineConfig({
 
   // github pages supports cleanURLs
   cleanUrls: true,
-  // @ts-expect-error
   base: process.env.BASE || '/',
 
   // we want to use rewrites but can't https://github.com/vuejs/vitepress/issues/4364
   // rewrites: GuidesStructure.rewritten,
 
   sitemap: {
-    // @ts-expect-error
     hostname: process.env.HOSTNAME || 'https://canary.warp-drive.io',
   },
 

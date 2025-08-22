@@ -31,6 +31,7 @@ import type { StoreRequestContext } from '../cache-handler/handler.ts';
 export class CacheManager implements Cache {
   version = '2' as const;
 
+  /** @internal */
   declare private ___cache: Cache;
 
   constructor(cache: Cache) {

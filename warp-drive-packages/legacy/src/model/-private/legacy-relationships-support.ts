@@ -58,12 +58,19 @@ export function lookupLegacySupport(record: MinimalLegacyRecord): LegacySupport 
   return support;
 }
 
+/**
+ * @hideconstructor
+ */
 export class LegacySupport {
+  /** @internal */
   declare private record: MinimalLegacyRecord;
   /** @internal */
   declare store: PrivateStore;
+  /** @internal */
   declare private graph: Graph;
+  /** @internal */
   declare private cache: Cache;
+  /** @internal */
   declare private references: Record<string, BelongsToReference | HasManyReference>;
   declare identifier: ResourceKey;
   /** @internal */
@@ -72,9 +79,12 @@ export class LegacySupport {
   declare _relationshipPromisesCache: Record<string, Promise<LegacyManyArray | OpaqueRecordInstance>>;
   /** @internal */
   declare _relationshipProxyCache: Record<string, PromiseManyArray | PromiseBelongsTo | undefined>;
+  /** @internal */
   declare private _pending: Record<string, Promise<ResourceKey | null> | undefined>;
 
+  /** @internal */
   declare private isDestroying: boolean;
+  /** @internal */
   declare private isDestroyed: boolean;
 
   constructor(record: MinimalLegacyRecord, identifier: ResourceKey) {
@@ -97,6 +107,7 @@ export class LegacySupport {
     this.references = Object.create(null) as Record<string, BelongsToReference>;
   }
 
+  /** @private */
   _syncArray(array: LegacyManyArray): void {
     // It’s possible the parent side of the relationship may have been destroyed by this point
     if (this.isDestroyed || this.isDestroying) {

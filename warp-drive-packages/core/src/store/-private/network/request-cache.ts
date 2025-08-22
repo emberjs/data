@@ -154,6 +154,7 @@ export class RequestStateService {
     this._toFlush = [];
   }
 
+  /** @internal */
   private _flushRequest(req: InternalRequest): void {
     req[Touching].forEach((identifier: ResourceKey) => {
       const subscriptions = this._subscriptions.get(identifier);
@@ -163,6 +164,7 @@ export class RequestStateService {
     });
   }
 
+  /** @internal */
   private _dequeue(identifier: ResourceKey, request: InternalRequest): void {
     const pending = this._pending.get(identifier)!;
     this._pending.set(
@@ -171,6 +173,7 @@ export class RequestStateService {
     );
   }
 
+  /** @internal */
   private _addDone(request: InternalRequest): void {
     request[Touching].forEach((identifier) => {
       // TODO add support for multiple

@@ -82,7 +82,10 @@ export class ReactiveDocument<T> {
    */
   declare readonly identifier: RequestKey | null;
 
+  /** @internal */
   declare protected readonly _store: Store;
+
+  /** @internal */
   declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
 
   constructor(
@@ -118,6 +121,7 @@ export class ReactiveDocument<T> {
     }
   }
 
+  /** @internal */
   async #request(
     link: keyof PaginationLinks,
     options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })

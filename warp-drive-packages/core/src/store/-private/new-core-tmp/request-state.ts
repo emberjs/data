@@ -107,21 +107,36 @@ async function watchStream(stream: ReadableStream<Uint8Array>, loadingState: Req
  * @hideconstructor
  */
 export class RequestLoadingState {
+  /** @internal */
   declare private _sizeHint: number;
+  /** @internal */
   declare private _bytesLoaded: number;
+  /** @internal */
   declare private _startTime: number;
+  /** @internal */
   declare private _endTime: number;
+  /** @internal */
   declare private _lastPacketTime: number;
+  /** @internal */
   declare private _isPending: boolean;
+  /** @internal */
   declare private _isStarted: boolean;
+  /** @internal */
   declare private _isComplete: boolean;
+  /** @internal */
   declare private _isCancelled: boolean;
+  /** @internal */
   declare private _isErrored: boolean;
+  /** @internal */
   declare private _error: Error | null;
 
+  /** @internal */
   private _stream: TransformStream | null = null;
+  /** @internal */
   private _future: Future<unknown>;
+  /** @internal */
   private _triggered = false;
+  /** @internal */
   private _trigger() {
     if (this._triggered) {
       return;
