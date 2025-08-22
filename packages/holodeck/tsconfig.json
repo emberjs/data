@@ -36,10 +36,12 @@
     "inlineSources": true,
     "baseUrl": ".",
     "paths": {
-      "@ember-data/request": ["../request/unstable-preview-types"],
-      "@ember-data/request/*": ["../request/unstable-preview-types/*"],
-      "@warp-drive/core-types": ["../core-types/unstable-preview-types"],
-      "@warp-drive/core-types/*": ["../core-types/unstable-preview-types/*"]
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/legacy": ["../../warp-drive-packages/legacy/declarations"],
+      "@warp-drive/legacy/*": ["../../warp-drive-packages/legacy/declarations/*"],
+      "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -50,10 +52,13 @@
   },
   "references": [
     {
-      "path": "../request"
+      "path": "../../warp-drive-packages/core"
     },
     {
-      "path": "../core-types"
+      "path": "../../warp-drive-packages/legacy"
+    },
+    {
+      "path": "../../warp-drive-packages/utilities"
     }
   ]
 }
