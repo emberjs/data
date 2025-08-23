@@ -264,7 +264,7 @@ If our build assets are located in `<dir>/dist-test/*` and the entry point for t
 
 *\<dir>/diagnostic.js*
 ```ts
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 
 await launch();
 ```
