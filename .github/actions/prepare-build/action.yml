@@ -29,7 +29,7 @@ runs:
 
     - if: ${{ steps.restore-ref-artifact.outputs.cache-hit != 'true' }}
       name: Build ${{ inputs.name }}
-      uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 1

@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 1 # 0 is needed if lastUpdated is enabled
       - uses: ./.github/actions/setup
@@ -44,7 +44,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
           DISABLE_TURBO_CACHE: ${{ secrets.ACTIONS_RUNNER_DEBUG == 'true' }}
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - name: Generate Artifact
         run: pnpm run build
         working-directory: docs-viewer
@@ -52,7 +52,7 @@ jobs:
           BASE: '/data/'
           HOSTNAME: 'https://emberjs.github.io/data'
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs-viewer/docs.warp-drive.io/.vitepress/dist
 
