@@ -7,7 +7,7 @@ import type { ScaffoldGenerator } from './mock';
 
 const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number }>();
 
-let HOST = 'https://localhost:1135/';
+let HOST = '/';
 export function setConfig({ host }: { host: string }): void {
   HOST = host.endsWith('/') ? host : `${host}/`;
 }
@@ -105,14 +105,21 @@ interface PrivateAdapter {
 }
 
 function upgradeAdapter(adapter: unknown): asserts adapter is PrivateAdapter {}
+function upgradeStore(store: Store): asserts store is Store & { adapterFor: AdapterForFn['adapterFor'] } {
+  if (typeof store.adapterFor !== 'function') {
+    throw new Error('Store is not compatible with Holodeck. Missing adapterFor method.');
+  }
+}
 
-export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn {
-  return function holodeckAdapterFor(
+export function installAdapterFor(owner: object, store: Store): void {
+  upgradeStore(store);
+  const fn = store.adapterFor;
+  function holodeckAdapterFor(
     this: Store,
     modelName: string,
     _allowMissing?: true
   ): MinimumAdapterInterface | undefined {
-    const adapter = fn.adapterFor.call(this, modelName, _allowMissing);
+    const adapter = fn.call(this, modelName, _allowMissing);
 
     if (adapter) {
       upgradeAdapter(adapter);
@@ -126,6 +133,25 @@ export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn 
           if (!originalFetch) {
             throw new Error(`Adapter ${String(modelName)} does not implement _fetchRequest`);
           }
+
+          // since holodeck currently runs on a separate port
+          // and we don't want to trigger cors pre-flight
+          // we convert PUT to POST to keep the request in the
+          // "simple" cors category.
+          if (options.method?.toUpperCase() === 'PUT') {
+            options.method = 'POST';
+          }
+
+          const headers = new Headers(options.headers);
+          if (headers.has('Content-Type')) {
+            // under the rules of simple-cors, content-type can only be
+            // one of three things, none of which are what folks typically
+            // set this to. Since holodeck always expects body to be JSON
+            // this "just works".
+            headers.set('Content-Type', 'text/plain');
+            options.headers = headers;
+          }
+
           const req = setupHolodeckFetch(owner, options);
           return originalFetch(req);
         };
@@ -133,7 +159,8 @@ export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn 
     }
 
     return adapter;
-  } as unknown as AdapterForFn;
+  }
+  store.adapterFor = holodeckAdapterFor as AdapterForFn['adapterFor'];
 }
 
 export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean): Promise<void> {
