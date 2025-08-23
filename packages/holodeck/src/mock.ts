@@ -50,8 +50,53 @@ export function GET(
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
-export function POST(): void {}
-export function PUT(): void {}
+
+export function POST(
+  owner: object,
+  url: string,
+  response: ResponseGenerator,
+  options?: Partial<Omit<Scaffold, 'response' | 'url' | 'method'>> & { RECORD?: boolean }
+): Promise<void> {
+  return mock(
+    owner,
+    () => ({
+      status: options?.status ?? 201,
+      statusText: options?.statusText ?? 'OK',
+      headers: options?.headers ?? {},
+      body: options?.body ?? null,
+      method: 'POST',
+      url,
+      response: response(),
+    }),
+    getIsRecording() || (options?.RECORD ?? false)
+  );
+}
+
+export function PUT(
+  owner: object,
+  url: string,
+  response: ResponseGenerator,
+  options?: Partial<Omit<Scaffold, 'response' | 'url' | 'method'>> & { RECORD?: boolean }
+): Promise<void> {
+  return mock(
+    owner,
+    () => {
+      const resp = response();
+      const req = {
+        status: options?.status ?? (resp ? 200 : 204),
+        statusText: options?.statusText ?? 'OK',
+        headers: options?.headers ?? {},
+        body: options?.body ?? null,
+        // we use 'POST' instead of 'PUT' here to prevent cors issues
+        method: 'POST',
+        url,
+        response: resp,
+      };
+      return req;
+    },
+    getIsRecording() || (options?.RECORD ?? false)
+  );
+}
 export function PATCH(): void {}
 export function DELETE(): void {}
 export function QUERY(): void {}

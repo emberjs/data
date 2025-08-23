@@ -681,6 +681,12 @@ importers:
       '@embroider/macros':
         specifier: ^1.18.1
         version: 1.18.1(@babel/core@7.28.0)
+      '@hono/node-server':
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
+      '@hono/node-ws':
+        specifier: ^1.2.0
+        version: 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
@@ -696,12 +702,15 @@ importers:
       dom-element-descriptors:
         specifier: ^0.5.1
         version: 0.5.1
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
       qunit-dom:
         specifier: ^3.5.0
         version: 3.5.0
       tmp:
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.2.5
+        version: 0.2.5
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -727,18 +736,24 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
       '@types/react':
         specifier: ^19.1.9
         version: 19.1.9
       '@types/react-dom':
         specifier: ^19.1.7
         version: 19.1.7(@types/react@19.1.9)
+      '@types/tmp':
+        specifier: ^0.2.6
+        version: 0.2.6
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
-      bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
+        version: file:config(@types/node@24.3.0)
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.28.0)
@@ -750,7 +765,7 @@ importers:
         version: 5.9.2
       vite:
         specifier: ^7.1.2
-        version: 7.1.2
+        version: 7.1.2(@types/node@24.3.0)
 
   packages/eslint-plugin-warp-drive:
     dependencies:
@@ -814,14 +829,14 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.18.2
-        version: 1.18.2(hono@4.9.2)
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
       chalk:
         specifier: ^5.5.0
         version: 5.5.0
       hono:
-        specifier: ^4.9.2
-        version: 4.9.2
+        specifier: ^4.9.4
+        version: 4.9.4
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -6020,11 +6035,18 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@hono/node-server@1.18.2':
-    resolution: {integrity: sha512-icgNvC0vRYivzyuSSaUv9ttcwtN8fDyd1k3AOIBDJgYd84tXRZSS6na8X54CY/oYoFTNhEmZraW/Rb9XYwX4KA==}
+  '@hono/node-server@1.19.0':
+    resolution: {integrity: sha512-1k8/8OHf5VIymJEcJyVksFpT+AQ5euY0VA5hUkCnlKpD4mr8FSbvXaHblxeTTEr90OaqWzAkQaqD80qHZQKxBA==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
+
+  '@hono/node-ws@1.2.0':
+    resolution: {integrity: sha512-OBPQ8OSHBw29mj00wT/xGYtB6HY54j0fNSdVZ7gZM3TUeq0So11GXaWtFf1xWxQNfumKIsj0wRuLKWfVsO5GgQ==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      '@hono/node-server': ^1.11.1
+      hono: ^4.6.0
 
   '@html-next/vertical-collection@4.0.2':
     resolution: {integrity: sha512-S8cgntEDdXrOwdylVGDh1BFe+nX5uuUzzb3teh1FE++/kbqsOfUpXOYRUsEzsqb0fRqcm6eLxvtNb282Zr67rQ==}
@@ -7037,6 +7059,9 @@ packages:
   '@types/node@24.0.6':
     resolution: {integrity: sha512-ZOyn+gOs749xU7ovp+Ibj0g1o3dFRqsfPnT22C2t5JzcRvgsEDpGawPbCISGKLudJk9Y0wiu9sYd6kUh0pc9TA==}
 
+  '@types/node@24.3.0':
+    resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
+
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
 
@@ -7086,6 +7111,9 @@ packages:
 
   '@types/tmp@0.0.33':
     resolution: {integrity: sha512-gVC1InwyVrO326wbBZw+AO3u2vRXz/iRWq9jYhpG4W8LXyIgDv3ZmcLQ5Q4Gs+gFMyqx+viFoFT+l3p61QFCmQ==}
+
+  '@types/tmp@0.2.6':
+    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
 
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
@@ -7432,6 +7460,11 @@ packages:
       '@warp-drive/core': workspace:*
       '@warp-drive/legacy': workspace:*
       '@warp-drive/utilities': workspace:*
+    peerDependenciesMeta:
+      '@warp-drive/legacy':
+        optional: true
+      '@warp-drive/utilities':
+        optional: true
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
@@ -10621,8 +10654,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.9.2:
-    resolution: {integrity: sha512-UG2jXGS/gkLH42l/1uROnwXpkjvvxkl3kpopL3LBo27NuaDPI6xHNfuUSilIHcrBkPfl4y0z6y2ByI455TjNRw==}
+  hono@4.9.4:
+    resolution: {integrity: sha512-61hl6MF6ojTl/8QSRu5ran6GXt+6zsngIUN95KzF5v5UjiX/xnrLR358BNRawwIRO49JwUqJqQe3Rb2v559R8Q==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -13642,6 +13675,10 @@ packages:
     resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
     engines: {node: '>=14.14'}
 
+  tmp@0.2.5:
+    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
+    engines: {node: '>=14.14'}
+
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
 
@@ -13924,6 +13961,9 @@ packages:
 
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
+  undici-types@7.10.0:
+    resolution: {integrity: sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==}
 
   undici-types@7.8.0:
     resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
@@ -18151,9 +18191,18 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.18.2(hono@4.9.2)':
+  '@hono/node-server@1.19.0(hono@4.9.4)':
     dependencies:
-      hono: 4.9.2
+      hono: 4.9.4
+
+  '@hono/node-ws@1.2.0(0761bbd318d0a1c99aa83154d16b3252)':
+    dependencies:
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      hono: 4.9.4
+      ws: 8.18.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@html-next/vertical-collection@4.0.2(@babel/core@7.28.0)':
     dependencies:
@@ -19102,7 +19151,7 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/broccoli-plugin@3.0.4':
     dependencies:
@@ -19126,13 +19175,13 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/cookie@0.6.0': {}
 
   '@types/cors@2.8.18':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/debug@4.1.12':
     dependencies:
@@ -19159,7 +19208,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -19173,12 +19222,12 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -19203,7 +19252,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/linkify-it@5.0.0': {}
 
@@ -19226,7 +19275,7 @@ snapshots:
 
   '@types/morgan@1.9.9':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/ms@2.1.0': {}
 
@@ -19237,6 +19286,10 @@ snapshots:
   '@types/node@24.0.6':
     dependencies:
       undici-types: 7.8.0
+
+  '@types/node@24.3.0':
+    dependencies:
+      undici-types: 7.10.0
 
   '@types/qs@6.9.18': {}
 
@@ -19254,12 +19307,12 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 8.1.0
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/rsvp@4.0.9': {}
 
@@ -19268,25 +19321,27 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
       '@types/send': 0.17.4
 
   '@types/sizzle@2.3.9': {}
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   '@types/supports-color@8.1.3': {}
 
   '@types/symlink-or-copy@1.2.2': {}
 
   '@types/tmp@0.0.33': {}
+
+  '@types/tmp@0.2.6': {}
 
   '@types/triple-beam@1.3.5': {}
 
@@ -19780,66 +19835,86 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(788f6c9442c1c4094f3e9f8f8d80549e)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
       ember-cli-test-loader: 3.1.0(@babel/core@7.28.0)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(@babel/core@7.28.0)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(b9703da1bc9f536724d15ade90e81a59)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.0)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/ember@file:warp-drive-packages/ember(eb15727c3983f602abb27ba6c74a4940)':
     dependencies:
@@ -19860,27 +19935,29 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
       chalk: 5.6.0
-      hono: 4.9.2
+      hono: 4.9.4
 
   '@warp-drive/holodeck@file:packages/holodeck(d1462c923e64f4e7db7e218ace111de9)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
+      chalk: 5.6.0
+      hono: 4.9.4
+    optionalDependencies:
       '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
       '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
-      chalk: 5.6.0
-      hono: 4.9.2
 
   '@warp-drive/holodeck@file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.2)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
-      hono: 4.9.2
+      hono: 4.9.4
+    optionalDependencies:
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
 
   '@warp-drive/internal-config@file:config':
     dependencies:
@@ -20008,6 +20085,55 @@ snapshots:
       typescript-eslint: 8.32.1(eslint@9.26.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
       vite: 7.1.2(@types/node@24.0.6)
+    transitivePeerDependencies:
+      - '@swc/core'
+      - '@types/babel__core'
+      - '@types/node'
+      - bufferutil
+      - canvas
+      - eslint-import-resolver-typescript
+      - eslint-import-resolver-webpack
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - utf-8-validate
+      - yaml
+
+  '@warp-drive/internal-config@file:config(@types/node@24.3.0)':
+    dependencies:
+      '@babel/cli': 7.28.3(@babel/core@7.28.0)
+      '@babel/core': 7.28.0
+      '@babel/eslint-parser': 7.28.0(@babel/core@7.28.0)(eslint@9.26.0)
+      '@embroider/addon-dev': 7.1.5(rollup@4.40.2)
+      '@eslint/js': 9.26.0
+      '@rollup/plugin-babel': 6.0.4(@babel/core@7.28.0)(rollup@4.40.2)
+      '@types/debug': 4.1.12
+      '@typescript-eslint/eslint-plugin': 8.32.1(ac7197dfc2800735f8b5f589a25df2d2)
+      '@typescript-eslint/parser': 8.32.1(eslint@9.26.0)(typescript@5.9.2)
+      comment-json: 4.2.5
+      debug: 4.4.1
+      ember-eslint-parser: 0.5.9(4ab705c28dda2ac35742d3a271f3b3e7)
+      eslint: 9.26.0
+      eslint-config-prettier: 10.1.5(eslint@9.26.0)
+      eslint-plugin-import: 2.31.0(23b447385b53a8ffc4effe57ce27c075)
+      eslint-plugin-mocha: 10.5.0(eslint@9.26.0)
+      eslint-plugin-n: 17.18.0(eslint@9.26.0)
+      eslint-plugin-qunit: 8.1.2(eslint@9.26.0)
+      eslint-plugin-simple-import-sort: 12.1.1(eslint@9.26.0)
+      glob: 11.0.2
+      globals: 16.1.0
+      rollup: 4.40.2
+      typescript: 5.9.2
+      typescript-eslint: 8.32.1(eslint@9.26.0)(typescript@5.9.2)
+      unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
+      vite: 7.1.2(@types/node@24.3.0)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -21502,15 +21628,15 @@ snapshots:
 
   bun-types@1.2.10:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   bun-types@1.2.13:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
 
   bun-types@1.2.17:
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   byte-size@9.0.1: {}
 
@@ -23314,7 +23440,7 @@ snapshots:
       globby: 11.1.0
       ora: 5.4.1
       slash: 3.0.0
-      tmp: 0.2.3
+      tmp: 0.2.5
       workerpool: 6.5.1
     transitivePeerDependencies:
       - supports-color
@@ -23389,7 +23515,7 @@ snapshots:
   engine.io@6.6.4:
     dependencies:
       '@types/cors': 2.8.18
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -24858,7 +24984,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.9.2: {}
+  hono@4.9.4: {}
 
   hookable@5.5.3: {}
 
@@ -25357,7 +25483,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.17.46
+      '@types/node': 24.3.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -28520,6 +28646,8 @@ snapshots:
 
   tmp@0.2.3: {}
 
+  tmp@0.2.5: {}
+
   tmpl@1.0.5: {}
 
   to-object-path@0.3.0:
@@ -28810,6 +28938,8 @@ snapshots:
 
   undici-types@6.19.8: {}
 
+  undici-types@7.10.0: {}
+
   undici-types@7.8.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
@@ -29032,6 +29162,18 @@ snapshots:
       tinyglobby: 0.2.14
     optionalDependencies:
       '@types/node': 24.0.6
+      fsevents: 2.3.3
+
+  vite@7.1.2(@types/node@24.3.0):
+    dependencies:
+      esbuild: 0.25.4
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.46.2
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 24.3.0
       fsevents: 2.3.3
 
   vite@7.1.2(terser@5.39.1):
