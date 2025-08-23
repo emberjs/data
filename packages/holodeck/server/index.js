@@ -328,7 +328,7 @@ async function waitForLog(server, logMessage) {
     process.stdout.write(chunk);
     const txt = new TextDecoder().decode(chunk);
     if (txt.includes(logMessage)) {
-      return;
+      return txt;
     }
   }
 }
@@ -348,9 +348,16 @@ export async function createServer(options, useBun = false) {
       stderr: 'inherit',
     });
 
-    await waitForLog(server, 'Serving Holodeck HTTP Mocks');
+    const logMessage = await waitForLog(server, 'Serving Holodeck HTTP Mocks');
+    // Serving Holodeck HTTP Mocks from https://localhost:7358
+    const location = logMessage.match(/from (https?:\/\/[^\s]+)/)?.[1];
 
     return {
+      location: {
+        protocol: 'https',
+        hostname: location ? new URL(location).hostname : (options.hostname ?? 'localhost'),
+        port: location ? new URL(location).port : (options.port ?? DEFAULT_PORT),
+      },
       terminate() {
         server.kill();
         // server.unref();
@@ -370,7 +377,9 @@ export async function createServer(options, useBun = false) {
     // @ts-expect-error
     worker.onmessage((v) => {
       console.log('worker message received', v);
-      if (v.data === 'launched') {
+      if (v.data.event === 'launched') {
+        // @ts-expect-error
+        worker.location = v.data.event;
         resolve(worker);
       }
     });
@@ -414,7 +423,12 @@ async function _createServer(options) {
   );
 
   if (typeof threadId === 'number' && threadId !== 0) {
-    parentPort.postMessage('launched');
+    parentPort.postMessage({
+      type: 'launched',
+      protocol: 'https',
+      hostname: options.hostname ?? 'localhost',
+      port: options.port ?? DEFAULT_PORT,
+    });
   }
 
   return { app, server };
@@ -451,6 +465,13 @@ export default {
     // toggle to true if Bun fixes CORS support for HTTP/2
     const project = await createServer(options, false);
     servers.set(projectRoot, project);
+    return {
+      location: `https://${project.location.hostname}:${project.location.port}`,
+      port: project.location.port,
+      hostname: project.location.hostname,
+      protocol: project.location.protocol,
+      recordingPath: `/__record`,
+    };
   },
   async endProgram() {
     console.log(chalk.grey(`\n\tEnding Holodeck Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));

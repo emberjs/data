@@ -184,7 +184,7 @@ export function node(config) {
     languageOptions: {
       parser: parser(),
       parserOptions: {
-        project: './tsconfig.json',
+        project: config.tsconfig ?? './tsconfig.json',
         extraFileExtensions: ['.gts', '.gjs'],
       },
       /** @type {2022} */

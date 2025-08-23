@@ -1,3 +1,3 @@
-import launch from '../server/default-setup';
+import { launch } from '../server/src/index.ts';
 
 await launch();
