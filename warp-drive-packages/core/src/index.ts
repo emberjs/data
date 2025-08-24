@@ -23,6 +23,8 @@ export {
   type StoreRequestInput,
   recordIdentifierFor,
   storeFor,
+  type PaginationState,
+  getPaginationState,
 } from './store/-private.ts';
 
 /**
