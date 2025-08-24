@@ -33,7 +33,7 @@
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "ember-cli": "~6.3.1",
+    "ember-cli": "~6.6.0",
     "ember-cli-blueprint-test-helpers": "^0.19.2",
     "ember-source": "~6.6.0",
     "mocha": "^11.1.0",

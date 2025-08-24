@@ -45,7 +45,7 @@
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-version-checker": "^5.1.2",
-    "ember-cli": "~6.3.1",
+    "ember-cli": "~6.6.0",
     "ember-load-initializers": "^3.0.1",
     "ember-maybe-import-regenerator": "^1.0.0",
     "ember-qunit": "8.0.2",
@@ -56,7 +56,7 @@
     "qunit": "^2.20.1",
     "typescript": "^5.9.2",
     "testem": "^3.12.0",
-    "webpack": "^5.99.5"
+    "webpack": "^5.101.2"
   },
   "ember": {
     "edition": "octane"
