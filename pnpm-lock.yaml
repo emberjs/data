@@ -26,8 +26,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
-pnpmfileChecksum: sha256-kXqG7M9OplXjsGUgt9h403KoF8osTUqeUa0fhBYZjXw=
-
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
     hash: ac566b342003e3d1abb5a4e8e5816320e4fa043af055081a4b33bfad8ccf4cfd
@@ -3596,8 +3594,8 @@ importers:
         specifier: ^10.1.2
         version: 10.1.5(eslint@9.26.0)
       eslint-plugin-ember:
-        specifier: ^12.5.0
-        version: 12.5.0(4ab705c28dda2ac35742d3a271f3b3e7)
+        specifier: ^12.7.1
+        version: 12.7.3(4ab705c28dda2ac35742d3a271f3b3e7)
       eslint-plugin-n:
         specifier: ^17.16.2
         version: 17.18.0(eslint@9.26.0)
@@ -7432,6 +7430,11 @@ packages:
       '@warp-drive/core': workspace:*
       '@warp-drive/legacy': workspace:*
       '@warp-drive/utilities': workspace:*
+    peerDependenciesMeta:
+      '@warp-drive/legacy':
+        optional: true
+      '@warp-drive/utilities':
+        optional: true
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
@@ -9723,8 +9726,8 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
 
-  eslint-plugin-ember@12.5.0:
-    resolution: {integrity: sha512-DBUzsaKWDVXsujAZPpRir0O7owdlCoVzZmtaJm7g7iQeSrNtcRWI7AItsTqKSsws1XeAySH0sPsQItMdDCb9Fg==}
+  eslint-plugin-ember@12.7.3:
+    resolution: {integrity: sha512-yZeq0g6XPFXPdz9eTmJ0LUj8xPLDTSYG9Ne2wT1z1aaDWtnREN1vyxGkcQ6veeH4hYIZxbm37OFth2aWFNX5lA==}
     engines: {node: 18.* || 20.* || >= 21}
     peerDependencies:
       '@typescript-eslint/parser': '*'
@@ -19869,18 +19872,20 @@ snapshots:
     dependencies:
       '@hono/node-server': 1.18.2(hono@4.9.2)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
       hono: 4.9.2
+    optionalDependencies:
+      '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
 
   '@warp-drive/holodeck@file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)':
     dependencies:
       '@hono/node-server': 1.18.2(hono@4.9.2)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
       hono: 4.9.2
+    optionalDependencies:
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
 
   '@warp-drive/internal-config@file:config':
     dependencies:
@@ -23613,7 +23618,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-ember@12.5.0(4ab705c28dda2ac35742d3a271f3b3e7):
+  eslint-plugin-ember@12.7.3(4ab705c28dda2ac35742d3a271f3b3e7):
     dependencies:
       '@ember-data/rfc395-data': 0.0.4
       css-tree: 3.1.0
