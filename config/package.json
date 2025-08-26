@@ -19,7 +19,7 @@
     "debug": "^4.4.0",
     "globals": "^16.3.0",
     "glob": "^11.0.3",
-    "ember-eslint-parser": "^0.5.9",
+    "ember-eslint-parser": "^0.5.11",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.31.0",
