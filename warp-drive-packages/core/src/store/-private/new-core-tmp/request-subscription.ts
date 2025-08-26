@@ -7,7 +7,7 @@ import type { RequestKey } from '../../../types/identifier.ts';
 import type { StructuredErrorDocument } from '../../../types/request.ts';
 import type { RequestState } from '../../-private.ts';
 import { defineSignal, getRequestState, memoized } from '../../-private.ts';
-import { PrivateRequestState } from './request-state.ts';
+import type { PrivateRequestState } from './request-state.ts';
 
 // default to 30 seconds unavailable before we refresh
 const DEFAULT_DEADLINE = 30_000;
