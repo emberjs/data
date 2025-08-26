@@ -9,7 +9,7 @@
   />
 </p>
 
-This package provides utilities for working with [JSON:API](https://json-api.org) APIs with [*Ember***Data**](https://github.com/emberjs/data/).
+This package provides utilities for working with [JSON:API](https://jsonapi.org) APIs with [*Ember***Data**](https://github.com/emberjs/data/).
 
 ## Installation
 
