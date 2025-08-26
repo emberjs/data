@@ -40,7 +40,7 @@
     "@warp-drive/diagnostic": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "@types/react": "^19.1.9",
+    "@types/react": "^19.1.11",
     "@types/react-dom": "^19.1.7",
     "decorator-transforms": "^2.3.0",
     "react": "^19.1.1",
