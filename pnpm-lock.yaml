@@ -701,8 +701,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0
       tmp:
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.2.5
+        version: 0.2.5
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -13487,6 +13487,10 @@ packages:
     resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
     engines: {node: '>=14.14'}
 
+  tmp@0.2.5:
+    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
+    engines: {node: '>=14.14'}
+
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
 
@@ -19424,7 +19428,7 @@ snapshots:
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
       ember-cli-test-loader: 3.1.0(@babel/core@7.28.0)
@@ -19441,7 +19445,7 @@ snapshots:
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
     transitivePeerDependencies:
@@ -19457,7 +19461,7 @@ snapshots:
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -19471,7 +19475,7 @@ snapshots:
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
       qunit-dom: 3.5.0
-      tmp: 0.2.3
+      tmp: 0.2.5
     optionalDependencies:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -22957,7 +22961,7 @@ snapshots:
       globby: 11.1.0
       ora: 5.4.1
       slash: 3.0.0
-      tmp: 0.2.3
+      tmp: 0.2.5
       workerpool: 6.5.1
     transitivePeerDependencies:
       - supports-color
@@ -28124,6 +28128,8 @@ snapshots:
       rimraf: 2.7.1
 
   tmp@0.2.3: {}
+
+  tmp@0.2.5: {}
 
   tmpl@1.0.5: {}
 
