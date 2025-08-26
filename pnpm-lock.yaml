@@ -4279,8 +4279,8 @@ importers:
         version: file:warp-drive-packages/core
     devDependencies:
       '@sveltejs/kit':
-        specifier: ^2.31.1
-        version: 2.31.1(63a7c36bda07019adeb6855fa3455e4e)
+        specifier: ^2.36.2
+        version: 2.36.2(63a7c36bda07019adeb6855fa3455e4e)
       '@sveltejs/package':
         specifier: ^2.5.0
         version: 2.5.0(svelte@5.38.1)(typescript@5.9.2)
@@ -6761,8 +6761,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/kit@2.31.1':
-    resolution: {integrity: sha512-Iv98PKh81amOjIWZ6Flqr6E7xYcrrYZ4mY9XwYUvaCDiQ4hYt5+jXR9CivcgLOTK+RcJ3K4guEYF4lFYQfTxaA==}
+  '@sveltejs/kit@2.36.2':
+    resolution: {integrity: sha512-WlBGY060nHe4UE5QrDAJAbls5hOsG6mljtrDGkM8jJCDQ4JEcAEH04XrTVmQ0Ex1CU8nzoZto0EE75aiLA3G8Q==}
     engines: {node: '>=18.13'}
     hasBin: true
     peerDependencies:
@@ -18842,7 +18842,7 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
-  '@sveltejs/kit@2.31.1(63a7c36bda07019adeb6855fa3455e4e)':
+  '@sveltejs/kit@2.36.2(63a7c36bda07019adeb6855fa3455e4e)':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.1)
