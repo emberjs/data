@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { spawnSync } from 'child_process';
-import { existsSync } from 'fs';
-import os from 'os';
-import path from 'path';
+import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import tmp from 'tmp';
 
 import { debug, loggingIsEnabled } from '../utils/debug.js';

@@ -1,4 +1,4 @@
-import { watch } from 'fs';
+import { watch } from 'node:fs';
 
 export function addCloseHandler(state: { closeHandlers: Array<() => void> }, cb: () => void) {
   state.closeHandlers.push(createCloseHandler(cb));
