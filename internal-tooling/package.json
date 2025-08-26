@@ -24,7 +24,7 @@
     "comment-json": "^4.2.5",
     "@pnpm/find-workspace-dir": "1000.1.0",
     "@pnpm/find-workspace-packages": "6.0.9",
-    "@pnpm/logger": "1000.0.0"
+    "@pnpm/logger": "1001.0.0"
   },
   "volta": {
     "extends": "../package.json"
