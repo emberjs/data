@@ -1,6 +1,6 @@
 {
   "name": "ember-data__request",
-  "version": "5.7.0-alpha.33",
+  "version": "5.7.0-alpha.34",
   "private": true,
   "description": "Provides tests for @ember-data/request",
   "keywords": [],
