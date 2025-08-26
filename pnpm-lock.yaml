@@ -557,8 +557,8 @@ importers:
         specifier: ^5.3.0
         version: 5.4.1
       commander:
-        specifier: ^13.1.0
-        version: 13.1.0
+        specifier: ^14.0.0
+        version: 14.0.0
       ignore:
         specifier: ^7.0.3
         version: 7.0.4
@@ -8474,9 +8474,9 @@ packages:
       '@75lb/nature':
         optional: true
 
-  commander@13.1.0:
-    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
-    engines: {node: '>=18'}
+  commander@14.0.0:
+    resolution: {integrity: sha512-2uM9rYjPvyq39NwLRqaiLtWHyDC1FvryJDa2ATTVims5YAS4PupsEQsDvP14FqhFr0P49CYDugi59xaxJlTXRA==}
+    engines: {node: '>=20'}
 
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
@@ -16570,7 +16570,7 @@ snapshots:
   '@ember-data/codemods@file:packages/codemods':
     dependencies:
       chalk: 5.6.0
-      commander: 13.1.0
+      commander: 14.0.0
       ignore: 7.0.4
       jscodeshift: 17.3.0
       strip-ansi: 7.1.0
@@ -21518,7 +21518,7 @@ snapshots:
       lodash.camelcase: 4.3.0
       typical: 7.3.0
 
-  commander@13.1.0: {}
+  commander@14.0.0: {}
 
   commander@2.20.3: {}
 
