@@ -46,7 +46,7 @@
     "@types/semver": "^7.7.0",
     "@warp-drive/internal-docs-viewer": "workspace:*",
     "@warp-drive/internal-tooling": "workspace:*",
-    "badge-maker": "4.1.0",
+    "badge-maker": "5.0.2",
     "bun-types": "^1.2.10",
     "chalk": "^4.1.2",
     "co": "^4.6.0",
