@@ -35,10 +35,10 @@
   ],
   "exports": {
     "./server": {
-      "node": "./server/src/index.ts",
-      "bun": "./server/src/index.ts",
-      "deno": "./server/src/index.ts",
-      "default": "./server/src/index.ts"
+      "node": "./dist-server/index.js",
+      "bun": "./dist-server/index.js",
+      "deno": "./dist-server/index.js",
+      "default": "./dist-server/index.js"
     },
     ".": {
       "types": "./unstable-preview-types/index.d.ts",
@@ -48,9 +48,9 @@
       "default": "./dist/*.css"
     },
     "./server/*": {
-      "node": "./server/src/*.ts",
-      "bun": "./server/src/*.ts",
-      "deno": "./server/src/*.ts"
+      "node": "./dist-server/*.js",
+      "bun": "./dist-server/*.js",
+      "deno": "./dist-server/*.js"
     },
     "./ember": {
       "types": "./unstable-preview-types/ember.d.ts",
@@ -64,7 +64,7 @@
   "scripts": {
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "build:tests": "rm -rf dist-test && cp -R test dist-test && mkdir -p dist-test/@warp-drive && cp -R dist dist-test/@warp-drive/diagnostic",
-    "build:pkg": "vite build;",
+    "build:pkg": "vite build; vite build -c ./vite.config-server.mjs",
     "prepack": "pnpm run build:pkg",
     "sync": "echo \"syncing\"",
     "start": "vite"

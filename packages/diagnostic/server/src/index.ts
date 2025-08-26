@@ -10,8 +10,9 @@ import { logger } from 'hono/logger';
 import type { ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import { createSecureServer } from 'node:http2';
-import { homedir } from 'os';
-import path from 'path';
+import { createServer as createHttpsServer } from 'node:https';
+import { homedir } from 'node:os';
+import path from 'node:path';
 
 import type { LaunchConfig } from './-private/default-setup.ts';
 import { launchDefaults } from './-private/default-setup.ts';
@@ -159,20 +160,22 @@ export async function launch(config: Partial<LaunchConfig>) {
   try {
     const app = new Hono();
     if (loggingIsEnabled()) {
-      app.use('*', logger());
+      app.use(logger());
     }
-    app.use(
-      '*',
-      cors({
-        origin: (origin) =>
-          origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:') ? origin : '*',
-        allowHeaders: ['Accept', 'Content-Type'],
-        allowMethods: ['GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'DELETE', 'PATCH'],
-        exposeHeaders: ['Content-Length', 'Content-Type'],
-        maxAge: 60_000,
-        credentials: false,
-      })
-    );
+    if (config.useCors) {
+      app.use(
+        '*',
+        cors({
+          origin: (origin) =>
+            origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:') ? origin : '*',
+          allowHeaders: ['Accept', 'Content-Type'],
+          allowMethods: ['GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'DELETE', 'PATCH'],
+          exposeHeaders: ['Content-Length', 'Content-Type'],
+          maxAge: 60_000,
+          credentials: false,
+        })
+      );
+    }
 
     // setup Diagnostic's WebSocket channel
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -187,30 +190,26 @@ export async function launch(config: Partial<LaunchConfig>) {
     const server = serve({
       overrideGlobalObjects: true,
       fetch: app.fetch,
-      serverOptions: serveOptions.tls,
+      serverOptions: {
+        ...serveOptions.tls,
+        // Allow HTTP/1.1 fallback for ALPN negotiation
+        allowHTTP1: true,
+      },
       createServer: createSecureServer,
-      port: resolvedConfig.port,
-      hostname: resolvedConfig.hostname,
+      port: port,
+      hostname: hostname,
     });
     injectWebSocket(server);
 
     state.server = server;
 
-    // state.server = Bun.serve({
-    //   ...serveOptions,
-    //   development: false,
-    //   exclusive: true,
-    //   fetch(req, server) {
-    //     return handleFetch(resolvedConfig, state, req, server);
-    //   },
-    //   websocket: buildHandler(resolvedConfig, state),
-    // });
-
     addCloseHandler(state, () => {
+      debug(`Diagnostic Shutting Down`);
       state.browsers?.forEach((browser) => {
         browser.proc.kill();
       });
       state.server.close();
+      debug(`Diagnostic Complete`);
     });
 
     resolvedConfig.reporter.serverConfig = {

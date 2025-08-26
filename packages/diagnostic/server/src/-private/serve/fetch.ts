@@ -2,16 +2,34 @@ import chalk from 'chalk';
 import type { Context } from 'hono';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { Agent } from 'node:https';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import path from 'path';
 
 import type { LaunchState } from '../../index.ts';
 import type { LaunchConfig } from '../default-setup.ts';
 import { INDEX_PATHS } from '../utils/const.ts';
 import { debug, info } from '../utils/debug.ts';
 
+// Create an agent that can negotiate both HTTP/1.1 and HTTP/2
+const httpsAgent = new Agent({
+  rejectUnauthorized: false, // For development with self-signed certs
+  ALPNProtocols: ['http/1.1', 'h2'], // Try HTTP/1.1 first, then HTTP/2
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const FORBIDDEN_HEADERS = new Set([
+  'authorization',
+  'cookie',
+  'user-agent',
+  'referer',
+  'priority',
+  'accept-encoding',
+  'content-length',
+  'accept-language',
+  'content-type',
+]);
 
 export async function handleFetch(config: LaunchConfig, state: LaunchState, c: Context): Promise<Response> {
   const url = new URL(c.req.url);
@@ -27,27 +45,45 @@ export async function handleFetch(config: LaunchConfig, state: LaunchState, c: C
         const newUrl = c.req.url.replace(originalBase, finalizedTarget);
         debug(`Proxying request ${originalUrl} to ${newUrl}`);
 
-        const headers = new Headers();
-        // Copy headers from Hono request
-        Object.entries(c.req.header()).forEach(([key, value]) => {
-          if (value) headers.set(key, value);
-        });
-
-        const originalReferrer = headers.get('referer');
-
-        // update to make sameOrigin
-        headers.set('origin', target);
-        headers.set('referer', originalReferrer ? originalReferrer.replace(originalBase, target) : target);
-        headers.set('host', new URL(target).host);
-
-        const newReq = new Request(newUrl, {
+        const headers = {
+          ...c.req.header(),
+        };
+        const originalReferrer = headers['referer'];
+        const newReq: RequestInit = {
           method: c.req.method,
+          referrer: originalReferrer ? originalReferrer.replace(originalBase, target) : target,
+          mode: 'cors' as const,
+          credentials: 'omit' as const,
+          referrerPolicy: '' as const,
           headers,
-          body: c.req.method !== 'GET' && c.req.method !== 'HEAD' ? await c.req.blob() : undefined,
-        });
+          // @ts-expect-error
+          agent: httpsAgent,
+        };
+
+        // if the original request had a body, forward it
+        if (c.req.raw.body) {
+          newReq.body = c.req.raw.body;
+          newReq.duplex = 'half';
+        }
+
+        // // update to make sameOrigin
+        headers['origin'] = target;
+
+        for (const [key, value] of Object.entries(headers)) {
+          if (key.startsWith('sec-')) {
+            delete headers[key];
+          }
+          if (FORBIDDEN_HEADERS.has(key)) {
+            delete headers[key];
+          }
+        }
+
+        console.log(newUrl);
+        console.dir(newReq, { depth: 2 });
 
         try {
-          return await fetch(newReq);
+          const response = await fetch(newUrl, newReq);
+          return new Response(response.body, response);
         } catch (error) {
           debug(`Error occurred while proxying request: ${error instanceof Error ? error.message : String(error)}`);
           return new Response('Error occurred while proxying request', { status: 502 });
