@@ -88,8 +88,8 @@ importers:
         specifier: workspace:*
         version: file:internal-tooling
       badge-maker:
-        specifier: 4.1.0
-        version: 4.1.0
+        specifier: 5.0.2
+        version: 5.0.2
       bun-types:
         specifier: ^1.2.10
         version: 1.2.10
@@ -7860,9 +7860,9 @@ packages:
   backburner.js@2.8.0:
     resolution: {integrity: sha512-zYXY0KvpD7/CWeOLF576mV8S+bQsaIoj/GNLXXB+Eb8SJcQy5lqSjkRrZ0MZhdKUs9QoqmGNIEIe3NQfGiiscQ==}
 
-  badge-maker@4.1.0:
-    resolution: {integrity: sha512-qYImXoz0WZRMaauqSMo6QNurKp26K3RcOhefuGfno50xmAzHEJsgHbP4gnHs6Ps53KgQgFi4MJKB6Rq8H7siww==}
-    engines: {node: '>=16'}
+  badge-maker@5.0.2:
+    resolution: {integrity: sha512-Xd3YUmKPEShQcn6PFB03Wxq0RNJRFwVVroyRz0qIjSXwniYUGsGWNHqtNsQYi/Sbs8Ni7qAEf7LKgDOtcAoCDg==}
+    engines: {node: '>=20'}
     hasBin: true
 
   bail@2.0.2:
@@ -20552,7 +20552,7 @@ snapshots:
 
   backburner.js@2.8.0: {}
 
-  badge-maker@4.1.0:
+  badge-maker@5.0.2:
     dependencies:
       anafanafo: 2.0.0
       css-color-converter: 2.0.0
