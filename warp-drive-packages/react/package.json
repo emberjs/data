@@ -62,7 +62,7 @@
     "@embroider/addon-dev": "^7.1.5",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
-    "@types/react": "^19.1.9",
+    "@types/react": "^19.1.11",
     "react": "^19.1.1",
     "rollup": "^4.48.0",
     "typescript": "^5.9.2",
