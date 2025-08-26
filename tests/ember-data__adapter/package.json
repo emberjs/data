@@ -39,7 +39,7 @@
     "@ember-data/unpublished-test-infra": "workspace:*",
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.2.0",
-    "@ember/test-waiters": "^4.1.0",
+    "@ember/test-waiters": "^4.1.1",
     "@embroider/addon-shim": "^1.10.0",
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
