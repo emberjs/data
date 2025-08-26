@@ -49,7 +49,7 @@
     "@babel/core": "^7.28.0",
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
-    "@types/jquery": "^3.5.32",
+    "@types/jquery": "^3.5.33",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/utilities": "workspace:*",
