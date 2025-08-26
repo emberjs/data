@@ -196,8 +196,8 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
       ['2', 'New Post'],
       'The newly created post has meaningful keywords'
     );
-    assert.deepEqual(record && record.color, 'green'),
-      'The newly created post has meaningful color to represent new-ness';
+    (assert.deepEqual(record && record.color, 'green'),
+      'The newly created post has meaningful color to represent new-ness');
 
     // reset
     addedRecords = updatedRecords = [];

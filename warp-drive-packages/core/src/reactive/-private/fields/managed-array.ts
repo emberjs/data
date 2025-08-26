@@ -171,9 +171,9 @@ export class ManagedArray {
         }
 
         if (prop === 'length') {
-          return consumeInternalSignal(_SIGNAL), target.length;
+          return (consumeInternalSignal(_SIGNAL), target.length);
         }
-        if (prop === '[]') return consumeInternalSignal(_SIGNAL), receiver;
+        if (prop === '[]') return (consumeInternalSignal(_SIGNAL), receiver);
 
         if (index !== null) {
           if (!transaction) {

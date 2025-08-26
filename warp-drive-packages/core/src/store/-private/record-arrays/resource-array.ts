@@ -202,8 +202,8 @@ const ArrayHandler: ProxyHandler<ResourceKey[]> = {
       return identifier && CONTEXT.store._instanceCache.getRecord(identifier);
     }
 
-    if (prop === 'length') return consumeInternalSignal(CONTEXT.signal), target.length;
-    if (prop === '[]') return consumeInternalSignal(CONTEXT.signal), receiver;
+    if (prop === 'length') return (consumeInternalSignal(CONTEXT.signal), target.length);
+    if (prop === '[]') return (consumeInternalSignal(CONTEXT.signal), receiver);
     // TODO move this to ?? so its only on subclasses
     if (prop === 'isUpdating') return IS_UPDATING_DESC.get!.call(receiver);
     if (prop === IS_COLLECTION) return true;
@@ -214,7 +214,7 @@ const ArrayHandler: ProxyHandler<ResourceKey[]> = {
 
     if (CONTEXT.data && prop in CONTEXT.data) {
       // all props in data are reactive props.
-      return consumeInternalSignal(CONTEXT.signal), CONTEXT.data[prop];
+      return (consumeInternalSignal(CONTEXT.signal), CONTEXT.data[prop]);
     }
 
     if (isArrayGetter(prop)) {
@@ -297,7 +297,7 @@ const ArrayHandler: ProxyHandler<ResourceKey[]> = {
         return fn;
       }
 
-      return consumeInternalSignal(CONTEXT.signal), outcome;
+      return (consumeInternalSignal(CONTEXT.signal), outcome);
     }
 
     if (isExtensionProp(CONTEXT.extensions, prop)) {
