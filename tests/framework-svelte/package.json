@@ -1,6 +1,6 @@
 {
   "name": "framework-svelte",
-  "version": "5.7.0-alpha.36",
+  "version": "5.7.0-alpha.37",
   "description": "Provides tests for @warp-drive/svelte",
   "private": true,
   "keywords": [],
