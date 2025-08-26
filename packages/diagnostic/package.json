@@ -96,7 +96,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "debug": "^4.4.0",
-    "tmp": "^0.2.3",
+    "tmp": "^0.2.5",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/react": "workspace:*",
     "@embroider/macros": "^1.18.1",
