@@ -634,19 +634,19 @@ bun add --exact @warp-drive/vue@canary
 ::: code-group
 
 ```sh [pnpm]
-pnpm add -E @warp-drive/tc39-signals@latest
+pnpm add -E @warp-drive/tc39-proposal-signals@latest
 ```
 
 ```sh [npm]
-npm add -E @warp-drive/tc39-signals@latest
+npm add -E @warp-drive/tc39-proposal-signals@latest
 ```
 
 ```sh [yarn]
-yarn add -E @warp-drive/tc39-signals@latest
+yarn add -E @warp-drive/tc39-proposal-signals@latest
 ```
 
 ```sh [bun]
-bun add --exact @warp-drive/tc39-signals@latest
+bun add --exact @warp-drive/tc39-proposal-signals@latest
 ```
 
 == lts
@@ -654,19 +654,19 @@ bun add --exact @warp-drive/tc39-signals@latest
 ::: code-group
 
 ```sh [pnpm]
-pnpm add -E @warp-drive/tc39-signals@lts
+pnpm add -E @warp-drive/tc39-proposal-signals@lts
 ```
 
 ```sh [npm]
-npm add -E @warp-drive/tc39-signals@lts
+npm add -E @warp-drive/tc39-proposal-signals@lts
 ```
 
 ```sh [yarn]
-yarn add -E @warp-drive/tc39-signals@lts
+yarn add -E @warp-drive/tc39-proposal-signals@lts
 ```
 
 ```sh [bun]
-bun add --exact @warp-drive/tc39-signals@lts
+bun add --exact @warp-drive/tc39-proposal-signals@lts
 ```
 
 == beta
@@ -674,19 +674,19 @@ bun add --exact @warp-drive/tc39-signals@lts
 ::: code-group
 
 ```sh [pnpm]
-pnpm add -E @warp-drive/tc39-signals@beta
+pnpm add -E @warp-drive/tc39-proposal-signals@beta
 ```
 
 ```sh [npm]
-npm add -E @warp-drive/tc39-signals@beta
+npm add -E @warp-drive/tc39-proposal-signals@beta
 ```
 
 ```sh [yarn]
-yarn add -E @warp-drive/tc39-signals@beta
+yarn add -E @warp-drive/tc39-proposal-signals@beta
 ```
 
 ```sh [bun]
-bun add --exact @warp-drive/tc39-signals@beta
+bun add --exact @warp-drive/tc39-proposal-signals@beta
 ```
 
 == canary
@@ -694,19 +694,19 @@ bun add --exact @warp-drive/tc39-signals@beta
 ::: code-group
 
 ```sh [pnpm]
-pnpm add -E @warp-drive/tc39-signals@canary
+pnpm add -E @warp-drive/tc39-proposal-signals@canary
 ```
 
 ```sh [npm]
-npm add -E @warp-drive/tc39-signals@canary
+npm add -E @warp-drive/tc39-proposal-signals@canary
 ```
 
 ```sh [yarn]
-yarn add -E @warp-drive/tc39-signals@canary
+yarn add -E @warp-drive/tc39-proposal-signals@canary
 ```
 
 ```sh [bun]
-bun add --exact @warp-drive/tc39-signals@canary
+bun add --exact @warp-drive/tc39-proposal-signals@canary
 ```
 
 :::
