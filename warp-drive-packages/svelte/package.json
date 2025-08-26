@@ -44,7 +44,7 @@
   },
   "peerDependenciesMeta": {},
   "devDependencies": {
-    "@sveltejs/kit": "^2.31.1",
+    "@sveltejs/kit": "^2.36.2",
     "@sveltejs/package": "^2.5.0",
     "@sveltejs/vite-plugin-svelte": "^6.1.2",
     "@warp-drive/internal-config": "workspace:*",
