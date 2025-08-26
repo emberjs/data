@@ -364,6 +364,25 @@ bun add --exact @ember-data/debug@canary
 
 :::
 
+Configure your app to use Ember's signals implementation by adding the following
+import to the top of your application and test setup.
+
+::: code-group
+
+```ts [app/app.ts]
+import '@warp-drive/ember/install';
+```
+
+```ts [tests/test-helper.ts]
+import '@warp-drive/ember/install';
+```
+
+:::
+
+Addons that make use of *Warp***Drive** should only do the above installation in their tests (including test apps)
+but not in any published library code.
+
+
 ## React
 
 :::tabs key:install
@@ -449,6 +468,29 @@ bun add --exact @warp-drive/react@canary
 ```
 
 :::
+
+Even though React does not natively understand signals, *Warp***Drive** provides a solution that
+enables React to understand when reactive data used by a component has changed enabling it
+to properly rerender. We'll cover this more in the [@warp-drive/react documentation](/api/@warp-drive/react)
+
+Configure your app to use our React compatible signals implementation by adding the following
+import to the top of your application. If you have tests which do not invoke your app, your
+test setup should also have this import.
+
+::: code-group
+
+```ts [src/app.ts]
+import '@warp-drive/react/install';
+```
+
+```ts [src/setupTests.ts]
+import '@warp-drive/react/install';
+```
+
+:::
+
+Only apps need to do the installation above, libraries providing React components that make use of *Warp***Drive**
+should only do the above installation in their tests but not in any published library code.
 
 
 ## Svelte (🚧 Coming Soon) {#svelte}
@@ -537,6 +579,26 @@ bun add --exact @warp-drive/svelte@canary
 
 :::
 
+Configure your app to use Svelte's signals (Runes) for reactivity by adding the following
+import to the top of your application. If you have tests which do not invoke your app, your
+test setup should also have this import.
+
+::: code-group
+
+```ts [src/app.ts]
+import '@warp-drive/svelte/install';
+```
+
+```ts [src/setupTests.ts]
+import '@warp-drive/svelte/install';
+```
+
+:::
+
+Only apps need to do the installation above, libraries providing Svelte components that make use of *Warp***Drive**
+should only do the above installation in their tests but not in any published library code.
+
+
 
 ## Vue (🚧 Coming Soon) {#vue}
 
@@ -624,6 +686,25 @@ bun add --exact @warp-drive/vue@canary
 
 :::
 
+Configure your app to use Vue's signals for reactivity by adding the following
+import to the top of your application. If you have tests which do not invoke your app, your
+test setup should also have this import.
+
+::: code-group
+
+```ts [src/app.ts]
+import '@warp-drive/vue/install';
+```
+
+```ts [src/setupTests.ts]
+import '@warp-drive/vue/install';
+```
+
+:::
+
+Only apps need to do the installation above, libraries providing Vue components that make use of *Warp***Drive**
+should only do the above installation in their tests but not in any published library code.
+
 
 ## TC39-signals {#tc39-signals}
 
@@ -710,3 +791,22 @@ bun add --exact @warp-drive/tc39-proposal-signals@canary
 ```
 
 :::
+
+Configure your app to use TC39 Signals for reactivity by adding the following
+import to the top of your application. If you have tests which do not invoke your app, your
+test setup should also have this import.
+
+::: code-group
+
+```ts [src/app.ts]
+import '@warp-drive/tc39-proposal-signals/install';
+```
+
+```ts [src/setupTests.ts]
+import '@warp-drive/tc39-proposal-signals/install';
+```
+
+:::
+
+Only apps need to do the installation above, libraries providing code that makes use of *Warp***Drive**
+should only do the above installation in their tests but not in any published library code.
