@@ -164,6 +164,7 @@ export function Throw({ error }: { error: Error }): never {
  *
  * ```
  *
+ * @category Components
  */
 export function Request<RT, E>($props: RequestProps<RT, E>): JSX.Element {
   return (
