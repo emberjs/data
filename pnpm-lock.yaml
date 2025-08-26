@@ -94,8 +94,8 @@ importers:
         specifier: ^1.2.10
         version: 1.2.10
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.6.0
+        version: 5.6.0
       co:
         specifier: ^4.6.0
         version: 4.6.0
@@ -313,8 +313,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       chalk:
-        specifier: 5.4.1
-        version: 5.4.1
+        specifier: 5.6.0
+        version: 5.6.0
       comment-json:
         specifier: ^4.2.5
         version: 4.2.5
@@ -437,8 +437,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.0)
       chalk:
-        specifier: ^5.3.0
-        version: 5.4.1
+        specifier: ^5.6.0
+        version: 5.6.0
       comment-json:
         specifier: ^4.2.5
         version: 4.2.5
@@ -554,8 +554,8 @@ importers:
   packages/codemods:
     dependencies:
       chalk:
-        specifier: ^5.3.0
-        version: 5.4.1
+        specifier: ^5.6.0
+        version: 5.6.0
       commander:
         specifier: ^14.0.0
         version: 14.0.0
@@ -689,8 +689,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/react(@babel/core@7.28.0)
       chalk:
-        specifier: ^5.3.0
-        version: 5.4.1
+        specifier: ^5.6.0
+        version: 5.6.0
       debug:
         specifier: ^4.4.0
         version: 4.4.0
@@ -818,8 +818,8 @@ importers:
         specifier: ^1.18.2
         version: 1.18.2(hono@4.9.4)
       chalk:
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^5.6.0
+        version: 5.6.0
       hono:
         specifier: ^4.9.4
         version: 4.9.4
@@ -1251,8 +1251,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/build-config(@babel/core@7.28.0)
       chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^5.6.0
+        version: 5.6.0
       semver:
         specifier: ^7.7.2
         version: 7.7.2
@@ -8261,14 +8261,6 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
-
-  chalk@5.4.1:
-    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-
-  chalk@5.5.0:
-    resolution: {integrity: sha512-1tm8DTaJhPBG3bIkVeZt1iZM9GfSX2lzOeDVZH9R9ffRHpmHvxZ/QhgQH/aDTkswQVt+YHdXAdS/In/30OjCbg==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   chalk@5.6.0:
     resolution: {integrity: sha512-46QrSQFyVSEyYAgQ22hQ+zDa60YHA4fBstHmtSApj1Y5vKtG27fWowW03jCk5KcbXEWPZUIR894aARCA/G1kfQ==}
@@ -16772,7 +16764,7 @@ snapshots:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(788f6c9442c1c4094f3e9f8f8d80549e)
@@ -16787,7 +16779,7 @@ snapshots:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     transitivePeerDependencies:
       - '@babel/core'
@@ -16800,7 +16792,7 @@ snapshots:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     optionalDependencies:
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -16816,7 +16808,7 @@ snapshots:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     optionalDependencies:
       '@warp-drive/diagnostic': file:packages/diagnostic(788f6c9442c1c4094f3e9f8f8d80549e)
@@ -16829,7 +16821,7 @@ snapshots:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     optionalDependencies:
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -16845,7 +16837,7 @@ snapshots:
       '@embroider/macros': 1.18.1(@babel/core@7.28.0)
       '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
       '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
-      chalk: 4.1.2
+      chalk: 5.6.0
       semver: 7.7.2
     optionalDependencies:
       qunit: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
@@ -18875,7 +18867,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/cookie@0.6.0': {}
 
@@ -18927,7 +18919,7 @@ snapshots:
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -18952,7 +18944,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/linkify-it@5.0.0': {}
 
@@ -19003,7 +18995,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/rimraf@2.0.5':
     dependencies:
@@ -19017,7 +19009,7 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -19029,7 +19021,7 @@ snapshots:
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
 
   '@types/supports-color@8.1.3': {}
 
@@ -19843,7 +19835,7 @@ snapshots:
       '@pnpm/logger': 1001.0.0
       '@types/bun': 1.2.17
       '@types/debug': 4.1.12
-      chalk: 5.4.1
+      chalk: 5.6.0
       comment-json: 4.2.5
       debug: 4.4.0
       typescript: 5.9.2
@@ -21329,10 +21321,6 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
-
-  chalk@5.4.1: {}
-
-  chalk@5.5.0: {}
 
   chalk@5.6.0: {}
 
@@ -25009,7 +24997,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 24.0.6
+      '@types/node': 24.3.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
