@@ -93,7 +93,7 @@
     "ember-welcome-page": "^7.0.2",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.2",
-    "eslint-plugin-ember": "^12.5.0",
+    "eslint-plugin-ember": "^12.7.3",
     "eslint-plugin-n": "^17.16.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-qunit": "^8.1.2",
