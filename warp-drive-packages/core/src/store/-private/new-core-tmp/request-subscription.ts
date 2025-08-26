@@ -587,7 +587,11 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private _getRequester(): Store | RequestManager {
-    if (this._args.request) {
+    // Note: we check for the requester's presence
+    // as well as the request's presence because we may
+    // be subscribed to a request issued by a store from an older
+    // version of the library that didn't yet set requester.
+    if (this._args.request?.requester) {
       return this._args.request.requester;
     }
 
