@@ -44,7 +44,7 @@
     }
   },
   "peerDependencies": {
-    "vue": "^3.0"
+    "vue": "^3.5.19"
   },
   "dependencies": {
     "@embroider/macros": "^1.18.1",
@@ -63,7 +63,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "rollup": "^4.48.0",
-    "vue": "^3.5.18",
+    "vue": "^3.5.19",
     "vue-tsc": "^3.0.6",
     "typescript": "^5.9.2",
     "vite": "^7.1.2"
