@@ -244,6 +244,16 @@ export class RequestSubscription<RT, E> {
    * which issues this request.
    */
   declare store: Store | RequestManager;
+  /**
+   * The Store or RequestManager that the last subscription is attached to.
+   *
+   * This differs from 'store' because a <Request /> may be passed a
+   * request originating from a different store than the <Request />
+   * component would use if it were to issue the request itself.
+   *
+   * @internal
+   */
+  private _requester: Store | RequestManager | null;
 
   constructor(store: Store | RequestManager, args: SubscriptionArgs<RT, E>) {
     this._args = args;
@@ -253,6 +263,7 @@ export class RequestSubscription<RT, E> {
     this._intervalStart = null;
     this._invalidated = false;
     this._nextInterval = null;
+    this._requester = null;
     this.isDestroyed = false;
     this[DISPOSE] = _DISPOSE;
 
@@ -373,6 +384,7 @@ export class RequestSubscription<RT, E> {
 
     // if we have a request, we need to subscribe to it
     const store = this._getRequester();
+    this._requester = store;
     if (requestId && isStore(store)) {
       this._subscribedTo = requestId;
 
@@ -448,11 +460,12 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private _removeSubscriptions() {
-    const store = this._getRequester();
-    if (this._subscription && isStore(store)) {
+    const store = this._requester;
+    if (this._subscription && store && isStore(store)) {
       store.notifications.unsubscribe(this._subscription);
       this._subscribedTo = null;
       this._subscription = null;
+      this._requester = null;
     }
   }
 
