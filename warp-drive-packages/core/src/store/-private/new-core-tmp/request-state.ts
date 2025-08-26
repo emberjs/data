@@ -531,7 +531,7 @@ export interface CancelledRequest<RT, E extends StructuredErrorDocument = Struct
   response: Response | ResponseInfo | null;
 }
 
-interface PrivateRequestState {
+export interface PrivateRequestState {
   _loadingState?: RequestLoadingState;
   _request: Future<unknown>;
 }
