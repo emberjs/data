@@ -18,4 +18,6 @@ await launch({
     await holodeck.endProgram();
   },
   entry: './dist-test/index.html',
+  useCors: false,
+  debug: true,
 });

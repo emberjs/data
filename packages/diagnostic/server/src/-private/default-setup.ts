@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import { getBrowser, recommendedArgs } from './browsers/index.ts';
 import { CustomDotReporter as DefaultReporter } from './reporters/default.ts';
@@ -44,8 +44,16 @@ export interface LaunchConfig {
   headless: boolean;
   /**
    * Whether to enable debugging.
+   *
+   * @default false
    */
   debug: boolean;
+  /**
+   * Whether to use the cors middleware
+   *
+   * @default true
+   */
+  useCors: boolean;
   /**
    * Whether to keep the server running after tests complete.
    *
@@ -316,6 +324,7 @@ export function launchDefaults(overrides: Partial<LaunchConfig> = {}): LaunchCon
     noLaunch: overrides.noLaunch ?? false,
     filter: overrides.filter ?? false,
     debug: overrides.debug ?? false,
+    useCors: overrides.useCors ?? true,
     headless: overrides.headless ?? false,
     useExisting: overrides.useExisting ?? true,
     key: overrides.key ?? null,

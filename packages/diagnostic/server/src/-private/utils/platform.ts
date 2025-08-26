@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 
 export type OSPlatform = 'aix' | 'darwin' | 'freebsd' | 'linux' | 'openbsd' | 'sunos' | 'win';
 export type SupportedPlatform = 'win' | 'darwin';
