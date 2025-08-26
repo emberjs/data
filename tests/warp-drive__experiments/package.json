@@ -40,10 +40,10 @@
     "@ember/optional-features": "^2.2.0",
     "@ember/test-helpers": "5.2.0",
     "@ember/test-waiters": "^4.1.1",
-    "@embroider/core": "^3.5.7",
-    "@embroider/compat": "^3.9.1",
-    "@embroider/webpack": "^4.1.1",
-    "@embroider/router": "^2.1.9",
+    "@embroider/core": "^4.1.3",
+    "@embroider/compat": "^4.1.2",
+    "@embroider/vite": "^1.2.0",
+    "@embroider/router": "^3.0.2",
     "@glimmer/component": "^2.0.0",
     "@warp-drive/core-types": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
@@ -54,8 +54,7 @@
     "@warp-drive/build-config": "workspace:*",
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/experiments": "workspace:*",
-    "ember-auto-import": "2.10.0",
-    "ember-cli": "~6.3.1",
+    "ember-cli": "~6.6.0",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "^3.3.3",
     "ember-cli-htmlbars": "^6.3.0",
@@ -71,7 +70,7 @@
     "loader.js": "^4.7.0",
     "silent-error": "^1.1.1",
     "typescript": "^5.9.2",
-    "webpack": "^5.101.3"
+    "vite": "^7.1.3"
   },
   "ember": {
     "edition": "octane"
