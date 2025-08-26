@@ -6,7 +6,6 @@
  */
 import { expectTypeOf } from 'expect-type';
 
-import Debug from '@ember-data/debug';
 import Store from '@ember-data/store';
 import { graphFor } from '@ember-data/graph/-private';
 import RequestManager from '@ember-data/request';
@@ -24,7 +23,6 @@ expectTypeOf<typeof Type>().toMatchTypeOf<string>();
 // Most of this is to assure thet above imports don't get optimized away
 expectTypeOf<typeof import('ember-data')>().not.toBeAny();
 expectTypeOf<typeof import('ember-data').default>().toHaveProperty('reopen');
-expectTypeOf<typeof Debug>().not.toBeAny();
 expectTypeOf<typeof Store>().not.toBeAny();
 expectTypeOf<typeof graphFor>().not.toBeAny();
 expectTypeOf<typeof Model>().not.toBeAny();
