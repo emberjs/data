@@ -70,7 +70,7 @@
     "@warp-drive/legacy": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
-    "vite": "^7.1.2"
+    "vite": "^7.1.3"
   },
   "exports": {
     ".": {

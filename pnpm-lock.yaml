@@ -235,8 +235,8 @@ importers:
         specifier: ^0.14.4
         version: 0.14.4(typescript@5.9.2)
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   docs-viewer:
     dependencies:
@@ -277,14 +277,14 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(typescript@5.9.2)
       vitepress-plugin-group-icons:
         specifier: ^1.6.3
-        version: 1.6.3(vite@7.1.2)
+        version: 1.6.3(vite@7.1.3)
       vitepress-plugin-llms:
         specifier: ^1.7.3
         version: 1.7.3
@@ -422,8 +422,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/-warp-drive:
     dependencies:
@@ -471,8 +471,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2(@types/node@24.0.6)
+        specifier: ^7.1.3
+        version: 7.1.3(@types/node@24.0.6)
 
   packages/active-record:
     dependencies:
@@ -502,8 +502,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/adapter:
     dependencies:
@@ -548,8 +548,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/codemods:
     dependencies:
@@ -616,8 +616,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/debug:
     dependencies:
@@ -674,8 +674,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/diagnostic:
     dependencies:
@@ -750,8 +750,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/eslint-plugin-warp-drive:
     dependencies:
@@ -809,8 +809,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/holodeck:
     dependencies:
@@ -852,8 +852,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/json-api:
     dependencies:
@@ -889,8 +889,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/legacy-compat:
     dependencies:
@@ -926,8 +926,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/model:
     dependencies:
@@ -978,8 +978,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/request:
     dependencies:
@@ -1006,8 +1006,8 @@ importers:
         specifier: workspace:*
         version: file:config
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/request-utils:
     dependencies:
@@ -1046,8 +1046,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/rest:
     dependencies:
@@ -1077,8 +1077,8 @@ importers:
         specifier: workspace:*
         version: file:config
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/schema:
     devDependencies:
@@ -1111,8 +1111,8 @@ importers:
         specifier: workspace:*
         version: file:config
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/serializer:
     dependencies:
@@ -1160,8 +1160,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/store:
     dependencies:
@@ -1200,8 +1200,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/tracking:
     dependencies:
@@ -1237,8 +1237,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   packages/unpublished-eslint-rules: {}
 
@@ -1312,8 +1312,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   specs:
     dependencies:
@@ -1355,8 +1355,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   tests/blueprints:
     devDependencies:
@@ -2755,7 +2755,7 @@ importers:
         version: 1.18.1(@babel/core@7.28.0)
       '@embroider/vite':
         specifier: ^1.1.6
-        version: 1.1.6(2936b830d2a15b6a80f38798431cd5f0)
+        version: 1.1.6(c65a2b04f60245ff3594923c75d18bac)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -2826,8 +2826,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2(terser@5.39.1)
+        specifier: ^7.1.3
+        version: 7.1.3(terser@5.39.1)
 
   tests/framework-react:
     devDependencies:
@@ -2895,8 +2895,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   tests/framework-svelte:
     devDependencies:
@@ -2952,8 +2952,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   tests/framework-vue:
     devDependencies:
@@ -2974,7 +2974,7 @@ importers:
         version: 6.0.4(@babel/core@7.28.0)
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
-        version: 6.0.1(vite@7.1.2)(vue@3.5.19(typescript@5.9.2))
+        version: 6.0.1(vite@7.1.3)(vue@3.5.19(typescript@5.9.2))
       '@vue/babel-plugin-jsx':
         specifier: ^1.5.0
         version: 1.5.0(@babel/core@7.28.0)
@@ -3012,8 +3012,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
       vue:
         specifier: ^3.5.19
         version: 3.5.19(typescript@5.9.2)
@@ -3358,7 +3358,7 @@ importers:
         version: 4.1.3
       '@embroider/vite':
         specifier: 1.1.6
-        version: 1.1.6(bd8b27ebbae2273dfb33ef3d132f9b7f)
+        version: 1.1.6(dd890c34ce864535943f8323bdc0511e)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -3417,8 +3417,8 @@ importers:
         specifier: ^5.39.0
         version: 5.39.1
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2(terser@5.39.1)
+        specifier: ^7.1.3
+        version: 7.1.3(terser@5.39.1)
       vite-bundle-analyzer:
         specifier: ^1.2.1
         version: 1.2.1
@@ -3502,7 +3502,7 @@ importers:
         version: 4.1.3
       '@embroider/vite':
         specifier: 1.1.6
-        version: 1.1.6(@embroider/core@4.1.3)(vite@7.1.2)
+        version: 1.1.6(@embroider/core@4.1.3)(vite@7.1.3)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
@@ -3636,8 +3636,8 @@ importers:
         specifier: ^8.30.1
         version: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   tests/warp-drive__experiments:
     devDependencies:
@@ -3978,8 +3978,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2(@types/node@20.17.46)
+        specifier: ^7.1.3
+        version: 7.1.3(@types/node@20.17.46)
 
   warp-drive-packages/core:
     dependencies:
@@ -4015,8 +4015,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/ember:
     dependencies:
@@ -4091,8 +4091,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/experiments:
     dependencies:
@@ -4125,8 +4125,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/json-api:
     dependencies:
@@ -4168,8 +4168,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/legacy:
     dependencies:
@@ -4211,8 +4211,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/react:
     dependencies:
@@ -4269,8 +4269,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/svelte:
     dependencies:
@@ -4280,13 +4280,13 @@ importers:
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.36.2
-        version: 2.36.2(63a7c36bda07019adeb6855fa3455e4e)
+        version: 2.36.2(9bae9bb962f5c24dc57533ca8d43cf91)
       '@sveltejs/package':
         specifier: ^2.5.0
         version: 2.5.0(svelte@5.38.1)(typescript@5.9.2)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.1.2
-        version: 6.1.2(svelte@5.38.1)(vite@7.1.2)
+        version: 6.1.2(svelte@5.38.1)(vite@7.1.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -4297,8 +4297,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/tc39-proposal-signals:
     dependencies:
@@ -4334,8 +4334,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^5.4.15
-        version: 5.4.19
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/utilities:
     dependencies:
@@ -4368,8 +4368,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
 
   warp-drive-packages/vue:
     dependencies:
@@ -4400,7 +4400,7 @@ importers:
         version: 7.1.5(rollup@4.48.1)
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
-        version: 6.0.1(vite@7.1.2)(vue@3.5.19(typescript@5.9.2))
+        version: 6.0.1(vite@7.1.3)(vue@3.5.19(typescript@5.9.2))
       '@warp-drive/internal-config':
         specifier: workspace:*
         version: file:config
@@ -4414,8 +4414,8 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.2
-        version: 7.1.2
+        specifier: ^7.1.3
+        version: 7.1.3
       vue:
         specifier: ^3.5.19
         version: 3.5.19(typescript@5.9.2)
@@ -9898,6 +9898,15 @@ packages:
       picomatch:
         optional: true
 
+  fdir@6.5.0:
+    resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      picomatch: ^3 || ^4
+    peerDependenciesMeta:
+      picomatch:
+        optional: true
+
   fecha@4.2.3:
     resolution: {integrity: sha512-OP2IUU6HeYKJi3i0z4A19kHMQoLVs4Hc+DPqqxI2h/DPZHTm/vjsfC6P0b4jCMy14XizLBqvndQ+UilD7707Jw==}
 
@@ -13973,8 +13982,8 @@ packages:
       terser:
         optional: true
 
-  vite@7.1.2:
-    resolution: {integrity: sha512-J0SQBPlQiEXAF7tajiH+rUooJPo0l8KQgyg4/aMunNtrOa7bwuZJsJbDWzeljqQpgftxuq5yNJxQ91O9ts29UQ==}
+  vite@7.1.3:
+    resolution: {integrity: sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -17261,7 +17270,33 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@embroider/vite@1.1.6(2936b830d2a15b6a80f38798431cd5f0)':
+  '@embroider/vite@1.1.6(@embroider/core@4.1.3)(vite@7.1.3)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@embroider/core': 4.1.3
+      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@embroider/reverse-exports': 0.1.2
+      '@rollup/pluginutils': 5.1.4
+      assert-never: 1.4.0
+      browserslist: 4.24.5
+      browserslist-to-esbuild: 2.1.1(browserslist@4.24.5)
+      content-tag: 3.1.3
+      debug: 4.4.1
+      fast-glob: 3.3.3
+      fs-extra: 10.1.0
+      jsdom: 25.0.1
+      send: 0.18.0
+      source-map-url: 0.4.1
+      terser: 5.39.1
+      vite: 7.1.3
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - rollup
+      - supports-color
+      - utf-8-validate
+
+  '@embroider/vite@1.1.6(c65a2b04f60245ff3594923c75d18bac)':
     dependencies:
       '@babel/core': 7.28.0
       '@embroider/core': 4.1.3
@@ -17279,7 +17314,7 @@ snapshots:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.39.1
-      vite: 7.1.2(terser@5.39.1)
+      vite: 7.1.3(terser@5.39.1)
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -17287,7 +17322,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@embroider/vite@1.1.6(@embroider/core@4.1.3)(vite@7.1.2)':
+  '@embroider/vite@1.1.6(dd890c34ce864535943f8323bdc0511e)':
     dependencies:
       '@babel/core': 7.28.0
       '@embroider/core': 4.1.3
@@ -17305,33 +17340,7 @@ snapshots:
       send: 0.18.0
       source-map-url: 0.4.1
       terser: 5.39.1
-      vite: 7.1.2
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - rollup
-      - supports-color
-      - utf-8-validate
-
-  '@embroider/vite@1.1.6(bd8b27ebbae2273dfb33ef3d132f9b7f)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@embroider/core': 4.1.3
-      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
-      '@embroider/reverse-exports': 0.1.2
-      '@rollup/pluginutils': 5.1.4
-      assert-never: 1.4.0
-      browserslist: 4.24.5
-      browserslist-to-esbuild: 2.1.1(browserslist@4.24.5)
-      content-tag: 3.1.3
-      debug: 4.4.1
-      fast-glob: 3.3.3
-      fs-extra: 10.1.0
-      jsdom: 25.0.1
-      send: 0.18.0
-      source-map-url: 0.4.1
-      terser: 5.39.1
-      vite: 7.1.2(terser@5.39.1)
+      vite: 7.1.3(terser@5.39.1)
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -18743,11 +18752,11 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
-  '@sveltejs/kit@2.36.2(63a7c36bda07019adeb6855fa3455e4e)':
+  '@sveltejs/kit@2.36.2(9bae9bb962f5c24dc57533ca8d43cf91)':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.1)
-      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.2)
+      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.3)
       '@types/cookie': 0.6.0
       acorn: 8.14.1
       cookie: 0.6.0
@@ -18760,7 +18769,7 @@ snapshots:
       set-cookie-parser: 2.7.1
       sirv: 3.0.1
       svelte: 5.38.1
-      vite: 7.1.2
+      vite: 7.1.3
 
   '@sveltejs/package@2.5.0(svelte@5.38.1)(typescript@5.9.2)':
     dependencies:
@@ -18773,25 +18782,25 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.0(63a7c36bda07019adeb6855fa3455e4e)':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.0(9bae9bb962f5c24dc57533ca8d43cf91)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.2)
+      '@sveltejs/vite-plugin-svelte': 6.1.2(svelte@5.38.1)(vite@7.1.3)
       debug: 4.4.1
       svelte: 5.38.1
-      vite: 7.1.2
+      vite: 7.1.3
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@6.1.2(svelte@5.38.1)(vite@7.1.2)':
+  '@sveltejs/vite-plugin-svelte@6.1.2(svelte@5.38.1)(vite@7.1.3)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.0(63a7c36bda07019adeb6855fa3455e4e)
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.0(9bae9bb962f5c24dc57533ca8d43cf91)
       debug: 4.4.1
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.17
       svelte: 5.38.1
-      vite: 7.1.2
-      vitefu: 1.1.1(vite@7.1.2)
+      vite: 7.1.3
+      vitefu: 1.1.1(vite@7.1.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -19118,10 +19127,10 @@ snapshots:
       vite: 5.4.19
       vue: 3.5.19(typescript@5.9.2)
 
-  '@vitejs/plugin-vue@6.0.1(vite@7.1.2)(vue@3.5.19(typescript@5.9.2))':
+  '@vitejs/plugin-vue@6.0.1(vite@7.1.3)(vue@3.5.19(typescript@5.9.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.29
-      vite: 7.1.2
+      vite: 7.1.3
       vue: 3.5.19(typescript@5.9.2)
 
   '@volar/kit@2.4.12(typescript@5.9.2)':
@@ -19549,7 +19558,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2
+      vite: 7.1.3
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -19598,7 +19607,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2(@types/node@20.17.46)
+      vite: 7.1.3(@types/node@20.17.46)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -19647,7 +19656,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2(@types/node@24.0.6)
+      vite: 7.1.3(@types/node@24.0.6)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -19696,7 +19705,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2(terser@5.39.1)
+      vite: 7.1.3(terser@5.39.1)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -19745,7 +19754,7 @@ snapshots:
       typescript: 5.9.2
       typescript-eslint: 8.32.1(eslint@9.34.0)(typescript@5.9.2)
       unplugin-isolated-decl: 0.14.4(typescript@5.9.2)
-      vite: 7.1.2(tsx@4.19.4)
+      vite: 7.1.3(tsx@4.19.4)
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/babel__core'
@@ -19781,9 +19790,9 @@ snapshots:
       typedoc-plugin-no-inherit: 1.6.1(typedoc@0.28.10(typescript@5.9.2))
       typedoc-vitepress-theme: 1.1.2(b547c8e053100c5791311bfcc94652aa)
       typescript: 5.9.2
-      vite: 7.1.2
+      vite: 7.1.3
       vitepress: 1.6.4(typescript@5.9.2)
-      vitepress-plugin-group-icons: 1.6.3(vite@7.1.2)
+      vitepress-plugin-group-icons: 1.6.3(vite@7.1.3)
       vitepress-plugin-llms: 1.7.3
       vitepress-plugin-tabs: 0.7.1(bf294468dd3c3efb65b2c0f7793b023f)
       vue: 3.5.19(typescript@5.9.2)
@@ -23745,11 +23754,11 @@ snapshots:
     dependencies:
       bser: 2.1.1
 
-  fdir@6.4.6(picomatch@4.0.2):
-    optionalDependencies:
-      picomatch: 4.0.2
-
   fdir@6.4.6(picomatch@4.0.3):
+    optionalDependencies:
+      picomatch: 4.0.3
+
+  fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
 
@@ -28097,8 +28106,8 @@ snapshots:
 
   tinyglobby@0.2.14:
     dependencies:
-      fdir: 6.4.6(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tldts-core@6.1.86: {}
 
@@ -28604,10 +28613,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@7.1.2:
+  vite@7.1.3:
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.4.6(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.48.1
@@ -28615,10 +28624,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  vite@7.1.2(@types/node@20.17.46):
+  vite@7.1.3(@types/node@20.17.46):
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.4.6(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.48.1
@@ -28627,10 +28636,10 @@ snapshots:
       '@types/node': 20.17.46
       fsevents: 2.3.3
 
-  vite@7.1.2(@types/node@24.0.6):
+  vite@7.1.3(@types/node@24.0.6):
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.4.6(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.48.1
@@ -28639,10 +28648,10 @@ snapshots:
       '@types/node': 24.0.6
       fsevents: 2.3.3
 
-  vite@7.1.2(terser@5.39.1):
+  vite@7.1.3(terser@5.39.1):
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.4.6(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.48.1
@@ -28651,10 +28660,10 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.39.1
 
-  vite@7.1.2(tsx@4.19.4):
+  vite@7.1.3(tsx@4.19.4):
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.4.6(picomatch@4.0.3)
+      fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.48.1
@@ -28663,16 +28672,16 @@ snapshots:
       fsevents: 2.3.3
       tsx: 4.19.4
 
-  vitefu@1.1.1(vite@7.1.2):
+  vitefu@1.1.1(vite@7.1.3):
     optionalDependencies:
-      vite: 7.1.2
+      vite: 7.1.3
 
-  vitepress-plugin-group-icons@1.6.3(vite@7.1.2):
+  vitepress-plugin-group-icons@1.6.3(vite@7.1.3):
     dependencies:
       '@iconify-json/logos': 1.2.4
       '@iconify-json/vscode-icons': 1.2.29
       '@iconify/utils': 3.0.1
-      vite: 7.1.2
+      vite: 7.1.3
     transitivePeerDependencies:
       - supports-color
 
