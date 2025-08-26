@@ -1,17 +1,6 @@
 /**
- * Unlike reactive frameworks, React does not have the ability to support
- * fine-grained reactivity. However, we can approximate it to "good enough"
- * granularity by keeping track of signals used within a specific context.
- *
- * React also does not have a built-in way to memoize functions the way that
- * reactive frameworks do, but by building overtop of other Signal libraries
- * we can provide this.
- *
- * Due to the above limitations, @warp-drive/react/install is built
- * overtop @warp-drive/tc39-proposal-signals/install.
- *
- * The TC39 Watcher especially is valuable here, as it allows us to subscribe to changes
- * to the dependency graph of a memo and not just a signal.
+ * {@include ./install.md}
+ * @module
  */
 
 import { use } from 'react';

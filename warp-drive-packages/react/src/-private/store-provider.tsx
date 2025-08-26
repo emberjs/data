@@ -1,6 +1,6 @@
 import { Store } from "@warp-drive/core";
 import { assert } from "@warp-drive/core/build-config/macros";
-import { createContext, JSX, ReactNode, use, useContext, useMemo } from "react";
+import { createContext, JSX, ReactNode, use, useMemo } from "react";
 
 const StoreContext = createContext<Store | null>(null);
 
