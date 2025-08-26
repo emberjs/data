@@ -24,6 +24,7 @@
     "typescript": "^5.9.2",
     "chalk": "5.6.0",
     "debug": "4.4.1",
+    "@mdit/plugin-footnote": "^0.22.2",
     "@pnpm/find-workspace-dir": "1000.1.2",
     "@types/debug": "4.1.12",
     "typedoc": "^0.28.10",

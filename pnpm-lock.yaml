@@ -242,6 +242,9 @@ importers:
 
   docs-viewer:
     dependencies:
+      '@mdit/plugin-footnote':
+        specifier: ^0.22.2
+        version: 0.22.2
       '@pnpm/find-workspace-dir':
         specifier: 1000.1.2
         version: 1000.1.2
@@ -6127,6 +6130,12 @@ packages:
     resolution: {integrity: sha512-3lBouSuF7CqlseLB+FKES0K4FQ02JrbEoRtJhxnsyB1s5v4AP03gsoohN8jp7DcOImhaR9scYdztq3/sLfk/qQ==}
     engines: {node: '>=14.18.0'}
 
+  '@mdit/plugin-footnote@0.22.2':
+    resolution: {integrity: sha512-lHB6AV61QruvrWXIu/oWncltH2ED8cBUuvX4IO+5TvtWSyyc6wOm3ErPqqTFJqy1SJ1p21oLNcqRGdPF+S3N4w==}
+    engines: {node: '>= 18'}
+    peerDependencies:
+      markdown-it: ^14.1.0
+
   '@modelcontextprotocol/sdk@1.11.2':
     resolution: {integrity: sha512-H9vwztj5OAqHg9GockCQC06k1natgcxWQSRpQcPJf6i5+MWBzfKkRtxGbjQf0X2ihii0ffLZCRGbYV2f2bjNCQ==}
     engines: {node: '>=18'}
@@ -7432,6 +7441,11 @@ packages:
       '@warp-drive/core': workspace:*
       '@warp-drive/legacy': workspace:*
       '@warp-drive/utilities': workspace:*
+    peerDependenciesMeta:
+      '@warp-drive/legacy':
+        optional: true
+      '@warp-drive/utilities':
+        optional: true
 
   '@warp-drive/internal-config@file:config':
     resolution: {directory: config, type: directory}
@@ -18288,6 +18302,10 @@ snapshots:
       jju: 1.4.0
       js-yaml: 4.1.0
 
+  '@mdit/plugin-footnote@0.22.2':
+    dependencies:
+      '@types/markdown-it': 14.1.2
+
   '@modelcontextprotocol/sdk@1.11.2':
     dependencies:
       content-type: 1.0.5
@@ -19869,18 +19887,20 @@ snapshots:
     dependencies:
       '@hono/node-server': 1.18.2(hono@4.9.2)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
       hono: 4.9.2
+    optionalDependencies:
+      '@warp-drive/legacy': file:warp-drive-packages/legacy(cc0e48c0d34a70f8c6526fad38214a17)
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
 
   '@warp-drive/holodeck@file:packages/holodeck(e303f1adfd5c306050ad88d35cd873b8)':
     dependencies:
       '@hono/node-server': 1.18.2(hono@4.9.2)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       chalk: 5.6.0
       hono: 4.9.2
+    optionalDependencies:
+      '@warp-drive/utilities': file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
 
   '@warp-drive/internal-config@file:config':
     dependencies:
@@ -20129,6 +20149,7 @@ snapshots:
 
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     dependencies:
+      '@mdit/plugin-footnote': 0.22.2
       '@pnpm/find-workspace-dir': 1000.1.2
       '@types/bun': 1.2.17
       '@types/debug': 4.1.12
