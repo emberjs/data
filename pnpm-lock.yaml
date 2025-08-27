@@ -298,8 +298,8 @@ importers:
   internal-tooling:
     dependencies:
       '@pnpm/find-workspace-dir':
-        specifier: 1000.1.0
-        version: 1000.1.0
+        specifier: 1000.1.2
+        version: 1000.1.2
       '@pnpm/find-workspace-packages':
         specifier: 6.0.9
         version: 6.0.9(@pnpm/logger@1001.0.0)
@@ -6176,10 +6176,6 @@ packages:
     resolution: {integrity: sha512-8B4Pw7cnMvO3kYUBZYYIjg6BcGhHwxEEkmBAcqAeF9NM6LmG6F0lFNsOf6XPfHZMx2vUTpZxaWo0FQo1uU2AAw==}
     engines: {node: '>=16.14'}
 
-  '@pnpm/constants@1001.1.0':
-    resolution: {integrity: sha512-xb9dfSGi1qfUKY3r4Zy9JdC9+ZeaDxwfE7HrrGIEsBVY1hvIn6ntbR7A97z3nk44yX7vwbINNf9sizTp0WEtEw==}
-    engines: {node: '>=18.12'}
-
   '@pnpm/constants@1001.3.0':
     resolution: {integrity: sha512-ZFRekNHbDlu//67Byg+mG8zmtmCsfBhNsg1wKBLRtF7VjH+Q5TDGMX0+8aJYSikQDuzM2FOhvQcDwyjILKshJQ==}
     engines: {node: '>=18.12'}
@@ -6208,10 +6204,6 @@ packages:
     peerDependencies:
       '@pnpm/logger': ^5.0.0
 
-  '@pnpm/error@1000.0.2':
-    resolution: {integrity: sha512-2SfE4FFL73rE1WVIoESbqlj4sLy5nWW4M/RVdHvCRJPjlQHa9MH7m7CVJM204lz6I+eHoB+E7rL3zmpJR5wYnQ==}
-    engines: {node: '>=18.12'}
-
   '@pnpm/error@1000.0.4':
     resolution: {integrity: sha512-22mG/Mq4u2r7gr2+XY5j4GlN7J4Mg4WiCfT9flvsUc1uZecShocv6WkyoA20qs14M64f6I+aaWB6b6xsDiITlg==}
     engines: {node: '>=18.12'}
@@ -6223,10 +6215,6 @@ packages:
   '@pnpm/fetcher-base@14.0.1':
     resolution: {integrity: sha512-DXPZ33CrmDQXnYzwvqyP7I0BF0MQELo4ah2JGpXhLhgOdzU+vj7zdKFo2x82L8anrK861IRi01V8o14oATq1vA==}
     engines: {node: '>=16.14'}
-
-  '@pnpm/find-workspace-dir@1000.1.0':
-    resolution: {integrity: sha512-K5iG/z0SLV6bVW1jIYvbNBI6vWAD6ETJKyWj/wwHr7hxloxtm9xJCGbe/41pmM9nfFFUPbr1Z0YOi4q9yWkj6g==}
-    engines: {node: '>=18.12'}
 
   '@pnpm/find-workspace-dir@1000.1.2':
     resolution: {integrity: sha512-QU7LqV0T5lCuHwNoNT5YeArsrIYo4qcCEHz4F21tu42n6d1km3CGnpL6/7LMT0fgHL6cN55YyRU14imN/5b7vg==}
@@ -17534,8 +17522,6 @@ snapshots:
     transitivePeerDependencies:
       - '@pnpm/logger'
 
-  '@pnpm/constants@1001.1.0': {}
-
   '@pnpm/constants@1001.3.0': {}
 
   '@pnpm/constants@7.1.0': {}
@@ -17577,10 +17563,6 @@ snapshots:
       string-length: 4.0.2
       strip-ansi: 6.0.1
 
-  '@pnpm/error@1000.0.2':
-    dependencies:
-      '@pnpm/constants': 1001.1.0
-
   '@pnpm/error@1000.0.4':
     dependencies:
       '@pnpm/constants': 1001.3.0
@@ -17594,11 +17576,6 @@ snapshots:
       '@pnpm/resolver-base': 10.0.1
       '@pnpm/types': 9.1.0
       '@types/ssri': 7.1.5
-
-  '@pnpm/find-workspace-dir@1000.1.0':
-    dependencies:
-      '@pnpm/error': 1000.0.2
-      find-up: 5.0.0
 
   '@pnpm/find-workspace-dir@1000.1.2':
     dependencies:
@@ -19050,7 +19027,7 @@ snapshots:
 
   '@warp-drive/internal-tooling@file:internal-tooling':
     dependencies:
-      '@pnpm/find-workspace-dir': 1000.1.0
+      '@pnpm/find-workspace-dir': 1000.1.2
       '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1001.0.0)
       '@pnpm/logger': 1001.0.0
       '@types/bun': 1.2.17
