@@ -815,8 +815,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.18.2
-        version: 1.18.2(hono@4.9.4)
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
       chalk:
         specifier: ^5.5.0
         version: 5.5.0
@@ -5811,8 +5811,8 @@ packages:
   '@handlebars/parser@2.0.0':
     resolution: {integrity: sha512-EP9uEDZv/L5Qh9IWuMUGJRfwhXJ4h1dqKTT4/3+tY0eu7sPis7xh23j61SYUnNF4vqCQvvUXpDo9Bh/+q1zASA==}
 
-  '@hono/node-server@1.18.2':
-    resolution: {integrity: sha512-icgNvC0vRYivzyuSSaUv9ttcwtN8fDyd1k3AOIBDJgYd84tXRZSS6na8X54CY/oYoFTNhEmZraW/Rb9XYwX4KA==}
+  '@hono/node-server@1.19.0':
+    resolution: {integrity: sha512-1k8/8OHf5VIymJEcJyVksFpT+AQ5euY0VA5hUkCnlKpD4mr8FSbvXaHblxeTTEr90OaqWzAkQaqD80qHZQKxBA==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -17094,7 +17094,7 @@ snapshots:
 
   '@handlebars/parser@2.0.0': {}
 
-  '@hono/node-server@1.18.2(hono@4.9.4)':
+  '@hono/node-server@1.19.0(hono@4.9.4)':
     dependencies:
       hono: 4.9.4
 
@@ -18577,7 +18577,7 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(19e1072f23293e4c2aeee5c79542e276)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.4)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       chalk: 5.6.0
       hono: 4.9.4
@@ -18587,14 +18587,14 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(399050e4d25cd9de09f58182ad617dd4)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.4)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       chalk: 5.6.0
       hono: 4.9.4
 
   '@warp-drive/holodeck@file:packages/holodeck(b1f423bbeafed7b156933fd746f2db26)':
     dependencies:
-      '@hono/node-server': 1.18.2(hono@4.9.4)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       chalk: 5.6.0
       hono: 4.9.4
