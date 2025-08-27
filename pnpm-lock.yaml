@@ -265,8 +265,8 @@ importers:
         specifier: ^4.8.1
         version: 4.8.1(typedoc@0.28.10(typescript@5.9.2))
       typedoc-plugin-mdn-links:
-        specifier: ^5.0.8
-        version: 5.0.8(typedoc@0.28.10(typescript@5.9.2))
+        specifier: ^5.0.9
+        version: 5.0.9(typedoc@0.28.10(typescript@5.9.2))
       typedoc-plugin-no-inherit:
         specifier: ^1.6.1
         version: 1.6.1(typedoc@0.28.10(typescript@5.9.2))
@@ -13712,8 +13712,8 @@ packages:
     peerDependencies:
       typedoc: 0.28.x
 
-  typedoc-plugin-mdn-links@5.0.8:
-    resolution: {integrity: sha512-VxyBPLlA7WpQK5lWK1MGkMgTPdLJqgpUGhi+8bYt+1g+hGUjw+tu8p58/orkRo49sfIzb96D8w/KXby5gwLgAw==}
+  typedoc-plugin-mdn-links@5.0.9:
+    resolution: {integrity: sha512-kXssRKBhUd0JeHzFmxWVsGWVFR9WXafe70Y8Ed+MYH2Nu2647cqfGQN1OBKgvXpmAT8MTpACmUIQ7GnQnh1/iw==}
     peerDependencies:
       typedoc: 0.27.x || 0.28.x
 
@@ -19816,7 +19816,7 @@ snapshots:
       debug: 4.4.1
       typedoc: 0.28.10(typescript@5.9.2)
       typedoc-plugin-markdown: 4.8.1(typedoc@0.28.10(typescript@5.9.2))
-      typedoc-plugin-mdn-links: 5.0.8(typedoc@0.28.10(typescript@5.9.2))
+      typedoc-plugin-mdn-links: 5.0.9(typedoc@0.28.10(typescript@5.9.2))
       typedoc-plugin-no-inherit: 1.6.1(typedoc@0.28.10(typescript@5.9.2))
       typedoc-vitepress-theme: 1.1.2(b547c8e053100c5791311bfcc94652aa)
       typescript: 5.9.2
@@ -28366,7 +28366,7 @@ snapshots:
     dependencies:
       typedoc: 0.28.10(typescript@5.9.2)
 
-  typedoc-plugin-mdn-links@5.0.8(typedoc@0.28.10(typescript@5.9.2)):
+  typedoc-plugin-mdn-links@5.0.9(typedoc@0.28.10(typescript@5.9.2)):
     dependencies:
       typedoc: 0.28.10(typescript@5.9.2)
 
