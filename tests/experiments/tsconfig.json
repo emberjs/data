@@ -1,0 +1,77 @@
+{
+  "include": ["tests/**/*", "start.ts"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "pretty": true,
+    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "disableSourceOfProjectReferenceRedirect": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "noImplicitOverride": false,
+    "incremental": true,
+    "declaration": true,
+    "types": ["ember-source/types", "vite/client"],
+    // "baseUrl": ".",
+    "paths": {
+      "@warp-drive/ember": ["../../warp-drive-packages/ember/declarations"],
+      "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
+      "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
+      "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
+      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
+      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"],
+      "@warp-drive/experiments": ["../../warp-drive-packages/experiments/declarations"],
+      "@warp-drive/experiments/*": ["../../warp-drive-packages/experiments/declarations/*"],
+      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
+      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"],
+      "@warp-drive/utilities": ["../../warp-drive-packages/utilities/declarations"],
+      "@warp-drive/utilities/*": ["../../warp-drive-packages/utilities/declarations/*"],
+      "@warp-drive/json-api": ["../../warp-drive-packages/json-api/declarations"],
+      "@warp-drive/json-api/*": ["../../warp-drive-packages/json-api/declarations/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "declarationDir": "unstable-preview-types",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": ".",
+    "checkJs": false
+  },
+  "references": [
+    {
+      "path": "../../packages/diagnostic"
+    },
+    {
+      "path": "../../warp-drive-packages/ember"
+    },
+    {
+      "path": "../../warp-drive-packages/json-api"
+    },
+    {
+      "path": "../../warp-drive-packages/utilities"
+    },
+    {
+      "path": "../../packages/holodeck"
+    },
+    {
+      "path": "../../warp-drive-packages/experiments"
+    },
+    {
+      "path": "../../warp-drive-packages/core"
+    }
+  ]
+}

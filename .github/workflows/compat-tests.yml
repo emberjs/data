@@ -28,20 +28,6 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: pnpm test:fastboot
-  embroider:
-    timeout-minutes: 7
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - uses: ./.github/actions/setup
-        with:
-          restore-broccoli-cache: true
-          install: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run Tests
-        run: pnpm test:embroider
-        env:
-          UV_USE_IO_URING: 0
   vite:
     timeout-minutes: 7
     runs-on: ubuntu-latest
@@ -102,7 +88,7 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     # TODO:
-    # needs: [embroider, vite]
+    # needs: [vite]
 
     strategy:
       matrix:

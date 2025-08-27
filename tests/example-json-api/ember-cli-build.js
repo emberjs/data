@@ -22,12 +22,8 @@ module.exports = async function (defaults) {
     compatWith: process.env.EMBER_DATA_FULL_COMPAT ? '99.0' : null,
   });
 
-  const { Webpack } = require('@embroider/webpack');
-  return require('@embroider/compat').compatBuild(app, Webpack, {
-    skipBabel: [
-      {
-        package: 'qunit',
-      },
-    ],
-  });
+  const { buildOnce } = await import('@embroider/vite');
+  const { compatBuild } = await import('@embroider/compat');
+
+  return compatBuild(app, buildOnce);
 };
