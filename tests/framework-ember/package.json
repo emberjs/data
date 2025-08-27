@@ -1,6 +1,6 @@
 {
   "name": "framework-ember",
-  "version": "5.7.0-alpha.39",
+  "version": "5.6.0-beta.4",
   "description": "Provides spec test implementation for @warp-drive/ember",
   "private": true,
   "keywords": [],
