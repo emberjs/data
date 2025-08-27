@@ -91,8 +91,8 @@ importers:
         specifier: 5.0.2
         version: 5.0.2
       bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.20
+        version: 1.2.20
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -247,8 +247,8 @@ importers:
         specifier: 1000.1.2
         version: 1000.1.2
       '@types/bun':
-        specifier: ^1.2.10
-        version: 1.2.13
+        specifier: ^1.2.20
+        version: 1.2.21
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -307,8 +307,8 @@ importers:
         specifier: 1001.0.0
         version: 1001.0.0
       '@types/bun':
-        specifier: ^1.2.10
-        version: 1.2.13
+        specifier: ^1.2.20
+        version: 1.2.21
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -576,8 +576,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@types/bun':
-        specifier: ^1.2.10
-        version: 1.2.13
+        specifier: ^1.2.20
+        version: 1.2.21
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -738,8 +738,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.20
+        version: 1.2.20(@types/react@19.1.11)
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.28.3)
@@ -1083,8 +1083,8 @@ importers:
   packages/schema:
     devDependencies:
       bun-types:
-        specifier: 1.2.10
-        version: 1.2.10
+        specifier: 1.2.20
+        version: 1.2.20
 
   packages/schema-record:
     dependencies:
@@ -1581,8 +1581,8 @@ importers:
         specifier: workspace:*
         version: file:packages/codemods
       '@types/bun':
-        specifier: ^1.2.10
-        version: 1.2.13
+        specifier: ^1.2.20
+        version: 1.2.21
       '@types/jscodeshift':
         specifier: 0.12.0
         version: 0.12.0
@@ -2133,8 +2133,8 @@ importers:
         specifier: workspace:*
         version: file:config
       bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.20
+        version: 1.2.20
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -3363,8 +3363,8 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       bun-types:
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.20
+        version: 1.2.20
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -6583,11 +6583,8 @@ packages:
     resolution: {integrity: sha512-VfG0WydDHFr6MGj75U16bKxOnrl8uP9bXvq7VD+NuvnAq5/22cQDrf8o7BnzBJQt+Xm9jkPt1hh2EHVWluGYIA==}
     deprecated: This is a stub types definition. broccoli-plugin provides its own type definitions, so you do not need this installed.
 
-  '@types/bun@1.2.13':
-    resolution: {integrity: sha512-u6vXep/i9VBxoJl3GjZsl/BFIsvML8DfVDO0RYLEwtSZSp981kEO1V5NwRcO1CPJ7AmvpbnDCiMKo3JvbDEjAg==}
-
-  '@types/bun@1.2.17':
-    resolution: {integrity: sha512-l/BYs/JYt+cXA/0+wUhulYJB6a6p//GTPiJ7nV+QHa8iiId4HZmnu/3J/SowP5g0rTiERY2kfGKXEK5Ehltx4Q==}
+  '@types/bun@1.2.21':
+    resolution: {integrity: sha512-NiDnvEqmbfQ6dmZ3EeUO577s4P5bf4HCTXtI6trMc6f6RzirY5IrF3aIookuSpyslFzrnvv2lmEWv5HyC1X79A==}
 
   '@types/chai-as-promised@7.1.8':
     resolution: {integrity: sha512-ThlRVIJhr69FLlh6IctTXFkmhtP3NpMZ2QGq69StYLyKZFp/HOp1VdKZj7RvfNWYYcJ1xlbLGLLWj1UvP5u/Gw==}
@@ -7864,14 +7861,15 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  bun-types@1.2.10:
-    resolution: {integrity: sha512-b5ITZMnVdf3m1gMvJHG+gIfeJHiQPJak0f7925Hxu6ZN5VKA8AGy4GZ4lM+Xkn6jtWxg5S3ldWvfmXdvnkp3GQ==}
+  bun-types@1.2.20:
+    resolution: {integrity: sha512-pxTnQYOrKvdOwyiyd/7sMt9yFOenN004Y6O4lCcCUoKVej48FS5cvTw9geRaEcB9TsDZaJKAxPTVvi8tFsVuXA==}
+    peerDependencies:
+      '@types/react': ^19
 
-  bun-types@1.2.13:
-    resolution: {integrity: sha512-rRjA1T6n7wto4gxhAO/ErZEtOXyEZEmnIHQfl0Dt1QQSB4QV0iP6BZ9/YB5fZaHFQ2dwHFrmPaRQ9GGMX01k9Q==}
-
-  bun-types@1.2.17:
-    resolution: {integrity: sha512-ElC7ItwT3SCQwYZDYoAH+q6KT4Fxjl8DtZ6qDulUFBmXA8YB4xo+l54J9ZJN+k2pphfn9vk7kfubeSd5QfTVJQ==}
+  bun-types@1.2.21:
+    resolution: {integrity: sha512-sa2Tj77Ijc/NTLS0/Odjq/qngmEPZfbfnOERi0KRUYhT9R8M4VBioWVmMWE5GrYbKMc+5lVybXygLdibHaqVqw==}
+    peerDependencies:
+      '@types/react': ^19
 
   byte-size@9.0.1:
     resolution: {integrity: sha512-YLe9x3rabBrcI0cueCdLS2l5ONUKywcRpTs02B8KP9/Cimhj7o3ZccGrPnRvcbyHMbb7W79/3MUJl7iGgTXKEw==}
@@ -17923,13 +17921,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@types/bun@1.2.13':
+  '@types/bun@1.2.21':
     dependencies:
-      bun-types: 1.2.13
-
-  '@types/bun@1.2.17':
-    dependencies:
-      bun-types: 1.2.17
+      bun-types: 1.2.21
+    transitivePeerDependencies:
+      - '@types/react'
 
   '@types/chai-as-promised@7.1.8':
     dependencies:
@@ -18850,7 +18846,7 @@ snapshots:
     dependencies:
       '@mdit/plugin-footnote': 0.22.2
       '@pnpm/find-workspace-dir': 1000.1.2
-      '@types/bun': 1.2.17
+      '@types/bun': 1.2.21
       '@types/debug': 4.1.12
       chalk: 5.6.0
       debug: 4.4.1
@@ -18905,13 +18901,14 @@ snapshots:
       '@pnpm/find-workspace-dir': 1000.1.2
       '@pnpm/find-workspace-packages': 6.0.9(@pnpm/logger@1001.0.0)
       '@pnpm/logger': 1001.0.0
-      '@types/bun': 1.2.17
+      '@types/bun': 1.2.21
       '@types/debug': 4.1.12
       chalk: 5.4.1
       comment-json: 4.2.5
       debug: 4.4.0
       typescript: 5.9.2
     transitivePeerDependencies:
+      - '@types/react'
       - supports-color
 
   '@warp-drive/json-api@file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)':
@@ -20160,15 +20157,16 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.2.10:
-    dependencies:
-      '@types/node': 20.17.46
-
-  bun-types@1.2.13:
+  bun-types@1.2.20:
     dependencies:
       '@types/node': 24.3.0
 
-  bun-types@1.2.17:
+  bun-types@1.2.20(@types/react@19.1.11):
+    dependencies:
+      '@types/node': 24.3.0
+      '@types/react': 19.1.11
+
+  bun-types@1.2.21:
     dependencies:
       '@types/node': 24.3.0
 
