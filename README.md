@@ -42,7 +42,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 <br>
 <br>
 
-*Get Started* → [Guides](./guides/index.md)
+*Get Started* → [Guides](https://docs.warp-drive.io/guides/)
 
 <br>
 
@@ -52,11 +52,11 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 ## Quick Links
 
-- [Installation](#installation)
-- [API Docs](https://api.emberjs.com/ember-data/release)
-- [Guides](./guides/index.md)
+- [Installation](https://docs.warp-drive.io/guides/1-configuration/1-overview#installation)
+- [API Docs](https://docs.warp-drive.io/guides/api/)
+- [Guides](https://docs.warp-drive.io/guides/)
 - [Build Config](./warp-drive-packages/build-config/README.md)
-- [Ember Compatibility](#compatibility)
+- [Ember Compatibility](#ember-compatibility)
 - [The Big List of Versions](#the-big-list-of-versions)
 - [Contributing](./CONTRIBUTING.md)
 - [Community & Help](https://emberjs.com/community)
@@ -66,20 +66,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 <br>
 
-## Installation
-
-```sh
-pnpm add ember-data
-```
-
-> [!NOTE]
-> This will install the "legacy" experience. A new installer
-> is currently being worked on for the Polaris experience and will
-> be available soon.
-
-<br>
-
-## Compatibility
+## Ember Compatibility
 
 The following table lists WarpDrive/EmberData versions alongside information about
 ember compatibility.
