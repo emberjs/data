@@ -20,9 +20,9 @@
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "glint --noEmit",
     "start": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --watch --outDir dist-test",
-    "test": "export IS_TESTING=true; export NODE_ENV=development; bun ./diagnostic.js",
-    "test:production": "export IS_TESTING=true; export NODE_ENV=production; bun ./diagnostic.js",
-    "test:start": "bun ./diagnostic.js --serve --no-launch"
+    "test": "export IS_TESTING=true; export NODE_ENV=development; node ./diagnostic.js",
+    "test:production": "export IS_TESTING=true; export NODE_ENV=production; node ./diagnostic.js",
+    "test:start": "node ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",

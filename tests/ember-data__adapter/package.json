@@ -19,10 +19,10 @@
     "build:production": "bun run build:tests -e production",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
-    "test": "bun ./diagnostic.js",
-    "test:production": "bun ./diagnostic.js",
+    "test": "node ./diagnostic.js",
+    "test:production": "node ./diagnostic.js",
     "start": "bun run build:tests --watch",
-    "test:start": "bun ./diagnostic.js --serve --no-launch"
+    "test:start": "node ./diagnostic.js --serve --no-launch"
   },
   "dependencies": {
     "@babel/core": "^7.28.3",

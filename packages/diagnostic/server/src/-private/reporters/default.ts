@@ -1,7 +1,6 @@
 import chalk from 'chalk';
-import fs from 'fs';
-import path from 'path';
-import { exit } from 'process';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const SLOW_TEST_COUNT = 50;
 const DEFAULT_TIMEOUT = 8_000;
@@ -9,7 +8,7 @@ const TIMEOUT_BUFFER = 0;
 const DEFAULT_TEST_TIMEOUT = 21_000;
 const failedTestsFile = path.join(process.cwd(), './diagnostic-failed-test-log.txt');
 
-function indent(text, width = 2) {
+function indent(text: string, width = 2): string {
   return text
     .split('\n')
     .map((line) => {
@@ -20,9 +19,57 @@ function indent(text, width = 2) {
 
 const HEADER_STR = '===================================================================';
 
-export default class CustomDotReporter {
+interface ReporterConfig {
+  mode: 'dot' | 'compact' | 'verbose';
+}
+
+export class CustomDotReporter {
+  config: ReporterConfig;
+  isDotFormat: boolean;
+  isCompactFormat: boolean;
+  isVerboseFormat: boolean;
+
+  out: NodeJS.WriteStream;
+
+  launchers: Record<string, unknown>;
+  tabs: Map<string, { running: Map<string, unknown> }>;
+  idsToStartNumber: Map<string, number>;
+
+  startNumber: number;
+  startTime: number | null;
+  realStartTime: number | null;
+  timeZero: number;
+  dateTimeZero: number;
+
+  // results
+  results: unknown[];
+  failedTests: unknown[];
+  globalFailures: unknown[];
+  failedTestIds: Set<string>;
+  total: number;
+  pass: number;
+  skip: number;
+  todo: number;
+  fail: number;
+
+  // display info
+  shouldPrintHungTests: boolean;
+
+  // dot display info
+  lineFailures: unknown[];
+  currentLineChars: number;
+  maxLineChars: number;
+  totalLines: number;
+
+  declare serverConfig: {
+    port: number;
+    hostname: string;
+    protocol: string;
+    url: string;
+  };
+
   // serverConfig will be injected by the server
-  constructor(config) {
+  constructor(config: ReporterConfig) {
     this.config = config;
 
     // what format to print
@@ -84,7 +131,7 @@ export default class CustomDotReporter {
     this.totalLines = 0;
   }
 
-  write(str) {
+  write(str: string) {
     this.out.write(str);
   }
 
@@ -543,11 +590,11 @@ export default class CustomDotReporter {
 // Instead of completely removing, we replace the contents with an empty string so that CI will still cache it.
 // While this shouldn't ever really be necessary it's a bit more correct to make sure that the log gets cleared
 // in the cache as well.
-function remove(filePath) {
+function remove(filePath: string) {
   fs.writeFileSync(filePath, '', { encoding: 'utf-8' });
 }
 
-function printValue(value, tabs = 0) {
+function printValue(value: unknown, tabs = 0): string | number {
   if (typeof value === 'string') {
     return value;
   } else if (typeof value === 'number') {
@@ -562,5 +609,7 @@ function printValue(value, tabs = 0) {
     return indent(`[\n ${value.map((v) => printValue(v, tabs + 1)).join(',\n ')}\n]`, tabs);
   } else if (typeof value === 'object') {
     return JSON.stringify(value, null, tabs * 4);
+  } else {
+    return String(value);
   }
 }

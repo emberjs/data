@@ -685,6 +685,12 @@ importers:
       '@embroider/macros':
         specifier: ^1.18.1
         version: 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server':
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
+      '@hono/node-ws':
+        specifier: ^1.2.0
+        version: 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
@@ -700,6 +706,9 @@ importers:
       dom-element-descriptors:
         specifier: ^0.5.1
         version: 0.5.1
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
       qunit-dom:
         specifier: ^3.5.0
         version: 3.5.0
@@ -731,18 +740,24 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
       '@types/react':
         specifier: ^19.1.11
         version: 19.1.11
       '@types/react-dom':
         specifier: ^19.1.8
         version: 19.1.8(@types/react@19.1.11)
+      '@types/tmp':
+        specifier: ^0.2.6
+        version: 0.2.6
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
-      bun-types:
-        specifier: ^1.2.20
-        version: 1.2.20(@types/react@19.1.11)
+        version: file:config(@types/node@24.3.0)
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.28.3)
@@ -754,7 +769,7 @@ importers:
         version: 5.9.2
       vite:
         specifier: ^7.1.3
-        version: 7.1.3
+        version: 7.1.3(@types/node@24.3.0)
 
   packages/eslint-plugin-warp-drive:
     dependencies:
@@ -5637,9 +5652,6 @@ packages:
   '@glimmer/global-context@0.93.4':
     resolution: {integrity: sha512-Yw9xkDReAcC5oS/hY3PjGrFKRygYFA4pdO7tvuxReoVOyUtjoBOAwHJUileiElERDdMWIMfoLema8Td1mqkjhA==}
 
-  '@glimmer/interfaces@0.84.3':
-    resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
-
   '@glimmer/interfaces@0.92.3':
     resolution: {integrity: sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==}
 
@@ -5688,9 +5700,6 @@ packages:
   '@glimmer/runtime@0.94.10':
     resolution: {integrity: sha512-eRe9TmP02ESVXJn2ZOOEm/Hm/Ro7X0kRvZsU8OVtXOqWU8JxeKMwjCEiLbJBQKbYfycRy1u8jZ2wuH0qM/d3EQ==}
 
-  '@glimmer/syntax@0.84.3':
-    resolution: {integrity: sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==}
-
   '@glimmer/syntax@0.92.3':
     resolution: {integrity: sha512-7wPKQmULyXCYf0KvbPmfrs/skPISH2QGR9atCnmDWnHyLv5SSZVLm1P0Ctrpta6+Ci3uGQb7hGk0IjsLEavcYQ==}
 
@@ -5699,9 +5708,6 @@ packages:
 
   '@glimmer/tracking@1.1.2':
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
-
-  '@glimmer/util@0.84.3':
-    resolution: {integrity: sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==}
 
   '@glimmer/util@0.92.3':
     resolution: {integrity: sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==}
@@ -5777,6 +5783,13 @@ packages:
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
+
+  '@hono/node-ws@1.2.0':
+    resolution: {integrity: sha512-OBPQ8OSHBw29mj00wT/xGYtB6HY54j0fNSdVZ7gZM3TUeq0So11GXaWtFf1xWxQNfumKIsj0wRuLKWfVsO5GgQ==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      '@hono/node-server': ^1.11.1
+      hono: ^4.6.0
 
   '@html-next/vertical-collection@4.0.2':
     resolution: {integrity: sha512-S8cgntEDdXrOwdylVGDh1BFe+nX5uuUzzb3teh1FE++/kbqsOfUpXOYRUsEzsqb0fRqcm6eLxvtNb282Zr67rQ==}
@@ -6631,9 +6644,6 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.17.46':
-    resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
-
   '@types/node@20.19.11':
     resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
 
@@ -6686,6 +6696,9 @@ packages:
 
   '@types/tmp@0.0.33':
     resolution: {integrity: sha512-gVC1InwyVrO326wbBZw+AO3u2vRXz/iRWq9jYhpG4W8LXyIgDv3ZmcLQ5Q4Gs+gFMyqx+viFoFT+l3p61QFCmQ==}
+
+  '@types/tmp@0.2.6':
+    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
 
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
@@ -13330,9 +13343,6 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -16535,10 +16545,6 @@ snapshots:
 
   '@glimmer/global-context@0.93.4': {}
 
-  '@glimmer/interfaces@0.84.3':
-    dependencies:
-      '@simple-dom/interface': 1.4.0
-
   '@glimmer/interfaces@0.92.3':
     dependencies:
       '@simple-dom/interface': 1.4.0
@@ -16675,14 +16681,6 @@ snapshots:
       '@glimmer/validator': 0.95.0
       '@glimmer/vm': 0.94.8
 
-  '@glimmer/syntax@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@handlebars/parser': 2.0.0
-      simple-html-tokenizer: 0.5.11
-
   '@glimmer/syntax@0.92.3':
     dependencies:
       '@glimmer/env': 0.1.7
@@ -16705,12 +16703,6 @@ snapshots:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/validator': 0.95.0
-
-  '@glimmer/util@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@simple-dom/interface': 1.4.0
 
   '@glimmer/util@0.92.3':
     dependencies:
@@ -16828,6 +16820,15 @@ snapshots:
   '@hono/node-server@1.19.0(hono@4.9.4)':
     dependencies:
       hono: 4.9.4
+
+  '@hono/node-ws@1.2.0(0761bbd318d0a1c99aa83154d16b3252)':
+    dependencies:
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      hono: 4.9.4
+      ws: 8.18.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@html-next/vertical-collection@4.0.2(@babel/core@7.28.3)':
     dependencies:
@@ -17759,10 +17760,6 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@20.17.46':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@20.19.11':
     dependencies:
       undici-types: 6.21.0
@@ -17818,6 +17815,8 @@ snapshots:
   '@types/symlink-or-copy@1.2.2': {}
 
   '@types/tmp@0.0.33': {}
+
+  '@types/tmp@0.2.6': {}
 
   '@types/triple-beam@1.3.5': {}
 
@@ -18225,11 +18224,14 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(4cc24c2ebebabae28e72a02fe878be0d)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
@@ -18237,30 +18239,40 @@ snapshots:
       ember-cli-test-loader: 3.1.0(@babel/core@7.28.3)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(@babel/core@7.28.3)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(ab3931b8efe123d48e6f09ce51952ac3)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
@@ -18268,23 +18280,30 @@ snapshots:
       react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(aee654df6dc3ed0e82ba2e6019020ca6)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(a28950a1e4cd07d337893daf47c6f294)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/ember@file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)':
     dependencies:
@@ -19882,11 +19901,6 @@ snapshots:
   bun-types@1.2.20:
     dependencies:
       '@types/node': 24.3.0
-
-  bun-types@1.2.20(@types/react@19.1.11):
-    dependencies:
-      '@types/node': 24.3.0
-      '@types/react': 19.1.11
 
   bun-types@1.2.21:
     dependencies:
@@ -26986,8 +27000,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   underscore@1.13.7: {}
-
-  undici-types@6.19.8: {}
 
   undici-types@6.21.0: {}
 
