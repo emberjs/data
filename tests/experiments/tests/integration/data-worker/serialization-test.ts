@@ -1,9 +1,9 @@
-import Cache from '@ember-data/json-api';
-import RequestManager from '@ember-data/request';
-import { buildBaseURL, CachePolicy } from '@ember-data/request-utils';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import type { ResourceKey } from '@warp-drive/core-types';
+import { JSONAPICache } from '@warp-drive/json-api';
+import { Store, CacheHandler, RequestManager } from '@warp-drive/core';
+import { DefaultCachePolicy } from '@warp-drive/core/store';
+import { buildBaseURL } from '@warp-drive/utilities';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { ResourceKey } from '@warp-drive/core/types';
 import { module, test } from '@warp-drive/diagnostic';
 import { WorkerFetch } from '@warp-drive/experiments/worker-fetch';
 import { MockServerHandler } from '@warp-drive/holodeck';
@@ -14,9 +14,18 @@ import { UserSchema } from './user-schema';
 
 const RECORD = true;
 
-module('Unit | DataWorker | Basic', function (_hooks) {
-  test('it exists', async function (assert) {
-    const worker = new Worker(new URL('./basic-worker.ts', import.meta.url));
+/**
+ * These tests help to ensure that we can properly cache and retrieve
+ * network requests.
+ *
+ * Currently (08/26/2024) the spec for Headers, Response and Request
+ * objects does not not enable them to be cloned via structured cloning,
+ * which prevents sending them via postMessage / cloning them via
+ * `structuredClone()`.
+ */
+module('Unit | DataWorker | Serialization & Persistence', function (_hooks) {
+  test('Serialization of Request/Response/Headers works as expected', async function (assert) {
+    const worker = new Worker(new URL('./persisted-worker.ts', import.meta.url));
     const MockHandler = new MockServerHandler(this);
 
     await GET(
@@ -43,14 +52,14 @@ module('Unit | DataWorker | Basic', function (_hooks) {
         rm.use(handlers);
         rm.useCache(CacheHandler);
 
-        this.lifetimes = new CachePolicy({
+        this.lifetimes = new DefaultCachePolicy({
           apiCacheHardExpires: 1000,
           apiCacheSoftExpires: 500,
         });
       }
 
       createCache(capabilities: CacheCapabilitiesManager) {
-        return new Cache(capabilities);
+        return new JSONAPICache(capabilities);
       }
 
       createSchemaService() {

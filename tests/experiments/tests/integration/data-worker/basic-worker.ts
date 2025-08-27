@@ -1,16 +1,14 @@
-import Cache from '@ember-data/json-api';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { CachePolicy } from '@ember-data/request-utils';
-import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { JSONAPICache } from '@warp-drive/json-api';
+import { Fetch, Store, RequestManager } from '@warp-drive/core';
+import { DefaultCachePolicy } from '@warp-drive/core/store';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import { CacheHandler, DataWorker } from '@warp-drive/experiments/data-worker';
 import { SchemaService } from '@warp-drive/schema-record';
 
 import { UserSchema } from './user-schema';
 
 const requestManager = new RequestManager();
-const policy = new CachePolicy({
+const policy = new DefaultCachePolicy({
   apiCacheHardExpires: 1000,
   apiCacheSoftExpires: 500,
 });
@@ -22,7 +20,7 @@ class WorkerStore extends Store {
   lifetimes = policy;
 
   createCache(capabilities: CacheCapabilitiesManager) {
-    return new Cache(capabilities);
+    return new JSONAPICache(capabilities);
   }
 
   createSchemaService() {
@@ -32,4 +30,4 @@ class WorkerStore extends Store {
   }
 }
 
-new DataWorker(WorkerStore, { persisted: true, scope: 'persisted-worker-test' });
+new DataWorker(WorkerStore);

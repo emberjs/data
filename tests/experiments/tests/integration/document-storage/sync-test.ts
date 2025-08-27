@@ -1,7 +1,7 @@
-import type { StructuredDataDocument } from '@ember-data/request';
-import type { PersistedResourceKey } from '@warp-drive/core-types/identifier';
-import type { ResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { StructuredDataDocument } from '@warp-drive/core/types/request';
+import type { PersistedResourceKey } from '@warp-drive/core/types/identifier';
+import type { ResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 import { DocumentStorage } from '@warp-drive/experiments/document-storage';
 

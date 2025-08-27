@@ -3638,6 +3638,9 @@ importers:
       '@babel/core':
         specifier: ^7.28.0
         version: 7.28.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.0)
       '@babel/runtime':
         specifier: ^7.28.2
         version: 7.28.3
@@ -3667,34 +3670,43 @@ importers:
         version: file:packages/store(a4caeee62d079443ffbeb760d1e7986d)
       '@ember-data/unpublished-test-infra':
         specifier: workspace:*
-        version: file:packages/unpublished-test-infra(937794553b77f0032915ee40eefb5512)
-      '@ember/edition-utils':
-        specifier: ^1.2.0
-        version: 1.2.0
-      '@ember/optional-features':
-        specifier: ^2.2.0
-        version: 2.2.0
+        version: file:packages/unpublished-test-infra(5ce0b13e03b668398b5ccbaa7bd078a3)
       '@ember/test-helpers':
         specifier: 5.2.0
         version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
       '@ember/test-waiters':
         specifier: ^4.1.1
         version: 4.1.1(@babel/core@7.28.0)
-      '@embroider/compat':
-        specifier: ^4.1.2
-        version: 4.1.2(0fc1d0da2045494d98867a2f5fe4ebb7)
       '@embroider/core':
         specifier: ^4.1.3
         version: 4.1.3
-      '@embroider/router':
-        specifier: ^3.0.2
-        version: 3.0.3(63bcdeb633a4e849d72d09b20248c9ae)
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.0)
       '@embroider/vite':
         specifier: ^1.2.0
-        version: 1.2.0(@embroider/core@4.1.3)(vite@7.1.3)
+        version: 1.2.0(b0f5350aa3e7a80d44f142c8b6e5ccd3)
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@glint/core':
+        specifier: alpha
+        version: 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose':
+        specifier: alpha
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
+      '@glint/environment-ember-template-imports':
+        specifier: alpha
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
+      '@glint/template':
+        specifier: alpha
+        version: 1.6.0-alpha.2
+      '@glint/tsserver-plugin':
+        specifier: alpha
+        version: 2.0.0-alpha.4
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.0)(rollup@4.48.1)
       '@warp-drive/build-config':
         specifier: workspace:*
         version: file:warp-drive-packages/build-config(@babel/core@7.28.0)
@@ -3706,7 +3718,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.28.0)
       '@warp-drive/diagnostic':
         specifier: workspace:*
-        version: file:packages/diagnostic(788f6c9442c1c4094f3e9f8f8d80549e)
+        version: file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)
       '@warp-drive/ember':
         specifier: workspace:*
         version: file:warp-drive-packages/ember(a4caeee62d079443ffbeb760d1e7986d)
@@ -3718,64 +3730,34 @@ importers:
         version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:config(terser@5.43.1)
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.0)
-      ember-auto-import:
-        specifier: ^2.10.0
-        version: 2.10.0
-      ember-cli:
-        specifier: ~6.6.0
-        version: 6.6.0
-      ember-cli-babel:
-        specifier: ^8.2.0
-        version: 8.2.0(@babel/core@7.28.0)
-      ember-cli-dependency-checker:
-        specifier: ^3.3.3
-        version: 3.3.3(ember-cli@6.6.0)
-      ember-cli-htmlbars:
-        specifier: ^6.3.0
-        version: 6.3.0
-      ember-cli-inject-live-reload:
-        specifier: ^2.1.0
-        version: 2.1.0
-      ember-cli-test-loader:
-        specifier: ^3.1.0
-        version: 3.1.0(@babel/core@7.28.0)
-      ember-disable-prototype-extensions:
-        specifier: ^1.1.3
-        version: 1.1.3
-      ember-load-initializers:
-        specifier: ^3.0.1
-        version: 3.0.1(8354954e5b80d7b1c35cb7ab63dbceb9)
-      ember-maybe-import-regenerator:
-        specifier: ^1.0.0
-        version: 1.0.0(@babel/core@7.28.0)
-      ember-resolver:
-        specifier: ^13.1.1
-        version: 13.1.1(@babel/core@7.28.0)
+      babel-plugin-ember-template-compilation:
+        specifier: ^2.2.5
+        version: 2.4.1
+      decorator-transforms:
+        specifier: ^2.2.2
+        version: 2.3.0(@babel/core@7.28.0)
       ember-source:
-        specifier: ~6.6.0
+        specifier: ^6.6.0
         version: 6.6.0(@glimmer/component@2.0.0)
-      ember-source-channel-url:
-        specifier: ^3.0.0
-        version: 3.0.0
-      ember-template-imports:
-        specifier: ^4.3.0
-        version: 4.3.0
-      loader.js:
-        specifier: ^4.7.0
-        version: 4.7.0
-      silent-error:
-        specifier: ^1.1.1
-        version: 1.1.1
+      ember-strict-application-resolver:
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.28.0)
+      rollup:
+        specifier: ^4.48.0
+        version: 4.48.1
+      terser:
+        specifier: ^5.43.1
+        version: 5.43.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
       vite:
         specifier: ^7.1.3
-        version: 7.1.3
+        version: 7.1.3(terser@5.43.1)
 
   tests/warp-drive__schema: {}
 
@@ -5436,14 +5418,6 @@ packages:
 
   '@embroider/reverse-exports@0.1.2':
     resolution: {integrity: sha512-TgjQalfB42RnwdRVApjcvHSVjBe+7MJfCZV0Cs1jv2QgnFGr/6f5X19PKvmF4FU4xbBf7yOsIWrVvYvidWnXlw==}
-
-  '@embroider/router@3.0.3':
-    resolution: {integrity: sha512-gM8DxtSvoXjwPxO1UwR5AmJGMNx6evfdHtUyj4RNg4mAlFTzpsyMHLMzNff3Tabk0MCQnu+Y8IeFLOJUftCj7w==}
-    peerDependencies:
-      '@embroider/core': ^2.0.0||^3.0.0||^4.0.0-alpha.0
-    peerDependenciesMeta:
-      '@embroider/core':
-        optional: true
 
   '@embroider/shared-internals@2.9.0':
     resolution: {integrity: sha512-8untWEvGy6av/oYibqZWMz/yB+LHsKxEOoUZiLvcpFwWj2Sipc0DcXeTJQZQZ++otNkLCWyDrDhOLrOkgjOPSg==}
@@ -16279,6 +16253,21 @@ snapshots:
       - '@babel/core'
       - supports-color
 
+  '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(5ce0b13e03b668398b5ccbaa7bd078a3)':
+    dependencies:
+      '@ember-data/store': file:packages/store(a4caeee62d079443ffbeb760d1e7986d)
+      '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
+      '@embroider/macros': 1.18.1(@babel/core@7.28.0)
+      '@warp-drive/build-config': file:warp-drive-packages/build-config(@babel/core@7.28.0)
+      '@warp-drive/core-types': file:packages/core-types(@babel/core@7.28.0)
+      chalk: 4.1.2
+      semver: 7.7.2
+    optionalDependencies:
+      '@warp-drive/diagnostic': file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
+
   '@ember-data/unpublished-test-infra@file:packages/unpublished-test-infra(6d0cd00385727879ab9729a738d4904c)':
     dependencies:
       '@ember-data/store': file:packages/store(a4caeee62d079443ffbeb760d1e7986d)
@@ -16625,16 +16614,6 @@ snapshots:
     dependencies:
       mem: 8.1.1
       resolve.exports: 2.0.3
-
-  '@embroider/router@3.0.3(63bcdeb633a4e849d72d09b20248c9ae)':
-    dependencies:
-      '@ember/test-waiters': 4.1.1(@babel/core@7.28.0)
-      '@embroider/addon-shim': 1.10.0
-    optionalDependencies:
-      '@embroider/core': 4.1.3
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
 
   '@embroider/shared-internals@2.9.0':
     dependencies:
