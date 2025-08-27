@@ -27,6 +27,7 @@
     "@mdit/plugin-footnote": "^0.22.2",
     "@pnpm/find-workspace-dir": "1000.1.2",
     "@types/debug": "4.1.12",
+    "front-matter": "^4.0.2",
     "typedoc": "^0.28.10",
     "typedoc-plugin-markdown": "^4.8.1",
     "typedoc-plugin-no-inherit": "^1.6.1",

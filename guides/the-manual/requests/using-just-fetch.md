@@ -1,3 +1,8 @@
+---
+title: Using "Just Fetch"
+order: 4
+---
+
 # Using "Just Fetch"
 
 Throughout this guide we've shown usage of the `RequestManager` in context of a `Store`.

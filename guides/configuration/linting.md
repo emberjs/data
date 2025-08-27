@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 Optionally, install the ESLint plugin `eslint-plugin-warp-drive`
 
 ::: code-group

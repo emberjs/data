@@ -1,19 +1,13 @@
 ---
-title: Overview
+title: Installation
+categoryOrder: 0
+order: 0
 ---
 
 ::: warning 💡 Looking for the [Legacy Package Guide](./4-legacy-package-setup/1-overview)?
 :::
 
-# Configuration
-
-***Warp*Drive** is designed as a series of small packages and primitives with clear interface-driven boundaries between each other and brought together by configuration.
-
-<br>
-<img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
-<img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
-
-## Installation {#installation}
+# Installation
 
 ::: tip 💡 *Warp***Drive** simplifies distribution using npm channel tags
 - `@lts` | `@latest` | `@beta` | `@canary`
@@ -118,9 +112,6 @@ Complete your installation by installing and configuring the reactive framework 
 - [TC39 Signals](#tc39-signals)
 
 Don't see your framework listed yet? Reactive frameworks can typically be implemented in 15-30 lines of JS (before you add docs and types of course ;)). We're happy to add support for any framework that supports fine-grained signals based reactivity.
-
-::: tabs
-
 
 ## Lockstep Versioning
 

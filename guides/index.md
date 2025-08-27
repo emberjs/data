@@ -1,5 +1,8 @@
 ---
 title: Introduction
+categoryOrder: 2
+order: 0
+categoryTitle: The Manual
 ---
 
 # Introduction
@@ -76,7 +79,7 @@ const { content } = await store.request<User>({
 });
 ```
 
-`request` takes a generic that can be used to set the [return type](./2-requests/3-typing-requests.md) of the content of the associated request. [Builders](./2-requests/2-builders.md) – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
+`request` takes a generic that can be used to set the [return type](./the-manual/requests/typing-requests.md) of the content of the associated request. [Builders](./the-manual/requests/builders.md) – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
 
 ```ts
 import { withBrand } from '@warp-drive/core/types/request'; // [!code focus]
@@ -138,7 +141,7 @@ content.data.organizations.map(organization => {
 });
 ```
 
-**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./3-caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
+**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./the-manual/caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
 ## Schema Driven Reactivity {#schemas}
 
@@ -191,7 +194,7 @@ editable.firstName = 'Chris';
 
 ## Broad Compatibility {#api-compatibility}
 
-***Warp*Drive** is only semi-opinionated about your API. Almost every API is compatible just by authoring a [request handler](./2-requests/4-handlers.md) to ensure that the responses are normalized into the cache format.
+***Warp*Drive** is only semi-opinionated about your API. Almost every API is compatible just by authoring a [request handler](./the-manual/requests/handlers.md) to ensure that the responses are normalized into the cache format.
 
 ```ts
 const NormalizeKeysHandler = {

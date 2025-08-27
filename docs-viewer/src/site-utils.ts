@@ -1,13 +1,13 @@
 import path from 'path';
-// @ts-expect-error missing from Bun types
 import { globSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import fm from 'front-matter';
 
 const DefaultOpenGroups: string[] = [];
-const AlwaysOpenGroups: string[] = ['configuration.setup'];
+const AlwaysOpenGroups: string[] = [];
 
 function segmentToTitle(segment: string, prevSegment: string | null) {
   if (segment === 'index.md') {
-    if (!prevSegment || prevSegment === '1-the-manual') return 'Introduction';
+    if (!prevSegment) return 'Introduction';
     segment = prevSegment;
   }
   const value = segment.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1));
@@ -19,126 +19,214 @@ function segmentToTitle(segment: string, prevSegment: string | null) {
   return result === 'Index' ? 'Introduction' : result;
 }
 
-function segmentToNicePath(segment: string) {
-  const value = segment.split('-');
-  if (!isNaN(Number(value[0]))) {
-    value.shift();
-  }
-  return value.join('-').replace('.md', '');
+interface WarpDriveFrontMatter {
+  categoryTitle?: string;
+  title?: string;
+  categoryOrder?: number;
+  order?: number;
+  draft?: boolean;
+  collapsed?: boolean;
+}
+interface GuideGroup {
+  /**
+   * The Text To Display
+   */
+  text: string;
+  /**
+   * The Path For This group
+   * "On Disc".
+   */
+  path: string;
+  /**
+   * The URL Slug For This group
+   * if different from the path.
+   *
+   * This is currently unused but is set
+   * by the frontmatter of an `index.md` file
+   * in the directory.
+   */
+  slug: string;
+  /**
+   * This will be the categoryIndex specified by
+   * the frontmatter of an `index.md` file in the directory.
+   *
+   * Else it will be set to the next open index available
+   * once "known" indeces have been assigned.
+   */
+  index: number | null;
+  /**
+   * Whether the directory should default to open or closed.
+   *
+   * This is set by the frontmatter of an `index.md` file in the directory.
+   * else by config above in this file, and defaults to `true`.
+   */
+  collapsed: boolean | null;
+  /**
+   * The child items/groups of this group, if any.
+   */
+  items: Record<string, GuideGroup>;
+  /**
+   *
+   */
+  link?: string;
 }
 
-function segmentToIndex(segment: string, index: number) {
-  if (segment === 'index.md') {
-    return 0;
-  }
-  const value = segment.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1));
-  if (!isNaN(Number(value[0]))) {
-    return Number(value[0]);
-  }
-
-  return index;
-}
-
-export async function getGuidesStructure(withRewrites = false) {
+export async function getGuidesStructure() {
   const GuidesDirectoryPath = path.join(__dirname, '../docs.warp-drive.io/guides');
   const glob = globSync('**/*.md', { cwd: GuidesDirectoryPath });
-  const rewritten: Record<string, string> = {};
-  const groups: Record<string, any> = {
-    manual: {
-      text: 'The Manual',
-      index: 0,
-      collapsed: true,
-      items: {},
-    },
-  };
+  const groups: Record<string, GuideGroup> = {};
 
   for (const filepath of glob) {
-    const rewrittenPath = [];
-    const segments = filepath.split(path.sep);
-    const lastSegment = segments.pop()!;
+    const slugPath = [];
+    const text = readFileSync(path.join(GuidesDirectoryPath, filepath), 'utf-8');
+    const frontMatter = fm<WarpDriveFrontMatter>(text);
 
-    if (lastSegment.startsWith('0-')) {
+    if (frontMatter.attributes.draft) {
       // skip hidden files
       continue;
     }
 
-    // for the root, we consider any numbered directory or file as part of the manual
-    // and anything else as top-level
-    // we will probably want an ordering mechanism for non-manual files at some point
-    const firstChar = (segments[0] || lastSegment).charAt(0);
-    let group = groups;
-    let parent = null;
-    if (!isNaN(Number(firstChar))) {
-      group = groups.manual.items;
+    if (filepath === 'index.md') {
+      groups['the-manual'] = groups['the-manual'] || {
+        text: frontMatter.attributes.categoryTitle!,
+        path: filepath,
+        slug: filepath,
+        index: frontMatter.attributes.categoryOrder || 0,
+        collapsed: frontMatter.attributes.collapsed || true,
+        link: '/guides/index.md',
+        items: {},
+      };
+      Object.assign(groups['the-manual'], {
+        text: frontMatter.attributes.categoryTitle!,
+        index: frontMatter.attributes.categoryOrder || 0,
+        collapsed: frontMatter.attributes.collapsed || true,
+        link: '/guides/index.md',
+      });
+      groups['the-manual'].items[filepath] = {
+        text: frontMatter.attributes.title!,
+        path: filepath,
+        slug: filepath,
+        index: frontMatter.attributes.order ?? 0,
+        collapsed: false,
+        items: {},
+        link: '/guides/index.md',
+      };
+      continue;
     }
 
+    const segments = filepath.split(path.sep);
+    let lastSegment = segments.pop()!;
+    let isIndex = false;
+
+    if (lastSegment === 'index.md') {
+      // we treat index files as the main entry to any guides directory
+      lastSegment = segments.pop()!;
+
+      if (!lastSegment) {
+        throw new Error(`Top Level Index.md is not allowed: ${filepath}`);
+      }
+
+      isIndex = true;
+    }
+
+    let group = groups;
+    let parent = null;
+
+    // build out nodes for each segment
+    // if there is not one yet.
     for (let i = 0; i < segments.length; i++) {
       const prevSegment = i > 0 ? segments[i - 1] : null;
       const segment = segments[i];
-      const niceSegment = segmentToNicePath(segment);
-      const trueSegment = withRewrites ? niceSegment : segment;
-      rewrittenPath.push(niceSegment);
-      const key = rewrittenPath.join('.');
+      slugPath.push(segment);
+      const key = slugPath.join('.');
       const collapsed = AlwaysOpenGroups.includes(key) ? null : DefaultOpenGroups.includes(key) ? false : true;
 
       // setup a nested segment if we don't already have one
-      if (!group[trueSegment]) {
-        const existing = Object.keys(group);
-        group[trueSegment] = {
+      if (!group[segment]) {
+        group[segment] = {
           text: segmentToTitle(segment, prevSegment),
-          index: segmentToIndex(segment, existing.length),
+          index: null,
+          path: segment,
+          slug: segment,
           collapsed,
           items: {},
         };
       }
 
-      parent = group[trueSegment];
-      group = group[trueSegment].items;
+      parent = group[segment];
+      group = group[segment].items!;
     }
 
-    // at the base level, if we have not iterated into a sub-group we
-    // must be a file. If we are `index.md` we add to the manual, else
-    // we assume a top-level file
-    if (group === groups && lastSegment === 'index.md') {
-      parent = groups.manual;
-      group = groups.manual.items;
+    slugPath.push(lastSegment);
+    const key = slugPath.join('.');
+    const realUrl = `/guides/${filepath}`;
+
+    // setup our leaf-most segment for this file
+    // if needed, it may exist from a child directory already
+    if (!group[lastSegment]) {
+      group[lastSegment] = {
+        text: segmentToTitle(lastSegment, parent ? parent.path : null),
+        index: null,
+        path: lastSegment,
+        slug: lastSegment,
+        collapsed: AlwaysOpenGroups.includes(key) ? null : DefaultOpenGroups.includes(key) ? false : true,
+        items: {},
+        // if we are an index file, this has the effect of setting the link on the parent node
+        // this seems to work even though there's an issue
+        // that says it doesn't: https://github.com/vuejs/vitepress/issues/2989
+        // however:
+        // when doing this, the "next page" feature breaks for
+        // these pages, so for now we just do non-clickable headers.
+        link: realUrl,
+      };
+    } else {
+      // the segment was previously generated from a file in a child directory on the same path.
+      // we need to add in the link.
+      group[lastSegment].link = realUrl;
     }
 
-    const prevSegment = segments.length > 0 ? segments.at(-1) : null;
-    const niceSegment = segmentToNicePath(lastSegment);
-    const trueSegment = withRewrites ? niceSegment : lastSegment;
-    rewrittenPath.push(niceSegment);
+    // update the leaf-most segment with any frontmatter info
+    const leaf = group[lastSegment]!;
 
-    const rewrittenUrl = `/guides/${rewrittenPath.join('/')}`;
-    // in order for index urls to highlight in the nav they can't have "index" in the url path
-    const realUrl = `/guides/${filepath.endsWith('index.md') ? filepath.replace('/index.md', '') : filepath.replace('.md', '')}`;
+    // if the leaf is the index, we need to update the category entry
+    // and then generate an item entry for it.
+    if (isIndex) {
+      if ('collapsed' in frontMatter.attributes) {
+        leaf.collapsed = frontMatter.attributes.collapsed!;
+      }
+      if ('categoryOrder' in frontMatter.attributes) {
+        leaf.index = frontMatter.attributes.categoryOrder!;
+      }
+      if ('categoryTitle' in frontMatter.attributes) {
+        leaf.text = frontMatter.attributes.categoryTitle!;
+      }
 
-    // add the last segment to the group
-    const existing = Object.keys(group);
-    if (group !== groups && lastSegment === 'index.md') {
-      // if we are an index file, we set the link on the parent
-      // this seems to work even though there's an issue
-      // that says it doesn't: https://github.com/vuejs/vitepress/issues/2989
-      // however:
-      // when doing this, the "next page" feature breaks for
-      // these pages, so for now we just do non-clickable headers.
-      //
-      parent.link = withRewrites ? rewrittenUrl : realUrl;
+      // generate the entry for the file itself unless we are a top-level index file
+      leaf.items['index.md'] = {
+        path: 'index.md',
+        slug: 'index.md',
+        collapsed: false,
+        text: frontMatter.attributes.title ?? 'Overview',
+        index: frontMatter.attributes.order ?? 0,
+        link: group[lastSegment]!.link,
+        items: {},
+      };
+    } else {
+      // update the leaf's title and order
+      if (frontMatter.attributes.title) {
+        leaf.text = frontMatter.attributes.title;
+      }
+      if ('order' in frontMatter.attributes) {
+        leaf.index = frontMatter.attributes.order!;
+      }
     }
-    group[trueSegment] = {
-      text: segmentToTitle(lastSegment, prevSegment),
-      index: segmentToIndex(lastSegment, existing.length),
-      link: withRewrites ? rewrittenUrl : realUrl,
-    };
-
-    rewritten[`${realUrl + '.md'}`] = rewrittenUrl + '.md';
   }
 
   // deep iterate converting items objects to arrays
   const result = deepConvert(groups);
   // console.log(JSON.stringify(result, null, 2));
   // console.log(JSON.stringify(rewritten, null, 2));
-  const structure = { paths: result, rewritten };
+  const structure = { paths: result };
 
   writeFileSync(
     path.join(__dirname, '../docs.warp-drive.io/guides/nav.json'),
@@ -148,23 +236,49 @@ export async function getGuidesStructure(withRewrites = false) {
   await import(path.join(__dirname, '../docs.warp-drive.io/guides/nav.json'), {
     with: { type: 'json' },
   });
-  return { paths: result, rewritten };
+
+  return { paths: result };
 }
 
 function deepConvert(obj: Record<string, any>) {
   const groups = Array.from(Object.values(obj));
+  const sortedGroups = new Array(groups.length).fill(null);
 
   for (const group of groups) {
+    delete group.path;
+    delete group.slug;
+    if (group.index !== null) {
+      if (sortedGroups[group.index] !== null) {
+        throw new Error(`Duplicate index ${group.index} for ${group.path}`);
+      }
+      sortedGroups[group.index] = group;
+    }
     if (group.items) {
-      group.items = deepConvert(group.items);
-      if (!group.link && !group.items[0].items) {
-        group.link = group.items[0].link;
+      if (Object.keys(group.items).length === 0) {
+        delete group.items;
+        delete group.collapsed;
+      } else {
+        group.items = deepConvert(group.items);
+
+        if (!group.link && !group.items[0].items) {
+          group.link = group.items[0].link;
+        }
       }
     }
   }
-  return groups.sort((a, b) => {
-    return a.index < b.index ? -1 : a.index > b.index ? 1 : 0;
-  });
+
+  for (const group of groups) {
+    if (group.index === null) {
+      // find the first null index and insert
+      const firstNullIndex = sortedGroups.findIndex((g) => g === null);
+      if (firstNullIndex !== -1) {
+        sortedGroups[firstNullIndex] = group;
+        group.index = firstNullIndex;
+      }
+    }
+  }
+
+  return sortedGroups;
 }
 
 type SidebarItem = { text: string; items?: SidebarItem[]; link?: string; collapsed?: boolean };

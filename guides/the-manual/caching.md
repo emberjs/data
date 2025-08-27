@@ -1,6 +1,7 @@
 ---
 outline:
   level: 2,3
+order: 2
 ---
 
 # Caching
@@ -12,8 +13,8 @@ as well as the Store's CachePolicy to decide if the version in the Store's Cache
 be reused, or if updated data should be fetched.
 
 <br>
-<img class="dark-only" src="./images/caching-dark.png" alt="waves of reactive signals light up space" width="100%">
-<img class="light-only" src="./images/caching-light.png" alt="waves of reactive signals light up space" width="100%">
+<img class="dark-only" src="../images/caching-dark.png" alt="waves of reactive signals light up space" width="100%">
+<img class="light-only" src="../images/caching-light.png" alt="waves of reactive signals light up space" width="100%">
 
 
 ## Determining If A Request Can Use The Cache

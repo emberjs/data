@@ -1,4 +1,6 @@
 ---
+title: Overview
+categoryOrder: 1
 outline:
   level: 2,3
 ---
@@ -14,8 +16,8 @@ Most commonly remote data refers to data that is stored on your server and acces
 But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored and retrieved again at a later time.
 
 <br>
-<img class="dark-only" src="../images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
-<img class="light-only" src="../images/requests-light.png" alt="waves of reactive signals light up space" width="100%">
+<img class="dark-only" src="../../images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
+<img class="light-only" src="../../images/requests-light.png" alt="waves of reactive signals light up space" width="100%">
 
 ## Reactive Control Flow
 
@@ -206,8 +208,8 @@ Of course, writing requests so manually quickly gets repetitive.
 
 *Warp***Drive** offers two abstractions for helping to write organized, reusable requests.
 
-- [Builders](./3-builders.md) - simple functions that produce a json request object
-- [Handlers](./4-handlers.md) - middleware that enable enhancing, modifying, or responding to requests
+- [Builders](./builders.md) - simple functions that produce a json request object
+- [Handlers](./handlers.md) - middleware that enable enhancing, modifying, or responding to requests
 
 Here's an example of how the requests above could be expressed as builders:
 
@@ -288,7 +290,7 @@ const { content } = await store.request(createContentLike({
 
 :::
 
-Builders make it easy to quickly write shareable, reusable requests with [typed responses](./2-typing-requests.md) that mirror your application's capabilities and critical business logic.
+Builders make it easy to quickly write shareable, reusable requests with [typed responses](./typing-requests.md) that mirror your application's capabilities and critical business logic.
 
 We build on this foundation to give access to a powerful pipeline for managing requests.
 

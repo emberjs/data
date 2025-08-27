@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # Ember.js
 
 ## Add TypeScript Types

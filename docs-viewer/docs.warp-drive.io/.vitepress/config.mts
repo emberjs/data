@@ -8,7 +8,7 @@ const TypeDocSidebar = await postProcessApiDocs();
 import llmstxt from 'vitepress-plugin-llms';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
 
-const GuidesStructure = await getGuidesStructure(false);
+const GuidesStructure = await getGuidesStructure();
 const plugin = groupIconVitePlugin({
   customIcon: {
     ember: 'vscode-icons:file-type-ember',

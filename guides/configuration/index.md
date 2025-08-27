@@ -1,12 +1,19 @@
 ---
+title: 'Setup'
+categoryOrder: 1
 outline:
   level: 2,3
 ---
 
-::: warning 💡 Looking for the [Legacy Package Setup Guide?](../4-legacy-package-setup/2-setup/1-universal)
+::: warning 💡 Looking for the [Legacy Package Setup Guide?](./legacy-package-setup/2-setup/1-universal)
 :::
 
 # Setup
+
+***Warp*Drive** is designed as a series of small packages and primitives with clear interface-driven boundaries between each other and brought together by configuration.
+
+<img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
+<img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
 
 All frameworks should follow this configuration before continuing on to their framework
 specific setup guide.
@@ -357,7 +364,7 @@ you handle centralized concerns around requesting and updating data from your
 backend.
 
 ::: tip 💡 Guide
-→ Learn more about [Making Requests](../../2-requests.md)
+→ Learn more about [Making Requests](../../the-manual/requests.md)
 :::
 
 ```ts [services/store.ts]
@@ -377,7 +384,7 @@ they come packed with features that will help you build incredible
 applications.
 
 ::: tip 💡 Guide
-→ Learn more about [Resource Schemas](../../8-schemas.md)
+→ Learn more about [Resource Schemas](../../the-manual/schemas.md)
 :::
 
 :::tabs key:config
@@ -765,7 +772,7 @@ export default class AppStore extends Store {
 The final setup step is to configure reactivity for your framework. See
 each framework's guide for this step.
 
-- [Ember.js](./2-ember.md)
+- [Ember.js](./ember.md)
 
 ## Configure ESLint
 

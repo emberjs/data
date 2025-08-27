@@ -1,6 +1,9 @@
 ---
 title: Overview
+order: 0
+categoryOrder: 3
 ---
+
 
 ::: tip Boilerplate Sucks 👎🏽
 We're re-aligning our packages into a new streamlined installation and setup experience.<br>
