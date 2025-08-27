@@ -2580,7 +2580,7 @@ importers:
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.0)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.2.5
+        specifier: ^2.4.1
         version: 2.4.1
       decorator-transforms:
         specifier: ^2.2.2
@@ -2784,7 +2784,7 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(6fb350908ec74e8bbaefbfdf6af1258a)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.2.5
+        specifier: ^2.4.1
         version: 2.4.1
       decorator-transforms:
         specifier: ^2.2.2
