@@ -59,7 +59,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/runtime": "^7.28.3",
     "decorator-transforms": "^2.3.0",
-    "@embroider/addon-dev": "^7.1.5",
+    "@embroider/addon-dev": "^8.1.0",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/core": "workspace:*",
     "@types/react": "^19.1.11",
