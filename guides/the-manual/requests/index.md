@@ -334,8 +334,8 @@ When we configured the `RequestManager` above, you may have noticed that when we
 
 `RequestManager` follows the [chain-of-responsibility pattern](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern): each handler in our array may choose to respond to the request, modify it, or pass it along unchanged to the next handler in the array, in array order.
 
-<img class="dark-only" src="../images/handlers-all-purple.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
-<img class="light-only" src="../images/handlers-all-light-2.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
+<img class="dark-only" src="../../images/handlers-all-purple.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
+<img class="light-only" src="../../images/handlers-all-light-2.gif" alt="a flow diagram showing data resolving from server via a chain of request handlers" width="100%">
 
 This architecture allows us to quickly integrate any kind of pre- or post- processing for requests to ensure we get the data we want how we want it.
 
