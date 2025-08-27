@@ -107,6 +107,15 @@ interface RequestSignature<RT, E> {
      */
     content: [value: RT, features: ContentFeatures<RT>];
     always: [state: RequestState<RT, StructuredErrorDocument<E>>];
+
+    /**
+     * Exposes low-level access to the state and current request state directly.
+     *
+     * The default block may be used instead of the other blocks,
+     * but the other blocks may not be used with the default block.
+     * Most of the time, you'll want to use the specific blocks.
+     */
+    default: [state:  RequestSubscription<RT, E>, requsetState: RequestState<RT, StructuredErrorDocument<E>>]
   };
 }
 
@@ -389,7 +398,10 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
 
   <template>
     <this.Chrome @state={{if this.state.isIdle null this.state.reqState}} @features={{this.state.contentFeatures}}>
-      {{#if (and this.state.isIdle (has-block "idle"))}}
+      {{#if (has-block "default")}}
+        {{yield this.state this.state.reqState}}
+
+      {{else if (and this.state.isIdle (has-block "idle"))}}
         {{yield to="idle"}}
 
       {{else if this.state.isIdle}}
