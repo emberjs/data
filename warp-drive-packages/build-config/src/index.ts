@@ -18,8 +18,10 @@
  *     // settings here
  *   });
  *
- *   const { Webpack } = require('@embroider/webpack');
- *   return require('@embroider/compat').compatBuild(app, Webpack, {});
+ *   const { buildOnce } = await import('@embroider/vite');
+ *   const { compatBuild } = await import('@embroider/compat');
+ *
+ *   return compatBuild(app, buildOnce);
  * };
  *
  * ```

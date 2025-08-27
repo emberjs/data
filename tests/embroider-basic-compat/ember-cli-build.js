@@ -27,29 +27,8 @@ module.exports = async function (defaults) {
       DEPRECATE_TRACKING_PACKAGE: false,
     },
   });
+  const { buildOnce } = await import('@embroider/vite');
+  const { compatBuild } = await import('@embroider/compat');
 
-  const { Webpack } = require('@embroider/webpack');
-  return require('@embroider/compat').compatBuild(app, Webpack, {
-    skipBabel: [
-      {
-        package: 'qunit',
-      },
-    ],
-    compatAdapters: new Map([
-      ['@ember-data/active-record', null],
-      ['@ember-data/adapter', null],
-      ['@ember-data/debug', null],
-      ['@ember-data/graph', null],
-      ['@ember-data/json-api', null],
-      ['@ember-data/legacy-compat', null],
-      ['@ember-data/model', null],
-      ['@ember-data/record-data', null],
-      ['@ember-data/request-utils', null],
-      ['@ember-data/request', null],
-      ['@ember-data/rest', null],
-      ['@ember-data/serializer', null],
-      ['@ember-data/store', null],
-      ['ember-data', null],
-    ]),
-  });
+  return compatBuild(app, buildOnce);
 };

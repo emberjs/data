@@ -30,37 +30,8 @@ module.exports = async function (defaults) {
     },
   });
 
-  const { Webpack } = require('@embroider/webpack');
-  // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-  // const path = require('path');
+  const { buildOnce } = await import('@embroider/vite');
+  const { compatBuild } = await import('@embroider/compat');
 
-  return require('@embroider/compat').compatBuild(app, Webpack, {
-    staticAddonTestSupportTrees: true,
-    staticAddonTrees: true,
-    staticHelpers: true,
-    staticModifiers: true,
-    staticComponents: true,
-    staticEmberSource: true,
-    // splitAtRoutes: [], // can also be a RegExp
-    packagerOptions: {
-      webpackConfig: {
-        devtool: 'source-map',
-        optimization: {
-          // minimize: true,
-          moduleIds: 'named',
-        },
-        plugins: [
-          // new BundleAnalyzerPlugin({
-          //   generateStatsFile: true,
-          //   openAnalyzer: true,
-          //   statsFilename: path.join(
-          //     process.cwd(),
-          //     'concat-stats-for',
-          //     'my-stats.json',
-          //   ),
-          // }),
-        ],
-      },
-    },
-  });
+  return compatBuild(app, buildOnce);
 };
