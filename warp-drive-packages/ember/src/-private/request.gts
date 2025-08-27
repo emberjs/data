@@ -1,7 +1,6 @@
 import type { TOC } from '@ember/component/template-only';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
-import { cached } from '@glimmer/tracking';
 
 import { importSync, macroCondition, moduleExists } from '@embroider/macros';
 import type { ComponentLike } from '@glint/template';
@@ -16,7 +15,7 @@ import type {
   RequestState,
   RequestSubscription,
 } from '@warp-drive/core/store/-private';
-import { createRequestSubscription, DISPOSE } from '@warp-drive/core/store/-private';
+import { createRequestSubscription, DISPOSE, memoized } from '@warp-drive/core/store/-private';
 import type { StructuredErrorDocument } from '@warp-drive/core/types/request';
 
 import { and, Throw } from './await.gts';
@@ -373,7 +372,7 @@ export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
    *
    * @private
    */
-  @cached
+  @memoized
   get Chrome(): ComponentLike<{
     Blocks: { default: [] };
     Args: { state: RequestState | null; features: ContentFeatures<RT> };
