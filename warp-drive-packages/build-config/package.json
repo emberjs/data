@@ -54,7 +54,7 @@
     "@types/node": "^20.19.11",
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
-    "@babel/core": "^7.28.0",
+    "@babel/core": "^7.28.3",
     "typescript": "^5.9.2",
     "vite": "^7.1.3"
   },

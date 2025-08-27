@@ -25,8 +25,8 @@
     "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/runtime": "^7.28.2",
+    "@babel/core": "^7.28.3",
+    "@babel/runtime": "^7.28.3",
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@rollup/plugin-babel": "^6.0.4",
     "babel-plugin-debug-macros": "^2.0.0",
