@@ -2583,7 +2583,7 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
       ember-source:
         specifier: ^6.6.0
@@ -2787,7 +2787,7 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       decorator-transforms:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
       ember-source:
         specifier: ^6.6.0

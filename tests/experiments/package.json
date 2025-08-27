@@ -59,7 +59,7 @@
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/schema-record": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.4.1",
-    "decorator-transforms": "^2.2.2",
+    "decorator-transforms": "^2.3.0",
     "ember-source": "^6.6.0",
     "ember-strict-application-resolver": "^0.1.0",
     "rollup": "^4.48.0",
