@@ -3063,6 +3063,105 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
 
+  tests/legacy:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.0
+        version: 7.28.3
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.3)
+      '@babel/runtime':
+        specifier: ^7.28.2
+        version: 7.28.3
+      '@ember/test-helpers':
+        specifier: 5.2.0
+        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(a28950a1e4cd07d337893daf47c6f294)
+      '@ember/test-waiters':
+        specifier: ^4.1.0
+        version: 4.1.1(@babel/core@7.28.3)
+      '@embroider/core':
+        specifier: ^4.1.3
+        version: 4.1.3
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.3)
+      '@embroider/vite':
+        specifier: ^1.1.6
+        version: 1.2.0(b0f5350aa3e7a80d44f142c8b6e5ccd3)
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/core':
+        specifier: alpha
+        version: 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose':
+        specifier: alpha
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
+      '@glint/environment-ember-template-imports':
+        specifier: alpha
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
+      '@glint/template':
+        specifier: alpha
+        version: 1.6.0-alpha.2
+      '@glint/tsserver-plugin':
+        specifier: alpha
+        version: 2.0.0-alpha.4
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.3)(rollup@4.48.1)
+      '@warp-drive-internal/specs':
+        specifier: workspace:*
+        version: file:specs(4303d5cd598b8ec500a4d16d10608aac)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.3)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(aee654df6dc3ed0e82ba2e6019020ca6)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck(19e1072f23293e4c2aeee5c79542e276)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config(terser@5.43.1)
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(da2d8626017c763d07445c649af78d55)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
+      babel-plugin-ember-template-compilation:
+        specifier: ^2.2.5
+        version: 2.4.1
+      decorator-transforms:
+        specifier: ^2.2.2
+        version: 2.3.0(@babel/core@7.28.3)
+      ember-source:
+        specifier: ^6.6.0
+        version: 6.6.0(@glimmer/component@2.0.0)
+      ember-strict-application-resolver:
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.28.3)
+      rollup:
+        specifier: ^4.46.2
+        version: 4.48.1
+      terser:
+        specifier: ^5.39.0
+        version: 5.43.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.3(terser@5.43.1)
+
   tests/main:
     devDependencies:
       '@babel/core':
@@ -5637,9 +5736,6 @@ packages:
   '@glimmer/global-context@0.93.4':
     resolution: {integrity: sha512-Yw9xkDReAcC5oS/hY3PjGrFKRygYFA4pdO7tvuxReoVOyUtjoBOAwHJUileiElERDdMWIMfoLema8Td1mqkjhA==}
 
-  '@glimmer/interfaces@0.84.3':
-    resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
-
   '@glimmer/interfaces@0.92.3':
     resolution: {integrity: sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==}
 
@@ -5688,9 +5784,6 @@ packages:
   '@glimmer/runtime@0.94.10':
     resolution: {integrity: sha512-eRe9TmP02ESVXJn2ZOOEm/Hm/Ro7X0kRvZsU8OVtXOqWU8JxeKMwjCEiLbJBQKbYfycRy1u8jZ2wuH0qM/d3EQ==}
 
-  '@glimmer/syntax@0.84.3':
-    resolution: {integrity: sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==}
-
   '@glimmer/syntax@0.92.3':
     resolution: {integrity: sha512-7wPKQmULyXCYf0KvbPmfrs/skPISH2QGR9atCnmDWnHyLv5SSZVLm1P0Ctrpta6+Ci3uGQb7hGk0IjsLEavcYQ==}
 
@@ -5699,9 +5792,6 @@ packages:
 
   '@glimmer/tracking@1.1.2':
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
-
-  '@glimmer/util@0.84.3':
-    resolution: {integrity: sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==}
 
   '@glimmer/util@0.92.3':
     resolution: {integrity: sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==}
@@ -6630,9 +6720,6 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
-
-  '@types/node@20.17.46':
-    resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
 
   '@types/node@20.19.11':
     resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
@@ -13330,9 +13417,6 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -16535,10 +16619,6 @@ snapshots:
 
   '@glimmer/global-context@0.93.4': {}
 
-  '@glimmer/interfaces@0.84.3':
-    dependencies:
-      '@simple-dom/interface': 1.4.0
-
   '@glimmer/interfaces@0.92.3':
     dependencies:
       '@simple-dom/interface': 1.4.0
@@ -16675,14 +16755,6 @@ snapshots:
       '@glimmer/validator': 0.95.0
       '@glimmer/vm': 0.94.8
 
-  '@glimmer/syntax@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@handlebars/parser': 2.0.0
-      simple-html-tokenizer: 0.5.11
-
   '@glimmer/syntax@0.92.3':
     dependencies:
       '@glimmer/env': 0.1.7
@@ -16705,12 +16777,6 @@ snapshots:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/validator': 0.95.0
-
-  '@glimmer/util@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@simple-dom/interface': 1.4.0
 
   '@glimmer/util@0.92.3':
     dependencies:
@@ -17758,10 +17824,6 @@ snapshots:
       '@types/node': 24.3.0
 
   '@types/ms@2.1.0': {}
-
-  '@types/node@20.17.46':
-    dependencies:
-      undici-types: 6.19.8
 
   '@types/node@20.19.11':
     dependencies:
@@ -26986,8 +27048,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   underscore@1.13.7: {}
-
-  undici-types@6.19.8: {}
 
   undici-types@6.21.0: {}
 
