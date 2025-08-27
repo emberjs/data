@@ -3722,6 +3722,9 @@ importers:
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.0)
+      ember-auto-import:
+        specifier: ^2.10.0
+        version: 2.10.0
       ember-cli:
         specifier: ~6.6.0
         version: 6.6.0
