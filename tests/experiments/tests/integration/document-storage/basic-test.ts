@@ -1,5 +1,5 @@
-import type { StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { PersistedResourceKey } from '@warp-drive/core/types/identifier';
+import type { StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { ResourceDataDocument } from '@warp-drive/core/types/spec/document';
 import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';

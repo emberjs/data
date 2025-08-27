@@ -1,8 +1,8 @@
-import { JSONAPICache } from '@warp-drive/json-api';
-import { Fetch, Store, RequestManager } from '@warp-drive/core';
+import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
 import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import { CacheHandler, DataWorker } from '@warp-drive/experiments/data-worker';
+import { JSONAPICache } from '@warp-drive/json-api';
 import { SchemaService } from '@warp-drive/schema-record';
 
 import { UserSchema } from './user-schema';

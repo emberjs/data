@@ -1,14 +1,13 @@
-import { JSONAPICache } from '@warp-drive/json-api';
-import { Store, CacheHandler, RequestManager } from '@warp-drive/core';
+import { CacheHandler, RequestManager, Store } from '@warp-drive/core';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
-import { buildBaseURL } from '@warp-drive/utilities';
-import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
-import type { ResourceKey } from '@warp-drive/core/types';
+import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
 import { module, test } from '@warp-drive/diagnostic';
 import { WorkerFetch } from '@warp-drive/experiments/worker-fetch';
 import { MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
+import { JSONAPICache } from '@warp-drive/json-api';
 import { instantiateRecord, registerDerivations, SchemaService, teardownRecord } from '@warp-drive/schema-record';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 import { UserSchema } from './user-schema';
 
