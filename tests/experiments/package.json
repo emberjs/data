@@ -58,7 +58,7 @@
     "@warp-drive/holodeck": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/schema-record": "workspace:*",
-    "babel-plugin-ember-template-compilation": "^2.2.5",
+    "babel-plugin-ember-template-compilation": "^2.4.1",
     "decorator-transforms": "^2.2.2",
     "ember-source": "^6.6.0",
     "ember-strict-application-resolver": "^0.1.0",
