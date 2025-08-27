@@ -2619,6 +2619,132 @@ importers:
         specifier: ^7.1.3
         version: 7.1.3
 
+  tests/experiments:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.0
+        version: 7.28.0
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.0)
+      '@babel/runtime':
+        specifier: ^7.28.2
+        version: 7.28.3
+      '@ember-data/debug':
+        specifier: workspace:*
+        version: file:packages/debug(0938cc1f6d919e67c8eaadd2d8dfe8a1)
+      '@ember-data/graph':
+        specifier: workspace:*
+        version: file:packages/graph(@babel/core@7.28.0)
+      '@ember-data/json-api':
+        specifier: workspace:*
+        version: file:packages/json-api(@babel/core@7.28.0)
+      '@ember-data/legacy-compat':
+        specifier: workspace:*
+        version: file:packages/legacy-compat(@babel/core@7.28.0)
+      '@ember-data/model':
+        specifier: workspace:*
+        version: file:packages/model(@babel/core@7.28.0)
+      '@ember-data/request':
+        specifier: workspace:*
+        version: file:packages/request(@babel/core@7.28.0)
+      '@ember-data/request-utils':
+        specifier: workspace:*
+        version: file:packages/request-utils(@babel/core@7.28.0)
+      '@ember-data/store':
+        specifier: workspace:*
+        version: file:packages/store(a4caeee62d079443ffbeb760d1e7986d)
+      '@ember-data/unpublished-test-infra':
+        specifier: workspace:*
+        version: file:packages/unpublished-test-infra(5ce0b13e03b668398b5ccbaa7bd078a3)
+      '@ember/test-helpers':
+        specifier: 5.2.0
+        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
+      '@ember/test-waiters':
+        specifier: ^4.1.1
+        version: 4.1.1(@babel/core@7.28.0)
+      '@embroider/core':
+        specifier: ^4.1.3
+        version: 4.1.3
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.0)
+      '@embroider/vite':
+        specifier: ^1.2.0
+        version: 1.2.0(b0f5350aa3e7a80d44f142c8b6e5ccd3)
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@glint/core':
+        specifier: alpha
+        version: 2.0.0-alpha.4(typescript@5.9.2)
+      '@glint/environment-ember-loose':
+        specifier: alpha
+        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
+      '@glint/environment-ember-template-imports':
+        specifier: alpha
+        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
+      '@glint/template':
+        specifier: alpha
+        version: 1.6.0-alpha.2
+      '@glint/tsserver-plugin':
+        specifier: alpha
+        version: 2.0.0-alpha.4
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.0)(rollup@4.48.1)
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:warp-drive-packages/build-config(@babel/core@7.28.0)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.0)
+      '@warp-drive/core-types':
+        specifier: workspace:*
+        version: file:packages/core-types(@babel/core@7.28.0)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(a4caeee62d079443ffbeb760d1e7986d)
+      '@warp-drive/experiments':
+        specifier: workspace:*
+        version: file:warp-drive-packages/experiments(6fb350908ec74e8bbaefbfdf6af1258a)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:config(terser@5.43.1)
+      '@warp-drive/schema-record':
+        specifier: workspace:*
+        version: file:packages/schema-record(@babel/core@7.28.0)
+      babel-plugin-ember-template-compilation:
+        specifier: ^2.2.5
+        version: 2.4.1
+      decorator-transforms:
+        specifier: ^2.2.2
+        version: 2.3.0(@babel/core@7.28.0)
+      ember-source:
+        specifier: ^6.6.0
+        version: 6.6.0(@glimmer/component@2.0.0)
+      ember-strict-application-resolver:
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.28.0)
+      rollup:
+        specifier: ^4.48.0
+        version: 4.48.1
+      terser:
+        specifier: ^5.43.1
+        version: 5.43.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.1.3
+        version: 7.1.3(terser@5.43.1)
+
   tests/fastboot:
     devDependencies:
       '@babel/core':
@@ -3632,132 +3758,6 @@ importers:
       vite:
         specifier: ^7.1.3
         version: 7.1.3
-
-  tests/warp-drive__experiments:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.28.0
-        version: 7.28.0
-      '@babel/plugin-transform-typescript':
-        specifier: ^7.28.0
-        version: 7.28.0(@babel/core@7.28.0)
-      '@babel/runtime':
-        specifier: ^7.28.2
-        version: 7.28.3
-      '@ember-data/debug':
-        specifier: workspace:*
-        version: file:packages/debug(0938cc1f6d919e67c8eaadd2d8dfe8a1)
-      '@ember-data/graph':
-        specifier: workspace:*
-        version: file:packages/graph(@babel/core@7.28.0)
-      '@ember-data/json-api':
-        specifier: workspace:*
-        version: file:packages/json-api(@babel/core@7.28.0)
-      '@ember-data/legacy-compat':
-        specifier: workspace:*
-        version: file:packages/legacy-compat(@babel/core@7.28.0)
-      '@ember-data/model':
-        specifier: workspace:*
-        version: file:packages/model(@babel/core@7.28.0)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.28.0)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.28.0)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(a4caeee62d079443ffbeb760d1e7986d)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:*
-        version: file:packages/unpublished-test-infra(5ce0b13e03b668398b5ccbaa7bd078a3)
-      '@ember/test-helpers':
-        specifier: 5.2.0
-        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(93daa7ea918f682a7bd5f4b81effcd37)
-      '@ember/test-waiters':
-        specifier: ^4.1.1
-        version: 4.1.1(@babel/core@7.28.0)
-      '@embroider/core':
-        specifier: ^4.1.3
-        version: 4.1.3
-      '@embroider/macros':
-        specifier: ^1.18.1
-        version: 1.18.1(@babel/core@7.28.0)
-      '@embroider/vite':
-        specifier: ^1.2.0
-        version: 1.2.0(b0f5350aa3e7a80d44f142c8b6e5ccd3)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@glint/core':
-        specifier: alpha
-        version: 2.0.0-alpha.4(typescript@5.9.2)
-      '@glint/environment-ember-loose':
-        specifier: alpha
-        version: 2.0.0-alpha.3(46a905a5f609d8a781ab3de99565295e)
-      '@glint/environment-ember-template-imports':
-        specifier: alpha
-        version: 2.0.0-alpha.3(e8cab91762761aa130002b471716ad5d)
-      '@glint/template':
-        specifier: alpha
-        version: 1.6.0-alpha.2
-      '@glint/tsserver-plugin':
-        specifier: alpha
-        version: 2.0.0-alpha.4
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.28.0)(rollup@4.48.1)
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:warp-drive-packages/build-config(@babel/core@7.28.0)
-      '@warp-drive/core':
-        specifier: workspace:*
-        version: file:warp-drive-packages/core(@babel/core@7.28.0)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.28.0)
-      '@warp-drive/diagnostic':
-        specifier: workspace:*
-        version: file:packages/diagnostic(912669a790bc6dbf0beb1a3a43ecf2a0)
-      '@warp-drive/ember':
-        specifier: workspace:*
-        version: file:warp-drive-packages/ember(a4caeee62d079443ffbeb760d1e7986d)
-      '@warp-drive/experiments':
-        specifier: workspace:*
-        version: file:warp-drive-packages/experiments(6fb350908ec74e8bbaefbfdf6af1258a)
-      '@warp-drive/holodeck':
-        specifier: workspace:*
-        version: file:packages/holodeck(a43ce7141e9eb40bea979c6a336561b4)
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config(terser@5.43.1)
-      '@warp-drive/schema-record':
-        specifier: workspace:*
-        version: file:packages/schema-record(@babel/core@7.28.0)
-      babel-plugin-ember-template-compilation:
-        specifier: ^2.2.5
-        version: 2.4.1
-      decorator-transforms:
-        specifier: ^2.2.2
-        version: 2.3.0(@babel/core@7.28.0)
-      ember-source:
-        specifier: ^6.6.0
-        version: 6.6.0(@glimmer/component@2.0.0)
-      ember-strict-application-resolver:
-        specifier: ^0.1.0
-        version: 0.1.0(@babel/core@7.28.0)
-      rollup:
-        specifier: ^4.48.0
-        version: 4.48.1
-      terser:
-        specifier: ^5.43.1
-        version: 5.43.1
-      typescript:
-        specifier: 5.9.2
-        version: 5.9.2
-      vite:
-        specifier: ^7.1.3
-        version: 7.1.3(terser@5.43.1)
 
   tests/warp-drive__schema: {}
 
