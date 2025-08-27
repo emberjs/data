@@ -1,9 +1,61 @@
+# @warp-drive/react
+
 This package provides a React-specific reactivity integration,
 components and hooks for *Warp***Drive**.
 
+- [Installation](/guides/1-configuration/1-overview#react)
+- [Configuration](/guides/1-configuration/2-setup/1-universal)
+
 ## The Basics
 
-make requests, profit
+1. Provide your app with a store.
+
+```tsx [src/app.tsx]
+import { StoreProvider } from '@warp-drive/react';
+import { Store } from './store.ts';
+import { UserList } from './user-list.tsx';
+
+export function App(props) {
+  return (
+    <div className='App'>
+      <StoreProvider @Store={Store}>
+        <h1>Hello React!</h1>
+        <UserList />
+      </StoreProvider>
+    </div>
+  );
+}
+```
+
+2. Make your First Request.
+
+```tsx [src/users.tsx]
+import { Request } from '@warp-drive/react';
+import { listUsers } from './api.ts';
+
+export function UserList() {
+  return (
+    <Request
+      query={listUsers()}
+      states={{
+        loading: ({ state }) => <div>Loading Users...</div>,
+        error: ({ error, features }) => (
+          <div>
+            <p>Error: {error.message}</p>
+            <p><button onClick={features.retry}>Try Again?</button></p>
+          </div>
+        ),
+        content: ({ result, features }) => (
+          <ul>
+            {result.data.map(user => <li>{user.name}</li>)}
+          </ul>
+        ),
+      }}
+    />
+  );
+}
+```
+
 
 ## How It Works
 

@@ -54,6 +54,8 @@ Our innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-
 No more boxing/unboxing, extra methods, funny syntaxes, or other boilerplate. Your data is reactive
 without any ceremony, and has the same shape you'd expect if it were "just an object" or "just an array".
 
+It even works with [React](/api/@warp-drive/react)!
+
 ## Requests Without The Fuss {#requests}
 
 ```ts
