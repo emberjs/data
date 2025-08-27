@@ -51,7 +51,7 @@
     "@manypkg/get-packages": "^3.1.0",
     "@warp-drive/core": "workspace:*",
     "semver": "^7.7.2",
-    "debug": "^4.4.0",
+    "debug": "^4.4.1",
     "chalk": "^5.3.0",
     "comment-json": "^4.2.5"
   },

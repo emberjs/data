@@ -16,7 +16,7 @@
     "@embroider/addon-dev": "^8.1.0",
     "@eslint/js": "^9.34.0",
     "comment-json": "^4.2.5",
-    "debug": "^4.4.0",
+    "debug": "^4.4.1",
     "globals": "^16.3.0",
     "glob": "^11.0.3",
     "ember-eslint-parser": "^0.5.11",

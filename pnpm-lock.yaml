@@ -109,8 +109,8 @@ importers:
         specifier: ^1.8.2
         version: 1.8.2
       debug:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^4.4.1
+        version: 4.4.1
       ember-source:
         specifier: ~6.6.0
         version: 6.6.0(@glimmer/component@2.0.0)
@@ -190,8 +190,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       debug:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^4.4.1
+        version: 4.4.1
       ember-eslint-parser:
         specifier: ^0.5.11
         version: 0.5.11(3c00348fb89b2cf043c8fabd6ae197d2)
@@ -319,8 +319,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -443,8 +443,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       debug:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^4.4.1
+        version: 4.4.1
       semver:
         specifier: ^7.7.2
         version: 7.7.2
@@ -692,8 +692,8 @@ importers:
         specifier: ^5.3.0
         version: 5.4.1
       debug:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^4.4.1
+        version: 4.4.1
       dom-element-descriptors:
         specifier: ^0.5.1
         version: 0.5.1
@@ -8569,15 +8569,6 @@ packages:
 
   debug@4.3.7:
     resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
-  debug@4.4.0:
-    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -18640,7 +18631,7 @@ snapshots:
       '@types/debug': 4.1.12
       chalk: 5.4.1
       comment-json: 4.2.5
-      debug: 4.4.0
+      debug: 4.4.1
       typescript: 5.9.2
     transitivePeerDependencies:
       - '@types/react'
@@ -20529,10 +20520,6 @@ snapshots:
       ms: 2.1.3
 
   debug@4.3.7:
-    dependencies:
-      ms: 2.1.3
-
-  debug@4.4.0:
     dependencies:
       ms: 2.1.3
 
