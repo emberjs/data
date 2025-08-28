@@ -5,7 +5,7 @@
   "description": "Tests for the @ember-data/serializer package",
   "repository": {
     "type": "git",
-    "url": "https://github.com/emberjs/data.git",
+    "url": "https://github.com/warp-drive-data/warp-drive.git",
     "directory": "tests/ember-data__serializer"
   },
   "license": "MIT",

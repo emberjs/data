@@ -69,7 +69,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultsCopy = structuredClone(expectedResults);
@@ -131,7 +131,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultsCopy = structuredClone(expectedResults);
@@ -486,7 +486,7 @@ module('integration/coalescing - Coalescing Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultsCopy = structuredClone(expectedResults);

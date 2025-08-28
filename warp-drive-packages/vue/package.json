@@ -8,11 +8,11 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
     "directory": "warp-drive-packages/vue"
   },
-  "homepage": "https://github.com/emberjs/data",
-  "bugs": "https://github.com/emberjs/data/issues",
+  "homepage": "https://github.com/warp-drive-data/warp-drive",
+  "bugs": "https://github.com/warp-drive-data/warp-drive/issues",
   "keywords": [
     "nuxt",
     "vuejs",

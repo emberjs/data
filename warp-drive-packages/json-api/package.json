@@ -9,7 +9,7 @@
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
     "directory": "warp-drive-packages/json-api"
   },
   "scripts": {

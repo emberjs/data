@@ -109,7 +109,7 @@ export async function updateChangelogs(
       changelogLines = [
         `# ${pkg.pkgData.name} Changelog`,
         '',
-        `For the full project changelog see [https://github.com/emberjs/data/blob/main/CHANGELOG.md](https://github.com/emberjs/data/blob/main/CHANGELOG.md)`,
+        `For the full project changelog see [https://github.com/warp-drive-data/warp-drive/blob/main/CHANGELOG.md](https://github.com/warp-drive-data/warp-drive/blob/main/CHANGELOG.md)`,
         '',
         ...newLines,
         '',

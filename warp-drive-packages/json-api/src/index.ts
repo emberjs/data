@@ -3,7 +3,7 @@ export { JSONAPICache } from './-private/cache';
 /**
  *
 
-This package provides an in-memory [JSON:API](https://jsonapi.org/) document and resource [*Ember***Data** Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts) implementation.
+This package provides an in-memory [JSON:API](https://jsonapi.org/) document and resource [*Ember***Data** Cache](https://github.com/warp-drive-data/warp-drive/blob/main/ember-data-types/cache/cache.ts) implementation.
 
 ## Installation
 
@@ -16,7 +16,7 @@ pnpm add @ember-data/json-api
 ## 🚀 Setup
 
 > **Note**
-> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> When using [ember-data](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
 ```ts

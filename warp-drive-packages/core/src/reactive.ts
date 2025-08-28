@@ -26,7 +26,7 @@
  * - local changes immediately reflect app wide
  * - records have all the APIs of Model (references, state props, currentState, methods etc)
  * - the continued use of `@warp-drive/legacy` is required (though most imports from it can be removed)
- * - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
+ * - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
  *
  * ---
  *
@@ -38,7 +38,7 @@
  * - local changes are isolated until committed, displaying only via the editable version of the record
  * - records have a more limited API, focused on only what is in their schema.
  * - some common operations may have more friction to perform because intended utilities are not yet available
- * - `async: true` relationships are not supported (see [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
+ * - `async: true` relationships are not supported (see [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
  * - The `@warp-drive/legacy` package is not required
  *
  * These modes are interopable. The reactive object (record) for a resource in PolarisMode can relate to

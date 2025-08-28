@@ -81,7 +81,7 @@ if (macroCondition(getGlobalConfig<{ WarpDrive: { polyfillUUID: boolean } }>().W
 
 function uuidv4(): string {
   assert(
-    'crypto.randomUUID needs to be avaliable. Some browsers incorrectly disallow it in insecure contexts. You maybe want to enable the polyfill: https://github.com/emberjs/data#randomuuid-polyfill',
+    'crypto.randomUUID needs to be avaliable. Some browsers incorrectly disallow it in insecure contexts. You maybe want to enable the polyfill: https://github.com/warp-drive-data/warp-drive#randomuuid-polyfill',
     typeof _crypto.randomUUID === 'function'
   );
   return _crypto.randomUUID();

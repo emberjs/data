@@ -5,7 +5,7 @@
   "description": "Provides tests for blueprints",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
     "directory": "tests/blueprints"
   },
   "license": "MIT",

@@ -8,7 +8,7 @@ const RuntimeConfig: { debug: Partial<LOG_CONFIG> } = getOrSetUniversal('WarpDri
 
 function trySessionStorage() {
   // This works even when sessionStorage is not available.
-  // See https://github.com/emberjs/data/issues/9784
+  // See https://github.com/warp-drive-data/warp-drive/issues/9784
   try {
     return globalThis.sessionStorage;
   } catch {

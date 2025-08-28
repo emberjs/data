@@ -5,7 +5,7 @@
   "description": "Small description for fastboot-test-app goes here",
   "repository": {
     "type": "git",
-    "url": "https://github.com/emberjs/data.git",
+    "url": "https://github.com/warp-drive-data/warp-drive.git",
     "directory": "tests/fastboot"
   },
   "license": "MIT",

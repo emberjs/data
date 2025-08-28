@@ -6,7 +6,7 @@ module.exports = {
       description: 'require inverse to be specified in @belongsTo and @hasMany decorators',
       category: 'Best Practices',
       recommended: true,
-      url: 'https://github.com/emberjs/data/tree/main/packages/eslint-plugin-warp-drive/docs/rules/no-invalid-relationships.md',
+      url: 'https://github.com/warp-drive-data/warp-drive/tree/main/packages/eslint-plugin-warp-drive/docs/rules/no-invalid-relationships.md',
     },
     schema: [],
   },

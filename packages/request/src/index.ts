@@ -3,7 +3,7 @@
   <p align="center">
   <img
     class="project-logo"
-    src="https://raw.githubusercontent.com/emberjs/data/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
+    src="https://raw.githubusercontent.com/warp-drive-data/warp-drive/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
     alt="EmberData RequestManager"
     width="240px"
     title="EmberData RequestManager"
@@ -12,7 +12,7 @@
 
 <p align="center">⚡️ a simple abstraction over fetch to enable easy management of request/response flows</p>
 
-This package provides [*Ember*‍**Data**](https://github.com/emberjs/data/)'s `RequestManager`, a framework agnostic library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
+This package provides [*Ember*‍**Data**](https://github.com/warp-drive-data/warp-drive/)'s `RequestManager`, a framework agnostic library that can be integrated with any Javascript application to make [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) happen.
 
 - [Installation](#installation)
 - [Basic Usage](#🚀-basic-usage)
@@ -70,7 +70,7 @@ A `RequestManager` receives a request and manages fulfillment via configured han
 
 Each handler may choose to fulfill the request using some source of data or to pass the request along to other handlers.
 
-The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember*‍**Data**{Store}](https://github.com/emberjs/data/tree/main/packages/store)
+The same or a separate instance of a `RequestManager` may also be used to fulfill requests issued by [*Ember*‍**Data**{Store}](https://github.com/warp-drive-data/warp-drive/tree/main/packages/store)
 
 When the same instance is used by both this allows for simple coordination throughout the application. Requests issued by the Store will use the in-memory cache
 and return hydrated responses, requests issued directly to the RequestManager
@@ -394,10 +394,10 @@ export default {
 
 #### Using with `ember-data`
 
-If using the package [ember-data](https://github.com/emberjs/data/tree/main/packages/-ember-data),
+If using the package [ember-data](https://github.com/warp-drive-data/warp-drive/tree/main/packages/-ember-data),
 the following configuration will automatically be done in order to preserve the
-legacy [Adapter](https://github.com/emberjs/data/tree/main/packages/adapter) and
-[Serializer](https://github.com/emberjs/data/tree/main/packages/serializer) behavior.
+legacy [Adapter](https://github.com/warp-drive-data/warp-drive/tree/main/packages/adapter) and
+[Serializer](https://github.com/warp-drive-data/warp-drive/tree/main/packages/serializer) behavior.
 Additional handlers or a service injection like the above would need to be done by the
 consuming application in order to make broader use of `RequestManager`.
 

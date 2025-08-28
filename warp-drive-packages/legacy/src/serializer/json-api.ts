@@ -17,7 +17,7 @@ import { JSONSerializer } from './json';
   <p>
     ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/emberjs/data/tree/main/packages/request#readme">RequestManager</a>
+    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
   </p>
   </blockquote>
 
