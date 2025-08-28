@@ -3,7 +3,6 @@ packages:
   - "packages/*"
   - "tools/*"
   - "warp-drive-packages/*"
-  - "internal-tooling"
   - "docs-viewer"
   - "!docs-viewer/projects/*"
   - "tests/*"
