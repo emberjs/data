@@ -2583,8 +2583,8 @@ importers:
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.3)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -2787,8 +2787,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -3363,8 +3363,8 @@ importers:
         specifier: workspace:*
         version: file:config(terser@5.43.1)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       bun-types:
         specifier: ^1.2.20
         version: 1.2.20
@@ -3522,8 +3522,8 @@ importers:
         specifier: workspace:*
         version: file:config
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       concurrently:
         specifier: ^9.2.0
         version: 9.2.1
@@ -3908,8 +3908,8 @@ importers:
         specifier: workspace:*
         version: file:config
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -5637,9 +5637,6 @@ packages:
   '@glimmer/global-context@0.93.4':
     resolution: {integrity: sha512-Yw9xkDReAcC5oS/hY3PjGrFKRygYFA4pdO7tvuxReoVOyUtjoBOAwHJUileiElERDdMWIMfoLema8Td1mqkjhA==}
 
-  '@glimmer/interfaces@0.84.3':
-    resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
-
   '@glimmer/interfaces@0.92.3':
     resolution: {integrity: sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==}
 
@@ -5688,9 +5685,6 @@ packages:
   '@glimmer/runtime@0.94.10':
     resolution: {integrity: sha512-eRe9TmP02ESVXJn2ZOOEm/Hm/Ro7X0kRvZsU8OVtXOqWU8JxeKMwjCEiLbJBQKbYfycRy1u8jZ2wuH0qM/d3EQ==}
 
-  '@glimmer/syntax@0.84.3':
-    resolution: {integrity: sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==}
-
   '@glimmer/syntax@0.92.3':
     resolution: {integrity: sha512-7wPKQmULyXCYf0KvbPmfrs/skPISH2QGR9atCnmDWnHyLv5SSZVLm1P0Ctrpta6+Ci3uGQb7hGk0IjsLEavcYQ==}
 
@@ -5699,9 +5693,6 @@ packages:
 
   '@glimmer/tracking@1.1.2':
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
-
-  '@glimmer/util@0.84.3':
-    resolution: {integrity: sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==}
 
   '@glimmer/util@0.92.3':
     resolution: {integrity: sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==}
@@ -6631,9 +6622,6 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.17.46':
-    resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
-
   '@types/node@20.19.11':
     resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
 
@@ -7491,6 +7479,10 @@ packages:
 
   babel-plugin-ember-template-compilation@3.0.0:
     resolution: {integrity: sha512-tIZh1sgvswtJqtjiAQLZEtfje37HvsFsivV3jOrkruq0K1JzewP5VUJxx72qK3vwqFOG6XtiVXYBNyEJFmdXgQ==}
+    engines: {node: '>= 18.*'}
+
+  babel-plugin-ember-template-compilation@3.0.1:
+    resolution: {integrity: sha512-3fUgnv+azabsl2PMd+SpkV8E7vvp7oRLaXv+OJIe36G3niSVYDKJ+7n6WaPyh+z7gqeAKSBj7Bdc5dYbhEMsgQ==}
     engines: {node: '>= 18.*'}
 
   babel-plugin-htmlbars-inline-precompile@5.3.1:
@@ -13330,9 +13322,6 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -16535,10 +16524,6 @@ snapshots:
 
   '@glimmer/global-context@0.93.4': {}
 
-  '@glimmer/interfaces@0.84.3':
-    dependencies:
-      '@simple-dom/interface': 1.4.0
-
   '@glimmer/interfaces@0.92.3':
     dependencies:
       '@simple-dom/interface': 1.4.0
@@ -16675,14 +16660,6 @@ snapshots:
       '@glimmer/validator': 0.95.0
       '@glimmer/vm': 0.94.8
 
-  '@glimmer/syntax@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@handlebars/parser': 2.0.0
-      simple-html-tokenizer: 0.5.11
-
   '@glimmer/syntax@0.92.3':
     dependencies:
       '@glimmer/env': 0.1.7
@@ -16705,12 +16682,6 @@ snapshots:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/validator': 0.95.0
-
-  '@glimmer/util@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@simple-dom/interface': 1.4.0
 
   '@glimmer/util@0.92.3':
     dependencies:
@@ -17758,10 +17729,6 @@ snapshots:
       '@types/node': 24.3.0
 
   '@types/ms@2.1.0': {}
-
-  '@types/node@20.17.46':
-    dependencies:
-      undici-types: 6.19.8
 
   '@types/node@20.19.11':
     dependencies:
@@ -19193,6 +19160,12 @@ snapshots:
       babel-import-util: 3.0.1
 
   babel-plugin-ember-template-compilation@3.0.0:
+    dependencies:
+      '@glimmer/syntax': 0.94.9
+      babel-import-util: 3.0.1
+      import-meta-resolve: 4.1.0
+
+  babel-plugin-ember-template-compilation@3.0.1:
     dependencies:
       '@glimmer/syntax': 0.94.9
       babel-import-util: 3.0.1
@@ -26986,8 +26959,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   underscore@1.13.7: {}
-
-  undici-types@6.19.8: {}
 
   undici-types@6.21.0: {}
 
