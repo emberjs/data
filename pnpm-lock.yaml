@@ -157,87 +157,6 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
 
-  config:
-    dependencies:
-      '@babel/cli':
-        specifier: ^7.28.3
-        version: 7.28.3(@babel/core@7.28.3)
-      '@babel/core':
-        specifier: ^7.28.3
-        version: 7.28.3
-      '@babel/eslint-parser':
-        specifier: 7.28.0
-        version: 7.28.0(@babel/core@7.28.3)(eslint@9.34.0)
-      '@embroider/addon-dev':
-        specifier: ^8.1.0
-        version: 8.1.0(rollup@4.48.1)
-      '@eslint/js':
-        specifier: ^9.34.0
-        version: 9.34.0
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.28.3)(rollup@4.48.1)
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.40.0
-        version: 8.41.0(ad3e4b2f3df4fca831ef47c5e1339106)
-      '@typescript-eslint/parser':
-        specifier: ^8.40.0
-        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
-      comment-json:
-        specifier: ^4.2.5
-        version: 4.2.5
-      debug:
-        specifier: ^4.4.1
-        version: 4.4.1
-      ember-eslint-parser:
-        specifier: ^0.5.11
-        version: 0.5.11(3c00348fb89b2cf043c8fabd6ae197d2)
-      eslint:
-        specifier: ^9.34.0
-        version: 9.34.0
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.34.0)
-      eslint-plugin-import:
-        specifier: ^2.32.0
-        version: 2.32.0(438d9ce730bf71cdcaed57735e15ead7)
-      eslint-plugin-mocha:
-        specifier: ^10.5.0
-        version: 10.5.0(eslint@9.34.0)
-      eslint-plugin-n:
-        specifier: ^17.21.3
-        version: 17.21.3(eslint@9.34.0)(typescript@5.9.2)
-      eslint-plugin-qunit:
-        specifier: ^8.1.2
-        version: 8.1.2(eslint@9.34.0)
-      eslint-plugin-simple-import-sort:
-        specifier: ^12.1.1
-        version: 12.1.1(eslint@9.34.0)
-      glob:
-        specifier: ^11.0.3
-        version: 11.0.3
-      globals:
-        specifier: ^16.3.0
-        version: 16.3.0
-      rollup:
-        specifier: ^4.48.0
-        version: 4.48.1
-      typescript:
-        specifier: 5.9.2
-        version: 5.9.2
-      typescript-eslint:
-        specifier: ^8.40.0
-        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
-      unplugin-isolated-decl:
-        specifier: ^0.15.1
-        version: 0.15.1(typescript@5.9.2)
-      vite:
-        specifier: ^7.1.3
-        version: 7.1.3
-
   docs-viewer:
     dependencies:
       '@mdit/plugin-footnote':
@@ -411,7 +330,7 @@ importers:
         version: 2.19.10
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-source:
         specifier: ~6.6.0
         version: 6.6.0
@@ -469,7 +388,7 @@ importers:
         version: 24.3.0
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(@types/node@24.3.0)
+        version: file:tools/internal-config(@types/node@24.3.0)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -500,7 +419,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -546,7 +465,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -586,7 +505,7 @@ importers:
         version: 0.12.0
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       eslint:
         specifier: ^9.34.0
         version: 9.34.0
@@ -614,7 +533,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -666,7 +585,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -739,7 +658,7 @@ importers:
         version: 19.1.8(@types/react@19.1.11)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       bun-types:
         specifier: ^1.2.20
         version: 1.2.20(@types/react@19.1.11)
@@ -776,7 +695,7 @@ importers:
         version: 7.28.0(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       eslint:
         specifier: ^9.34.0
         version: 9.34.0
@@ -807,7 +726,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -847,7 +766,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/legacy':
         specifier: workspace:*
         version: file:warp-drive-packages/legacy(da2d8626017c763d07445c649af78d55)
@@ -887,7 +806,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       expect-type:
         specifier: ^1.2.2
         version: 1.2.2
@@ -924,7 +843,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -973,7 +892,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       expect-type:
         specifier: ^1.2.2
         version: 1.2.2
@@ -1007,7 +926,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       vite:
         specifier: ^7.1.3
         version: 7.1.3
@@ -1038,7 +957,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-inflector:
         specifier: 6.0.0
         version: 6.0.0(@babel/core@7.28.3)
@@ -1078,7 +997,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       vite:
         specifier: ^7.1.3
         version: 7.1.3
@@ -1112,7 +1031,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       vite:
         specifier: ^7.1.3
         version: 7.1.3
@@ -1158,7 +1077,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -1195,7 +1114,7 @@ importers:
         version: 4.1.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-source:
         specifier: ~6.6.0
         version: 6.6.0
@@ -1232,7 +1151,7 @@ importers:
         version: 4.1.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-source:
         specifier: ~6.6.0
         version: 6.6.0
@@ -1301,7 +1220,7 @@ importers:
         version: file:packages/diagnostic(aee654df6dc3ed0e82ba2e6019020ca6)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-source:
         specifier: ~6.6.0
         version: 6.6.0(@glimmer/component@2.0.0)
@@ -1344,7 +1263,7 @@ importers:
         version: file:packages/holodeck(b1f423bbeafed7b156933fd746f2db26)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -1416,7 +1335,7 @@ importers:
         version: file:packages/core-types(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-cli:
         specifier: ~6.6.0
         version: 6.6.0
@@ -1512,7 +1431,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -1591,7 +1510,7 @@ importers:
         version: 0.12.0
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(tsx@4.20.5)
+        version: file:tools/internal-config(tsx@4.20.5)
       eslint:
         specifier: ^9.34.0
         version: 9.34.0
@@ -1601,15 +1520,6 @@ importers:
       tsx:
         specifier: ^4.20.5
         version: 4.20.5
-
-  tests/docs:
-    devDependencies:
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:config
-      qunit:
-        specifier: 2.19.4
-        version: 2.19.4(patch_hash=44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301)
 
   tests/ember-data__adapter:
     dependencies:
@@ -1681,7 +1591,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -1768,7 +1678,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -1909,7 +1819,7 @@ importers:
         version: file:packages/holodeck(399050e4d25cd9de09f58182ad617dd4)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.3)
@@ -2035,7 +1945,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -2134,7 +2044,7 @@ importers:
         version: file:packages/holodeck(399050e4d25cd9de09f58182ad617dd4)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       bun-types:
         specifier: ^1.2.20
         version: 1.2.20
@@ -2263,7 +2173,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0
@@ -2395,7 +2305,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       ember-cli:
         specifier: ~6.6.0
         version: 6.6.0
@@ -2578,7 +2488,7 @@ importers:
         version: file:packages/holodeck(399050e4d25cd9de09f58182ad617dd4)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(terser@5.43.1)
+        version: file:tools/internal-config(terser@5.43.1)
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.3)
@@ -2641,7 +2551,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -2776,7 +2686,7 @@ importers:
         version: file:packages/holodeck(19e1072f23293e4c2aeee5c79542e276)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(terser@5.43.1)
+        version: file:tools/internal-config(terser@5.43.1)
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -2851,7 +2761,7 @@ importers:
         version: file:packages/holodeck(b1f423bbeafed7b156933fd746f2db26)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -2911,7 +2821,7 @@ importers:
         version: file:packages/holodeck(b1f423bbeafed7b156933fd746f2db26)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -2974,7 +2884,7 @@ importers:
         version: file:packages/holodeck(b1f423bbeafed7b156933fd746f2db26)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -3160,7 +3070,7 @@ importers:
         version: file:packages/holodeck(19e1072f23293e4c2aeee5c79542e276)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/json-api':
         specifier: workspace:*
         version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
@@ -3361,7 +3271,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(terser@5.43.1)
+        version: file:tools/internal-config(terser@5.43.1)
       babel-plugin-ember-template-compilation:
         specifier: ^2.4.1
         version: 2.4.1
@@ -3520,7 +3430,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       babel-plugin-ember-template-compilation:
         specifier: ^2.4.1
         version: 2.4.1
@@ -3702,7 +3612,7 @@ importers:
         version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/schema-record':
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.3)
@@ -3779,6 +3689,87 @@ importers:
         specifier: 5.101.3
         version: 5.101.3
 
+  tools/internal-config:
+    dependencies:
+      '@babel/cli':
+        specifier: ^7.28.3
+        version: 7.28.3(@babel/core@7.28.3)
+      '@babel/core':
+        specifier: ^7.28.3
+        version: 7.28.3
+      '@babel/eslint-parser':
+        specifier: 7.28.0
+        version: 7.28.0(@babel/core@7.28.3)(eslint@9.34.0)
+      '@embroider/addon-dev':
+        specifier: ^8.1.0
+        version: 8.1.0(rollup@4.48.1)
+      '@eslint/js':
+        specifier: ^9.34.0
+        version: 9.34.0
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.28.3)(rollup@4.48.1)
+      '@types/debug':
+        specifier: 4.1.12
+        version: 4.1.12
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.40.0
+        version: 8.41.0(ad3e4b2f3df4fca831ef47c5e1339106)
+      '@typescript-eslint/parser':
+        specifier: ^8.40.0
+        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
+      comment-json:
+        specifier: ^4.2.5
+        version: 4.2.5
+      debug:
+        specifier: ^4.4.1
+        version: 4.4.1
+      ember-eslint-parser:
+        specifier: ^0.5.11
+        version: 0.5.11(3c00348fb89b2cf043c8fabd6ae197d2)
+      eslint:
+        specifier: ^9.34.0
+        version: 9.34.0
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.34.0)
+      eslint-plugin-import:
+        specifier: ^2.32.0
+        version: 2.32.0(438d9ce730bf71cdcaed57735e15ead7)
+      eslint-plugin-mocha:
+        specifier: ^10.5.0
+        version: 10.5.0(eslint@9.34.0)
+      eslint-plugin-n:
+        specifier: ^17.21.3
+        version: 17.21.3(eslint@9.34.0)(typescript@5.9.2)
+      eslint-plugin-qunit:
+        specifier: ^8.1.2
+        version: 8.1.2(eslint@9.34.0)
+      eslint-plugin-simple-import-sort:
+        specifier: ^12.1.1
+        version: 12.1.1(eslint@9.34.0)
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
+      globals:
+        specifier: ^16.3.0
+        version: 16.3.0
+      rollup:
+        specifier: ^4.48.0
+        version: 4.48.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      typescript-eslint:
+        specifier: ^8.40.0
+        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
+      unplugin-isolated-decl:
+        specifier: ^0.15.1
+        version: 0.15.1(typescript@5.9.2)
+      vite:
+        specifier: ^7.1.3
+        version: 7.1.3
+
   warp-drive-packages/build-config:
     dependencies:
       '@embroider/addon-shim':
@@ -3811,7 +3802,7 @@ importers:
         version: 20.19.11
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config(08d339ab80698bc6d2b26efaef736218)
+        version: file:tools/internal-config(08d339ab80698bc6d2b26efaef736218)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -3839,7 +3830,7 @@ importers:
         version: 7.27.1(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -3906,7 +3897,7 @@ importers:
         version: 1.6.0-alpha.2
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       babel-plugin-ember-template-compilation:
         specifier: ^2.4.1
         version: 2.4.1
@@ -3958,7 +3949,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -3995,7 +3986,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -4032,7 +4023,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       '@warp-drive/utilities':
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
@@ -4096,7 +4087,7 @@ importers:
         version: 19.1.11
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -4127,7 +4118,7 @@ importers:
         version: 6.1.3(svelte@5.38.5)(vite@7.1.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       svelte:
         specifier: ^5.38.3
         version: 5.38.5
@@ -4164,7 +4155,7 @@ importers:
         version: 7.28.3
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       rollup:
         specifier: ^4.48.0
         version: 4.48.1
@@ -4195,7 +4186,7 @@ importers:
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -4241,7 +4232,7 @@ importers:
         version: 6.0.1(vite@7.1.3)(vue@3.5.19(typescript@5.9.2))
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:config
+        version: file:tools/internal-config
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -5637,9 +5628,6 @@ packages:
   '@glimmer/global-context@0.93.4':
     resolution: {integrity: sha512-Yw9xkDReAcC5oS/hY3PjGrFKRygYFA4pdO7tvuxReoVOyUtjoBOAwHJUileiElERDdMWIMfoLema8Td1mqkjhA==}
 
-  '@glimmer/interfaces@0.84.3':
-    resolution: {integrity: sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==}
-
   '@glimmer/interfaces@0.92.3':
     resolution: {integrity: sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==}
 
@@ -5688,9 +5676,6 @@ packages:
   '@glimmer/runtime@0.94.10':
     resolution: {integrity: sha512-eRe9TmP02ESVXJn2ZOOEm/Hm/Ro7X0kRvZsU8OVtXOqWU8JxeKMwjCEiLbJBQKbYfycRy1u8jZ2wuH0qM/d3EQ==}
 
-  '@glimmer/syntax@0.84.3':
-    resolution: {integrity: sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==}
-
   '@glimmer/syntax@0.92.3':
     resolution: {integrity: sha512-7wPKQmULyXCYf0KvbPmfrs/skPISH2QGR9atCnmDWnHyLv5SSZVLm1P0Ctrpta6+Ci3uGQb7hGk0IjsLEavcYQ==}
 
@@ -5699,9 +5684,6 @@ packages:
 
   '@glimmer/tracking@1.1.2':
     resolution: {integrity: sha512-cyV32zsHh+CnftuRX84ALZpd2rpbDrhLhJnTXn9W//QpqdRZ5rdMsxSY9fOsj0CKEc706tmEU299oNnDc0d7tA==}
-
-  '@glimmer/util@0.84.3':
-    resolution: {integrity: sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==}
 
   '@glimmer/util@0.92.3':
     resolution: {integrity: sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==}
@@ -6631,9 +6613,6 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@20.17.46':
-    resolution: {integrity: sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==}
-
   '@types/node@20.19.11':
     resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
 
@@ -6995,8 +6974,8 @@ packages:
       '@warp-drive/utilities':
         optional: true
 
-  '@warp-drive/internal-config@file:config':
-    resolution: {directory: config, type: directory}
+  '@warp-drive/internal-config@file:tools/internal-config':
+    resolution: {directory: tools/internal-config, type: directory}
 
   '@warp-drive/internal-docs-viewer@file:docs-viewer':
     resolution: {directory: docs-viewer, type: directory}
@@ -13330,9 +13309,6 @@ packages:
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -16535,10 +16511,6 @@ snapshots:
 
   '@glimmer/global-context@0.93.4': {}
 
-  '@glimmer/interfaces@0.84.3':
-    dependencies:
-      '@simple-dom/interface': 1.4.0
-
   '@glimmer/interfaces@0.92.3':
     dependencies:
       '@simple-dom/interface': 1.4.0
@@ -16675,14 +16647,6 @@ snapshots:
       '@glimmer/validator': 0.95.0
       '@glimmer/vm': 0.94.8
 
-  '@glimmer/syntax@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@glimmer/util': 0.84.3
-      '@handlebars/parser': 2.0.0
-      simple-html-tokenizer: 0.5.11
-
   '@glimmer/syntax@0.92.3':
     dependencies:
       '@glimmer/env': 0.1.7
@@ -16705,12 +16669,6 @@ snapshots:
     dependencies:
       '@glimmer/env': 0.1.7
       '@glimmer/validator': 0.95.0
-
-  '@glimmer/util@0.84.3':
-    dependencies:
-      '@glimmer/env': 0.1.7
-      '@glimmer/interfaces': 0.84.3
-      '@simple-dom/interface': 1.4.0
 
   '@glimmer/util@0.92.3':
     dependencies:
@@ -17759,10 +17717,6 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@20.17.46':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@20.19.11':
     dependencies:
       undici-types: 6.21.0
@@ -18329,7 +18283,7 @@ snapshots:
     optionalDependencies:
       '@warp-drive/utilities': file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
 
-  '@warp-drive/internal-config@file:config':
+  '@warp-drive/internal-config@file:tools/internal-config':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
       '@babel/core': 7.28.3
@@ -18378,7 +18332,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(08d339ab80698bc6d2b26efaef736218)':
+  '@warp-drive/internal-config@file:tools/internal-config(08d339ab80698bc6d2b26efaef736218)':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
       '@babel/core': 7.28.3
@@ -18427,7 +18381,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(@types/node@24.3.0)':
+  '@warp-drive/internal-config@file:tools/internal-config(@types/node@24.3.0)':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
       '@babel/core': 7.28.3
@@ -18476,7 +18430,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(terser@5.43.1)':
+  '@warp-drive/internal-config@file:tools/internal-config(terser@5.43.1)':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
       '@babel/core': 7.28.3
@@ -18525,7 +18479,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@warp-drive/internal-config@file:config(tsx@4.20.5)':
+  '@warp-drive/internal-config@file:tools/internal-config(tsx@4.20.5)':
     dependencies:
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
       '@babel/core': 7.28.3
@@ -19030,7 +18984,7 @@ snapshots:
       call-bind: 1.0.8
       call-bound: 1.0.4
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
       es-shim-unscopables: 1.1.0
@@ -19039,14 +18993,14 @@ snapshots:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-shim-unscopables: 1.1.0
 
   array.prototype.flatmap@1.3.3:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-shim-unscopables: 1.1.0
 
   arraybuffer.prototype.slice@1.0.4:
@@ -19054,7 +19008,7 @@ snapshots:
       array-buffer-byte-length: 1.0.2
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
@@ -24746,14 +24700,14 @@ snapshots:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-object-atoms: 1.1.1
 
   object.groupby@1.0.3:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
 
   object.pick@1.3.0:
     dependencies:
@@ -25396,7 +25350,7 @@ snapshots:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
       get-intrinsic: 1.3.0
@@ -26234,7 +26188,7 @@ snapshots:
       call-bound: 1.0.4
       define-data-property: 1.1.4
       define-properties: 1.2.1
-      es-abstract: 1.23.9
+      es-abstract: 1.24.0
       es-object-atoms: 1.1.1
       has-property-descriptors: 1.0.2
 
@@ -26986,8 +26940,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   underscore@1.13.7: {}
-
-  undici-types@6.19.8: {}
 
   undici-types@6.21.0: {}
 
