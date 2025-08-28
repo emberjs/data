@@ -49,8 +49,8 @@ jobs:
         run: pnpm run build
         working-directory: docs-viewer
         env:
-          BASE: '/data/'
-          HOSTNAME: 'https://emberjs.github.io/data'
+          BASE: ''
+          HOSTNAME: 'https://canary.warp-drive.io'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
