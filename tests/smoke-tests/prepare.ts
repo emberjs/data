@@ -21,7 +21,9 @@ export async function buildAll() {
    * During actual publish, the whole strategy file is passed here for convinience,
    * but we don't need all of it for the tests
    */
-  const packages = await gatherPackages({ packageRoots: ['packages/*', 'tests/*', 'config', 'warp-drive-packages/*'] });
+  const packages = await gatherPackages({
+    packageRoots: ['packages/*', 'tests/*', 'tools/*', 'warp-drive-packages/*'],
+  });
 
   const strategy = new Map();
   for (let [pkgName, config] of packages.entries()) {

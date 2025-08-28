@@ -1,6 +1,6 @@
 {
   "config": {
-    "packageRoots": ["packages/*", "tests/*", "config", "internal-tooling", "warp-drive-packages/*", "docs-viewer"],
+    "packageRoots": ["packages/*", "tests/*", "tools/*", "internal-tooling", "warp-drive-packages/*", "docs-viewer"],
     "changelogRoots": ["packages/*", "warp-drive-packages/*"],
     "changelog": {
       "labelOrder": [
