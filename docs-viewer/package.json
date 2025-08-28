@@ -8,8 +8,6 @@
     "src"
   ],
   "bin": {
-    "preview-api-docs": "./src/preview-ember-docs.ts",
-    "rebuild-api-docs": "./src/rebuild-ember-docs.ts",
     "sync-guides": "./src/sync-guides.ts",
     "_tsc": "./src/tsc.ts"
   },

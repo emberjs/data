@@ -1,3 +1,7 @@
+---
+order: 6
+---
+
 # Submitting Work
 
 Before implementing a feature or a fix, it is usually best to discuss the proposed changes with

@@ -1,3 +1,8 @@
+---
+title: Writing Documentation
+order: 5
+---
+
 # Writing Documentation
 
 There are two sources of documentation in this repository:

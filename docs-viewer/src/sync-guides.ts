@@ -7,7 +7,6 @@ import { postProcessApiDocs } from './site-utils';
 import { $ } from 'bun';
 
 const guidesPath = join(__dirname, '../../guides');
-const contributingPath = join(__dirname, '../../contributing');
 const apiDocsPath = join(__dirname, '../tmp/api');
 const oldPackages = join(__dirname, '../../packages');
 const newPackages = join(__dirname, '../../warp-drive-packages');
@@ -64,26 +63,6 @@ if (!build) {
   // @ts-expect-error missing from Bun types
   watch(
     guidesPath,
-    {
-      recursive: true,
-    },
-    (eventName: 'rename' | 'change', fileName: string) => {
-      console.log('triggered', eventName, fileName);
-      if (debounce) {
-        console.log('debounced');
-        clearTimeout(debounce);
-      }
-      debounce = setTimeout(() => {
-        console.log('rebuilding');
-        main();
-        debounce = null;
-      }, 100);
-    }
-  );
-
-  // @ts-expect-error missing from Bun types
-  watch(
-    contributingPath,
     {
       recursive: true,
     },

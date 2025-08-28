@@ -150,7 +150,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/emberjs/data' },
-      { icon: 'discord', link: 'https://discord.gg/zT3asNS' },
+      { icon: 'discord', link: 'https://discord.gg/n8BptgFzNt' },
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
 

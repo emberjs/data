@@ -1,3 +1,8 @@
+---
+title: The RFC Process
+order: 7
+---
+
 ### Requesting Features or Deprecations
 
 While WarpDrive is universal in nature, its development is managed by the EmberJS community.
@@ -14,7 +19,7 @@ are narrowly scoped with clear understanding of alternatives, drawbacks, and the
     Often this process will complete quickly, but when it does not, don't despair! Often the best ideas
     take the longest to bake.
 
-1. Bring up your idea in the `#dev-ember-data` channel on [Discord](https://discord.gg/zT3asNS) or
+1. Bring up your idea on [Discord](hthttps://discord.gg/n8BptgFzNt) or
    with individual [team members](https://emberjs.com/team/)
 2. Reflect on any concerns, alternatives, or questions that arise from these discussions.
 3. Continue to discuss the idea, giving time for everyone to digest and think about it.

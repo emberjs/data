@@ -1,3 +1,8 @@
+---
+title: Performing A Release
+order: 8
+---
+
 # Release
 
 The EmberData release process is mostly automated but requires manually configuring
@@ -55,7 +60,7 @@ You will find the automated workflows to perform these releases under the action
 
 First, update the Release Notes on Github
 
-- Visit [Ember Data Releases](https://github.com/emberjs/data/releases)
+- Visit [WarpDrive Releases](https://github.com/emberjs/data/releases)
   - Click on the "more recent tags"
   - Click on the tag just published
   - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)
@@ -66,8 +71,11 @@ Once you have finished this release process, we recommend posting an announcemen
 Threads/Mastadon/Twitter accounts and the crosslinking the announcement to the following
 Discord channels.
 
+### WarpDrive
+- [#subspace-transmissions](https://discord.com/channels/999914805215367219/1400670702348271708)
+
+### EmberJS
 - [#news-and-announcements](https://discordapp.com/channels/480462759797063690/480499624663056390)
 - [#dev-ember-data](https://discordapp.com/channels/480462759797063690/480501977931972608)
 - [#ember-data](https://discordapp.com/channels/480462759797063690/486549196837486592)
-
 

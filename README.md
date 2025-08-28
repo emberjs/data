@@ -17,7 +17,9 @@
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
 ![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=FFC474)
 [![Docs](./logos/docs-badge.svg)](https://api.emberjs.com/ember-data/release)
-[![Discord Community Server](https://img.shields.io/badge/Discord-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
+[![EmberJS Discord Community Server](https://img.shields.io/badge/EmberJS-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
+)
+[![WarpDrive Discord Server](https://img.shields.io/badge/WarpDrive-grey?logo=discord&logoColor=FFC474)](https://discord.gg/n8BptgFzNt
 )
 
 <p align="center">
