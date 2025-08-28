@@ -86,7 +86,7 @@ Where possible, we try to maintain this larger window of support as long as poss
 it does become necessary to break compatibility with an older, unsupported release we do not
 consider it a breaking change.
 
-The table is generated from [this data](./internal-tooling/src/tasks/-data/compatibility.ts) using the
+The table is generated from [this data](./tools/internal-tooling/src/tasks/-data/compatibility.ts) using the
 command `bun sync-readme-tables`.
 
 <!-- START-COMPATIBILITY-TABLE-PLACEHOLDER -->
