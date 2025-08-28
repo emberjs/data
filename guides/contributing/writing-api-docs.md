@@ -313,25 +313,15 @@ function add(a: number, b: number): number {}
 
 <br>
 
-### Documentation Tests
+### Troubleshooting
 
-> [!Caution]
-> Ignore this section. Doc tests are deactivated while we
-> migrate to tsdoc and typedoc.
+If you have added docs but are not seeing them when previewing locally, and if you
+have confirmed the docs preview server is running (and has not crashed)
 
-Run `pnpm test:docs`
-
-This will lint discovered doc comments for common sources of error, as well as validate that no published documentation
-has been added or removed unexpectedly.
-
-If documentation has been added, an entry for it should be added to `tests/docs/fixtures/expected.js`.
-If documentation has been removed, similarly any entry for it should be removed from `tests/docs/fixtures/expected.js`.
-
-If documentation you've added is not being discovered by the test, it is likely that either
-
-- it may have been excluded due to using an [ignored doc comment](#ignored-doc-comments)
-- it may have been excluded due to not using the right [comment syntax](#what-are-doc-comments)
-- it may have been included in the list of paths to search for source code documentation in [yuidoc.json](../docs-generator/yuidoc.json)
+- The docs may have been excluded due to using an [ignored doc comment](#ignored-doc-comments)
+- The docs may have been excluded due to not using the right [comment syntax](#what-are-doc-comments)
+- The documented thing may not be accessible via any public API entrypoint
+- TypeDoc may be configured to ignore it (extremely rare)
 
 <br>
 

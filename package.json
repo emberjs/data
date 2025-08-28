@@ -17,7 +17,6 @@
     "start:specs": "turbo run start --filter=./specs",
     "sync:specs": "pnpm --filter './specs' run sync",
     "preview": "cd docs-viewer && pnpm start",
-    "build:docs": "mkdir -p packages/-ember-data/dist && cd ./docs-generator && node ./compile-docs.js",
     "lint:tests": "turbo --log-order=stream lint --filter=./tests/* --continue --concurrency=10",
     "lint:pkg": "turbo --log-order=stream lint --filter=./packages/* --continue --concurrency=10",
     "lint": "turbo --log-order=stream lint --continue --concurrency=10",
@@ -30,7 +29,6 @@
     "check:types": "bun run check:test-types",
     "test": "pnpm turbo test --concurrency=1",
     "test:production": "pnpm turbo test:production --concurrency=1",
-    "test:docs": "FORCE_COLOR=2 pnpm build:docs && pnpm run -r --workspace-concurrency=-1 --if-present --reporter=append-only --reporter-hide-prefix test:docs",
     "test:blueprints": "pnpm run -r --workspace-concurrency=-1 --if-present test:blueprints",
     "test:fastboot": "pnpm run -r --workspace-concurrency=-1 --if-present test:fastboot",
     "test:vite": "pnpm run -r ---workspace-concurrency=-1 --if-present test:vite"

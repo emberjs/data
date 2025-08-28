@@ -25,9 +25,5 @@ jobs:
         with:
           install: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      # Deactivated while we restructure the docs to use tsdoc and typedoc,
-      # since this is based on the yuidocs parser output.
-      # - name: Test Docs
-      #   run: pnpm test:docs
       - name: Test Blueprints
         run: pnpm test:blueprints
