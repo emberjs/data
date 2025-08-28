@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/legacy",
-  "version": "5.8.0-alpha.2",
+  "version": "5.8.0-alpha.3",
   "description": "Decommissioned Packages for WarpDrive | Things your app might still want to maintain use of for a little longer.",
   "keywords": [
     "ember-addon"
