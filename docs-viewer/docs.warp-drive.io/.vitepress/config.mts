@@ -149,13 +149,13 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/emberjs/data' },
+      { icon: 'github', link: 'https://github.com/warp-drive-data/warp-drive' },
       { icon: 'discord', link: 'https://discord.gg/n8BptgFzNt' },
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
 
     editLink: {
-      pattern: 'https://github.com/emberjs/data/edit/main/:path',
+      pattern: 'https://github.com/warp-drive-data/warp-drive/edit/main/:path',
     },
 
     search: {

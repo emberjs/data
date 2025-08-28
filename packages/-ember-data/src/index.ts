@@ -2,7 +2,7 @@
  <p align="center">
   <img
     class="project-logo"
-    src="https://raw.githubusercontent.com/emberjs/data/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
+    src="https://raw.githubusercontent.com/warp-drive-data/warp-drive/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
     alt="EmberData"
     width="240px"
     title="EmberData"

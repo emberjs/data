@@ -7,7 +7,7 @@
  * reactive form is controlled by a resource schema. Resource schemas are simple JSON, allowing them to be defined
  * and delivered from anywhere.
  *
- * The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/emberjs/data/)
+ * The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/warp-drive-data/warp-drive/)
  * will simplify even the most complex parts of your app's state management.
  *
  * ## Installation
@@ -86,7 +86,7 @@
  * - local changes immediately reflect app wide
  * - records have all the APIs of Model (references, state props, currentState, methods etc)
  * - the continued use of `@ember-data/model` and `@ember-data/legacy-compat` packages is required (though most imports from them can be removed)
- * - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
+ * - `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
  *
  * ---
  *
@@ -98,7 +98,7 @@
  * - local changes are isolated until committed, displaying only via the editable version of the record
  * - records have a more limited API, focused on only what is in their schema.
  * - some common operations may have more friction to perform because intended utilities are not yet available
- * - `async: true` relationships are not supported (see [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
+ * - `async: true` relationships are not supported (see [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
  * - `@ember-data/model` and `@ember-data/legacy-compat` packages are not required
  *
  * These modes are interopable. The reactive object (record) for a resource in PolarisMode can relate to

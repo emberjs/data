@@ -626,7 +626,7 @@ export class DelegatingSchemaService implements SchemaService {
    * We do think a generalized `kind` registration system would be useful,
    * but we have not yet designed it.
    *
-   * See https://github.com/emberjs/data/issues/9534
+   * See https://github.com/warp-drive-data/warp-drive/issues/9534
    *
    * @internal
    */
@@ -643,7 +643,7 @@ export class DelegatingSchemaService implements SchemaService {
    * We do think a generalized `kind` registration system would be useful,
    * but we have not yet designed it.
    *
-   * See https://github.com/emberjs/data/issues/9534
+   * See https://github.com/warp-drive-data/warp-drive/issues/9534
    *
    * @internal
    */

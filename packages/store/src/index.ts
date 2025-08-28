@@ -2,17 +2,17 @@
  * <p align="center">
  *   <img
  *     class="project-logo"
- *     src="https://raw.githubusercontent.com/emberjs/data/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
+ *     src="https://raw.githubusercontent.com/warp-drive-data/warp-drive/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
  *     alt="EmberData Store"
  *     width="240px"
  *     title="EmberData Store"
  *     />
  * </p>
  *
- * This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Store` class.
+ * This package provides [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/)'s `Store` class.
  *
  * A [Store](https://api.emberjs.com/ember-data/release/classes/Store) coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
- * and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
+ * and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request).
  *
  * Optionally, a Store can be configured to hydrate the response data into rich presentation classes.
  *
@@ -74,7 +74,7 @@
  * To start, let's install the `RequestManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
  *
  * > **Note**
- * > If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
+ * > If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#handling-requests).
  *
  * ```ts
  * import Store from '@ember-data/store';

@@ -64,7 +64,7 @@ export default [
 
   // files converted to strict must pass these rules before they can be removed from
   // the files list here
-  // see https://github.com/emberjs/data/issues/6233#issuecomment-849279594
+  // see https://github.com/warp-drive-data/warp-drive/issues/6233#issuecomment-849279594
   {
     files: [
       'tests/helpers/accessors.ts',

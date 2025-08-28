@@ -156,7 +156,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -265,7 +265,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -341,7 +341,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -413,7 +413,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -496,7 +496,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -578,7 +578,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -657,7 +657,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);
@@ -735,7 +735,7 @@ module('integration/has-many - Has Many Tests', function (hooks) {
     const { owner } = this;
     const store = owner.lookup('service:store');
 
-    // This code is a workaround for issue https://github.com/emberjs/data/issues/6758
+    // This code is a workaround for issue https://github.com/warp-drive-data/warp-drive/issues/6758
     // expectedResult is mutated during store.findRecord
     // to add the lid
     const expectedResultCopy = structuredClone(expectedResult);

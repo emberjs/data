@@ -2652,7 +2652,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.true(person.isDestroyed, 'original record is destroyed');
   });
 
-  test('edit then unloadAll removes all records (async) (emberjs/data#8863)', async function (assert) {
+  test('edit then unloadAll removes all records (async) (warp-drive-data/warp-drive#8863)', async function (assert) {
     class Company extends Model {
       @attr name;
     }
@@ -2711,7 +2711,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
   });
 
-  test('edit then unloadAll removes all records (sync) (emberjs/data#8863)', async function (assert) {
+  test('edit then unloadAll removes all records (sync) (warp-drive-data/warp-drive#8863)', async function (assert) {
     class Company extends Model {
       @attr name;
     }
@@ -2770,7 +2770,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
   });
 
-  test('edit then unloadAll removes all records (async) - no save response (emberjs/data#8863)', async function (assert) {
+  test('edit then unloadAll removes all records (async) - no save response (warp-drive-data/warp-drive#8863)', async function (assert) {
     class Company extends Model {
       @attr name;
     }
@@ -2821,7 +2821,7 @@ module('integration/unload - Unloading Records', function (hooks) {
     assert.strictEqual(store.peekAll('company').length, 0, 'peekAll 0 - companies unloaded');
   });
 
-  test('edit then unloadAll removes all records (sync) - no save response (emberjs/data#8863)', async function (assert) {
+  test('edit then unloadAll removes all records (sync) - no save response (warp-drive-data/warp-drive#8863)', async function (assert) {
     class Company extends Model {
       @attr name;
     }

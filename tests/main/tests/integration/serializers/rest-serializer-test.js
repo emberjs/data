@@ -899,7 +899,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     assert.strictEqual(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
   });
 
-  // https://github.com/emberjs/data/issues/3805
+  // https://github.com/warp-drive-data/warp-drive/issues/3805
   test('normalizes sideloaded single record so that it sideloads correctly - belongsTo - GH-3805', function (assert) {
     this.owner.register('serializer:evil-minion', JSONSerializer);
     this.owner.register('serializer:doomsday-device', RESTSerializer.extend());
@@ -937,7 +937,7 @@ module('integration/serializer/rest - RESTSerializer', function (hooks) {
     });
   });
 
-  // https://github.com/emberjs/data/issues/3805
+  // https://github.com/warp-drive-data/warp-drive/issues/3805
   test('normalizes sideloaded single record so that it sideloads correctly - hasMany - GH-3805', function (assert) {
     this.owner.register('serializer:super-villain', JSONSerializer);
     this.owner.register('serializer:home-planet', RESTSerializer.extend());

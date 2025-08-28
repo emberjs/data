@@ -6,7 +6,7 @@
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:emberjs/data.git",
+    "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
     "directory": "tests/framework-svelte"
   },
   "license": "MIT",
