@@ -34,7 +34,7 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): ResourceKey 
 }
 
 /**
-  Retrieves the unique referentially-stable [RecordIdentifier](/ember-data/release/classes/ResourceKey)
+  Retrieves the unique referentially-stable {@link ResourceKey}
   assigned to the given record instance.
 
   ```js
@@ -48,8 +48,7 @@ export function peekRecordIdentifier(record: OpaqueRecordInstance): ResourceKey 
   ```
 
   @public
-  @param {Object} record a record instance previously obstained from the store.
-  @return {ResourceKey}
+  @param record a record instance previously obstained from the store.
  */
 export function recordIdentifierFor<T extends TypedRecordInstance>(record: T): ResourceKey<TypeFromInstance<T>>;
 export function recordIdentifierFor(record: OpaqueRecordInstance): ResourceKey;

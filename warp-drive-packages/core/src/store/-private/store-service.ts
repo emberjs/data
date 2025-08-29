@@ -48,7 +48,8 @@ import {
   recordIdentifierFor,
   storeFor,
 } from './caches/instance-cache.ts';
-import type { PrivateCacheKeyManager } from './managers/cache-key-manager.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { PrivateCacheKeyManager, setIdentifierGenerationMethod } from './managers/cache-key-manager.ts';
 import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import type { PrivateNotificationManager } from './managers/notification-manager.ts';
@@ -647,9 +648,9 @@ export class Store extends BaseClass {
    *
    * Note, when defined, these methods will only be invoked if a
    * cache key exists for the request, either because the request
-   * contains `cacheOptions.key` or because the [CacheKeyManager](/ember-data/release/classes/CacheKeyManager)
+   * contains `cacheOptions.key` or because the {@link CacheKeyManager}
    * was able to generate a key for the request using the configured
-   * [generation method](/ember-data/release/functions/@ember-data%2Fstore/setIdentifierGenerationMethod).
+   * {@link setIdentifierGenerationMethod | generation method}.
    *
    * `isSoftExpired` will only be invoked if `isHardExpired` returns `false`.
    *

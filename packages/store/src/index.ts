@@ -1,39 +1,15 @@
 /**
- * <p align="center">
- *   <img
- *     class="project-logo"
- *     src="https://raw.githubusercontent.com/warp-drive-data/warp-drive/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
- *     alt="EmberData Store"
- *     width="240px"
- *     title="EmberData Store"
- *     />
- * </p>
- *
  * This package provides [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/)'s `Store` class.
  *
- * A [Store](https://api.emberjs.com/ember-data/release/classes/Store) coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
- * and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request).
+ * A {@link Store} coordinates interaction between your application, a {@link Cache},
+ * and sources of data (such as your API or a local persistence layer) accessed via a {@link RequestManager}.
  *
  * Optionally, a Store can be configured to hydrate the response data into rich presentation classes.
  *
- * ## Installation
- *
- * If you have installed `ember-data` then you already have this package installed.
- * Otherwise you can install it using your javascript package manager of choice.
- * For instance with [pnpm](https://pnpm.io/)
- *
- * ```
- * pnpm add @ember-data/store
- * ```
- *
- * After installing you will want to configure your first `Store`. Read more below
- * for how to create and configure stores for your application.
- *
- *
  * ## 🔨 Creating A Store
  *
- * To use a `Store` we will need to do few things: add a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache)
- * to store data **in-memory**, add a [Handler](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to fetch data from a source,
+ * To use a `Store` we will need to do few things: add a {@link Cache}
+ * to store data **in-memory**, add a {@link Handler} to fetch data from a source,
  * and implement `instantiateRecord` to tell the store how to display the data for individual resources.
  *
  * > **Note**
@@ -44,7 +20,7 @@
  *
  * To start, let's install a [JSON:API](https://jsonapi.org/) cache. If your app uses `GraphQL` or `REST` other
  * caches may better fit your data. You can author your own cache by creating one that
- * conforms to the [spec](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache).
+ * conforms to the {@link Cache | spec}.
  *
  * The package `@ember-data/json-api` provides a [JSON:API](https://jsonapi.org/) cache we can use.
  * After installing it, we can configure the store to use this cache.
@@ -119,8 +95,7 @@
  * ### Presenting Data from the Cache
  *
  * Now that we have a source and a cache for our data, we need to configure how
- * the Store delivers that data back to our application. We do this via the hook
- * [instantiateRecord](https://api.emberjs.com/ember-data/release/classes/Store/methods/instantiateRecord%20(hook)?anchor=instantiateRecord%20(hook)),
+ * the Store delivers that data back to our application. We do this via the {@link Store.instantiateRecord | instantiateRecord hook}
  * which allows us to transform the data for a resource before handing it to the application.
  *
  * A naive way to present the data would be to return it as JSON. Typically instead
@@ -182,12 +157,19 @@ import { deprecate } from '@ember/debug';
 
 import { dependencySatisfies, importSync, macroCondition } from '@embroider/macros';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type RequestManager, Store } from '@warp-drive/core';
 import { DEPRECATE_TRACKING_PACKAGE } from '@warp-drive/core/build-config/deprecations';
 import { setupSignals } from '@warp-drive/core/configure';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import { peekTransient } from '@warp-drive/core/types/-private';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Cache } from '@warp-drive/core/types/cache';
+
+export { Store as default };
 
 export {
-  Store as default,
   type StoreRequestContext,
   CacheHandler,
   type Document,

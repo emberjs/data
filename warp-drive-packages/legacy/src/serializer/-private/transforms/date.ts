@@ -1,13 +1,16 @@
 import type { TransformName } from '@warp-drive/core/types/symbols';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { attr } from '../../../model';
+
 export interface DateTransform {
   [TransformName]: 'date';
 }
 /**
  The `DateTransform` class is used to serialize and deserialize
  date attributes on Ember Data record objects. This transform is used
- when `date` is passed as the type parameter to the
- [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function. It uses the [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)
+ when `'date'` is passed as the type parameter to the
+ {@link attr} function. It uses the [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601)
  standard.
 
  ```js [app/models/score.js]

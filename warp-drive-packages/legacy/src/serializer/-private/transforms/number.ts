@@ -1,5 +1,8 @@
 import type { TransformName } from '@warp-drive/core/types/symbols';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { attr } from '../../../model';
+
 function isNumber(value: number) {
   return value === value && value !== Infinity && value !== -Infinity;
 }
@@ -12,7 +15,7 @@ export interface NumberTransform {
   The `NumberTransform` class is used to serialize and deserialize
   numeric attributes on Ember Data record objects. This transform is
   used when `number` is passed as the type parameter to the
-  [attr](/ember-data/release/functions/@ember-data%2Fmodel/attr) function.
+  {@link attr} function.
 
   Usage
 
