@@ -1,8 +1,5 @@
 # Requests
 
-- Next → [Auth Handler](./1-auth.md)
-- ⮐ [Requests Guide](../index.md)
-
 ## Basic Usage Example
 
 > **Note**
@@ -272,8 +269,3 @@ Errors thrown by the `Fetch` handler have some additional useful properties.
 - If the API returned an array of errors or an object with an `errors` property as an array, an `AggregateError` is thrown with those errors.
 - `status`, `statusText`, `name`, `code` are all available and normalized
 - `isRequestError` will be set to `true`
-
----
-
-- Next → [Auth Handler](./1-auth.md)
-- ⮐ [Requests Guide](../index.md)

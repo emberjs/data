@@ -1,3 +1,8 @@
+---
+title: Overview
+order: 0
+---
+
 # 💚 TypeScript Guide
 
 Before getting started, we recommend reading
@@ -10,16 +15,16 @@ the following two sections
 ---
 
 - Installation
-  - [Using Versions That Supply Types](./0-installation.md#using-versions-that-supply-types)
-  - [Using Types Packages](./0-installation.md#using-types-packages)
+  - [Using Versions That Supply Types](./installation.md#using-versions-that-supply-types)
+  - [Using Types Packages](./installation.md#using-types-packages)
 - Configuration
-  - [Using Native Types](./1-configuration.md#using-native-types)
-  - [Using Types Packages](./1-configuration.md#using-types-packages)
+  - [Using Native Types](./configuration.md#using-native-types)
+  - [Using Types Packages](./configuration.md#using-types-packages)
 - Usage
-  - [Why Brands](./2-why-brands.md)
-  - [Typing Models & Transforms](./3-typing-models.md)
-  - [Typing Requests & Builders](./4-typing-requests.md)
-  - [Typing Includes](./5-typing-includes.md)
+  - [Why Brands](./why-brands.md)
+  - [Typing Models & Transforms](./typing-models.md)
+  - [Typing Requests & Builders](./typing-requests.md)
+  - [Typing Includes](./typing-includes.md)
   - Typing Handlers
   - Using Store APIs
 
@@ -47,6 +52,6 @@ Even though EmberData/WarpDrive is typed, what makes for good types for a projec
 
 Currently, TypeScript support is `alpha` largely because we expect to need to improve **a lot** of type signatures to make them more useful and correct for your app.
 
-Both strategies for installing and consuming types listed in [installation](./0-installation.md) pull their types from the `main` branch (canary).
+Both strategies for installing and consuming types listed in [installation](./installation.md) pull their types from the `main` branch (canary).
 
 Every commit to main can be one-click published by us as a new canary version for both installation strategies, this means we can ship type fixes as quickly as folks contribute them, letting us dogfood our way to robust stable types.

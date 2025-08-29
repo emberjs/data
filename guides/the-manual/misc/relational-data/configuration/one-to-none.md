@@ -1,23 +1,23 @@
-# Many To None Relationships
+# One To None Relationships
 
-- Previous ← [One To Many Relationships](./2-one-to-many.md)
-- Next → [Many To One Relationships](./4-many-to-one.md)
-- ⮐ [Relationships Guide](../index.md)
-
----
-
-Imagine our social network for trail runners 🏃🏃🏾‍♀️ allows runners to tag their activities. [#runday](https://www.instagram.com/explore/tags/runday/?hl=en) [#justdoit](https://www.instagram.com/explore/tags/justdoit/?hl=en)
-
-In this model, the ActivityData might have multiple tags, but given that millions if not billions if not trillions of activities might use a tag like [#neverstopexploring](https://www.instagram.com/explore/tags/neverstopexploring/?hl=en), it turns out we definitely don't want the tag to keep track of every activity that ever referenced it.
+Pretend we're building a social network for trail runners 🏃🏃🏾‍♀️, and a TrailRunner (maybe [@runspired](https://github.com/runspired)) can have a favorite Trail to run on . While the TrailRunner has a favorite trail, the trail has no concept of a TrailRunner.
 
 ```mermaid
 graph LR;
-    A(ActivityData) == tags ==> B(Hashtag)
+    A(TrailRunner) -. favoriteTrail ..-> B(Trail)
 ```
 
 > **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
 
-Often `ManyToNone` is used for exactly this sort of case, where conceptually the relationship is [many-to-many](./5-many-to-many.md) in nature, but one side would be so large that modeling it as such is prohibitive.
+Such a relationship is singular and unidirectional (it only points to one resource, and only points in one direction).
+When a relationship only points in one direction, we say it has no [inverse](../features/inverses.md).
+
+You'll note that effectively this setup implicitly indicates a "many" relationship. A Trail "implicitly" has many runners (for whom it is their favorite trail).
+
+Internally, EmberData will keep track of this implicit relationship such that if the trail were to be destroyed in a landslide its deletion would result in removing it as the favoriteTrail for each associated runner.
+
+Implicit relationships are not available as a public API, because they represent a highly incomplete view of the data, but the book-keeping produces benefits such as
+the ability to efficiently disassociate the record from relationships when it is destroyed.
 
 Here's how we can define such a relationship via various mechanisms.
 
@@ -43,24 +43,24 @@ This is handled by the implementation of the [schema service](https://api.emberj
 by the `@ember-data/model` package. The service converts the class
 definitions into the json definitions described in the next section.
 
-🏷️ *Hashtag*
+⛰️ *Trail*
 
 ```ts
 import Model, { attr } from '@ember-data/model';
 
-export default class Hashtag extends Model {
+export default class Trail extends Model {
   @attr name;
 }
 ```
 
-🏃🏾‍♀️ *ActivityData*
+🌲 *TrailRunner*
 
 ```ts
-import Model, { hasMany } from '@ember-data/model';
+import Model, { belongsTo } from '@ember-data/model';
 
-export default class ActivityData extends Model {
-  @hasMany('hashtag', { async: false, inverse: null })
-  tags;
+export default class TrailRunner extends Model {
+  @belongsTo('trail', { inverse: null, async: false })
+  favoriteTrail;
 }
 ```
 
@@ -76,14 +76,12 @@ Here, we show how the above trail runner relationship is described by a field de
 
 **Current**
 
-🏃🏾‍♀️ *ActivityData*
-
 ```json
 {
-  "kind": "hasMany",
-  "name": "tags",
+  "kind": "belongsTo",
+  "name": "favoriteTrail",
   "options": { "async": false, "inverse": null },
-  "type": "hashtag",
+  "type": "trail",
 }
 ```
 
@@ -98,13 +96,11 @@ We also are shifting the value for "kind" from "belongsTo" to "resource"
 to make it more readil clear that relationships do not (by default) have
 directionality or ownership over their inverse.
 
-🏃🏾‍♀️ *ActivityData*
-
 ```json
 {
-  "kind": "collection",
-  "name": "tags",
-  "type": "hashtag",
+  "kind": "resource",
+  "name": "favoriteTrail",
+  "type": "trail",
 }
 ```
 
@@ -118,24 +114,24 @@ performant than working with bulky classes that need to be shipped across the wi
 No one wants to author schemas in raw JSON though (we hope 😬), and the ergonomics of typed data and editor autocomplete based on your schemas are vital to productivity and
 code quality. For this, we offer a way to express schemas as typescript using types, classes and decorators which are then compiled into json schemas and typescript interfaces for use by your project.
 
-🏷️ *Hashtag*
+⛰️ *Trail*
 
 ```ts
 import { field } from '@warp-drive/schema';
 
-export class Hashtag extends Model {
+export class Trail {
   @field name: string;
 }
 ```
 
-🏃🏾‍♀️ *ActivityData*
+🌲 *TrailRunner*
 
 ```ts
-import { collection } from '@warp-drive/schema';
-import { Hashtag } from './hashtag';
+import { resource } from '@warp-drive/schema';
+import { Trail } from './trail';
 
-export class ActivityData extends Model {
-  @collection(Hashtag) tags;
+export class TrailRunner {
+  @resource(Trail) favoriteTrail;
 }
 ```
 
@@ -144,28 +140,23 @@ export class ActivityData extends Model {
 Support for migrating from `@ember-data/model` on a more granular basis is provided by decorators that preserve the semantics of the quirks of that class. This allows you to begin eliminating models
 and adopting other features of schemas sooner.
 
-🏷️ *Hashtag*
+⛰️ *Trail*
 
 ```ts
 import { attr } from '@warp-drive/schema/legacy';
 
-export class Hashtag extends Model {
+export default class Trail {
   @attr name: string;
 }
 ```
 
-🏃🏾‍♀️ *ActivityData*
+🌲 *TrailRunner*
 
 ```ts
-import { hasMany } from '@warp-drive/schema/legacy';
-import { Hashtag } from './hashtag';
+import { belongsTo } from '@warp-drive/schema/legacy';
+import Trail from './trail';
 
-export class ActivityData extends Model {
-  @hasMany(Hashtag) tags;
+export default class TrailRunner {
+  @belongsTo(Trail) favoriteTrail;
 }
-
----
-
-- Previous ← [One To Many Relationships](./2-one-to-many.md)
-- Next → [Many To One Relationships](./4-many-to-one.md)
-- ⮐ [Relationships Guide](../index.md)
+```

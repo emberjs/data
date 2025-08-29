@@ -1,9 +1,5 @@
 # Auth Handler
 
-- Previous ← [Requests](./0-basic-usage.md)
-- Next → [Not sure what next?](./something.md)
-- ⮐ [Requests Guide](../index.md)
-
 ## In This Guide
 
 EmberData is flexible enough to work with any request authentication strategy. This guide will show you how
@@ -188,9 +184,3 @@ yourself, in these cases you could write a handler and take the same
 approach as the JWT Token example above. For instance, using a WebView
 to deploy a mobile or desktop app or if you are using a custom fetch
 library that doesn't automatically send cookies (potentially for something like SSR).
-
----
-
-- Previous ← [Requests](./0-basic-usage.md)
-- Next → [Not sure what next?](./something.md)
-- ⮐ [Requests Guide](../index.md)

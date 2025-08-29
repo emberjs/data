@@ -1,9 +1,5 @@
 # Relationship Polymorphism
 
-- ⮐ [Relationships Guide](../index.md)
-
----
-
 Polymorphic relationships are relationships where the value can be more than one
 type of resource.
 

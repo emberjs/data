@@ -1,32 +1,14 @@
-# One To Many Relationships
+# One To One Relationships
 
-- Previous ← [One To One Relationships](./1-one-to-one.md)
-- Next → [Many To None Relationships](./3-many-to-none.md)
-- ⮐ [Relationships Guide](../index.md)
+Imagine our social network for trail runners 🏃🏃🏾‍♀️ allows runners to add their other social accounts. For instance, the TrailRunner [@runspired](https://github.com/runspired) might add their Instagram account.
 
----
-
-Imagine our social network for trail runners 🏃🏃🏾‍♀️ allows runners to upload their runs as activities.
-
-In this model, the ActivityData only pertains on one TrailRunner
+Here, the coupling goes both ways. In this model, the 📸 Instagram account can only belong to one Trail Runner, and the Trail Runner only has one Instagram Account. Let's take a selfie:
 
 ```mermaid
 graph LR;
-    A(ActivityData) -. runner ..-> B(TrailRunner)
+    A(TrailRunner) -. instagram ..-> B(InstagramAccount)
+    B -. runner .-> A
 ```
-
-While the Trail Runner has many such activies.
-
-```mermaid
-graph LR;
-    A(TrailRunner) == activities ==> B(ActivityData)
-    A(TrailRunner) == activities ==> C(ActivityData)
-    A(TrailRunner) == activities ==> D(ActivityData)
-```
-
-> **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
-
-Let's workout!
 
 There are two ways we can model this relationship: bidirectionally with managed [inverses](../features/inverses.md), or unidirectionally without managed inverses.
 
@@ -36,34 +18,45 @@ both updates from remote state (a payload for the resource received from the API
 
 ```mermaid
 graph LR;
-    A(TrailRunner.activities) ==> B(ActivityData.runner)
-    B -.-> A
+    A(TrailRunner.instagram) <-.-> B(InstagramAccount.runner)
 ```
 
-In the unidirectional configuration, we effectively have two separate distinct relationships.
+> **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
 
-A [many-to-none](./4-many-to-none.md) relationship from TrailRunner to ActivityData.
+In the unidirectional configuration, we effectively have two separate distinct [one-to-none](./one-to-none.md) relationships.
 
 ```mermaid
 graph LR;
-    A(TrailRunner) == activities ==> B(ActivityData)
+    A(TrailRunner) -. instagram .-> B(InstagramAccount)
 ```
-
-And a [one-to-none](./0-one-to-none.md) relationship from ActivityData to TrailRunner.
 
 ```mermaid
 graph LR;
-    A(ActivityData) -. runner .-> B(TrailRunner)
+    A(InstagramAccount) -. runner .-> B(TrailRunner)
 ```
 
-With distinct relationships, we may edit one side without affecting the state of the inverse. This is particularly useful
-in two situations.
+With distinct relationships, we may edit one side without affecting the state of the inverse.
 
-First, it may be the case that the user has thousands or tens of thousands of activities. In this case, you likely don't want whichever individual activities you happen to load to create an incomplete list of the TrailRunner's activities. It's better to load and work with the activities list in isolation, ideally in a paginated manner.
+Note, modeling this setup as two "one-to-none" relationships has the advantage of creating an implicit "many" relationship in both directions. Imagine that many runners could have the same instagram account and that at the same time many instagram accounts could belong to the same runner.
 
-Second, it may be the case that runner is able to share the activity data with another runner that forgot to record. By not coupling the relationship, the ActivityData can still be owned by the first runner by included in the second runner's list of activities as well.
+You might be tempted to think of this as a [many-to-many](./many-to-many.md) or two [many-to-none](./many-to-one.md), but sometimes this is effectively modeled as two `one-to-none` relationships.
 
-Head over to [many-to-none](./4-many-to-none.md) and [one-to-none](./0-one-to-none.md) if this is the setup that is best for you. Else, here's how we can define such a relationship via various mechanisms.
+```mermaid
+graph LR;
+    A(TrailRunner1) -. account .-> D(InstagramAccount1)
+    B(TrailRunner2) -. account .-> D(InstagramAccount1)
+    C(TrailRunner3) -. account .-> D(InstagramAccount1)
+```
+
+```mermaid
+graph LR;
+    A(InstagramAccount1) -. runner .-> D(TrailRunner1)
+    B(InstagramAccount2) -. runner .-> D(TrailRunner1)
+    C(InstagramAccount3) -. runner .-> D(TrailRunner1)
+```
+
+
+Head over to [one-to-none](./one-to-none.md) if this is the setup that is best for you. Else, here's how we can define such a relationship via various mechanisms.
 
 - [Using @ember-data/model](#using-ember-datamodel)
 - [Using json schemas](#using-json-schemas)
@@ -87,13 +80,13 @@ This is handled by the implementation of the [schema service](https://api.emberj
 by the `@ember-data/model` package. The service converts the class
 definitions into the json definitions described in the next section.
 
-🏃🏾‍♀️ *ActivityData*
+📸 *InstagramAccount*
 
 ```ts
 import Model, { belongsTo } from '@ember-data/model';
 
-export default class ActivityData extends Model {
-  @belongsTo('trail-runner', { inverse: 'activities', async: false })
+export default class InstagramAccount extends Model {
+  @belongsTo('trail-runner', { inverse: 'instagram', async: false })
   runner;
 }
 ```
@@ -101,11 +94,11 @@ export default class ActivityData extends Model {
 🌲 *TrailRunner*
 
 ```ts
-import Model, { hasMany } from '@ember-data/model';
+import Model, { belongsTo } from '@ember-data/model';
 
 export default class TrailRunner extends Model {
-  @hasMany('activity-data', { inverse: 'runner', async: false })
-  activities;
+  @belongsTo('instagram-account', { inverse: 'runner', async: false })
+  instagram;
 }
 ```
 
@@ -121,13 +114,13 @@ Here, we show how the above trail runner relationship is described by a field de
 
 **Current**
 
-🏃🏾‍♀️ *ActivityData*
+📸 *InstagramAccount*
 
 ```json
 {
   "kind": "belongsTo",
   "name": "runner",
-  "options": { "async": false, "inverse": "activities" },
+  "options": { "async": false, "inverse": "instagram" },
   "type": "trail-runner",
 }
 ```
@@ -136,10 +129,10 @@ Here, we show how the above trail runner relationship is described by a field de
 
 ```json
 {
-  "kind": "hasMany",
-  "name": "activities",
+  "kind": "belongsTo",
+  "name": "instagram",
   "options": { "async": false, "inverse": "runner" },
-  "type": "activity-data",
+  "type": "instagram-account",
 }
 ```
 
@@ -154,13 +147,13 @@ We also are shifting the value for "kind" from "belongsTo" to "resource"
 to make it more readil clear that relationships do not (by default) have
 directionality or ownership over their inverse.
 
-🏃🏾‍♀️ *ActivityData*
+📸 *InstagramAccount*
 
 ```json
 {
   "kind": "resource",
   "name": "runner",
-  "options": { "inverse": "activities" },
+  "options": { "inverse": "instagram" },
   "type": "trail-runner",
 }
 ```
@@ -169,10 +162,10 @@ directionality or ownership over their inverse.
 
 ```json
 {
-  "kind": "collection",
-  "name": "activities",
+  "kind": "resource",
+  "name": "instagram",
   "options": { "inverse": "runner" },
-  "type": "activity-data",
+  "type": "instagram-account",
 }
 ```
 
@@ -186,27 +179,25 @@ performant than working with bulky classes that need to be shipped across the wi
 No one wants to author schemas in raw JSON though (we hope 😬), and the ergonomics of typed data and editor autocomplete based on your schemas are vital to productivity and
 code quality. For this, we offer a way to express schemas as typescript using types, classes and decorators which are then compiled into json schemas and typescript interfaces for use by your project.
 
-🏃🏾‍♀️ *ActivityData*
+📸 *InstagramAccount*
 
 ```ts
 import { resource } from '@warp-drive/schema';
 import { TrailRunner } from './trail-runner';
 
-export class ActivityData {
-  @resource(TrailRunner, { inverse: "activities" })
-  runner;
+export class InstagramAccount {
+  @resource(TrailRunner) runner;
 }
 ```
 
 🌲 *TrailRunner*
 
 ```ts
-import { collection } from '@warp-drive/schema';
-import { ActivityData } from './activity-data';
+import { resource } from '@warp-drive/schema';
+import { InstagramAccount } from './instagram-account';
 
 export class TrailRunner {
-  @collection(ActivityData, { inverse: "runner" })
-  activities;
+  @resource(InstagramAccount) instagram;
 }
 ```
 
@@ -215,14 +206,14 @@ export class TrailRunner {
 Support for migrating from `@ember-data/model` on a more granular basis is provided by decorators that preserve the semantics of the quirks of that class. This allows you to begin eliminating models
 and adopting other features of schemas sooner.
 
-🏃🏾‍♀️ *ActivityData*
+📸 *InstagramAccount*
 
 ```ts
 import { belongsTo } from '@warp-drive/schema/legacy';
 import { TrailRunner } from './trail-runner';
 
-export class ActivityData {
-  @belongsTo(TrailRunner, { inverse: "activities" })
+export class InstagramAccount {
+  @belongsTo(TrailRunner, { inverse: "instagram" })
   runner;
 }
 ```
@@ -230,17 +221,11 @@ export class ActivityData {
 🌲 *TrailRunner*
 
 ```ts
-import { hasMany } from '@warp-drive/schema/legacy';
-import { ActivityData } from './activity-data';
+import { belongsTo } from '@warp-drive/schema/legacy';
+import { InstagramAccount } from './instagram-account';
 
 export class TrailRunner {
-  @hasMany(ActivityData, { inverse: "runner" })
-  activities;
+  @belongsTo(InstagramAccount, { inverse: "reunnter" })
+  instagram;
 }
 ```
-
----
-
-- Previous ← [One To One Relationships](./1-one-to-one.md)
-- Next → [Many To None Relationships](./3-many-to-none.md)
-- ⮐ [Relationships Guide](../index.md)

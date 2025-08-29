@@ -1,10 +1,5 @@
 # Many To Many Relationships
 
-- Previous ← [Many To One Relationships](./4-one-to-many.md)
-- ⮐ [Relationships Guide](../index.md)
-
----
-
 Imagine our social network for trail runners 🏃🏃🏾‍♀️ allows runners to connect with friends, other trail runners!
 
 ```mermaid
@@ -32,7 +27,7 @@ graph LR;
     A(TrailRunnerA.friends) <==> B(TrailRunnerB.friends)
 ```
 
-In the unidirectional configuration, we effectively have two separate distinct [many-to-none](./3-many-to-none.md) relationships.
+In the unidirectional configuration, we effectively have two separate distinct [many-to-none](./many-to-none.md) relationships.
 
 ```mermaid
 graph LR;
@@ -50,7 +45,7 @@ bidirectional in nature.
 
 For an example of a non-bidirectional relationship of this sort, it might be that Chris lists Thomas as a friend, but sadly Thomas does not feel the same. This Thomas being in Chris' friends does not mean that Chris should be in the list of Thomas' friends.
 
-Head over to [many-to-none](./3-many-to-none.md) if this is the setup that is best for you. Else, here's how we can define such a relationship via various mechanisms.
+Head over to [many-to-none](./many-to-none.md) if this is the setup that is best for you. Else, here's how we can define such a relationship via various mechanisms.
 
 - [Using @ember-data/model](#using-ember-datamodel)
 - [Using json schemas](#using-json-schemas)
@@ -85,7 +80,7 @@ export default class TrailRunner extends Model {
 }
 ```
 
-Note, the [many-to-none](./3-many-to-none.md) variation of this would be:
+Note, the [many-to-none](./many-to-none.md) variation of this would be:
 
 ```ts
 import Model, { hasMany } from '@ember-data/model';
@@ -119,7 +114,7 @@ Here, we show how the above trail runner relationship is described by a field de
 }
 ```
 
-Note, the [many-to-none](./3-many-to-none.md) variation of this would be:
+Note, the [many-to-none](./many-to-none.md) variation of this would be:
 
 ```json
 {
@@ -152,7 +147,7 @@ directionality or ownership over their inverse.
 }
 ```
 
-Note, the [many-to-none](./3-many-to-none.md) variation of this would be:
+Note, the [many-to-none](./many-to-none.md) variation of this would be:
 
 ```json
 {
@@ -183,7 +178,7 @@ export class TrailRunner {
 }
 ```
 
-Note, the [many-to-none](./3-many-to-none.md) variation of this would be:
+Note, the [many-to-none](./many-to-none.md) variation of this would be:
 
 ```ts
 import { collection } from '@warp-drive/schema';
@@ -217,8 +212,3 @@ import { hasMany } from '@warp-drive/schema/legacy';
 export class TrailRunner {
   @hasMany(TrailRunner) friends;
 }
-
----
-
-- Previous ← [Many To One Relationships](./4-one-to-many.md)
-- ⮐ [Relationships Guide](../index.md)

@@ -1,3 +1,9 @@
+---
+title: Index
+order: 0
+categoryOrder: 4
+---
+
 # Cookbook
 
 - [Incremental Adoption Guide](./incremental-adoption-guide.md)
