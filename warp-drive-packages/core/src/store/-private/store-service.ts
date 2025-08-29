@@ -32,6 +32,7 @@ import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.t
 import type { CacheOptions, RequestInfo } from '../../types/request.ts';
 import { EnableHydration } from '../../types/request.ts';
 import { getRuntimeConfig, setLogging } from '../../types/runtime.ts';
+import type { SchemaService } from '../../types/schema/schema-service.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
 import type {
   CollectionResourceDocument,
@@ -43,7 +44,6 @@ import type {
 import type { Type } from '../../types/symbols.ts';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager.ts';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance.ts';
-import type { SchemaService } from '../../types/schema/schema-service.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheHandler, StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';
