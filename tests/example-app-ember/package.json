@@ -1,5 +1,5 @@
 {
-  "name": "example-json-api",
+  "name": "example-app-ember",
   "version": "5.8.0-alpha.5",
   "private": true,
   "description": "Demos the incremental adoption of new EmberData for JSON:API",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
-    "directory": "tests/example-json-api"
+    "directory": "tests/example-app-ember"
   },
   "license": "MIT",
   "author": "",

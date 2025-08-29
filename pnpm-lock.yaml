@@ -2196,7 +2196,7 @@ importers:
         specifier: 5.101.3
         version: 5.101.3
 
-  tests/example-json-api:
+  tests/example-app-ember:
     devDependencies:
       '@babel/core':
         specifier: ^7.28.3
