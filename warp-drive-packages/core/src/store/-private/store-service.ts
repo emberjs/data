@@ -43,7 +43,7 @@ import type {
 import type { Type } from '../../types/symbols.ts';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager.ts';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance.ts';
-import type { SchemaService } from '../-types/q/schema-service.ts';
+import type { SchemaService } from '../../types/schema/schema-service.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { CacheHandler, StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';

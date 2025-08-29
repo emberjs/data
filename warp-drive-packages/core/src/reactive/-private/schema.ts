@@ -75,17 +75,22 @@ _constructor[Type] = '@constructor';
 
 /**
  * Extensions allow providing non-schema driven behaviors to
- * reactive resources and arrays.
+ * ReactiveResources, ReactiveArrays, and ReactiveObjects.
+ *
+ * This should only be used for temporary migration purposes
+ * to the new schema system when migrating from either Model
+ * or ModelFragments.
  */
 export interface CAUTION_MEGA_DANGER_ZONE_Extension {
   /**
    * Whether this extension extends the behaviors of objects
-   * or of arrays.
+   * (both ReactiveObjects and ReactiveResources) or of arrays.
    */
   kind: 'object' | 'array';
   /**
    * The name of the extension, to be used when specifying
-   * either `objectExtensions` or `arrayExtensions`
+   * either `objectExtensions` or `arrayExtensions` on the
+   * field, ResourceSchema or ObjectSchema
    */
   name: string;
   /**
@@ -96,6 +101,74 @@ export interface CAUTION_MEGA_DANGER_ZONE_Extension {
    *
    * A constructable such as a Function or Class whose prototype
    * will be iterated with getOwnPropertyNames.
+   *
+   * Examples:
+   *
+   * **An Object with methods**
+   *
+   * ```ts
+   * store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension({
+   *    kind: 'object',
+   *    name: 'do-thing-1',
+   *    features: {
+   *      doThingOne(this: { street: string }) {
+   *        return `do-thing-1:${this.street}`;
+   *      },
+   *      doThingTwo(this: { street: string }) {
+   *        return `do-thing-1:${this.street}`;
+   *      },
+   *    },
+   *  });
+   * ```
+   *
+   * **A class with getters, methods and decorated fields**
+   *
+   * ```ts
+   * class Features {
+   *   sayHello() {
+   *     return 'hello!';
+   *   }
+   *
+   *   @tracked trackedField = 'initial tracked value';
+   *
+   *   get realName() {
+   *     const self = this as unknown as { name: string };
+   *     return self.name;
+   *   }
+   *   set realName(v: string) {
+   *     const self = this as unknown as { name: string };
+   *     self.name = v;
+   *   }
+   *
+   *   get greeting() {
+   *     const self = this as unknown as { name: string };
+   *     return `hello ${self.name}!`;
+   *   }
+   *
+   *   @computed('name')
+   *   get salutation() {
+   *     const self = this as unknown as { name: string };
+   *     return `salutations ${self.name}!`;
+   *   }
+   *
+   *   @cached
+   *   get helloThere() {
+   *     const self = this as unknown as { name: string };
+   *     return `Well Hello There ${self.name}!`;
+   *   }
+   * }
+   *
+   * // non-decorated fields dont appear on class prototypes as they are instance only
+   * // @ts-expect-error
+   * Features.prototype.untrackedField = 'initial untracked value';
+   *
+   * store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension({
+   *   kind: 'object',
+   *   name: 'my-ext',
+   *   features: Features,
+   * });
+   * ```
+   *
    */
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   features: Record<string | symbol, unknown> | Function;

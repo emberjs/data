@@ -1,8 +1,8 @@
-import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '../../../reactive.ts';
-import type { ExtensibleField } from '../../../reactive/-private/schema.ts';
-import type { ResourceKey } from '../../../types/identifier.ts';
-import type { ObjectValue } from '../../../types/json/raw.ts';
-import type { Derivation, HashFn, Transformation } from '../../../types/schema/concepts.ts';
+import type { CAUTION_MEGA_DANGER_ZONE_Extension, ProcessedExtension } from '../../reactive.ts';
+import type { ExtensibleField } from '../../reactive/-private/schema.ts';
+import type { ResourceKey } from '../identifier.ts';
+import type { ObjectValue } from '../json/raw.ts';
+import type { Derivation, HashFn, Transformation } from './concepts.ts';
 import type {
   ArrayField,
   CacheableFieldSchema,
@@ -16,7 +16,7 @@ import type {
   ObjectField,
   Schema,
   Trait,
-} from '../../../types/schema/fields.ts';
+} from './fields.ts';
 
 export type AttributesSchema = Record<string, LegacyAttributeField>;
 export type RelationshipsSchema = Record<string, LegacyRelationshipField>;
@@ -81,7 +81,7 @@ export interface SchemaService {
    * Queries whether the SchemaService recognizes `type` as a resource type
    *
    * @public
-   * @deprecated
+   * @deprecated - use {@link SchemaService.hasResource | hasResource}
    */
   doesTypeExist?(type: string): boolean;
 
@@ -280,7 +280,7 @@ export interface SchemaService {
    * ```
    *
    * @public
-   * @deprecated
+   * @deprecated - use {@link SchemaService.fields | fields}
    */
   attributesDefinitionFor?(key: ResourceKey | ObjectWithStringTypeProperty): AttributesSchema;
 
@@ -360,7 +360,7 @@ export interface SchemaService {
    * ```
    *
    * @public
-   * @deprecated
+   * @deprecated - use {@link SchemaService.fields | fields}
    */
   relationshipsDefinitionFor?(key: ResourceKey | ObjectWithStringTypeProperty): RelationshipsSchema;
 
@@ -373,6 +373,8 @@ export interface SchemaService {
 
   /**
    * Register an extension for either objects or arrays
+   *
+   * See also {@link CAUTION_MEGA_DANGER_ZONE_Extension}
    *
    * @public
    */

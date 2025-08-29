@@ -1,7 +1,7 @@
 import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { CacheKeyManager } from '../../-private/managers/cache-key-manager.ts';
 import type { NotificationType } from '../../-private/managers/notification-manager.ts';
-import type { SchemaService } from './schema-service.ts';
+import type { SchemaService } from '../../../types/schema/schema-service.ts';
 
 /**
  * CacheCapabilitiesManager provides encapsulated API access to the minimal
