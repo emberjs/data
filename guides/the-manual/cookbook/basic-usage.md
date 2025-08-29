@@ -86,7 +86,7 @@ even in this simple form.
 
 It also sets up nicely in case we later decide to refactor our API, add authentication, adjust needed headers, or add caching.
 
-Second, the [Fetch Handler](https://api.emberjs.com/ember-data/release/classes/Fetch) is doing a lot of heavy lifting for us.
+Second, the [Fetch Handler](/api/@warp-drive/core/variables/Fetch) is doing a lot of heavy lifting for us.
 
 - It normalizes network errors
 - It ensures API errors are thrown as errors

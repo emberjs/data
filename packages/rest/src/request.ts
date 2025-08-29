@@ -1,23 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
 /**
- * <p align="center">
-  <img
-    class="project-logo"
-    src="https://raw.githubusercontent.com/warp-drive-data/warp-drive/4612c9354e4c54d53327ec2cf21955075ce21294/ember-data-logo-light.svg#gh-light-mode-only"
-    alt="EmberData"
-    width="240px"
-    title="EmberData"
-  />
-</p>
-
 This package provides utilities for working with **REST**ful APIs with [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/).
-
-## Installation
-
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-```sh
-pnpm add @ember-data/json-api
-```
 
 ## Usage
 
@@ -42,8 +26,8 @@ const options = findRecord('ember-developer', '1', { include: ['pets', 'friends'
 * /
 ```
 
-Request builder output is ready to go for use with [store.request](https://api.emberjs.com/ember-data/release/classes/Store/methods/request?anchor=request),
-[manager.request](https://api.emberjs.com/ember-data/release/classes/RequestManager/methods/request?anchor=request) and most conventional REST APIs.
+Request builder output is ready to go for use with {@link Store.request | store.request},
+{@link RequestManager.request | manager.request} and most conventional REST APIs.
 
 Resource types are pluralized and camelized for the url.
 
@@ -52,15 +36,6 @@ the query or values in an array changes.
 
 URLs follow the most common REST format (camelCase pluralized resource types).
 
-### Available Builders
-
-- [createRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/createRecord)
-- [deleteRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/deleteRecord)
-- [findRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/findRecord)
-- [query](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/query)
-- [updateRecord](https://api.emberjs.com/ember-data/release/functions/@ember-data%2Frest/updateRecord)
-
  * @module
- * @public
  */
 export { findRecord, query, deleteRecord, createRecord, updateRecord } from '@warp-drive/utilities/rest';

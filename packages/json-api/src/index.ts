@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Cache } from '@warp-drive/core/types/cache';
+
 export { JSONAPICache as default } from '@warp-drive/json-api';
 
 /**
@@ -86,7 +89,7 @@ class extends Store {
 }
 ```
 
-For the full list of APIs see the docs for [Cache Interface](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache)
+For the full list of APIs see the docs for {@link Cache}
 
 
   @module

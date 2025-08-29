@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Store } from '@warp-drive/core';
 /**
  *
   <p align="center">
@@ -420,7 +422,7 @@ default configuration will be ignored if the `requestManager` property is set,
 though the store will still register the CacheHandler.
 
 For usage of the store's `requestManager` via `store.request(<req>)` see the
-[Store](https://api.emberjs.com/ember-data/release/modules/@ember-data%2Fstore) documentation.
+{@link Store} documentation.
 
  *
  * @module

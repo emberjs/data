@@ -33,7 +33,7 @@ When using Models, EmberData parses schema from them at runtime,
 converting static information defined on the class into the json
 schema format needed by the rest of the system.
 
-This is handled by the implementation of the [schema service](https://api.emberjs.com/ember-data/release/classes/SchemaService) provided
+This is handled by the implementation of the [SchemaService](/api/@warp-drive/core/types/interfaces/SchemaService) provided
 by the `@ember-data/model` package. The service converts the class
 definitions into the json definitions described in the next section.
 
@@ -63,7 +63,7 @@ export default class ActivityData extends Model {
 ## Using JSON Schemas
 
 EmberData doesn't care where your schemas come from, how they are authored,
-or how you load them into the system so long as when it asks the [schema service](https://api.emberjs.com/ember-data/release/classes/SchemaService)
+or how you load them into the system so long as when it asks the [SchemaService](/api/@warp-drive/core/types/interfaces/SchemaService)
 for information it gets back field definitions in the right json shape.
 
 Here, we show how the above trail runner relationship is described by a field definition.

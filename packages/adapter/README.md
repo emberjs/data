@@ -15,11 +15,11 @@
     />
 </p>
 
-<p align="center">Provides REST and JSON:API Implementations of the legacy <a href="https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Adapter">Adapter Interface</a></p>
+<p align="center">Provides REST and JSON:API Implementations of the legacy <a href="https://warp-drive.io/api/@warp-drive/legacy/compat/interfaces/MinimumAdapterInterface">Adapter Interface</a></p>
 
 > **Caution** ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
-> If starting a new app or thinking of implementing a new adapter, consider writing a [Handler](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Handler)
-> instead to be used with the [RequestManager](https://github.com/emberjs/data/tree/main/packages/request#readme)
+> If starting a new app or thinking of implementing a new adapter, consider writing a [Handler](https://warp-drive.io/api/@warp-drive/core/request/interfaces/Handler)
+> instead to be used with the [RequestManager](https://warp-drive.io/api/@warp-drive/core/classes/RequestManager)
 
 ## Installation
 

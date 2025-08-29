@@ -64,7 +64,7 @@ interface LinksModeRelationship {
 
 This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. 
 
-If your API does not provide this link, a [request handler](https://api.emberjs.com/ember-data/release/classes/%3Cinterface%3E%20handler/) could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
+If your API does not provide this link, a [request handler](/api/@warp-drive/core/request/interfaces/Handler) could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
 
 Note that this approach can even work if your API requires you to send a POST request to fetch the relationship. [This blog post](https://runspired.com/2025/02/26/exploring-advanced-handlers.html) contains an overview of advanced request handling to achieve a similar aim for pagination.
 
@@ -234,7 +234,7 @@ In LegacyMode, sync relationships gave direct access to the record or array whil
 to a promisified proxy to the record/array.
 
 In PolarisMode using `resource` and `collection`, sync relationships will also give direct access while async
-relationships will instead provide access to a [reactive document](https://api.emberjs.com/ember-data/release/classes/Document).
+relationships will instead provide access to a [ReactiveDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveDocument).
 
 So for instance, if `user.homeAddress` were `async: false`, then its value would be an instance of an `Address` record.
 But if `user.homeAddress` were `asunc: true`, it would instead be a reactive class with `links`, `meta` and (only-if-loaded) `data`.
