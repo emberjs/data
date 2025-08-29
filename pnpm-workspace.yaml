@@ -2,6 +2,7 @@
 packages:
   - "packages/*"
   - "tools/*"
+  - "release"
   - "warp-drive-packages/*"
   - "docs-viewer"
   - "!docs-viewer/projects/*"

@@ -1,6 +1,6 @@
-import { gatherPackages } from '../../release/utils/package.ts';
-import { generatePackageTarballs } from '../../release/core/publish/steps/generate-tarballs.ts';
-import strategyFile from '../../release/strategy.json' assert { type: 'json' };
+import { gatherPackages } from '../../tools/release/utils/package.ts';
+import { generatePackageTarballs } from '../../tools/release/core/publish/steps/generate-tarballs.ts';
+import strategyFile from '../../tools/release/strategy.json' assert { type: 'json' };
 /**
  * We don't test types for these packages
  * (they also don't end up in the browser)

@@ -3770,6 +3770,24 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  tools/release:
+    dependencies:
+      bun-types:
+        specifier: ^1.2.20
+        version: 1.2.20
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      lerna-changelog:
+        specifier: ^2.2.0
+        version: 2.2.0
+      semver:
+        specifier: ^7.7.2
+        version: 7.7.2
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   warp-drive-packages/build-config:
     dependencies:
       '@embroider/addon-shim':
