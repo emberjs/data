@@ -19,6 +19,7 @@ export default [
 
   // gts
   gts.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['src'],
     allowedImports: externals,
   }),
