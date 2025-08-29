@@ -1,50 +1,36 @@
-export { JSONAPICache } from './-private/cache';
-
 /**
  *
 
-This package provides an in-memory [JSON:API](https://jsonapi.org/) document and resource [*Ember***Data** Cache](https://github.com/warp-drive-data/warp-drive/blob/main/ember-data-types/cache/cache.ts) implementation.
-
-## Installation
-
-Install using your javascript package manager of choice. For instance with [pnpm](https://pnpm.io/)
-
-```sh
-pnpm add @ember-data/json-api
-```
+This package provides an in-memory [JSON:API](https://jsonapi.org/) document and resource {@link Cache} implementation.
 
 ## 🚀 Setup
 
-> **Note**
-> When using [ember-data](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data) the below
-> configuration is handled for you automatically.
-
 ```ts
-import Store from '@ember-data/store';
-import Cache from '@ember-data/json-api';
+import { Store } from '@warp-drive/core';
+import { JSONAPICache } from '@warp-drive/json-api';
 
-export default class extends Store {
+export default class AppStore extends Store {
   createCache(wrapper) {
-    return new Cache(wrapper);
+    return new JSONAPICache(wrapper);
   }
 }
 ```
 
 
-## Usage
+## Advanced Usage
 
-Usually you will directly interact with the cache only if implementing a presentation class. Below we
+Usually you will directly interact with the cache only if implementing a ReactiveResource. Below we
 give an example of a read-only record (mutations never written back to the cache). More typically cache
 interactions are something that the `Store` coordinates as part of the `request/response` lifecycle.
 
 ```ts
-import Store, { recordIdentifierFor } from '@ember-data/store';
-import Cache from '@ember-data/json-api';
+import { Store, recordIdentifierFor } from '@warp-drive/core';
+import { JSONAPICache } from '@warp-drive/json-api';
 import { TrackedObject } from 'tracked-built-ins';
 
-class extends Store {
+export class AppStore extends Store {
   createCache(wrapper) {
-    return new Cache(wrapper);
+    return new JSONAPICache(wrapper);
   }
 
   instantiateRecord(identifier) {
@@ -78,8 +64,11 @@ class extends Store {
 }
 ```
 
-For the full list of APIs see the docs for [Cache Interface](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache)
-
+  For the full list of APIs see the docs for {@link Cache}
 
   @module
 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Cache } from '@warp-drive/core/types/cache';
+
+export { JSONAPICache } from './-private/cache';

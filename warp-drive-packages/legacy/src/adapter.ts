@@ -1,13 +1,11 @@
 /**
  * ## Overview
  *
- * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
- * <p>
- *   ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+ * :::caution
+ *   ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
  *   If starting a new app or thinking of implementing a new adapter, consider writing a
- *   <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
- * </p>
- * </blockquote>
+ *   {@link Handler} instead to be used with the {@link RequestManager}
+ * ::::
  *
  * In order to properly fetch and update data, @warp-drive/legacy
  * needs to understand how to connect to your API.
@@ -184,6 +182,10 @@ By default when using with Ember you only need to implement this hook if you wan
 
   @module
 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 
 import EmberObject from '@ember/object';
 import * as s from '@ember/service';

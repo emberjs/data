@@ -1,7 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { RequestManager } from '@warp-drive/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Handler } from '@warp-drive/core/request';
 /**
   ## Overview
 
@@ -106,4 +102,9 @@ import type { Handler } from '@warp-drive/core/request';
 
   @module
 */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
+
 export { Serializer as default } from '@warp-drive/legacy/serializer';
