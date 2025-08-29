@@ -18,7 +18,7 @@ If you have any references to ember-data or warp-drive types or types packages i
 
 ## What is "Legacy"
 
-You've probably heard old code patterns referred to as "legacy code" before. In WarpDrive, Legacy refers to older features which we are giving a second, extended life. When features are deprecated in `@warp-drive/core`, they are added to @warp-drive/legacy` in a way that allows apps to opt-in to bring them back.
+You've probably heard old code patterns referred to as "legacy code" before. In WarpDrive, Legacy refers to older features to which we are giving a second, extended life. When features are deprecated in `@warp-drive/core`, they are added to `@warp-drive/legacy` in a way that allows apps to opt-in to bring them back.
 
 Legacy features will not live forever, but they will receive a second deprecation cycle before being deleted. There is no set schedule to when code in legacy might
 be deprecated. Sometimes it may become deprecated immediately after the feature is
