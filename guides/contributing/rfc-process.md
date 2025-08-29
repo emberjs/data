@@ -19,7 +19,7 @@ are narrowly scoped with clear understanding of alternatives, drawbacks, and the
     Often this process will complete quickly, but when it does not, don't despair! Often the best ideas
     take the longest to bake.
 
-1. Bring up your idea on [Discord](hthttps://discord.gg/n8BptgFzNt) or
+1. Bring up your idea on [Discord](https://discord.gg/PHBbnWJx5S) or
    with individual [team members](https://emberjs.com/team/)
 2. Reflect on any concerns, alternatives, or questions that arise from these discussions.
 3. Continue to discuss the idea, giving time for everyone to digest and think about it.

@@ -242,7 +242,7 @@ store.cache.patch({
 
 ***Warp*Drive** has been designed as a series of interfaces following the single-responsibility principle with well defined boundaries and configuration points. Because of this, nearly every aspect of the library is configurable, extensible, composable, replaceable or all of the above: meaning that if something doesn't meet your needs out-of-the-box, you can configure it to.
 
-The list of features doesn't end here. This guide will teach you the basics of everything you need to know, but if you find yourself needing more help or with a question you can't find the answer to, ask on [GitHub](https://github.com/emberjs/data/issues), in our [forum](https://discuss.emberjs.com/) or on [discord](https://discord.gg/n8BptgFzNt).
+The list of features doesn't end here. This guide will teach you the basics of everything you need to know, but if you find yourself needing more help or with a question you can't find the answer to, ask on [GitHub](https://github.com/emberjs/data/issues), in our [forum](https://discuss.emberjs.com/) or on [discord](https://discord.gg/PHBbnWJx5S).
 
 
 <br>

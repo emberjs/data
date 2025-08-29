@@ -19,7 +19,7 @@
 [![Docs](./logos/docs-badge.svg)](https://api.emberjs.com/ember-data/release)
 [![EmberJS Discord Community Server](https://img.shields.io/badge/EmberJS-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
 )
-[![WarpDrive Discord Server](https://img.shields.io/badge/WarpDrive-grey?logo=discord&logoColor=FFC474)](https://discord.gg/n8BptgFzNt
+[![WarpDrive Discord Server](https://img.shields.io/badge/WarpDrive-grey?logo=discord&logoColor=FFC474)](https://discord.gg/PHBbnWJx5S
 )
 
 <p align="center">

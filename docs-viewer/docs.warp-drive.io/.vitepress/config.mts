@@ -150,7 +150,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/warp-drive-data/warp-drive' },
-      { icon: 'discord', link: 'https://discord.gg/n8BptgFzNt' },
+      { icon: 'discord', link: 'https://discord.gg/PHBbnWJx5S' },
       { icon: 'bluesky', link: 'https://bsky.app/profile/warp-drive.io' },
     ],
 
