@@ -6,9 +6,12 @@
 import { warn } from '@ember/debug';
 import type EmberObject from '@ember/object';
 
-import type { Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import { camelize, dasherize, singularize } from '@warp-drive/utilities/string';
@@ -23,13 +26,11 @@ function makeArray(value: unknown): unknown[] {
 }
 
 /**
- * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+ * :::danger
+    ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
+    {@link Handler} instead to be used with the {@link RequestManager}
+  :::
 
   Normally, applications will use the `RESTSerializer` by implementing
   the `normalize` method.

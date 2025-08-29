@@ -1,4 +1,7 @@
-import type { Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import type { LegacyQueryArray } from '@warp-drive/core/store/-private';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { LegacyRelationshipField as RelationshipSchema } from '@warp-drive/core/types/schema/fields';
@@ -15,13 +18,11 @@ type Group = Snapshot[];
 export type AdapterPayload = Record<string, unknown> | unknown[];
 
 /**
- * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+ * :::danger
+    ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
+    {@link Handler} instead to be used with the {@link RequestManager}
+  :::
 
   The following documentation describes the methods an
   adapter should implement with descriptions around when an

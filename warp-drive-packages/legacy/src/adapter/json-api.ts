@@ -1,5 +1,8 @@
-import type { Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { HTTPMethod } from '@warp-drive/core/types/request';
 import { dasherize, pluralize } from '@warp-drive/utilities/string';
@@ -9,17 +12,14 @@ import type { Snapshot, SnapshotRecordArray } from '../compat/-private.ts';
 import { serializeIntoHash } from './-private.ts';
 import type { FetchRequestInit, JQueryRequestInit, QueryState } from './rest.ts';
 import { RESTAdapter } from './rest.ts';
-
 /**
   ## Overview
 
-  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+  :::danger
+    ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
+    {@link Handler} instead to be used with the {@link RequestManager}
+  :::
 
   The `JSONAPIAdapter` is an adapter whichtransforms the store's
   requests into HTTP requests that follow the [JSON API format](http://jsonapi.org/format/).

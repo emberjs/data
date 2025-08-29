@@ -1,7 +1,7 @@
 /**
  * ## Overview
  *
- * :::caution
+ * :::danger
  *   ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
  *   If starting a new app or thinking of implementing a new adapter, consider writing a
  *   {@link Handler} instead to be used with the {@link RequestManager}

@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import { getOrSetGlobal } from '@warp-drive/core/types/-private';
 import type { ApiError } from '@warp-drive/core/types/spec/error';
-
 /**
   ## Overview
 
-  <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+  :::danger
+    ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
+    {@link Handler} instead to be used with the {@link RequestManager}
+  :::
 
   An `AdapterError` is used by an adapter to signal that an error occurred
   during a request to an external API. It indicates a generic error, and

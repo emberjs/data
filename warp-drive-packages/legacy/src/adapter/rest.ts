@@ -8,9 +8,12 @@ import { computed } from '@ember/object';
 import type Mixin from '@ember/object/mixin';
 import type Owner from '@ember/owner';
 
-import type { Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { HTTPMethod } from '@warp-drive/core/types/request';
 
@@ -76,13 +79,11 @@ const AdapterWithBuildURLMixin: Readonly<typeof Adapter> & (new (owner?: Owner) 
   Adapter.extend(BuildURLMixin);
 
 /**
- * <blockquote style="margin: 1em; padding: .1em 1em .1em 1em; border-left: solid 1em #E34C32; background: #e0e0e0;">
-  <p>
-    ⚠️ <strong>This is LEGACY documentation</strong> for a feature that is no longer encouraged to be used.
+ * :::danger
+    ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
     If starting a new app or thinking of implementing a new adapter, consider writing a
-    <a href="/ember-data/release/classes/%3CInterface%3E%20Handler">Handler</a> instead to be used with the <a href="https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme">RequestManager</a>
-  </p>
-  </blockquote>
+    {@link Handler} instead to be used with the {@link RequestManager}
+  :::
 
   The REST adapter allows your store to communicate with an HTTP server by
   transmitting JSON via XHR.
@@ -493,8 +494,7 @@ class RESTAdapter extends AdapterWithBuildURLMixin {
     Some APIs require HTTP headers, e.g. to provide an API
     key. Arbitrary headers can be set as key/value pairs on the
     `RESTAdapter`'s `headers` object and Ember Data will send them
-    along with each ajax request. For dynamic headers see [headers
-    customization](/ember-data/release/classes/RESTAdapter).
+    along with each ajax request..
 
     ```js [app/adapters/application.js]
     import { RESTAdapter } from '@warp-drive/legacy/adapter/rest';
