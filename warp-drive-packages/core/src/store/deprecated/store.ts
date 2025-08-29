@@ -263,13 +263,13 @@ declare module '../-private/store-service' {
     }
     ```
 
-    See [peekRecord](../methods/peekRecord?anchor=peekRecord) to get the cached version of a record.
+    See {@link Store.peekRecord | peekRecord} to get the cached version of a record.
 
     ### Retrieving Related Model Records
 
-    If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
-    that supports the [JSON API specification](http://jsonapi.org/) and if your server
+    If you use an adapter such as the
+    [JSONAPIAdapter](/api/@warp-drive/legacy/adapter/json-api/classes/JSONAPIAdapter)
+    which supports the [{JSON:API} specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
     you can use `findRecord()` or `findAll()` to automatically retrieve additional records related to
@@ -437,7 +437,7 @@ declare module '../-private/store-service' {
     records in the store:
 
     ```js [app/adapters/application.js]
-    import Adapter from '@ember-data/adapter';
+    import { Adapter } from '@warp-drive/legacy/adapter';
 
     export default class ApplicationAdapter extends Adapter {
       shouldReloadAll(store, snapshotsArray) {
@@ -519,8 +519,8 @@ declare module '../-private/store-service' {
 
     ### Retrieving Related Model Records
 
-    If you use an adapter such as Ember's default
-    [`JSONAPIAdapter`](/ember-data/release/classes/JSONAPIAdapter)
+    If you use an adapter such as the default
+    [JSONAPIAdapter](/api/@warp-drive/legacy/adapter/json-api/classes/JSONAPIAdapter)
     that supports the [JSON API specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
@@ -551,7 +551,7 @@ declare module '../-private/store-service' {
     }
     ```
 
-    See [query](../methods/query?anchor=query) to only get a subset of records from the server.
+    See {@link Store.query | query} to only get a subset of records from the server.
 
     @public
     @deprecated use {@link Store.request} instead
@@ -592,7 +592,7 @@ declare module '../-private/store-service' {
 
     If you do something like this:
 
-    ```javascript
+    ```js
     store.query('person', { ids: ['1', '2', '3'] });
     ```
 
@@ -658,7 +658,7 @@ declare module '../-private/store-service' {
     The request is made through the adapters' `queryRecord`:
 
     ```ts [app/adapters/user.ts]
-    import Adapter from '@ember-data/adapter';
+    import Adapter from '@warp-drive/legacy/adapter';
 
     export default class UserAdapter extends Adapter {
       async queryRecord(modelName, query) {
@@ -689,7 +689,7 @@ declare module '../-private/store-service' {
     }
     ```
 
-    ```javascript
+    ```js
     store.query('user', { username: 'unique' }).then(function(users) {
       return users.firstObject;
     }).then(function(user) {
@@ -709,7 +709,7 @@ declare module '../-private/store-service' {
     }
     ```
 
-    ```javascript
+    ```js
     store.queryRecord('user', { username: 'unique' }).then(function(user) {
        // user is null
     });
@@ -771,7 +771,7 @@ declare module '../-private/store-service' {
     /**
     Returns the schema for a particular resource type (modelName).
 
-    When used with Model from @ember-data/model the return is the model class,
+    When used with [Model](/api/@warp-drive/legacy/model/classes/Model) the return is the model class,
     but this is not guaranteed.
 
     If looking to query attribute or relationship information it is
@@ -781,9 +781,7 @@ declare module '../-private/store-service' {
     signatures.
 
     The class of a model might be useful if you want to get a list of all the
-    relationship names of the model, see
-    [`relationshipNames`](/ember-data/release/classes/Model?anchor=relationshipNames)
-    for example.
+    relationship names of the model.
 
     @public
     @deprecated use {@link Store.schema} instead

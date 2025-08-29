@@ -94,11 +94,6 @@ import { camelize } from '@warp-drive/utilities/string';
   are. Please read the docs for the methods this mixin provides, in case you need
   to modify it to fit your specific needs.**
 
-  For example, review the docs for each method of this mixin:
-  * [normalize](/ember-data/release/classes/EmbeddedRecordsMixin/methods/normalize?anchor=normalize)
-  * [serializeBelongsTo](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeBelongsTo?anchor=serializeBelongsTo)
-  * [serializeHasMany](/ember-data/release/classes/EmbeddedRecordsMixin/methods/serializeHasMany?anchor=serializeHasMany)
-
   @class EmbeddedRecordsMixin
   @public
 */

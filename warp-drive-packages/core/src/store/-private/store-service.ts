@@ -17,8 +17,13 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { Graph } from '../../graph/-private.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ReactiveResource } from '../../reactive.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ReactiveDocument } from '../../reactive/-private/document.ts';
-import type { Future } from '../../request.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { CacheHandler as CacheHandlerInterface, Future } from '../../request.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Fetch } from '../../request/-private/fetch.ts';
 import type { PrivateRequestManager, RequestManager } from '../../request/-private/manager.ts';
 import type { Cache } from '../../types/cache.ts';
 import type { PersistedResourceKey, ResourceKey } from '../../types/identifier.ts';
@@ -39,7 +44,8 @@ import type { Type } from '../../types/symbols.ts';
 import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager.ts';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance.ts';
 import type { SchemaService } from '../-types/q/schema-service.ts';
-import type { StoreRequestInput } from './cache-handler/handler.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { CacheHandler, StoreRequestInput } from './cache-handler/handler.ts';
 import type { CachePolicy } from './cache-handler/types.ts';
 import {
   getNewRecord,
@@ -382,7 +388,7 @@ export interface Store {
    * For Example, to use the default SchemaService for ReactiveResource
    *
    * ```ts
-   * import { SchemaService } from '@warp-drive/schema-record';
+   * import { SchemaService } from '@warp-drive/core/reactive';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -391,10 +397,10 @@ export interface Store {
    * }
    * ```
    *
-   * Or to use the SchemaService for @ember-data/model
+   * Or to use the SchemaService for @warp-drive/legacy/model
    *
    * ```ts
-   * import { buildSchema } from '@ember-data/model';
+   * import { buildSchema } from '@warp-drive/legacy/model';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -406,13 +412,13 @@ export interface Store {
    * If you wish to chain services, you must either
    * instantiate each schema source directly or super to retrieve
    * an existing service. For convenience, when migrating from
-   * `@ember-data/model` to `@warp-drive/schema-record` a
+   * `@warp-drive/legacy/model` to {@link ReactiveResource} a
    * SchemaService is provided that handles this transition
    * for you:
    *
    * ```ts
-   * import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-   * import { SchemaService } from '@warp-drive/schema-record';
+   * import { DelegatingSchemaService } from '@warp-drive/legacy/model/migration-support';
+   * import { SchemaService } from '@warp-drive/core/reactive';
    *
    * class extends Store {
    *   createSchemaService() {
@@ -459,7 +465,7 @@ export interface Store {
    * For Example:
    *
    * ```ts
-   * import Store from '@ember-data/store';
+   * import { Store } from '@warp-drive/core';
    *
    * class SchemaDelegator {
    *   constructor(schema) {
@@ -493,7 +499,6 @@ export interface Store {
    * }
    * ```
    *
-   * @param {SchemaService} schema
    * @deprecated
    * @public
    */
@@ -514,7 +519,7 @@ export interface Store {
    * For Example:
    *
    * ```ts
-   * import Store from '@ember-data/store';
+   * import { Store } from '@warp-drive/core';
    *
    * class SchemaDelegator {
    *   constructor(schema) {
@@ -548,7 +553,6 @@ export interface Store {
    * }
    * ```
    *
-   * @param {SchemaService} schema
    * @deprecated
    * @public
    */
@@ -618,20 +622,18 @@ export class Store extends BaseClass {
    */
   declare readonly cacheKeyManager: CacheKeyManager;
   /**
-   * Provides access to the requestManager instance associated
+   * Provides access to the {@link RequestManager} instance associated
    * with this Store instance.
    *
-   * When using `ember-data` this property is automatically
-   * set to an instance of `RequestManager`. When not using `ember-data`
-   * you must configure this property yourself, either by declaring
-   * it as a service or by initializing it.
+   * See also:
+   * - {@link Fetch}
+   * - {@link CacheHandlerInterface | CacheHandler (Interface)}
+   * - {@link CacheHandler | CacheHandler (Class)}
    *
    * ```ts
-   * import Store, { CacheHandler } from '@ember-data/store';
-   * import RequestManager from '@ember-data/request';
-   * import Fetch from '@ember-data/request/fetch';
+   * import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
    *
-   * class extends Store {
+   * class AppStore extends Store {
    *   requestManager = new RequestManager()
    *    .use([Fetch])
    *    .useCache(CacheHandler);
@@ -1374,7 +1376,7 @@ export class Store extends BaseClass {
     For this model:
 
     ```js [app/models/person.js]
-    import Model, { attr, hasMany } from '@ember-data/model';
+    import Model, { attr, hasMany } from '@warp-drive/legacy/model';
 
     export default class PersonRoute extends Route {
       @attr('string') firstName;
@@ -1441,23 +1443,17 @@ export class Store extends BaseClass {
     }
     ```
 
-    If you're streaming data or implementing an adapter, make sure
-    that you have converted the incoming data into this form. The
-    store's [normalize](../methods/normalize?anchor=normalize) method is a convenience
-    helper for converting a json payload into the form Ember Data
-    expects.
-
-    ```js
-    store.push(store.normalize('person', data));
-    ```
+    If you're streaming data, or implementing response handling, make sure
+    that you have converted the incoming data into this form.
 
     This method can be used both to push in brand new
     records, as well as to update existing records.
 
+    See also {@link Cache.patch}
+
     @public
-    @param {Object} data
-    @return the record(s) that was created or
-      updated.
+    @param data
+    @return the primary record(s) that created or updated.
   */
   push(data: EmptyResourceDocument): null;
   push<T>(data: SingleResourceDocument<TypeFromInstance<T>>): T;
@@ -1486,8 +1482,7 @@ export class Store extends BaseClass {
     without creating materialized records.
 
     @private
-    @param {Object} jsonApiDoc
-    @return {ResourceKey|Array<ResourceKey>|null} identifiers for the primary records that had data loaded
+    @return identifiers for the primary records that had data loaded
   */
   _push(jsonApiDoc: JsonApiDocument, asyncFlush?: boolean): PersistedResourceKey | PersistedResourceKey[] | null {
     if (DEBUG) {
