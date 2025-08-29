@@ -1,3 +1,7 @@
+---
+draft: true
+---
+
 <table>
 <tbody>
   <tr>

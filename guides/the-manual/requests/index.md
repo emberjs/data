@@ -1,5 +1,5 @@
 ---
-title: Overview
+title: Making Requests
 categoryOrder: 1
 outline:
   level: 2,3
@@ -154,7 +154,42 @@ Coming Soon!
 
 ## Request Options
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
+*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
+
+*Warp***Drive** [RequestInfo](/api/@warp-drive/core/types/request) extends `RequestInit`
+to provide additional capabilities for caching and fulfilling requests.
+
+```ts
+interface RequestInfo extends RequestInit {
+  op?: string;
+  store?: Store;
+
+  cacheOptions?: {
+    types?: string[];
+    key?: string;
+    reload?: boolean;
+    backgroundReload?: boolean;
+  };
+
+  url: string;
+  /**
+   * data that a handler should convert into
+   * the query (GET) or body (POST)
+   */
+  data?: Record<string, unknown>;
+  /**
+   * options specifically intended for handlers
+   * to utilize to process the request
+   */
+  options?: Record<string, unknown>;
+}
+```
+
+:::tip 💡TIP
+providing a `signal` is unnecessary as an `AbortController` is automatically provided if none is present.
+:::
+
+Below are a few examples of making requests:
 
 :::tabs key:req1
 
