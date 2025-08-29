@@ -182,17 +182,16 @@ By default when using with Ember you only need to implement this hook if you wan
 
   @module
 */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { RequestManager } from '@warp-drive/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Handler } from '@warp-drive/core/request';
 
 import EmberObject from '@ember/object';
 import * as s from '@ember/service';
 
-import type { Store } from '@warp-drive/core';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { RequestManager, Store } from '@warp-drive/core';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Handler } from '@warp-drive/core/request';
 import type { ModelSchema } from '@warp-drive/core/types';
 
 import type { AdapterPayload, MinimumAdapterInterface, SerializerOptions } from './compat.ts';
