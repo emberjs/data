@@ -5,7 +5,7 @@ outline:
   level: 2,3
 ---
 
-::: warning 💡 Looking for the [Legacy Package Setup Guide?](./legacy-package-setup/2-setup/1-universal)
+::: warning 💡 Looking for the [Legacy Package Setup Guide?](./legacy-package-setup/setup/universal)
 :::
 
 # Setup
@@ -364,7 +364,7 @@ you handle centralized concerns around requesting and updating data from your
 backend.
 
 ::: tip 💡 Guide
-→ Learn more about [Making Requests](../../the-manual/requests.md)
+→ Learn more about [Making Requests](../the-manual/requests/index.md)
 :::
 
 ```ts [services/store.ts]
@@ -384,7 +384,7 @@ they come packed with features that will help you build incredible
 applications.
 
 ::: tip 💡 Guide
-→ Learn more about [Resource Schemas](../../the-manual/schemas.md)
+→ Learn more about [Resource Schemas](../the-manual/schemas/index.md)
 :::
 
 :::tabs key:config

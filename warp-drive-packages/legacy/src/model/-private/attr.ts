@@ -6,10 +6,11 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { ArrayValue, ObjectValue, PrimitiveValue, Value } from '@warp-drive/core/types/json/raw';
 import { RecordStore, type TransformName } from '@warp-drive/core/types/symbols';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Transform } from '../../serializer/transform.ts';
 import type { Model } from './model.ts';
 import type { DecoratorPropertyDescriptor } from './util.ts';
 import { isElementDescriptor } from './util.ts';
-
 /**
  * Options provided to the attr decorator are
  * supplied to the associated transform. Any
@@ -180,12 +181,12 @@ export type OptionsFromInstance<T> =
 export type DataDecorator = (target: object, key: string, desc?: DecoratorPropertyDescriptor) => void;
 
 /**
-  `attr` defines an attribute on a [Model](/ember-data/release/classes/Model).
+  `attr` defines an attribute on a {@link Model}.
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   EmberData ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [Transform](/ember-data/release/classes/Transform).
+  {@link Transform}.
 
   Note that you cannot use `attr` to define an attribute of `id`.
 
@@ -262,9 +263,8 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   ```
 
   @public
-  @param {String|Object} type the attribute type
-  @param {Object} options a hash of options
-  @return {Attribute}
+  @param type the attribute type
+  @param options a hash of options
 */
 export function attr(): DataDecorator;
 export function attr<T>(type: TypeFromInstance<T>): DataDecorator;

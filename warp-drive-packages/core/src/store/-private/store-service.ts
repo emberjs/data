@@ -1158,14 +1158,10 @@ export class Store extends BaseClass {
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    See [findRecord](../methods/findRecord?anchor=findRecord) if you would like to request this record from the backend.
-
-    _Note: This is a synchronous method and does not return a promise._
-
     **Example 1**
 
-    ```js
-    let post = store.peekRecord('post', '1');
+    ```ts
+    const post = store.peekRecord('post', '1');
 
     post.id; // '1'
     ```
@@ -1176,8 +1172,8 @@ export class Store extends BaseClass {
 
     **Example 2**
 
-    ```js
-    let post = store.peekRecord({ type: 'post', id });
+    ```ts
+    const post = store.peekRecord({ type: 'post', id: '1' });
     post.id; // '1'
     ```
 
@@ -1191,12 +1187,10 @@ export class Store extends BaseClass {
     post.id; // '1'
     ```
 
-
     @since 1.13.0
     @public
-    @param {String|object} modelName - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
-    @param {String|Integer} id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
-    @return {Model|null} record
+    @param type - either a string representing the modelName or a ResourceIdentifier object containing both the type (a string) and the id (a string) for the record or an lid (a string) of an existing record
+    @param id - optional only if the first param is a ResourceIdentifier, else the string id of the record to be retrieved.
   */
   peekRecord<T>(type: TypeFromInstance<T>, id: string | number): T | null;
   peekRecord(type: string, id: string | number): unknown | null;
@@ -1233,28 +1227,24 @@ export class Store extends BaseClass {
   }
 
   /**
-    This method returns a filtered array that contains all of the
-    known records for a given type in the store.
+    This method returns the {@link LegacyLiveArray} that contains all of the
+    known records for a given type in the store. Each ResourceType has only
+    one LiveArray instance, so multiple calls to `peekAll` with the same type
+    will always return the same instance.
 
-    Note that because it's just a filter, the result will contain any
+    Note that because it's a LiveArray, the result will contain any
     locally created records of the type, however, it will not make a
-    request to the backend to retrieve additional records. If you
-    would like to request all the records from the backend please use
-    [store.findAll](../methods/findAll?anchor=findAll).
-
-    Also note that multiple calls to `peekAll` for a given type will always
-    return the same `RecordArray`.
+    request to the backend to retrieve additional records.
 
     Example
 
-    ```javascript
-    let localPosts = store.peekAll('post');
+    ```ts
+    const allPosts = store.peekAll('post');
     ```
 
     @since 1.13.0
     @public
-    @param {String} type the name of the resource
-    @return {RecordArray}
+    @param type the name of the resource
   */
   peekAll<T>(type: TypeFromInstance<T>): LegacyLiveArray<T>;
   peekAll(type: string): LegacyLiveArray;

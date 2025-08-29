@@ -624,7 +624,7 @@ declare module '../-private/store-service' {
 
     /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use [`findRecord`](../methods/findRecord?anchor=findRecord)
+    beforehand (if the `id` is known, use {@link Store.findRecord | findRecord}
     instead).
 
     This method can be used when it is certain that the server will return a
@@ -633,14 +633,16 @@ declare module '../-private/store-service' {
     Each time this method is called a new request is made through the adapter.
 
     Let's assume our API provides an endpoint for the currently logged in user
-    via:
 
-    ```
-    // GET /api/current_user
+    ```ts
+    // GET /api/user/me
     {
-      user: {
-        id: 1234,
-        username: 'admin'
+      data: {
+        type: 'user',
+        id: '1234',
+        attributes: {
+          username: 'admin'
+        }
       }
     }
     ```
@@ -648,22 +650,23 @@ declare module '../-private/store-service' {
     Since the specific `id` of the `user` is not known beforehand, we can use
     `queryRecord` to get the user:
 
-    ```javascript
-    store.queryRecord('user', {}).then(function(user) {
-      let username = user.username;
-      // do thing
-    });
+    ```ts
+    const user = await store.queryRecord('user', { me: true });
+    user.username; // admin
     ```
 
     The request is made through the adapters' `queryRecord`:
 
-    ```js [app/adapters/user.js]
+    ```ts [app/adapters/user.ts]
     import Adapter from '@ember-data/adapter';
-    import $ from 'jquery';
 
     export default class UserAdapter extends Adapter {
-      queryRecord(modelName, query) {
-        return $.getJSON('/api/current_user');
+      async queryRecord(modelName, query) {
+        if (query.me) {
+          const response = await fetch('/api/me');
+          return await response.json();
+        }
+        throw new Error('Unsupported query');
       }
     }
     ```

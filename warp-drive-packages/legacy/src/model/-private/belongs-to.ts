@@ -8,6 +8,8 @@ import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import { RecordStore } from '@warp-drive/core/types/symbols';
 
 import { lookupLegacySupport } from './legacy-relationships-support.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Model } from './model.ts';
 import type { MinimalLegacyRecord } from './model-methods.ts';
 import { isElementDescriptor, normalizeModelName } from './util.ts';
 
@@ -116,7 +118,7 @@ function _belongsTo<T, Async extends boolean>(
 
 /**
   `belongsTo` is used to define One-To-One and One-To-Many, and One-To-None
-  relationships on a [Model](/ember-data/release/classes/Model).
+  relationships on a {@link Model}.
 
   `belongsTo` takes a configuration hash as a second parameter, currently
   supported options are:
@@ -266,9 +268,8 @@ function _belongsTo<T, Async extends boolean>(
   type each record satisfies on both sides.
 
   @public
-  @param {String} type (optional) the name of the related resource
-  @param {Object} options (optional) a hash of options
-  @return {PropertyDescriptor} relationship
+  @param type the name of the related resource
+  @param options a hash of options
 */
 
 export function belongsTo(): never;

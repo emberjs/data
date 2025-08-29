@@ -38,18 +38,17 @@ export interface LegacyStoreCompat extends Store {
 export type CompatStore = LegacyStoreCompat;
 
 /**
-    Returns an instance of the adapter for a given type. For
-    example, `adapterFor('person')` will return an instance of
-    the adapter located at `app/adapters/person.js`
+  Returns an instance of the adapter for a given type. For
+  example, `adapterFor('person')` will return an instance of
+  the adapter located at `app/adapters/person.js`
 
-    If no `person` adapter is found, this method will look
-    for an `application` adapter (the default adapter for
-    your entire application).
+  If no `person` adapter is found, this method will look
+  for an `application` adapter (the default adapter for
+  your entire application).
 
-    @public
-    @param {String} modelName
-    @return {Adapter}
-  */
+  @public
+  @param modelName
+*/
 export function adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
 export function adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
 export function adapterFor(this: Store, modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined {
@@ -98,20 +97,19 @@ export function adapterFor(this: Store, modelName: string, _allowMissing?: true)
 }
 
 /**
-    Returns an instance of the serializer for a given type. For
-    example, `serializerFor('person')` will return an instance of
-    `App.PersonSerializer`.
+  Returns an instance of the serializer for a given type. For
+  example, `serializerFor('person')` will return an instance of
+  `App.PersonSerializer`.
 
-    If no `App.PersonSerializer` is found, this method will look
-    for an `App.ApplicationSerializer` (the default serializer for
-    your entire application).
+  If no `App.PersonSerializer` is found, this method will look
+  for an `App.ApplicationSerializer` (the default serializer for
+  your entire application).
 
-    If a serializer cannot be found on the adapter, it will fall back
-    to an instance of `JSONSerializer`.
+  If a serializer cannot be found on the adapter, it will fall back
+  to an instance of `JSONSerializer`.
 
-    @public
-    @param {String} modelName the record to serialize
-    @return {Serializer}
+  @public
+  @param modelName the record to serialize
   */
 export function serializerFor(this: Store, modelName: string): MinimumSerializerInterface | null {
   assert(
@@ -156,23 +154,23 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
 }
 
 /**
-    `normalize` converts a json payload into the normalized form that
-    [push](../methods/push?anchor=push) expects.
+  `normalize` converts a json payload into the normalized form that
+  [push](../methods/push?anchor=push) expects.
 
-    Example
+  Example
 
-    ```js
-    socket.on('message', function(message) {
-      let modelName = message.model;
-      let data = message.data;
-      store.push(store.normalize(modelName, data));
-    });
-    ```
+  ```js
+  socket.on('message', function(message) {
+    let modelName = message.model;
+    let data = message.data;
+    store.push(store.normalize(modelName, data));
+  });
+  ```
 
-    @public
-    @param modelName The name of the model type for this payload
-    @return The normalized payload
-  */
+  @public
+  @param modelName The name of the model type for this payload
+  @return The normalized payload
+*/
 // TODO @runspired @deprecate users should call normalize on the associated serializer directly
 export function normalize(this: Store, modelName: string, payload: ObjectValue): SingleResourceDocument {
   upgradeStore(this);
@@ -247,8 +245,8 @@ export function normalize(this: Store, modelName: string, payload: ObjectValue):
     ```
 
     @public
-    @param {String} modelName Optionally, a model type used to determine which serializer will be used
-    @param {Object} inputPayload
+    @param modelName Optionally, a model type used to determine which serializer will be used
+    @param inputPayload
   */
 // TODO @runspired @deprecate pushPayload in favor of looking up the serializer
 export function pushPayload(this: Store, modelName: string, inputPayload: ObjectValue): void {

@@ -11,6 +11,8 @@ import { dasherize, singularize } from '@warp-drive/utilities/string';
 
 import type { NoNull, RelationshipDecorator, RelationshipOptions } from './belongs-to.ts';
 import { lookupLegacySupport } from './legacy-relationships-support.ts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Model } from './model.ts';
 import type { MinimalLegacyRecord } from './model-methods.ts';
 import { isElementDescriptor } from './util.ts';
 
@@ -93,7 +95,7 @@ function _hasMany<T, Async extends boolean>(
 
 /**
   `hasMany` is used to define Many-To-One and Many-To-Many, and Many-To-None
-  relationships on a [Model](/ember-data/release/classes/Model).
+  relationships on a {@link Model}.
 
   `hasMany` takes a configuration hash as a second parameter, currently
   supported options are:
@@ -244,9 +246,8 @@ function _hasMany<T, Async extends boolean>(
   type each record satisfies on both sides.
 
   @public
-  @param {String} type (optional) the name of the related resource
-  @param {Object} options (optional) a hash of options
-  @return {PropertyDescriptor} relationship
+  @param type the name of the related resource
+  @param options a hash of options
 */
 export function hasMany(): never;
 export function hasMany(type: string): never;

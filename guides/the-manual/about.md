@@ -2,25 +2,6 @@
 draft: true
 ---
 
-<table>
-<tbody>
-  <tr>
-    <td align="center" width="300"></td>
-   <td align="center" width="300">
-   
-[❖ Table of Contents](./0-index.md)
-
-</td>
-
-   <td align="center" width="300">
-
-[Overview →](./2-overview.md)
-
-</td>
-  </tr>
-  </tbody>
-</table>
-
 ## Why WarpDrive?
 
 WarpDrive is the data framework for building ambitious applications.
@@ -79,19 +60,3 @@ decades.
 
 <br>
 
----
-
-<br>
-
-<table>
-<tbody>
-  <tr>
-    <td align="center" width="450"></td>
-    <td align="center" width="450">
-
-[Overview →](./2-overview.md)
-
-</td>
-  </tr>
-</tbody>
-</table>

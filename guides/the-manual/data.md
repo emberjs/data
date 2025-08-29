@@ -2,10 +2,6 @@
 draft: true
 ---
 
-| | |
-| -- | -- |
-| [← Making Requests](./2-requests.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Caching →](./4-caching.md) |
-
 ## Data
 
 In every application data can take on many different representations:
@@ -34,7 +30,7 @@ WarpDrive offers powerful schema-defined transformation and derivation capabilit
 reactivity layer for presenting data from the cache. Handling transformation universally via schema
 enables apps to align to component interfaces where needed in a safer, more performant manner.
 
-We'll explore these capabilities later on in the manual in the sections on [Presentation](./5-presentation.md) and [Schemas](./6-schemas.md). But first, lets take some time to look at some key
+We'll explore these capabilities later on in the manual in the sections on Presentation and Schemas. But first, lets take some time to look at some key
 concepts surrounding the wire and cache format.
 
 
@@ -49,9 +45,3 @@ concepts surrounding the wire and cache format.
 ### Membership
 
 ### Fields
-
-<br>
-
-| | |
-| -- | -- |
-| [← Making Requests](./2-requests.md) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Caching →](./4-caching.md) |
