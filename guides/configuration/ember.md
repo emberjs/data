@@ -1,36 +1,39 @@
 ---
 order: 1
+title: Additional Setup for Ember
 ---
 
-# Ember.js
+:::warning caution
+Older legacy features of WarpDrive (inherited from when the library was named EmberData) should only be used with Ember.
+:::
 
-## Add TypeScript Types
+# Additional Setup for Ember
 
-TypeScript will automatically discover the types these packages provide. If you're using `ember-source`,
-you should also configure and use Ember's native types.
+## Configuring TypeScript
 
-## Configure Reactivity
+TypeScript will automatically discover the types these packages provide. If you're using `ember-source`, you should also configure and use Ember's native types. If you
+previously had any [DefinitelyTyped (@types)](https://github.com/DefinitelyTyped/DefinitelyTyped) packages installed for ember or ember-data you should remove those.
 
-1. Ensure `@warp-drive/ember` is [installed](../1-overview.md#installation) with the proper version
-2. In the main entry point for your app add the following side-effect import
+If you have any references to ember-data or warp-drive types or types packages in package.json or tsconfig.json you can remove those.
 
-```ts [app/app.ts]
-import '@warp-drive/ember/install';
-```
+## What is "Legacy"
 
-3. If you have tests, such as unit tests, which make use of WarpDrive directly and not via an app container
-   you may also need to add the side-effect import to `tests/test-helper.{js,ts}`
+You've probably heard old code patterns referred to as "legacy code" before. In WarpDrive, Legacy refers to older features which we are giving a second, extended life. When features are deprecated in `@warp-drive/core`, they are added to @warp-drive/legacy` in a way that allows apps to opt-in to bring them back.
 
-## Setup Legacy Support
+Legacy features will not live forever, but they will receive a second deprecation cycle before being deleted. There is no set schedule to when code in legacy might
+be deprecated. Sometimes it may become deprecated immediately after the feature is
+removed from core, other times it may last for several majors. It all depends on how easy the feature is to maintain support for weighed against the community and maintenance costs of keeping it around.
 
-This guide presumes you've already gone through the [setup steps 
-that apply to all applications](./1-universal.md)
+For example, if Ember were to deprecated EmberObject, then maintaining support for
+Model, Adapter and Serializer would become untenable quickly - so we would opt to
+simultaneously deprecate these from legacy.
 
-"Legacy" is a term that applies to a fairly broad set of patterns that
-***Warp*Drive**/***Ember*Data** is migrating away from. The previous
-guide showed how to configure schemas and reactivity to work with the
-legacy `Model` approach. You may also wish to configure legacy support
-for `Adapters` and `Serializers`.
+The `@warp-drive/legacy` package is opt-in. New apps should not use it, existing apps
+should work to remove the features it provides. Consider it your cleanup checklist.
+
+## Configuring Legacy Support
+
+The previous [setup guide](./index.md) showed how to configure schemas and reactivity to work with the legacy `Model` approach. You may also wish to configure legacy support for `Adapters` and `Serializers`.
 
 Reasons to configure this legacy support include:
 
