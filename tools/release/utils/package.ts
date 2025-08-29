@@ -150,7 +150,7 @@ export async function gatherPackages(config: STRATEGY['config'], cwd: string = p
 }
 
 export async function loadStrategy(cwd: string = process.cwd()) {
-  const file = getFile<STRATEGY>(`${cwd}/release/strategy.json`);
+  const file = getFile<STRATEGY>(`${cwd}/tools/release/strategy.json`);
   const data = await file.read();
   return data;
 }
