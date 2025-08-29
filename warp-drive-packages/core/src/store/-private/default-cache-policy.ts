@@ -1,14 +1,23 @@
 import { deprecate } from '@ember/debug';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Fetch } from '@warp-drive/core';
 import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { RequestKey, ResourceKey } from '@warp-drive/core/types/identifier';
-import type { ImmutableRequestInfo, ResponseInfo, StructuredDocument } from '@warp-drive/core/types/request';
+import type {
+  ImmutableRequestInfo,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  RequestInfo,
+  ResponseInfo,
+  StructuredDocument,
+} from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
 
 import { LRUCache } from '../../utils/string';
+import type { CachePolicy } from '../-private';
 
 type UnsubscribeToken = object;
 type CacheOperation = 'added' | 'removed' | 'updated' | 'state';
@@ -46,6 +55,11 @@ type Store = {
   notifications: NotificationManager;
 };
 
+/**
+ * Interface of a parsed Cache-Control header value.
+ *
+ * - [MDN Cache-Control Reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control)
+ */
 export interface CacheControlValue {
   immutable?: boolean;
   'max-age'?: number;
@@ -88,6 +102,8 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  *   'stale-while-revalidate'?: number;
  * }
  * ```
+ *
+ * See also {@link CacheControlValue} and [Response Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#response_directives)
  *
  * @public
  * @param {String} header
@@ -282,16 +298,19 @@ function isExpired(cacheKey: RequestKey, request: StructuredDocument<ResourceDoc
 /**
  * The configuration options for the {@link DefaultCachePolicy}
  *
- * ```ts
- * import { DefaultCachePolicy } from '@warp-drive/core/store';
+ * ```ts [app/services/store.ts]
+ * import { Store } from '@warp-drive/core';
+ * import { DefaultCachePolicy } from '@warp-drive/core/store'; // [!code focus]
  *
- * new DefaultCachePolicy({
- *   // ... PolicyConfig Settings ... //
- * });
+ * export default class AppStore extends Store {
+ *   lifetimes = new DefaultCachePolicy({ // [!code focus:3]
+ *     // ... PolicyConfig Settings ... //
+ *   });
+ * }
  * ```
  *
  */
-export type PolicyConfig = {
+export interface PolicyConfig {
   /**
    * the number of milliseconds after which a request is considered
    * stale. If a request is issued again after this time, the request
@@ -423,65 +442,80 @@ export type PolicyConfig = {
      */
     isExpired?: (request: StructuredDocument<ResourceDocument>) => boolean | null;
   };
-};
+}
 
 /**
- * A basic CachePolicy that can be added to the Store service.
+ * A basic {@link CachePolicy} that can be added to the Store service.
  *
- * Determines staleness based on time since the request was last received from the API
- * using the `date` header.
- *
- * Determines expiration based on configured constraints as well as a time based
- * expiration strategy based on the `date` header.
- *
- * In order expiration is determined by:
- *
- * - Is explicitly invalidated
- * -  ↳ (if null) isExpired function \<IF Constraint Active>
- * -  ↳ (if null) X-WarpDrive-Expires header \<IF Constraint Active>
- * -  ↳ (if null) Cache-Control header \<IF Constraint Active>
- * -  ↳ (if null) Expires header \<IF Constraint Active>
- * -  ↳ (if null) Date header + apiCacheHardExpires \< current time
- *
- * Invalidates any request for which `cacheOptions.types` was provided when a createRecord
- * request for that type is successful.
- *
- * For this to work, the `createRecord` request must include the `cacheOptions.types` array
- * with the types that should be invalidated, or its request should specify the ResourceKeys
- * of the records that are being created via `records`. Providing both is valid.
- *
- * > [!NOTE]
- * > only requests that had specified `cacheOptions.types` and occurred prior to the
- * > createRecord request will be invalidated. This means that a given request should always
- * > specify the types that would invalidate it to opt into this behavior. Abstracting this
- * > behavior via builders is recommended to ensure consistency.
- *
- * This allows the Store's CacheHandler to determine if a request is expired and
- * should be refetched upon next request.
- *
- * The `Fetch` handler provided by `@warp-drive/core` will automatically
- * add the `date` header to responses if it is not present.
- *
- * > [!NOTE]
- * > Date headers do not have millisecond precision, so expiration times should
- * > generally be larger than 1000ms.
- *
- * Usage:
- *
- * ```ts
+ * ```ts [app/services/store.ts]
  * import { Store } from '@warp-drive/core';
- * import { DefaultCachePolicy } from '@warp-drive/core/store';
+ * import { DefaultCachePolicy } from '@warp-drive/core/store'; // [!code focus]
  *
- * export class AppStore extends Store {
- *   lifetimes = new DefaultCachePolicy({
+ * export default class AppStore extends Store {
+ *   lifetimes = new DefaultCachePolicy({ // [!code focus:5]
  *     apiCacheSoftExpires: 30_000,
- *     apiCacheHardExpires: 60_000
+ *     apiCacheHardExpires: 60_000,
+ *     // ... Other PolicyConfig Settings ... //
  *   });
  * }
  * ```
  *
- * In Testing environments, the `apiCacheSoftExpires` will always be `false`
- * and `apiCacheHardExpires` will use the `apiCacheSoftExpires` value.
+ * :::tip 💡 TIP
+ * Date headers do not have millisecond precision, so expiration times should
+ * generally be larger than 1000ms.
+ * :::
+ *
+ * See also {@link PolicyConfig} for configuration options.
+ *
+ * ### The Mechanics
+ *
+ * This policy determines staleness based on various configurable constraints falling back to a simple
+ * check of the time elapsed since the request was last received from the API using the `date` header
+ * from the last response.
+ *
+ * :::tip 💡 TIP
+ * The {@link Fetch} handler provided by `@warp-drive/core` will automatically
+ * add the `date` header to responses if it is not present.
+ * :::
+ *
+ * - For manual override of reload see {@link RequestInfo.cacheOptions.reload | cacheOptions.reload}
+ * - For manual override of background reload see {@link RequestInfo.cacheOptions.backgroundReload | cacheOptions.backgroundReload}
+ *
+ * In order expiration is determined by:
+ *
+ * ```md
+ * Is explicitly invalidated by `cacheOptions.reload`
+ *   ↳ (if falsey) if the request has been explicitly invalidated
+ *      since the last request (see Automatic Invalidation below)
+ *   ↳ (if false) (If Active) isExpired function
+ *   ↳ (if null) (If Active) X-WarpDrive-Expires header
+ *   ↳ (if null) (If Active) Cache-Control header
+ *   ↳ (if null) (If Active) Expires header
+ *   ↳ (if null) Date header + apiCacheHardExpires < current time
+ *
+ *   -- <if above is false, a background request is issued if> --
+ *
+ *   ↳ is invalidated by `cacheOptions.backgroundReload`
+ *   ↳ (if falsey) Date header + apiCacheSoftExpires < current time
+ * ```
+ *
+ * ### Automatic Invalidation / Entanglement
+ *
+ * It also invalidates any request with an {@link RequestInfo.op | OpCode} of `"query"`
+ * for which {@link RequestInfo.cacheOptions.types | cacheOptions.types} was provided
+ * when a request with an `OpCode` of `"createRecord"` is successful and also includes
+ * a matching type in its own `cacheOptions.types` array.
+
+ * :::tip 💡 TIP
+ * Abstracting this behavior via builders is recommended to ensure consistency.
+ * :::
+ *
+ * ### Testing
+ *
+ * In Testing environments:
+ *
+ * - `apiCacheSoftExpires` will always be `false`
+ * - `apiCacheHardExpires` will use the `apiCacheSoftExpires` value.
  *
  * This helps reduce flakiness and produce predictably rendered results in test suites.
  *
@@ -493,11 +527,20 @@ export type PolicyConfig = {
  *
  * @public
  */
-export class DefaultCachePolicy {
-  declare config: PolicyConfig;
-  declare _stores: WeakMap<Store, { invalidated: Set<RequestKey>; types: Map<string, Set<RequestKey>> }>;
+export class DefaultCachePolicy implements CachePolicy {
+  /**
+   * @internal
+   */
+  declare private config: PolicyConfig;
+  /**
+   * @internal
+   */
+  declare private _stores: WeakMap<Store, { invalidated: Set<RequestKey>; types: Map<string, Set<RequestKey>> }>;
 
-  _getStore(store: Store): {
+  /**
+   * @internal
+   */
+  private _getStore(store: Store): {
     invalidated: Set<RequestKey>;
     types: Map<string, Set<RequestKey>>;
   } {
