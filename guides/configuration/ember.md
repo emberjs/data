@@ -22,7 +22,7 @@ You've probably heard old code patterns referred to as "legacy code" before. In 
 
 Legacy features will not live forever, but they will receive a second deprecation cycle before being deleted. There is no set schedule to when code in legacy might
 be deprecated. Sometimes it may become deprecated immediately after the feature is
-removed from core, other times it may last for several majors. It all depends on how easy the feature is to maintain support for weighed against the community and maintenance costs of keeping it around.
+removed from core, other times it may last for several majors. Occasionally a deprecation in core won't be able to be restored from legacy at all. It all depends on how easy the feature is to maintain support for weighed against the community and maintenance costs of keeping it around.
 
 For example, if Ember were to deprecated EmberObject, then maintaining support for
 Model, Adapter and Serializer would become untenable quickly - so we would opt to
@@ -31,97 +31,41 @@ simultaneously deprecate these from legacy.
 The `@warp-drive/legacy` package is opt-in. New apps should not use it, existing apps
 should work to remove the features it provides. Consider it your cleanup checklist.
 
-## Configuring Legacy Support
+## Restoring EmberObject Features
 
-The previous [setup guide](./index.md) showed how to configure schemas and reactivity to work with the legacy `Model` approach. You may also wish to configure legacy support for `Adapters` and `Serializers`.
+- use per-trait or per-resource or per-field extension
 
-Reasons to configure this legacy support include:
+## Restoring Ember ArrayLike Features
 
-- You have an existing application that has not migrated all requests away from this pattern
-- You are creating a new application and [LinksMode](../../misc/links-mode.md) is not sufficient
+- use per-field extension
 
-1. Ensure `@ember-data/legacy-compat` is [installed](../1-overview.md#installation) with the proper version
-2. Add desired hooks to the store. The below example builds from the `Model` example in the prior guide.
+## Adapter/Serializer and Legacy Request Methods
 
-```ts [app/services/store.ts]
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
+You should configure support for legacy requests if your application still makes requests which use an Adapter or Serializer.
 
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { CachePolicy } from '@ember-data/request-utils';
+Some example APIs you may still be using that are reasons to configure this legacy support include:
 
-import JSONAPICache from '@ember-data/json-api';
+- You have async relationships that don't yet have links
+- You have sync relationships that you load via references that don't yet have links
+- You still use methods on the store to fetch data other than `store.request`
+- You still fetch data with the Legacy builders
+- You still use `model.save` or `model.destroyRecord`
 
-import type { ResourceKey } from '@warp-drive/core-types';
-import type { TypeFromInstance } from '@warp-drive/core-types/record';
+You may also find you want to use Legacy Requests if you are creating a new application and [LinksMode](../the-manual/misc/links-mode.md) is not sufficient
 
-import type Model from '@ember-data/model';
-import {
-  buildSchema,
-  instantiateRecord,
-  modelFor,
-  teardownRecord
-} from '@ember-data/model';
-import { // [!code focus:9]
-  adapterFor,
-  cleanup,
-  LegacyNetworkHandler,
-  normalize,
-  pushPayload,
-  serializeRecord,
-  serializerFor,
-} from '@ember-data/legacy-compat';
+- add the LegacyNetworkHandler
+- add the Legacy Request APIs back
+- add the adapterFor, serializerFor, modelFor, pushPayload, and normalize hooks back
+- caveat: serialization/normalization of newer field schemas
 
-export default class AppStore extends Store {
+## Model
 
-  requestManager = new RequestManager()
-    .use([LegacyNetworkHandler, Fetch]) // [!code focus]
-    .useCache(CacheHandler);
+- custom extensions
 
-  lifetimes = new CachePolicy({
-    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
-    constraints: {
-	  headers: {
-        'X-WarpDrive-Expires': true,
-        'Cache-Control': true,
-        'Expires': true,
-	  }
-    }
-  });
+## ModelFragments
 
-  createSchemaService(): SchemaService {
-    return buildSchema(this);
-  }
+## Other
 
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
+- resetOnRemote
+- filterDuplicates
 
-  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {
-    return instantiateRecord.call(this, key, createRecordArgs);
-  }
-
-  teardownRecord(record: unknown): void {
-    return teardownRecord.call(this, record as Model);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-
-  adapterFor = adapterFor; // [!code focus:5]
-  serializerFor = serializerFor;
-  pushPayload = pushPayload;
-  normalize = normalize;
-  serializeRecord = serializeRecord;
-
-  destroy() {  // [!code focus:4]
-    cleanup.call(this);
-    super.destroy();
-  }
-}
-```
