@@ -19,6 +19,7 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
+    dirname: import.meta.dirname,
     files: ['**/*.ts', '**/*.gts'],
     srcDirs: ['src'],
     allowedImports: externals,

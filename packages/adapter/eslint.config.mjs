@@ -17,6 +17,7 @@ export default [
 
   // browser (ts) ================
   typescript.browser({
+    dirname: import.meta.dirname,
     files: ['**/*.ts', '**/*.gts'],
     srcDirs: ['src'],
     allowedImports: ['@ember/object', '@ember/application', '@ember/service', '@ember/debug', '@ember/object/mixin'],

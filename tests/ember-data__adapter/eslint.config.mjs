@@ -18,6 +18,7 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
+    dirname: import.meta.dirname,
     files: ['**/*.ts'],
     srcDirs: ['app', 'tests'],
     allowedImports: ['@ember/application'],

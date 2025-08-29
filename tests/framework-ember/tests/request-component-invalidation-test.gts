@@ -185,6 +185,7 @@ module<LocalTestContext>('Integration | <Request /> | Subscription', function (h
     assert.verifySteps([`request: GET ${url}`]);
 
     // force expiration
+    // @ts-expect-error private
     this.store.lifetimes.config.apiCacheHardExpires = 0;
     const req2 = this.store.request<SingleResourceDataDocument<User>>({
       url,
