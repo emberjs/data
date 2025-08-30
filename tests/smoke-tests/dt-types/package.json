@@ -75,7 +75,7 @@
     "@types/rsvp": "^4.0.9",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
-    "babel-plugin-ember-template-compilation": "^2.4.1",
+    "babel-plugin-ember-template-compilation": "^3.0.1",
     "concurrently": "^9.2.0",
     "decorator-transforms": "^2.3.0",
     "ember-auto-import": "2.10.0",
