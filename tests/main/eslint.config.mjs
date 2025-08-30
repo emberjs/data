@@ -54,6 +54,7 @@ export default [
 
   // gts
   gts.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['app', 'tests'],
     allowedImports: AllowedImports,
     rules: {

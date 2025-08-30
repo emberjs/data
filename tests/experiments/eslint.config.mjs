@@ -35,6 +35,7 @@ export default [
 
   // gts
   gts.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['tests'],
     allowedImports: externals,
     rules: {

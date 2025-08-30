@@ -11,6 +11,7 @@ export default [
 
   // // browser (js/ts) ================
   gts.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['app', 'tests'],
     files: ['**/*.{gts,gjs,ts}'],
     allowedImports: ['@ember/application', '@ember/object', '@ember/owner'],
