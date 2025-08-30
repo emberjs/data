@@ -6,21 +6,8 @@
   <title>JSON:API Tests</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  {{content-for "head"}}
-  {{content-for "test-head"}}
-
-  <link rel="stylesheet" href="{{rootURL}}assets/vendor.css">
-  <link rel="stylesheet" href="{{rootURL}}assets/example-app-ember.css">
-  <link rel="stylesheet" href="{{rootURL}}assets/test-support.css">
-
-  {{content-for "head-footer"}}
-  {{content-for "test-head-footer"}}
 </head>
 <body>
-  {{content-for "body"}}
-  {{content-for "test-body"}}
-
   <div id="qunit"></div>
   <div id="qunit-fixture">
     <div id="ember-testing-container">
@@ -28,41 +15,38 @@
     </div>
   </div>
 
-  <script src="/testem.js" integrity=""></script>
+  <script src="/testem.js" integrity="" data-embroider-ignore></script>
   <script type="text/javascript">
-    // disable testem log output
-    // by default testem serializes all of these logs
-    // and transmits them through the websocket even if
-    // the reporter is configured to ignore them. This results
-    // in extremely high memory and cpu utilization and eventually
-    // will crash the console.
-    const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group']);
-    // restore original functionality
-    ignoredLogTypes.forEach((method) => {
-      console[method] = Testem.console[method];
-    });
+    // // disable testem log output
+    // // by default testem serializes all of these logs
+    // // and transmits them through the websocket even if
+    // // the reporter is configured to ignore them. This results
+    // // in extremely high memory and cpu utilization and eventually
+    // // will crash the console.
+    // const ignoredLogTypes = new Set(['log', 'warn', 'info', 'group']);
+    // // restore original functionality
+    // ignoredLogTypes.forEach((method) => {
+    //   console[method] = Testem.console[method];
+    // });
 
-    // enable debugging memory over time
-    window.MEMORY_DATA = Object.create(null);
-    const originalEmitMessage = Testem.emitMessage;
-    Testem.emitMessage = function (...args) {
-      if (window.DEBUG_MEMORY) {
-        if (args[0] === 'test-result') {
-          // our custom DOT_REPORTER will utilize this
-          args[1].memoryUsage = MEMORY_DATA[args[1].testId];
-          MEMORY_DATA[args[1].testId] = null;
-        }
-      }
-      return originalEmitMessage.call(Testem, ...args);
-    };
+    // // enable debugging memory over time
+    // window.MEMORY_DATA = Object.create(null);
+    // const originalEmitMessage = Testem.emitMessage;
+    // Testem.emitMessage = function (...args) {
+    //   if (window.DEBUG_MEMORY) {
+    //     if (args[0] === 'test-result') {
+    //       // our custom DOT_REPORTER will utilize this
+    //       args[1].memoryUsage = MEMORY_DATA[args[1].testId];
+    //       MEMORY_DATA[args[1].testId] = null;
+    //     }
+    //   }
+    //   return originalEmitMessage.call(Testem, ...args);
+    // };
   </script>
-  <script src="{{rootURL}}assets/vendor.js"></script>
-  <script src="{{rootURL}}assets/test-support.js"></script>
-  <script src="{{rootURL}}assets/example-app-ember.js"></script>
-  <script src="{{rootURL}}assets/tests.js"></script>
-
-  {{content-for "body-footer"}}
-  {{content-for "test-body-footer"}}
-
+    <script type="module">
+      import { start } from './test-helper';
+      import.meta.glob("./**/*.{js,ts,gjs,gts}", { eager: true });
+      start();
+    </script>
 </body>
 </html>

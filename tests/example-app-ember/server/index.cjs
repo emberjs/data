@@ -9,24 +9,19 @@
 //   });
 // };
 
-module.exports = function (app) {
+module.exports = async function () {
+  const express = await import('express');
+  const app = express.default();
+
   console.log(`\n\n\t💎 mounting mock server\n\n`);
-  let mocks;
-  try {
-    const globSync = require('glob').sync;
-    const path = require('node:path');
-    mocks = globSync('./mocks/**/*.js', { cwd: __dirname }).map((p) => {
-      const realPath = path.join(__dirname, p);
-      return require(realPath);
-    });
-  } catch (e) {
-    console.error(e);
-    return;
-  }
+  const mocks = [require('./mocks/book.cjs')];
 
   // Log proxy requests
   const morgan = require('morgan');
   app.use(morgan('dev'));
 
   mocks.forEach((route) => route(app));
+
+  app.listen(4701);
+  console.log(`\n\n\tMock Server mounted! ⛰\n\n`);
 };
