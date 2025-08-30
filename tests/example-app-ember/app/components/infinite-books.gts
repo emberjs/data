@@ -40,6 +40,7 @@ export default class InfiniteBookComponent extends Component<InfiniteBookSignatu
   }
 
   next = async (): Promise<void> => {
+    console.log('next called');
     const page = this.pageCollection.pages.at(-1);
     const result = await page?.next();
     if (result) {

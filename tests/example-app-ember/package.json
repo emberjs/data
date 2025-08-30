@@ -53,7 +53,7 @@
     "@glint/environment-ember-template-imports": "alpha",
     "@glint/template": "alpha",
     "@glimmer/component": "^2.0.0",
-    "@html-next/vertical-collection": "^4.0.2",
+    "@html-next/vertical-collection": "github:NullVoxPopuli/vertical-collection#upgrade-raf-scheduler&path:vertical-collection",
     "@types/morgan": "^1.9.10",
     "@warp-drive/internal-config": "workspace:*",
     "@warp-drive/ember": "workspace:*",

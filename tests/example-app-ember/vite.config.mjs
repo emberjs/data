@@ -11,7 +11,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@html-next/vertical-collection':
-        process.cwd() + '/node_modules/' + '@html-next/vertical-collection/addon/components/vertical-collection.js',
+        process.cwd() + '/node_modules/' + '@html-next/vertical-collection/addon/components/vertical-collection.gjs',
     },
   },
   plugins: [

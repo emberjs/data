@@ -15,7 +15,6 @@ overrides:
   '@glint/environment-ember-loose': alpha
   '@glint/environment-ember-template-imports': alpha
   '@glint/template': alpha
-  ember-raf-scheduler: 0.5.0
   ember-cli-babel: ^8.2.0
   ember-cli-htmlbars: ^6.3.0
   ember-cli-typescript: ^5.3.0
@@ -25,7 +24,7 @@ overrides:
   testem: ~3.11.0
   typescript: 5.9.2
 
-packageExtensionsChecksum: sha256-FsWfkFdw1rLZsmueKKGfkqH1S592QjEgVUdmiSn8LHs=
+packageExtensionsChecksum: sha256-wyDPOFvZIwhBq289QisUroyQ1UEX+koQPcjV5Nr8bWk=
 
 patchedDependencies:
   '@ember/test-helpers@3.3.0':
@@ -40,9 +39,6 @@ patchedDependencies:
   '@ember/test-helpers@5.2.0':
     hash: a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04
     path: patches/@ember__test-helpers@5.2.0.patch
-  '@html-next/vertical-collection':
-    hash: 082dac3a778de063c19b4b2ae245e56be62aa6714cbbf964344d53f14b45a0fc
-    path: patches/@html-next__vertical-collection.patch
   ember-source@3.28.12:
     hash: 306d1f8a8f79f778b8ba547074e7040b1a08820d640d00b16ef8357dae8779ab
     path: patches/ember-source@3.28.12.patch
@@ -2254,8 +2250,8 @@ importers:
         specifier: alpha
         version: 1.6.0-alpha.2
       '@html-next/vertical-collection':
-        specifier: ^4.0.2
-        version: 4.0.2(patch_hash=082dac3a778de063c19b4b2ae245e56be62aa6714cbbf964344d53f14b45a0fc)(@babel/core@7.28.3)
+        specifier: github:NullVoxPopuli/vertical-collection#upgrade-raf-scheduler&path:vertical-collection
+        version: https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec#path:vertical-collection(@babel/core@7.28.3)
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.28.3)
@@ -5691,9 +5687,10 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@html-next/vertical-collection@4.0.2':
-    resolution: {integrity: sha512-S8cgntEDdXrOwdylVGDh1BFe+nX5uuUzzb3teh1FE++/kbqsOfUpXOYRUsEzsqb0fRqcm6eLxvtNb282Zr67rQ==}
-    engines: {node: '>= 14.*'}
+  '@html-next/vertical-collection@https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec#path:vertical-collection':
+    resolution: {path: vertical-collection, tarball: https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec}
+    version: 4.0.2
+    engines: {node: '>= 18'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6440,10 +6437,6 @@ packages:
 
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
-
-  '@types/broccoli-plugin@3.0.4':
-    resolution: {integrity: sha512-VfG0WydDHFr6MGj75U16bKxOnrl8uP9bXvq7VD+NuvnAq5/22cQDrf8o7BnzBJQt+Xm9jkPt1hh2EHVWluGYIA==}
-    deprecated: This is a stub types definition. broccoli-plugin provides its own type definitions, so you do not need this installed.
 
   '@types/bun@1.2.21':
     resolution: {integrity: sha512-NiDnvEqmbfQ6dmZ3EeUO577s4P5bf4HCTXtI6trMc6f6RzirY5IrF3aIookuSpyslFzrnvv2lmEWv5HyC1X79A==}
@@ -7436,9 +7429,6 @@ packages:
   babel-remove-types@1.0.1:
     resolution: {integrity: sha512-au+oEGwCCxqb8R0x8EwccTVtWCP4lFkNpHV5skNZnNCwvar3DBBkmGZbx2B1A3RaCHVLQrxF6qv6rR/ZDRPW+A==}
 
-  babel6-plugin-strip-class-callcheck@6.0.0:
-    resolution: {integrity: sha512-biNFJ7JAK4+9BwswDGL0dmYpvXHvswOFR/iKg3Q/f+pNxPEa5bWZkLHI1fW4spPytkHGMe7f/XtYyhzml9hiWg==}
-
   babylon@6.18.0:
     resolution: {integrity: sha512-q/UEjfGJ2Cm3oKV71DJz9d25TPnq5rhBVL2Q4fA5wcC3jcrdn7+SssEybFIxwAvvP+YCsCYNKughoF33GxgycQ==}
     hasBin: true
@@ -7637,10 +7627,6 @@ packages:
   broccoli-plugin@4.0.7:
     resolution: {integrity: sha512-a4zUsWtA1uns1K7p9rExYVYG99rdKeGRymW0qOCNkvDPHQxVi3yVyJHhQbM3EZwdt2E0mnhr5e0c/bPpJ7p3Wg==}
     engines: {node: 10.* || >= 12.*}
-
-  broccoli-rollup@5.0.0:
-    resolution: {integrity: sha512-QdMuXHwsdz/LOS8zu4HP91Sfi4ofimrOXoYP/lrPdRh7lJYD87Lfq4WzzUhGHsxMfzANIEvl/7qVHKD3cFJ4tA==}
-    engines: {node: '>=12.0'}
 
   broccoli-slow-trees@3.1.0:
     resolution: {integrity: sha512-FRI7mRTk2wjIDrdNJd6znS7Kmmne4VkAkl8Ix1R/VoePFMD0g0tEl671xswzFqaRjpT9Qu+CC4hdXDLDJBuzMw==}
@@ -9262,9 +9248,6 @@ packages:
   estraverse@5.3.0:
     resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
     engines: {node: '>=4.0'}
-
-  estree-walker@0.6.1:
-    resolution: {integrity: sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==}
 
   estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
@@ -12237,14 +12220,6 @@ packages:
     resolution: {integrity: sha512-ETShhQGb9SoiwcNrvb3BhUNSGR89Jao0+XxxfzzLW1YsUzx8+rMO4z9oqWWmo6OHUmfNQRvqRj0cAyPkS9lN9w==}
     peerDependencies:
       rollup: '>=1.1.2'
-
-  rollup-pluginutils@2.8.2:
-    resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
-
-  rollup@2.79.2:
-    resolution: {integrity: sha512-fS6iqSPZDs3dr/y7Od6y5nha8dW1YnbgtsyotCVvoFGKbERG++CVRFv1meyGDE1SNItQA8BrnCw7ScdAhRJ3XQ==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
 
   rollup@4.48.1:
     resolution: {integrity: sha512-jVG20NvbhTYDkGAty2/Yh7HK6/q3DGSRH4o8ALKGArmMuaauM9kLfoMZ+WliPwA5+JHr2lTn3g557FxBV87ifg==}
@@ -16775,17 +16750,14 @@ snapshots:
     dependencies:
       hono: 4.9.4
 
-  '@html-next/vertical-collection@4.0.2(patch_hash=082dac3a778de063c19b4b2ae245e56be62aa6714cbbf964344d53f14b45a0fc)(@babel/core@7.28.3)':
+  '@html-next/vertical-collection@https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec#path:vertical-collection(@babel/core@7.28.3)':
     dependencies:
-      babel6-plugin-strip-class-callcheck: 6.0.0
-      broccoli-funnel: 3.0.8
-      broccoli-merge-trees: 4.2.0
-      broccoli-rollup: 5.0.0
       ember-auto-import: 2.10.0
       ember-cli-babel: 8.2.0(@babel/core@7.28.3)
       ember-cli-htmlbars: 6.3.0
       ember-cli-version-checker: 5.1.2
       ember-raf-scheduler: 0.5.0(@babel/core@7.28.3)
+      ember-template-imports: 4.3.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@swc/core'
@@ -17585,12 +17557,6 @@ snapshots:
     dependencies:
       '@types/connect': 3.4.38
       '@types/node': 24.3.0
-
-  '@types/broccoli-plugin@3.0.4':
-    dependencies:
-      broccoli-plugin: 4.0.7
-    transitivePeerDependencies:
-      - supports-color
 
   '@types/bun@1.2.21':
     dependencies:
@@ -19232,8 +19198,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel6-plugin-strip-class-callcheck@6.0.0: {}
-
   babylon@6.18.0: {}
 
   backbone@1.6.1:
@@ -19623,20 +19587,6 @@ snapshots:
       quick-temp: 0.1.8
       rimraf: 3.0.2
       symlink-or-copy: 1.3.1
-    transitivePeerDependencies:
-      - supports-color
-
-  broccoli-rollup@5.0.0:
-    dependencies:
-      '@types/broccoli-plugin': 3.0.4
-      broccoli-plugin: 4.0.7
-      fs-tree-diff: 2.0.1
-      heimdalljs: 0.2.6
-      node-modules-path: 1.0.2
-      rollup: 2.79.2
-      rollup-pluginutils: 2.8.2
-      symlink-or-copy: 1.3.1
-      walk-sync: 2.2.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22073,8 +22023,6 @@ snapshots:
   estraverse@4.3.0: {}
 
   estraverse@5.3.0: {}
-
-  estree-walker@0.6.1: {}
 
   estree-walker@2.0.2: {}
 
@@ -25581,14 +25529,6 @@ snapshots:
     dependencies:
       fs-extra: 7.0.1
       rollup: 4.48.1
-
-  rollup-pluginutils@2.8.2:
-    dependencies:
-      estree-walker: 0.6.1
-
-  rollup@2.79.2:
-    optionalDependencies:
-      fsevents: 2.3.3
 
   rollup@4.48.1:
     dependencies:
