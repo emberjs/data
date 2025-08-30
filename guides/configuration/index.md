@@ -20,15 +20,32 @@ specific setup guide.
 
 ## Configure the Build Plugin
 
-***Warp*Drive** uses a [babel plugin](https://www.npmjs.com/package/@embroider/macros) to inject app-specific configuration allowing us to provide advanced dev-mode debugging features, deprecation management, and canary feature toggles.
+***Warp*Drive** uses a [babel plugin](https://www.npmjs.com/package/@embroider/macros) to inject app-specific [configuration](/api/@warp-drive/core/build-config/interfaces/WarpDriveConfig) allowing us to provide advanced dev-mode debugging features, deprecation management, and canary feature toggles.
 
-For Ember.js, this plugin comes built-in to the toolchain and all you need to do is provide it
-the desired configuration in `ember-cli-build`. For all other projects, the configuration
-is done inside of the app's babel configuration file.
+For Ember apps, this plugin comes built-in to the toolchain and all you need to do is provide it
+the desired configuration in `ember-cli-build`. For other projects, the configuration
+is done inside of the project's babel configuration file.
 
 ::: tabs key:paradigm
 
-== Universal Apps
+== Simple Config
+
+```ts [babel.config.mjs]
+import { babelPlugin } from '@warp-drive/core/build-config';
+
+const macros = babelPlugin({
+  // for universal apps this MUST be at least 5.6
+  compatWith: '5.6',
+});
+
+export default {
+  plugins: [
+    ...macros.js
+  ]
+}
+```
+
+== Advanced Config
 
 ```ts [babel.config.mjs]
 import { setConfig } from '@warp-drive/core/build-config';
@@ -37,10 +54,6 @@ import { buildMacros } from '@embroider/macros/babel';
 const Macros = buildMacros({
   configure: (config) => {
     setConfig(config, {
-      // this should be the most recent <major>.<minor> version for
-      // which all deprecations have been fully resolved
-      // and should be updated when that changes
-      // for new apps it should be the version you installed
       // for universal apps this MUST be at least 5.6
       compatWith: '5.6'
     });
@@ -57,7 +70,7 @@ export default {
         flags: [],
 
         debugTools: {
-          isDebug: true,
+          isDebug: process.env.NODE_ENV !== 'production',
           source: '@ember/debug',
           assertPredicateIndex: 1,
         },
@@ -69,31 +82,7 @@ export default {
 };
 ```
 
-== New Ember Apps
-
-```ts [ember-cli-build.js]
-'use strict';
-const EmberApp = require('ember-cli/lib/broccoli/ember-app');
-const { compatBuild } = require('@embroider/compat');
-
-module.exports = async function (defaults) {
-  const { setConfig } = await import('@warp-drive/core/build-config'); // [!code focus]
-  const { buildOnce } = await import('@embroider/vite');
-  const app = new EmberApp(defaults, {});
-
-  setConfig(app, __dirname, { // [!code focus:7]
-    // this should be the most recent <major>.<minor> version for
-    // which all deprecations have been fully resolved
-    // and should be updated when that changes
-    // for new apps it should be the version you installed
-    compatWith: '5.6'
-  });
-
-  return compatBuild(app, buildOnce);
-};
-```
-
-== Existing Ember Apps
+== Ember Apps
 
 ```ts [ember-cli-build.js]
 'use strict';

@@ -1,6 +1,6 @@
 import mod from '../helpers/mod';
 import eq from '../helpers/eq';
-import PageLink from './page-link';
+import PageLink from './page-link.gts';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { cached, tracked } from '@glimmer/tracking';

@@ -35,10 +35,9 @@
  * - {@link WarpDriveConfig.includeDataAdapterInProduction | includeDataAdapterInProduction}
  * - {@link WarpDriveConfig.compatWith | compatWith}
  *
- *
- *
  * @module
  */
+
 import EmbroiderMacros from '@embroider/macros/src/node.js';
 import { getEnv } from './-private/utils/get-env.ts';
 import { getDeprecations } from './-private/utils/deprecations.ts';
@@ -48,10 +47,67 @@ import type * as FEATURES from './canary-features.ts';
 import type * as DEPRECATIONS from './deprecations.ts';
 import type { MacrosConfig } from '@embroider/macros/src/node.js';
 import { createLoggingConfig } from './-private/utils/logging.ts';
+import type { PluginItem } from '@babel/core';
+import { buildMacros } from '@embroider/macros/src/babel.js';
+
+/**
+ * Create the Babel plugin for WarpDrive
+ *
+ * Note: If your project already uses [@embroider/macros](https://www.npmjs.com/package/@embroider/macros)
+ * then you should use {@link setConfig} instead of this function.
+ *
+ * @param options WarpDrive configuration options
+ * @returns An array of Babel plugins
+ */
+export function babelPlugin(options: WarpDriveConfig): { gts: Function[]; js: PluginItem[] } {
+  const macros = buildMacros({
+    configure: (config) => {
+      setConfig(config, options);
+    },
+  });
+
+  const env = getEnv(options.forceMode);
+
+  return {
+    gts: macros.templateMacros,
+    js: [
+      // babel-plugin-debug-macros is temporarily needed
+      // to convert deprecation/warn calls into console.warn
+      [
+        resolve('babel-plugin-debug-macros'),
+        {
+          flags: [],
+
+          debugTools: {
+            isDebug: env.DEBUG,
+            source: '@ember/debug',
+            assertPredicateIndex: 1,
+          },
+        },
+        'ember-data-specific-macros-stripping-test',
+      ],
+      ...(macros.babelMacros as PluginItem[]),
+    ],
+  };
+}
+
+function resolve(module: string): string {
+  const filePath = import.meta.resolve(module);
+  const file = filePath.replace('/node_modules/.vite-temp/', '/');
+  if (file.startsWith('file://')) {
+    return file.slice(7);
+  }
+  return file;
+}
 
 const _MacrosConfig = EmbroiderMacros.MacrosConfig as unknown as typeof MacrosConfig;
 
-export type WarpDriveConfig = {
+/**
+ * Build Configuration options for WarpDrive that
+ * allow adjusting logging, deprecations, canary features
+ * and optional features.
+ */
+export interface WarpDriveConfig {
   /**
    * An object of key/value pairs of logging flags
    *
@@ -97,6 +153,13 @@ export type WarpDriveConfig = {
    * `5.3` will remove all the support for the deprecated
    * features for associated deprecations.
    *
+   * :::caution **Universal Apps**
+   * This value should be at least `5.6` for universal/non-ember
+   * applications as that was the first version that builds
+   * without any ember-source dependencies provided all deprecations
+   * are resolved.
+   * :::
+   *
    * See {@link DEPRECATIONS | deprecations} for more details.
    */
   compatWith?: `${number}.${number}`;
@@ -137,9 +200,9 @@ export type WarpDriveConfig = {
    * @private
    */
   forceMode?: 'testing' | 'production' | 'development';
-};
+}
 
-type InternalWarpDriveConfig = {
+interface InternalWarpDriveConfig {
   debug: typeof LOGGING;
   polyfillUUID: boolean;
   includeDataAdapter: boolean;
@@ -152,7 +215,7 @@ type InternalWarpDriveConfig = {
     PRODUCTION: boolean;
     DEBUG: boolean;
   };
-};
+}
 
 type MacrosWithGlobalConfig = Omit<MacrosConfig, 'globalConfig'> & { globalConfig: Record<string, unknown> };
 
@@ -163,6 +226,56 @@ function recastMacrosConfig(macros: object): MacrosWithGlobalConfig {
   return macros as MacrosWithGlobalConfig;
 }
 
+/**
+ * Sets the build configuration for WarpDrive that ensures
+ * environment specific behaviors are activated/deactivated
+ * and enables adjusting log instrumentation, removing code
+ * that supports deprecated features, enabling canary features
+ * and enabling/disabling optional features.
+ *
+ * The library uses [@embroider/macros](https://www.npmjs.com/package/@embroider/macros)
+ * to perform this final configuration code transform.
+ *
+ * This is a low level API for configuring WarpDrive. If your
+ * project does not use `@embroider/macros` then you should use
+ * {@link babelPlugin} instead of this function.
+ *
+ * ### Example
+ *
+ * ```ts
+ * import { setConfig } from '@warp-drive/core/build-config';
+ * import { buildMacros } from '@embroider/macros/babel';
+ *
+ * const Macros = buildMacros({
+ *   configure: (config) => {
+ *     setConfig(config, {
+ *       compatWith: '5.6'
+ *     });
+ *   },
+ * });
+ *
+ * export default {
+ *   plugins: [
+ *     // babel-plugin-debug-macros is temporarily needed
+ *     // to convert deprecation/warn calls into console.warn
+ *     [
+ *       'babel-plugin-debug-macros',
+ *       {
+ *         flags: [],
+ *
+ *         debugTools: {
+ *           isDebug: true,
+ *           source: '@ember/debug',
+ *           assertPredicateIndex: 1,
+ *         },
+ *       },
+ *       'ember-data-specific-macros-stripping-test',
+ *     ],
+ *     ...Macros.babelMacros,
+ *   ],
+ * };
+ * ```
+ */
 export function setConfig(macros: object, config: WarpDriveConfig): void;
 export function setConfig(context: object, appRoot: string, config: WarpDriveConfig): void;
 export function setConfig(context: object, appRootOrConfig: string | WarpDriveConfig, config?: WarpDriveConfig): void {
