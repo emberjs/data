@@ -10,13 +10,8 @@ outline:
 
 # Setup
 
-***Warp*Drive** is designed as a series of small packages and primitives with clear interface-driven boundaries between each other and brought together by configuration.
-
 <img class="dark-only" src="../images/configuration-dark.png" alt="interchangable components talk with each other" width="100%">
 <img class="light-only" src="../images/configuration-light.png" alt="interchangable components talk with each other" width="100%">
-
-All frameworks should follow this configuration before continuing on to their framework
-specific setup guide.
 
 ## Configure the Build Plugin
 
@@ -131,10 +126,18 @@ export default useRecommendedStore({
 });
 ```
 
-To understand more about what this does, you can read about manually
-configuring the store below.
+**That's it!** Unless you need to configure support for legacy features
+or for migrating from older versions, it's time to start working with
+your data.
+
+Alternatively, to understand more about what the above setup does, you can
+read about manually configuring the store below.
 
 ## Advanced Store Configuration
+
+***Warp*Drive** is designed as a series of small packages and primitives with
+clear interface-driven boundaries between each other and brought together by
+configuration.
 
 The `Store` is the central piece of the ***Warp*Drive** experience, linking
 together how we handle requests, the schemas for what our data looks like,
