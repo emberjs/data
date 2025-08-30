@@ -1,15 +1,13 @@
 import Route from '@ember/routing/route';
 import { service } from '@ember/service';
 
-import { query } from '@ember-data/json-api/request';
-import type Store from '@ember-data/store';
-import type { Document } from '@ember-data/store';
-import type { CollectionRecordArray, LiveArray } from '@ember-data/store/-private';
+import type { Document, Store } from '@warp-drive/core';
 import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import { query } from '@warp-drive/utilities/json-api';
 
-import type Author from '../models/author';
-import type Book from '../models/book';
-import type Genre from '../models/genre';
+import type { Author } from '../schemas/author';
+import type { Book } from '../schemas/book';
+import type { Genre } from '../schemas/genre';
 
 export default class ApplicationRoute extends Route {
   @service declare store: Store;
@@ -17,30 +15,20 @@ export default class ApplicationRoute extends Route {
   override async model(): Promise<{
     genres: Genre[];
     authors: Author[];
-    allBooks: CollectionResourceDataDocument<Book>;
-    oldBooks: LiveArray;
-    oldBooksPaginated: CollectionRecordArray;
+    books: CollectionResourceDataDocument<Book>;
   }> {
     const genres = this.store.request<Document<Genre[]>>({ url: '/api/books/genres' });
     const authors = this.store.request<Document<Author[]>>({ url: '/api/books/authors' });
 
-    // Example of legacy usage to be refactored, unpaginated
-    const oldBooks = this.store.findAll('book');
-
-    // Example of legacy usage, paginated
-    const oldBooksPaginated = this.store.query('book', { page: 1, pageSize: 20 });
-
     // Example of new usage (refactored, paginated)
     const books = this.store.request(query<Book>('book'));
 
-    const data = await Promise.all([genres, authors, books, oldBooks, oldBooksPaginated]);
+    const data = await Promise.all([genres, authors, books]);
 
     return {
       genres: data[0].content.data!,
       authors: data[1].content.data!,
-      allBooks: data[2].content,
-      oldBooks: data[3],
-      oldBooksPaginated: data[4],
+      books: data[2].content,
     };
   }
 }

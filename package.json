@@ -159,6 +159,12 @@
         "dependencies": {
           "webpack": "*"
         }
+      },
+      "@html-next/vertical-collection": {
+        "dependencies": {
+          "ember-raf-scheduler": "0.5.0",
+          "ember-auto-import": "*"
+        }
       }
     },
     "overrides": {
@@ -170,6 +176,7 @@
       "@glint/environment-ember-loose": "alpha",
       "@glint/environment-ember-template-imports": "alpha",
       "@glint/template": "alpha",
+      "ember-raf-scheduler": "0.5.0",
       "ember-cli-babel": "^8.2.0",
       "ember-cli-htmlbars": "^6.3.0",
       "ember-cli-typescript": "^5.3.0",
@@ -203,7 +210,8 @@
       "@ember/test-helpers@5.1.0": "patches/@ember__test-helpers@5.1.0.patch",
       "@ember/test-helpers@5.2.0": "patches/@ember__test-helpers@5.2.0.patch",
       "ember-source@4.4.5": "patches/ember-source@4.4.5.patch",
-      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch"
+      "ember-source@3.28.12": "patches/ember-source@3.28.12.patch",
+      "@html-next/vertical-collection": "patches/@html-next__vertical-collection.patch"
     }
   }
 }

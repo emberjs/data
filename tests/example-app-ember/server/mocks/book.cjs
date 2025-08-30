@@ -91,13 +91,11 @@ function getLinks(books, page, limit, filter, sort, author, genre) {
   return links;
 }
 
-module.exports = function (app) {
-  const express = require('express');
-  const bookRouter = express.Router();
+module.exports = async function (app) {
   app.set('json spaces', 0);
   app.set('env', 'production');
 
-  bookRouter.get('/', function (req, res) {
+  app.get('/api/books', function (req, res) {
     const { sort, filter, author, genre } = req.query;
     let { page, limit } = req.query;
     page = parseInt(page, 10) || 1;
@@ -155,17 +153,15 @@ module.exports = function (app) {
     });
   });
 
-  bookRouter.get('/genres', function (req, res) {
+  app.get('/api/books/genres', function (req, res) {
     res.send({
       data: CATEGORIES,
     });
   });
 
-  bookRouter.get('/authors', function (req, res) {
+  app.get('/api/books/authors', function (req, res) {
     res.send({
       data: AUTHORS,
     });
   });
-
-  app.use('/api/books', bookRouter);
 };

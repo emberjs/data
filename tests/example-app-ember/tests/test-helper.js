@@ -1,23 +1,17 @@
-import { setApplication } from '@ember/test-helpers';
-
+import Application from '#app/app';
 import * as QUnit from 'qunit';
+import { setApplication } from '@ember/test-helpers';
 import { setup } from 'qunit-dom';
+import config, { enterTestMode } from '#config';
+import { start as qunitStart, setupEmberOnerrorValidation } from 'ember-qunit';
 
-import { start } from 'ember-qunit';
+export function start() {
+  enterTestMode();
 
-import configureAsserts from '@ember-data/unpublished-test-infra/test-support/asserts/index';
+  setApplication(Application.create(config.APP));
 
-import Application from '../app';
-import config from '../config/environment';
+  setup(QUnit.assert);
+  setupEmberOnerrorValidation();
 
-setup(QUnit.assert);
-configureAsserts(QUnit.hooks);
-
-setApplication(Application.create(config.APP));
-
-QUnit.config.testTimeout = 2000;
-QUnit.config.urlConfig.push({
-  id: 'enableoptionalfeatures',
-  label: 'Enable Opt Features',
-});
-start({ setupTestIsolationValidation: true });
+  qunitStart();
+}
