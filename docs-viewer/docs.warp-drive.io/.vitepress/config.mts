@@ -42,7 +42,7 @@ export default defineConfig({
   },
 
   // just until we have the guides and docs in a better state
-  ignoreDeadLinks: true,
+  ignoreDeadLinks: false,
 
   // this won't work properly until we don't need to sync the guides
   // from the repo root into the docs-viewer
