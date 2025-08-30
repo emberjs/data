@@ -15,11 +15,11 @@
  */
 import type { WarpDriveConfig } from '@warp-drive/build-config';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type * as FEATURES from '@warp-drive/build-config//canary-features';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type * as DEPRECATIONS from '@warp-drive/build-config//deprecations';
+import type * as FEATURES from '@warp-drive/build-config/canary-features';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as LOGGING from '@warp-drive/build-config/debugging';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type * as DEPRECATIONS from '@warp-drive/build-config/deprecations';
 
 export { setConfig, babelPlugin } from '@warp-drive/build-config';
 export type { WarpDriveConfig };
