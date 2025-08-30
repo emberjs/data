@@ -1,17 +1,7 @@
-import { buildMacros } from '@embroider/macros/babel';
-import { setConfig } from '@warp-drive/core/build-config';
+import { babelPlugin } from '@warp-drive/core/build-config';
 
-const macros = buildMacros({
-  configure: (config) => {
-    setConfig(config, {
-      // this should be the most recent <major>.<minor> version for
-      // which all deprecations have been fully resolved
-      // and should be updated when that changes
-      // for new apps it should be the version you installed
-      // for universal apps this MUST be at least 5.6
-      compatWith: '5.6',
-    });
-  },
+const macros = babelPlugin({
+  compatWith: '5.6',
 });
 
 export default {
@@ -28,7 +18,7 @@ export default {
       'babel-plugin-ember-template-compilation',
       {
         compilerPath: 'ember-source/dist/ember-template-compiler.js',
-        transforms: [...macros.templateMacros],
+        transforms: [...macros.gts],
       },
     ],
     [
@@ -47,7 +37,7 @@ export default {
         regenerator: false,
       },
     ],
-    ...macros.babelMacros,
+    ...macros.js,
   ],
 
   generatorOpts: {
