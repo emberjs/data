@@ -1,6 +1,7 @@
 'use strict';
 
 if (typeof module !== 'undefined') {
+  // eslint-disable-next-line n/no-missing-require
   const customDotReporter = require('@ember-data/unpublished-test-infra/testem/custom-dot-reporter');
 
   console.log(`\n\nLaunching with ${process.env.TESTEM_CI_LAUNCHER || 'Chrome'}\n\n`);
