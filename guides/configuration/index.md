@@ -110,7 +110,31 @@ module.exports = async function (defaults) {
 
 :::
 
-## Configure the Store
+## Quick Store Setup
+
+The `Store` is the central piece of the ***Warp*Drive** experience, linking
+together how we handle requests, the schemas for what our data looks like,
+how to cache it, and what sort of reactive objects to create for that data.
+
+***Warp*Drive** provides [a utility to quickly setup a store configured
+with recommended defaults](/api/@warp-drive/core/functions/useRecommendedStore).
+
+```ts
+import { useRecommendedStore } from '@warp-drive/core';
+import { JSONAPICache } from '@warp-drive/json-api';
+
+export default useRecommendedStore({
+  cache: JSONAPICache,
+  schemas: [
+     // -- your schemas here
+  ],
+});
+```
+
+To understand more about what this does, you can read about manually
+configuring the store below.
+
+## Advanced Store Configuration
 
 The `Store` is the central piece of the ***Warp*Drive** experience, linking
 together how we handle requests, the schemas for what our data looks like,
