@@ -15,7 +15,7 @@ import type { CacheCapabilitiesManager, ResourceKey } from './types.ts';
 import type { Cache } from './types/cache.ts';
 import { getRuntimeConfig, setLogging } from './types/runtime.ts';
 import type { Derivation, HashFn, Transformation } from './types/schema/concepts.ts';
-import type { ObjectSchema, ResourceSchema, Trait } from './types/schema/fields.ts';
+import type { ObjectSchema, PolarisResourceSchema, Trait } from './types/schema/fields.ts';
 
 export { Fetch, RequestManager };
 
@@ -73,11 +73,11 @@ export interface StoreSetupOptions {
   /**
    * Schemas describing the structure of your resource data.
    *
-   * See {@link ResourceSchema} and {@link ObjectSchema} for more information.
+   * See {@link PolarisResourceSchema,} and {@link ObjectSchema} for more information.
    */
-  schemas?: Array<ResourceSchema | ObjectSchema>;
+  schemas?: Array<PolarisResourceSchema | ObjectSchema>;
   /**
-   * {@link Trait | Traits} to use with {@link ResourceSchema | Resource Schemas}
+   * {@link Trait | Traits} to use with {@link PolarisResourceSchema, | Resource Schemas}
    */
   traits?: Trait[];
   /**
