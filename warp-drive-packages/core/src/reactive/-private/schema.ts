@@ -389,7 +389,7 @@ function processExtensions(
  * @param schema
  * @return {PolarisResourceSchema}
  */
-export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identity'>): ResourceSchema {
+export function withDefaults(schema: WithPartial<PolarisResourceSchema, 'identity'>): PolarisResourceSchema {
   schema.identity = schema.identity || DefaultIdentityField;
 
   // because fields gets iterated in definition order,
