@@ -302,21 +302,39 @@ const OLD_PACKAGES = [
   '@warp-drive/schema-record',
 ];
 
+const CORE_PACKAGES = [
+  '@warp-drive/core',
+  '@warp-drive/experiments',
+  '@warp-drive/json-api',
+  '@warp-drive/utilities',
+  '@warp-drive/legacy',
+];
+
+function isFrameworkPackage(name: string) {
+  return !OLD_PACKAGES.includes(name) && !CORE_PACKAGES.includes(name);
+}
+
 export function splitApiDocsSidebar(sidebar: SidebarItem[]) {
   const oldPackages: SidebarItem[] = [];
-  const newPackages: SidebarItem[] = [];
+  const corePackages = { text: 'Universal', items: [] as SidebarItem[] } satisfies SidebarItem;
+  const frameworkPackages = { text: 'Frameworks', items: [] as SidebarItem[] } satisfies SidebarItem;
 
   for (const item of sidebar) {
     if (OLD_PACKAGES.includes(item.text)) {
       oldPackages.push(item);
     } else {
-      newPackages.push(item);
+      if (isFrameworkPackage(item.text)) {
+        frameworkPackages.items.push(item);
+      } else {
+        corePackages.items.push(item);
+      }
     }
   }
 
   return {
     oldPackages,
-    newPackages,
+    frameworkPackages,
+    corePackages,
   };
 }
 
@@ -396,17 +414,21 @@ export async function postProcessApiDocs() {
   writeFileSync(sidebarPath, JSON.stringify(sidebar, null, 2), 'utf-8');
 
   // get the package list
-  const NewPackages: string[] = [];
+  const MainPackages: string[] = [];
+  const FrameworkPackages: string[] = [];
   const OldPackages: string[] = [];
-  for (const item of sidebar.newPackages) {
-    NewPackages.push(`- [${item.text}](${item.link!})`);
+  for (const item of sidebar.corePackages.items) {
+    MainPackages.push(`- [${item.text}](${item.link!})`);
+  }
+  for (const item of sidebar.frameworkPackages.items) {
+    FrameworkPackages.push(`- [${item.text}](${item.link!})`);
   }
   for (const item of sidebar.oldPackages) {
     OldPackages.push(`- [${item.text}](${item.link!})`);
   }
 
   // generate the API documentation
-  const apiDocumentation = `${ApiDocumentation}\n\n## Main Packages\n\n${NewPackages.join('\n')}\n\n## Legacy Packages\n\n${OldPackages.join('\n')}\n\n`;
+  const apiDocumentation = `${ApiDocumentation}\n\n## Main Packages\n\n${MainPackages.join('\n')}\n\n## Framework Packages\n\n${FrameworkPackages.join('\n')}\n\n## Legacy Packages\n\n${OldPackages.join('\n')}\n\n`;
 
   // copy the rest of the files
   const files = globSync('**/*.md', { cwd: dir, nodir: true });

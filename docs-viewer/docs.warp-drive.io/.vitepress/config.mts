@@ -138,7 +138,12 @@ export default defineConfig({
         text: 'API Docs',
         collapsed: true,
         // link: '/api/',
-        items: TypeDocSidebar.newPackages,
+        items: [
+          { text: 'Universal' },
+          ...TypeDocSidebar.corePackages.items,
+          { text: 'Frameworks' },
+          ...TypeDocSidebar.frameworkPackages.items,
+        ],
       },
       {
         text: 'Legacy Packages',
