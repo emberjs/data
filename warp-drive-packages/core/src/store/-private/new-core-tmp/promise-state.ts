@@ -353,6 +353,7 @@ function getPromise<T, E>(promise: Promise<T> | Awaitable<T, E> | LegacyAwaitabl
  *
  * If looking to use in a template, consider also the `<Await />` component.
  *
+ * See also {@link PromiseState}
  */
 export function getPromiseState<T = unknown, E = unknown>(
   promise: Promise<T> | Awaitable<T, E>

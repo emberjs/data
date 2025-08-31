@@ -18,11 +18,11 @@ interface ThrowSignature<E = Error | string | object> {
  * That's all it does. So don't use it unless the application should
  * throw an error if it reaches this point in the template.
  *
- * ```hbs
+ * ```gts
  * <Throw @error={{anError}} />
  * ```
  *
- * @class <Throw />
+ * @category Components
  * @public
  */
 export class Throw<T> extends Component<ThrowSignature<T>> {
@@ -54,13 +54,13 @@ interface AwaitSignature<T, E = Error | string | object> {
 }
 
 /**
- * The <Await /> component allow you to utilize reactive control flow
+ * The `<Await />` component allow you to utilize reactive control flow
  * for asynchronous states in your application.
  *
  * Await is ideal for handling "boundaries", outside which some state is
  * still allowed to be unresolved and within which it MUST be resolved.
  *
- * ```gjs
+ * ```gts
  * import { Await } from '@warp-drive/ember';
  *
  * <template>
@@ -80,12 +80,12 @@ interface AwaitSignature<T, E = Error | string | object> {
  * </template>
  * ```
  *
- * The <Await /> component requires that error states are properly handled.
+ * The `<Await />` component requires that error states are properly handled.
  *
  * If no error block is provided and the promise rejects, the error will
  * be thrown.
  *
- * @class <Await />
+ * @category Components
  * @public
  */
 export class Await<T, E> extends Component<AwaitSignature<T, E>> {

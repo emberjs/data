@@ -178,7 +178,7 @@ interface RequestSignature<RT, E> {
  *
  * The loading state exposes the download `ReadableStream` instance for consumption
  *
- * ```gjs
+ * ```gts
  * import { Request } from '@warp-drive/ember';
  *
  * <template>
@@ -213,7 +213,7 @@ interface RequestSignature<RT, E> {
  *
  * Reload and refresh are available as methods on the `content` state.
  *
- * ```gjs
+ * ```gts
  * import { Request } from '@warp-drive/ember';
  *
  * <template>
@@ -237,7 +237,7 @@ interface RequestSignature<RT, E> {
  * We can nest our usage of `<Request />` to handle more advanced
  * reloading scenarios.
  *
- * ```gjs
+ * ```gts
  * import { Request } from '@warp-drive/ember';
  *
  * <template>
@@ -299,7 +299,7 @@ interface RequestSignature<RT, E> {
  * timer or on a websocket subscription.
  *
  *
- * ```gjs
+ * ```gts
  * import { Request } from '@warp-drive/ember';
  *
  * <template>
@@ -323,7 +323,7 @@ interface RequestSignature<RT, E> {
  * from multiple `<Request />` components, even if the request is not referentially the
  * same, only one actual request will be made.
  *
- *
+ * @category Components
  * @public
  */
 export class Request<RT, E> extends Component<RequestSignature<RT, E>> {
