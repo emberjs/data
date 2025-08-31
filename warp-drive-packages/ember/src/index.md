@@ -7,18 +7,39 @@ elegant control flow.
 
 ## Using in .hbs files
 
-The components and utils this library exports are intended for use with `
-Glimmer Flavored JavaScript (`gjs`). To use them in handlebars files, your
-app should re-export them. For instance:
+The components and reactive utilities this library exports are intended
+for use with `gjs/gts` (Ember's [Template Tag Format](https://guides.emberjs.com/release/components/template-tag-format/).
 
-::: code-group
+ To use them in handlebars (`.hbs`) files, your app should re-export them.
+
+:::tabs
+
+==<Await />
+
+**Definition**
 
 ```ts [app/components/await.ts]
 export { Await as default } from '@warp-drive/ember';
 ```
 
-```hbs
+**Usage**
+
+```hbs [app/templates/application.hbs]
 <Await @promise={{this.getTheData}}></Await>
+```
+
+==<Request />
+
+**Definition**
+
+```ts [app/components/request.ts]
+export { Request as default } from '@warp-drive/ember';
+```
+
+**Usage**
+
+```hbs [app/templates/application.hbs]
+<Request @future={{this.theDataRequest}}></Request>
 ```
 
 :::
