@@ -14,7 +14,7 @@ function recast(context: Store): asserts context is ModelStore {}
 export function instantiateRecord(
   this: Store,
   identifier: ResourceKey,
-  createRecordArgs: { [key: string]: unknown }
+  createRecordArgs?: { [key: string]: unknown }
 ): Model {
   const type = identifier.type;
 
@@ -22,7 +22,7 @@ export function instantiateRecord(
 
   // TODO deprecate allowing unknown args setting
   const createOptions = {
-    _createProps: createRecordArgs,
+    _createProps: createRecordArgs ?? {},
     // TODO @deprecate consider deprecating accessing record properties during init which the below is necessary for
     _secretInit: {
       identifier,

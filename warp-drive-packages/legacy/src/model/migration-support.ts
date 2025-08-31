@@ -530,7 +530,9 @@ export interface DelegatingSchemaService {
   doesTypeExist?(type: string): boolean;
 }
 export class DelegatingSchemaService implements SchemaService {
+  /** @internal */
   _preferred!: SchemaService;
+  /** @internal */
   _secondary!: SchemaService;
 
   constructor(store: Store, schema: SchemaService) {
@@ -654,8 +656,15 @@ export class DelegatingSchemaService implements SchemaService {
   }
 }
 
+export interface PrivateDelegatingSchemaService extends DelegatingSchemaService {
+  _preferred: SchemaService;
+  _secondary: SchemaService;
+}
+function assertPrivate(service: DelegatingSchemaService): asserts service is PrivateDelegatingSchemaService {}
+
 if (ENABLE_LEGACY_SCHEMA_SERVICE) {
   DelegatingSchemaService.prototype.attributesDefinitionFor = function (resource: ResourceKey | { type: string }) {
+    assertPrivate(this);
     if (this._preferred.hasResource(resource)) {
       return this._preferred.attributesDefinitionFor!(resource);
     }
@@ -663,6 +672,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     return this._secondary.attributesDefinitionFor!(resource);
   };
   DelegatingSchemaService.prototype.relationshipsDefinitionFor = function (resource: ResourceKey | { type: string }) {
+    assertPrivate(this);
     if (this._preferred.hasResource(resource)) {
       return this._preferred.relationshipsDefinitionFor!(resource);
     }
@@ -670,6 +680,7 @@ if (ENABLE_LEGACY_SCHEMA_SERVICE) {
     return this._secondary.relationshipsDefinitionFor!(resource);
   };
   DelegatingSchemaService.prototype.doesTypeExist = function (type: string) {
+    assertPrivate(this);
     return this._preferred.doesTypeExist?.(type) || this._secondary.doesTypeExist?.(type) || false;
   };
 }
