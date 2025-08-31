@@ -165,7 +165,8 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
     return promise.then((document) => document.content);
   };
 
-  // @ts-expect-error
+  // do not put a ts-expect-error here, because typedoc will fail to
+  // build due to this error only occurring when references are in use in the editor
   StoreKlass.prototype.getReference = function (
     resource: string | ResourceIdentifierObject,
     id: string | number
