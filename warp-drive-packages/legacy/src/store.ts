@@ -165,6 +165,7 @@ export function restoreDeprecatedStoreBehaviors(StoreKlass: typeof Store): void 
     return promise.then((document) => document.content);
   };
 
+  // @ts-expect-error
   StoreKlass.prototype.getReference = function (
     resource: string | ResourceIdentifierObject,
     id: string | number

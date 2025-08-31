@@ -6,6 +6,7 @@ import {
   Store,
   type StoreSetupOptions,
 } from '@warp-drive/core';
+import { assert } from '@warp-drive/core/build-config/macros';
 import { instantiateRecord, registerDerivations, SchemaService, teardownRecord } from '@warp-drive/core/reactive';
 import type { Handler } from '@warp-drive/core/request';
 import { DefaultCachePolicy } from '@warp-drive/core/store';
@@ -13,19 +14,82 @@ import type { CacheCapabilitiesManager, ModelSchema, ResourceKey } from '@warp-d
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type { ObjectSchema, ResourceSchema } from '@warp-drive/core/types/schema/fields';
 
-import { LegacyNetworkHandler } from './compat';
+import type { MinimumAdapterInterface } from './compat';
+import {
+  adapterFor,
+  cleanup,
+  LegacyNetworkHandler,
+  normalize,
+  pushPayload,
+  serializeRecord,
+  serializerFor,
+} from './compat';
 import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtension } from './compat/extensions';
 import type Model from './model';
 import { instantiateRecord as instantiateModel, modelFor, teardownRecord as teardownModel } from './model';
 import { DelegatingSchemaService, registerDerivations as registerLegacyDerivations } from './model/migration-support';
+import { restoreDeprecatedStoreBehaviors } from './store';
 
-export interface LegacyStoreSetupOptions extends Omit<StoreSetupOptions, 'schemas'> {
-  linksMode?: boolean;
+interface _LegacyStoreSetupOptions extends Omit<StoreSetupOptions, 'schemas'> {
   schemas?: Array<ResourceSchema | ObjectSchema>;
 }
 
+interface LegacyModelStoreSetupOptions extends _LegacyStoreSetupOptions {
+  /**
+   * If true, it is presumed that no requests require use of the LegacyNetworkHandler
+   * and associated adapters/serializer methods.
+   */
+  linksMode: true;
+  /**
+   * if true, all legacy request methods and supporting infrastructure will
+   * be available on the store.
+   */
+  legacyRequests?: false;
+}
+
+interface LegacyModelAndNetworkStoreSetupOptions extends _LegacyStoreSetupOptions {
+  /**
+   * If true, it is presumed that no requests require use of the LegacyNetworkHandler
+   * and associated adapters/serializer methods.
+   */
+  linksMode: false;
+  /**
+   * if true, all legacy request methods and supporting infrastructure will
+   * be available on the store.
+   */
+  legacyRequests?: false;
+}
+
+interface LegacyModelAndNetworkAndRequestStoreSetupOptions extends _LegacyStoreSetupOptions {
+  /**
+   * If true, it is presumed that no requests require use of the LegacyNetworkHandler
+   * and associated adapters/serializer methods.
+   */
+  linksMode: false;
+  /**
+   * if true, all legacy request methods and supporting infrastructure will
+   * be available on the store.
+   */
+  legacyRequests: true;
+}
+
+export type LegacyStoreSetupOptions =
+  | LegacyModelStoreSetupOptions
+  | LegacyModelAndNetworkStoreSetupOptions
+  | LegacyModelAndNetworkAndRequestStoreSetupOptions;
+
+export function useLegacyStore(options: LegacyModelStoreSetupOptions, StoreKlass?: typeof Store): typeof Store;
+export function useLegacyStore(
+  options: LegacyModelAndNetworkStoreSetupOptions,
+  StoreKlass?: typeof Store
+): typeof Store;
+export function useLegacyStore(
+  options: LegacyModelAndNetworkAndRequestStoreSetupOptions,
+  StoreKlass?: typeof Store
+): typeof Store;
 export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typeof Store = Store): typeof Store {
-  return class LegacyConfiguredStore extends StoreKlass {
+  assert(`If legacyRequests is true, linksMode must be false`, !(options.linksMode && options.legacyRequests));
+  class LegacyConfiguredStore extends StoreKlass {
     requestManager = new RequestManager()
       .use(
         [options.linksMode ? null : LegacyNetworkHandler, ...(options.handlers ?? []), Fetch].filter(
@@ -118,9 +182,72 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
     modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
     modelFor(type: string): ModelSchema;
     modelFor(type: string): ModelSchema {
+      assertType(this.schema, type);
+      assert(
+        `modelFor should only be used to lookup legacy models when in linksMode`,
+        !options.linksMode || this.schema.isDelegated({ type })
+      );
       return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
     }
 
-    // setup legacy network?
-  };
+    adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
+    adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
+    adapterFor(this: Store, modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined {
+      assert(
+        `useLegacyStore was setup in linksMode. linksMode assumes that all requests have been migrated away from adapters and serializers.`,
+        !options.linksMode
+      );
+      // @ts-expect-error
+      return adapterFor.call(this, modelName, _allowMissing);
+    }
+
+    serializerFor(this: Store, ...args: Parameters<typeof serializerFor>): ReturnType<typeof serializerFor> {
+      assert(
+        `useLegacyStore was setup in linksMode. linksMode assumes that all requests have been migrated away from adapters and serializers.`,
+        !options.linksMode
+      );
+      return serializerFor.call(this, ...args);
+    }
+
+    pushPayload(this: Store, ...args: Parameters<typeof pushPayload>): ReturnType<typeof pushPayload> {
+      assert(
+        `useLegacyStore was setup in linksMode. linksMode assumes that all requests have been migrated away from adapters and serializers.`,
+        !options.linksMode
+      );
+      return pushPayload.call(this, ...args);
+    }
+
+    normalize(this: Store, ...args: Parameters<typeof normalize>): ReturnType<typeof normalize> {
+      assert(
+        `useLegacyStore was setup in linksMode. linksMode assumes that all requests have been migrated away from adapters and serializers.`,
+        !options.linksMode
+      );
+      return normalize.call(this, ...args);
+    }
+
+    serializeRecord(this: Store, ...args: Parameters<typeof serializeRecord>): ReturnType<typeof serializeRecord> {
+      assert(
+        `useLegacyStore was setup in linksMode. linksMode assumes that all requests have been migrated away from adapters and serializers.`,
+        !options.linksMode
+      );
+      return serializeRecord.call(this, ...args);
+    }
+
+    destroy() {
+      if (!options.linksMode) {
+        cleanup.call(this);
+      }
+      super.destroy();
+    }
+  }
+
+  if (options.legacyRequests) {
+    restoreDeprecatedStoreBehaviors(LegacyConfiguredStore);
+  }
+
+  return LegacyConfiguredStore;
+}
+
+function assertType(schema: DelegatingSchemaService, type: string) {
+  assert(`Expected type ${type} to be a valid ResourceType`, schema.hasResource({ type }));
 }
