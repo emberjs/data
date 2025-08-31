@@ -1,13 +1,13 @@
 ---
-order: 1
-title: Additional Setup for Ember
+order: 2
+title: Setup - Legacy (Ember)
 ---
 
 :::warning caution
 Older legacy features of WarpDrive (inherited from when the library was named EmberData) should only be used with Ember.
 :::
 
-# Additional Setup for Ember
+# Legacy Feature Setup for Ember Apps
 
 ## Configuring TypeScript
 

@@ -1,8 +1,10 @@
 ---
-order: 2
+order: 3
 ---
 
-Optionally, install the ESLint plugin `eslint-plugin-warp-drive`
+# Linting
+
+Install the ESLint plugin `eslint-plugin-warp-drive`
 
 ::: code-group
 
@@ -23,3 +25,17 @@ bun add --exact eslint-plugin-warp-drive@latest
 ```
 
 :::
+
+
+## Usage
+
+Recommended Rules are available as a flat config for easy consumption:
+
+```ts
+// eslint.config.js (flat config)
+const WarpDriveRecommended = require('eslint-plugin-warp-drive/recommended');
+
+module.exports = [
+  ...WarpDriveRecommended,
+];
+```
