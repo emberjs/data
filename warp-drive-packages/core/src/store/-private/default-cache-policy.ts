@@ -295,6 +295,9 @@ function isExpired(cacheKey: RequestKey, request: StructuredDocument<ResourceDoc
   return result;
 }
 
+/**
+ * The constraint options for {@link PolicyConfig.constraints}
+ */
 export interface PolicyConfigConstraints {
   /**
    * Headers that should be checked for expiration.
@@ -440,6 +443,7 @@ export interface PolicyConfig {
    * -  ↳ (if null) Cache-Control header
    * -  ↳ (if null) Expires header
    *
+   * See {@link PolicyConfigConstraints} for configuration options.
    */
   constraints?: PolicyConfigConstraints;
 }

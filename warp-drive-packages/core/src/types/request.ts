@@ -35,7 +35,8 @@ export type HTTPMethod =
   | 'TRACE';
 
 /**
- * Use these options to adjust CacheHandler behavior for a request.
+ * Use these options to adjust {@link CacheHandler} behavior for a request
+ * via {@link RequestInfo.cacheOptions}.
  *
  */
 export interface CacheOptions {
