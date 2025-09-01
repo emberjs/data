@@ -43,9 +43,7 @@
     "types": ["ember-source/types"],
     "paths": {
       "@warp-drive/build-config": ["../build-config/declarations"],
-      "@warp-drive/build-config/*": ["../build-config/declarations/*"],
-      "@warp-drive/legacy": ["../legacy/declarations"],
-      "@warp-drive/legacy/*": ["../legacy/declarations/*"]
+      "@warp-drive/build-config/*": ["../build-config/declarations/*"]
     },
     "checkJs": false
     // "allowJs": false
@@ -53,11 +51,6 @@
   "references": [
     {
       "path": "../build-config"
-    },
-    {
-      // we allow importing types from legacy for documentation
-      // purposes only
-      "path": "../legacy"
     }
   ]
 }

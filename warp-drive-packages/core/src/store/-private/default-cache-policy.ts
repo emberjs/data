@@ -17,8 +17,6 @@ import type {
   StructuredDocument,
 } from '@warp-drive/core/types/request';
 import type { ResourceDocument } from '@warp-drive/core/types/spec/document';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { LegacyNetworkHandler } from '@warp-drive/legacy/compat';
 
 import { LRUCache } from '../../utils/string';
 import type { CachePolicy } from '../-private';
@@ -603,7 +601,7 @@ export class DefaultCachePolicy implements CachePolicy {
    * of the store.
    *
    * This invalidation is done automatically when using this service
-   * for both the {@link CacheHandler} and the {@link LegacyNetworkHandler}.
+   * for both the {@link CacheHandler} and the [NetworkHandler](/api/@warp-drive/legacy/compat/variables/LegacyNetworkHandler).
    *
    * ```ts
    * store.lifetimes.invalidateRequestsForType(store, 'person');
