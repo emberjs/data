@@ -1,13 +1,15 @@
 import { deprecate } from '@ember/debug';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Fetch } from '@warp-drive/core';
+import type { CacheHandler, Fetch } from '@warp-drive/core';
 import { LOG_CACHE_POLICY } from '@warp-drive/core/build-config/debugging';
 import { TESTING } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { Cache } from '@warp-drive/core/types/cache';
 import type { RequestKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  CacheOptions,
   ImmutableRequestInfo,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   RequestInfo,
@@ -106,8 +108,6 @@ const NUMERIC_KEYS = new Set(['max-age', 's-maxage', 'stale-if-error', 'stale-wh
  * See also {@link CacheControlValue} and [Response Directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#response_directives)
  *
  * @public
- * @param {String} header
- * @return {CacheControlValue}
  */
 export function parseCacheControl(header: string): CacheControlValue {
   return CACHE_CONTROL_CACHE.get(header);
@@ -295,6 +295,63 @@ function isExpired(cacheKey: RequestKey, request: StructuredDocument<ResourceDoc
   return result;
 }
 
+export interface PolicyConfigConstraints {
+  /**
+   * Headers that should be checked for expiration.
+   *
+   */
+  headers?: {
+    /**
+     * Whether the `Cache-Control` header should be checked for expiration.
+     * If `true`, then the `max-age` and `s-maxage` directives are used alongside
+     * the `Age` and `Date` headers to determine if the expiration time has passed.
+     *
+     * Other directives are ignored.
+     *
+     * 'Cache-Control' will take precedence over 'Expires' if both are present
+     * and both configured to be checked.
+     *
+     */
+    'Cache-Control'?: boolean;
+
+    /**
+     * Whether the `Expires` header should be checked for expiration.
+     *
+     * If `true`, then the `Expires` header is used to caclulate the expiration time
+     * and determine if the expiration time has passed.
+     *
+     * 'Cache-Control' will take precedence over 'Expires' if both are present.
+     *
+     */
+    Expires?: boolean;
+
+    /**
+     * Whether the `X-WarpDrive-Expires` header should be checked for expiration.
+     *
+     * If `true`, then the `X-WarpDrive-Expires` header is used to caclulate the expiration time
+     * and determine if the expiration time has passed.
+     *
+     * This header will take precedence over 'Cache-Control' and 'Expires' if all three are present.
+     *
+     * The header's value should be a [UTC date string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toUTCString).
+     *
+     */
+    'X-WarpDrive-Expires'?: boolean;
+  };
+
+  /**
+   * A function that should be called to determine if the request is expired.
+   *
+   * If present, this function will be called with the request and should return
+   * `true` if the request is expired, `false` if it is not expired, and
+   * `null` if the expiration status is unknown.
+   *
+   * If the function does not return `null`,
+   *
+   */
+  isExpired?: (request: StructuredDocument<ResourceDocument>) => boolean | null;
+}
+
 /**
  * The configuration options for the {@link DefaultCachePolicy}
  *
@@ -319,10 +376,9 @@ export interface PolicyConfig {
    *
    * This is calculated against the `date` header of the response.
    *
-   * If your API does not provide a `date` header, the `Fetch` handler
-   * provided by `@warp-drive/core` will automatically add
-   * it to responses if it is not present. Responses without a `date`
-   * header will be considered stale immediately.
+   * If your API does not provide a `date` header, the {@link Fetch} handler
+   * will automatically add it to responses if it is not present. Responses
+   * without a `date` header will be considered stale immediately.
    *
    */
   apiCacheSoftExpires: number;
@@ -334,10 +390,9 @@ export interface PolicyConfig {
    *
    * This is calculated against the `date` header of the response.
    *
-   * If your API does not provide a `date` header, the `Fetch` handler
-   * provided by `@warp-drive/core` will automatically add
-   * it to responses if it is not present. Responses without a `date`
-   * header will be considered hard expired immediately.
+   * If your API does not provide a `date` header, the {@link Fetch} handler
+   * will automatically add it to responses if it is not present. Responses
+   * without a `date` header will be considered hard expired immediately.
    *
    */
   apiCacheHardExpires: number;
@@ -347,8 +402,8 @@ export interface PolicyConfig {
    *
    * This helps reduce flakiness and produce predictably rendered results in test suites.
    *
-   * Requests that specifically set `cacheOptions.backgroundReload = true` will
-   * still be background reloaded in tests.
+   * Requests that specifically set {@link RequestInfo.cacheOptions.backgroundReload | cacheOptions.backgroundReload }
+   * will still be background reloaded in tests.
    *
    * This behavior can be opted out of by setting this value to `true`.
    *
@@ -358,7 +413,7 @@ export interface PolicyConfig {
   /**
    * In addition to the simple time-based expiration strategy, CachePolicy
    * supports various common server-supplied expiration strategies via
-   * headers, as well as custom expiration strategies via the `isExpired`
+   * headers, as well as custom expiration strategies via the {@link PolicyConfigConstraints.isExpired | isExpired}
    * function.
    *
    * Requests will be validated for expiration against these constraints.
@@ -386,62 +441,7 @@ export interface PolicyConfig {
    * -  ↳ (if null) Expires header
    *
    */
-  constraints?: {
-    /**
-     * Headers that should be checked for expiration.
-     *
-     */
-    headers?: {
-      /**
-       * Whether the `Cache-Control` header should be checked for expiration.
-       * If `true`, then the `max-age` and `s-maxage` directives are used alongside
-       * the `Age` and `Date` headers to determine if the expiration time has passed.
-       *
-       * Other directives are ignored.
-       *
-       * 'Cache-Control' will take precedence over 'Expires' if both are present
-       * and both configured to be checked.
-       *
-       */
-      'Cache-Control'?: boolean;
-
-      /**
-       * Whether the `Expires` header should be checked for expiration.
-       *
-       * If `true`, then the `Expires` header is used to caclulate the expiration time
-       * and determine if the expiration time has passed.
-       *
-       * 'Cache-Control' will take precedence over 'Expires' if both are present.
-       *
-       */
-      Expires?: boolean;
-
-      /**
-       * Whether the `X-WarpDrive-Expires` header should be checked for expiration.
-       *
-       * If `true`, then the `X-WarpDrive-Expires` header is used to caclulate the expiration time
-       * and determine if the expiration time has passed.
-       *
-       * This header will take precedence over 'Cache-Control' and 'Expires' if all three are present.
-       *
-       * The header's value should be a [UTC date string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toUTCString).
-       *
-       */
-      'X-WarpDrive-Expires'?: boolean;
-    };
-
-    /**
-     * A function that should be called to determine if the request is expired.
-     *
-     * If present, this function will be called with the request and should return
-     * `true` if the request is expired, `false` if it is not expired, and
-     * `null` if the expiration status is unknown.
-     *
-     * If the function does not return `null`,
-     *
-     */
-    isExpired?: (request: StructuredDocument<ResourceDocument>) => boolean | null;
-  };
+  constraints?: PolicyConfigConstraints;
 }
 
 /**
@@ -478,8 +478,8 @@ export interface PolicyConfig {
  * add the `date` header to responses if it is not present.
  * :::
  *
- * - For manual override of reload see {@link RequestInfo.cacheOptions.reload | cacheOptions.reload}
- * - For manual override of background reload see {@link RequestInfo.cacheOptions.backgroundReload | cacheOptions.backgroundReload}
+ * - For manual override of reload see {@link CacheOptions.reload | cacheOptions.reload}
+ * - For manual override of background reload see {@link CacheOptions.backgroundReload | cacheOptions.backgroundReload}
  *
  * In order expiration is determined by:
  *
@@ -502,7 +502,7 @@ export interface PolicyConfig {
  * ### Automatic Invalidation / Entanglement
  *
  * It also invalidates any request with an {@link RequestInfo.op | OpCode} of `"query"`
- * for which {@link RequestInfo.cacheOptions.types | cacheOptions.types} was provided
+ * for which {@link CacheOptions.types | cacheOptions.types} was provided
  * when a request with an `OpCode` of `"createRecord"` is successful and also includes
  * a matching type in its own `cacheOptions.types` array.
 
@@ -601,7 +601,7 @@ export class DefaultCachePolicy implements CachePolicy {
    * of the store.
    *
    * This invalidation is done automatically when using this service
-   * for both the CacheHandler and the LegacyNetworkHandler.
+   * for both the {@link CacheHandler} and the [NetworkHandler](/api/@warp-drive/legacy/compat/variables/LegacyNetworkHandler).
    *
    * ```ts
    * store.lifetimes.invalidateRequestsForType(store, 'person');
@@ -629,7 +629,7 @@ export class DefaultCachePolicy implements CachePolicy {
    * This is invoked by the CacheHandler for both foreground and background requests
    * once the cache has been updated.
    *
-   * Note, this is invoked by the CacheHandler regardless of whether
+   * Note, this is invoked by the {@link CacheHandler} regardless of whether
    * the request has a cache-key.
    *
    * This method should not be invoked directly by consumers.
@@ -677,7 +677,7 @@ export class DefaultCachePolicy implements CachePolicy {
    * Invoked to determine if the request may be fulfilled from cache
    * if possible.
    *
-   * Note, this is only invoked by the CacheHandler if the request has
+   * Note, this is only invoked by the {@link CacheHandler} if the request has
    * a cache-key.
    *
    * If no cache entry is found or the entry is hard expired,
@@ -711,7 +711,7 @@ export class DefaultCachePolicy implements CachePolicy {
    * Invoked if `isHardExpired` is false to determine if the request
    * should be update behind the scenes if cache data is already available.
    *
-   * Note, this is only invoked by the CacheHandler if the request has
+   * Note, this is only invoked by the {@link CacheHandler} if the request has
    * a cache-key.
    *
    * If true, the request will be fulfilled from cache while a backgrounded

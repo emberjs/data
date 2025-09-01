@@ -38,7 +38,7 @@ export type HTTPMethod =
  * Use these options to adjust CacheHandler behavior for a request.
  *
  */
-export type CacheOptions = {
+export interface CacheOptions {
   /**
    * A key that uniquely identifies this request. If not present, the url wil be used
    * as the key for any GET request, while all other requests will not be cached.
@@ -86,7 +86,7 @@ export type CacheOptions = {
    *
    */
   [SkipCache]?: boolean;
-};
+}
 export type FindRecordRequestOptions<RT = unknown, T = unknown> = {
   url: string;
   method: 'GET';
