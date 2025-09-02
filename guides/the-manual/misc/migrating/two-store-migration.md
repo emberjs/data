@@ -30,13 +30,13 @@ Mirror packages are available for versions `^4.13.0 | >=5.3.8`.
 
 ## TypeScript
 
-All mirror packages are also versions which ship their own types. To use those types, configure your `tsconfig.json` to be able to find them [as shown here](../typescript/1-configuration.md#using-native-types), adding the appropriate `-mirror` appendage to each package name (PS: you can have distinct types for both your older and your newer version!).
+All mirror packages are also versions which ship their own types. To use those types, configure your `tsconfig.json` to be able to find them [as shown here](../typescript/configuration.md#using-native-types), adding the appropriate `-mirror` appendage to each package name (PS: you can have distinct types for both your older and your newer version!).
 
 ## Caveat Emptor
 
 Utilizing the two-store approach has a few tradeoffs:
 
-1. If you want compatible type signatures for use by your components, you should upgrade your app to make use of native types first, likely using the [types-package approach](../typescript/0-installation.md#using-types-packages).
+1. If you want compatible type signatures for use by your components, you should upgrade your app to make use of native types first, likely using the [types-package approach](../typescript/installation.md#using-types-packages).
 
 In fact, it is likely that if you want typescript for the v2 store that you are *forced* to remove the `@types/ember*` packages from your project entirely and upgrade to using native types for ember-source and ember-data. This is because the native types for EmberData/WarpDrive depend on ember's native types.
 
