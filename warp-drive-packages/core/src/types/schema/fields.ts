@@ -2352,6 +2352,9 @@ export interface ObjectSchema {
 
 export type Schema = ResourceSchema | ObjectSchema;
 
+/**
+ * A trait for use on a PolarisMode record
+ */
 export interface PolarisTrait {
   name: string;
   mode: 'polaris';
@@ -2359,6 +2362,9 @@ export interface PolarisTrait {
   traits?: string[];
 }
 
+/**
+ * A trait for use on a LegacyMode record
+ */
 export interface LegacyTrait {
   name: string;
   mode: 'legacy';
@@ -2366,6 +2372,11 @@ export interface LegacyTrait {
   traits?: string[];
 }
 
+/**
+ * A union of
+ * - {@link LegacyTrait}
+ * - {@link PolarisTrait}
+ */
 export type Trait = LegacyTrait | PolarisTrait;
 
 /**
