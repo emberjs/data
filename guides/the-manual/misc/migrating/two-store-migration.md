@@ -32,7 +32,7 @@ Mirror packages are available for versions `^4.13.0 | >=5.3.8`.
 
 All mirror packages are also versions which ship their own types. To use those types, configure your `tsconfig.json` to be able to find them [as shown here](../typescript/1-configuration.md#using-native-types), adding the appropriate `-mirror` appendage to each package name (PS: you can have distinct types for both your older and your newer version!).
 
-## Caveat Umptor
+## Caveat Emptor
 
 Utilizing the two-store approach has a few tradeoffs:
 
