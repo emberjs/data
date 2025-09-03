@@ -201,6 +201,7 @@ export class AutoCompress implements Handler {
     const { body } = request;
 
     const shouldCompress =
+      !!body &&
       isCompressibleMethod(request.method) &&
       request.options?.compress !== false &&
       // prettier-ignore
