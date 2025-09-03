@@ -153,7 +153,7 @@ const DEFAULT_CONSTRAINTS = {
   DataView: 1000,
   String: 1000,
 };
-const TypedArray = Object.getPrototypeOf(Uint8Array.prototype) as typeof Uint8Array;
+const TypedArray = Object.getPrototypeOf(Uint8Array) as typeof Uint8Array;
 
 /**
  * A request handler that automatically compresses the request body
