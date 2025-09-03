@@ -1,5 +1,5 @@
 /**
- * This module provides utilities for working with [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html#convention-over-configuration-in-active-record) APIs with *Warp***Drive**
+ * This module provides utilities for working with [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html#convention-over-configuration-in-active-record) APIs with ***Warp*Drive**
  *
  * ## Usage
  *

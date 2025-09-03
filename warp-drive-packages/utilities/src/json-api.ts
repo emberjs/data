@@ -1,5 +1,5 @@
 /**
- * This module provides utilities for working with [{json:api}](https://jsonapi.org) APIs with *Warp***Drive**
+ * This module provides utilities for working with [{json:api}](https://jsonapi.org) APIs with ***Warp*Drive**
  *
  * ## Usage
  *

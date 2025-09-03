@@ -22,7 +22,7 @@ be considered a remote source of data for your application.
 
 ## Reactive Control Flow
 
-*Warp***Drive** offers both a JavaScript API and a Component API for working with
+***Warp*Drive** offers both a JavaScript API and a Component API for working with
 requests. Both APIs offer a clean way of working with asynchronous data via reactive
 values and states instead of needing to switch into imperative code or async/await. This
 approach enables enables automatic cleanup when components dismount, unlocking [Intelligent Lifecycle Management]()
@@ -220,9 +220,9 @@ Coming Soon!
 
 ## Request Options
 
-*Warp***Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) as the foundation upon which requests are made. This ensures that if the platform supports it, *Warp***Drive** exposes it: platform APIs are never hidden away.
+***Warp*Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) as the foundation upon which requests are made. This ensures that if the platform supports it, ***Warp*Drive** exposes it: platform APIs are never hidden away.
 
-*Warp***Drive** [RequestInfo](/api/@warp-drive/core/types/request) extends `RequestInit`
+***Warp*Drive** [RequestInfo](/api/@warp-drive/core/types/request) extends `RequestInit`
 to provide additional capabilities for caching and fulfilling requests.
 
 ```ts
@@ -307,7 +307,7 @@ const { content } = await store.request({
 
 Of course, writing requests so manually quickly gets repetitive.
 
-*Warp***Drive** offers two abstractions for helping to write organized, reusable requests.
+***Warp*Drive** offers two abstractions for helping to write organized, reusable requests.
 
 - [Builders](./builders.md) - simple functions that produce a json request object
 - [Handlers](./handlers.md) - middleware that enable enhancing, modifying, or responding to requests
@@ -440,7 +440,7 @@ When we configured the `RequestManager` above, you may have noticed that when we
 
 This architecture allows us to quickly integrate any kind of pre- or post- processing for requests to ensure we get the data we want how we want it.
 
-*Warp***Drive** comes with a number of useful composable handlers pre-built:
+***Warp*Drive** comes with a number of useful composable handlers pre-built:
 
 - [Fetch](/api/@warp-drive/core/variables/Fetch) - it makes `fetch` happen, and more
 - [AutoCompress](/api/@warp-drive/utilities/handlers/classes/AutoCompress) - automatically compress large request bodies and use streaming uploads where supported

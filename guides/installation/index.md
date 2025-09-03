@@ -9,7 +9,7 @@ order: 0
 
 # Installation
 
-::: tip 💡 *Warp***Drive** simplifies distribution using npm channel tags
+::: tip 💡 ***Warp*Drive** simplifies distribution using npm channel tags
 - `@lts` | `@latest` | `@beta` | `@canary`
 :::
 
@@ -119,7 +119,7 @@ Don't see your framework listed yet? Reactive frameworks can typically be implem
 We find this means its best to use exact versions instead of ranges as all WarpDrive packages should be upgraded together at once.
 :::
 
-*Warp***Drive** packages follow a lockstep versioning approach: all dependencies and peer-dependencies between the project's own packages are version-locked at the time of publish.
+***Warp*Drive** packages follow a lockstep versioning approach: all dependencies and peer-dependencies between the project's own packages are version-locked at the time of publish.
 
 For instance, `@warp-drive/utilities@5.6.0` has a peer-dependency on `@warp-drive/core@5.6.0`. If any other
 version were present (even a differing patch version such as `5.6.1`) it would create a conflict. All of the installation commands listed in this guide pin the version for this reason.
@@ -127,7 +127,7 @@ version were present (even a differing patch version such as `5.6.1`) it would c
 
 ## Other Packages
 
-*Warp***Drive** offers additional packages for features that don't quite meet the bar for being included
+***Warp*Drive** offers additional packages for features that don't quite meet the bar for being included
 in core, or have been deprecated and removed from the core experience.
 
 - `@warp-drive/utilities` provides commonly needed request builder, handler and string utils.
@@ -370,7 +370,7 @@ import '@warp-drive/ember/install';
 
 :::
 
-Addons that make use of *Warp***Drive** should only do the above installation in their tests (including test apps)
+Addons that make use of ***Warp*Drive** should only do the above installation in their tests (including test apps)
 but not in any published library code.
 
 
@@ -460,7 +460,7 @@ bun add --exact @warp-drive/react@canary
 
 :::
 
-Even though React does not natively understand signals, *Warp***Drive** provides a solution that
+Even though React does not natively understand signals, ***Warp*Drive** provides a solution that
 enables React to understand when reactive data used by a component has changed enabling it
 to properly rerender. We'll cover this more in the [@warp-drive/react documentation](/api/@warp-drive/react)
 
@@ -480,7 +480,7 @@ import '@warp-drive/react/install';
 
 :::
 
-Only apps need to do the installation above, libraries providing React components that make use of *Warp***Drive**
+Only apps need to do the installation above, libraries providing React components that make use of ***Warp*Drive**
 should only do the above installation in their tests but not in any published library code.
 
 
@@ -586,7 +586,7 @@ import '@warp-drive/svelte/install';
 
 :::
 
-Only apps need to do the installation above, libraries providing Svelte components that make use of *Warp***Drive**
+Only apps need to do the installation above, libraries providing Svelte components that make use of ***Warp*Drive**
 should only do the above installation in their tests but not in any published library code.
 
 
@@ -693,7 +693,7 @@ import '@warp-drive/vue/install';
 
 :::
 
-Only apps need to do the installation above, libraries providing Vue components that make use of *Warp***Drive**
+Only apps need to do the installation above, libraries providing Vue components that make use of ***Warp*Drive**
 should only do the above installation in their tests but not in any published library code.
 
 
@@ -799,5 +799,5 @@ import '@warp-drive/tc39-proposal-signals/install';
 
 :::
 
-Only apps need to do the installation above, libraries providing code that makes use of *Warp***Drive**
+Only apps need to do the installation above, libraries providing code that makes use of ***Warp*Drive**
 should only do the above installation in their tests but not in any published library code.

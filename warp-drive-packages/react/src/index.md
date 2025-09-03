@@ -1,7 +1,7 @@
 # @warp-drive/react
 
 This package provides a React-specific reactivity integration,
-components and hooks for *Warp***Drive**.
+components and hooks for ***Warp*Drive**.
 
 - [Installation](/guides/1-configuration/1-overview#react)
 - [Configuration](/guides/1-configuration/2-setup/1-universal)

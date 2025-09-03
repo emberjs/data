@@ -1,13 +1,13 @@
 # @warp-drive/legacy
 
 :::warning ⚠️ **CAUTION**
-This package provides support for older *Warp***Drive** features that have been
+This package provides support for older ***Warp*Drive** features that have been
 deprecated and removed from [@warp-drive/core](/api/@warp-drive/core).
 
 **Projects using these features should refactor away from them with urgency**
 :::
 
-You've probably heard old code patterns referred to as "legacy code" before. In *Warp***Drive**, Legacy refers to older features to which we are giving a second, extended life. When features are deprecated in [@warp-drive/core](/api/@warp-drive/core), they are added to `@warp-drive/legacy` in a way that allows apps to opt-in to bring them back.
+You've probably heard old code patterns referred to as "legacy code" before. In ***Warp*Drive**, Legacy refers to older features to which we are giving a second, extended life. When features are deprecated in [@warp-drive/core](/api/@warp-drive/core), they are added to `@warp-drive/legacy` in a way that allows apps to opt-in to bring them back.
 
 Legacy features will not live forever, but they will receive a second deprecation
 cycle before being deleted. Notably, **the decision to deprecate a legacy feature 

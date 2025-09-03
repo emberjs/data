@@ -1,5 +1,5 @@
 /**
- * This module provides utilities for working with **REST**ful APIs with *Warp***Drive**
+ * This module provides utilities for working with **REST**ful APIs with ***Warp*Drive**
  *
  * ## Usage
  *

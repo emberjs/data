@@ -13,12 +13,6 @@ By ***ambitious***, we mean that ***Warp*Drive** is ideal for both small and lar
 
 :::tabs
 
-== MPAs
-
-***Warp*Drive** is the missing bridge for MPAs, allowing your app to seamlessly pick-up where the user
-left off with zero extra network requests.
-<br><br>
-
 == SPAs
 
 ***Warp*Drive** reduces complex state problems to simple to reason about requests, supercharging your ability
@@ -37,6 +31,17 @@ Stop writing the same gnarly component logic in a dozen frameworks or sacrificin
 == SDKs
 
 Want to make your API dead-simple to consume? ***Warp*Drive** makes it easy to create and share intuitive, editor-friendly typed bindings to any API.
+<br><br>
+
+== 🚧 MPAs 
+
+> [!TIP]  🚧 Pardon Our Stardust
+> The [DataWorker](http://localhost:5173/api/@warp-drive/experiments/data-worker/)
+> powering persisted caching and cross-tab/cross-MPA-boundary deduping is currently
+> experimental.
+
+***Warp*Drive** is the missing bridge for MPAs, allowing your app to seamlessly pick-up where the user
+left off with zero extra network requests.
 <br><br>
 
 :::
