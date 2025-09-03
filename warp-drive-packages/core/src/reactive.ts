@@ -311,7 +311,11 @@ export {
   /** @deprecated use {@link checkout} */
   Checkout,
 } from './reactive/-private/symbols';
-export { type ReactiveDocument } from './reactive/-private/document';
+export {
+  type ReactiveDocument,
+  type ReactiveDataDocument,
+  type ReactiveErrorDocument,
+} from './reactive/-private/document';
 export { getExpensiveRequestSubscription } from './store/-private/new-core-tmp/expensive-subscription.ts';
 export {
   createRequestSubscription,

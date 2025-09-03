@@ -1,7 +1,7 @@
 import { LOG_REQUESTS } from '@warp-drive/build-config/debugging';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import { ReactiveDocument } from '../../../reactive/-private/document.ts';
+import { createReactiveDocument, type ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { CacheHandler as CacheHandlerType, Future, ManagedRequestPriority, NextFn } from '../../../request.ts';
 import type { RequestKey } from '../../../types/identifier.ts';
 import type {
@@ -234,7 +234,7 @@ function maybeUpdateUiObjects<T>(
 
   // if we don't have an identifier, we give the document
   // its own local cache
-  return new ReactiveDocument<T>(store, null, {
+  return createReactiveDocument<T>(store, null, {
     request,
     document,
   });
