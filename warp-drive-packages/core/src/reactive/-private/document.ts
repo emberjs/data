@@ -1,5 +1,6 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
+import { withBrand } from '../../request.ts';
 import type { DocumentCacheOperation, UnsubscribeToken } from '../../store/-private/managers/notification-manager.ts';
 import {
   notifyInternalSignal,
@@ -11,7 +12,6 @@ import type { Store } from '../../store/-private/store-service.ts';
 import type { ResourceKey } from '../../types.ts';
 import type { RequestKey } from '../../types/identifier.ts';
 import type { ImmutableRequestInfo, RequestInfo } from '../../types/request.ts';
-import { withBrand } from '../../types/request.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
 import type { Link, Meta, PaginationLinks } from '../../types/spec/json-api-raw.ts';
 import type { Mutable } from '../../types/utils.ts';

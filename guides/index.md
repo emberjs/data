@@ -82,7 +82,7 @@ const { content } = await store.request<User>({
 `request` takes a generic that can be used to set the [return type](./the-manual/requests/typing-requests.md) of the content of the associated request. [Builders](./the-manual/requests/builders.md) – functions that return RequestInfo – can supply the return type via a special [brand](https://egghead.io/blog/using-branded-types-in-typescript).
 
 ```ts
-import { withBrand } from '@warp-drive/core/types/request'; // [!code focus]
+import { withBrand } from '@warp-drive/core/request'; // [!code focus]
 import type { User } from './types/data';
 
 export function getUser(id: string) {

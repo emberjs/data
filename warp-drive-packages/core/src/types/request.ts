@@ -393,9 +393,3 @@ export interface RequestContext {
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
   setResponse(response: Response | ResponseInfo | null): void;
 }
-
-export function withBrand<T>(obj: RequestInfo): RequestInfo<T> & { [RequestSignature]: T } {
-  return obj as RequestInfo<T> & {
-    [RequestSignature]: T;
-  };
-}

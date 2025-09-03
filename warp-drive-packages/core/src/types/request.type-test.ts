@@ -1,4 +1,4 @@
-import { withBrand } from './request.ts';
+import { withBrand } from '../request.ts';
 import type { RequestSignature } from './symbols.ts';
 
 type User = {
