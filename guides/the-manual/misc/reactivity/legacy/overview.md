@@ -6,7 +6,7 @@
 
 ReactiveResource has two modes: `legacy` and `polaris`.
 
-**LegacyMode** can be used to emulate the behaviors and capabilities of The `Model` class from `@ember-data/model` that was the default way to define reactive objects with schemas for much of EmberData's history.
+**LegacyMode** can be used to emulate the behaviors and capabilities of The `Model` class from `@ember-data/model` that was the default way to define reactive objects with schemas for much of WarpDrive's history.
 
 The advantage of using ReactiveResource in LegacyMode is that it allows adopting many newer schema-driven behaviors before fully refactoring away from behaviors of Model that aren't supported by PolarisMode.
 

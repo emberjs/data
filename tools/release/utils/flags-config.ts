@@ -87,7 +87,7 @@ export const publish_flags_config: FlagConfig = {
       }
     },
     description:
-      'EmberData always publishes to a "release channel".\nTypically this will be one of lts, release, beta, or canary.\nWhen publishing a new version of a non-current lts or non-current release, the channel should be "lts-prev" or "release-prev"',
+      'WarpDrive always publishes to a "release channel".\nTypically this will be one of lts, release, beta, or canary.\nWhen publishing a new version of a non-current lts or non-current release, the channel should be "lts-prev" or "release-prev"',
     examples: ['./publish/index.ts lts', './publish/index.ts publish lts', './publish/index.ts --channel=lts'],
     positional: true,
     positional_index: 0,
@@ -438,7 +438,7 @@ export const command_config: CommandConfig = {
     cmd: 'publish',
     default: true,
     description:
-      'Publish a new version of EmberData to the specified channel.\nRequires a configured ye<<NODE_AUTH_TOKEN>> with npm access to all associated scopes and packages,\nor the ability to generate an OTP token for the same.',
+      'Publish a new version of WarpDrive to the specified channel.\nRequires a configured ye<<NODE_AUTH_TOKEN>> with npm access to all associated scopes and packages,\nor the ability to generate an OTP token for the same.',
     options: publish_flags_config,
     example: ['$ bun release', '$ bun release publish'],
   },

@@ -70,7 +70,7 @@ rich application &mdash; letting you ship better experiences more quickly withou
 
 ## Ember Compatibility
 
-The following table lists WarpDrive/EmberData versions alongside information about
+The following table lists WarpDrive versions alongside information about
 ember compatibility.
 
 - **Lockstep**: the latest version of ember-source at the time of release
@@ -90,7 +90,7 @@ The table is generated from [this data](./tools/internal-tooling/src/tasks/-data
 command `bun sync-readme-tables`.
 
 <!-- START-COMPATIBILITY-TABLE-PLACEHOLDER -->
-|  | Status | WarpDrive/EmberData | Lockstep | Supported | Tested | Range |
+|  | Status | WarpDrive | Lockstep | Supported | Tested | Range |
 | --- | --- | --- | --- | --- | --- | --- |
 | ✅ | Canary | ![NPM canary Version](https://img.shields.io/npm/v/ember-data/canary?label&color=90EE90) | `6.4` | `4.8`<br>`4.12`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |
 | ✅ | Beta | ![NPM beta Version](https://img.shields.io/npm/v/ember-data/beta?label&color=90EE90) | `6.4` | `4.8`<br>`4.12`<br>`5.*`<br>`6.*` | `3.28`<br>`4.4`<br>`4.8`<br>`4.12`<br>`5.4`<br>`5.8`<br>`5.12`<br>`6.3` | `3.28.12`<br>`>= 4.*`<br>`>= 5.*`<br>`>= 6.*` |

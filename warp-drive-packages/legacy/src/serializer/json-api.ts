@@ -22,7 +22,7 @@ import { JSONSerializer } from './json';
     {@link Handler} instead to be used with the {@link RequestManager}
   :::
 
-  In EmberData a Serializer is used to serialize and deserialize
+  In WarpDrive a Serializer is used to serialize and deserialize
   records when they are transferred in and out of an external source.
   This process involves normalizing property names, transforming
   attribute values and serializing relationships.

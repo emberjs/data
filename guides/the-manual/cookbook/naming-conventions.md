@@ -4,13 +4,13 @@
 
 ## Resource Type (model name) conventions – or, why it was singular
 
-If you have been working with EmberData for a while, you might remember a convention about singular-dasherized resource types (or modelNames). It was a convention that model names should be singular. But why is that? Why not plural? And why dasherized?
+If you have been working with WarpDrive (or EmberData) for a while, you might remember a convention about singular-dasherized resource types (or modelNames). It was a convention that model names should be singular. But why is that? Why not plural? And why dasherized?
 
-There is no longer any strict rule in EmberData governing what naming convention to use for resource types. Before, you may have been using singular names, because you had default Serializer configured in your app. The default serializers assume types should be singular and dasherized, and since they do the job of data normalization for you, they would singularize and dasherize the `types` received from your server.
+There is no longer any strict rule in WarpDrive governing what naming convention to use for resource types. Before, you may have been using singular names, because you had default Serializer configured in your app. The default serializers assume types should be singular and dasherized, and since they do the job of data normalization for you, they would singularize and dasherize the `types` received from your server.
 
 ### So what to choose?
 
-When using EmberData without Legacy setup, you are responsible for data normalization. You can choose whatever you want. You can use singular or plural names. It is up to you. Or up to your backend to be precise, as it would be beneficial for you to not do all that normalization on frontend. Just have it as a part of API contract of your app. But remember, you need to be consistent. If you choose singular names, stick with it. If you choose plural names, stick with it. **Be Consistent!**
+When using WarpDrive without Legacy setup, you are responsible for data normalization. You can choose whatever you want. You can use singular or plural names. It is up to you. Or up to your backend to be precise, as it would be beneficial for you to not do all that normalization on frontend. Just have it as a part of API contract of your app. But remember, you need to be consistent. If you choose singular names, stick with it. If you choose plural names, stick with it. **Be Consistent!**
 
 What does consistency look like?
 

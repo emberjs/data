@@ -68,12 +68,12 @@ Head over to [many-to-none](./many-to-none.md) and [one-to-none](./one-to-none.m
 
 ## Using `@ember-data/model`
 
-> **Note** Models are currently the primary way that users of EmberData define "schema".
+> **Note** Models are currently the primary way that users of WarpDrive define "schema".
 >
 > Models are not the only way to define schema today, but they
 > are the most immediately available ergonomic way to do so.
 
-When using Models, EmberData parses schema from them at runtime,
+When using Models, WarpDrive parses schema from them at runtime,
 converting static information defined on the class into the json
 schema format needed by the rest of the system.
 

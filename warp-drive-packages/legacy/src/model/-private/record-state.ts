@@ -32,7 +32,7 @@ function isInvalidError(error: unknown): error is Error & { isAdapterError: true
 }
 
 /**
-Historically EmberData managed a state machine
+Historically WarpDrive managed a state machine
 for each record, the localState for which
 was reflected onto Model.
 

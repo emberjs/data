@@ -305,7 +305,7 @@ export function setConfig(context: object, appRootOrConfig: string | WarpDriveCo
     // We don't want to print this just yet because we are going to re-arrange packages
     // and this would be come an import from @warp-drive/core. Better to not deprecate twice.
     // console.warn(
-    //   `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of EmberData/WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
+    //   `You are using the legacy emberData key in your ember-cli-build.js file. This key is deprecated and will be removed in the next major version of WarpDrive. Please use \`import { setConfig } from '@warp-drive/build-config';\` instead.`
     // );
   }
 

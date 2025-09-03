@@ -2,15 +2,15 @@
 
 - ⮐ [Cookbook](./index.md)
 
-This guide is for existing projects that want to adopt the new APIs of the EmberData incrementally.
+This guide is for existing projects that want to adopt the new APIs of the WarpDrive incrementally.
 
-## Step 1: Upgrade to EmberData 4.12.x
+## Step 1: Upgrade to WarpDrive 4.12.x
 
-This version of EmberData is the first version that supports the new APIs. It is also a LTS version, so you can stay on it for a while. You can refer the [EmberData Compatibility table](https://github.com/emberjs/data/blob/main/README.md#compatibility) to see which version of EmberData is compatible with your Ember version.
+This version of WarpDrive is the first version that supports the new APIs. It is also an LTS version, so you can stay on it for a while. You can refer the [WarpDrive Compatibility table](https://github.com/warp-drive-data/warp-drive/blob/main/README.md#compatibility) to see which version of WarpDrive is compatible with your Ember version.
 
 ## Step 2: Add `Store` service to your application
 
-You will need to create your own store service. Before, a store service was automatically injected by EmberData.
+You will need to create your own store service. Before, a store service was automatically injected by 'ember-data'.
 Here is how you do it:
 
 ```js
@@ -21,7 +21,7 @@ export default class AppStore extends Store {}
 
 ```
 
-Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use EmberData models, serializers, adapters, etc. while alongside we want to start utilizing new APIs.
+Notice we still want to import the `Store` class from `ember-data/store` package. You might have a lint rule that says don't do it. You can disable it for this import. The reason we want to import it from `ember-data/store` is because we want to use WarpDrive models, serializers, adapters, etc. while alongside we want to start utilizing new APIs.
 
 > Note: You can also use `@ember-data/store` package, but you will need to configure a lot more to make things work to use old APIs. We recommend using `ember-data/store` package to avoid confusion.
 
@@ -79,7 +79,7 @@ You can read more about request manager in the [request manager guide](../reques
 
 If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api`](https://github.com/emberjs/data/tree/main/packages/json-api).
 
-If you have different backend format - EmberData provides you with builders for `REST`([`@ember-data/rest`](https://github.com/emberjs/data/tree/main/packages/rest)) and `ActiveRecord`([`@ember-data/active-record`](https://github.com/emberjs/data/tree/main/packages/active-record)).
+If you have different backend format - WarpDrive provides you with builders for `REST`([`@ember-data/rest`](https://github.com/emberjs/data/tree/main/packages/rest)) and `ActiveRecord`([`@ember-data/active-record`](https://github.com/emberjs/data/tree/main/packages/active-record)).
 
 `@ember-data/request-utils` package contains a lot of useful utilities for building requests. You can read more about it in its [Readme](https://github.com/emberjs/data/tree/main/packages/request-utils#readme). It has request builders for all type of requests.
 

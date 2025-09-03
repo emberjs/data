@@ -24,12 +24,12 @@ Here's how we can define such a relationship via various mechanisms.
 
 ## Using `@ember-data/model`
 
-> **Note** Models are currently the primary way that users of EmberData define "schema".
+> **Note** Models are currently the primary way that users of WarpDrive define "schema".
 >
 > Models are not the only way to define schema today, but they
 > are the most immediately available ergonomic way to do so.
 
-When using Models, EmberData parses schema from them at runtime,
+When using Models, WarpDrive parses schema from them at runtime,
 converting static information defined on the class into the json
 schema format needed by the rest of the system.
 
@@ -62,7 +62,7 @@ export default class ActivityData extends Model {
 
 ## Using JSON Schemas
 
-EmberData doesn't care where your schemas come from, how they are authored,
+WarpDrive doesn't care where your schemas come from, how they are authored,
 or how you load them into the system so long as when it asks the [SchemaService](/api/@warp-drive/core/types/interfaces/SchemaService)
 for information it gets back field definitions in the right json shape.
 

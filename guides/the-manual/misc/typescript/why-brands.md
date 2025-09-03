@@ -1,10 +1,10 @@
-# EmberData's Types Strategy
+# WarpDrive's Types Strategy
 
 If you previously used the EmberData types provided by DefinitelyTyped, one MASSIVE
-difference you will notice immediately is that EmberData does not use any registries
+difference you will notice immediately is that WarpDrive does not use any registries
 for types.
 
-Instead, EmberData uses Symbol keys to brand objects with additional type information.
+Instead, WarpDrive uses Symbol keys to brand objects with additional type information.
 
 For example:
 
@@ -39,9 +39,9 @@ First, registries have a max number of entries before TypeScript begins resolvin
 
 Second, constructing registries is brittle. Conflicts often arise when attempting to source models from additional libraries, and often result in `never` types due to an empty registry.
 
-Third, we couldn't type EmberData itself using registries without adopting extreme complexity. This is because while DefinitelyTyped could assume one single global registry, EmberData cannot. This arises for a myriad of reasons: EmberData supports multiple stores, multiple sources of schema, and our own test suite defines Models for each test that would conflict with each other if we were forced to use a single global registry.
+Third, we couldn't type WarpDrive itself using registries without adopting extreme complexity. This is because while DefinitelyTyped could assume one single global registry, WarpDrive cannot. This arises for a myriad of reasons: WarpDrive supports multiple stores, multiple sources of schema, and our own test suite defines Models for each test that would conflict with each other if we were forced to use a single global registry.
 
-Fourth, and possibly most importantly, registries assume that for a given resource-type (like `'user'`) that only a single type signature exists. While this has *mostly* been true historically in EmberData, it is no longer true and will become increasingly less true as we roll out additional features we have planned. Supporting different
+Fourth, and possibly most importantly, registries assume that for a given resource-type (like `'user'`) that only a single type signature exists. While this has *mostly* been true historically in WarpDrive, it is no longer true and will become increasingly less true as we roll out additional features we have planned. Supporting different
 type signatures for Create/Edit/Delete as well as for partials and actions means if we stuck with registries, we'd need tons of them and things would get complicated quickly.
 
 Fifth, the registry approach prevents static analysis from easily determining where in the application a Model or Schema is in use, making it difficult for bundlers to
@@ -49,8 +49,7 @@ optimize while code-splitting.
 
 ### Ok, so then why not objects?
 
-A common alternative to registries is to pass classes as tokens into an API. For instance, we could have redesigned
-EmberData to take a class instead of a string in the call to `findRecord` below.
+A common alternative to registries is to pass classes as tokens into an API. For instance, we could have redesigned WarpDrive to take a class instead of a string in the call to `findRecord` below.
 
 ```ts
 import type User from 'my-app/models/user';
@@ -64,7 +63,7 @@ There are two significant drawbacks to this approach. The first is one of the sa
 
 The second is related and more important: it forces you to use classes or other objects to represent data, which we don't want to do.
 
-In the near future, EmberData will switch the default story for presenting data from `Model` which is a class-per-resource approach to `ReactiveResource`, which is a single class capable of presenting the data for any associated schema. Schema's are defined in `json` and can be loaded into the app in any number of ways. That means when using ReactiveResource, there never would be a class to import and use as a token for such a call.
+In the near future, WarpDrive will switch the default story for presenting data from `Model` which is a class-per-resource approach to `ReactiveResource`, which is a single class capable of presenting the data for any associated schema. Schema's are defined in `json` and can be loaded into the app in any number of ways. That means when using ReactiveResource, there never would be a class to import and use as a token for such a call.
 
 ### Ok, Brands!
 

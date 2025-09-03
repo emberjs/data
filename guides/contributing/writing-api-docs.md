@@ -255,7 +255,7 @@ we would do the following in `packages/core-types/src/index.ts`
 ```ts
 /**
  * This package provides essential types and symbols used
- * by all the other WarpDrive/EmberData packages.
+ * by all the other WarpDrive packages.
  * 
  * @module
  */

@@ -200,7 +200,7 @@ function _belongsTo<T, Async extends boolean>(
 
   #### Sync vs Async Relationships
 
-  EmberData fulfills relationships using resource data available in
+  WarpDrive fulfills relationships using resource data available in
   the cache.
 
   Sync relationships point directly to the known related resources.

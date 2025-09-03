@@ -461,7 +461,7 @@ export const ENABLE_LEGACY_SCHEMA_SERVICE: boolean = true;
  *
  * This deprecation can be resolved by removing usage of ember-inflector or by using
  * both ember-inflector and @ember-data/request-utils in parallel and updating your
- * EmberData/WarpDrive build config to mark the deprecation as resolved
+ * WarpDrive build config to mark the deprecation as resolved
  * in ember-cli-build
  *
  * ```js

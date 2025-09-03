@@ -35,12 +35,12 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
     {@link Handler} instead to be used with the {@link RequestManager}
   :::
 
-  In EmberData a Serializer is used to serialize and deserialize
+  In WarpDrive a Serializer is used to serialize and deserialize
   records when they are transferred in and out of an external source.
   This process involves normalizing property names, transforming
   attribute values and serializing relationships.
 
-  By default, EmberData uses and recommends the `JSONAPISerializer`.
+  By default, WarpDrive uses and recommends the `JSONAPISerializer`.
 
   `JSONSerializer` is useful for simpler or legacy backends that may
   not support the http://jsonapi.org/ spec.

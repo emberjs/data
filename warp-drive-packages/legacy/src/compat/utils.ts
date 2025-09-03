@@ -76,7 +76,7 @@ const NORMALIZED_TYPES = new Map<string, string>();
 
 /**
  * Converts a potentially unnormalized type into the format expected
- * by our EmberData Cache. Currently this is singular-dasherized.
+ * by our WarpDrive Cache. Currently this is singular-dasherized.
  *
  * you should not rely on this function to give you an exact format
  * for display purposes. Formatting for display should be handled
@@ -123,7 +123,7 @@ export function formattedType<T extends string>(type: T | string): T {
 }
 
 /**
- * Format an id to the format expected by the EmberData Cache.
+ * Format an id to the format expected by the WarpDrive Cache.
  * Currently this means that id should be `string | null`.
  *
  * Asserts invalid IDs (undefined, '', 0, '0') in dev.
@@ -174,7 +174,7 @@ export function expectId(id: string | number | null): string {
 
 /**
  * Compares two types for strict equality, converting them to
- * the format expected by the EmberData Cache to ensure
+ * the format expected by the WarpDrive Cache to ensure
  * differences in format are accounted for in the comparison.
  *
  * Asserts when expected or actual are invalid types in dev.
@@ -213,7 +213,7 @@ export function isEquivType(expected: string, actual: string): boolean {
 
 /**
  * Compares two IDs for strict equality, converting them to
- * the format expected by the EmberData Cache to ensure
+ * the format expected by the WarpDrive Cache to ensure
  * differences in format are accounted for in the comparison.
  *
  * Asserts when expected or actual are invalid IDs in dev.

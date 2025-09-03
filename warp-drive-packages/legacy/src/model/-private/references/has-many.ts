@@ -389,7 +389,7 @@ export default class HasManyReference<
   }
 
   /**
-   `push` can be used to update the data in the relationship and EmberData
+   `push` can be used to update the data in the relationship and WarpDrive
    will treat the new data as the canonical value of this relationship on
    the backend. An empty array will signify the canonical value should be
    empty.

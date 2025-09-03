@@ -5,7 +5,7 @@ order: 8
 
 # Release
 
-The EmberData release process is mostly automated but requires manually configuring
+The WarpDrive release process is mostly automated but requires manually configuring
 and triggering the appropriate workflow.
 
 There are four standard and two non-standard release channels
@@ -17,12 +17,12 @@ There are four standard and two non-standard release channels
 
 Before we begin the release train, make sure that the [roadmap](./ROADMAP.md) is properly
 updated on `main` and `beta` so that it will be accurate when the new release branch is
-created. To do this you likely need to reach out to EmberData core team members to ensure
+created. To do this you likely need to reach out to WarpDrive core team members to ensure
 all recent planning discussions and work is properly accounted for.
 
 ## Getting Setup To Do A Release
 
-In order to release EmberData you must have commit rights to `ember-data` on GITHUB.
+In order to release WarpDrive you must have commit rights to `warp-drive-data/warp-drive` on GITHUB.
 Everything else is handled by automation.
 
 In the event you do need to perform a manuall release, you must also have permission
@@ -39,7 +39,7 @@ For manually releases you will need to ensure at least the following:
 - You have logged into your NPM account on your machine (typically sessions preserve nearly forever once you have)
 - You have configured `GITHUB_AUTH` token for `lerna-changelog` to be able to gather info for the release notes.
 - You have installed `bun`, `pnpm` and `node` globally (or better, via `volta`)
-- the remote `origin` is `git@github.com:emberjs/data.git`,
+- the remote `origin` is `git@github.com:warp-drive-data/warp-drive.git`,
 -`origin/main` `origin/beta` `origin/release` etc. need to be the upstreams of the local `main` `beta` `release` branches etc.
 
 ## Release Order
@@ -60,7 +60,7 @@ You will find the automated workflows to perform these releases under the action
 
 First, update the Release Notes on Github
 
-- Visit [WarpDrive Releases](https://github.com/emberjs/data/releases)
+- Visit [WarpDrive Releases](https://github.com/warp-drive-data/warp-drive/releases)
   - Click on the "more recent tags"
   - Click on the tag just published
   - Edit the tag, adding a meaningful title and attaching the changelog (see other releases for examples)

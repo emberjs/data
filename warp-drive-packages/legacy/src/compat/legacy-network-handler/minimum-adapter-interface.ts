@@ -195,7 +195,7 @@ export interface MinimumAdapterInterface {
    * let error = new Error(errorMessage);
    *
    * // these two properties combined
-   * // alert EmberData to this error being for
+   * // alert WarpDrive to this error being for
    * // invalid properties on the record during
    * // the request
    * error.isAdapterError = true;
@@ -247,7 +247,7 @@ export interface MinimumAdapterInterface {
    * let error = new Error(errorMessage);
    *
    * // these two properties combined
-   * // alert EmberData to this error being for
+   * // alert WarpDrive to this error being for
    * // invalid properties on the record during
    * // the request
    * error.isAdapterError = true;
@@ -447,7 +447,7 @@ export interface MinimumAdapterInterface {
    *
    * A group is an array of snapshots meant to be fetched together by a single `findMany` request.
    *
-   * By default if this method is not implemented EmberData will call `findMany` once with all
+   * By default if this method is not implemented WarpDrive will call `findMany` once with all
    * requested records as a single group when `coalesceFindRequests` is `true`.
    *
    * See also `findMany` and `coalesceFindRequests`

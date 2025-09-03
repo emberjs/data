@@ -21,7 +21,7 @@
 
 ## Data
 
-EmberData treats data "opaquely" meaning that any data format will work so long as you are able to describe to the library
+WarpDrive treats data "opaquely" meaning that any data format will work so long as you are able to describe to the library
 how that data fits into various concepts (usually this is done by implementing a [Cache](/api/@warp-drive/core/types/cache/interfaces/Cache)).
 
 Below, we describe the semantic meaning of these more opaque concepts.

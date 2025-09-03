@@ -375,7 +375,7 @@ export default class BelongsToReference<
   }
 
   /**
-   `push` can be used to update the data in the relationship and EmberData
+   `push` can be used to update the data in the relationship and WarpDrive
    will treat the new data as the canonical value of this relationship on
    the backend. A value of `null` (e.g. `{ data: null }`) can be passed to
    clear the relationship.

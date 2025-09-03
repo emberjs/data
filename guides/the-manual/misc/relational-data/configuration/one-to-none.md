@@ -14,7 +14,7 @@ When a relationship only points in one direction, we say it has no [inverse](../
 
 You'll note that effectively this setup implicitly indicates a "many" relationship. A Trail "implicitly" has many runners (for whom it is their favorite trail).
 
-Internally, EmberData will keep track of this implicit relationship such that if the trail were to be destroyed in a landslide its deletion would result in removing it as the favoriteTrail for each associated runner.
+Internally, WarpDrive will keep track of this implicit relationship such that if the trail were to be destroyed in a landslide its deletion would result in removing it as the favoriteTrail for each associated runner.
 
 Implicit relationships are not available as a public API, because they represent a highly incomplete view of the data, but the book-keeping produces benefits such as
 the ability to efficiently disassociate the record from relationships when it is destroyed.
@@ -68,7 +68,7 @@ export default class TrailRunner extends Model {
 
 ## Using JSON Schemas
 
-EmberData doesn't care where your schemas come from, how they are authored,
+WarpDrive doesn't care where your schemas come from, how they are authored,
 or how you load them into the system so long as when it asks the [SchemaService](/api/@warp-drive/core/types/interfaces/SchemaService)
 for information it gets back field definitions in the right json shape.
 

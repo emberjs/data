@@ -8,7 +8,7 @@ An example of such a shift in public APIs is the move away from Ember's ArrayLik
 
 This is where the two-store-approach can be useful. In the two-store approach, an application configures a second store service under a different service name (for instance `v2-store`) enabling some portions of the app to use modern features without immediately being required to upgrade all of the existing application code to match.
 
-Any application can configure more than one store using whatever version of EmberData/WarpDrive is installed, but to maximize this approach it is useful to be able to have the second store also use a more recent version of the library.
+Any application can configure more than one store using whatever version of WarpDrive is installed, but to maximize this approach it is useful to be able to have the second store also use a more recent version of the library.
 
 This is why we publish **"mirror"** versions of every package.
 
@@ -38,7 +38,7 @@ Utilizing the two-store approach has a few tradeoffs:
 
 1. If you want compatible type signatures for use by your components, you should upgrade your app to make use of native types first, likely using the [types-package approach](../typescript/installation.md#using-types-packages).
 
-In fact, it is likely that if you want typescript for the v2 store that you are *forced* to remove the `@types/ember*` packages from your project entirely and upgrade to using native types for ember-source and ember-data. This is because the native types for EmberData/WarpDrive depend on ember's native types.
+In fact, it is likely that if you want typescript for the v2 store that you are *forced* to remove the `@types/ember*` packages from your project entirely and upgrade to using native types for ember-source and ember-data. This is because the native types for WarpDrive depend on ember's native types.
 
 2. You should not use both `ember-data` and `ember-data-mirror` or there will be an unresolveable race condition for which one is the `store` service. Instead one of the stores, usually the mirror, MUST import and fully configure the store. E.g.
 

@@ -4,7 +4,7 @@ import type { CompatStore } from '../compat.ts';
 
 /**
  * Utilities - often temporary - for maintaining backwards compatibility with
- * older parts of EmberData.
+ * older parts of WarpDrive.
  *
   @module
 */

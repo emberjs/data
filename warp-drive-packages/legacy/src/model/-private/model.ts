@@ -1096,7 +1096,7 @@ class Model extends EmberObject implements MinimalLegacyRecord {
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `Store`'s modelFor method.
 
-   `modelName` is generated for you by EmberData. It will be a lowercased, dasherized string.
+   `modelName` is generated for you by WarpDrive. It will be a lowercased, dasherized string.
    For example:
 
    ```javascript

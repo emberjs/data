@@ -19,7 +19,7 @@ export const ABOUT = new Set([
 
 export const About = `ye<<#>> About
 
-This script is used to automate the release process for cy<<EmberData>>.
+This script is used to automate the release process for cy<<WarpDrivea>>.
 
 ===
 

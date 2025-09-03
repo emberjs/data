@@ -51,7 +51,7 @@ module.exports = async function (defaults) {
   const app = new EmberApp(defaults, {});
 
   setConfig(app, __dirname, {
-    // WarpDrive/EmberData settings go here (if any)
+    // WarpDrive settings go here (if any)
   });
 
   return app.toTree();

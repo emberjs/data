@@ -24,7 +24,7 @@ const VERSIONS_TABLE_END_PLACEHOLDER = '<!-- END-VERSIONS-TABLE-PLACEHOLDER -->'
 async function updateCompatibilityTable(file: BunFile) {
   const text = await file.text();
 
-  let tableStr = '\n|  | Status | WarpDrive/EmberData | Lockstep | Supported | Tested | Range |';
+  let tableStr = '\n|  | Status | WarpDrive | Lockstep | Supported | Tested | Range |';
   tableStr += '\n| --- | --- | --- | --- | --- | --- | --- |';
   for (const compatibility of Compatibility) {
     let rowStr: string[] = [];

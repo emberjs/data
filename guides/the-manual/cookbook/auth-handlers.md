@@ -2,7 +2,7 @@
 
 ## In This Guide
 
-EmberData is flexible enough to work with any request authentication strategy. This guide will show you how
+WarpDrive is flexible enough to work with any request authentication strategy. This guide will show you how
 you might implement some common strategies.
 
 - [JWT Token](#jwt-token)

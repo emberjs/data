@@ -29,7 +29,7 @@ export default class User extends Model {
 }
 ```
 
-EmberData will never access Type as an actual value, these brands are *purely* for type inference.
+WarpDrive will never access Type as an actual value, these brands are *purely* for type inference.
 
 ## Transforms
 

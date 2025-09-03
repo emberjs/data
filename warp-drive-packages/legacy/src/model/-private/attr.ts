@@ -184,7 +184,7 @@ export type DataDecorator = (target: object, key: string, desc?: DecoratorProper
   `attr` defines an attribute on a {@link Model}.
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
-  EmberData ships with four basic transform types: `string`, `number`,
+  WarpDrive ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
   {@link Transform}.
 
