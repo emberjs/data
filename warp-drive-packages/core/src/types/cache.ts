@@ -282,7 +282,7 @@ export interface Cache {
    *
    * @public
    */
-  willCommit(cacheKey: ResourceKey, context: RequestContext | null): void;
+  willCommit(cacheKey: ResourceKey | ResourceKey[], context: RequestContext | null): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -292,7 +292,10 @@ export interface Cache {
    * @param the primary ResourceKey that was operated on
    * @param data - a document in the cache format containing any updated data
    */
-  didCommit(cacheKey: ResourceKey, result: StructuredDataDocument<unknown> | null): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey | ResourceKey[],
+    result: StructuredDataDocument<unknown> | null
+  ): SingleResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -300,7 +303,7 @@ export interface Cache {
    *
    * @public
    */
-  commitWasRejected(cacheKey: ResourceKey, errors?: ApiError[]): void;
+  commitWasRejected(cacheKey: ResourceKey | ResourceKey[], errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource

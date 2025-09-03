@@ -281,7 +281,7 @@ export class CacheManager implements Cache {
    * @public
    * @param key
    */
-  willCommit(key: ResourceKey, context: StoreRequestContext): void {
+  willCommit(key: ResourceKey | ResourceKey[], context: StoreRequestContext): void {
     this.___cache.willCommit(key, context);
   }
 
@@ -291,7 +291,7 @@ export class CacheManager implements Cache {
    *
    * @public
    */
-  didCommit(key: ResourceKey, result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+  didCommit(key: ResourceKey | ResourceKey[], result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
     return this.___cache.didCommit(key, result);
   }
 
@@ -301,7 +301,7 @@ export class CacheManager implements Cache {
    *
    * @public
    */
-  commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
+  commitWasRejected(key: ResourceKey | ResourceKey[], errors?: ApiError[]): void {
     this.___cache.commitWasRejected(key, errors);
   }
 
