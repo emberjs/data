@@ -7,13 +7,14 @@ outline:
 
 # Making Requests
 
-Requests are how your application fetches or updates data stored remotely.
+Requests are how your application fetches or updates ***data stored remotely***.
 
 ***What Does Remote Mean?***
 
-Most commonly remote data refers to data that is stored on your server and accessed and updated via your backend API.
+Usually *remote* refers to data that is stored on your server and accessed and updated via your backend API.
 
-But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored and retrieved again at a later time.
+But it doesn't have to be! Remote really boils down to [persistence](https://en.wikipedia.org/wiki/Persistence_(computer_science)) - the ability for data to be reliably stored and retrieved again at a later time. [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), [SessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage), [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and even the [File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system) could each
+be considered a remote source of data for your application.
 
 <br>
 <img class="dark-only" src="../../images/requests-dark.png" alt="waves of reactive signals light up space" width="100%">
@@ -35,25 +36,58 @@ the `<Request />` component should make.
 
 ::: code-group
 
-```glimmer-ts [Ember]
+```glimmer-ts:line-numbers [Ember]
 import { Request } from '@warp-drive/ember';
 import { findRecord } from '@warp-drive/utilities/json-api';
 import { Spinner } from './spinner';
 
 export default <template>
-  <Request @query={{findRecord "user" @userId}}> <!-- [!code focus] -->
-    <:content as |result|>  <!-- [!code focus] -->
+  <Request @query={{findRecord "user" @userId}}> <!-- [!code focus:4] -->
+    <:content as |result|>
       Hello {{result.data.name}}!
-    </:content> <!-- [!code focus] -->
+    </:content>
+
+    <:loading><Spinner /></:loading>
+
+    <:error as |error state|>
+      <div>
+        <p>Error: {{error.message}}</p>
+        <p><button onClick={{state.retry}}>Try Again?</button></p>
+      </div>
+    </:error>
   </Request> <!-- [!code focus] -->
 </template>
 ```
 
-```.vue [Vue]
-Coming Soon!
+```tsx:line-numbers [React]
+import { Request } from '@warp-drive/ember';
+import { findRecord } from '@warp-drive/utilities/json-api';
+import { Spinner } from './spinner';
+
+export function UserPreview($props) {
+  return <Request // [!code focus:2]
+    query={findRecord('user', $props.userId)} 
+    states={{
+      content: ({ result, features }) => (  // [!code focus:3]
+        <>Hello {{result.data.name}}!</>
+      ),
+      loading: () => <Spinner />,
+      error: ({ error, features }) => (
+        <div>
+          <p>Error: {error.message}</p>
+          <p><button onClick={features.retry}>Try Again?</button></p>
+        </div>
+      ),
+    }}
+  />  // [!code focus]
+}
 ```
 
 ```.svelte [Svelte]
+Coming Soon!
+```
+
+```.vue [Vue]
 Coming Soon!
 ```
 
@@ -64,7 +98,7 @@ the state of the request.
 
 ::: code-group
 
-```glimmer-ts [Ember]
+```glimmer-ts:line-numbers [Ember]
 import Component from '@glimmer/component';
 import { cached } from '@glimmer/tracking';
 import { service } from '@ember/service';
@@ -96,11 +130,43 @@ export default class Example extends Component { // [!code focus]
 } // [!code focus]
 ```
 
-```.vue [Vue]
-Coming Soon!
+```tsx:line-numbers [React]
+import { useMemo } from 'react';
+import { useStore, ReactiveContext } from '@warp-drive/react';
+import { findRecord } from '@warp-drive/utilities/json-api';
+
+import { getRequestState } from '@warp-drive/core/reactive';
+
+function ReactiveExample($props) {
+  const store = useStore();
+  const request = useMemo(
+    () => {
+      return store.request(
+        findRecord("user", $props.userId)
+      );
+    },
+    [store, $props.userId]
+  );
+
+  const state = getRequestState(request).value?.data;
+
+  return state ? <>Hello {state.name}!</> : '';
+}
+
+export function Example($props) {
+  return (
+    <ReactiveContext>
+      <ReactiveExample ...$props />
+    </ReactiveContext>
+  );
+}
 ```
 
 ```.svelte [Svelte]
+Coming Soon!
+```
+
+```.vue [Vue]
 Coming Soon!
 ```
 

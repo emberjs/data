@@ -313,3 +313,10 @@ export {
 } from './reactive/-private/symbols';
 export { type ReactiveDocument } from './reactive/-private/document';
 export { getExpensiveRequestSubscription } from './store/-private/new-core-tmp/expensive-subscription.ts';
+export {
+  createRequestSubscription,
+  getRequestState,
+  getPromiseState,
+  type PromiseState,
+  type RequestState,
+} from './store/-private';
