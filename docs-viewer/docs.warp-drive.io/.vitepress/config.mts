@@ -49,8 +49,8 @@ export default defineConfig({
   // lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/logos/NCC-1701-a-gold.png', type: 'image/png' }],
-    ['link', { rel: 'icon', href: '/logos/NCC-1701-a-gold.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/logos/w-white@2x.png', type: 'image/png' }],
+    ['link', { rel: 'icon', href: '/logos/prefers-color-w.svg', type: 'image/svg+xml' }],
 
     [
       'meta',
@@ -120,7 +120,7 @@ export default defineConfig({
   themeConfig: {
     siteTitle: false,
     logo: {
-      dark: '/logos/warp-drive-logo-gold.svg',
+      dark: '/logos/word-mark-white.svg',
       light: '/logos/warp-drive-logo-dark.svg',
       alt: 'WarpDrive',
     },
