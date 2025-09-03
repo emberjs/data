@@ -28,13 +28,13 @@ export function validateTopLevelDocumentMembers(reporter: Reporter, doc: Resourc
         } else {
           reporter.warn(
             [key],
-            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {JSON:API} member`
+            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {json:api} member`
           );
         }
       } else {
         reporter.error(
           [key],
-          `Unrecognized top-level member. The data it provides is ignored as it is not a valid {JSON:API} member`
+          `Unrecognized top-level member. The data it provides is ignored as it is not a valid {json:api} member`
         );
       }
     }
@@ -45,24 +45,24 @@ export function validateTopLevelDocumentMembers(reporter: Reporter, doc: Resourc
 
   // 1. MUST have either `data`, `errors`, or `meta`
   if (!('data' in doc) && !('errors' in doc) && !('meta' in doc)) {
-    reporter.error([], 'A {JSON:API} Document must contain one-of `data` `errors` or `meta`');
+    reporter.error([], 'A {json:api} Document must contain one-of `data` `errors` or `meta`');
   }
 
   // 2. MUST NOT have both `data` and `errors`
   if ('data' in doc && 'errors' in doc) {
-    reporter.error(['data'], 'A {JSON:API} Document MUST NOT contain both `data` and `errors` members');
+    reporter.error(['data'], 'A {json:api} Document MUST NOT contain both `data` and `errors` members');
   }
 
   // 3. MUST NOT have both `included` and `errors`
   // while not explicitly stated in the spec, this is a logical extension of the above rule
   // since `included` is only valid when `data` is present.
   if ('included' in doc && 'errors' in doc) {
-    reporter.error(['included'], 'A {JSON:API} Document MUST NOT contain both `included` and `errors` members');
+    reporter.error(['included'], 'A {json:api} Document MUST NOT contain both `included` and `errors` members');
   }
 
   // 4. MUST NOT have `included` if `data` is not present
   if ('included' in doc && !('data' in doc)) {
-    reporter.error(['included'], 'A {JSON:API} Document MUST NOT contain `included` if `data` is not present');
+    reporter.error(['included'], 'A {json:api} Document MUST NOT contain `included` if `data` is not present');
   }
 
   // 5. MUST NOT have `included` if `data` is null
@@ -74,7 +74,7 @@ export function validateTopLevelDocumentMembers(reporter: Reporter, doc: Resourc
       reporter.contextDocument.request?.method?.toUpperCase() === 'DELETE' ||
       reporter.contextDocument.request?.op === 'deleteRecord';
     const method = !reporter.strict.linkage && isMaybeDelete ? 'warn' : 'error';
-    reporter[method](['included'], 'A {JSON:API} Document MUST NOT contain `included` if `data` is null');
+    reporter[method](['included'], 'A {json:api} Document MUST NOT contain `included` if `data` is null');
   }
 
   // Simple Validation of Top-Level Members

@@ -116,82 +116,12 @@ function makeCache(): CachedResource {
 }
 
 /**
- * ### JSONAPICache
- *
  * ```ts
  * import { JSONAPICache } from '@warp-drive/json-api';
  * ```
  *
-  A {@link Cache} implementation tuned for [{json:api}](https://jsonapi.org/)
-
-  This format excels at simiplifying common complex problems around cache
-  consistency and information density. Because most API responses can be quickly
-  transformed into {json:api} format without losing any information, WarpDrive
-  recommends that most apps use this Cache implementation.
-
-  If a cache built to understand another format would do better for your app then
-  it just needs to follow the same interface.
-
-  Do you really need a cache? Are sunsets beautiful? Caching is what powers features like
-  immutability, mutation management, and allows ***Warp*Drive** to understand your relational
-  data.
-
-  Some caches are simple request/response maps. ***Warp*Drive**'s is not. The Cache deeply
-  understands the structure of your data, ensuring your data remains consistent both within
-  and across requests.
-
-  ### Installation
-
-  ::: code-group
-
-  ```sh [pnpm]
-  pnpm add -E @warp-drive/core@latest @warp-drive/json-api@latest
-  ```
-
-  ```sh [npm]
-  npm add -E @warp-drive/core@latest @warp-drive/json-api@latest
-  ```
-
-  ```sh [yarn]
-  yarn add -E @warp-drive/core@latest @warp-drive/json-api@latest
-  ```
-
-  ```sh [bun]
-  bun add --exact @warp-drive/core@latest @warp-drive/json-api@latest
-  ```
-
-  :::
-
-  ### Setup
-
-  ```ts [services/store.ts]
-  import { Fetch, RequestManager, Store } from '@warp-drive/core';
-  import {
-    registerDerivations,
-    SchemaService,
-  } from '@warp-drive/core/reactive';
-  import { CacheHandler } from '@warp-drive/core/store';
-  import type { CacheCapabilitiesManager } from '@warp-drive/core/types'; // [!code focus:2]
-  import { JSONAPICache } from '@warp-drive/json-api';
-
-  export default class AppStore extends Store {
-
-    requestManager = new RequestManager()
-      .use([Fetch])
-      .useCache(CacheHandler);
-
-    createSchemaService() {
-      const schema = new SchemaService();
-      registerDerivations(schema);
-      return schema;
-    }
-
-    createCache(capabilities: CacheCapabilitiesManager) { // [!code focus:3]
-      return new JSONAPICache(capabilities);
-    }
-  }
-  ```
-
+ * A {@link Cache} implementation tuned for [{json:api}](https://jsonapi.org/)
+ *
  * @categoryDescription Cache Management
  * APIs for primary cache management functionality
  * @categoryDescription Cache Forking
@@ -204,10 +134,9 @@ function makeCache(): CachedResource {
  * APIs that support granular field level management of resource data
  * @categoryDescription Resource State
  * APIs that support managing Resource states
-
-  @public
+ *
+ * @public
  */
-
 export class JSONAPICache implements Cache {
   /**
    * The Cache Version that this implementation implements.

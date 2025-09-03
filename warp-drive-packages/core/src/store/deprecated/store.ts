@@ -269,7 +269,7 @@ declare module '../-private/store-service' {
 
     If you use an adapter such as the
     [JSONAPIAdapter](/api/@warp-drive/legacy/adapter/json-api/classes/JSONAPIAdapter)
-    which supports the [{JSON:API} specification](http://jsonapi.org/) and if your server
+    which supports the [{json:api} specification](http://jsonapi.org/) and if your server
     endpoint supports the use of an
     ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
     you can use `findRecord()` or `findAll()` to automatically retrieve additional records related to

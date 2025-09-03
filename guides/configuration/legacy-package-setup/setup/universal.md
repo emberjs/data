@@ -485,7 +485,7 @@ Some caches are simple request/response maps. ***Warp*Drive**'s is not. The Cach
 understands the structure of your data, ensuring your data remains consistent both within
 and across requests.
 
-Out of the box, ***Warp*Drive** provides a Cache that expects the [{JSON:API}](https://jsonapi.org) format. This format excels at simiplifying common complex problems around cache consistency and information density. Most APIs can be quickly adapted to work with it, but if a cache built to understand another format would do better it just needs to follow the same interface.
+Out of the box, ***Warp*Drive** provides a Cache that expects the [{json:api}](https://jsonapi.org) format. This format excels at simiplifying common complex problems around cache consistency and information density. Most APIs can be quickly adapted to work with it, but if a cache built to understand another format would do better it just needs to follow the same interface.
 
 ```ts
 import Store, { CacheHandler } from '@ember-data/store'; // [!code focus:2]

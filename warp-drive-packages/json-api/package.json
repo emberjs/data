@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/json-api",
   "version": "5.8.0-alpha.6",
-  "description": "A {JSON:API} Cache Implementation for WarpDrive",
+  "description": "A {json:api} Cache Implementation for WarpDrive",
   "keywords": [
     "ember-addon"
   ],

@@ -19,6 +19,8 @@ export const externals = [
   '@ember/polyfills',
 ];
 export const entryPoints = [
+  './src/index.ts',
+
   // adapter
   './src/adapter.ts',
   './src/adapter/error.ts',

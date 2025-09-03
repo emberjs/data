@@ -26,7 +26,7 @@
 <br>
 
 <p align="center">
-A {JSON:API} Cache Implementation for <em>Warp</em><strong>Drive</strong>.
+A {json:api} Cache Implementation for <em>Warp</em><strong>Drive</strong>.
 </p>
 
 <br>
@@ -41,7 +41,7 @@ pnpm add -E @warp-drive/json-api
 
 ## Documentation
 
-*Get Started* → [Guides](https://docs.warp-drive.io)
+*Get Started* → [Guides](https://warp-drive.io)
 
 
 <br>

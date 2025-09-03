@@ -305,7 +305,7 @@ export class Reporter {
       }
     }
 
-    const contextStr = `${counts.error} errors and ${counts.warning} warnings found in the {JSON:API} document returned by ${this.contextDocument.request?.method} ${this.contextDocument.request?.url}`;
+    const contextStr = `${counts.error} errors and ${counts.warning} warnings found in the {json:api} document returned by ${this.contextDocument.request?.method} ${this.contextDocument.request?.url}`;
     const errorString = contextStr + `\n\n` + errorLines.join('\n');
 
     // eslint-disable-next-line no-console, @typescript-eslint/no-unused-expressions

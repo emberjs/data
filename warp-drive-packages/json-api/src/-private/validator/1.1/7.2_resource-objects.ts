@@ -186,7 +186,7 @@ function validateTopLevelResourceShape(reporter: Reporter, resource: Record<stri
         } else {
           reporter.warn(
             [...path, key],
-            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {JSON:API} ResourceObject member`
+            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {json:api} ResourceObject member`
           );
         }
       } else {
@@ -218,7 +218,7 @@ function validateTopLevelResourceShape(reporter: Reporter, resource: Record<stri
 
         reporter.error(
           [...path, key],
-          `Unrecognized ResourceObject member. The data it provides is ignored as it is not a valid {JSON:API} ResourceObject member.${didYouMean}`
+          `Unrecognized ResourceObject member. The data it provides is ignored as it is not a valid {json:api} ResourceObject member.${didYouMean}`
         );
       }
     }
@@ -267,7 +267,7 @@ function validateResourceAttributes(
         } else {
           reporter.warn(
             [...path, key],
-            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {JSON:API} ResourceObject member`
+            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {json:api} ResourceObject member`
           );
         }
       } else {
@@ -320,7 +320,7 @@ function validateResourceRelationships(
         } else {
           reporter.warn(
             [...path, key],
-            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {JSON:API} ResourceObject member`
+            `Unrecognized extension ${extensionName}. The data provided by "${key}" will be ignored as it is not a valid {json:api} ResourceObject member`
           );
         }
       } else {

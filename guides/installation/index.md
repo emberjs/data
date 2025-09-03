@@ -15,7 +15,7 @@ order: 0
 
 To use ***Warp*Drive**, you will install `@warp-drive/core`, a cache[^1], and a reactivity system such as [emberjs](#ember), [TC39 Signals](#tc39-signals) or even [react](#react).
 
-[^1]: We recommend using `@warp-drive/json-api` as your cache even if your API is not [{JSON:API}](https://jsonapi.org).
+[^1]: We recommend using `@warp-drive/json-api` as your cache even if your API is not [{json:api}](https://jsonapi.org).
 
 :::tabs key:install
 

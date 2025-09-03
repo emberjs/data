@@ -58,7 +58,7 @@ export function validateLinks(
     if (!VALID_TOP_LEVEL_LINKS.includes(key)) {
       reporter.warn(
         [...path, key],
-        `Unrecognized top-level link. The data it provides may be ignored as it is not a valid {JSON:API} link for a ${type}`
+        `Unrecognized top-level link. The data it provides may be ignored as it is not a valid {json:api} link for a ${type}`
       );
     }
     // links may be either a string or an object with an href property or null

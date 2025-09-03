@@ -55,7 +55,7 @@
  * The shape of the object and the transformation of raw cache data into its
  * reactive form is controlled by a resource schema.
  *
- * For instance, lets say your API is a [{JSON:API}](https://jsonapi.org) and your store is using
+ * For instance, lets say your API is a [{json:api}](https://jsonapi.org) and your store is using
  * the Cache provided by [@warp-drive/json-api](/api/@warp-drive/json-api), and a request
  * returns the following raw data:
  *

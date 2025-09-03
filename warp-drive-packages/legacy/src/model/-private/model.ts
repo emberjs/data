@@ -95,9 +95,6 @@ function computeOnce(target: object, propertyName: string, desc: PropertyDescrip
   return desc;
 }
 
-/**
- * @noInheritDoc
- */
 interface Model {
   // set during create by the store
   /**
@@ -167,8 +164,8 @@ interface Model {
     ```
 
     @public
-    @param {Object} options
-    @return {Promise} a promise that will be resolved when the adapter returns
+    @param options
+    @return a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
   destroyRecord<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
@@ -288,9 +285,9 @@ interface Model {
     }
     ```
 
+    @deprecated use {@link Store.request} instead
     @public
-    @param {Object} options
-    @return {Promise} a promise that will be resolved when the adapter returns
+    @return a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
   save<T extends MinimalLegacyRecord>(this: T, options?: Record<string, unknown>): Promise<this>;
@@ -506,7 +503,10 @@ interface Model {
  * the class to use as the reactive object for data of resource
  * of that type.
  *
+ * @public
  * @noInheritDoc
+ * @hideconstructor
+ * @legacy
  */
 class Model extends EmberObject implements MinimalLegacyRecord {
   /** @internal */

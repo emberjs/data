@@ -444,6 +444,11 @@ export async function postProcessApiDocs() {
 
     let newContent = content;
 
+    // if the file is in @warp-drive/legacy add the legacy badge
+    if (file.includes('@warp-drive/legacy')) {
+      newContent = `<Badge type="danger" text="@legacy" /><br><br>` + content;
+    }
+
     // insert frontmatter
     newContent = DOC_FRONTMATTER + newContent;
 

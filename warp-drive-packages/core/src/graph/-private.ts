@@ -1,7 +1,7 @@
 /**
 Provides a performance tuned normalized graph for intelligently managing relationships between resources based on identity
 
-While this Graph is abstract, it currently is a private implementation required as a peer-dependency by the {JSON:API} Cache Implementation.
+While this Graph is abstract, it currently is a private implementation required as a peer-dependency by the {json:api} Cache Implementation.
 
 We intend to make this Graph public API after some additional iteration during the 5.x timeframe, until then all APIs should be considered experimental and unstable, not fit for direct application or 3rd party library usage.
 

@@ -1,3 +1,8 @@
+/**
+ * @module
+ * @mergeModuleWith <project>
+ */
+
 import {
   CacheHandler,
   Fetch,
@@ -78,6 +83,9 @@ export type LegacyStoreSetupOptions =
   | LegacyModelAndNetworkStoreSetupOptions
   | LegacyModelAndNetworkAndRequestStoreSetupOptions;
 
+/**
+ * Use the legacy store with the given options.
+ */
 export function useLegacyStore(options: LegacyModelStoreSetupOptions, StoreKlass?: typeof Store): typeof Store;
 export function useLegacyStore(
   options: LegacyModelAndNetworkStoreSetupOptions,

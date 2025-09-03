@@ -43,7 +43,7 @@ import type { StructuredDataDocument } from '@warp-drive/core/types/request';
  * ```
  *
  * Errors are not processed by this handler, so if the request fails and the error response
- * is not in {JSON:API} format additional processing may be needed.
+ * is not in {json:api} format additional processing may be needed.
  *
  * @group Handlers
  */
