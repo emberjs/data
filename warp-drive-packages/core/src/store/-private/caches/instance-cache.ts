@@ -4,7 +4,7 @@ import { LOG_INSTANCE_CACHE } from '@warp-drive/core/build-config/debugging';
 import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import { ReactiveDocument } from '../../../reactive/-private/document.ts';
+import { createReactiveDocument, type ReactiveDocument } from '../../../reactive/-private/document.ts';
 import { _CHECKOUT, ReactiveResource } from '../../../reactive/-private/record.ts';
 import { getOrSetGlobal } from '../../../types/-private.ts';
 import type { Cache } from '../../../types/cache.ts';
@@ -189,7 +189,7 @@ export class InstanceCache {
   getDocument<T>(identifier: RequestKey): ReactiveDocument<T> {
     let doc = this.__instances.document.get(identifier);
     if (!doc) {
-      doc = new ReactiveDocument<T>(this.store, identifier, null);
+      doc = createReactiveDocument<T>(this.store, identifier, null);
       this.__instances.document.set(identifier, doc);
     }
     return doc as ReactiveDocument<T>;

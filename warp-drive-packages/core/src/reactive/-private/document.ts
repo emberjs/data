@@ -1,6 +1,6 @@
 import { assert } from '@warp-drive/core/build-config/macros';
 
-import type { DocumentCacheOperation } from '../../store/-private/managers/notification-manager.ts';
+import type { DocumentCacheOperation, UnsubscribeToken } from '../../store/-private/managers/notification-manager.ts';
 import {
   notifyInternalSignal,
   peekInternalSignal,
@@ -15,31 +15,20 @@ import { withBrand } from '../../types/request.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
 import type { Link, Meta, PaginationLinks } from '../../types/spec/json-api-raw.ts';
 import type { Mutable } from '../../types/utils.ts';
+import { Destroy } from './symbols.ts';
 
 function urlFromLink(link: Link): string {
   if (typeof link === 'string') return link;
   return link.href;
 }
 
-/**
- * A Document is a class that wraps the response content from a request to the API
- * returned by `Cache.put` or `Cache.peek`, converting ResourceKeys into
- * ReactiveResource instances.
- *
- * It is not directly instantiated by the user, and its properties should not
- * be directly modified. Whether individual properties are mutable or not is
- * determined by the record instance itself.
- *
- * @public
- * @hideconstructor
- */
-export class ReactiveDocument<T> {
+export interface ReactiveDocumentBase<T> {
   /**
    * The links object for this document, if any
    *
    * e.g.
    *
-   * ```
+   * ```ts
    * {
    *   self: '/articles?page[number]=3',
    * }
@@ -47,96 +36,21 @@ export class ReactiveDocument<T> {
    *
    * @public
    */
-  declare readonly links?: PaginationLinks;
-  /**
-   * The primary data for this document, if any.
-   *
-   * If this document has no primary data (e.g. because it is an error document)
-   * this property will be `undefined`.
-   *
-   * For collections this will be an array of record instances,
-   * for single resource requests it will be a single record instance or null.
-   *
-   * @public
-   */
-  declare readonly data?: T;
-
-  /**
-   * The errors returned by the API for this request, if any
-   *
-   * @public
-   */
-  declare readonly errors?: object[];
+  readonly links?: PaginationLinks;
 
   /**
    * The meta object for this document, if any
    *
    * @public
    */
-  declare readonly meta?: Meta;
+  readonly meta?: Meta;
 
   /**
    * The RequestKey associated with this document, if any
    *
    * @public
    */
-  declare readonly identifier: RequestKey | null;
-
-  /** @internal */
-  declare protected readonly _store: Store;
-
-  /** @internal */
-  declare protected readonly _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
-
-  constructor(
-    store: Store,
-    cacheKey: RequestKey | null,
-    localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
-  ) {
-    this._store = store;
-    this._localCache = localCache;
-    this.identifier = cacheKey;
-    const signals = withSignalStore(this);
-
-    // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
-    // in a destroy method
-    if (cacheKey) {
-      store.notifications.subscribe(cacheKey, (_key: RequestKey, type: DocumentCacheOperation) => {
-        switch (type) {
-          case 'updated':
-            // FIXME in the case of a collection we need to notify it's length
-            // and have it recalc
-            notifyInternalSignal(peekInternalSignal(signals, 'data'));
-            notifyInternalSignal(peekInternalSignal(signals, 'links'));
-            notifyInternalSignal(peekInternalSignal(signals, 'meta'));
-            notifyInternalSignal(peekInternalSignal(signals, 'errors'));
-            break;
-          case 'added':
-          case 'removed':
-          case 'invalidated':
-          case 'state':
-            break;
-        }
-      });
-    }
-  }
-
-  /** @internal */
-  async #request(
-    link: keyof PaginationLinks,
-    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
-  ): Promise<ReactiveDocument<T> | null> {
-    const href = this.links?.[link];
-    if (!href) {
-      return null;
-    }
-
-    options.method = options.method || 'GET';
-    Object.assign(options, { url: urlFromLink(href) });
-    const response = await this._store.request<ReactiveDocument<T>>(options);
-
-    return response.content;
-  }
+  readonly identifier: RequestKey | null;
 
   /**
    * Fetches the related link for this document, returning a promise that resolves
@@ -144,17 +58,8 @@ export class ReactiveDocument<T> {
    * will fallback to the self link if present
    *
    * @public
-   * @param {Object} options
-   * @return {Promise<Document>}
    */
-  fetch(
-    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
-  ): Promise<ReactiveDocument<T>> {
-    assert(`No self or related link`, this.links?.related || this.links?.self);
-    options.cacheOptions = options.cacheOptions || {};
-    options.cacheOptions.key = this.identifier?.lid;
-    return this.#request(this.links.related ? 'related' : 'self', options) as Promise<ReactiveDocument<T>>;
-  }
+  fetch(options?: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T>>;
 
   /**
    * Fetches the next link for this document, returning a promise that resolves
@@ -162,12 +67,8 @@ export class ReactiveDocument<T> {
    * next link.
    *
    * @public
-   * @param {Object} options
-   * @return {Promise<Document | null>}
    */
-  next(options?: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
-    return this.#request('next', options);
-  }
+  next(options?: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null>;
 
   /**
    * Fetches the prev link for this document, returning a promise that resolves
@@ -175,12 +76,8 @@ export class ReactiveDocument<T> {
    * prev link.
    *
    * @public
-   * @param {Object} options
-   * @return {Promise<Document | null>}
    */
-  prev(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
-    return this.#request('prev', options);
-  }
+  prev(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null>;
 
   /**
    * Fetches the first link for this document, returning a promise that resolves
@@ -188,12 +85,8 @@ export class ReactiveDocument<T> {
    * first link.
    *
    * @public
-   * @param {Object} options
-   * @return {Promise<Document | null>}
    */
-  first(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
-    return this.#request('first', options);
-  }
+  first(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null>;
 
   /**
    * Fetches the last link for this document, returning a promise that resolves
@@ -201,12 +94,8 @@ export class ReactiveDocument<T> {
    * last link.
    *
    * @public
-   * @param {Object} options
-   * @return {Promise<Document | null>}
    */
-  last(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null> {
-    return this.#request('last', options);
-  }
+  last(options: RequestInfo<ReactiveDocument<T>>): Promise<ReactiveDocument<T> | null>;
 
   /**
    * Implemented for `JSON.stringify` support.
@@ -220,7 +109,151 @@ export class ReactiveDocument<T> {
    * @public
    * @return
    */
-  toJSON(): object {
+  toJSON(): object;
+}
+
+export interface ReactiveErrorDocument<T> extends ReactiveDocumentBase<T> {
+  /**
+   * The primary data for this document, if any.
+   *
+   * If this document has no primary data (e.g. because it is an error document)
+   * this property will be `undefined`.
+   *
+   * For collections this will be an array of record instances,
+   * for single resource requests it will be a single record instance or null.
+   *
+   * @public
+   */
+  readonly data?: undefined;
+
+  /**
+   * The errors returned by the API for this request, if any
+   *
+   * @public
+   */
+  readonly errors: object[];
+}
+
+export interface ReactiveDataDocument<T> extends ReactiveDocumentBase<T> {
+  /**
+   * The primary data for this document, if any.
+   *
+   * If this document has no primary data (e.g. because it is an error document)
+   * this property will be `undefined`.
+   *
+   * For collections this will be an array of record instances,
+   * for single resource requests it will be a single record instance or null.
+   *
+   * @public
+   */
+  readonly data: T;
+
+  /**
+   * The errors returned by the API for this request, if any
+   *
+   * @public
+   */
+  readonly errors?: undefined;
+}
+
+interface PrivateReactiveDocument {
+  /** @internal */
+  _store: Store;
+
+  /** @internal */
+  _localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null;
+
+  /** @internal */
+  _subscription: UnsubscribeToken;
+
+  _request<T>(
+    this: ReactiveDocumentBase<T>,
+    link: keyof PaginationLinks,
+    options?: RequestInfo<ReactiveDataDocument<T>>
+  ): Promise<ReactiveDataDocument<T> | null>;
+}
+function upgradeThis(doc: unknown): asserts doc is PrivateReactiveDocument {}
+
+/**
+ * A Document is a class that wraps the response content from a request to the API
+ * returned by `Cache.put` or `Cache.peek`, converting ResourceKeys into
+ * ReactiveResource instances.
+ *
+ * It is not directly instantiated by the user, and its properties should not
+ * be directly modified. Whether individual properties are mutable or not is
+ * determined by the record instance itself.
+ *
+ * @public
+ */
+export type ReactiveDocument<T> = ReactiveDataDocument<T> | ReactiveErrorDocument<T>;
+
+const ReactiveDocumentProto = {
+  async _request<T>(
+    this: ReactiveDocumentBase<T>,
+    link: keyof PaginationLinks,
+    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDocument<T>>({ url: '', method: 'GET' })
+  ): Promise<ReactiveDataDocument<T> | null> {
+    upgradeThis(this);
+    const href = this.links?.[link];
+    if (!href) {
+      return null;
+    }
+
+    options.method = options.method || 'GET';
+    Object.assign(options, { url: urlFromLink(href) });
+    const response = await this._store.request<ReactiveDataDocument<T>>(options);
+
+    return response.content;
+  },
+
+  fetch<T>(
+    this: ReactiveDocument<T>,
+    options: RequestInfo<ReactiveDocument<T>> = withBrand<ReactiveDataDocument<T>>({ url: '', method: 'GET' })
+  ): Promise<ReactiveDataDocument<T>> {
+    upgradeThis(this);
+    assert(`No self or related link`, this.links?.related || this.links?.self);
+    options.cacheOptions = options.cacheOptions || {};
+    options.cacheOptions.key = this.identifier?.lid;
+    return this._request(
+      this.links.related ? 'related' : 'self',
+      options as RequestInfo<ReactiveDataDocument<T>>
+    ) as Promise<ReactiveDataDocument<T>>;
+  },
+
+  next<T>(
+    this: ReactiveDocument<T>,
+    options?: RequestInfo<ReactiveDataDocument<T>>
+  ): Promise<ReactiveDataDocument<T> | null> {
+    upgradeThis(this);
+    return this._request('next', options);
+  },
+
+  prev<T>(
+    this: ReactiveDocument<T>,
+    options: RequestInfo<ReactiveDataDocument<T>>
+  ): Promise<ReactiveDataDocument<T> | null> {
+    upgradeThis(this);
+    return this._request('prev', options);
+  },
+
+  first<T>(
+    this: ReactiveDocument<T>,
+    options: RequestInfo<ReactiveDataDocument<T>>
+  ): Promise<ReactiveDataDocument<T> | null> {
+    upgradeThis(this);
+    return this._request('first', options);
+  },
+
+  last<T>(
+    this: ReactiveDocument<T>,
+    options: RequestInfo<ReactiveDataDocument<T>>
+  ): Promise<ReactiveDataDocument<T> | null> {
+    upgradeThis(this);
+    return this._request('last', options);
+  },
+
+  toJSON<T>(this: ReactiveDocument<T>): object {
+    upgradeThis(this);
     const data: Mutable<Partial<ReactiveDocument<T>>> = {};
     data.identifier = this.identifier;
     if (this.data !== undefined) {
@@ -236,11 +269,24 @@ export class ReactiveDocument<T> {
       data.meta = this.meta;
     }
     return data;
-  }
-}
+  },
 
-defineGate(ReactiveDocument.prototype, 'errors', {
+  [Destroy]<T>(this: ReactiveDocument<T>): void {
+    upgradeThis(this);
+    assert(`Cannot destroy a ReactiveDocument which has already been destroyed`, this._store);
+    if (this._subscription) {
+      this._store.notifications.unsubscribe(this._subscription);
+      // @ts-expect-error
+      this._store = null;
+      // @ts-expect-error
+      this._subscription = null;
+    }
+  },
+};
+
+defineGate(ReactiveDocumentProto, 'errors', {
   get<T>(this: ReactiveDocument<T>): object[] | undefined {
+    upgradeThis(this);
     const { identifier } = this;
 
     if (!identifier) {
@@ -256,8 +302,9 @@ defineGate(ReactiveDocument.prototype, 'errors', {
     return 'errors' in doc ? doc.errors : undefined;
   },
 });
-defineGate(ReactiveDocument.prototype, 'data', {
+defineGate(ReactiveDocumentProto, 'data', {
   get<T>(this: ReactiveDocument<T>) {
+    upgradeThis(this);
     const { identifier, _localCache } = this;
 
     const doc = identifier ? this._store.cache.peek(identifier) : _localCache!.document;
@@ -280,8 +327,9 @@ defineGate(ReactiveDocument.prototype, 'data', {
     }
   },
 });
-defineGate(ReactiveDocument.prototype, 'links', {
+defineGate(ReactiveDocumentProto, 'links', {
   get<T>(this: ReactiveDocument<T>) {
+    upgradeThis(this);
     const { identifier } = this;
 
     if (!identifier) {
@@ -292,8 +340,9 @@ defineGate(ReactiveDocument.prototype, 'links', {
     return data.links;
   },
 });
-defineGate(ReactiveDocument.prototype, 'meta', {
+defineGate(ReactiveDocumentProto, 'meta', {
   get<T>(this: ReactiveDocument<T>): Meta | undefined {
+    upgradeThis(this);
     const { identifier } = this;
 
     if (!identifier) {
@@ -304,3 +353,40 @@ defineGate(ReactiveDocument.prototype, 'meta', {
     return data.meta;
   },
 });
+
+export function createReactiveDocument<T>(
+  store: Store,
+  cacheKey: RequestKey | null,
+  localCache: { document: ResourceDocument; request: ImmutableRequestInfo } | null
+): ReactiveDocument<T> {
+  const doc = Object.create(ReactiveDocumentProto) as ReactiveDocument<T> & PrivateReactiveDocument;
+  doc._store = store;
+  doc._localCache = localCache;
+  // @ts-expect-error we are initializing it here
+  doc.identifier = cacheKey;
+  const signals = withSignalStore(doc);
+
+  // TODO if we ever enable auto-cleanup of the cache, we will need to tear this down
+  // in a destroy method
+  if (cacheKey) {
+    doc._subscription = store.notifications.subscribe(cacheKey, (_key: RequestKey, type: DocumentCacheOperation) => {
+      switch (type) {
+        case 'updated':
+          // FIXME in the case of a collection we need to notify it's length
+          // and have it recalc
+          notifyInternalSignal(peekInternalSignal(signals, 'data'));
+          notifyInternalSignal(peekInternalSignal(signals, 'links'));
+          notifyInternalSignal(peekInternalSignal(signals, 'meta'));
+          notifyInternalSignal(peekInternalSignal(signals, 'errors'));
+          break;
+        case 'added':
+        case 'removed':
+        case 'invalidated':
+        case 'state':
+          break;
+      }
+    });
+  }
+
+  return doc;
+}
