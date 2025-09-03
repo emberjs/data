@@ -6,7 +6,11 @@ import type { LocalRelationshipOperation } from '../../../types/graph.ts';
 import type { RequestKey, ResourceKey } from '../../../types/identifier.ts';
 import type { Value } from '../../../types/json/raw.ts';
 import type { StructuredDataDocument, StructuredDocument } from '../../../types/request.ts';
-import type { ResourceDocument, SingleResourceDataDocument } from '../../../types/spec/document.ts';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDocument,
+  SingleResourceDataDocument,
+} from '../../../types/spec/document.ts';
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { StoreRequestContext } from '../cache-handler/handler.ts';
 
@@ -291,7 +295,23 @@ export class CacheManager implements Cache {
    *
    * @public
    */
-  didCommit(key: ResourceKey | ResourceKey[], result: StructuredDataDocument<unknown>): SingleResourceDataDocument {
+  didCommit(
+    key: ResourceKey,
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    key: ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    key: ResourceKey[],
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
+  didCommit(
+    key: ResourceKey | ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument | CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument | SingleResourceDataDocument {
+    // @ts-expect-error TS doesn't enable proxying overload calls
     return this.___cache.didCommit(key, result);
   }
 

@@ -7,7 +7,7 @@ import type { RequestKey, ResourceKey } from './identifier.ts';
 import type { Value } from './json/raw.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';
-import type { ResourceDocument, SingleResourceDataDocument } from './spec/document.ts';
+import type { CollectionResourceDataDocument, ResourceDocument, SingleResourceDataDocument } from './spec/document.ts';
 import type { ApiError } from './spec/error.ts';
 
 /**
@@ -293,9 +293,17 @@ export interface Cache {
    * @param data - a document in the cache format containing any updated data
    */
   didCommit(
-    cacheKey: ResourceKey | ResourceKey[],
-    result: StructuredDataDocument<unknown> | null
+    cacheKey: ResourceKey,
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
   ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource

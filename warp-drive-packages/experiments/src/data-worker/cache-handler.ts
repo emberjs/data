@@ -136,6 +136,7 @@ function updateCacheForSuccess<T>(
   if (isMutation(request)) {
     const record = request.data?.record || request.records?.[0];
     if (record) {
+      // @ts-expect-error while this is valid, we should update the CacheHandler for transactional saves
       response = store.cache.didCommit(record, document) as ResourceDataDocument;
 
       // a mutation combined with a 204 has no cache impact when no known records were involved

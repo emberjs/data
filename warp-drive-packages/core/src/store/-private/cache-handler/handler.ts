@@ -11,7 +11,13 @@ import type {
   StructuredErrorDocument,
 } from '../../../types/request.ts';
 import { EnableHydration, SkipCache } from '../../../types/request.ts';
-import type { ResourceDataDocument, ResourceDocument, ResourceErrorDocument } from '../../../types/spec/document.ts';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+  SingleResourceDataDocument,
+} from '../../../types/spec/document.ts';
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import type { RequestSignature } from '../../../types/symbols.ts';
@@ -249,10 +255,10 @@ function updateCacheForSuccess<T>(
   let response: ResourceDataDocument | null = null;
   if (isMutation(request)) {
     if (Array.isArray(request.records)) {
-      store.cache.didCommit(request.records, document);
+      store.cache.didCommit(request.records, document as StructuredDataDocument<CollectionResourceDataDocument>);
     } else if (request.data?.record) {
       // legacy fallback, the data option should no longer be used for this
-      store.cache.didCommit(request.data.record, document);
+      store.cache.didCommit(request.data.record, document as StructuredDataDocument<SingleResourceDataDocument>);
 
       // a mutation combined with a 204 has no cache impact when no known records were involved
       // a createRecord with a 201 with an empty response and no known records should similarly

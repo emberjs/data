@@ -125,10 +125,22 @@ class TestCache implements Cache {
   }
   willCommit(identifier: ResourceKey): void {}
   didCommit(
-    identifier: ResourceKey,
-    response: StructuredDataDocument<SingleResourceDocument>
-  ): SingleResourceDataDocument {
-    return { data: identifier as PersistedResourceKey };
+    cacheKey: ResourceKey,
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey | ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument | CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument | SingleResourceDataDocument {
+    return { data: cacheKey as PersistedResourceKey };
   }
   commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
     this._errors = errors;

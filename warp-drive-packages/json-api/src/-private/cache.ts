@@ -853,20 +853,20 @@ export class JSONAPICache implements Cache {
    */
   didCommit(
     committedIdentifier: ResourceKey,
-    result: StructuredDataDocument<SingleResourceDocument> | null
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
   ): SingleResourceDataDocument;
   didCommit(
     committedIdentifier: ResourceKey[],
-    result: StructuredDataDocument<SingleResourceDocument> | null
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
   ): SingleResourceDataDocument;
   didCommit(
     committedIdentifier: ResourceKey[],
-    result: StructuredDataDocument<CollectionResourceDocument> | null
-  ): CollectionResourceDocument;
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
   didCommit(
     committedIdentifier: ResourceKey | ResourceKey[],
-    result: StructuredDataDocument<SingleResourceDocument | CollectionResourceDocument> | null
-  ): CollectionResourceDocument | SingleResourceDataDocument {
+    result: StructuredDataDocument<SingleResourceDataDocument | CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument | SingleResourceDataDocument {
     const payload = result ? result.content : null;
     const operation = result?.request?.op ?? null;
     const data = payload && payload.data;
