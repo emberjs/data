@@ -2,7 +2,15 @@
 
 import type { Store } from '../../store/-private';
 import type { RequestKey } from '../../types/identifier';
-import type { IS_FUTURE, RequestContext, RequestInfo, ResponseInfo, StructuredDataDocument } from '../../types/request';
+import type {
+  IS_FUTURE,
+  RequestContext,
+  RequestInfo,
+  ResponseInfo,
+  StructuredDataDocument,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  StructuredDocument,
+} from '../../types/request';
 import type { RequestManager } from './manager';
 
 export interface GodContext {
@@ -30,7 +38,7 @@ export type DeferredStream = {
 };
 
 /**
- * A Future is a {@link Promise} which resolves to a {@link StructuredDataDocument | StructuredDocument}
+ * A Future is a {@link Promise} which resolves or rejects with a {@link StructuredDocument}
  * while providing the ability to {@link Future.abort | abort} the underlying request, and
  * {@link Future.getStream | access the response stream} before the outer promise resolves;
  *

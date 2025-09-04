@@ -1,10 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Handler } from '../request.ts';
+import type { Future, Handler } from '../request.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Fetch } from '../request/-private/fetch.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { RequestManager } from '../request/-private/manager.ts';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { FetchError } from '../request/-private/utils.ts';
 import type { Store } from '../store/-private.ts';
 import { getOrSetGlobal, getOrSetUniversal } from './-private.ts';
@@ -21,6 +20,8 @@ export const EnableHydration: '___(unique) Symbol(EnableHydration)' = getOrSetUn
 );
 export const IS_FUTURE: '___(unique) Symbol(IS_FUTURE)' = getOrSetGlobal('IS_FUTURE', Symbol('IS_FUTURE'));
 export const STRUCTURED: '___(unique) Symbol(DOC)' = getOrSetGlobal('DOC', Symbol('DOC'));
+
+export type { FetchError };
 
 export type HTTPMethod =
   | 'QUERY'
@@ -185,11 +186,15 @@ export interface FindRecordOptions extends ConstrainedRequestOptions {
 }
 
 /**
- * When a handler chain resolves, it returns an object
- * containing the original request, the response set by the handler
- * chain (if any), and the processed content.
+ * When a {@link Future} resolves, it returns an object
+ * containing the original {@link RequestInfo | request},
+ * the {@link Response | response} set by the handler chain (if any), and
+ * the processed content.
  */
 export interface StructuredDataDocument<T> {
+  /**
+   * @private
+   */
   [STRUCTURED]?: true;
   /**
    * @see {@link ImmutableRequestInfo}
@@ -200,15 +205,22 @@ export interface StructuredDataDocument<T> {
 }
 
 /**
- * When a handler chain rejects, it throws an Error that maintains the
- * `{ request, response, content }` shape but is also an Error instance
+ * When a {@link Future} rejects, it throws either an {@link Error}
+ * an {@link AggregateError} or a {@link DOMException} that maintains
+ * the `{ request, response, content }` shape but is also an Error instance
  * itself.
  *
  * If using the error originates from the {@link Fetch | Fetch Handler}
  * the error will be a {@link FetchError}
  */
 export interface StructuredErrorDocument<T = unknown> extends Error {
+  /**
+   * @private
+   */
   [STRUCTURED]?: true;
+  /**
+   * @see {@link ImmutableRequestInfo}
+   */
   request: ImmutableRequestInfo;
   response: Response | ResponseInfo | null;
   error: string | object;
@@ -216,10 +228,12 @@ export interface StructuredErrorDocument<T = unknown> extends Error {
 }
 
 /**
- * A union of the resolve/reject data types for a request.
+ * A union of the resolve/reject data types for the {@link Future}
+ * returned by {@link Store.request | request}
  *
- * See the docs for:
+ * See also the docs for:
  *
+ * - {@link Future}
  * - {@link StructuredDataDocument} (resolved/successful requests)
  * - {@link StructuredErrorDocument} (rejected/failed requests)
  */

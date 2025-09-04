@@ -1,8 +1,10 @@
 ---
-order: 3
+order: 4
 ---
 
 # Handlers
+
+Handlers are middleware that enable enhancing, modifying, or responding to requests.
 
 ## What Is A Handler
 
