@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/internal-docs-viewer",
-  "version": "5.8.0-alpha.6",
+  "version": "5.8.0-alpha.7",
   "description": "API Docs Viewer for the WarpDrive Project Monorepo | Unpublished",
   "private": true,
   "type": "module",
