@@ -2000,7 +2000,7 @@ function putOne(
     `Missing Resource Type: received resource data with a type '${resource.type}' but no schema could be found with that name.`,
     cache._capabilities.schema.hasResource(resource)
   );
-  let identifier: ResourceKey | undefined = identifiers.peekRecordIdentifier(resource);
+  let identifier: ResourceKey | undefined = identifiers.peekResourceKey(resource);
 
   if (identifier) {
     identifier = identifiers.updateRecordIdentifier(identifier, resource);

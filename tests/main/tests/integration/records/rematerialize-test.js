@@ -69,18 +69,12 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.strictEqual(adam.cars.length, 1, 'The inital length of cars is correct');
 
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
-    assert.true(
-      !!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:person-1' }),
-      'The person identifier is loaded'
-    );
+    assert.true(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:person-1' }), 'The person identifier is loaded');
 
     adam.unloadRecord();
 
     assert.strictEqual(store.peekRecord('person', '1'), null, 'The person is unloaded');
-    assert.false(
-      !!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:person-1' }),
-      'The person identifier is freed'
-    );
+    assert.false(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:person-1' }), 'The person identifier is freed');
 
     const newAdam = store.push({
       data: {
@@ -197,12 +191,9 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     // assert our initial cache state
     assert.notStrictEqual(store.peekRecord('person', '1'), null, 'The person is in the store');
-    assert.true(
-      !!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:person-1' }),
-      'The person identifier is loaded'
-    );
+    assert.true(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:person-1' }), 'The person identifier is loaded');
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is in the store');
-    assert.true(!!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:boat-1' }), 'The boat identifier is loaded');
+    assert.true(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:boat-1' }), 'The boat identifier is loaded');
 
     let boats = await adam.boats;
     assert.strictEqual(boats.length, 2, 'Before unloading boats.length is correct');
@@ -212,10 +203,7 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
 
     // assert our new cache state
     assert.strictEqual(store.peekRecord('boat', '1'), null, 'The boat is unloaded');
-    assert.true(
-      !!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:boat-1' }),
-      'The boat identifier is retained'
-    );
+    assert.true(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:boat-1' }), 'The boat identifier is retained');
 
     // cause a rematerialization, this should also cause us to fetch boat '1' again
     boats = await adam.boats;
@@ -228,9 +216,6 @@ module('integration/unload - Rematerializing Unloaded Records', function (hooks)
     assert.notStrictEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
     assert.notStrictEqual(store.peekRecord('boat', '1'), null, 'The boat is loaded');
-    assert.true(
-      !!store.cacheKeyManager.peekRecordIdentifier({ lid: '@lid:boat-1' }),
-      'The boat identifier is retained'
-    );
+    assert.true(!!store.cacheKeyManager.peekResourceKey({ lid: '@lid:boat-1' }), 'The boat identifier is retained');
   });
 });
