@@ -834,57 +834,13 @@ export class JSONAPICache implements Cache {
    * @category Resource Lifecycle
    * @public
    */
-  willCommit(identifier: ResourceKey, _context: RequestContext | null): void {
-    const cached = this.__peek(identifier, false);
-
-    /*
-      if we have multiple saves in flight at once then
-      we have information loss no matter what. This
-      attempts to lose the least information.
-
-      If we were to clear inflightAttrs, previous requests
-      would not be able to use it during their didCommit.
-
-      If we upsert inflightattrs, previous requests incorrectly
-      see more recent inflight changes as part of their own and
-      will incorrectly mark the new state as the correct remote state.
-
-      We choose this latter behavior to avoid accidentally removing
-      earlier changes.
-
-      If apps do not want this behavior they can either
-      - chain save requests serially vs allowing concurrent saves
-      - move to using a request handler that caches the inflight state
-        on a per-request basis
-      - change their save requests to only send a "PATCH" instead of a "PUT"
-        so that only latest changes are involved in each request, and then also
-        ensure that the API or their handler reflects only those changes back
-        for upsert into the cache.
-    */
-    if (cached.inflightAttrs) {
-      if (cached.localAttrs) {
-        Object.assign(cached.inflightAttrs, cached.localAttrs);
+  willCommit(identifier: ResourceKey | ResourceKey[], _context: RequestContext | null): void {
+    if (Array.isArray(identifier)) {
+      for (const key of identifier) {
+        willCommit(this, key);
       }
     } else {
-      cached.inflightAttrs = cached.localAttrs;
-    }
-    cached.localAttrs = null;
-
-    if (DEBUG) {
-      if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-        // save off info about saved relationships
-        const fields = getCacheFields(this, identifier);
-        fields.forEach((schema, name) => {
-          if (schema.kind === 'belongsTo') {
-            if (this.__graph._isDirty(identifier, name)) {
-              const relationshipData = this.__graph.getData(identifier, name);
-              const inFlight = (cached.inflightRelationships =
-                cached.inflightRelationships || (Object.create(null) as Record<string, unknown>));
-              inFlight[name] = relationshipData;
-            }
-          }
-        });
-      }
+      willCommit(this, identifier);
     }
   }
 
@@ -897,10 +853,22 @@ export class JSONAPICache implements Cache {
    */
   didCommit(
     committedIdentifier: ResourceKey,
-    result: StructuredDataDocument<SingleResourceDocument> | null
-  ): SingleResourceDataDocument {
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    committedIdentifier: ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    committedIdentifier: ResourceKey[],
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
+  didCommit(
+    committedIdentifier: ResourceKey | ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument | CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument | SingleResourceDataDocument {
     const payload = result ? result.content : null;
-    const operation = result ? result.request.op : null;
+    const operation = result?.request?.op ?? null;
     const data = payload && payload.data;
 
     if (LOG_CACHE) {
@@ -914,121 +882,50 @@ export class JSONAPICache implements Cache {
       }
     }
 
-    if (!data) {
+    const responseIsCollection = Array.isArray(data);
+    const hasMultipleIdentifiers = Array.isArray(committedIdentifier) && committedIdentifier.length > 1;
+
+    if (Array.isArray(committedIdentifier)) {
+      // if we get back an array of primary data, we treat each
+      // entry as a separate commit for each identifier
       assert(
-        `Your ${committedIdentifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-        committedIdentifier.id
+        `Expected the array of primary data to match the array of committed identifiers`,
+        !hasMultipleIdentifiers || !responseIsCollection || data.length === committedIdentifier.length
       );
-    }
-
-    const { cacheKeyManager } = this._capabilities;
-    const existingId = committedIdentifier.id;
-    const identifier: ResourceKey =
-      operation !== 'deleteRecord' && data
-        ? cacheKeyManager.updateRecordIdentifier(committedIdentifier, data)
-        : committedIdentifier;
-
-    const cached = this.__peek(identifier, false);
-    if (cached.isDeleted) {
-      this.__graph.push({
-        op: 'deleteRecord',
-        record: identifier,
-        isNew: false,
-      });
-      cached.isDeletionCommitted = true;
-      this._capabilities.notifyChange(identifier, 'removed', null);
-      // TODO @runspired should we early exit here?
-    }
-
-    if (DEBUG) {
-      if (cached.isNew && !identifier.id && (typeof data?.id !== 'string' || data.id.length > 0)) {
-        const error = new Error(`Expected an id ${String(identifier)} in response ${JSON.stringify(data)}`);
-        //@ts-expect-error
-        error.isAdapterError = true;
-        //@ts-expect-error
-        error.code = 'InvalidError';
-        throw error;
-      }
-    }
-
-    const fields = getCacheFields(this, identifier);
-    cached.isNew = false;
-    let newCanonicalAttributes: ExistingResourceObject['attributes'];
-    if (data) {
-      if (data.id && !cached.id) {
-        cached.id = data.id;
-      }
-      if (identifier === committedIdentifier && identifier.id !== existingId) {
-        this._capabilities.notifyChange(identifier, 'identity', null);
-      }
-
-      assert(
-        `Expected the ID received for the primary '${identifier.type}' resource being saved to match the current id '${cached.id}' but received '${identifier.id}'.`,
-        identifier.id === cached.id
-      );
-
-      if (data.relationships) {
-        if (DEBUG) {
-          if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
-            // assert against bad API behavior where a belongsTo relationship
-            // is saved but the return payload indicates a different final state.
-            fields.forEach((field, name) => {
-              if (field.kind === 'belongsTo') {
-                const relationshipData = data.relationships![name]?.data;
-                if (relationshipData !== undefined) {
-                  const inFlightData = cached.inflightRelationships?.[name] as SingleResourceRelationship;
-                  if (!inFlightData || !('data' in inFlightData)) {
-                    return;
-                  }
-                  const actualData = relationshipData
-                    ? this._capabilities.cacheKeyManager.getOrCreateRecordIdentifier(relationshipData)
-                    : null;
-                  assert(
-                    `Expected the resource relationship '<${identifier.type}>.${name}' on ${
-                      identifier.lid
-                    } to be saved as ${inFlightData.data ? inFlightData.data.lid : '<null>'} but it was saved as ${
-                      actualData ? actualData.lid : '<null>'
-                    }`,
-                    inFlightData.data === actualData
-                  );
-                }
-              }
-            });
-            cached.inflightRelationships = null;
-          }
+      if (responseIsCollection) {
+        for (let i = 0; i < committedIdentifier.length; i++) {
+          const identifier = committedIdentifier[i];
+          didCommit(this, identifier, data[i] ?? null, operation);
         }
-        setupRelationships(this.__graph, fields, identifier, data);
+        // but if we get back no data or a single entry, we apply
+        // the change back to the original identifier
+      } else {
+        for (let i = 0; i < committedIdentifier.length; i++) {
+          const identifier = committedIdentifier[i];
+          didCommit(this, identifier, i === 0 ? data : null, operation);
+        }
       }
-      newCanonicalAttributes = data.attributes;
+    } else {
+      didCommit(this, committedIdentifier, data as ExistingResourceObject | null, operation);
     }
-    const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes, fields);
-
-    cached.remoteAttrs = Object.assign(
-      cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
-      cached.inflightAttrs,
-      newCanonicalAttributes
-    );
-    cached.inflightAttrs = null;
-    patchLocalAttributes(cached, changedKeys);
-
-    if (cached.errors) {
-      cached.errors = null;
-      this._capabilities.notifyChange(identifier, 'errors', null);
-    }
-
-    if (changedKeys?.size) notifyAttributes(this._capabilities, identifier, changedKeys);
-    this._capabilities.notifyChange(identifier, 'state', null);
 
     const included = payload && payload.included;
+    const { cacheKeyManager } = this._capabilities;
     if (included) {
       for (let i = 0, length = included.length; i < length; i++) {
         putOne(this, cacheKeyManager, included[i]);
       }
     }
 
-    return {
-      data: identifier as PersistedResourceKey,
-    };
+    return hasMultipleIdentifiers && responseIsCollection
+      ? {
+          data: committedIdentifier as PersistedResourceKey[],
+        }
+      : {
+          data: (Array.isArray(committedIdentifier)
+            ? committedIdentifier[0]
+            : committedIdentifier) as PersistedResourceKey,
+        };
   }
 
   /**
@@ -1038,25 +935,15 @@ export class JSONAPICache implements Cache {
    * @category Resource Lifecycle
    * @public
    */
-  commitWasRejected(identifier: ResourceKey, errors?: ApiError[]): void {
-    const cached = this.__peek(identifier, false);
-    if (cached.inflightAttrs) {
-      const keys = Object.keys(cached.inflightAttrs);
-      if (keys.length > 0) {
-        const attrs = (cached.localAttrs =
-          cached.localAttrs || (Object.create(null) as Record<string, Value | undefined>));
-        for (let i = 0; i < keys.length; i++) {
-          if (attrs[keys[i]] === undefined) {
-            attrs[keys[i]] = cached.inflightAttrs[keys[i]];
-          }
-        }
+  commitWasRejected(identifier: ResourceKey | ResourceKey[], errors?: ApiError[]): void {
+    if (Array.isArray(identifier)) {
+      for (let i = 0; i < identifier.length; i++) {
+        commitDidError(this, identifier[i], errors && i === 0 ? errors : null);
       }
-      cached.inflightAttrs = null;
+      return;
     }
-    if (errors) {
-      cached.errors = errors;
-    }
-    this._capabilities.notifyChange(identifier, 'errors', null);
+
+    return commitDidError(this, identifier, errors || null);
   }
 
   /**
@@ -2476,4 +2363,191 @@ function getCacheFields(
     string,
     Exclude<CacheableFieldSchema, IdentityField>
   >;
+}
+
+function commitDidError(cache: JSONAPICache, identifier: ResourceKey, errors: ApiError[] | null): void {
+  const cached = cache.__peek(identifier, false);
+  if (cached.inflightAttrs) {
+    const keys = Object.keys(cached.inflightAttrs);
+    if (keys.length > 0) {
+      const attrs = (cached.localAttrs =
+        cached.localAttrs || (Object.create(null) as Record<string, Value | undefined>));
+      for (let i = 0; i < keys.length; i++) {
+        if (attrs[keys[i]] === undefined) {
+          attrs[keys[i]] = cached.inflightAttrs[keys[i]];
+        }
+      }
+    }
+    cached.inflightAttrs = null;
+  }
+  if (errors) {
+    cached.errors = errors;
+  }
+  cache._capabilities.notifyChange(identifier, 'errors', null);
+}
+
+function didCommit(
+  cache: JSONAPICache,
+  committedIdentifier: ResourceKey,
+  data: ExistingResourceObject | null,
+  op: string | null
+): void {
+  if (!data) {
+    assert(
+      `Your ${committedIdentifier.type} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
+      committedIdentifier.id
+    );
+  }
+
+  const { cacheKeyManager } = cache._capabilities;
+  const existingId = committedIdentifier.id;
+  const identifier: ResourceKey =
+    op !== 'deleteRecord' && data
+      ? cacheKeyManager.updateRecordIdentifier(committedIdentifier, data)
+      : committedIdentifier;
+
+  const cached = cache.__peek(identifier, false);
+  if (cached.isDeleted) {
+    cache.__graph.push({
+      op: 'deleteRecord',
+      record: identifier,
+      isNew: false,
+    });
+    cached.isDeletionCommitted = true;
+    cache._capabilities.notifyChange(identifier, 'removed', null);
+    // TODO @runspired should we early exit here?
+  }
+
+  if (DEBUG) {
+    if (cached.isNew && !identifier.id && (typeof data?.id !== 'string' || data.id.length > 0)) {
+      const error = new Error(`Expected an id ${String(identifier)} in response ${JSON.stringify(data)}`);
+      //@ts-expect-error
+      error.isAdapterError = true;
+      //@ts-expect-error
+      error.code = 'InvalidError';
+      throw error;
+    }
+  }
+
+  const fields = getCacheFields(cache, identifier);
+  cached.isNew = false;
+  let newCanonicalAttributes: ExistingResourceObject['attributes'];
+  if (data) {
+    if (data.id && !cached.id) {
+      cached.id = data.id;
+    }
+    if (identifier === committedIdentifier && identifier.id !== existingId) {
+      cache._capabilities.notifyChange(identifier, 'identity', null);
+    }
+
+    assert(
+      `Expected the ID received for the primary '${identifier.type}' resource being saved to match the current id '${cached.id}' but received '${identifier.id}'.`,
+      identifier.id === cached.id
+    );
+
+    if (data.relationships) {
+      if (DEBUG) {
+        if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+          // assert against bad API behavior where a belongsTo relationship
+          // is saved but the return payload indicates a different final state.
+          fields.forEach((field, name) => {
+            if (field.kind === 'belongsTo') {
+              const relationshipData = data.relationships![name]?.data;
+              if (relationshipData !== undefined) {
+                const inFlightData = cached.inflightRelationships?.[name] as SingleResourceRelationship;
+                if (!inFlightData || !('data' in inFlightData)) {
+                  return;
+                }
+                const actualData = relationshipData
+                  ? cache._capabilities.cacheKeyManager.getOrCreateRecordIdentifier(relationshipData)
+                  : null;
+                assert(
+                  `Expected the resource relationship '<${identifier.type}>.${name}' on ${
+                    identifier.lid
+                  } to be saved as ${inFlightData.data ? inFlightData.data.lid : '<null>'} but it was saved as ${
+                    actualData ? actualData.lid : '<null>'
+                  }`,
+                  inFlightData.data === actualData
+                );
+              }
+            }
+          });
+          cached.inflightRelationships = null;
+        }
+      }
+      setupRelationships(cache.__graph, fields, identifier, data);
+    }
+    newCanonicalAttributes = data.attributes;
+  }
+  const changedKeys = newCanonicalAttributes && calculateChangedKeys(cached, newCanonicalAttributes, fields);
+
+  cached.remoteAttrs = Object.assign(
+    cached.remoteAttrs || (Object.create(null) as Record<string, unknown>),
+    cached.inflightAttrs,
+    newCanonicalAttributes
+  );
+  cached.inflightAttrs = null;
+  patchLocalAttributes(cached, changedKeys);
+
+  if (cached.errors) {
+    cached.errors = null;
+    cache._capabilities.notifyChange(identifier, 'errors', null);
+  }
+
+  if (changedKeys?.size) notifyAttributes(cache._capabilities, identifier, changedKeys);
+  cache._capabilities.notifyChange(identifier, 'state', null);
+}
+
+function willCommit(cache: JSONAPICache, identifier: ResourceKey): void {
+  const cached = cache.__peek(identifier, false);
+
+  /*
+      if we have multiple saves in flight at once then
+      we have information loss no matter what. This
+      attempts to lose the least information.
+
+      If we were to clear inflightAttrs, previous requests
+      would not be able to use it during their didCommit.
+
+      If we upsert inflightattrs, previous requests incorrectly
+      see more recent inflight changes as part of their own and
+      will incorrectly mark the new state as the correct remote state.
+
+      We choose this latter behavior to avoid accidentally removing
+      earlier changes.
+
+      If apps do not want this behavior they can either
+      - chain save requests serially vs allowing concurrent saves
+      - move to using a request handler that caches the inflight state
+        on a per-request basis
+      - change their save requests to only send a "PATCH" instead of a "PUT"
+        so that only latest changes are involved in each request, and then also
+        ensure that the API or their handler reflects only those changes back
+        for upsert into the cache.
+    */
+  if (cached.inflightAttrs) {
+    if (cached.localAttrs) {
+      Object.assign(cached.inflightAttrs, cached.localAttrs);
+    }
+  } else {
+    cached.inflightAttrs = cached.localAttrs;
+  }
+  cached.localAttrs = null;
+
+  if (DEBUG) {
+    if (!DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE) {
+      // save off info about saved relationships
+      const fields = getCacheFields(cache, identifier);
+      fields.forEach((schema, name) => {
+        if (schema.kind === 'belongsTo') {
+          if (cache.__graph._isDirty(identifier, name)) {
+            const relationshipData = cache.__graph.getData(identifier, name);
+            const inFlight = (cached.inflightRelationships =
+              cached.inflightRelationships || (Object.create(null) as Record<string, unknown>));
+            inFlight[name] = relationshipData;
+          }
+        }
+      });
+    }
+  }
 }

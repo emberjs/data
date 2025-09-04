@@ -7,7 +7,7 @@ import type { RequestKey, ResourceKey } from './identifier.ts';
 import type { Value } from './json/raw.ts';
 import type { TypeFromInstanceOrString } from './record.ts';
 import type { RequestContext, StructuredDataDocument, StructuredDocument } from './request.ts';
-import type { ResourceDocument, SingleResourceDataDocument } from './spec/document.ts';
+import type { CollectionResourceDataDocument, ResourceDocument, SingleResourceDataDocument } from './spec/document.ts';
 import type { ApiError } from './spec/error.ts';
 
 /**
@@ -282,7 +282,7 @@ export interface Cache {
    *
    * @public
    */
-  willCommit(cacheKey: ResourceKey, context: RequestContext | null): void;
+  willCommit(cacheKey: ResourceKey | ResourceKey[], context: RequestContext | null): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -292,7 +292,18 @@ export interface Cache {
    * @param the primary ResourceKey that was operated on
    * @param data - a document in the cache format containing any updated data
    */
-  didCommit(cacheKey: ResourceKey, result: StructuredDataDocument<unknown> | null): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey,
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<SingleResourceDataDocument> | null
+  ): SingleResourceDataDocument;
+  didCommit(
+    cacheKey: ResourceKey[],
+    result: StructuredDataDocument<CollectionResourceDataDocument> | null
+  ): CollectionResourceDataDocument;
 
   /**
    * [LIFECYCLE] Signals to the cache that a resource
@@ -300,7 +311,7 @@ export interface Cache {
    *
    * @public
    */
-  commitWasRejected(cacheKey: ResourceKey, errors?: ApiError[]): void;
+  commitWasRejected(cacheKey: ResourceKey | ResourceKey[], errors?: ApiError[]): void;
 
   /**
    * [LIFECYCLE] Signals to the cache that all data for a resource

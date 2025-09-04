@@ -11,7 +11,13 @@ import type {
   StructuredErrorDocument,
 } from '../../../types/request.ts';
 import { EnableHydration, SkipCache } from '../../../types/request.ts';
-import type { ResourceDataDocument, ResourceDocument, ResourceErrorDocument } from '../../../types/spec/document.ts';
+import type {
+  CollectionResourceDataDocument,
+  ResourceDataDocument,
+  ResourceDocument,
+  ResourceErrorDocument,
+  SingleResourceDataDocument,
+} from '../../../types/spec/document.ts';
 import type { ApiError } from '../../../types/spec/error.ts';
 import type { ResourceIdentifierObject } from '../../../types/spec/json-api-raw.ts';
 import type { RequestSignature } from '../../../types/symbols.ts';
@@ -248,9 +254,17 @@ function updateCacheForSuccess<T>(
 ) {
   let response: ResourceDataDocument | null = null;
   if (isMutation(request)) {
-    const record = request.data?.record || request.records?.[0];
-    if (record) {
-      response = store.cache.didCommit(record, document) as ResourceDataDocument;
+    if (Array.isArray(request.records)) {
+      response = store.cache.didCommit(
+        request.records,
+        document as StructuredDataDocument<CollectionResourceDataDocument>
+      );
+    } else if (request.data?.record) {
+      // legacy fallback, the data option should no longer be used for this
+      response = store.cache.didCommit(
+        request.data.record,
+        document as StructuredDataDocument<SingleResourceDataDocument>
+      );
 
       // a mutation combined with a 204 has no cache impact when no known records were involved
       // a createRecord with a 201 with an empty response and no known records should similarly
@@ -310,9 +324,14 @@ function updateCacheForError<T>(
         ? (error.content.errors as ApiError[])
         : undefined;
 
-    const record = context.request.data?.record || context.request.records?.[0];
-
-    store.cache.commitWasRejected(record, errors);
+    if (Array.isArray(context.request.records)) {
+      store.cache.commitWasRejected(context.request.records, errors);
+    } else if (context.request.data?.record) {
+      // legacy fallback, the data option should no longer be used for this
+      store.cache.commitWasRejected(context.request.data.record, errors);
+    } else {
+      store.cache.put(error) as ResourceErrorDocument;
+    }
   } else {
     response = store.cache.put(error) as ResourceErrorDocument;
     return maybeUpdateUiObjects(store, context.request, options, response);
@@ -367,14 +386,14 @@ function fetchContentAndHydrate<T>(
   let isMut = false;
   if (isMutation(context.request)) {
     isMut = true;
-    // TODO should we handle multiple records in request.records by iteratively calling willCommit for each
-    const record = context.request.data?.record || context.request.records?.[0];
-    assert(
-      `Expected to receive a list of records included in the ${context.request.op} request`,
-      record || !shouldHydrate
-    );
-    if (record) {
-      store.cache.willCommit(record, context);
+
+    if (Array.isArray(context.request.records)) {
+      context.request.records.forEach((record) => {
+        store.cache.willCommit(record, context);
+      });
+    } else if (context.request.data?.record) {
+      // legacy fallback, the data option should no longer be used for this
+      store.cache.willCommit(context.request.data.record, context);
     }
   }
 
