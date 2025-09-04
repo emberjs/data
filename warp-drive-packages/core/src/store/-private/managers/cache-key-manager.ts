@@ -17,7 +17,7 @@ import {
   type RequestKey,
   type ResourceKey,
 } from '../../../types/identifier.ts';
-import type { ImmutableRequestInfo } from '../../../types/request.ts';
+import type { ImmutableRequestInfo, RequestInfo } from '../../../types/request.ts';
 import type {
   ExistingResourceIdentifierObject,
   ExistingResourceObject,
@@ -523,17 +523,49 @@ export class CacheKeyManager {
    *
    * @private
    */
-  peekRecordIdentifier(resource: ResourceIdentifierObject): ResourceKey | undefined {
+  peekResourceKey(resource: ResourceIdentifierObject): ResourceKey | undefined {
     return this._getRecordIdentifier(resource, 0);
   }
 
   /**
-    Returns the DocumentIdentifier for the given Request, creates one if it does not yet exist.
-    Returns `null` if the request does not have a `cacheKey` or `url`.
+   * Peeks the {@link RequestKey} for the given {@link RequestInfo}, but will not
+   * create one if none has been previously generated.
+   *
+   * @public
+   */
+  peekRequestKey(request: RequestInfo): RequestKey | null {
+    let cacheKey: string | null | undefined = request.cacheOptions?.key;
 
-    @public
-  */
-  getOrCreateDocumentIdentifier(request: ImmutableRequestInfo): RequestKey | null {
+    if (!cacheKey) {
+      cacheKey = this._generate(request, 'document');
+    }
+
+    if (!cacheKey) {
+      return null;
+    }
+
+    const identifier = this._cache.documents.get(cacheKey);
+    return identifier ?? null;
+  }
+
+  /**
+   * Returns the {@link RequestKey} for the given {@link RequestInfo} if the request is
+   * considered cacheable. For cacheable requests, this method will create
+   * a RequestKey if none is found.
+   *
+   * A `null` response indicates the request cannot/will not be cached,
+   * generally this means either
+   *
+   * - {@link RequestInfo.cacheOptions.key} is not present on the `RequestInfo`
+   * - the request's method is `GET` but it has no `url`
+   *
+   * Generally you should not seek to cache requests that are not idempotent
+   * or have side effects, such as mutations that create, update or delete
+   * a resource.
+   *
+   * @public
+   */
+  getOrCreateDocumentIdentifier(request: RequestInfo): RequestKey | null {
     let cacheKey: string | null | undefined = request.cacheOptions?.key;
 
     if (!cacheKey) {
@@ -558,7 +590,7 @@ export class CacheKeyManager {
   }
 
   /**
-    Returns the Identifier for the given Resource, creates one if it does not yet exist.
+    Returns the {@link ResourceKey} for the given Resource, creates one if it does not yet exist.
 
     Specifically this means that we:
 

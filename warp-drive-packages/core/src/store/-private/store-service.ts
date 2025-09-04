@@ -50,7 +50,7 @@ import type { CachePolicy } from './cache-handler/types.ts';
 import {
   getNewRecord,
   InstanceCache,
-  peekRecordIdentifier,
+  peekResourceKey,
   recordIdentifierFor,
   storeFor,
 } from './caches/instance-cache.ts';
@@ -1071,7 +1071,7 @@ export class Store extends BaseClass {
       const resource: { type: string; id: string | null; lid?: string } = { type: normalizedModelName, id };
 
       if (resource.id) {
-        const identifier = this.cacheKeyManager.peekRecordIdentifier(resource as ResourceIdentifierObject);
+        const identifier = this.cacheKeyManager.peekResourceKey(resource as ResourceIdentifierObject);
 
         assert(
           `The id ${String(properties.id)} has already been used with another '${normalizedModelName}' record.`,
@@ -1080,7 +1080,7 @@ export class Store extends BaseClass {
       }
 
       if (context?.lid) {
-        const identifier = this.cacheKeyManager.peekRecordIdentifier({ lid: context?.lid });
+        const identifier = this.cacheKeyManager.peekResourceKey({ lid: context?.lid });
         resource.lid = context.lid;
         assert(`The lid ${context.lid} has already been used with another '${identifier?.type}' record.`, !identifier);
       }
@@ -1117,7 +1117,7 @@ export class Store extends BaseClass {
       assertDestroyingStore(this, 'deleteRecord');
     }
 
-    const identifier = peekRecordIdentifier(record);
+    const identifier = peekResourceKey(record);
     const cache = this.cache;
     assert(`expected the record to be connected to a cache`, identifier);
     this._join(() => {
@@ -1147,7 +1147,7 @@ export class Store extends BaseClass {
     if (DEBUG) {
       assertDestroyingStore(this, 'unloadRecord');
     }
-    const identifier = peekRecordIdentifier(record);
+    const identifier = peekResourceKey(record);
     if (identifier) {
       this._instanceCache.unloadRecord(identifier);
     }
@@ -1200,7 +1200,7 @@ export class Store extends BaseClass {
   peekRecord(identifier: ResourceIdentifierObject): unknown | null;
   peekRecord<T = OpaqueRecordInstance>(identifier: ResourceIdentifierObject | string, id?: string | number): T | null {
     if (arguments.length === 1 && isMaybeIdentifier(identifier)) {
-      const stableIdentifier = this.cacheKeyManager.peekRecordIdentifier(identifier);
+      const stableIdentifier = this.cacheKeyManager.peekResourceKey(identifier);
       const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
       // TODO come up with a better mechanism for determining if we have data and could peek.
       // this is basically an "are we not empty" query.
@@ -1222,7 +1222,7 @@ export class Store extends BaseClass {
     const type = normalizeModelName(identifier);
     const normalizedId = ensureStringId(id);
     const resource = { type, id: normalizedId };
-    const stableIdentifier = this.cacheKeyManager.peekRecordIdentifier(resource);
+    const stableIdentifier = this.cacheKeyManager.peekResourceKey(resource);
     const isLoaded = stableIdentifier && this._instanceCache.recordIsLoaded(stableIdentifier);
 
     return isLoaded ? (this._instanceCache.getRecord(stableIdentifier) as T) : null;

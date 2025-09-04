@@ -29,7 +29,7 @@ function isDestroyable(record: OpaqueRecordInstance): record is Destroyable {
 
 const RecordCache = getOrSetGlobal('RecordCache', new Map<OpaqueRecordInstance, ResourceKey>());
 
-export function peekRecordIdentifier(record: OpaqueRecordInstance): ResourceKey | undefined {
+export function peekResourceKey(record: OpaqueRecordInstance): ResourceKey | undefined {
   return RecordCache.get(record);
 }
 
@@ -321,7 +321,7 @@ export class InstanceCache {
       console.log(`InstanceCache: updating id to '${id}' for record ${String(identifier)}`);
     }
 
-    const existingIdentifier = this.store.cacheKeyManager.peekRecordIdentifier({ type, id });
+    const existingIdentifier = this.store.cacheKeyManager.peekResourceKey({ type, id });
     assert(
       `'${type}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
       !existingIdentifier || existingIdentifier === identifier
