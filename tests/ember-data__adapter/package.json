@@ -1,6 +1,6 @@
 {
   "name": "ember-data__adapter",
-  "version": "5.8.0-alpha.7",
+  "version": "5.8.0-alpha.8",
   "private": true,
   "description": "Tests for @ember-data/adapter",
   "repository": {
