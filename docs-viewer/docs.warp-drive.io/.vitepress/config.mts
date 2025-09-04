@@ -49,7 +49,7 @@ export default defineConfig({
   // lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/logos/w-white@2x.png', type: 'image/png' }],
+    ['link', { rel: 'icon', href: '/logos/logo-yellow-square-100x100.png', type: 'image/png' }],
     ['link', { rel: 'icon', href: '/logos/prefers-color-w.svg', type: 'image/svg+xml' }],
 
     [
