@@ -1,15 +1,15 @@
 <p align="center">
   <img
     class="project-logo"
-    src="./logos/NCC-1701-a-blue.svg#gh-light-mode-only"
+    src="./logos/warp-drive-logo-dark.svg#gh-light-mode-only"
     alt="WarpDrive"
-    width="120px"
+    width="200px"
     title="WarpDrive" />
   <img
     class="project-logo"
-    src="./logos/NCC-1701-a.svg#gh-dark-mode-only"
+    src="./logos/warp-drive-logo-gold.svg#gh-dark-mode-only"
     alt="WarpDrive"
-    width="120px"
+    width="200px"
     title="WarpDrive" />
 </p>
 
@@ -56,7 +56,7 @@ pnpm install @warp-drive/core-types
       display: inline-block;
       padding: .2rem 0;
       color: #000;
-      border-bottom: 3px solid #0969da;
+      border-bottom: 3px solid #bbb;
     }
 
     details > details {
