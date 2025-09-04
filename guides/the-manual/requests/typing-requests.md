@@ -27,7 +27,7 @@ result.content.data.firstName; // will have type string
 ```
 
 When using the component API, if the templating syntax does not allow typescript
-generics, create a builder function.
+generics, create a [builder](./builders.md) function.
 
 ```glimmer-ts
 import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
