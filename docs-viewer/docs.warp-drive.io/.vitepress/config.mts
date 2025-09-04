@@ -49,9 +49,10 @@ export default defineConfig({
   // lastUpdated: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/logos/logo-yellow-square-100x100.png', type: 'image/png' }],
+    ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+    ['link', { rel: 'icon', href: '/logos/favicon/favicon.ico', sizes: '32x32' }],
     ['link', { rel: 'icon', href: '/logos/prefers-color-w.svg', type: 'image/svg+xml' }],
-
+    ['link', { rel: 'apple-touch-icon', href: '/logos/favicon/logo-yellow-square-180x180.png', type: 'image/png' }],
     [
       'meta',
       {
@@ -66,6 +67,13 @@ export default defineConfig({
         name: 'description',
         content:
           'WarpDrive is a lightweight data library for web apps — universal, typed, reactive, and ready to scale.',
+      },
+    ],
+    [
+      'meta',
+      {
+        name: 'apple-mobile-web-app-title',
+        content: 'WarpDrive',
       },
     ],
     [
