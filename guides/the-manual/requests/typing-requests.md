@@ -58,9 +58,69 @@ export default <template>
 
 Requests that return reactive responses wrap the primary resource data in a [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument). In the case of an error, this will be a [ReactiveErrorDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveErrorDocument) and in the case of success it will be a [ReactiveDataDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveDataDocument)
 
-Several conveniently narrowed interfaces exist for this:
+A conventient utility is available for [typing these reactive responses](/api/@warp-drive/core/request/functions/withReactiveResponse).
 
-:::tabs
+:::tabs key:return-type
+
+== Lists
+
+```ts
+import { withReactiveResponse } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUsers() {
+  return withReactiveResponse<User[]>({
+    url: '/users'
+  })
+);
+```
+
+== Single Resources
+
+```ts
+import { withReactiveResponse } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUser(id) {
+  return withReactiveResponse<User>({
+    url: `/users/id`
+  })
+);
+```
+
+== Single Queries
+
+```ts
+import { withReactiveResponse } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUser(id) {
+  return  withReactiveResponse<User | null>({
+    url: `/users/id`
+  })
+);
+```
+
+== Polymorphic Lists
+
+```ts
+import { withReactiveResponse } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+import type { Organization } from '#/data/user';
+
+function getUsers() {
+  return withReactiveResponse<Array<User | Organization>>({
+    url: '/users'
+  })
+);
+```
+
+:::
+
+The equivalent using `withResponseType` and `ReactiveDataDocument` is below.
+
+
+:::tabs key:return-type
 
 == Lists
 

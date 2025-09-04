@@ -140,11 +140,9 @@ import { getRequestState } from '@warp-drive/core/reactive';
 function ReactiveExample($props) {
   const store = useStore();
   const request = useMemo(
-    () => {
-      return store.request(
-        findRecord("user", $props.userId)
-      );
-    },
+    () => store.request(
+      findRecord("user", $props.userId)
+    ),
     [store, $props.userId]
   );
 

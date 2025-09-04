@@ -1,3 +1,4 @@
+import type { ReactiveDataDocument } from './reactive.ts';
 import type { RequestInfo } from './types/request.ts';
 import type { RequestSignature } from './types/symbols.ts';
 
@@ -37,6 +38,32 @@ export function withResponseType<T>(obj: RequestInfo): RequestInfo<T> & { [Reque
 }
 
 /**
+ * Brands the supplied object with the supplied response type
+ * wrapped in {@link ReactiveDataDocument}. This is a convenience for
+ * the common case of using {@link withResponseType} with `ReactiveDataDocument`.
+ *
+ * ```ts
+ * import { withReactiveResponse } from '@warp-drive/core/request';
+ * import type { User } from '#/data/user.ts'
+ *
+ * const result = await store.request(
+ *   withReactiveResponse<User>({ url: '/users/1' })
+ * );
+ *
+ * result.content.data; // will have type User
+ * ```
+ *
+ * @public
+ */
+export function withReactiveResponse<T>(
+  obj: RequestInfo
+): RequestInfo<ReactiveDataDocument<T>> & { [RequestSignature]: ReactiveDataDocument<T> } {
+  return obj as RequestInfo<ReactiveDataDocument<T>> & {
+    [RequestSignature]: ReactiveDataDocument<T>;
+  };
+}
+
+/**
  * @deprecated use {@link withResponseType} instead
  */
-export { withResponseType as withBrand };
+export const withBrand: typeof withResponseType = withResponseType;
