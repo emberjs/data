@@ -50,7 +50,7 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'manifest', href: '/site.webmanifest' }],
-    ['link', { rel: 'icon', href: '/logos/favicon/favicon.ico', sizes: '32x32' }],
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: '32x32' }],
     ['link', { rel: 'icon', href: '/logos/prefers-color-w.svg', type: 'image/svg+xml' }],
     ['link', { rel: 'apple-touch-icon', href: '/logos/favicon/logo-yellow-square-180x180.png', type: 'image/png' }],
     [
