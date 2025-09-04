@@ -54,6 +54,74 @@ export default <template>
 </template>;
 ```
 
+## Typing Reactive Responses
+
+Requests that return reactive responses wrap the primary resource data in a [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument). In the case of an error, this will be a [ReactiveErrorDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveErrorDocument) and in the case of success it will be a [ReactiveDataDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveDataDocument)
+
+Several conveniently narrowed interfaces exist for this:
+
+:::tabs
+
+== Lists
+
+```ts
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
+import { withResponseType } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUsers() {
+  return withResponseType<ReactiveDataDocument<User[]>>({
+    url: '/users'
+  })
+);
+```
+
+== Single Resources
+
+```ts
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
+import { withResponseType } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUser(id) {
+  return withResponseType<ReactiveDataDocument<User>>({
+    url: `/users/id`
+  })
+);
+```
+
+== Single Queries
+
+```ts
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
+import { withResponseType } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+
+function getUser(id) {
+  return withResponseType<ReactiveDataDocument<User | null>>({
+    url: `/users/id`
+  })
+);
+```
+
+== Polymorphic Lists
+
+```ts
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
+import { withResponseType } from '@warp-drive/core/request';
+import type { User } from '#/data/user';
+import type { Organization } from '#/data/user';
+
+function getUsers() {
+  return withResponseType<ReactiveDataDocument<Array<User | Organization>>>({
+    url: '/users'
+  })
+);
+```
+
+:::
+
+
 ## How it works (for the curious)
 
 `requestManager.request` and `store.request` each take a generic that can be used to set the return type of the content of the associated request.
