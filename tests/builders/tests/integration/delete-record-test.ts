@@ -12,7 +12,6 @@ import type { Cache } from '@warp-drive/core-types/cache';
 import type { ResourceKey } from '@warp-drive/core-types/identifier';
 import type { CollectionResourceDataDocument, SingleResourceDataDocument } from '@warp-drive/core-types/spec/document';
 import type { ApiError } from '@warp-drive/core-types/spec/error';
-import type { SingleResourceDocument } from '@warp-drive/core-types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
 import { setupTest } from '@warp-drive/diagnostic/ember';
 
@@ -89,9 +88,11 @@ module('Integration - deleteRecord', function (hooks) {
         // @ts-expect-error TS doesn't handle overload forwarding
         return super.didCommit(cacheKey, result);
       }
-      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${key.lid}`);
-        return super.commitWasRejected(key, errors);
+      commitWasRejected(cacheKey: ResourceKey | ResourceKey[], errors?: ApiError[]): void {
+        assert.step(
+          `commitWasRejected ${Array.isArray(cacheKey) ? cacheKey.map((k) => k.lid).join(',') : cacheKey.lid}`
+        );
+        return super.commitWasRejected(cacheKey, errors);
       }
     }
 
@@ -199,9 +200,11 @@ module('Integration - deleteRecord', function (hooks) {
         // @ts-expect-error TS doesn't handle overload forwarding
         return super.didCommit(cacheKey, result);
       }
-      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${key.lid}`);
-        return super.commitWasRejected(key, errors);
+      commitWasRejected(cacheKey: ResourceKey | ResourceKey[], errors?: ApiError[]): void {
+        assert.step(
+          `commitWasRejected ${Array.isArray(cacheKey) ? cacheKey.map((k) => k.lid).join(',') : cacheKey.lid}`
+        );
+        return super.commitWasRejected(cacheKey, errors);
       }
     }
 

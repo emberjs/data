@@ -883,13 +883,14 @@ export class JSONAPICache implements Cache {
     }
 
     const responseIsCollection = Array.isArray(data);
+    const hasMultipleIdentifiers = Array.isArray(committedIdentifier) && committedIdentifier.length > 1;
 
     if (Array.isArray(committedIdentifier)) {
       // if we get back an array of primary data, we treat each
       // entry as a separate commit for each identifier
       assert(
         `Expected the array of primary data to match the array of committed identifiers`,
-        !responseIsCollection || data.length === committedIdentifier.length
+        !hasMultipleIdentifiers || !responseIsCollection || data.length === committedIdentifier.length
       );
       if (responseIsCollection) {
         for (let i = 0; i < committedIdentifier.length; i++) {
@@ -916,9 +917,15 @@ export class JSONAPICache implements Cache {
       }
     }
 
-    return {
-      data: committedIdentifier as PersistedResourceKey,
-    };
+    return hasMultipleIdentifiers && responseIsCollection
+      ? {
+          data: committedIdentifier as PersistedResourceKey[],
+        }
+      : {
+          data: (Array.isArray(committedIdentifier)
+            ? committedIdentifier[0]
+            : committedIdentifier) as PersistedResourceKey,
+        };
   }
 
   /**

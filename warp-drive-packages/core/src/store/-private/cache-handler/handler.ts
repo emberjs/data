@@ -255,10 +255,16 @@ function updateCacheForSuccess<T>(
   let response: ResourceDataDocument | null = null;
   if (isMutation(request)) {
     if (Array.isArray(request.records)) {
-      store.cache.didCommit(request.records, document as StructuredDataDocument<CollectionResourceDataDocument>);
+      response = store.cache.didCommit(
+        request.records,
+        document as StructuredDataDocument<CollectionResourceDataDocument>
+      );
     } else if (request.data?.record) {
       // legacy fallback, the data option should no longer be used for this
-      store.cache.didCommit(request.data.record, document as StructuredDataDocument<SingleResourceDataDocument>);
+      response = store.cache.didCommit(
+        request.data.record,
+        document as StructuredDataDocument<SingleResourceDataDocument>
+      );
 
       // a mutation combined with a 204 has no cache impact when no known records were involved
       // a createRecord with a 201 with an empty response and no known records should similarly

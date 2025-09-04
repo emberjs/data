@@ -183,9 +183,11 @@ module('Integration - updateRecord', function (hooks) {
         // @ts-expect-error TS doesn't handle overload forwarding
         return super.didCommit(cacheKey, result);
       }
-      override commitWasRejected(key: ResourceKey, errors?: ApiError[]): void {
-        assert.step(`commitWasRejected ${key.lid}`);
-        return super.commitWasRejected(key, errors);
+      commitWasRejected(cacheKey: ResourceKey | ResourceKey[], errors?: ApiError[]): void {
+        assert.step(
+          `commitWasRejected ${Array.isArray(cacheKey) ? cacheKey.map((k) => k.lid).join(',') : cacheKey.lid}`
+        );
+        return super.commitWasRejected(cacheKey, errors);
       }
     }
 
