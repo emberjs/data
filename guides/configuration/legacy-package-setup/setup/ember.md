@@ -2,7 +2,7 @@
 
 ## Configure Reactivity
 
-1. Ensure `@warp-drive/ember` is [installed](../1-overview.md#installation) with the proper version
+1. Ensure `@warp-drive/ember` is [installed](../index.md#installation) with the proper version
 2. In the main entry point for your app add the following side-effect import
 
 ```ts [app/app.ts]
@@ -53,7 +53,7 @@ module.exports = async function (defaults) {
 ## Setup Legacy Support
 
 This guide presumes you've already gone through the [setup steps 
-that apply to all applications](./1-universal.md)
+that apply to all applications](./universal.md)
 
 "Legacy" is a term that applies to a fairly broad set of patterns that
 ***Warp*Drive**/***Ember*Data** is migrating away from. The previous
@@ -64,9 +64,9 @@ for `Adapters` and `Serializers`.
 Reasons to configure this legacy support include:
 
 - You have an existing application that has not migrated all requests away from this pattern
-- You are creating a new application and [LinksMode](../../misc/links-mode.md) is not sufficient
+- You are creating a new application and [LinksMode](../../../the-manual/misc/links-mode.md) is not sufficient
 
-1. Ensure `@ember-data/legacy-compat` is [installed](../1-overview.md#installation) with the proper version
+1. Ensure `@ember-data/legacy-compat` is [installed](../index.md#installation) with the proper version
 2. Add desired hooks to the store. The below example builds from the `Model` example in the prior guide.
 
 ```ts [app/services/store.ts]

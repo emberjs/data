@@ -4,7 +4,7 @@ categoryOrder: 0
 order: 0
 ---
 
-::: warning 💡 Looking for the [Legacy Package Guide](./4-legacy-package-setup/1-overview)?
+::: warning 💡 Looking for the [Legacy Package Guide](../configuration/legacy-package-setup/index.md)?
 :::
 
 # Installation

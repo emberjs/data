@@ -119,7 +119,7 @@ export default class AuthHandler {
 }
 ```
 
-You can read more about auth topic [here](../requests/examples/1-auth.md).
+You can read more about auth topic [here](./auth-handlers.md).
 
 Another good thing to do is to configure default host and namespace for your requests. There is an utility for that out of the box of `@ember-data/request-utils` called [`setBuildURLConfig`](https://github.com/emberjs/data/blob/main/packages/request-utils/src/index.ts#L67). You can do it anywhere in your app theoretically, but we recommend doing it in the `app/app.js` file. Here is how you can do it:
 

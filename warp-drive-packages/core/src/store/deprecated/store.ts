@@ -514,7 +514,7 @@ declare module '../-private/store-service' {
     }
     ```
 
-    See [peekAll](../methods/peekAll?anchor=peekAll) to get an array of current records in the
+    See {@link Store.peekAll | peekAll} to get an array of current records in the
     store, without waiting until a reload is finished.
 
     ### Retrieving Related Model Records
