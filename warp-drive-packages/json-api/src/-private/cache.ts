@@ -2407,12 +2407,13 @@ function didCommit(
       : committedIdentifier;
 
   const cached = cache.__peek(identifier, false);
-  if (cached.isDeleted) {
+  if (cached.isDeleted || op === 'deleteRecord') {
     cache.__graph.push({
       op: 'deleteRecord',
       record: identifier,
       isNew: false,
     });
+    cached.isDeleted = true;
     cached.isDeletionCommitted = true;
     cache._capabilities.notifyChange(identifier, 'removed', null);
     // TODO @runspired should we early exit here?
