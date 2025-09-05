@@ -2,7 +2,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import { getOrSetGlobal, peekTransient, setTransient } from '../../../../types/-private.ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type NotificationManager from '../../managers/notification-manager.ts';
+import type { NotificationManager } from '../../managers/notification-manager.ts';
 
 export const ARRAY_SIGNAL: '___(unique) Symbol(#[])' = getOrSetGlobal('#[]', Symbol('#[]'));
 export const OBJECT_SIGNAL: '___(unique) Symbol(#{})' = getOrSetGlobal('#{}', Symbol('#{}'));

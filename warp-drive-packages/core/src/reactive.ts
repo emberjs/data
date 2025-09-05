@@ -56,7 +56,7 @@
  * reactive form is controlled by a resource schema.
  *
  * For instance, lets say your API is a [{json:api}](https://jsonapi.org) and your store is using
- * the Cache provided by [@warp-drive/json-api](/api/@warp-drive/json-api), and a request
+ * the Cache provided by {@link @warp-drive/json-api! | @warp-drive/json-api}, and a request
  * returns the following raw data:
  *
  * ```ts

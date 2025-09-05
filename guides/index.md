@@ -150,7 +150,7 @@ content.data.organizations.map(organization => {
 
 ## Schema Driven Reactivity {#schemas}
 
-***Warp*Drive**'s reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and [transformation](./concepts/transformation.md) is controlled by a simple JSON [ResourceSchema](./concepts/schemas.md).
+***Warp*Drive**'s reactive objects transform raw cached data into rich, reactive data. The resulting objects are immutable, always displaying the latest state in the cache while preventing accidental or unsafe mutation in your app. The output and transformation is controlled by a simple JSON [ResourceSchema](./the-manual/schemas/index.md).
 
 ```ts
 import { withDefaults } from '@warp-drive/core/reactive';
@@ -230,7 +230,7 @@ class AppStore extends Store {
 
 ## Ready for RealTime {#realtime}
 
-Realtime subscriptions are supported through an extensive list of [operations](./concepts/operations.md) for surgically updating cache state, as well as by a comprehensive [notifications service]() which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
+Realtime subscriptions are supported through an extensive list of [operations](/api/@warp-drive/core/types/cache/operations/) for surgically updating cache state, as well as by a comprehensive [notifications service](/api/) which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
 
 ```ts
 store.cache.patch({

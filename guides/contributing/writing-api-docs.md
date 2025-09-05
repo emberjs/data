@@ -7,10 +7,10 @@ order: 5
 
 There are two sources of documentation in this repository:
 
-- [Guides](../guides/) - markdown files that are compiled into the manual for the website
+- [Guides](../index.md) - markdown files that are compiled into the manual for the website
 - inline code comments and types - from which the API Docs are compiled
 
-Both are previewable by following the instructions in the [Docs Viewer](../docs-viewer/README.md)
+Both are previewable by following the instructions in the [Docs Viewer](https://github.com/warp-drive-data/warp-drive/blob/main/docs-viewer/README.md)
 
 Great documentation requires both guides and docs. We encourage updating any associated guides affected by code changes as you make them, and writing new guides when appropriate.
 
@@ -348,4 +348,4 @@ This will build and run the (external) api-docs app with the current state of th
 
 Changes need to be manually rebuilt with `bun rebuild-api-docs`.
 
-See the [Docs Viewer README](../docs-viewer/README.md) for more info.
+See the [Docs Viewer README](https://github.com/warp-drive-data/warp-drive/blob/main/docs-viewer/README.md) for more info.

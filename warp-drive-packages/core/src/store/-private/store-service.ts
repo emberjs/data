@@ -59,7 +59,7 @@ import type { PrivateCacheKeyManager, setIdentifierGenerationMethod } from './ma
 import { CacheKeyManager } from './managers/cache-key-manager.ts';
 import { CacheManager } from './managers/cache-manager.ts';
 import type { PrivateNotificationManager } from './managers/notification-manager.ts';
-import NotificationManager from './managers/notification-manager.ts';
+import { NotificationManager } from './managers/notification-manager.ts';
 import type { PrivateRecordArrayManager } from './managers/record-array-manager.ts';
 import { RecordArrayManager } from './managers/record-array-manager.ts';
 import type { PrivateRequestStateService } from './network/request-cache.ts';
@@ -582,7 +582,7 @@ export class Store extends BaseClass {
   declare readonly recordArrayManager: RecordArrayManager;
 
   /**
-   * Provides access to the NotificationManager associated
+   * Provides access to the {@link NotificationManager} associated
    * with this Store instance.
    *
    * The NotificationManager can be used to subscribe to

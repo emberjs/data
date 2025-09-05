@@ -7,7 +7,7 @@
 It allows that relationship to be fetched using the standard `request` experience instead of via the legacy `adapter` interface.
 
 LinksMode behaves *slightly* differently depending on whether
-you are using Model (including via [LegacyMode](./4-reactivity/legacy/overview.md)) or [PolarisMode](./4-reactivity/polaris/overview.md). We'll explain this nuance below.
+you are using Model (including via [LegacyMode](./reactivity/legacy/overview.md)) or [PolarisMode](./reactivity/polaris/overview.md). We'll explain this nuance below.
 
 > [!TIP]
 > The next-generation of reactive data which replaces Model is ReactiveResource.
@@ -234,7 +234,7 @@ In LegacyMode, sync relationships gave direct access to the record or array whil
 to a promisified proxy to the record/array.
 
 In PolarisMode using `resource` and `collection`, sync relationships will also give direct access while async
-relationships will instead provide access to a [ReactiveDocument](/api/@warp-drive/core/reactive/interfaces/ReactiveDocument).
+relationships will instead provide access to a [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument).
 
 So for instance, if `user.homeAddress` were `async: false`, then its value would be an instance of an `Address` record.
 But if `user.homeAddress` were `asunc: true`, it would instead be a reactive class with `links`, `meta` and (only-if-loaded) `data`.

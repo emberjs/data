@@ -130,7 +130,7 @@ discuss what each does.
 ::: tip 💡 Guide
 Looking for Legacy Adapter/Serializer Support?
 
-→ After finishing this page read the guide for [Ember.js](./2-ember.md)
+→ After finishing this page read the guide for [Ember.js](./ember.md)
 :::
 
 ::: code-group
@@ -378,7 +378,7 @@ they come packed with features that will help you build incredible
 applications.
 
 ::: tip 💡 Guide
-→ Learn more about [Resource Schemas](../../8-schemas.md)
+→ Learn more about [Resource Schemas](../../../the-manual/schemas/index.md)
 :::
 
 ::: code-group
@@ -770,7 +770,7 @@ export default class AppStore extends Store {
 The final setup step is to configure reactivity for your framework. See
 each framework's guide for this step.
 
-- [Ember.js](./2-ember.md)
+- [Ember.js](./ember.md)
 
 ## Configure ESLint
 

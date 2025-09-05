@@ -277,7 +277,7 @@ By default, The Graph uses **upsert semantics** for a relationship payload with 
 
 This means that a field being absent from a relationship payload is semantically different from that field being present but with a value of `null` or an empty array. Being not-present means we do not replace the existing value.
 
-The Graph also has the ability to receive op-codes that deliver more granular modifications to relationships to add or remove specific values. For instance, if your application were to use WebSockets to receive streaming changes to a relationship, those changes could be applied directly without needing to fully replace the existing value. We'll cover these operations in the guide for [RealTime Support](./9-realtime.md).
+The Graph also has the ability to receive op-codes that deliver more granular modifications to relationships to add or remove specific values. For instance, if your application were to use WebSockets to receive streaming changes to a relationship, those changes could be applied directly without needing to fully replace the existing value. We'll cover these operations in the guide for [RealTime Support](./concepts/realtime.md).
 
 ## What about Mutation?
 

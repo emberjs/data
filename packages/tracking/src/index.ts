@@ -8,7 +8,8 @@
  * historically provided the bindings into Ember's reactivity system.
  *
  * This package is no longer needed as the configuration is now
- * provided by the package [@warp-drive/ember](../../@warp-drive/ember).
+ * provided by the package {@link @warp-drive/ember! | @warp-drive/ember}.
+ *
  * :::
  *
  * To resolve this deprecation, follow these steps:
@@ -28,8 +29,8 @@
  * ## 3. Clear the deprecation
  *
  * Once the above steps are complete, the deprecation can be silenced and the automatic fallback
- * registration of reactivity from `@ember-data/tracking` can be removed by updating your [WarpDrive
- * build config](../../@warp-drive/build-config) in your `ember-cli-build` file.
+ * registration of reactivity from `@ember-data/tracking` can be removed by updating your
+ * {@link @warp-drive/build-config! | WarpDrive Build Config}  in your `ember-cli-build` file.
  *
  * ```js [ember-cli-build.js]
  * 'use strict';
@@ -79,8 +80,8 @@ const emberDirtyTag = dirtyTag as unknown as (tag: Tag) => void;
  * `@ember-data/store` if the deprecation has not been resolved.
  *
  * This function should not be called directly in your application code
- * and this package is deprecated entirely, see the [package overview](../../)
- * for more details.
+ * and this package is deprecated entirely. Use {@link @warp-drive/ember! | @warp-drive/ember}
+ * instead.
  *
  * @deprecated
  * @public

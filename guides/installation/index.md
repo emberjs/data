@@ -462,7 +462,7 @@ bun add --exact @warp-drive/react@canary
 
 Even though React does not natively understand signals, ***Warp*Drive** provides a solution that
 enables React to understand when reactive data used by a component has changed enabling it
-to properly rerender. We'll cover this more in the [@warp-drive/react documentation](/api/@warp-drive/react)
+to properly rerender. We'll cover this more in the [@warp-drive/react documentation](/api/@warp-drive/react/)
 
 Configure your app to use our React compatible signals implementation by adding the following
 import to the top of your application. If you have tests which do not invoke your app, your

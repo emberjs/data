@@ -90,7 +90,7 @@ function _unsubscribe(
  * @hideconstructor
  * @public
  */
-export default class NotificationManager {
+export class NotificationManager {
   /** @internal */
   declare private store: Store;
   /** @internal */

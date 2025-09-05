@@ -6,7 +6,7 @@ const config = {
   entryFileName: 'index',
   entryPoints: entryPoints.filter((entry) => !entry.includes('-private')),
   out: 'doc',
-  readme: 'none',
+  readme: 'src/index.md',
 };
 
 export default config;
