@@ -249,17 +249,31 @@ export const GetPromiseStateSpec: SuiteBuilder<LocalTestContext, GetPromiseState
       countFor,
     });
 
-    assert.equal(state1!, getPromiseState<never, Error>(promise));
-    assert.equal(state1!.result, null);
-    assert.equal(state1!.error, null);
-    assert.equal(counter, 1);
-    assert.dom().hasText('Pending\n          Count:\n          1');
-    await this.h.rerender();
-    assert.equal(state1!.result, null);
-    assert.true(state1!.error instanceof Error);
-    assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
-    assert.equal(counter, 2);
-    assert.dom().hasText('Our Error\n          Count:\n          2');
+    if (frameworkUsesSyncRender(this.framework)) {
+      assert.equal(state1!, getPromiseState<never, Error>(promise));
+      assert.equal(state1!.result, null);
+      assert.equal(state1!.error, null);
+      assert.equal(counter, 1);
+      assert.dom().hasText('Pending\n          Count:\n          1');
+      await this.h.rerender();
+      assert.equal(state1!.result, null);
+      assert.true(state1!.error instanceof Error);
+      assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our Error\n          Count:\n          2');
+    } else {
+      assert.equal(state1!, getPromiseState<never, Error>(promise));
+      assert.equal(state1!.result, null);
+      assert.true(state1!.error instanceof Error);
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our Error\n          Count:\n          2');
+      await this.h.rerender();
+      assert.equal(state1!.result, null);
+      assert.true(state1!.error instanceof Error);
+      assert.equal((state1!.error as Error | undefined)?.message, 'Our Error');
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our Error\n          Count:\n          2');
+    }
   })
 
   .for('it renders only once when the promise error state is already cached')
