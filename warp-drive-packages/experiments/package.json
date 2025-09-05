@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/experiments",
   "description": "Experimental features for WarpDrive",
-  "version": "0.2.6-alpha.9",
+  "version": "0.2.6-alpha.10",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {

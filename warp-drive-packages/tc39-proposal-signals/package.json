@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/tc39-proposal-signals",
   "description": "Data bindings and utilities for the prototype TC39 Signals implementation",
-  "version": "5.8.0-alpha.9",
+  "version": "5.8.0-alpha.10",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
