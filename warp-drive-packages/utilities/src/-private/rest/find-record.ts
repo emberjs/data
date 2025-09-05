@@ -1,10 +1,10 @@
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
 } from '@warp-drive/core/types/request';
-import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '../../index.ts';
 import { camelize, pluralize } from '../../string';
@@ -62,15 +62,11 @@ import { copyForwardUrlOptions, extractCacheOptions } from '../builder-utils.ts'
  * ```
  *
  * @public
- * @param identifier
- * @param options
  */
-export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'data'> & { data: T };
-
 export function findRecord<T>(
   identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
   options?: FindRecordOptions
-): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
+): FindRecordRequestOptions<ReactiveDataDocument<T>, T>;
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
@@ -79,13 +75,13 @@ export function findRecord<T>(
   type: TypeFromInstance<T>,
   id: string,
   options?: FindRecordOptions
-): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
+): FindRecordRequestOptions<ReactiveDataDocument<T>, T>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
 export function findRecord<T>(
   arg1: TypeFromInstance<T> | RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
   arg2: string | FindRecordOptions | undefined,
   arg3?: FindRecordOptions
-): FindRecordRequestOptions<FindRecordResultDocument<T>, T> {
+): FindRecordRequestOptions<ReactiveDataDocument<T>, T> {
   const identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>> =
     typeof arg1 === 'string' ? { type: arg1, id: arg2 as string } : arg1;
   const options: FindRecordOptions = (typeof arg1 === 'string' ? arg3 : (arg2 as FindRecordOptions)) || {};
@@ -113,3 +109,6 @@ export function findRecord<T>(
     records: [identifier],
   };
 }
+
+/** @deprecated use {@link ReactiveDataDocument} instead */
+export type FindRecordResultDocument<T> = ReactiveDataDocument<T>;

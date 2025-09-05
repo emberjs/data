@@ -1,10 +1,10 @@
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
   FindRecordOptions,
   FindRecordRequestOptions,
   RemotelyAccessibleIdentifier,
 } from '@warp-drive/core/types/request';
-import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import { buildBaseURL, buildQueryParams, type FindRecordUrlOptions } from '../../index.ts';
 import { pluralize } from '../../string.ts';
@@ -63,16 +63,11 @@ import { ACCEPT_HEADER_VALUE } from './-utils.ts';
  * ```
  *
  * @public
- * @param identifier
- * @param options
  */
-
-export type FindRecordResultDocument<T> = Omit<SingleResourceDataDocument<T>, 'data'> & { data: T };
-
 export function findRecord<T>(
   identifier: RemotelyAccessibleIdentifier<TypeFromInstance<T>>,
   options?: FindRecordOptions
-): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
+): FindRecordRequestOptions<ReactiveDataDocument<T>, T>;
 export function findRecord(
   identifier: RemotelyAccessibleIdentifier,
   options?: FindRecordOptions
@@ -81,7 +76,7 @@ export function findRecord<T>(
   type: TypeFromInstance<T>,
   id: string,
   options?: FindRecordOptions
-): FindRecordRequestOptions<FindRecordResultDocument<T>, T>;
+): FindRecordRequestOptions<ReactiveDataDocument<T>, T>;
 export function findRecord(type: string, id: string, options?: FindRecordOptions): FindRecordRequestOptions;
 export function findRecord(
   arg1: string | RemotelyAccessibleIdentifier,
@@ -114,3 +109,6 @@ export function findRecord(
     records: [identifier],
   };
 }
+
+/** @deprecated use {@link ReactiveDataDocument} */
+export type FindRecordResultDocument<T> = ReactiveDataDocument<T>;
