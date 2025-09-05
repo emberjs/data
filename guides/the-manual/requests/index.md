@@ -444,4 +444,4 @@ This architecture allows us to quickly integrate any kind of pre- or post- proce
 - [AutoCompress](/api/@warp-drive/utilities/handlers/classes/AutoCompress) - automatically compress large request bodies and use streaming uploads where supported
 - [Gate](/api/@warp-drive/utilities/handlers/classes/Gate) - quickly activate/deactivate a handler per-request or more broadly
 
-As well as a suite of useful [utilities](http://localhost:5173/api/@warp-drive/utilities/handlers/) for handlers.
+As well as a suite of useful [utilities](/api/@warp-drive/utilities/handlers/) for handlers.

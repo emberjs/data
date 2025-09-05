@@ -36,7 +36,7 @@ Want to make your API dead-simple to consume? ***Warp*Drive** makes it easy to c
 == 🚧 MPAs 
 
 > [!TIP]  🚧 Pardon Our Stardust
-> The [DataWorker](http://localhost:5173/api/@warp-drive/experiments/data-worker/)
+> The [DataWorker](/api/@warp-drive/experiments/data-worker/)
 > powering persisted caching and cross-tab/cross-MPA-boundary deduping is currently
 > experimental.
 
