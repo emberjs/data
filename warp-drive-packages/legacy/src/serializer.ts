@@ -14,14 +14,14 @@
   the format WarpDrive understands.
 
   Data received from an API response is **normalized** into
-  [JSON:API](https://jsonapi.org/) (the format used internally
+  [{json:api}](https://jsonapi.org/) (the format used internally
   by WarpDrive), while data sent to an API is **serialized**
   into the format the API expects.
 
   ### Implementing a Serializer
 
   There are only two required serializer methods, one for
-  normalizing data from the server API format into JSON:API, and
+  normalizing data from the server API format into {json:api}, and
   another for serializing records via `Snapshots` into the expected
   server API format.
 
@@ -67,7 +67,7 @@
   //   app/serializers/application.js
   ```
 
-  Most requests in @warp-drive/legacy are made with respect to a particular `type` (or `modelName`)
+  Most requests in `@warp-drive/legacy` are made with respect to a particular `type` (or `modelName`)
   (e.g., "get me the full collection of **books**" or "get me the **employee** whose id is 37"). We
   refer to this as the **primary** resource `type`.
 
@@ -115,6 +115,8 @@ import type { EmptyResourceDocument, SingleResourceDocument } from '@warp-drive/
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { MinimumSerializerInterface } from './compat';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { JSONSerializer } from './serializer/json';
 
 const service = s.service ?? s.inject;
 
@@ -133,8 +135,7 @@ const service = s.service ?? s.inject;
 
     * `normalize()`
 
-  For an example implementation, see
-  [JSONSerializer](JSONSerializer), the included JSON serializer.
+  For an example implementation, see the included {@link JSONSerializer}.
 
   @class Serializer
   @public

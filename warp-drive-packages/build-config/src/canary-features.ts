@@ -100,7 +100,7 @@
  * }
  * ```
  *
- * For more complex projects and migrations, configure [@warp-drive/build-config/babel-macros](./babel-macros)
+ * For more complex projects and migrations, configure {@link @warp-drive/core!build-config/babel-macros |  @warp-drive/core/build-config/babel-macros}
  *
  * The current list of features used at build time for canary releases is defined below.
  *

@@ -35,7 +35,6 @@ export type RequestType =
 
   Methods that are not required are marked as **optional**.
 
-  @class (Interface) Serializer
   @public
 */
 export interface MinimumSerializerInterface {
@@ -55,18 +54,17 @@ export interface MinimumSerializerInterface {
    *    and [Resource Identifier Objects](https://jsonapi.org/format/#document-resource-identifier-objects)
    *
    * @public
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {ModelSchema} schema An object with methods for accessing information about
+   * @param store The store service that initiated the request being normalized
+   * @param schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {JSONObject} rawPayload The raw JSON response data returned from an API request.
+   * @param rawPayload The raw JSON response data returned from an API request.
    *  This correlates to the value the promise returned by the adapter method that performed
    *  the request resolved to.
-   * @param {string|null} id For a findRecord request, this is the id initially provided
+   * @param id For a findRecord request, this is the id initially provided
    *  in the call to store.findRecord. Else this value is null.
-   * @param {'findRecord' | 'queryRecord' | 'findAll' | 'findBelongsTo' | 'findHasMany' | 'findMany' | 'query' | 'createRecord' | 'deleteRecord' | 'updateRecord'} requestType The
-   *  type of request the Adapter had been asked to perform.
+   * @param requestType The type of request the Adapter had been asked to perform.
    *
-   * @return {JsonApiDocument} a document following the structure of a JSON:API Document.
+   * @return a document following the structure of a [{json:api} Document](https://jsonapi.org/format/#document-structure).
    */
   normalizeResponse(
     store: Store,
@@ -88,7 +86,7 @@ export interface MinimumSerializerInterface {
 
   /**
    * This method is responsible for serializing an individual record
-   * via a [Snapshot](Snapshot) into the format expected by the API.
+   * via a {@link Snapshot} into the format expected by the API.
    *
    * This method is called by `snapshot.serialize()`.
    *
@@ -99,8 +97,7 @@ export interface MinimumSerializerInterface {
    * is not implemented.
    *
    * @public
-   * @param {Snapshot} snapshot A Snapshot for the record to serialize
-   * @param {Object} [options]
+   * @param snapshot A Snapshot for the record to serialize
    */
   serialize(snapshot: Snapshot, options?: SerializerOptions): ObjectValue;
 
@@ -148,14 +145,12 @@ export interface MinimumSerializerInterface {
    *
    * @public
    * @optional
-   * @param {ModelSchema} schema An object with methods for accessing information about
+   * @param schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {JSONObject} rawPayload Some raw JSON data to be normalized into a JSON:API Resource.
-   * @param {String} [prop] When called by the EmbeddedRecordsMixin this param will be the
+   * @param rawPayload Some raw JSON data to be normalized into a JSON:API Resource.
+   * @param prop When called by the EmbeddedRecordsMixin this param will be the
    *  property at which the object provided as rawPayload was found.
-   * @return {SingleResourceDocument} A JSON:API Document
-   *  containing a single JSON:API Resource
-   *  as its primary data.
+   * @return A JSON:API Document containing a single JSON:API Resource as its primary data.
    */
   normalize?(schema: ModelSchema, rawPayload: ObjectValue, prop?: string): SingleResourceDocument;
 
@@ -192,11 +187,9 @@ export interface MinimumSerializerInterface {
    * @optional
    * @param hash A top most object of the request payload onto
    *  which to append the serialized record
-   * @param {ModelSchema} schema An object with methods for accessing information about
+   * @param schema An object with methods for accessing information about
    *  the type, attributes and relationships of the primary type associated with the request.
-   * @param {Snapshot} snapshot A Snapshot for the record to serialize
-   * @param [options]
-   * @return {void}
+   * @param snapshot A Snapshot for the record to serialize
    */
   serializeIntoHash?(hash: object, schema: ModelSchema, snapshot: Snapshot, options?: SerializerOptions): void;
 
@@ -236,10 +229,9 @@ export interface MinimumSerializerInterface {
    *
    * @public
    * @optional
-   * @param {Store} store The store service that initiated the request being normalized
-   * @param {Object} rawPayload The raw JSON response data returned from an API request.
+   * @param store The store service that initiated the request being normalized
+   * @param rawPayload The raw JSON response data returned from an API request.
    *  This JSON should be in the API format expected by the serializer.
-   * @return {void}
    */
   pushPayload?(store: Store, rawPayload: ObjectValue): void;
 

@@ -14,6 +14,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 import type { Handler } from '@warp-drive/core/request';
 import { dasherize, pluralize, singularize } from '@warp-drive/utilities/string';
 
+import type { Snapshot } from '../compat/-private';
 import { JSONSerializer } from './json';
 /**
  * :::danger
@@ -139,8 +140,6 @@ import { JSONSerializer } from './json';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   /**
-    @param {Object} documentHash
-    @return {Object}
     @private
   */
   _normalizeDocumentHelper(documentHash) {
@@ -176,8 +175,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   },
 
   /**
-    @param {Object} relationshipDataHash
-    @return {Object}
     @private
   */
   _normalizeRelationshipDataHelper(relationshipDataHash) {
@@ -187,8 +184,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   },
 
   /**
-    @param {Object} resourceHash
-    @return {Object}
     @private
   */
   _normalizeResourceHelper(resourceHash) {
@@ -220,8 +215,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     Normalize some data and push it into the store.
 
     @public
-    @param {Store} store
-    @param {Object} payload
   */
   pushPayload(store, payload) {
     const normalizedPayload = this._normalizeDocumentHelper(payload);
@@ -229,13 +222,7 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   },
 
   /**
-    @param {Store} store
-    @param {Model} primaryModelClass
-    @param {Object} payload
-    @param {String|Number} id
-    @param {String} requestType
-    @param {Boolean} isSingle
-    @return {Object} JSON-API Document
+    @return A {json:api} Document
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
@@ -284,8 +271,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
      http://jsonapi.org/format/#document-resource-object-relationships
 
     @public
-     @param {Object} relationshipHash
-     @return {Object}
   */
   extractRelationship(relationshipHash) {
     if (Array.isArray(relationshipHash.data)) {
@@ -310,9 +295,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
      http://jsonapi.org/format/#document-resource-object-relationships
 
     @public
-     @param {Object} modelClass
-     @param {Object} resourceHash
-     @return {Object}
   */
   extractRelationships(modelClass, resourceHash) {
     const relationships = {};
@@ -342,9 +324,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
   },
 
   /**
-    @param {Model} modelClass
-    @param {Object} resourceHash
-    @return {String}
     @private
   */
   _extractType(modelClass, resourceHash) {
@@ -359,8 +338,7 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     key `studentAssesments` would be converted to `student-assesment`.
 
     @public
-    @param {String} key
-    @return {String} the model's modelName
+    @return the model's modelName
   */
   modelNameFromPayloadKey(key) {
     return dasherize(singularize(key));
@@ -373,8 +351,6 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     `student-assesment` would be converted to `student-assesments`.
 
     @public
-    @param {String} modelName
-    @return {String}
   */
   payloadKeyFromModelName(modelName) {
     return pluralize(modelName);
@@ -433,9 +409,7 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     ```
 
     @public
-    @param {String} key
-    @param {String} method
-    @return {String} normalized key
+    @return normalized key
   */
   keyForAttribute(key, method) {
     return dasherize(key);
@@ -463,10 +437,7 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     }
     ```
     @public
-   @param {String} key
-   @param {String} typeClass
-   @param {String} method
-   @return {String} normalized key
+   @return the normalized key
   */
   keyForRelationship(key, typeClass, method) {
     return dasherize(key);
@@ -636,11 +607,8 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     ```
 
     @public
-    @param {Snapshot} snapshot
-    @param {Object} options
-    @return {Object} json
   */
-  serialize(snapshot, options) {
+  serialize(snapshot: Snapshot, options) {
     // @ts-expect-error untyped
     const data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
@@ -675,12 +643,13 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     }
   },
 
-  serializeBelongsTo(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot: Snapshot, json, relationship) {
     const name = relationship.name;
 
     // @ts-expect-error untyped
     if (this._canSerialize(name)) {
       const belongsTo = snapshot.belongsTo(name);
+      // @ts-expect-error not narrowed
       const belongsToIsNotNew = belongsTo && !belongsTo.isNew;
 
       if (belongsTo === null || belongsToIsNotNew) {
@@ -696,11 +665,13 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
 
         let data = null;
         if (belongsTo) {
+          // @ts-expect-error not narrowed
           const payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
 
           // @ts-expect-error untyped
           data = {
             type: payloadType,
+            // @ts-expect-error not narrowed
             id: belongsTo.id,
           };
         }
@@ -710,7 +681,7 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
     }
   },
 
-  serializeHasMany(snapshot, json, relationship) {
+  serializeHasMany(snapshot: Snapshot, json, relationship) {
     const name = relationship.name;
 
     // @ts-expect-error untyped
@@ -728,15 +699,18 @@ const JSONAPISerializer: any = (JSONSerializer as typeof EmberObject).extend({
         }
 
         // only serialize has many relationships that are not new
+        // @ts-expect-error not narrowed
         const nonNewHasMany = hasMany.filter((item) => !item.isNew);
         const data = new Array(nonNewHasMany.length);
 
         for (let i = 0; i < nonNewHasMany.length; i++) {
           const item = hasMany[i];
+          // @ts-expect-error not narrowed
           const payloadType = this.payloadKeyFromModelName(item.modelName);
 
           data[i] = {
             type: payloadType,
+            // @ts-expect-error not narrowed
             id: item.id,
           };
         }

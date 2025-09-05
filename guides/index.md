@@ -62,7 +62,7 @@ Our innovative approach to [fine grained reactivity](https://dev.to/ryansolid/a-
 No more boxing/unboxing, extra methods, funny syntaxes, or other boilerplate. Your data is reactive
 without any ceremony, and has the same shape you'd expect if it were "just an object" or "just an array".
 
-It even works with [React](/api/@warp-drive/react)!
+It even works with [React](/api/@warp-drive/react/)!
 
 ## Requests Without The Fuss {#requests}
 
@@ -230,7 +230,7 @@ class AppStore extends Store {
 
 ## Ready for RealTime {#realtime}
 
-Realtime subscriptions are supported through an extensive list of [operations](/api/@warp-drive/core/types/cache/operations/) for surgically updating cache state, as well as by a comprehensive [notifications service](/api/) which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
+Realtime subscriptions are supported through an extensive list of [operations](/api/@warp-drive/core/types/cache/operations/) for surgically updating cache state, as well as by a comprehensive [notifications manager](/api/@warp-drive/core/store/interfaces/NotificationManager) which alerts us to when data has been added, updated or removed from the cache allowing subscriptions to dynamically adjust as needed.
 
 ```ts
 store.cache.patch({

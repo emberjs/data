@@ -177,7 +177,7 @@ const JSONSerializer: any = Serializer.extend({
 
     When serialized:
 
-    ```javascript
+    ```js
     {
       "firstName": "Harry",
       "lastName": "Houdini",
@@ -191,9 +191,7 @@ const JSONSerializer: any = Serializer.extend({
     relationships even if it's neither a many-to-many nor many-to-none
     relationship.
 
-    @property attrs
     @public
-    @type {Object}
   */
   mergedProperties: ['attrs'],
 
