@@ -36,7 +36,7 @@ let NormalizedType: Normalizer = (str: string) => {
  * changes during normalization. This is useful for instrumenting
  * to discover places where usage in the app is not consistent.
  *
- * @param method a function which takes a mismatch-type ('formatted-id' | 'formatted-type'), actual, and expected value
+ * @param fn - a function which takes a mismatch-type ('formatted-id' | 'formatted-type'), actual, and expected value
  * @public
  */
 export function configureMismatchReporter(fn: Reporter): void {
@@ -48,7 +48,7 @@ export function configureMismatchReporter(fn: Reporter): void {
  * fails validation. This is useful for instrumenting
  * to discover places where usage in the app is not consistent.
  *
- * @param method a function which takes a message and a condition
+ * @param fn - a function which takes a message and a condition
  * @public
  */
 export function configureAssertFn(fn: (message: string, condition: unknown) => void): void {
@@ -65,7 +65,7 @@ export function configureAssertFn(fn: (message: string, condition: unknown) => v
  * the configured mismatch reporter and assert functions will
  * be called.
  *
- * @param method a function which takes a string and returns a string
+ * @param fn - a function which takes a string and returns a string
  * @public
  */
 export function configureTypeNormalization(fn: (type: string) => string): void {
@@ -99,8 +99,8 @@ const NORMALIZED_TYPES = new Map<string, string>();
  * formattedType('PostComment'); // => 'post-comment'
  * ```
  *
- * @param {String} type the potentially un-normalized type
- * @return {String} the normalized type
+ * @param type the potentially un-normalized type
+ * @return the normalized type
  * @public
  */
 export function formattedType<T extends string>(type: T | string): T {
@@ -138,8 +138,8 @@ export function formattedType<T extends string>(type: T | string): T {
  * formattedId(null); // => null
  *	```
  *
- * @param {String | Number | null} id the potentially un-normalized id
- * @return {String | null} the normalized id
+ * @param id the potentially un-normalized id
+ * @return the normalized id
  * @public
  */
 export function formattedId(id: string | number): string;
@@ -192,9 +192,9 @@ export function expectId(id: string | number | null): string {
  * isEquivType('posts', null); // false
  * ```
  *
- * @param {String} expected a potentially unnormalized type to match against
- * @param {String} actual a potentially unnormalized type to match against
- * @return {Boolean} true if the types are equivalent
+ * @param expected a potentially unnormalized type to match against
+ * @param actual a potentially unnormalized type to match against
+ * @return true if the types are equivalent
  * @public
  */
 export function isEquivType(expected: string, actual: string): boolean {
@@ -227,9 +227,9 @@ export function isEquivType(expected: string, actual: string): boolean {
  * isEquivId(1, null); // false
  * ```
  *
- * @param {string | number} expected a potentially un-normalized id to match against
- * @param {string | number} actual a potentially un-normalized id to match against
- * @return {Boolean} true if the ids are equivalent
+ * @param expected a potentially un-normalized id to match against
+ * @param actual a potentially un-normalized id to match against
+ * @return true if the ids are equivalent
  * @public
  */
 export function isEquivId(expected: string | number, actual: string | number | null): boolean {

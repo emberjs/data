@@ -289,8 +289,8 @@ export interface Cache {
    * was successfully updated as part of a save transaction.
    *
    * @public
-   * @param the primary ResourceKey that was operated on
-   * @param data - a document in the cache format containing any updated data
+   * @param cacheKey - the primary ResourceKey that was operated on
+   * @param result - a document in the cache format containing any updated data
    */
   didCommit(
     cacheKey: ResourceKey,
