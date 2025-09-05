@@ -741,7 +741,7 @@ export interface ArrayField {
      *
      * Configures which extensions this array is allowed to use.
      * Extensions are registered with the store's schema service
-     * via {@link SchemaService.registerDangerousArrayExtension}
+     * via {@link SchemaService.CAUTION_MEGA_DANGER_ZONE_registerExtension}
      *
      * Extensions should only be used for temporary enhancements
      * to arrays to support migrating away from deprecated behaviors
@@ -861,7 +861,7 @@ export interface SchemaArrayField {
      *
      * Configures which extensions this array is allowed to use.
      * Extensions are registered with the store's schema service
-     * via {@link SchemaService.registerDangerousArrayExtension}
+     * via {@link SchemaService.CAUTION_MEGA_DANGER_ZONE_registerExtension}
      *
      * Extensions should only be used for temporary enhancements
      * to arrays to support migrating away from deprecated behaviors
@@ -1697,7 +1697,7 @@ export interface LegacyHasManyField {
      *
      * Configures which extensions this array is allowed to use.
      * Extensions are registered with the store's schema service
-     * via {@link SchemaService.registerDangerousArrayExtension}
+     * via {@link SchemaService.CAUTION_MEGA_DANGER_ZONE_registerExtension}
      *
      * Extensions should only be used for temporary enhancements
      * to arrays to support migrating away from deprecated behaviors
@@ -1879,7 +1879,7 @@ export interface LinksModeHasManyField {
      *
      * Configures which extensions this array is allowed to use.
      * Extensions are registered with the store's schema service
-     * via {@link SchemaService.registerDangerousArrayExtension}
+     * via {@link SchemaService.CAUTION_MEGA_DANGER_ZONE_registerExtension}
      *
      * Extensions should only be used for temporary enhancements
      * to arrays to support migrating away from deprecated behaviors

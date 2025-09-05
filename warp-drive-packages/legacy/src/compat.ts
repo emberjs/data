@@ -20,21 +20,44 @@ export { LegacyNetworkHandler } from './compat/legacy-network-handler/legacy-net
 
 export type { MinimumAdapterInterface, MinimumSerializerInterface, SerializerOptions, AdapterPayload };
 
+/**
+ * Extends the signature of {@link Store} with additional
+ * methods available when using the legacy network layer.
+ *
+ * @public
+ * @noInheritDoc
+ * @legacy
+ */
 export interface LegacyStoreCompat extends Store {
+  /**
+   * @private
+   */
   _fetchManager: FetchManager;
+
   adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
   adapterFor(this: Store, modelName: string, _allowMissing: true): MinimumAdapterInterface | undefined;
 
   serializerFor<K extends string>(modelName: K, _allowMissing?: boolean): MinimumSerializerInterface | null;
 
   normalize(modelName: string, payload: ObjectValue): ObjectValue;
+
   pushPayload(modelName: string, payload: ObjectValue): void;
+
   serializeRecord(record: unknown, options?: SerializerOptions): unknown;
 
+  /**
+   * @private
+   */
   _adapterCache: Record<string, MinimumAdapterInterface & { store: Store }>;
+  /**
+   * @private
+   */
   _serializerCache: Record<string, MinimumSerializerInterface & { store: Store }>;
 }
 
+/**
+ * @deprecated - use {@link LegacyStoreCompat} instead
+ */
 export type CompatStore = LegacyStoreCompat;
 
 /**
@@ -154,8 +177,13 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
 }
 
 /**
-  `normalize` converts a json payload into the normalized form that
-  [push](../methods/push?anchor=push) expects.
+  `normalize` converts a json payload into the normalized form expected by
+  {@link Store.push | push} using the serializer specified by `modelName`
+
+  :::warning
+  Generally it would be better to invoke the serializer yourself directly,
+  or write a more specialized normalization utility.
+  :::
 
   Example
 
@@ -167,6 +195,7 @@ export function serializerFor(this: Store, modelName: string): MinimumSerializer
   });
   ```
 
+  @legacy
   @public
   @param modelName The name of the model type for this payload
   @return The normalized payload

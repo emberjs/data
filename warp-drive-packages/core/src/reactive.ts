@@ -324,3 +324,8 @@ export {
   type PromiseState,
   type RequestState,
 } from './store/-private';
+
+export type { LegacyLiveArray } from './store/-private/record-arrays/legacy-live-array.ts';
+export type { LegacyManyArray } from './store/-private/record-arrays/legacy-many-array.ts';
+export type { LegacyQueryArray } from './store/-private/record-arrays/legacy-query.ts';
+export type { ReactiveResourceArray } from './store/-private/record-arrays/resource-array.ts';

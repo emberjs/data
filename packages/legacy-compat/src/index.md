@@ -1,0 +1,1 @@
+# @ember-data/legacy-compat
