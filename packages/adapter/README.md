@@ -45,10 +45,10 @@ pnpm add @ember-data/adapter
 If using `ember-data` no additional setup is necesssary.
 
 > **Note**
-> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> When using [ember-data](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
-To use legacy adapters you will need to have installed and configured the LegacyNetworkHandler from [@ember-data/legacy-compat](https://github.com/emberjs/data/blob/main/packages/-ember-data)
+To use legacy adapters you will need to have installed and configured the LegacyNetworkHandler from [@ember-data/legacy-compat](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data)
 
 ```sh
 pnpm add @ember-data/legacy-compat

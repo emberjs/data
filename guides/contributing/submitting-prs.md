@@ -48,7 +48,7 @@ labeled by maintainers prior to a PR being accepted and merged.
 
 #### Changelog Labels
 
-Labels used for the changelog include any labels listed in the changelog config in the [root package.json](https://github.com/emberjs/data/blob/main/package.json).
+Labels used for the changelog include any labels listed in the changelog config in the [root package.json](https://github.com/warp-drive-data/warp-drive/blob/main/package.json).
 
 These labels are prefixed with `changelog:` and currently the options are:
 
@@ -92,4 +92,4 @@ it will need to be added manually.
 
 #### Project Labels
 
-Labels used for tracking work in [various projects](https://github.com/emberjs/data/projects) are not enforced, but PRs and issues should be labeled for any applicable projects and added to those projects when reviewed.
+Labels used for tracking work in [various projects](https://github.com/warp-drive-data/warp-drive/projects) are not enforced, but PRs and issues should be labeled for any applicable projects and added to those projects when reviewed.

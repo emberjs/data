@@ -9,5 +9,5 @@ If this PR updates API docs, preview them by:
 
 ---
 
-- Read the full [contributing documentation](https://github.com/emberjs/data/blob/main/contributing/become-a-contributor.md)
+- Read the full [contributing documentation](https://github.com/warp-drive-data/warp-drive/blob/main/contributing/become-a-contributor.md)
 - If you do not have permission to add labels or run the test-suite in CI, a team member will do this for you.

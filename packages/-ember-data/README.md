@@ -25,7 +25,7 @@
 
 ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
-![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=FFC474)
+![License](https://img.shields.io/github/license/warp-drive-data/warp-drive.svg?style=flat&color=FFC474)
 [![Docs](./logos/docs-badge.svg)](https://api.emberjs.com/ember-data/release)
 [![EmberJS Discord Community Server](https://img.shields.io/badge/EmberJS-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
 )
@@ -65,17 +65,17 @@ rich application &mdash; letting you ship better experiences more quickly withou
 - Getting Started
   - [Basic Installation](#basic-installation)
   - [Advanced Installation](#advanced-installation)
-  - [Configuration](https://github.com/emberjs/data/blob/main/warp-drive-packages/build-config/README.md)
+  - [Configuration](https://github.com/warp-drive-data/warp-drive/blob/main/warp-drive-packages/build-config/README.md)
 - Learn
   - [API Documentation](https://api.emberjs.com/ember-data/release)
-  - [New Guides (🚧 WIP)](https://github.com/emberjs/data/blob/main/guides/index.md)
-  - [Community Resources](https://github.com/emberjs/data/blob/main/guides/community-resources.md)
+  - [New Guides (🚧 WIP)](https://github.com/warp-drive-data/warp-drive/blob/main/guides/index.md)
+  - [Community Resources](https://github.com/warp-drive-data/warp-drive/blob/main/guides/community-resources.md)
   - [Ember Usage Guide](https://guides.emberjs.com/release/models/)
   - [Ember Tutorial](https://guides.emberjs.com/release/tutorial/part-1/)
 - Get Involved
   - [Discord Community](https://discord.com/invite/emberjs)
   - [Community & Help](https://emberjs.com/community)
-  - [Contributing](https://github.com/emberjs/data/blob/main/CONTRIBUTING.md)
+  - [Contributing](https://github.com/warp-drive-data/warp-drive/blob/main/CONTRIBUTING.md)
   - [RFCs](https://github.com/emberjs/rfcs/labels/T-ember-data)
   - [Team](https://emberjs.com/team)
   - [Blog](https://emberjs.com/blog)

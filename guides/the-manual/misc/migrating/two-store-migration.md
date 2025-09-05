@@ -58,7 +58,7 @@ Configuring the store generally means you need to do *at least* four things:
   - *optionally* configure a cache policy
 - setup the cache
 
-We recommend the source-code for [ember-data/store](https://github.com/emberjs/data/blob/main/packages/-ember-data/src/store.ts) if you are curious what the configuration used "by default" historically looks like. If you wanted to exactly match the behaviors of your existing store (but perhaps without deprecated features) this is what would be required. However, if taking the two-store approach it is likely you want to use a different configuration.
+We recommend the source-code for [ember-data/store](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data/src/store.ts) if you are curious what the configuration used "by default" historically looks like. If you wanted to exactly match the behaviors of your existing store (but perhaps without deprecated features) this is what would be required. However, if taking the two-store approach it is likely you want to use a different configuration.
 
 For instance:
 

@@ -17,10 +17,10 @@
 
 <p align="center">⚡️ The lightweight reactive data library for JavaScript applications</p>
 
-This package provides [*Ember***Data**](https://github.com/emberjs/data/)'s `Store` class.
+This package provides [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/)'s `Store` class.
 
 The `Store` coordinates interaction between your application, a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache),
-and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/emberjs/data/tree/main/packages/request).
+and sources of data (such as your API or a local persistence layer) accessed via a [RequestManager](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request).
 
 ```mermaid
 flowchart LR
@@ -28,8 +28,8 @@ flowchart LR
     B{{fa:fa-sitemap RequestManager}} <--> C[(fa:fa-database Source)]
     D <--> E[(fa:fa-archive Cache)]
     D <--> B
-    click B href "https://github.com/emberjs/data/tree/main/packages/request" "Go to @ember-data/request" _blank
-    click E href "https://github.com/emberjs/data/tree/main/packages/json-api" "Go to @ember-data/json-api" _blank
+    click B href "https://github.com/warp-drive-data/warp-drive/tree/main/packages/request" "Go to @ember-data/request" _blank
+    click E href "https://github.com/warp-drive-data/warp-drive/tree/main/packages/json-api" "Go to @ember-data/json-api" _blank
     style B color:#58a6ff;
     style E color:#58a6ff;
 ```
@@ -41,7 +41,7 @@ flowchart LR
     A[fa:fa-terminal App] --- B(Model)
     A === C{fa:fa-code-fork Store}
     B --- C
-    click B href "https://github.com/emberjs/data/tree/main/packages/model" "Go to @ember-data/model" _blank
+    click B href "https://github.com/warp-drive-data/warp-drive/tree/main/packages/model" "Go to @ember-data/model" _blank
     style B color:#58a6ff;
 ```
 
@@ -66,7 +66,7 @@ After installing you will want to configure your first `Store`. Read more below 
 
 ## 🔨 Creating A Store
 
-To use a `Store` we will need to do few things: add a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to store data **in-memory**, add a [Handler](https://github.com/emberjs/data/tree/main/packages/request#handling-requests) to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
+To use a `Store` we will need to do few things: add a [Cache](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache) to store data **in-memory**, add a [Handler](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#handling-requests) to fetch data from a source, and implement `instantiateRecord` to tell the store how to display the data for individual resources. 
 
 > **Note**
 > If you are using the package `ember-data` then a `JSON:API` cache and `instantiateRecord` are configured for you by default.
@@ -75,7 +75,7 @@ To use a `Store` we will need to do few things: add a [Cache](https://api.emberj
 
 To start, let's install a [JSON:API](https://jsonapi.org/) cache. If your app uses `GraphQL` or `REST` other caches may better fit your data. You can author your own cache by creating one that conforms to the [spec](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Cache).
 
-The package [@ember-data/json-api](https://github.com/emberjs/data/tree/main/packages/json-api) provides a [JSON:API](https://jsonapi.org/) cache we can use. After installing it, we can configure the store to use this cache.
+The package [@ember-data/json-api](https://github.com/warp-drive-data/warp-drive/tree/main/packages/json-api) provides a [JSON:API](https://jsonapi.org/) cache we can use. After installing it, we can configure the store to use this cache.
 
 ```js
 import Store from '@ember-data/store';
@@ -100,7 +100,7 @@ When *Ember***Data** needs to fetch or save data it will pass that request to yo
 To start, let's install the `RequestManager` from `@ember-data/request` and the basic `Fetch` handler from ``@ember-data/request/fetch`.
 
 > **Note**
-> If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/emberjs/data/tree/main/packages/request#handling-requests).
+> If your app uses `GraphQL`, `REST` or different conventions for `JSON:API` than your cache expects, other handlers may better fit your data. You can author your own handler by creating one that conforms to the [handler interface](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#handling-requests).
 
 ```ts
 import Store, { CacheHandler } from '@ember-data/store';

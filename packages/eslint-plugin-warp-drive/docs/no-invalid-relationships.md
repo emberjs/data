@@ -24,7 +24,7 @@ This rule disallows:
 
 - `async` may be either `true` or `false`, the historical default when unspecified was `true`
 - `inverse` may be either the name of the field on the model on the other side of the relationship or `null`
-- See the [relationships guide](https://github.com/emberjs/data/blob/main/guides/relationships/index.md) for more information on valid configurations
+- See the [relationships guide](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/index.md) for more information on valid configurations
 
 ## Examples
 
@@ -53,4 +53,4 @@ export default class FolderModel extends Model {
 ## References
 
 - [Deprecation Guide](https://deprecations.emberjs.com/id/ember-data-deprecate-non-strict-relationships)
-- [Relationship Guide](https://github.com/emberjs/data/blob/main/guides/relationships/index.md)
+- [Relationship Guide](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/index.md)

@@ -17,7 +17,7 @@
 
 <p align="center">Elegantly composable. Made for <strong>REST</strong>ful APIs</p>
 
-This package provides utilities for working with **REST**ful APIs with [*Ember***Data**](https://github.com/emberjs/data/).
+This package provides utilities for working with **REST**ful APIs with [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/).
 
 ## Installation
 
@@ -38,7 +38,7 @@ pnpm add @ember-data/rest
 
 ## Getting Started
 
-If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md) and [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
+If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/warp-drive-data/warp-drive/blob/main/packages/store/README.md) and [Requests](https://github.com/warp-drive-data/warp-drive/blob/main/packages/request/README.md)
 
 ## Request Builders
 

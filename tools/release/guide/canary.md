@@ -2,7 +2,7 @@
 
 ## Automated Workflow
 
-The [Release > Canary](../../.github/workflows/release_publish-canary.yml) workflow should be used to publish all new canaries from the [Action Overview](https://github.com/emberjs/data/actions/workflows/release_publish-canary.yml).
+The [Release > Canary](../../.github/workflows/release_publish-canary.yml) workflow should be used to publish all new canaries from the [Action Overview](https://github.com/warp-drive-data/warp-drive/actions/workflows/release_publish-canary.yml).
 
 This workflow trigger is restricted to project maintainers.
 

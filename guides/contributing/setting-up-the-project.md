@@ -58,7 +58,7 @@ but can also be done using other methods.
 ## Clone the repository
 
 ```sh
-git clone git@github.com:emberjs/data.git
+git clone git@github.com:warp-drive-data/warp-drive.git
 ```
 
 ## Install the project dependencies

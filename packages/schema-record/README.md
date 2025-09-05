@@ -23,9 +23,9 @@
 - ⚛️ Universal
 - ☢️ Reactive
 
-SchemaRecord is a reactive object that transforms raw data from an [associated cache](https://github.com/emberjs/data/blob/main/packages/core-types/src/cache.ts) into reactive data backed by Signals. The shape of the object and the transformation of raw cache data into its reactive form is controlled by a resource schema. Resource schemas are simple JSON, allowing them to be defined and delivered from anywhere.
+SchemaRecord is a reactive object that transforms raw data from an [associated cache](https://github.com/warp-drive-data/warp-drive/blob/main/packages/core-types/src/cache.ts) into reactive data backed by Signals. The shape of the object and the transformation of raw cache data into its reactive form is controlled by a resource schema. Resource schemas are simple JSON, allowing them to be defined and delivered from anywhere.
 
-The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/emberjs/data/) will simplify even the most complex parts of your app's state management.
+The capabilities that SchemaRecord brings to [*Warp***Drive**](https://github.com/warp-drive-data/warp-drive/) will simplify even the most complex parts of your app's state management.
 
 ## Installation
 
@@ -48,8 +48,8 @@ pnpm add @warp-drive/schema-record
 ## Getting Started
 
 If this package is how you are first learning about WarpDrive/EmberData, we
-recommend starting with learning about [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
-and the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md).
+recommend starting with learning about [Requests](https://github.com/warp-drive-data/warp-drive/blob/main/packages/request/README.md)
+and the [Store](https://github.com/warp-drive-data/warp-drive/blob/main/packages/store/README.md).
 
 ## 🚀 Setup
 

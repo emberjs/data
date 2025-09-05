@@ -17,7 +17,7 @@
 
 <p align="center">Elegantly composable. Made for <strong>JSON:</strong>API</p>
 
-This package provides an in-memory document and resource [Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts) and associated utilities for use with [*Ember***Data**](https://github.com/emberjs/data/) and [JSON:API](https://jsonapi.org/).
+This package provides an in-memory document and resource [Cache](https://github.com/warp-drive-data/warp-drive/blob/main/ember-data-types/cache/cache.ts) and associated utilities for use with [*Ember***Data**](https://github.com/warp-drive-data/warp-drive/) and [JSON:API](https://jsonapi.org/).
 
 ## Installation
 
@@ -38,12 +38,12 @@ pnpm add @ember-data/json-api
 
 ## Getting Started
 
-If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/emberjs/data/blob/main/packages/store/README.md) and [Requests](https://github.com/emberjs/data/blob/main/packages/request/README.md)
+If this package is how you are first learning about EmberData, we recommend starting with learning about the [Store](https://github.com/warp-drive-data/warp-drive/blob/main/packages/store/README.md) and [Requests](https://github.com/warp-drive-data/warp-drive/blob/main/packages/request/README.md)
 
 ## 🚀 Setup
 
 > **Note**
-> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> When using [ember-data](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
 ```ts
@@ -104,7 +104,7 @@ class extends Store {
 }
 ```
 
-For the full list of APIs available read the code documentation for [*Ember***Data** Cache](https://github.com/emberjs/data/blob/main/ember-data-types/cache/cache.ts)
+For the full list of APIs available read the code documentation for [*Ember***Data** Cache](https://github.com/warp-drive-data/warp-drive/blob/main/ember-data-types/cache/cache.ts)
 
 ## Request Builders
 

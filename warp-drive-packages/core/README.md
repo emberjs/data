@@ -15,7 +15,7 @@
 
 ![NPM Stable Version](https://img.shields.io/npm/v/ember-data/latest?label=version&style=flat&color=FFC474)
 ![NPM Downloads](https://img.shields.io/npm/dm/ember-data.svg?style=flat&color=FFC474)
-![License](https://img.shields.io/github/license/emberjs/data.svg?style=flat&color=FFC474)
+![License](https://img.shields.io/github/license/warp-drive-data/warp-drive.svg?style=flat&color=FFC474)
 [![Docs](./logos/docs-badge.svg)](https://api.emberjs.com/ember-data/release)
 [![EmberJS Discord Community Server](https://img.shields.io/badge/EmberJS-grey?logo=discord&logoColor=FFC474)](https://discord.gg/zT3asNS
 )
@@ -64,7 +64,7 @@ pnpm add -E @warp-drive/core@latest
 
 ## Code of Conduct
 
-Refer to the [Code of Conduct](https://github.com/emberjs/data/blob/main/CODE_OF_CONDUCT.md) for community guidelines and inclusivity.
+Refer to the [Code of Conduct](https://github.com/warp-drive-data/warp-drive/blob/main/CODE_OF_CONDUCT.md) for community guidelines and inclusivity.
 
 <br>
 

@@ -80,7 +80,7 @@ even in this simple form.
 
 - [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) is wired in
 - The double await goes away (ie no `response = await fetch(); data = await response.json()` )
-- Its simpler to mock for our tests and can even help us provide [advanced parallel and concurrent test mocking](https://github.com/emberjs/data/tree/main/packages/holodeck#readme)
+- Its simpler to mock for our tests and can even help us provide [advanced parallel and concurrent test mocking](https://github.com/warp-drive-data/warp-drive/tree/main/packages/holodeck#readme)
 - It automatically adds test waiters we can use to guard against leaky tests!
 - It gives us a unified interface for managing requests everywhere in our app, not just for this request!
 
@@ -97,7 +97,7 @@ Apps may have multiple request managers, but typically just one will do even for
 ## Step 2: Configure some request defaults
 
 Since we're interacting with a JSON:API API we can use the request utilities provided by
- [@ember-data/json-api/request](https://github.com/emberjs/data/tree/main/packages/json-api#readme)
+ [@ember-data/json-api/request](https://github.com/warp-drive-data/warp-drive/tree/main/packages/json-api#readme)
 to help us construct requests.
 
 Let's configure the utils to interface with this API and use the [Cursor Pagination Profile](https://jsonapi.org/profiles/ethanresnick/cursor-pagination/):

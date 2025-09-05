@@ -31,7 +31,7 @@ Notice we still want to import the `Store` class from `ember-data/store` package
 
 Now let's configure a `RequestManager` for our store. The RequestManager is responsible for sending requests to the server. It fulfills requests using a chain-of-responsibility pipeline, which means you can add your own request handlers to it.
 
-First you need to install [`@ember-data/request`](https://github.com/emberjs/data/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/emberjs/data/tree/main/packages/legacy-compat) packages. The first contains the `RequestManager` service and a few request handlers, while the second has `LegacyNetworkHandler` that will handle all old-style `this.store.*` calls.
+First you need to install [`@ember-data/request`](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request) and [`@ember-data/legacy-compat`](https://github.com/warp-drive-data/warp-drive/tree/main/packages/legacy-compat) packages. The first contains the `RequestManager` service and a few request handlers, while the second has `LegacyNetworkHandler` that will handle all old-style `this.store.*` calls.
 
 Here is how your own `RequestManager` service may look like:
 
@@ -77,11 +77,11 @@ You can read more about request manager in the [request manager guide](../reques
 
 ## Step 4: Install `@ember-data/json-api`, `@ember-data/request-utils` packages
 
-If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api`](https://github.com/emberjs/data/tree/main/packages/json-api).
+If you were using JSON:API adapter/serializer for your backend communication, you can use `@ember-data/json-api` package. It is a package that contains predefined builders for JSON:API requests. You can read more about it in the [`@ember-data/json-api`](https://github.com/warp-drive-data/warp-drive/tree/main/packages/json-api).
 
-If you have different backend format - WarpDrive provides you with builders for `REST`([`@ember-data/rest`](https://github.com/emberjs/data/tree/main/packages/rest)) and `ActiveRecord`([`@ember-data/active-record`](https://github.com/emberjs/data/tree/main/packages/active-record)).
+If you have different backend format - WarpDrive provides you with builders for `REST`([`@ember-data/rest`](https://github.com/warp-drive-data/warp-drive/tree/main/packages/rest)) and `ActiveRecord`([`@ember-data/active-record`](https://github.com/warp-drive-data/warp-drive/tree/main/packages/active-record)).
 
-`@ember-data/request-utils` package contains a lot of useful utilities for building requests. You can read more about it in its [Readme](https://github.com/emberjs/data/tree/main/packages/request-utils#readme). It has request builders for all type of requests.
+`@ember-data/request-utils` package contains a lot of useful utilities for building requests. You can read more about it in its [Readme](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request-utils#readme). It has request builders for all type of requests.
 
 ## Step 5: Off you go! Start using new APIs
 
@@ -121,7 +121,7 @@ export default class AuthHandler {
 
 You can read more about auth topic [here](./auth-handlers.md).
 
-Another good thing to do is to configure default host and namespace for your requests. There is an utility for that out of the box of `@ember-data/request-utils` called [`setBuildURLConfig`](https://github.com/emberjs/data/blob/main/packages/request-utils/src/index.ts#L67). You can do it anywhere in your app theoretically, but we recommend doing it in the `app/app.js` file. Here is how you can do it:
+Another good thing to do is to configure default host and namespace for your requests. There is an utility for that out of the box of `@ember-data/request-utils` called [`setBuildURLConfig`](https://github.com/warp-drive-data/warp-drive/blob/main/packages/request-utils/src/index.ts#L67). You can do it anywhere in your app theoretically, but we recommend doing it in the `app/app.js` file. Here is how you can do it:
 
 ```diff app/app.js
 import Application from '@ember/application';

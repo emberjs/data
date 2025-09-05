@@ -19,7 +19,7 @@
 
 > **Caution** ⚠️ **This is LEGACY documentation** for a feature that is no longer encouraged to be used.
 > If starting a new app or thinking of implementing a new serializer, consider writing a [Handler](https://api.emberjs.com/ember-data/release/classes/%3CInterface%3E%20Handler)
-> instead to be used with the [RequestManager](https://github.com/emberjs/data/tree/main/packages/request#readme)
+> instead to be used with the [RequestManager](https://github.com/warp-drive-data/warp-drive/tree/main/packages/request#readme)
 
 ## Installation
 
@@ -45,10 +45,10 @@ pnpm add @ember-data/serializer
 If using `ember-data` no additional setup is necesssary.
 
 > **Note**
-> When using [ember-data](https://github.com/emberjs/data/blob/main/packages/-ember-data) the below
+> When using [ember-data](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data) the below
 > configuration is handled for you automatically.
 
-To use legacy serializers you will need to have installed and configured the LegacyNetworkHandler from [@ember-data/legacy-compat](https://github.com/emberjs/data/blob/main/packages/-ember-data)
+To use legacy serializers you will need to have installed and configured the LegacyNetworkHandler from [@ember-data/legacy-compat](https://github.com/warp-drive-data/warp-drive/blob/main/packages/-ember-data)
 
 ```sh
 pnpm add @ember-data/legacy-compat

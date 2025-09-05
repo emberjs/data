@@ -21,7 +21,7 @@ In LegacyMode:
 - records have all the APIs of Model (references, state props, currentState, methods etc)
 - limited reactivity for attribute fields (same as Model)
 - the continued use of `@ember-data/model` and `@ember-data/legacy-compat` packages is required (though most imports from them can be removed)
-- `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/emberjs/data/blob/main/guides/relationships/features/links-mode.md))
+- `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
 
 
 ## Usage with ReactiveResource
