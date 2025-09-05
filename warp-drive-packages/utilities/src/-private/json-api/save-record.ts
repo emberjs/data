@@ -1,5 +1,6 @@
 import { recordIdentifierFor } from '@warp-drive/core';
 import { assert } from '@warp-drive/core/build-config/macros';
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive.js';
 import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
 import type { TypedRecordInstance } from '@warp-drive/core/types/record';
 import type {
@@ -8,7 +9,6 @@ import type {
   DeleteRequestOptions,
   UpdateRequestOptions,
 } from '@warp-drive/core/types/request';
-import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import {
   buildBaseURL,
@@ -218,7 +218,7 @@ export function createRecord(record: unknown, options: ConstrainedRequestOptions
 export function updateRecord<T extends TypedRecordInstance, RT extends TypedRecordInstance = T>(
   record: T,
   options?: ConstrainedRequestOptions & { patch?: boolean }
-): UpdateRequestOptions<SingleResourceDataDocument<RT>, T>;
+): UpdateRequestOptions<ReactiveDataDocument<RT>, T>;
 export function updateRecord(
   record: unknown,
   options?: ConstrainedRequestOptions & { patch?: boolean }

@@ -1,3 +1,4 @@
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
 import type { QueryParamsSource } from '@warp-drive/core/types/params';
 import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type {
@@ -6,7 +7,6 @@ import type {
   PostQueryRequestOptions,
   QueryRequestOptions,
 } from '@warp-drive/core/types/request';
-import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '../../index.ts';
 import { pluralize } from '../../string.ts';
@@ -59,15 +59,12 @@ import { ACCEPT_HEADER_VALUE } from './-utils.ts';
  * ```
  *
  * @public
- * @param identifier
- * @param query
- * @param options
  */
 export function query<T extends TypedRecordInstance>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): QueryRequestOptions<CollectionResourceDataDocument<T>>;
+): QueryRequestOptions<ReactiveDataDocument<T[]>>;
 export function query(
   type: string,
   query?: QueryParamsSource,
@@ -150,7 +147,7 @@ export function postQuery<T>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): PostQueryRequestOptions<CollectionResourceDataDocument<T>>;
+): PostQueryRequestOptions<ReactiveDataDocument<T[]>>;
 export function postQuery(
   type: string,
   query?: QueryParamsSource,

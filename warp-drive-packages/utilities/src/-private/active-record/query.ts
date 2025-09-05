@@ -1,7 +1,7 @@
+import type { ReactiveDataDocument } from '@warp-drive/core/reactive';
 import type { QueryParamsSource } from '@warp-drive/core/types/params';
 import type { TypeFromInstance } from '@warp-drive/core/types/record';
 import type { ConstrainedRequestOptions, QueryRequestOptions } from '@warp-drive/core/types/request';
-import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
 
 import { buildBaseURL, buildQueryParams, type QueryUrlOptions } from '../../index.ts';
 import { pluralize, underscore } from '../../string';
@@ -58,7 +58,7 @@ export function query<T>(
   type: TypeFromInstance<T>,
   query?: QueryParamsSource,
   options?: ConstrainedRequestOptions
-): QueryRequestOptions<CollectionResourceDataDocument<T>>;
+): QueryRequestOptions<ReactiveDataDocument<T[]>>;
 export function query(
   type: string,
   query?: QueryParamsSource,
