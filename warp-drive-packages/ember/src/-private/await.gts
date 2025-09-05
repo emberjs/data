@@ -2,8 +2,8 @@ import type Owner from '@ember/owner';
 import Component from '@glimmer/component';
 
 import { PRODUCTION } from '@warp-drive/core/build-config/env';
+import { getPromiseState, type PromiseState } from '@warp-drive/core/reactive';
 import type { Awaitable } from '@warp-drive/core/request';
-import { getPromiseState, type PromiseState } from '@warp-drive/core/store/-private';
 
 export const and = (x: unknown, y: unknown): boolean => Boolean(x && y);
 interface ThrowSignature<E = Error | string | object> {

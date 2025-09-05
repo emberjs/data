@@ -63,7 +63,6 @@ export {
 } from './-private/record-arrays/legacy-many-array.ts';
 
 export { log, logGroup } from './-private/debug/utils.ts';
-export { getPromiseState, type PromiseState } from './-private/new-core-tmp/promise-state.ts';
 
 export {
   DISPOSE,

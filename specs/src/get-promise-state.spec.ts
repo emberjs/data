@@ -1,5 +1,5 @@
+import { getPromiseState } from '@warp-drive/core/reactive';
 import { type Awaitable, createDeferred, setPromiseResult } from '@warp-drive/core/request';
-import { getPromiseState } from '@warp-drive/core/store/-private';
 import { spec, type SpecTest, type SuiteBuilder } from '@warp-drive/diagnostic/spec';
 
 interface LocalTestContext {
