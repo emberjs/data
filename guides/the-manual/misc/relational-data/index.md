@@ -2,7 +2,7 @@
 
 ## Feature Overview
 - [Inverses](./features/inverses.md)
-- [LinksMode](./features/links-mode.md)
+- [LinksMode](../links-mode.md)
 - [Polymorphism](./features/polymorphism.md)
 
 <!--
@@ -38,4 +38,4 @@
 
 # Misc
 
-- [Terminology](./terminology.md#relationships)
+- [Terminology](../terminology.md#relationships)

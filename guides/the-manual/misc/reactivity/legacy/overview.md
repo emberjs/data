@@ -1,9 +1,5 @@
 # LegacyMode
 
-- ⮐ [ReactiveData](../index.md)
-
----
-
 ReactiveResource has two modes: `legacy` and `polaris`.
 
 **LegacyMode** can be used to emulate the behaviors and capabilities of The `Model` class from `@ember-data/model` that was the default way to define reactive objects with schemas for much of WarpDrive's history.
@@ -21,7 +17,7 @@ In LegacyMode:
 - records have all the APIs of Model (references, state props, currentState, methods etc)
 - limited reactivity for attribute fields (same as Model)
 - the continued use of `@ember-data/model` and `@ember-data/legacy-compat` packages is required (though most imports from them can be removed)
-- `async: true` relationships are supported (but not recommended outside of [LinksMode](https://github.com/warp-drive-data/warp-drive/blob/main/guides/relationships/features/links-mode.md))
+- `async: true` relationships are supported (but not recommended outside of [LinksMode](../../links-mode.md))
 
 
 ## Usage with ReactiveResource
@@ -35,7 +31,7 @@ Ensure the following packages are installed:
 - `@ember-data/legacy-compat`
 
 > [!TIP]
-> Not sure what other packages you need? We're [working to simplify installation and setup](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/) but until then [this guide explains when various packages are necessary]().
+> Not sure what other packages you need? We're [working to simplify installation and setup](https://rfcs.emberjs.com/id/1075-warp-drive-package-unification/). [this guide explains when various packages are necessary](/guides/installation/).
 
 ### Configuration
 

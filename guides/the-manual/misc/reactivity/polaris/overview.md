@@ -1,9 +1,5 @@
 # PolarisMode
 
-- ⮐ [ReactiveData](../index.md)
-
----
-
 🚧 This guide is under active construction, it will talk about the below points 🚧 
 
 In PolarisMode records are:
