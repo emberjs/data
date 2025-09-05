@@ -7,10 +7,10 @@ export { Request, type ContentFeatures, type RecoveryFeatures } from './-private
 export { Await, Throw } from './-private/await.gts';
 
 export {
-  getPromiseState,
   getRequestState,
   createRequestSubscription,
-  type PromiseState,
   type RequestLoadingState,
   type RequestState,
 } from '@warp-drive/core/store/-private';
+
+export { getPromiseState, type PromiseState } from '@warp-drive/core/reactive';

@@ -317,13 +317,15 @@ export {
   type ReactiveErrorDocument,
 } from './reactive/-private/document';
 export { getExpensiveRequestSubscription } from './store/-private/new-core-tmp/expensive-subscription.ts';
+export { createRequestSubscription, getRequestState, type RequestState } from './store/-private';
+
 export {
-  createRequestSubscription,
-  getRequestState,
   getPromiseState,
   type PromiseState,
-  type RequestState,
-} from './store/-private';
+  type ResolvedPromise,
+  type RejectedPromise,
+  type PendingPromise,
+} from './store/-private/new-core-tmp/promise-state.ts';
 
 export type { LegacyLiveArray } from './store/-private/record-arrays/legacy-live-array.ts';
 export type { LegacyManyArray } from './store/-private/record-arrays/legacy-many-array.ts';
