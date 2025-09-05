@@ -220,7 +220,7 @@ Coming Soon!
 
 ***Warp*Drive** uses the native [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) interface for [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) as the foundation upon which requests are made. This ensures that if the platform supports it, ***Warp*Drive** exposes it: platform APIs are never hidden away.
 
-***Warp*Drive** [RequestInfo](/api/@warp-drive/core/types/request) extends `RequestInit`
+***Warp*Drive** [RequestInfo](/api/@warp-drive/core/types/request/interfaces/RequestInfo) extends `RequestInit`
 to provide additional capabilities for caching and fulfilling requests.
 
 ```ts

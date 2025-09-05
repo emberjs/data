@@ -355,7 +355,7 @@ you handle centralized concerns around requesting and updating data from your
 backend.
 
 ::: tip 💡 Guide
-→ Learn more about [Making Requests](../../2-requests.md)
+→ Learn more about [Making Requests](../../../the-manual/requests/index.md)
 :::
 
 ```ts

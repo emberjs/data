@@ -118,13 +118,13 @@ This would enable applications to pre-fetch the data for routes more optimally, 
 
 4) PersistedCache
 
-See the [experiment](./warp-drive-packages/experiments/src/document-storage/README.md)
+See the [experiment](/api/@warp-drive/experiments/document-storage/)
 
 Support for persiting the cache into on-device storage.
 
 5) DataWorker
 
-See the [experiment](./warp-drive-packages/experiments/src/data-worker/README.md)
+See the [experiment](/api/@warp-drive/experiments/data-worker/)
 
 A SharedWorker that integrates with PersistedCache and utilizes RequestManager in the worker to offload work from the main thread and dedupe/replay requests across tabs and windows.
 
@@ -227,7 +227,7 @@ Deprecations:
 
 - Refactor @ember-data/model setup/teardown hooks logic to be importable
 
-See the [5.3 Release Checklist](https://github.com/emberjs/data/issues/8743) for the full list of work included in this release.
+See the [5.3 Release Checklist](https://github.com/warp-drive-data/warp-drive/issues/8743) for the full list of work included in this release.
 
 - **Request Builders**
 

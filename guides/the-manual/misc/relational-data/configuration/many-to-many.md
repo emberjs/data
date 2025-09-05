@@ -9,7 +9,7 @@ graph LR;
 
 > **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
 
-Or, maybe more accurately since this is a [*reflexive*](../terminology.md#reflexive) relationship:
+Or, maybe more accurately since this is a [*reflexive*](../../terminology.md#reflexive) relationship:
 
 ```mermaid
 graph LR;
@@ -204,7 +204,7 @@ export class TrailRunner {
 }
 ```
 
-Note, the [many-to-none](./3-many-to-none.md) variation of this would be:
+Note, the [many-to-none](./many-to-none.md) variation of this would be:
 
 ```ts
 import { hasMany } from '@warp-drive/schema/legacy';

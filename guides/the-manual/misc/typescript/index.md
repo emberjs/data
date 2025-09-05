@@ -23,7 +23,6 @@ the following two sections
 - Usage
   - [Why Brands](./why-brands.md)
   - [Typing Models & Transforms](./typing-models.md)
-  - [Typing Requests & Builders](./typing-requests.md)
   - [Typing Includes](./typing-includes.md)
   - Typing Handlers
   - Using Store APIs

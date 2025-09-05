@@ -1,7 +1,7 @@
 # Configuration
 
-There are currently two ways to gain access to EmberData's native types.
-Follow the configuration guide below for the [installation](./0-installation.md)
+There are currently two ways to gain access to WarpDrives's native types.
+Follow the configuration guide below for the [installation](./installation.md)
 option you chose.
 
 1) [Use A Version That Has Types](#using-native-types)
@@ -10,7 +10,7 @@ option you chose.
 with releases `>= 4.12.*`
 
 > [!IMPORTANT]
-> EmberData's Native Types require the use of Ember's
+> WarpDrive's Native Types require the use of Ember's
 > Native Types, the configuration below will also setup
 > Your application to consume Ember's Native Types.
 

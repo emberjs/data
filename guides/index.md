@@ -129,7 +129,7 @@ export default <template>
 </template>
 ```
 
-We pair the JS API with a headless component API providing [reactive control flow](./concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
+We pair the JS API with a headless component API providing [reactive control flow](./the-manual/concepts/reactive-control-flow.md) to give apps the ability to declaratively derive states with safety.
 
 The component API is a thin framework-specific binding overtop of the framework-agnostic JS API. Don't see your
 framework yet? Let's add it!
@@ -186,7 +186,7 @@ heavy immutability tricks such as spread, slice, and map.
 
 ## Mutation Management {#mutations}
 
-[Mutation](./concepts/mutations.md) is handled within controlled contexts. The data to edit is "checked out" for editing, giving access to a mutable version. Local edits are seamlessly preserved if the user navigates away and returns without saving, and the changes are buffered from appearing elsewhere in your app until they are also committed to the server.
+[Mutation](./the-manual/concepts/mutations.md) is handled within controlled contexts. The data to edit is "checked out" for editing, giving access to a mutable version. Local edits are seamlessly preserved if the user navigates away and returns without saving, and the changes are buffered from appearing elsewhere in your app until they are also committed to the server.
 
 ```ts
 import { Checkout } from '@warp-drive/core/reactive';

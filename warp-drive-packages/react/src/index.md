@@ -3,8 +3,8 @@
 This package provides a React-specific reactivity integration,
 components and hooks for ***Warp*Drive**.
 
-- [Installation](/guides/1-configuration/1-overview#react)
-- [Configuration](/guides/1-configuration/2-setup/1-universal)
+- [Installation](/guides/installation/)
+- [Configuration](/guides/configuration/)
 
 ## The Basics
 
