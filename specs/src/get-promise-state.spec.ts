@@ -11,6 +11,10 @@ const SecretSymbol = Symbol.for('LegacyPromiseProxy') as unknown as 'Symbol(<Leg
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
 interface PromiseProxy<T, E> extends Promise<T> {}
+
+function frameworkUsesSyncRender(framework: string) {
+  return framework === 'ember';
+}
 class PromiseProxy<T, E> {
   promise: Awaitable<T, E>;
 
@@ -157,14 +161,33 @@ export const GetPromiseStateSpec: SuiteBuilder<LocalTestContext, GetPromiseState
       _getPromiseState,
       countFor,
     });
-    assert.equal(state1!, getPromiseState(promise));
-    assert.equal(state1!.result, null);
-    assert.equal(counter, 1);
-    assert.dom().hasText('Count:\n          1');
-    await this.h.rerender();
-    assert.equal(state1!.result, 'Our Data');
-    assert.equal(counter, 2);
-    assert.dom().hasText('Our DataCount:\n          2');
+
+    // frameworks which schedule as microtasks (like react) will rerender before
+    // we have the chance to see the output.
+    // while frameworks which flush render sync (like ember) enable capturing
+    // the intermediate state of a single microtask tick.
+    // as we we build out the tests for other frameworks we should adjust this
+    // to a list to minimize the divergence in tests to be merely this timing
+    // semantic.
+    if (!frameworkUsesSyncRender(this.framework)) {
+      assert.equal(state1!, getPromiseState(promise));
+      assert.equal(state1!.result, 'Our Data');
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our DataCount:\n          2');
+      await this.h.rerender();
+      assert.equal(state1!.result, 'Our Data');
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our DataCount:\n          2');
+    } else {
+      assert.equal(state1!, getPromiseState(promise));
+      assert.equal(state1!.result, null);
+      assert.equal(counter, 1);
+      assert.dom().hasText('Count:\n          1');
+      await this.h.rerender();
+      assert.equal(state1!.result, 'Our Data');
+      assert.equal(counter, 2);
+      assert.dom().hasText('Our DataCount:\n          2');
+    }
   })
 
   .for('it renders only once when the promise already has a result cached')
