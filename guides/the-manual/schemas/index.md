@@ -1,7 +1,7 @@
 ---
 title: Overview
 order: 0
-categoryOrder: 3
+categoryOrder: 4
 ---
 
 # Schemas
@@ -12,3 +12,8 @@ Schemas are also how [ReactiveResource](/api/@warp-drive/core/reactive/interface
 
 Schemas are JSON, which ensures a high degree of [flexibility](https://runspired.com/2025/05/25/in-defense-of-machine-formats.html) when creating or loading them.
 
+***Warp*Drive** offers several categories of schema:
+
+- ResourceSchema
+- ObjectSchema
+- Traits
