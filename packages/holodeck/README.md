@@ -166,7 +166,7 @@ QUnit.hooks.beforeEach(function (assert) {
   setTestId(assert.test.testId);
 });
 QUnit.hooks.afterEach(function (assert) {
-  setTestId(null);
+  setTestId(this, null);
 });
 ```
 
