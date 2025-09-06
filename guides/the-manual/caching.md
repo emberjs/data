@@ -117,11 +117,11 @@ interface ResponseDocument {
 }
 ```
 
-### Resource Extraction
+### Resource Extraction {#resource-extraction}
 
 During content processing, the cache extracts any resources it finds in the payload. The returned response document includes a list of the Resource CacheKeys representing resources extracted.
 
-Like RequestKey, a ResourceKey is a stable object with a string `lid` property. ResourceKey also encoudes the `ResourceType` and the primary key of the resource.
+Like RequestKey, a ResourceKey is a stable object with a string `lid` property. ResourceKey also encodes the `ResourceType` and the primary key of the resource.
 
 ::: code-group
 
@@ -192,7 +192,7 @@ For example
 
 :::
 
-## Resources Are Cached By Their CacheKey With Upsert Semantics
+## Resources Are Cached By Their CacheKey With Upsert Semantics {#resource-caching}
 
 When the Cache finds a Resource in a Response, it generates a CacheKey for the Resource using the Store's CacheKeyManager (a CacheKey manager). If an entry was
 already present for that CacheKey, the existing data and
