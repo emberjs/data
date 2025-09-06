@@ -163,7 +163,7 @@ const MockHost = `https://${window.location.hostname}:${Number(window.location.p
 setConfig({ host: MockHost });
 
 QUnit.hooks.beforeEach(function (assert) {
-  setTestId(assert.test.testId);
+  setTestId(this, assert.test.testId);
 });
 QUnit.hooks.afterEach(function (assert) {
   setTestId(this, null);
