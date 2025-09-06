@@ -245,3 +245,69 @@ const foo2: StringSatisfiesIncludes<'company,company.ceo,friends', Includes<MyTh
 
 expectString(foo);
 expectNever(foo2);
+
+interface User {
+  [Type]: 'user';
+  name: string;
+  title: string;
+  role: string;
+}
+interface Address {
+  [Type]: 'address';
+  city: string;
+  state: string;
+  country: string;
+}
+interface Company {
+  [Type]: 'company';
+  name: string;
+  ceo: User;
+  headquarters: Address;
+  employees: User[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface UserPreview extends Pick<User, typeof Type | 'name' | 'title'> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface AddressPreview extends Pick<Address, typeof Type | 'city' | 'state'> {}
+type AddressPreview2 = Pick<Address, typeof Type | 'city' | 'state'>;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface CompanyPreviewBase extends Pick<Company, typeof Type | 'name' | 'ceo' | 'headquarters'> {}
+
+interface InvalidAddressPreview extends AddressPreview {
+  invalid: string;
+}
+
+type Mask<K extends object, T extends K> = {
+  [P in keyof T]: P extends keyof K ? (T[P] extends K[P] ? K[P] : never) : T[P];
+};
+
+type CompanyPreview = Mask<{ ceo: UserPreview; headquarters: AddressPreview }, CompanyPreviewBase>;
+type CompanyPreview2 = Mask<{ ceo: UserPreview; headquarters: AddressPreview2 }, CompanyPreviewBase>;
+// @ts-expect-error InvalidCompanyPreview is not valid since AddressPreview is invalid
+type InvalidCompanyPreview = Mask<{ ceo: UserPreview; headquarters: InvalidAddressPreview }, CompanyPreviewBase>;
+
+type Validate<K extends object, T extends K> = T extends K ? K : never;
+
+interface InvalidCompanyPreview2 {
+  [Type]: 'company';
+  name: string;
+  ceo: UserPreview;
+  headquarters: AddressPreview & { invalid: string };
+  alsoInvalid: string;
+}
+
+interface InvalidCompanyPreview3 {
+  [Type]: 'company';
+  name: string;
+  ceo: UserPreview;
+  headquarters: AddressPreview;
+  alsoInvalid: string;
+}
+
+type P1 = Validate<CompanyPreview, Company>;
+type P2 = Validate<CompanyPreview2, Company>;
+// @ts-expect-error InvalidCompanyPreview is not valid since AddressPreview is invalid
+type P3 = Validate<InvalidCompanyPreview2, Company>;
+// @ts-expect-error InvalidCompanyPreview is not valid since alsoInvalid is not in Company
+type P4 = Validate<InvalidCompanyPreview3, Company>;
