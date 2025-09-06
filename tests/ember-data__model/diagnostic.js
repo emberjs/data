@@ -1,3 +1,3 @@
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 
 await launch();
