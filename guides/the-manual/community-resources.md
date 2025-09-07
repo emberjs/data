@@ -4,6 +4,14 @@ order: 4
 
 # Community Resources
 
+Wrote a blog post? Gave a talk? Published a book? Went on a podcast? Something else fellow explorers might need? We love it all!
+
+Please feel free to PR anything ***Warp*Drive** related to this list that others might find useful
+
+<img class="dark-only" src="../images/community-dark.png" alt="explorers gather around the bar in the lounge of a spaceship, staring off into the universe" width="100%">
+<img class="light-only" src="../images/community-light.png" alt="explorers gather around the bar in the lounge of a spaceship, staring off into the universe" width="100%">
+
+
 ## Conference Talks
 
 - EmberConf 2023 | [EmberData: Data Management That Scales With You by Chris Thoburn](https://www.youtube.com/watch?v=KpakmlxvT0s)
