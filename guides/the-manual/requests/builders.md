@@ -83,6 +83,7 @@ export function getCompanyPreviewList(search: string) {
 
 ```ts [types/companyPreview.ts]
 import { Type } from '@warp-drive/core/types/symbol';
+import { Mask } from '@warp-drive/core/types/record';
 import type { User, Address, Company } from '#/data/types';
 
 /**
