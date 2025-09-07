@@ -40,7 +40,7 @@ async function load() {
       contributors = cached;
     } else {
       const res = await fetch(
-        `https://api.github.com/repos/warp-drive-data/warp-drive/contributors?per_page=${PAGE_SIZE}`
+        `https://api.github.com/repos/warp-drive-data/warp-drive/contributors?per_page=${PAGE_SIZE}&page=${pages + 1}`
       );
       contributors = await res.json();
       // store the result in cache if successful
