@@ -61,9 +61,9 @@ async function load() {
       return !name.includes('dependabot') && !name.includes('renovate') && !name.includes('ember-tomster');
     })
     .map((contributor) => ({
-      name: contributor.login,
+      name: `${contributor.login}`,
       avatar: contributor.avatar_url,
-      links: [{ icon: 'github', link: contributor.html_url }],
+      githubLink: contributor.html_url,
     }));
 }
 

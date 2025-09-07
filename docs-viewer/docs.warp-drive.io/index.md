@@ -43,6 +43,7 @@ features:
 import { VPTeamPage, VPTeamPageTitle, VPTeamMembers } from 'vitepress/theme'
 import { data as members } from '.vitepress/data/contributors.data.ts'
 import { data as coreTeam } from '.vitepress/data/core.data.ts'
+import ContributorList from '.vitepress/theme/ContributorList.vue';
 </script>
 
 <VPTeamPage>
@@ -53,10 +54,11 @@ import { data as coreTeam } from '.vitepress/data/core.data.ts'
   <VPTeamMembers size="small" :members="coreTeam" />
 </VPTeamPage>
 
+
 <VPTeamPage>
   <VPTeamPageTitle>
     <template #title>Our Contributors {{members.length}}</template>
     <template #lead>A big thank you to all the amazing people who have helped improve this project.</template>
   </VPTeamPageTitle>
-  <VPTeamMembers size="small" :members="members" />
 </VPTeamPage>
+<ContributorList :contributors="members" />
