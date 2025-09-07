@@ -27,7 +27,7 @@ the `{ request, response, content }` signature.
 the `content` of a StructuredDocument typically produced by parsing the `body` of the response of a `fetch`
 request.
 
-3. [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument), which is a reactive wrapper providing immutable access to the cache data for a ResponseDocument. Not all requests have a ReactiveDocument for their response.
+3. [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument), which is a reactive wrapper providing immutable access to the cache data for a ResourceDocument. Not all requests have a ReactiveDocument for their response.
 
 What's the common thread? All three are representations of a request and its result each with a distinct purpose. For this reason when cacheable they share a CacheKey (the `RequestKey`).
 

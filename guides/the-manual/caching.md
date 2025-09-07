@@ -105,10 +105,10 @@ type StructuredDocument = SuccessResult | ErrorResult;
 
 The Cache expects that the data within `content` or `error` is in a format that it understands how to process. For the JSONAPICache implementation, this is [{json:api}](https://jsonapi.org).
 
-The `content` (or respectively `error`) property of the StructuredDocument will be processed by the Cache and replaced with a `ResponseDocument`. This data structure is similar to the top-level document structured defined by JSON:API for convenience.
+The `content` (or respectively `error`) property of the StructuredDocument will be processed by the Cache and replaced with a `ResourceDocument`. This data structure is similar to the top-level document structured defined by JSON:API for convenience.
 
 ```ts
-interface ResponseDocument {
+interface ResourceDocument {
   meta?: object;
   links?: object;
   data?: ResourceKey | ResourceKey[];
@@ -173,7 +173,7 @@ For example
 }
 ```
 
-```ts [ResponseDocument]
+```ts [ResourceDocument]
 {
   data: {
     type: 'user',

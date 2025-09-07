@@ -21,7 +21,7 @@
 
 //     // this CacheHandler differs from the Store's in that it does not
 //     // instantiate records for the response. It insteads takes the
-//     // ResponseDocument from the cache and caches the request, document
+//     // ResourceDocument from the cache and caches the request, document
 //     // and resource data involved into indexeddb before returning the
 //     // original raw response
 //     manager.useCache(CacheHandler);
