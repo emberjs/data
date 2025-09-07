@@ -212,7 +212,7 @@ be provided at the point of request and cannot be updated or set later. This mea
 (or electing not to provide one) is one of a builder's biggest responsibilities.
 
 :::tip 💡 TIP
-Read the [caching](../caching.md#determining-the-cachekey-and-checking-if-the-response-is-stale) section of the manual to understand how this CacheKey is used.
+Read the [caching](../caching/index.md#determining-the-cachekey-and-checking-if-the-response-is-stale) section of the manual to understand how this CacheKey is used.
 :::
 
 Simply using a builder does a significant amount towards ensuring a stable RequestKey, because the order

@@ -1,7 +1,9 @@
 ---
 outline:
   level: 2,3
-order: 2
+categoryOrder: 2
+order: 0
+title: Overview
 ---
 
 # Caching
@@ -13,8 +15,8 @@ as well as the Store's CachePolicy to decide if the version in the Store's Cache
 be reused, or if updated data should be fetched.
 
 <br>
-<img class="dark-only" src="../images/caching-dark.png" alt="waves of reactive signals light up space" width="100%">
-<img class="light-only" src="../images/caching-light.png" alt="waves of reactive signals light up space" width="100%">
+<img class="dark-only" src="../../images/caching-dark.png" alt="waves of reactive signals light up space" width="100%">
+<img class="light-only" src="../../images/caching-light.png" alt="waves of reactive signals light up space" width="100%">
 
 
 ## Determining If A Request Can Use The Cache
@@ -277,7 +279,7 @@ By default, The Graph uses **upsert semantics** for a relationship payload with 
 
 This means that a field being absent from a relationship payload is semantically different from that field being present but with a value of `null` or an empty array. Being not-present means we do not replace the existing value.
 
-The Graph also has the ability to receive op-codes that deliver more granular modifications to relationships to add or remove specific values. For instance, if your application were to use WebSockets to receive streaming changes to a relationship, those changes could be applied directly without needing to fully replace the existing value. We'll cover these operations in the guide for [RealTime Support](./concepts/realtime.md).
+The Graph also has the ability to receive op-codes that deliver more granular modifications to relationships to add or remove specific values. For instance, if your application were to use WebSockets to receive streaming changes to a relationship, those changes could be applied directly without needing to fully replace the existing value. We'll cover these operations in the guide for [RealTime Support](../concepts/realtime.md).
 
 ## What about Mutation?
 

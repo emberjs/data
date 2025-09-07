@@ -146,7 +146,7 @@ content.data.organizations.map(organization => {
 });
 ```
 
-**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./the-manual/caching.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
+**Web clients are like high-latency, remotely distributed, often-stale partial replicas of server state**. ***Warp*Drive** provides an [advanced relational cache](./the-manual/caching/index.md) that simplifies these problems--solving them when it can and providing intelligent escape valves for when it can't. No matter what, you can quickly **get the data you need in the right state**.
 
 ## Schema Driven Reactivity {#schemas}
 

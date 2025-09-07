@@ -1,5 +1,5 @@
 ---
-title: Installation
+title: Instructions
 categoryOrder: 0
 order: 0
 ---

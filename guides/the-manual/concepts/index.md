@@ -1,5 +1,5 @@
 ---
-categoryOrder: 7
+categoryOrder: 6
 categoryTitle: Advanced Topics
 title: Introduction
 ---

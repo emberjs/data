@@ -1,6 +1,8 @@
 ---
-order: 6
+order: 4
 ---
+
+# Community Resources
 
 ## Conference Talks
 

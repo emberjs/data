@@ -46,5 +46,5 @@ not use the cache, this will be whatever the last handler to process the respons
 For requests that do use the cache (most requests), the content property will be a [ReactiveDocument](/api/@warp-drive/core/reactive/type-aliases/ReactiveDocument).
 
 ::: tip 💡 TIP
-Whether a request uses the cache (or doesn't) **is not** governed by whether the request is cacheable (has a [RequestKey](/api/@warp-drive/core/types/identifier/interfaces/RequestKey)) but by whether the request should interact with the Cache. See the [caching guide](../caching.md#determining-if-a-request-can-use-the-cache) for more info.
+Whether a request uses the cache (or doesn't) **is not** governed by whether the request is cacheable (has a [RequestKey](/api/@warp-drive/core/types/identifier/interfaces/RequestKey)) but by whether the request should interact with the Cache. See the [caching guide](../caching/index.md#determining-if-a-request-can-use-the-cache) for more info.
 :::
