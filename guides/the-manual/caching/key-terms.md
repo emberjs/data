@@ -12,7 +12,7 @@ As much as possible, we've tried to name things in ways we hope you will find in
 least intuitive once the basics have sunk in. But getting the basics down is a chicken/egg paradox
 where sometimes you already need to understand some terminology.
 
-By this point you should have learned about our first main-theme: [requests](./requests/index.md).
+By this point you should have learned about our first main-theme: [requests](../requests/index.md).
 This document lays out a few terms associated to the remaining main themes you'll need to know to
 be successful: [Documents](#documents) and [Resources](#resources).
 
@@ -31,7 +31,7 @@ request.
 
 What's the common thread? All three are representations of a request and its result each with a distinct purpose. For this reason when cacheable they share a CacheKey (the `RequestKey`).
 
-For requests that don't use the cache, this is about as much as you need to know. But for requests that do use the cache (most requests) there's one final important nuance: Documents don't store any resource data. When the cache receives the request response, [it will separate out resource data from the rest of the document](./caching/index.md#resource-extraction). Wait ... what's a Resource? Read on.
+For requests that don't use the cache, this is about as much as you need to know. But for requests that do use the cache (most requests) there's one final important nuance: Documents don't store any resource data. When the cache receives the request response, [it will separate out resource data from the rest of the document](./index.md#resource-extraction). Wait ... what's a Resource? Read on.
 
 ## Resources
 
@@ -49,7 +49,7 @@ But resources need not map to rows in a database - any named concept with a uniq
 ***Warp*Drive** distinguishes between documents and resources both because responses can contain zero, one, or many resources and because the same resource may be present in more than one response
 document.
 
-A `Resource` has a `ResourceType` (its name, a string), `ResourceKey` (see [caching](./caching/index.md)), a `ResourceSchema` (defining it's [fields](./schemas/index.md)), and its reactive wrapper - a `ReactiveResource`.
+A `Resource` has a `ResourceType` (its name, a string), `ResourceKey` (see [caching](./index.md)), a `ResourceSchema` (defining it's [fields](../schemas/index.md)), and its reactive wrapper - a `ReactiveResource`.
 
 - The `ResourceType` is the name of the `ResourceSchema`
 - An array of resources is a `ResourceArray`
