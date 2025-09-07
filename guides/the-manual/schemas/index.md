@@ -43,7 +43,7 @@ Dasherized keys is just a preference some APIs have, the JSONAPICache doesn't ca
 format your keys are in, so long as your schema matches up to them.
 :::
 
-Above, we collectively call the keys (the members) of attributes and relationships "fields".
+Above, we collectively call the keys of attributes and relationships "fields".
 
 While this format is great for serializability, for expressing relational data, for handling polymorphic concerns ... and a lot more ... its both too verbose and not particularly useful
 for our app.

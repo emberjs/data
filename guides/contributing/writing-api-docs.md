@@ -90,7 +90,7 @@ class Foo {
  */
 interface Foo {
   /**
-   * Documents the member
+   * Documents the key
    */
   bar: string;
 }
@@ -100,7 +100,7 @@ interface Foo {
  */
 type Foo = {
   /**
-   * Documents the member
+   * Documents the key
    */
   bar: string;
 }
