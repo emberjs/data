@@ -11,6 +11,7 @@ unstable-preview-types
 packages/*/addon
 declarations
 .svelte-kit/
+docs-viewer/docs.warp-drive.io/.vitepress/cache
 
 
 # dependencies
