@@ -14,7 +14,132 @@ We recommend builder functions follow a few guidelines
 - they should rarely rely on [Handlers](./handlers.md) to provide additional
   info critical to the request.
 - they should mirror either your endpoints or your business logic
-  - their name should convey what they do
+- their name should convey what they do
+
+
+Here's a few examples:
+
+#### Get A List Of Partial Data
+
+Let's say you have a feature that shows a paginated and sorted list of companies. The request
+for this data will load just the few company fields it needs, as well as a minimal subset of
+the related data for the company's ceo and headquarters.
+
+The list can be searched by the app's users, and the `QUERY` endpoint is implemented using
+the http `POST` method. You want to cache the requests to enable deduping and avoid repeating
+queries.
+
+A builder lets you quickly abstract all of this nuance.
+
+:::tabs
+
+== Builder
+
+```ts [builders/getCompanyPreviewList.ts]
+import { withReactiveResponse } from '@warp-drive/core/request';
+import { CompanyPreview } from '#/data/types';
+
+/**
+ * Gets a list of company previews with info about their CEO and
+ * headquarters location sorted alphabetically by name ascending.
+ * 
+ * - Paginated (limit 25)
+ * - See also {@link CompanyPreview}
+ */
+export function getCompanyPreviewList(search: string) {
+  const url = `/companies`;
+  const body = JSON.stringify({
+    search,
+    include: ['ceo', 'headquarters'],
+    fields: {
+      company: ['name', 'ceo', 'headquarters'],
+      user: ['name', 'title'],
+      address: ['city', 'state']
+    },
+    page: {
+      offset: 0,
+      limit: 25,
+    },
+    sort: ['name:asc']
+  });
+  const cacheKey = `${url}::${body}`;
+
+  return withReactiveResponse<CompanyPreview[]>({
+    url,
+    method: 'POST',
+    cacheOptions: {
+      key: cacheKey,
+      // invalidate this query if new companies are created
+      types: ['company']
+    },
+    headers: {
+      'X-HTTP-METHOD-OVERRIDE': 'QUERY'
+    },
+    body
+}
+```
+
+== Supporting Types
+
+```ts [types/companyPreview.ts]
+import { Type } from '@warp-drive/core/types/symbol';
+import type { User, Address, Company } from '#/data/types';
+
+/**
+ * The subset of User fields the CompanyPreview request
+ * returns.
+ */
+export type UserPreview = Pick<User, typeof Type | 'name' | 'title'>;
+
+/**
+ * The subset of Address fields the CompanyPreview request
+ * returns.
+ */
+export type AddressPreview = Pick<Address, typeof Type | 'city' | 'state'>;
+
+/**
+ * The subset of Company fields this request
+ * returns.
+ */
+export type CompanyPreview = Mask<
+  { ceo: UserPreview; headquarters: AddressPreview; },
+  Pick<Company, typeof Type | 'name' | 'ceo' | 'headquarters'>
+>;
+
+```
+
+== Usage
+
+```ts [Ember]
+import Component from '@glimmer/component';
+import { cached } from '@glimmer/tracking';
+import { Request } from '@warp-drive/ember';
+import { getCompanyPreviewList } from '#/data/builders';
+
+export default class CompanyPreviewList extends Component<{ Args: { search: string } }> {
+  @cached
+  get searchQuery() {
+    return getCompanyPreviewList(this.search);
+  }
+
+  <template>
+    <Request @query={{this.searchQuery}}>
+      <:content as |companies|>
+        <ul>
+        {{#each companies.data as |company|}}
+          <li>
+            {{company.name}} - {{company.ceo.name}}<br>
+            {{company.headquarters.city}}, {{company.headquarters.state}}
+          </li>
+        {{/each}}
+        </ul>
+      </:content>
+    </Request>
+  </template>
+}
+```
+
+:::
 
 ## When To Use A Builder
 
