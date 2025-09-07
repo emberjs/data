@@ -5,7 +5,13 @@ export default {
         name: 'Chris Thoburn',
         title: 'Project Lead | Senior Staff Engineer @auditboard',
         avatar: 'https://avatars.githubusercontent.com/u/650309?v=4',
-        links: [{ icon: 'github', link: 'https://github.com/runspired' }],
+        sponsor: 'https://github.com/sponsors/runspired',
+        links: [
+          { icon: 'github', link: 'https://github.com/runspired' },
+          { icon: 'bluesky', link: 'https://bsky.app/profile/runspired.com' },
+          { icon: 'linkedin', link: 'https://www.linkedin.com/in/runspired/' },
+          { icon: 'twitter', link: 'https://twitter.com/still_runspired' },
+        ],
       },
       {
         name: 'Krystan HuffMenne',
