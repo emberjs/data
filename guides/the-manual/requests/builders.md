@@ -17,7 +17,7 @@ We recommend builder functions follow a few guidelines
 - their name should convey what they do
 
 
-Here's a few examples:
+Here's an example:
 
 #### Get A List Of Partial Data
 
