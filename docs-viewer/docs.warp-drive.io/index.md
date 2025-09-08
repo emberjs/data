@@ -49,7 +49,7 @@ import ContributorList from '.vitepress/theme/ContributorList.vue';
 <VPTeamPage>
   <VPTeamPageTitle>
     <template #title>The Core Team</template>
-    <template #lead>People you should really buy a coffee for.</template>
+    <template #lead>Some People You Should Really Buy a Coffee For.</template>
   </VPTeamPageTitle>
   <VPTeamMembers size="small" :members="coreTeam" />
 </VPTeamPage>
@@ -57,7 +57,7 @@ import ContributorList from '.vitepress/theme/ContributorList.vue';
 
 <VPTeamPage>
   <VPTeamPageTitle>
-    <template #title>Our Contributors {{members.length}}</template>
+    <template #title>Our Contributors</template>
     <template #lead>A big thank you to all the amazing people who have helped improve this project.</template>
   </VPTeamPageTitle>
 </VPTeamPage>
