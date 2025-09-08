@@ -3,18 +3,12 @@ import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
 import { installAdapterFor } from '@warp-drive/holodeck';
 import { PUT } from '@warp-drive/holodeck/mock';
-import {
-  EmberArrayLikeExtension,
-  EmberObjectArrayExtension,
-  EmberObjectExtension,
-  type WithEmberObject,
-} from '@warp-drive/legacy/compat/extensions';
+import type { WithEmberObject } from '@warp-drive/legacy/compat/extensions';
 import type { WithLegacy } from '@warp-drive/legacy/model/migration-support';
 import type { WithFragmentArray } from '@warp-drive/legacy/model-fragments';
 import {
-  FragmentArrayExtension,
-  FragmentExtension,
   modelFor,
+  registerFragmentExtensions,
   withFragmentArrayDefaults,
   withFragmentDefaults,
   withLegacy,
@@ -37,13 +31,8 @@ module('Integration - Nested fragments', function (hooks) {
     this.owner.register('service:store', Store);
     this.store = this.owner.lookup('service:store') as Store;
     installAdapterFor(this, this.store);
+    registerFragmentExtensions(this.store);
     this.store.schema.registerResources([InfoSchema, OrderSchema, ProductSchema, UserSchema]);
-    this.store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectExtension);
-    this.store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(FragmentExtension);
-    this.store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(FragmentArrayExtension);
-    this.store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectArrayExtension);
-    this.store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberArrayLikeExtension);
-    this.store.modelFor = modelFor;
   });
 
   test('properties can be nested', async function (this: AppTestContext, assert) {
@@ -221,7 +210,7 @@ module('Integration - Nested fragments', function (hooks) {
     const user = this.store.createRecord<Assassin>('assassin', {});
 
     assert.ok(user.info, 'a nested fragment is created with the default value');
-    assert.deepEqual(
+    assert.equal(
       user.info!.notes.toArray(),
       defaultInfo.notes,
       'a doubly nested fragment array is created with the default value'

@@ -9,6 +9,7 @@ import { type Prefix, PrefixSchema } from '../-test-store/schemas/prefix';
 import { type Vehicle, VehicleSchema } from '../-test-store/schemas/vehicle';
 import { type Zoo, ZooSchema } from '../-test-store/schemas/zoo';
 import { Store } from '../-test-store/store';
+import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 interface AppTestContext extends TestContext {
   store: Store;
@@ -20,6 +21,7 @@ module('Unit - `Fragment`', function (hooks) {
   hooks.beforeEach(function (this: AppTestContext) {
     this.owner.register('service:store', Store);
     this.store = this.owner.lookup('service:store') as Store;
+    registerFragmentExtensions(this.store);
     this.store.schema.registerResources([
       PersonSchema,
       NameSchema,
@@ -99,7 +101,7 @@ module('Unit - `Fragment`', function (hooks) {
     const person = await this.store.findRecord<Person>('person', '1');
     const { prefixes } = person.name as Name;
 
-    assert.propEqual(prefixes, [], 'fragment array defaults to an empty array');
+    assert.deepEqual(prefixes, [], 'fragment array defaults to an empty array');
 
     prefixes.push({ name: 'Lord' } as Prefix);
 
