@@ -1,7 +1,7 @@
 import type { TestContext } from '@ember/test-helpers';
 
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
-import type { WithFragmentArray } from '@warp-drive/legacy/model-fragments';
+import { registerFragmentExtensions, type WithFragmentArray } from '@warp-drive/legacy/model-fragments';
 
 import { type Name, NameSchema } from '../-test-store/schemas/name';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
@@ -19,6 +19,7 @@ module('Unit - `FragmentArray`', function (hooks) {
     this.owner.register('service:store', Store);
     this.store = this.owner.lookup('service:store') as Store;
     this.store.schema.registerResources([PersonSchema, NameSchema, PrefixSchema]);
+    registerFragmentExtensions(this.store);
   });
 
   test('fragment arrays have an owner', async function (this: AppTestContext, assert) {
@@ -68,7 +69,7 @@ module('Unit - `FragmentArray`', function (hooks) {
     } as Name);
 
     assert.equal(fragments.length, length + 1, 'property size is correct');
-    assert.propEqual(
+    assert.deepEqual(
       fragments.objectAt(1),
       {
         first: 'Hugor',
@@ -104,7 +105,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     } as Name);
 
     assert.equal(fragments.length, length + 1, 'property size is correct');
-    assert.propEqual(
+    console.log('OBJ1: ', fragments.objectAt(1));
+    assert.deepEqual(
       fragments.objectAt(1),
       {
         first: 'Yollo',

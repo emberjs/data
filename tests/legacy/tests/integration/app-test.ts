@@ -1,5 +1,4 @@
 import type { TestContext } from '@ember/test-helpers';
-
 import type { ObjectSchema } from '@warp-drive/core-types/schema/fields';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import {
@@ -9,7 +8,9 @@ import {
   withFragmentDefaults,
   withFragmentArrayDefaults,
   withLegacy,
+  registerFragmentExtensions,
 } from '@warp-drive/legacy/model-fragments';
+
 import { Store } from '../-test-store/store.ts';
 
 interface AppTestContext extends TestContext {
@@ -22,6 +23,7 @@ module('Integration | Application', function (hooks) {
   hooks.beforeEach(function (this: AppTestContext) {
     this.owner.register('service:store', Store);
     this.store = this.owner.lookup('service:store') as Store;
+    registerFragmentExtensions(this.store);
   });
 
   test('Fragment and FragmentArray are setup correctly', function (this: AppTestContext, assert) {
