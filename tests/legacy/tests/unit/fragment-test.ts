@@ -1,6 +1,7 @@
 import { recordIdentifierFor } from '@warp-drive/core';
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
+import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 import { type Name, NameSchema } from '../-test-store/schemas/name';
 import { type Passenger, PassengerSchema } from '../-test-store/schemas/passenger';
@@ -9,7 +10,6 @@ import { type Prefix, PrefixSchema } from '../-test-store/schemas/prefix';
 import { type Vehicle, VehicleSchema } from '../-test-store/schemas/vehicle';
 import { type Zoo, ZooSchema } from '../-test-store/schemas/zoo';
 import { Store } from '../-test-store/store';
-import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 interface AppTestContext extends TestContext {
   store: Store;

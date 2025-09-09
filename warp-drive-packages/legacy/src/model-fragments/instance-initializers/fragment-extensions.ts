@@ -1,10 +1,11 @@
 import type ApplicationInstance from '@ember/application/instance';
-import type { Store } from '@warp-drive/core';
-import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtension } from '../../compat/extensions';
 
-import { modelFor } from '../hooks/model-for.ts';
-import FragmentArrayExtension from '../extensions/fragment-array.ts';
+import type { Store } from '@warp-drive/core';
+
+import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtension } from '../../compat/extensions.ts';
 import FragmentExtension from '../extensions/fragment.ts';
+import FragmentArrayExtension from '../extensions/fragment-array.ts';
+import { modelFor } from '../hooks/model-for.ts';
 
 export function registerFragmentExtensions(store: Store): void {
   store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentExtension);
@@ -29,5 +30,5 @@ export function initialize(application: ApplicationInstance): void {
 
 export default {
   name: 'fragment-extensions',
-  initialize: initialize as typeof initialize,
+  initialize: initialize,
 };
