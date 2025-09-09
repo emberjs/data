@@ -7,8 +7,6 @@ import type { CacheCapabilitiesManager } from '@ember-data/store/types';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
 
-const RECORD = false;
-
 function isNetworkError(e: unknown): asserts e is Error & {
   status: number;
   statusText: string;
@@ -38,27 +36,23 @@ module('Integration | @ember-data/json-api Cach.put(<ErrorDocument>)', function 
     manager.useCache(CacheHandler);
     store.requestManager = manager;
 
-    await mock(
-      this,
-      () => ({
-        url: 'users/1',
-        status: 404,
-        headers: {},
-        method: 'GET',
-        statusText: 'Not Found',
-        body: null,
-        response: {
-          errors: [
-            {
-              status: '404',
-              title: 'Not Found',
-              detail: 'The resource does not exist.',
-            },
-          ],
-        },
-      }),
-      RECORD
-    );
+    await mock(this, () => ({
+      url: 'users/1',
+      status: 404,
+      headers: {},
+      method: 'GET',
+      statusText: 'Not Found',
+      body: null,
+      response: {
+        errors: [
+          {
+            status: '404',
+            title: 'Not Found',
+            detail: 'The resource does not exist.',
+          },
+        ],
+      },
+    }));
 
     const url = buildBaseURL({ resourcePath: 'users/1' });
     try {

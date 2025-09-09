@@ -1,11 +1,127 @@
+import { SHOULD_RECORD } from '@warp-drive/core/build-config/env';
 import type { Handler, NextFn } from '@warp-drive/core/request';
-import type { RequestContext, RequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
+import type { HTTPMethod, RequestContext, RequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { MinimumAdapterInterface } from '@warp-drive/legacy/compat';
 import type { Store } from '@warp-drive/legacy/store';
 
 import type { ScaffoldGenerator } from './mock';
 
-const TEST_IDS = new WeakMap<object, { id: string; request: number; mock: number }>();
+const TEST_IDS = new WeakMap<
+  object,
+  {
+    id: string;
+    /**
+     * keeps track of the count of calls to record a mock
+     */
+    mock: {
+      /**
+       * For each GET, we keep track of the count
+       * for a specific URL
+       */
+      GET: Record<string, number>;
+      /**
+       * For each PUT, we keep track of the count
+       * for a specific URL
+       */
+      PUT: Record<string, number>;
+      /**
+       * For each PATCH, we keep track of the count
+       * for a specific URL
+       */
+      PATCH: Record<string, number>;
+      /**
+       * For each DELETE, we keep track of the count
+       * for a specific URL
+       */
+      DELETE: Record<string, number>;
+      /**
+       * For each POST, we keep track of the count
+       * for a specific URL
+       */
+      POST: Record<string, number>;
+      /**
+       * For each OPTIONS, we keep track of the count
+       * for a specific URL
+       */
+      OPTIONS: Record<string, number>;
+      /**
+       * For each QUERY, we keep track of the count
+       * for a specific URL
+       */
+      QUERY: Record<string, number>;
+      /**
+       * for each HEAD, we keep track of the count
+       * for a specific URL
+       */
+      HEAD: Record<string, number>;
+      /**
+       * for each CONNECT, we keep track of the count
+       * for a specific URL
+       */
+      CONNECT: Record<string, number>;
+      /**
+       * for each TRACE, we keep track of the count
+       * for a specific URL
+       */
+      TRACE: Record<string, number>;
+    };
+    /**
+     * keeps track of the count of calls to make a request
+     */
+    request: {
+      /**
+       * For each GET, we keep track of the count
+       * for a specific URL
+       */
+      GET: Record<string, number>;
+      /**
+       * For each PUT, we keep track of the count
+       * for a specific URL
+       */
+      PUT: Record<string, number>;
+      /**
+       * For each PATCH, we keep track of the count
+       * for a specific URL
+       */
+      PATCH: Record<string, number>;
+      /**
+       * For each DELETE, we keep track of the count
+       * for a specific URL
+       */
+      DELETE: Record<string, number>;
+      /**
+       * For each POST, we keep track of the count
+       * for a specific URL
+       */
+      POST: Record<string, number>;
+      /**
+       * For each OPTIONS, we keep track of the count
+       * for a specific URL
+       */
+      OPTIONS: Record<string, number>;
+      /**
+       * For each QUERY, we keep track of the count
+       * for a specific URL
+       */
+      QUERY: Record<string, number>;
+      /**
+       * for each HEAD, we keep track of the count
+       * for a specific URL
+       */
+      HEAD: Record<string, number>;
+      /**
+       * for each CONNECT, we keep track of the count
+       * for a specific URL
+       */
+      CONNECT: Record<string, number>;
+      /**
+       * for each TRACE, we keep track of the count
+       * for a specific URL
+       */
+      TRACE: Record<string, number>;
+    };
+  }
+>();
 
 let HOST = 'https://localhost:1135/';
 export function setConfig({ host }: { host: string }): void {
@@ -17,18 +133,45 @@ export function setTestId(context: object, str: string | null): void {
     throw new Error(`MockServerHandler is already configured with a testId.`);
   }
   if (str) {
-    TEST_IDS.set(context, { id: str, request: 0, mock: 0 });
+    TEST_IDS.set(context, {
+      id: str,
+      mock: {
+        GET: {},
+        PUT: {},
+        PATCH: {},
+        DELETE: {},
+        POST: {},
+        QUERY: {},
+        OPTIONS: {},
+        HEAD: {},
+        CONNECT: {},
+        TRACE: {},
+      },
+      request: {
+        GET: {},
+        PUT: {},
+        PATCH: {},
+        DELETE: {},
+        POST: {},
+        QUERY: {},
+        OPTIONS: {},
+        HEAD: {},
+        CONNECT: {},
+        TRACE: {},
+      },
+    });
   } else {
     TEST_IDS.delete(context);
   }
 }
 
-let IS_RECORDING = false;
+const shouldRecord = SHOULD_RECORD ? true : false;
+let IS_RECORDING: boolean | null = null;
 export function setIsRecording(value: boolean): void {
-  IS_RECORDING = Boolean(value);
+  IS_RECORDING = value === null ? value : Boolean(value);
 }
 export function getIsRecording(): boolean {
-  return IS_RECORDING;
+  return IS_RECORDING === null ? shouldRecord : IS_RECORDING;
 }
 
 export class MockServerHandler implements Handler {
@@ -37,24 +180,7 @@ export class MockServerHandler implements Handler {
     this.owner = owner;
   }
   async request<T>(context: RequestContext, next: NextFn<T>): Promise<StructuredDataDocument<T>> {
-    const test = TEST_IDS.get(this.owner);
-    if (!test) {
-      throw new Error(
-        `MockServerHandler is not configured with a testId. Use setTestId to set the testId for each test`
-      );
-    }
-
-    const request: RequestInfo = Object.assign({}, context.request);
-    const isRecording = request.url!.endsWith('/__record');
-    const firstChar = request.url!.includes('?') ? '&' : '?';
-    const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${
-      isRecording ? test.mock++ : test.request++
-    }`;
-    request.url = request.url + queryForTest;
-
-    request.mode = 'cors';
-    request.credentials = 'omit';
-    request.referrerPolicy = '';
+    const { request, queryForTest } = setupHolodeckFetch(this.owner, Object.assign({}, context.request));
 
     try {
       const future = next(request);
@@ -69,21 +195,35 @@ export class MockServerHandler implements Handler {
   }
 }
 
-function setupHolodeckFetch(owner: object, request: RequestInfo): RequestInfo {
+function setupHolodeckFetch(owner: object, request: RequestInfo): { request: RequestInfo; queryForTest: string } {
   const test = TEST_IDS.get(owner);
   if (!test) {
     throw new Error(`MockServerHandler is not configured with a testId. Use setTestId to set the testId for each test`);
   }
 
-  const firstChar = request.url!.includes('?') ? '&' : '?';
-  const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${test.request++}`;
-  request.url = request.url + queryForTest;
+  const url = request.url!;
+  const firstChar = url.includes('?') ? '&' : '?';
+  const method = (request.method?.toUpperCase() ?? 'GET') as HTTPMethod;
+
+  // enable custom methods
+  if (!test.request[method]) {
+    // eslint-disable-next-line no-console
+    console.log(`⚠️ Using custom HTTP method ${method} for response to request ${url}`);
+
+    test.request[method] = {};
+  }
+  if (!(url in test.request[method])) {
+    test.request[method][url] = 0;
+  }
+
+  const queryForTest = `${firstChar}__xTestId=${test.id}&__xTestRequestNumber=${test.request[method][url]++}`;
+  request.url = url + queryForTest;
 
   request.mode = 'cors';
   request.credentials = 'omit';
   request.referrerPolicy = '';
 
-  return request;
+  return { request, queryForTest };
 }
 
 interface AdapterForFn {
@@ -126,8 +266,8 @@ export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn 
           if (!originalFetch) {
             throw new Error(`Adapter ${String(modelName)} does not implement _fetchRequest`);
           }
-          const req = setupHolodeckFetch(owner, options);
-          return originalFetch(req);
+          const { request } = setupHolodeckFetch(owner, options);
+          return originalFetch(request);
         };
       }
     }
@@ -137,13 +277,28 @@ export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn 
 }
 
 export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean): Promise<void> {
-  const test = TEST_IDS.get(owner);
-  if (!test) {
-    throw new Error(`Cannot call "mock" before configuring a testId. Use setTestId to set the testId for each test`);
-  }
-  const testMockNum = test.mock++;
   if (getIsRecording() || isRecording) {
-    const port = window.location.port ? `:${window.location.port}` : '';
+    const test = TEST_IDS.get(owner);
+    if (!test) {
+      throw new Error(`Cannot call "mock" before configuring a testId. Use setTestId to set the testId for each test`);
+    }
+    const requestToMock = generate();
+    const { url: mockUrl, method } = requestToMock;
+    if (!mockUrl || !method) {
+      throw new Error(`MockError: Cannot mock a request without providing a URL and Method`);
+    }
+    const mockMethod = (method?.toUpperCase() ?? 'GET') as HTTPMethod;
+
+    // enable custom methods
+    if (!test.mock[mockMethod]) {
+      // eslint-disable-next-line no-console
+      console.log(`⚠️ Using custom HTTP method ${mockMethod} for response to request ${mockUrl}`);
+      test.mock[mockMethod] = {};
+    }
+    if (!(mockUrl in test.mock[mockMethod])) {
+      test.mock[mockMethod][mockUrl] = 0;
+    }
+    const testMockNum = test.mock[mockMethod][mockUrl]++;
     const url = `${HOST}__record?__xTestId=${test.id}&__xTestRequestNumber=${testMockNum}`;
     await fetch(url, {
       method: 'POST',

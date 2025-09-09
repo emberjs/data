@@ -11,28 +11,21 @@ import { buildBaseURL } from '@warp-drive/utilities';
 
 import { UserSchema } from './user-schema';
 
-const RECORD = true;
-
 module('Unit | DataWorker | Basic', function (_hooks) {
   test('it exists', async function (assert) {
     const worker = new Worker(new URL('./basic-worker.ts', import.meta.url));
     const MockHandler = new MockServerHandler(this);
 
-    await GET(
-      this,
-      'users/1',
-      () => ({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            firstName: 'Chris',
-            lastName: 'Thoburn',
-          },
+    await GET(this, 'users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          firstName: 'Chris',
+          lastName: 'Thoburn',
         },
-      }),
-      { RECORD }
-    );
+      },
+    }));
 
     class TestStore extends Store {
       constructor() {

@@ -109,9 +109,18 @@ function generateFilepath(options) {
   const cacheDir = generateFileDir(options);
   return `${cacheDir}/${bodyHash ? `${bodyHash}-` : 'res'}`;
 }
+
+/*
+ Generate a human scannable file name for the test assets to be stored in,
+ the `.mock-cache` directory should be checked-in to the codebase.
+*/
 function generateFileDir(options) {
   const { projectRoot, testId, url, method, testRequestNumber } = options;
-  return `${projectRoot}/.mock-cache/${testId}/${method}-${testRequestNumber}-${url}`;
+  // make path look nice but not be a sub-directory
+  // using alternative `/`-like characters would be nice but results in odd encoding
+  // on disk path
+  const pathUrl = url.replaceAll('/', '_');
+  return `${projectRoot}/.mock-cache/${testId}/${method}::${pathUrl}::${testRequestNumber}`;
 }
 
 async function replayRequest(context, cacheKey) {
