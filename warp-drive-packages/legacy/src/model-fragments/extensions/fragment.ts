@@ -1,9 +1,10 @@
-import type Model from '../../model';
 import { cached, tracked } from '@glimmer/tracking';
-import type { Value } from '@warp-drive/core/types/json/raw';
-import type { CAUTION_MEGA_DANGER_ZONE_Extension } from '@warp-drive/core/reactive';
-import type { ReactiveResource as SchemaRecord } from '@warp-drive/core/reactive';
+
+import type { CAUTION_MEGA_DANGER_ZONE_Extension, ReactiveResource as SchemaRecord } from '@warp-drive/core/reactive';
 import { Context } from '@warp-drive/core/reactive/-private';
+import type { Value } from '@warp-drive/core/types/json/raw';
+
+import type Model from '../../model.ts';
 
 export class Fragment {
   // We might want to check the parent values once we move this code to warp-drive.

@@ -1,14 +1,15 @@
 import type { TestContext } from '@ember/test-helpers';
+
 import type { ObjectSchema } from '@warp-drive/core-types/schema/fields';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import {
-  FragmentExtension,
   FragmentArrayExtension,
-  withArrayDefaults,
-  withFragmentDefaults,
-  withFragmentArrayDefaults,
-  withLegacy,
+  FragmentExtension,
   registerFragmentExtensions,
+  withArrayDefaults,
+  withFragmentArrayDefaults,
+  withFragmentDefaults,
+  withLegacy,
 } from '@warp-drive/legacy/model-fragments';
 
 import { Store } from '../-test-store/store.ts';
