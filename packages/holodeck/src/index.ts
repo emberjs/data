@@ -165,12 +165,13 @@ export function setTestId(context: object, str: string | null): void {
   }
 }
 
+const shouldRecord = SHOULD_RECORD ? true : false;
 let IS_RECORDING: boolean | null = null;
 export function setIsRecording(value: boolean): void {
   IS_RECORDING = value === null ? value : Boolean(value);
 }
 export function getIsRecording(): boolean {
-  return IS_RECORDING === null ? SHOULD_RECORD : IS_RECORDING;
+  return IS_RECORDING === null ? shouldRecord : IS_RECORDING;
 }
 
 export class MockServerHandler implements Handler {
