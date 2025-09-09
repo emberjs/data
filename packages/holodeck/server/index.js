@@ -111,7 +111,8 @@ function generateFilepath(options) {
 }
 function generateFileDir(options) {
   const { projectRoot, testId, url, method, testRequestNumber } = options;
-  return `${projectRoot}/.mock-cache/${testId}/${method}-${testRequestNumber}-${url}`;
+  const pathUrl = url.replaceAll('/', 'U+2215');
+  return `${projectRoot}/.mock-cache/${testId}/${method}_::_${pathUrl}_::_${testRequestNumber}`;
 }
 
 async function replayRequest(context, cacheKey) {
