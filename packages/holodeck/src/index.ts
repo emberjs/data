@@ -201,7 +201,7 @@ function setupHolodeckFetch(owner: object, request: RequestInfo): { request: Req
 
   const url = request.url!;
   const firstChar = url.includes('?') ? '&' : '?';
-  const method = (request.method!.toUpperCase() ?? 'GET') as HTTPMethod;
+  const method = (request.method?.toUpperCase() ?? 'GET') as HTTPMethod;
 
   // enable custom methods
   if (!test.request[method]) {
