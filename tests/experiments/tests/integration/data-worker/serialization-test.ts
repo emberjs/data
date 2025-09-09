@@ -11,8 +11,6 @@ import { buildBaseURL } from '@warp-drive/utilities';
 
 import { UserSchema } from './user-schema';
 
-const RECORD = true;
-
 /**
  * These tests help to ensure that we can properly cache and retrieve
  * network requests.
@@ -27,21 +25,16 @@ module('Unit | DataWorker | Serialization & Persistence', function (_hooks) {
     const worker = new Worker(new URL('./persisted-worker.ts', import.meta.url));
     const MockHandler = new MockServerHandler(this);
 
-    await GET(
-      this,
-      'users/1',
-      () => ({
-        data: {
-          id: '1',
-          type: 'user',
-          attributes: {
-            firstName: 'Chris',
-            lastName: 'Thoburn',
-          },
+    await GET(this, 'users/1', () => ({
+      data: {
+        id: '1',
+        type: 'user',
+        attributes: {
+          firstName: 'Chris',
+          lastName: 'Thoburn',
         },
-      }),
-      { RECORD }
-    );
+      },
+    }));
 
     class TestStore extends Store {
       constructor() {
