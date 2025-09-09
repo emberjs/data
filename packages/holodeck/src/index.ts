@@ -1,3 +1,4 @@
+import { SHOULD_RECORD } from '@warp-drive/core/build-config/env';
 import type { Handler, NextFn } from '@warp-drive/core/request';
 import type { HTTPMethod, RequestContext, RequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
 import type { MinimumAdapterInterface } from '@warp-drive/legacy/compat';
@@ -164,12 +165,12 @@ export function setTestId(context: object, str: string | null): void {
   }
 }
 
-let IS_RECORDING = false;
+let IS_RECORDING: boolean | null = null;
 export function setIsRecording(value: boolean): void {
-  IS_RECORDING = Boolean(value);
+  IS_RECORDING = value === null ? value : Boolean(value);
 }
 export function getIsRecording(): boolean {
-  return IS_RECORDING;
+  return IS_RECORDING === null ? SHOULD_RECORD : IS_RECORDING;
 }
 
 export class MockServerHandler implements Handler {
