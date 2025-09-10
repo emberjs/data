@@ -1,11 +1,9 @@
-import Cache from '@ember-data/json-api';
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { buildBaseURL } from '@ember-data/request-utils';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import { module, test } from '@warp-drive/diagnostic';
 import { mock, MockServerHandler } from '@warp-drive/holodeck';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
+import { buildBaseURL } from '@warp-drive/utilities';
 
 function isNetworkError(e: unknown): asserts e is Error & {
   status: number;

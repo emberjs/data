@@ -1,9 +1,8 @@
-import Cache from '@ember-data/json-api';
-import RequestManager from '@ember-data/request';
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
-import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/build-config/canary-features';
+import { CacheHandler, RequestManager, Store } from '@warp-drive/core';
+import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
 import { module, test } from '@warp-drive/diagnostic';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
 
 import { TestSchema } from '../../utils/schema';
 

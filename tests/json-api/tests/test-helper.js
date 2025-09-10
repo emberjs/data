@@ -25,5 +25,6 @@ setupGlobalHooks((hooks) => {
 configure();
 
 start({
-  useDiagnostic: true,
+  org: '@warp-drive/',
+  package: 'json-api',
 });

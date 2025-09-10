@@ -1,19 +1,19 @@
-import Cache from '@ember-data/json-api';
-import type { ImmutableRequestInfo } from '@ember-data/request';
-import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { Store } from '@warp-drive/core';
+import { instantiateRecord, registerDerivations, teardownRecord, withDefaults } from '@warp-drive/core/reactive';
 import { isPrivateStore, type PrivateStore } from '@warp-drive/core/store/-private';
-import type { AddResourceOperation } from '@warp-drive/core-types/cache/operations';
-import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { AddResourceOperation } from '@warp-drive/core/types/cache/operations';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { ImmutableRequestInfo } from '@warp-drive/core/types/request';
 import type {
   CollectionResourceDataDocument,
   ResourceDataDocument,
   SingleResourceDataDocument,
-} from '@warp-drive/core-types/spec/document';
-import type { ExistingResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
-import type { Type } from '@warp-drive/core-types/symbols';
+} from '@warp-drive/core/types/spec/document';
+import type { ExistingResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
+import type { Type } from '@warp-drive/core/types/symbols';
 import { module, test, todo } from '@warp-drive/diagnostic';
-import { instantiateRecord, registerDerivations, teardownRecord, withDefaults } from '@warp-drive/schema-record';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
 
 import { TestSchema } from '../../utils/schema';
 
