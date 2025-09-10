@@ -1,14 +1,14 @@
-import Cache from '@ember-data/json-api';
-import type { StructuredDataDocument } from '@ember-data/request';
-import type { NotificationType } from '@ember-data/store';
-import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { NotificationType } from '@warp-drive/core';
+import { Store } from '@warp-drive/core';
 import { isPrivateStore } from '@warp-drive/core/store/-private';
-import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core-types/identifier';
-import { resourceSchema } from '@warp-drive/core-types/schema/fields';
-import type { CollectionResourceDataDocument } from '@warp-drive/core-types/spec/document';
-import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { PersistedResourceKey, ResourceKey } from '@warp-drive/core/types/identifier';
+import type { StructuredDataDocument } from '@warp-drive/core/types/request';
+import { resourceSchema } from '@warp-drive/core/types/schema/fields';
+import type { CollectionResourceDataDocument } from '@warp-drive/core/types/spec/document';
+import type { CollectionResourceDocument, ResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
 
 import { TestSchema } from '../../utils/schema';
 

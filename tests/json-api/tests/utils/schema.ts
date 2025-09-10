@@ -1,8 +1,7 @@
-import type { SchemaService } from '@ember-data/store/types';
-import { assert } from '@warp-drive/build-config/macros';
-import type { ResourceKey } from '@warp-drive/core-types';
-import type { Value } from '@warp-drive/core-types/json/raw';
-import type { Derivation, HashFn, Transformation } from '@warp-drive/core-types/schema/concepts';
+import { assert } from '@warp-drive/core/build-config/macros';
+import type { ResourceKey, SchemaService } from '@warp-drive/core/types';
+import type { Value } from '@warp-drive/core/types/json/raw';
+import type { Derivation, HashFn, Transformation } from '@warp-drive/core/types/schema/concepts';
 import {
   type ArrayField,
   type DerivedField,
@@ -15,8 +14,8 @@ import {
   type ObjectField,
   type ObjectSchema,
   type ResourceSchema,
-} from '@warp-drive/core-types/schema/fields';
-import { Type } from '@warp-drive/core-types/symbols';
+} from '@warp-drive/core/types/schema/fields';
+import { Type } from '@warp-drive/core/types/symbols';
 
 type InternalSchema = {
   original: ResourceSchema | ObjectSchema;

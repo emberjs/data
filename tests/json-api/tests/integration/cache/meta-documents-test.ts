@@ -1,12 +1,12 @@
-import Cache from '@ember-data/json-api';
-import type { StructuredDataDocument, StructuredDocument } from '@ember-data/request';
-import type { DocumentCacheOperation } from '@ember-data/store';
-import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import type { DocumentCacheOperation } from '@warp-drive/core';
+import { Store } from '@warp-drive/core';
 import { isPrivateStore } from '@warp-drive/core/store/-private';
-import type { PersistedResourceKey, RequestKey } from '@warp-drive/core-types/identifier';
-import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core-types/spec/document';
+import type { CacheCapabilitiesManager } from '@warp-drive/core/types';
+import type { PersistedResourceKey, RequestKey } from '@warp-drive/core/types/identifier';
+import type { StructuredDataDocument, StructuredDocument } from '@warp-drive/core/types/request';
+import type { CollectionResourceDataDocument, ResourceMetaDocument } from '@warp-drive/core/types/spec/document';
 import { module, test } from '@warp-drive/diagnostic';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
 
 import { TestSchema } from '../../utils/schema';
 

@@ -1713,141 +1713,6 @@ importers:
         specifier: 5.101.3
         version: 5.101.3
 
-  tests/ember-data__json-api:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.28.3
-        version: 7.28.3
-      '@babel/runtime':
-        specifier: ^7.28.3
-        version: 7.28.3
-      '@ember-data/debug':
-        specifier: workspace:*
-        version: file:packages/debug(e4ea04e3ef7137263ee97bd3efa23509)
-      '@ember-data/graph':
-        specifier: workspace:*
-        version: file:packages/graph(@babel/core@7.28.3)
-      '@ember-data/json-api':
-        specifier: workspace:*
-        version: file:packages/json-api(@babel/core@7.28.3)
-      '@ember-data/legacy-compat':
-        specifier: workspace:*
-        version: file:packages/legacy-compat(@babel/core@7.28.3)
-      '@ember-data/model':
-        specifier: workspace:*
-        version: file:packages/model(@babel/core@7.28.3)
-      '@ember-data/request':
-        specifier: workspace:*
-        version: file:packages/request(@babel/core@7.28.3)
-      '@ember-data/request-utils':
-        specifier: workspace:*
-        version: file:packages/request-utils(@babel/core@7.28.3)
-      '@ember-data/store':
-        specifier: workspace:*
-        version: file:packages/store(1adf99e055abba96ff2ddb1d049f661d)
-      '@ember-data/unpublished-test-infra':
-        specifier: workspace:*
-        version: file:packages/unpublished-test-infra(1576485f49f8b7f31af1a924936d075d)
-      '@ember/edition-utils':
-        specifier: ^1.2.0
-        version: 1.2.0
-      '@ember/optional-features':
-        specifier: ^2.2.0
-        version: 2.2.0
-      '@ember/test-helpers':
-        specifier: 5.2.0
-        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(a28950a1e4cd07d337893daf47c6f294)
-      '@ember/test-waiters':
-        specifier: ^4.1.1
-        version: 4.1.1(@babel/core@7.28.3)
-      '@embroider/addon-shim':
-        specifier: ^1.10.0
-        version: 1.10.0
-      '@embroider/macros':
-        specifier: ^1.18.1
-        version: 1.18.1(@babel/core@7.28.3)
-      '@glimmer/component':
-        specifier: ^2.0.0
-        version: 2.0.0
-      '@warp-drive/build-config':
-        specifier: workspace:*
-        version: file:warp-drive-packages/build-config(@babel/core@7.28.3)
-      '@warp-drive/core':
-        specifier: workspace:*
-        version: file:warp-drive-packages/core(@babel/core@7.28.3)
-      '@warp-drive/core-types':
-        specifier: workspace:*
-        version: file:packages/core-types(@babel/core@7.28.3)
-      '@warp-drive/diagnostic':
-        specifier: workspace:*
-        version: file:packages/diagnostic(4cc24c2ebebabae28e72a02fe878be0d)
-      '@warp-drive/ember':
-        specifier: workspace:*
-        version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
-      '@warp-drive/holodeck':
-        specifier: workspace:*
-        version: file:packages/holodeck(399050e4d25cd9de09f58182ad617dd4)
-      '@warp-drive/internal-config':
-        specifier: workspace:*
-        version: file:tools/internal-config
-      '@warp-drive/schema-record':
-        specifier: workspace:*
-        version: file:packages/schema-record(@babel/core@7.28.3)
-      ember-auto-import:
-        specifier: ^2.10.0
-        version: 2.10.0
-      ember-cli:
-        specifier: ~6.6.0
-        version: 6.6.0
-      ember-cli-babel:
-        specifier: ^8.2.0
-        version: 8.2.0(@babel/core@7.28.3)
-      ember-cli-dependency-checker:
-        specifier: ^3.3.3
-        version: 3.3.3(ember-cli@6.6.0)
-      ember-cli-htmlbars:
-        specifier: ^6.3.0
-        version: 6.3.0
-      ember-cli-inject-live-reload:
-        specifier: ^2.1.0
-        version: 2.1.0
-      ember-cli-test-loader:
-        specifier: ^3.1.0
-        version: 3.1.0(@babel/core@7.28.3)
-      ember-disable-prototype-extensions:
-        specifier: ^1.1.3
-        version: 1.1.3
-      ember-load-initializers:
-        specifier: ^3.0.1
-        version: 3.0.1(8354954e5b80d7b1c35cb7ab63dbceb9)
-      ember-maybe-import-regenerator:
-        specifier: ^1.0.0
-        version: 1.0.0(@babel/core@7.28.3)
-      ember-resolver:
-        specifier: ^13.1.1
-        version: 13.1.1(@babel/core@7.28.3)
-      ember-source:
-        specifier: ~6.6.0
-        version: 6.6.0(@glimmer/component@2.0.0)
-      ember-source-channel-url:
-        specifier: ^3.0.0
-        version: 3.0.0
-      ember-try:
-        specifier: ^4.0.0
-        version: 4.0.0
-      loader.js:
-        specifier: ^4.7.0
-        version: 4.7.0
-      silent-error:
-        specifier: ^1.1.1
-        version: 1.1.1
-      typescript:
-        specifier: 5.9.2
-        version: 5.9.2
-      webpack:
-        specifier: 5.101.3
-        version: 5.101.3
-
   tests/ember-data__model:
     devDependencies:
       '@babel/core':
@@ -2849,6 +2714,120 @@ importers:
       vue-tsc:
         specifier: ^3.0.6
         version: 3.0.6(typescript@5.9.2)
+
+  tests/json-api:
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.28.3
+        version: 7.28.3
+      '@babel/runtime':
+        specifier: ^7.28.3
+        version: 7.28.3
+      '@ember-data/unpublished-test-infra':
+        specifier: workspace:*
+        version: file:packages/unpublished-test-infra(7cfc70a9288f389f29625f5dc635deed)
+      '@ember/edition-utils':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@ember/optional-features':
+        specifier: ^2.2.0
+        version: 2.2.0
+      '@ember/test-helpers':
+        specifier: 5.2.0
+        version: 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(a28950a1e4cd07d337893daf47c6f294)
+      '@ember/test-waiters':
+        specifier: ^4.1.1
+        version: 4.1.1(@babel/core@7.28.3)
+      '@embroider/addon-shim':
+        specifier: ^1.10.0
+        version: 1.10.0
+      '@embroider/macros':
+        specifier: ^1.18.1
+        version: 1.18.1(@babel/core@7.28.3)
+      '@glimmer/component':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@warp-drive/build-config':
+        specifier: workspace:*
+        version: file:warp-drive-packages/build-config(@babel/core@7.28.3)
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(@babel/core@7.28.3)
+      '@warp-drive/diagnostic':
+        specifier: workspace:*
+        version: file:packages/diagnostic(4cc24c2ebebabae28e72a02fe878be0d)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)
+      '@warp-drive/holodeck':
+        specifier: workspace:*
+        version: file:packages/holodeck(19e1072f23293e4c2aeee5c79542e276)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:tools/internal-config
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(ac1631a7da983377f84b100525d730a6)
+      '@warp-drive/legacy':
+        specifier: workspace:*
+        version: file:warp-drive-packages/legacy(da2d8626017c763d07445c649af78d55)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
+      ember-auto-import:
+        specifier: ^2.10.0
+        version: 2.10.0
+      ember-cli:
+        specifier: ~6.6.0
+        version: 6.6.0
+      ember-cli-babel:
+        specifier: ^8.2.0
+        version: 8.2.0(@babel/core@7.28.3)
+      ember-cli-dependency-checker:
+        specifier: ^3.3.3
+        version: 3.3.3(ember-cli@6.6.0)
+      ember-cli-htmlbars:
+        specifier: ^6.3.0
+        version: 6.3.0
+      ember-cli-inject-live-reload:
+        specifier: ^2.1.0
+        version: 2.1.0
+      ember-cli-test-loader:
+        specifier: ^3.1.0
+        version: 3.1.0(@babel/core@7.28.3)
+      ember-disable-prototype-extensions:
+        specifier: ^1.1.3
+        version: 1.1.3
+      ember-load-initializers:
+        specifier: ^3.0.1
+        version: 3.0.1(8354954e5b80d7b1c35cb7ab63dbceb9)
+      ember-maybe-import-regenerator:
+        specifier: ^1.0.0
+        version: 1.0.0(@babel/core@7.28.3)
+      ember-resolver:
+        specifier: ^13.1.1
+        version: 13.1.1(@babel/core@7.28.3)
+      ember-source:
+        specifier: ~6.6.0
+        version: 6.6.0(@glimmer/component@2.0.0)
+      ember-source-channel-url:
+        specifier: ^3.0.0
+        version: 3.0.0
+      ember-try:
+        specifier: ^4.0.0
+        version: 4.0.0
+      loader.js:
+        specifier: ^4.7.0
+        version: 4.7.0
+      silent-error:
+        specifier: ^1.1.1
+        version: 1.1.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      webpack:
+        specifier: 5.101.3
+        version: 5.101.3
 
   tests/main:
     devDependencies:

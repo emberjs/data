@@ -1,12 +1,10 @@
-import Cache from '@ember-data/json-api';
-import { serializePatch, serializeResources } from '@ember-data/json-api/request';
-import type { NotificationType } from '@ember-data/store';
-import Store from '@ember-data/store';
-import type { CacheCapabilitiesManager } from '@ember-data/store/types';
+import { type NotificationType, Store } from '@warp-drive/core';
 import { isPrivateStore } from '@warp-drive/core/store/-private';
-import type { ResourceKey } from '@warp-drive/core-types';
-import type { ResourceObject } from '@warp-drive/core-types/spec/json-api-raw';
+import type { CacheCapabilitiesManager, ResourceKey } from '@warp-drive/core/types';
+import type { ResourceObject } from '@warp-drive/core/types/spec/json-api-raw';
 import { module, test } from '@warp-drive/diagnostic';
+import { JSONAPICache as Cache } from '@warp-drive/json-api';
+import { serializePatch, serializeResources } from '@warp-drive/utilities/json-api';
 
 import { TestSchema } from '../utils/schema';
 
