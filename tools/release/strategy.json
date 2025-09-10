@@ -48,7 +48,7 @@
     },
     "@warp-drive/holodeck": {
       "stage": "alpha",
-      "types": "private",
+      "types": "stable",
       "typesPublish": false,
       "mirrorPublish": false
     },

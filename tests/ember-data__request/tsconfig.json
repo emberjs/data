@@ -36,8 +36,8 @@
       "@warp-drive/ember/*": ["../../warp-drive-packages/ember/declarations/*"],
       "@warp-drive/diagnostic": ["../../packages/diagnostic/unstable-preview-types"],
       "@warp-drive/diagnostic/*": ["../../packages/diagnostic/unstable-preview-types/*"],
-      "@warp-drive/holodeck": ["../../packages/holodeck/unstable-preview-types"],
-      "@warp-drive/holodeck/*": ["../../packages/holodeck/unstable-preview-types/*"]
+      "@warp-drive/holodeck": ["../../packages/holodeck/declarations"],
+      "@warp-drive/holodeck/*": ["../../packages/holodeck/declarations/*"]
     },
     "allowImportingTsExtensions": true,
     "composite": true,
