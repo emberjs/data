@@ -8,6 +8,7 @@ import { buildHandler } from './bun/socket-handler.js';
 import { debug, error, print } from './utils/debug.js';
 import { getPort } from './utils/port.js';
 import { addCloseHandler } from './bun/watch.js';
+import { launchDefault } from './default-setup.js';
 
 async function getCertInfo() {
   let CERT_PATH = process.env.HOLODECK_SSL_CERT_PATH;
@@ -66,7 +67,8 @@ async function getCertInfo() {
 /** @type {import('bun-types')} */
 const isBun = typeof Bun !== 'undefined';
 
-export async function launch(config) {
+export async function launch(settings) {
+  const config = launchDefault(settings);
   if (isBun) {
     debug(`Bun detected, using Bun.serve()`);
 
