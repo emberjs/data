@@ -1,7 +1,7 @@
 import type { Store } from '@warp-drive/core';
 import type { ModelSchema } from '@warp-drive/core/types';
 import type { Value } from '@warp-drive/core/types/json/raw';
-import type { TypedRecordInstance,TypeFromInstance } from '@warp-drive/core/types/record';
+import type { TypedRecordInstance, TypeFromInstance } from '@warp-drive/core/types/record';
 import type { LegacyAttributeField, LegacyRelationshipField } from '@warp-drive/core/types/schema/fields';
 
 type KeyOrString<T> = keyof T & string extends never ? string : keyof T & string;
