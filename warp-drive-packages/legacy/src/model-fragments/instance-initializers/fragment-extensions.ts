@@ -22,6 +22,7 @@ export function initialize(application: ApplicationInstance): void {
   if (store) {
     registerFragmentExtensions(store);
   } else {
+    // eslint-disable-next-line no-console
     console.warn(
       'No store service was found, you will need to call `registerFragmentExtensions` manually in your app.'
     );
@@ -30,5 +31,5 @@ export function initialize(application: ApplicationInstance): void {
 
 export default {
   name: 'fragment-extensions',
-  initialize: initialize,
+  initialize: initialize as (application: ApplicationInstance) => void,
 };
