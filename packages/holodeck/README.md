@@ -225,7 +225,7 @@ holodeck can be launched and cleaned up using the lifecycle hooks in the launch 
 for diagnostic in `diagnostic.js`:
 
 ```ts
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 import holodeck from '@warp-drive/holodeck';
 
 await launch({
