@@ -9,11 +9,9 @@ function loadConfig() {
 }
 
 function srcDirForEntryPoint(entryPoint, resolve, options) {
-  const srcDir = typeof options.srcDir === 'function' ? options.srcDir(entryPoint) : options.srcDir ?? './src';
+  const srcDir = typeof options.srcDir === 'function' ? options.srcDir(entryPoint) : (options.srcDir ?? './src');
 
-  const resolvedSrcDir = fixViteHijack(
-    resolve(srcDir.startsWith('.') ? srcDir : './' + srcDir).slice(7) + '/'
-  );
+  const resolvedSrcDir = fixViteHijack(resolve(srcDir.startsWith('.') ? srcDir : './' + srcDir).slice(7) + '/');
 
   return resolvedSrcDir;
 }
