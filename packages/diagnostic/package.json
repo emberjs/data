@@ -48,9 +48,9 @@
       "default": "./dist/*.css"
     },
     "./server/*": {
-      "node": "./dist-server/*.js",
-      "bun": "./dist-server/*.js",
-      "deno": "./dist-server/*.js"
+      "node": "./server/*.js",
+      "bun": "./server/*.js",
+      "deno": "./server/*.js"
     },
     "./ember": {
       "types": "./unstable-preview-types/ember.d.ts",
