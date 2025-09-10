@@ -19,6 +19,7 @@ export default [
   }),
 
   typescript.node({
+    dirname: import.meta.dirname,
     srcDirs: ['server/src'],
     tsconfig: 'server/tsconfig.json',
     rules: {
