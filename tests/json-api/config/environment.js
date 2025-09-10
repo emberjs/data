@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   const ENV = {
-    modulePrefix: 'son-api',
+    modulePrefix: 'json-api',
     environment,
     rootURL: '/',
     locationType: 'history',
