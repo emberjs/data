@@ -18,6 +18,15 @@ export default [
     },
   }),
 
+  // node (module) ================
+  node.esm({
+    files: ['server/**/*.{js,ts}'],
+    globals: { Bun: true },
+    rules: {
+      'no-console': 'off',
+    },
+  }),
+
   // node (script) ================
   node.cjs(),
 ];
