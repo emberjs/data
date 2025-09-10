@@ -127,7 +127,7 @@ const TEST_IDS = new WeakMap<
   }
 >();
 
-let HOST = 'https://localhost:1135/';
+let HOST = '/';
 
 /**
  * @public
@@ -277,6 +277,11 @@ interface PrivateAdapter {
 }
 
 function upgradeAdapter(adapter: unknown): asserts adapter is PrivateAdapter {}
+function upgradeStore(store: Store): asserts store is Store & { adapterFor: HasAdapterForFn['adapterFor'] } {
+  if (typeof store.adapterFor !== 'function') {
+    throw new Error('Store is not compatible with Holodeck. Missing adapterFor method.');
+  }
+}
 
 /**
  * Creates an adapterFor function that wraps the provided adapterFor function
@@ -285,15 +290,15 @@ function upgradeAdapter(adapter: unknown): asserts adapter is PrivateAdapter {}
  *
  * @param owner - The test context object used to retrieve the test ID.
  */
-export function createAdapterFor(owner: object, store: HasAdapterForFn): HasAdapterForFn['adapterFor'] {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const adapterFor = store.adapterFor;
-  return function holodeckAdapterFor(
+export function installAdapterFor(owner: object, store: Store): void {
+  upgradeStore(store);
+  const fn = store.adapterFor;
+  function holodeckAdapterFor(
     this: Store,
     modelName: string,
     _allowMissing?: true
   ): MinimumAdapterInterface | undefined {
-    const adapter = adapterFor.call(this, modelName, _allowMissing);
+    const adapter = fn.call(this, modelName, _allowMissing);
 
     if (adapter) {
       upgradeAdapter(adapter);
@@ -314,7 +319,8 @@ export function createAdapterFor(owner: object, store: HasAdapterForFn): HasAdap
     }
 
     return adapter;
-  } as HasAdapterForFn['adapterFor'];
+  }
+  store.adapterFor = holodeckAdapterFor as HasAdapterForFn['adapterFor'];
 }
 
 /**

@@ -2,7 +2,7 @@
 import chalk from 'chalk';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { createSecureServer } from 'node:http2';
+import { createSecureServer as http2Server } from 'node:http2';
 import { logger } from 'hono/logger';
 import { HTTPException } from 'hono/http-exception';
 import { cors } from 'hono/cors';
@@ -11,9 +11,8 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { homedir } from 'os';
 import path from 'path';
-import { threadId, parentPort } from 'node:worker_threads';
+import { Worker, threadId, parentPort } from 'node:worker_threads';
 
-const isBun = typeof Bun !== 'undefined';
 const DEBUG =
   process.env.DEBUG?.includes('wd:holodeck') || process.env.DEBUG === '*' || process.env.DEBUG?.includes('wd:*');
 
@@ -39,36 +38,18 @@ async function getCertInfo() {
     );
   }
 
-  if (isBun) {
-    const CERT = Bun.file(CERT_PATH);
-    const KEY = Bun.file(KEY_PATH);
-
-    if (!(await CERT.exists()) || !(await KEY.exists())) {
-      throw new Error(
-        'SSL certificate or key not found, you may need to run `pnpm dlx @warp-drive/holodeck ensure-cert`'
-      );
-    }
-
-    return {
-      CERT_PATH,
-      KEY_PATH,
-      CERT: await CERT.text(),
-      KEY: await KEY.text(),
-    };
-  } else {
-    if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
-      throw new Error(
-        'SSL certificate or key not found, you may need to run `pnpm dlx @warp-drive/holodeck ensure-cert`'
-      );
-    }
-
-    return {
-      CERT_PATH,
-      KEY_PATH,
-      CERT: fs.readFileSync(CERT_PATH, 'utf8'),
-      KEY: fs.readFileSync(KEY_PATH, 'utf8'),
-    };
+  if (!fs.existsSync(CERT_PATH) || !fs.existsSync(KEY_PATH)) {
+    throw new Error(
+      'SSL certificate or key not found, you may need to run `pnpm dlx @warp-drive/holodeck ensure-cert`'
+    );
   }
+
+  return {
+    CERT_PATH,
+    KEY_PATH,
+    CERT: fs.readFileSync(CERT_PATH, 'utf8'),
+    KEY: fs.readFileSync(KEY_PATH, 'utf8'),
+  };
 }
 
 const DEFAULT_PORT = 1135;
@@ -127,11 +108,7 @@ function generateFileDir(options) {
 async function replayRequest(context, cacheKey) {
   let metaJson;
   try {
-    if (isBun) {
-      metaJson = await Bun.file(`${cacheKey}.meta.json`).json();
-    } else {
-      metaJson = JSON.parse(fs.readFileSync(`${cacheKey}.meta.json`, 'utf8'));
-    }
+    metaJson = JSON.parse(fs.readFileSync(`${cacheKey}.meta.json`, 'utf8'));
   } catch (e) {
     context.header('Content-Type', 'application/vnd.api+json');
     context.status(400);
@@ -151,12 +128,7 @@ async function replayRequest(context, cacheKey) {
 
   try {
     const bodyPath = `${cacheKey}.body.br`;
-    const bodyInit =
-      metaJson.status !== 204 && metaJson.status < 500
-        ? isBun
-          ? Bun.file(bodyPath)
-          : fs.createReadStream(bodyPath)
-        : '';
+    const bodyInit = metaJson.status !== 204 && metaJson.status < 500 ? fs.createReadStream(bodyPath) : '';
 
     const headers = new Headers(metaJson.headers || {});
     // @ts-expect-error - createReadStream is supported in node
@@ -270,18 +242,11 @@ function createTestHandler(projectRoot) {
 
         fs.mkdirSync(cacheDir, { recursive: true });
 
-        if (isBun) {
-          const newMetaFile = Bun.file(`${cacheKey}.meta.json`);
-          await newMetaFile.write(JSON.stringify({ url, status, statusText, headers, method, requestBody: body }));
-          const newBodyFile = Bun.file(`${cacheKey}.body.br`);
-          await newBodyFile.write(compressedResponse);
-        } else {
-          fs.writeFileSync(
-            `${cacheKey}.meta.json`,
-            JSON.stringify({ url, status, statusText, headers, method, requestBody: body })
-          );
-          fs.writeFileSync(`${cacheKey}.body.br`, compressedResponse);
-        }
+        fs.writeFileSync(
+          `${cacheKey}.meta.json`,
+          JSON.stringify({ url, status, statusText, headers, method, requestBody: body })
+        );
+        fs.writeFileSync(`${cacheKey}.body.br`, compressedResponse);
 
         context.status(201);
         return context.body(
@@ -335,100 +300,76 @@ function createTestHandler(projectRoot) {
   return TestHandler;
 }
 
-export function startNodeServer() {
-  const args = process.argv.slice();
-
-  if (!isBun && args.length) {
-    const options = JSON.parse(args[2]);
-    _createServer(options);
-  }
-}
-
-export function startWorker() {
+export async function startWorker() {
+  let close;
+  parentPort.postMessage('ready');
   // listen for launch message
-  globalThis.onmessage = async (event) => {
-    console.log('starting holodeck worker');
-    const { options } = event.data;
-
-    const { server } = await _createServer(options);
-
-    // listen for messages
-    globalThis.onmessage = (event) => {
-      const message = event.data;
-      if (message === 'end') {
-        server.close();
-        globalThis.close();
-      }
-    };
-  };
-}
-
-async function waitForLog(server, logMessage) {
-  for await (const chunk of server.stdout) {
-    process.stdout.write(chunk);
-    const txt = new TextDecoder().decode(chunk);
-    if (txt.includes(logMessage)) {
-      return;
+  parentPort.on('message', async (event) => {
+    // console.log('worker message received', event);
+    if (typeof event === 'object' && event?.type === 'launch') {
+      // console.log('worker launching');
+      const { options } = event;
+      const result = await _createServer(options);
+      parentPort.postMessage({
+        type: 'launched',
+        protocol: 'https',
+        hostname: result.location.hostname,
+        port: result.location.port,
+      });
+      close = result.close;
     }
-  }
-}
 
-async function reprintLogs(server) {
-  for await (const chunk of server.stdout) {
-    process.stdout.write(chunk);
-  }
+    if (event === 'end') {
+      // console.log('worker shutting down');
+      close();
+    }
+  });
 }
 
 /*
 { port?: number, projectRoot: string }
 */
-export async function createServer(options, useBun = false) {
-  if (!useBun) {
-    const CURRENT_FILE = new URL(import.meta.url).pathname;
-    const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
-    const server = Bun.spawn(['node', START_FILE, JSON.stringify(options)], {
-      env: Object.assign({}, process.env, { FORCE_COLOR: 1 }),
-      cwd: process.cwd(),
-      stdin: 'inherit',
-      stdout: 'pipe',
-      stderr: 'inherit',
-    });
+export async function createServer(options) {
+  // console.log('starting holodeck worker');
+  const worker = new Worker(new URL('./worker.js', import.meta.url));
 
-    await waitForLog(server, 'Serving Holodeck HTTP Mocks');
-    void reprintLogs(server);
-
-    return {
-      terminate() {
-        server.kill();
-        // server.unref();
-      },
-    };
-  }
-
-  console.log('starting holodeck worker');
-  const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
-
-  worker.postMessage({
-    type: 'launch',
-    options,
-  });
-
-  return new Promise((resolve) => {
-    // @ts-expect-error
-    worker.onmessage((v) => {
-      console.log('worker message received', v);
-      if (v.data === 'launched') {
+  const started = new Promise((resolve) => {
+    worker.on('message', (v) => {
+      // console.log('worker message received', v);
+      if (v === 'ready') {
+        worker.postMessage({
+          type: 'launch',
+          options,
+        });
+      } else if (v.type === 'launched') {
+        // @ts-expect-error
+        worker.location = v;
         resolve(worker);
       }
     });
   });
+
+  await started;
+  return {
+    worker,
+    server: {
+      close() {
+        worker.postMessage('end');
+        worker.terminate();
+      },
+    },
+    // @ts-expect-error
+    location: worker.location,
+  };
+
+  // return _createServer(options);
 }
 
 async function _createServer(options) {
   const { CERT, KEY } = await getCertInfo();
   const app = new Hono();
   if (DEBUG) {
-    app.use('*', logger());
+    app.use(logger());
   }
   app.use(
     '*',
@@ -444,27 +385,54 @@ async function _createServer(options) {
   );
   app.all('*', createTestHandler(options.projectRoot));
 
+  const location = {
+    port: options.port ?? DEFAULT_PORT,
+    hostname: options.hostname ?? 'localhost',
+  };
+
   const server = serve({
-    overrideGlobalObjects: !isBun,
+    overrideGlobalObjects: true,
     fetch: app.fetch,
     serverOptions: {
       key: KEY,
       cert: CERT,
+      rejectUnauthorized: false,
+      enableTrace: true,
+      // Allow HTTP/1.1 fallback for ALPN negotiation
+      allowHTTP1: true,
+      ALPNProtocols: ['h2', 'http/1.1'],
     },
-    createServer: createSecureServer,
-    port: options.port ?? DEFAULT_PORT,
-    hostname: options.hostname ?? 'localhost',
+    createServer: http2Server,
+    port: location.port,
+    hostname: location.hostname,
   });
 
   console.log(
-    `\tServing Holodeck HTTP Mocks from ${chalk.yellow('https://') + chalk.magenta((options.hostname ?? 'localhost') + ':') + chalk.yellow(options.port ?? DEFAULT_PORT)}\n`
+    `\tServing Holodeck HTTP Mocks from ${chalk.yellow('https://') + chalk.magenta(location.hostname + ':') + chalk.yellow(location.port)}\n`
   );
 
   if (typeof threadId === 'number' && threadId !== 0) {
-    parentPort.postMessage('launched');
+    parentPort.postMessage({
+      type: 'launched',
+      protocol: 'https',
+      hostname: location.hostname,
+      port: location.port,
+    });
   }
 
-  return { app, server };
+  if (typeof threadId === 'number' && threadId !== 0) {
+    const close = createCloseHandler(() => {
+      server.close();
+    });
+
+    return { app, server, location, close };
+  }
+
+  return {
+    app,
+    server,
+    location,
+  };
 }
 
 /** @type {Map<string, Awaited<ReturnType<typeof createServer>>>} */
@@ -473,9 +441,11 @@ const servers = new Map();
 export default {
   async launchProgram(config = {}) {
     const projectRoot = process.cwd();
-    const name = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } }).then(
-      (pkg) => pkg.name
-    );
+    const pkg = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } });
+    const { name } = pkg.default ?? pkg;
+    if (!name) {
+      throw new Error(`Package name not found in package.json`);
+    }
     const options = { name, projectRoot, ...config };
     console.log(
       chalk.grey(
@@ -485,33 +455,80 @@ export default {
       ) +
         chalk.grey(
           `\n\tHolodeck Access Granted\n\t\tprogram: ${chalk.magenta(name)}\n\t\tsettings: ${chalk.green(JSON.stringify(config).split('\n').join(' '))}\n\t\tdirectory: ${chalk.cyan(projectRoot)}\n\t\tengine: ${chalk.cyan(
-            isBun ? 'bun@' + Bun.version : 'node'
+            'node'
           )}`
         )
     );
-    console.log(chalk.grey(`\n\tStarting Holodeck Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
+    console.log(chalk.grey(`\n\tStarting Holodeck Subroutines`));
 
     if (servers.has(projectRoot)) {
       throw new Error(`Holodeck is already running for project '${name}' at '${projectRoot}'`);
     }
 
-    // toggle to true if Bun fixes CORS support for HTTP/2
-    const project = await createServer(options, false);
+    const project = await createServer(options);
     servers.set(projectRoot, project);
+    return {
+      location: `https://${project.location.hostname}:${project.location.port}`,
+      port: project.location.port,
+      hostname: project.location.hostname,
+      protocol: 'https',
+      recordingPath: `/__record`,
+    };
   },
   async endProgram() {
-    console.log(chalk.grey(`\n\tEnding Holodeck Subroutines (mode:${chalk.cyan(isBun ? 'bun' : 'node')})`));
-    const projectRoot = process.cwd();
-
-    if (!servers.has(projectRoot)) {
-      const name = require(path.join(projectRoot, 'package.json')).name;
-      console.log(chalk.red(`\n\nHolodeck was not running for project '${name}' at '${projectRoot}'\n\n`));
-      return;
-    }
-
-    const project = servers.get(projectRoot);
-    servers.delete(projectRoot);
-    project.terminate();
-    console.log(chalk.grey(`\n\tHolodeck program ended`));
+    closeHandler();
   },
 };
+
+async function shutdown() {
+  console.log(chalk.grey(`\n\tEnding Holodeck Subroutines`));
+  const projectRoot = process.cwd();
+
+  if (!servers.has(projectRoot)) {
+    const pkg = await import(path.join(projectRoot, 'package.json'), { with: { type: 'json' } });
+    const { name } = pkg.default ?? pkg;
+    console.log(chalk.red(`\n\nHolodeck was not running for project '${name}' at '${projectRoot}'\n\n`));
+    return;
+  }
+
+  const project = servers.get(projectRoot);
+  servers.delete(projectRoot);
+  project.server.close();
+  console.log(chalk.grey(`\n\tHolodeck program ended`));
+}
+
+function createCloseHandler(cb) {
+  let executed = false;
+
+  process.on('SIGINT', () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  });
+
+  process.on('SIGTERM', () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  });
+
+  process.on('SIGQUIT', () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  });
+
+  process.on('exit', () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  });
+
+  return () => {
+    if (executed) return;
+    executed = true;
+    cb();
+  };
+}
+
+const closeHandler = createCloseHandler(shutdown);
