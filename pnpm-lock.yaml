@@ -574,6 +574,12 @@ importers:
       '@embroider/macros':
         specifier: ^1.18.1
         version: 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server':
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
+      '@hono/node-ws':
+        specifier: ^1.2.0
+        version: 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.28.3)
@@ -589,6 +595,9 @@ importers:
       dom-element-descriptors:
         specifier: ^0.5.1
         version: 0.5.1
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
       qunit-dom:
         specifier: ^3.5.0
         version: 3.5.0
@@ -620,18 +629,24 @@ importers:
       '@glimmer/component':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
       '@types/react':
         specifier: ^19.1.11
         version: 19.1.11
       '@types/react-dom':
         specifier: ^19.1.8
         version: 19.1.8(@types/react@19.1.11)
+      '@types/tmp':
+        specifier: ^0.2.6
+        version: 0.2.6
       '@warp-drive/internal-config':
         specifier: workspace:*
-        version: file:tools/internal-config
-      bun-types:
-        specifier: ^1.2.20
-        version: 1.2.20(@types/react@19.1.11)
+        version: file:tools/internal-config(@types/node@24.3.0)
       ember-cli-test-loader:
         specifier: ^3.1.0
         version: 3.1.0(@babel/core@7.28.3)
@@ -643,7 +658,7 @@ importers:
         version: 5.9.2
       vite:
         specifier: ^7.1.3
-        version: 7.1.3
+        version: 7.1.3(@types/node@24.3.0)
 
   packages/eslint-plugin-warp-drive:
     dependencies:
@@ -5669,6 +5684,13 @@ packages:
     peerDependencies:
       hono: ^4
 
+  '@hono/node-ws@1.2.0':
+    resolution: {integrity: sha512-OBPQ8OSHBw29mj00wT/xGYtB6HY54j0fNSdVZ7gZM3TUeq0So11GXaWtFf1xWxQNfumKIsj0wRuLKWfVsO5GgQ==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      '@hono/node-server': ^1.11.1
+      hono: ^4.6.0
+
   '@html-next/vertical-collection@https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec#path:vertical-collection':
     resolution: {path: vertical-collection, tarball: https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec}
     version: 4.0.2
@@ -6571,6 +6593,9 @@ packages:
 
   '@types/tmp@0.0.33':
     resolution: {integrity: sha512-gVC1InwyVrO326wbBZw+AO3u2vRXz/iRWq9jYhpG4W8LXyIgDv3ZmcLQ5Q4Gs+gFMyqx+viFoFT+l3p61QFCmQ==}
+
+  '@types/tmp@0.2.6':
+    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
 
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
@@ -16732,6 +16757,15 @@ snapshots:
     dependencies:
       hono: 4.9.4
 
+  '@hono/node-ws@1.2.0(0761bbd318d0a1c99aa83154d16b3252)':
+    dependencies:
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      hono: 4.9.4
+      ws: 8.18.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@html-next/vertical-collection@https://codeload.github.com/NullVoxPopuli/vertical-collection/tar.gz/95c4b101634c437ee1dc54eb18b376c4538b0dec#path:vertical-collection(@babel/core@7.28.3)':
     dependencies:
       ember-auto-import: 2.10.0
@@ -17714,6 +17748,8 @@ snapshots:
 
   '@types/tmp@0.0.33': {}
 
+  '@types/tmp@0.2.6': {}
+
   '@types/triple-beam@1.3.5': {}
 
   '@types/unist@3.0.3': {}
@@ -18122,11 +18158,14 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(4cc24c2ebebabae28e72a02fe878be0d)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
@@ -18134,30 +18173,40 @@ snapshots:
       ember-cli-test-loader: 3.1.0(@babel/core@7.28.3)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(@babel/core@7.28.3)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(ab3931b8efe123d48e6f09ce51952ac3)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
@@ -18165,23 +18214,30 @@ snapshots:
       react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/diagnostic@file:packages/diagnostic(aee654df6dc3ed0e82ba2e6019020ca6)':
     dependencies:
       '@embroider/macros': 1.18.1(@babel/core@7.28.3)
+      '@hono/node-server': 1.19.0(hono@4.9.4)
+      '@hono/node-ws': 1.2.0(0761bbd318d0a1c99aa83154d16b3252)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.28.3)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.28.3)
       chalk: 5.6.0
       debug: 4.4.1
       dom-element-descriptors: 0.5.1
+      hono: 4.9.4
       qunit-dom: 3.5.0
       tmp: 0.2.5
     optionalDependencies:
       '@ember/test-helpers': 5.2.0(patch_hash=a1670a4e3977c846a5c2454f317f5a17cbd284aef3a676b190c98141536afb04)(a28950a1e4cd07d337893daf47c6f294)
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@warp-drive/ember@file:warp-drive-packages/ember(1adf99e055abba96ff2ddb1d049f661d)':
     dependencies:
@@ -19768,11 +19824,6 @@ snapshots:
   bun-types@1.2.20:
     dependencies:
       '@types/node': 24.3.0
-
-  bun-types@1.2.20(@types/react@19.1.11):
-    dependencies:
-      '@types/node': 24.3.0
-      '@types/react': 19.1.11
 
   bun-types@1.2.21:
     dependencies:
