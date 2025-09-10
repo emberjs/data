@@ -107,7 +107,7 @@ function generateFilepath(options) {
   const { body } = options;
   const bodyHash = body ? crypto.createHash('md5').update(JSON.stringify(body)).digest('hex') : null;
   const cacheDir = generateFileDir(options);
-  return `${cacheDir}/${bodyHash ? `${bodyHash}-` : 'res'}`;
+  return `${cacheDir}/${bodyHash ? bodyHash : 'res'}`;
 }
 
 /*
@@ -116,10 +116,11 @@ function generateFilepath(options) {
 */
 function generateFileDir(options) {
   const { projectRoot, testId, url, method, testRequestNumber } = options;
+  const normalizedUrl = url.startsWith('/') ? url.slice(1) : url;
   // make path look nice but not be a sub-directory
   // using alternative `/`-like characters would be nice but results in odd encoding
   // on disk path
-  const pathUrl = url.replaceAll('/', '_');
+  const pathUrl = normalizedUrl.replaceAll('/', '_');
   return `${projectRoot}/.mock-cache/${testId}/${method}::${pathUrl}::${testRequestNumber}`;
 }
 
@@ -141,34 +142,54 @@ async function replayRequest(context, cacheKey) {
             status: '400',
             code: 'MOCK_NOT_FOUND',
             title: 'Mock not found',
-            detail: `No meta was found for ${context.req.method} ${context.req.url}. You may need to record a mock for this request.`,
+            detail: `No meta was found for ${context.req.method} ${context.req.url}. The expected cacheKey was ${cacheKey}. You may need to record a mock for this request.`,
           },
         ],
       })
     );
   }
 
-  const bodyPath = `${cacheKey}.body.br`;
-  const bodyInit =
-    metaJson.status !== 204 && metaJson.status < 500
-      ? isBun
-        ? Bun.file(bodyPath)
-        : fs.createReadStream(bodyPath)
-      : '';
+  try {
+    const bodyPath = `${cacheKey}.body.br`;
+    const bodyInit =
+      metaJson.status !== 204 && metaJson.status < 500
+        ? isBun
+          ? Bun.file(bodyPath)
+          : fs.createReadStream(bodyPath)
+        : '';
 
-  const headers = new Headers(metaJson.headers || {});
-  // @ts-expect-error - createReadStream is supported in node
-  const response = new Response(bodyInit, {
-    status: metaJson.status,
-    statusText: metaJson.statusText,
-    headers,
-  });
+    const headers = new Headers(metaJson.headers || {});
+    // @ts-expect-error - createReadStream is supported in node
+    const response = new Response(bodyInit, {
+      status: metaJson.status,
+      statusText: metaJson.statusText,
+      headers,
+    });
 
-  if (metaJson.status > 400) {
-    throw new HTTPException(metaJson.status, { res: response, message: metaJson.statusText });
+    if (metaJson.status > 400) {
+      throw new HTTPException(metaJson.status, { res: response, message: metaJson.statusText });
+    }
+
+    return response;
+  } catch (e) {
+    if (e instanceof HTTPException) {
+      throw e;
+    }
+    context.header('Content-Type', 'application/vnd.api+json');
+    context.status(500);
+    return context.body(
+      JSON.stringify({
+        errors: [
+          {
+            status: '500',
+            code: 'MOCK_SERVER_ERROR',
+            title: 'Mock Replay Failed',
+            detail: `Failed to create the response for ${context.req.method} ${context.req.url}.\n\n\n${e.message}\n${e.stack}`,
+          },
+        ],
+      })
+    );
   }
-
-  return response;
 }
 
 function createTestHandler(projectRoot) {
@@ -218,7 +239,7 @@ function createTestHandler(projectRoot) {
         );
       }
 
-      if (req.method === 'POST' || niceUrl === '__record') {
+      if (req.method === 'POST' && niceUrl === '__record') {
         const payload = await req.json();
         const { url, headers, method, status, statusText, body, response } = payload;
         const cacheKey = generateFilepath({
@@ -226,7 +247,7 @@ function createTestHandler(projectRoot) {
           testId,
           url,
           method,
-          body: body ? JSON.stringify(body) : null,
+          body,
           testRequestNumber,
         });
         const compressedResponse = compress(JSON.stringify(response));
@@ -262,16 +283,22 @@ function createTestHandler(projectRoot) {
           fs.writeFileSync(`${cacheKey}.body.br`, compressedResponse);
         }
 
-        context.status(204);
-        return context.body(null);
+        context.status(201);
+        return context.body(
+          JSON.stringify({
+            message: `Recorded ${method} ${url} for test ${testId} request #${testRequestNumber}`,
+            cacheKey,
+            cacheDir,
+          })
+        );
       } else {
-        const body = req.body;
+        const body = req.raw.body ? await req.text() : null;
         const cacheKey = generateFilepath({
           projectRoot,
           testId,
           url: niceUrl,
           method: req.method,
-          body: body ? JSON.stringify(body) : null,
+          body: body ? body : null,
           testRequestNumber,
         });
         return replayRequest(context, cacheKey);
