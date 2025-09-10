@@ -32,7 +32,7 @@
     "README.md",
     "LICENSE.md",
     "server",
-    "unstable-preview-types",
+    "declarations",
     "logos"
   ],
   "bin": {
@@ -77,17 +77,17 @@
       "bun": "./server/index.js",
       "deno": "./server/index.js",
       "browser": {
-        "types": "./unstable-preview-types/index.d.ts",
+        "types": "./declarations/index.d.ts",
         "default": "./dist/index.js"
       },
       "import": {
-        "types": "./unstable-preview-types/index.d.ts",
+        "types": "./declarations/index.d.ts",
         "default": "./dist/index.js"
       },
       "default": "./server/index.js"
     },
     "./mock": {
-      "types": "./unstable-preview-types/mock.d.ts",
+      "types": "./declarations/mock.d.ts",
       "default": "./dist/mock.js"
     }
   }
