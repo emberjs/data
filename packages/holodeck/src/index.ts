@@ -302,7 +302,7 @@ export async function mock(owner: object, generate: ScaffoldGenerator, isRecordi
     const url = `${HOST}__record?__xTestId=${test.id}&__xTestRequestNumber=${testMockNum}`;
     await fetch(url, {
       method: 'POST',
-      body: JSON.stringify(generate()),
+      body: JSON.stringify(requestToMock),
       mode: 'cors',
       credentials: 'omit',
       referrerPolicy: '',

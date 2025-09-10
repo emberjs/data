@@ -123,15 +123,20 @@ export function POST(
 ): Promise<void> {
   return mock(
     owner,
-    () => ({
-      status: options?.status ?? 201,
-      statusText: options?.statusText ?? STATUS_TEXT_FOR.get(options?.status ?? 201) ?? '',
-      headers: options?.headers ?? {},
-      body: options?.body ?? null,
-      method: 'POST',
-      url,
-      response: response(),
-    }),
+    () => {
+      const body = response();
+      const status = options?.status ?? (body ? 201 : 204);
+
+      return {
+        status: status,
+        statusText: options?.statusText ?? STATUS_TEXT_FOR.get(status) ?? '',
+        headers: options?.headers ?? {},
+        body: options?.body ?? null,
+        method: 'POST',
+        url,
+        response: body,
+      };
+    },
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
@@ -143,15 +148,20 @@ export function PUT(
 ): Promise<void> {
   return mock(
     owner,
-    () => ({
-      status: options?.status ?? 200,
-      statusText: options?.statusText ?? STATUS_TEXT_FOR.get(options?.status ?? 200) ?? '',
-      headers: options?.headers ?? {},
-      body: options?.body ?? null,
-      method: 'PUT',
-      url,
-      response: response(),
-    }),
+    () => {
+      const body = response();
+      const status = options?.status ?? (body ? 200 : 204);
+
+      return {
+        status: status,
+        statusText: options?.statusText ?? STATUS_TEXT_FOR.get(status) ?? '',
+        headers: options?.headers ?? {},
+        body: options?.body ?? null,
+        method: 'PUT',
+        url,
+        response: body,
+      };
+    },
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
@@ -163,15 +173,20 @@ export function PATCH(
 ): Promise<void> {
   return mock(
     owner,
-    () => ({
-      status: options?.status ?? 200,
-      statusText: options?.statusText ?? STATUS_TEXT_FOR.get(options?.status ?? 200) ?? '',
-      headers: options?.headers ?? {},
-      body: options?.body ?? null,
-      method: 'PATCH',
-      url,
-      response: response(),
-    }),
+    () => {
+      const body = response();
+      const status = options?.status ?? (body ? 200 : 204);
+
+      return {
+        status: status,
+        statusText: options?.statusText ?? STATUS_TEXT_FOR.get(status) ?? '',
+        headers: options?.headers ?? {},
+        body: options?.body ?? null,
+        method: 'PATCH',
+        url,
+        response: body,
+      };
+    },
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
@@ -181,18 +196,22 @@ export function DELETE(
   response: ResponseGenerator,
   options?: Partial<Omit<Scaffold, 'response' | 'url' | 'method'>> & { RECORD?: boolean }
 ): Promise<void> {
-  const status = (options?.status ?? options?.body) ? 200 : 204;
   return mock(
     owner,
-    () => ({
-      status,
-      statusText: options?.statusText ?? STATUS_TEXT_FOR.get(status) ?? '',
-      headers: options?.headers ?? {},
-      body: options?.body ?? null,
-      method: 'DELETE',
-      url,
-      response: response(),
-    }),
+    () => {
+      const body = response();
+      const status = options?.status ?? (body ? 200 : 204);
+
+      return {
+        status: status,
+        statusText: options?.statusText ?? STATUS_TEXT_FOR.get(status) ?? '',
+        headers: options?.headers ?? {},
+        body: options?.body ?? null,
+        method: 'DELETE',
+        url,
+        response: body,
+      };
+    },
     getIsRecording() || (options?.RECORD ?? false)
   );
 }

@@ -1,0 +1,1 @@
+{"url":"/api/user/ops/bulk.create","status":201,"statusText":"Created","headers":{"Content-Type":"application/vnd.api+json","Content-Encoding":"br","Cache-Control":"no-store","Content-Length":79},"method":"POST","requestBody":"{\"data\":[{\"type\":\"user\",\"attributes\":{\"firstName\":\"Chris\"}},{\"type\":\"user\",\"attributes\":{\"firstName\":\"Tom\"}}]}"}
