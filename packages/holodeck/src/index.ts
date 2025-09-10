@@ -1,3 +1,7 @@
+/**
+ * @module
+ * @mergeModuleWith <project>
+ */
 import { SHOULD_RECORD } from '@warp-drive/core/build-config/env';
 import type { Handler, NextFn } from '@warp-drive/core/request';
 import type { HTTPMethod, RequestContext, RequestInfo, StructuredDataDocument } from '@warp-drive/core/types/request';
@@ -124,9 +128,18 @@ const TEST_IDS = new WeakMap<
 >();
 
 let HOST = 'https://localhost:1135/';
+
+/**
+ * @public
+ */
+
 export function setConfig({ host }: { host: string }): void {
   HOST = host.endsWith('/') ? host : `${host}/`;
 }
+
+/**
+ * @public
+ */
 
 export function setTestId(context: object, str: string | null): void {
   if (str && TEST_IDS.has(context)) {
@@ -167,13 +180,32 @@ export function setTestId(context: object, str: string | null): void {
 
 const shouldRecord = SHOULD_RECORD ? true : false;
 let IS_RECORDING: boolean | null = null;
+
+/**
+ * @public
+ */
 export function setIsRecording(value: boolean): void {
   IS_RECORDING = value === null ? value : Boolean(value);
 }
+
+/**
+ * @public
+ */
 export function getIsRecording(): boolean {
   return IS_RECORDING === null ? shouldRecord : IS_RECORDING;
 }
 
+/**
+ * A request handler that intercepts requests and routes them through
+ * the Holodeck mock server.
+ *
+ * This handler modifies the request URL to include test identifiers
+ * and manages request counts for accurate mocking.
+ *
+ * Requires that the test context be configured with a testId using `setTestId`.
+ *
+ * @param owner - the test context object used to retrieve the test ID.
+ */
 export class MockServerHandler implements Handler {
   declare owner: object;
   constructor(owner: object) {
@@ -226,7 +258,7 @@ function setupHolodeckFetch(owner: object, request: RequestInfo): { request: Req
   return { request, queryForTest };
 }
 
-interface AdapterForFn {
+interface HasAdapterForFn {
   adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
   adapterFor(this: Store, modelName: string, _allowMissing?: true): MinimumAdapterInterface | undefined;
 }
@@ -246,13 +278,22 @@ interface PrivateAdapter {
 
 function upgradeAdapter(adapter: unknown): asserts adapter is PrivateAdapter {}
 
-export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn {
+/**
+ * Creates an adapterFor function that wraps the provided adapterFor function
+ * to override the adapter's _fetchRequest method to route requests through
+ * the Holodeck mock server.
+ *
+ * @param owner - The test context object used to retrieve the test ID.
+ */
+export function createAdapterFor(owner: object, store: HasAdapterForFn): HasAdapterForFn['adapterFor'] {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const adapterFor = store.adapterFor;
   return function holodeckAdapterFor(
     this: Store,
     modelName: string,
     _allowMissing?: true
   ): MinimumAdapterInterface | undefined {
-    const adapter = fn.adapterFor.call(this, modelName, _allowMissing);
+    const adapter = adapterFor.call(this, modelName, _allowMissing);
 
     if (adapter) {
       upgradeAdapter(adapter);
@@ -273,9 +314,14 @@ export function createAdapterFor(owner: object, fn: AdapterForFn): AdapterForFn 
     }
 
     return adapter;
-  } as unknown as AdapterForFn;
+  } as HasAdapterForFn['adapterFor'];
 }
 
+/**
+ * Mock a request by sending the scaffold to the mock server.
+ *
+ * @public
+ */
 export async function mock(owner: object, generate: ScaffoldGenerator, isRecording?: boolean): Promise<void> {
   if (getIsRecording() || isRecording) {
     const test = TEST_IDS.get(owner);

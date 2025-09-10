@@ -14,6 +14,7 @@ const config = {
     '../packages/graph',
     '../packages/json-api',
     '../packages/legacy-compat',
+    '../packages/holodeck',
     '../packages/model',
     '../packages/request',
     '../packages/request-utils',

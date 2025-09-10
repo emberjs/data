@@ -308,6 +308,7 @@ const CORE_PACKAGES = [
   '@warp-drive/json-api',
   '@warp-drive/utilities',
   '@warp-drive/legacy',
+  '@warp-drive/holodeck',
 ];
 
 function isFrameworkPackage(name: string) {

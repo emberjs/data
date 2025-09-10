@@ -1,5 +1,8 @@
 import { getIsRecording, mock } from '.';
 
+/**
+ * @public
+ */
 export interface Scaffold {
   status: number;
   statusText?: string;
@@ -10,7 +13,14 @@ export interface Scaffold {
   response: Record<string, unknown>;
 }
 
+/**
+ * @public
+ */
 export type ScaffoldGenerator = () => Scaffold;
+
+/**
+ * @public
+ */
 export type ResponseGenerator = () => Record<string, unknown>;
 
 /**
@@ -115,6 +125,9 @@ const STATUS_TEXT_FOR = new Map([
   [511, 'Network Authentication Required'],
 ]);
 
+/**
+ * Mock a POST request
+ */
 export function POST(
   owner: object,
   url: string,
@@ -140,6 +153,10 @@ export function POST(
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
+
+/**
+ * mock a PUT request
+ */
 export function PUT(
   owner: object,
   url: string,
@@ -165,6 +182,10 @@ export function PUT(
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
+/**
+ * mock a PATCH request
+ *
+ */
 export function PATCH(
   owner: object,
   url: string,
@@ -190,6 +211,9 @@ export function PATCH(
     getIsRecording() || (options?.RECORD ?? false)
   );
 }
+/**
+ * mock a DELETE request
+ */
 export function DELETE(
   owner: object,
   url: string,
