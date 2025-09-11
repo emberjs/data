@@ -64,7 +64,7 @@ git clone git@github.com:warp-drive-data/warp-drive.git
 ## Install the project dependencies
 
 ```sh
-cd data && pnpm install
+cd warp-drive && pnpm install
 ```
 
 Currently the install command is also what builds all of the individual packages in the monorepo and hardlinks them together, so if making changes to one package that need to be used by another you will need to rerun `pnpm install` for the changes to be picked up.
