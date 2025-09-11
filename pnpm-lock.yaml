@@ -2295,8 +2295,8 @@ importers:
         specifier: workspace:*
         version: file:packages/schema-record(@babel/core@7.28.3)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -2499,8 +2499,8 @@ importers:
         specifier: workspace:*
         version: file:warp-drive-packages/utilities(ac1631a7da983377f84b100525d730a6)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -3129,8 +3129,8 @@ importers:
         specifier: workspace:*
         version: file:tools/internal-config(terser@5.43.1)
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       bun-types:
         specifier: ^1.2.20
         version: 1.2.20
@@ -3288,8 +3288,8 @@ importers:
         specifier: workspace:*
         version: file:tools/internal-config
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       concurrently:
         specifier: ^9.2.0
         version: 9.2.1
@@ -3806,8 +3806,8 @@ importers:
         specifier: workspace:*
         version: file:tools/internal-config
       babel-plugin-ember-template-compilation:
-        specifier: ^2.4.1
-        version: 2.4.1
+        specifier: ^3.0.1
+        version: 3.0.1
       decorator-transforms:
         specifier: ^2.3.0
         version: 2.3.0(@babel/core@7.28.3)
@@ -7376,6 +7376,10 @@ packages:
 
   babel-plugin-ember-template-compilation@3.0.0:
     resolution: {integrity: sha512-tIZh1sgvswtJqtjiAQLZEtfje37HvsFsivV3jOrkruq0K1JzewP5VUJxx72qK3vwqFOG6XtiVXYBNyEJFmdXgQ==}
+    engines: {node: '>= 18.*'}
+
+  babel-plugin-ember-template-compilation@3.0.1:
+    resolution: {integrity: sha512-3fUgnv+azabsl2PMd+SpkV8E7vvp7oRLaXv+OJIe36G3niSVYDKJ+7n6WaPyh+z7gqeAKSBj7Bdc5dYbhEMsgQ==}
     engines: {node: '>= 18.*'}
 
   babel-plugin-htmlbars-inline-precompile@5.3.1:
@@ -19095,6 +19099,12 @@ snapshots:
       babel-import-util: 3.0.1
 
   babel-plugin-ember-template-compilation@3.0.0:
+    dependencies:
+      '@glimmer/syntax': 0.94.9
+      babel-import-util: 3.0.1
+      import-meta-resolve: 4.1.0
+
+  babel-plugin-ember-template-compilation@3.0.1:
     dependencies:
       '@glimmer/syntax': 0.94.9
       babel-import-util: 3.0.1
