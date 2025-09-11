@@ -11,6 +11,10 @@ function getShellConfigFilePath() {
       return path.join(homedir(), '.zshrc');
     case '/bin/bash':
       return path.join(homedir(), '.bashrc');
+    case '/opt/homebrew/bin/fish':
+    case '/usr/local/bin/fish':
+    case '/bin/fish':
+      return path.join(homedir(), '.config', 'fish', 'config.fish');
     default:
       throw Error(
         `Unable to determine configuration file for shell: ${shell}. Manual SSL Cert Setup Required for Holodeck.`
