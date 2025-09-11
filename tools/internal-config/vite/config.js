@@ -19,7 +19,7 @@ export function createConfig(options, resolve) {
     logLevel: 'error',
     reportCompressedSize: false,
     build: {
-      outDir: 'dist',
+      outDir: options.outDir ?? 'dist',
       emptyOutDir: options.emptyOutDir ?? true,
       target: options.target ?? ['esnext', 'firefox121'],
       minify: false,

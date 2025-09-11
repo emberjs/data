@@ -1,7 +1,7 @@
 import { DEFAULT_PORT, MAX_PORT_TRIES } from './const.js';
 import { debug } from './debug.js';
 
-async function discoverPort(defaultPort, checkPort) {
+async function discoverPort(defaultPort: number, checkPort: (port: number) => Promise<boolean>) {
   debug(`Discovering available port starting from default port of ${defaultPort}`);
   let port = defaultPort;
 
@@ -15,7 +15,10 @@ async function discoverPort(defaultPort, checkPort) {
   throw new Error(`Could not find an available port in the range ${defaultPort} to ${port}`);
 }
 
-export async function getPort(config, checkPort) {
+export async function getPort(
+  config: { port?: number; defaultPort?: number },
+  checkPort: (port: number) => Promise<boolean>
+): Promise<number> {
   if (typeof config.port === 'number') {
     if (config.port < 0 || config.port > 65535) {
       throw new Error(`Invalid port number: ${config.port}`);

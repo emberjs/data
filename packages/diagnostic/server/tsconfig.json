@@ -1,9 +1,10 @@
 {
-  "include": ["client/src/**/*"],
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": ["ESNext"],
     "module": "esnext",
     "target": "esnext",
+    "esModuleInterop": false,
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "strict": true,
@@ -12,7 +13,6 @@
     "downlevelIteration": true,
     "skipLibCheck": true,
     "disableSourceOfProjectReferenceRedirect": false,
-    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "emitDeclarationOnly": true,
@@ -20,28 +20,20 @@
     // but causes us to not rebuild properly
     "composite": true,
     "incremental": true,
-    "rootDir": "client/src",
+    "rootDir": "src",
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "unstable-preview-types",
+    "declarationDir": "../declarations/server",
     "inlineSourceMap": true,
     "inlineSources": true,
-    "types": ["ember-source/types"],
-    "paths": {
-      "@warp-drive/core": ["../../warp-drive-packages/core/declarations"],
-      "@warp-drive/core/*": ["../../warp-drive-packages/core/declarations/*"]
-    },
+    "types": ["node"],
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "erasableSyntaxOnly": true,
-    "isolatedDeclarations": true,
-    "isolatedModules": true,
+    "isolatedDeclarations": false,
+    "isolatedModules": false,
     "experimentalDecorators": true,
-    "checkJs": false
-  },
-  "references": [
-    {
-      "path": "../../warp-drive-packages/core"
-    }
-  ]
+    "checkJs": false,
+    "allowJs": false
+  }
 }

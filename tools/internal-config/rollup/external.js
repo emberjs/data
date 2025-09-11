@@ -8,6 +8,14 @@ function loadConfig() {
   return pkg;
 }
 
+function srcDirForEntryPoint(entryPoint, resolve, options) {
+  const srcDir = typeof options.srcDir === 'function' ? options.srcDir(entryPoint) : (options.srcDir ?? './src');
+
+  const resolvedSrcDir = fixViteHijack(resolve(srcDir.startsWith('.') ? srcDir : './' + srcDir).slice(7) + '/');
+
+  return resolvedSrcDir;
+}
+
 export function entryPoints(globs, resolve, options) {
   const files = [];
 
@@ -15,10 +23,6 @@ export function entryPoints(globs, resolve, options) {
   globs.forEach((glob) => {
     glob.includes('*') || glob.includes('{') ? files.push(...globSync(glob)) : files.push(glob);
   });
-
-  const srcDir = fixViteHijack(
-    resolve(options.srcDir.startsWith('.') ? options.srcDir : './' + options.srcDir).slice(7) + '/'
-  );
 
   // resolve all files to full paths
   const allFiles = files.map((v) => {
@@ -40,6 +44,7 @@ export function entryPoints(globs, resolve, options) {
       // extract the file name sans directory and extension
       name = path.basename(file, path.extname(file));
     } else {
+      const srcDir = srcDirForEntryPoint(file, resolve, options);
       // extract the file name sans srcDir directory and extension
       name = file.replace(srcDir, '');
       name = name.slice(0, name.length - path.extname(name).length);
