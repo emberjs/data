@@ -17,6 +17,7 @@ export const externals = [
   '@ember/array',
   '@ember/array/proxy',
   '@ember/polyfills',
+  '@glimmer/tracking',
 ];
 export const entryPoints = [
   './src/index.ts',
@@ -49,6 +50,9 @@ export const entryPoints = [
 
   // store
   './src/store.ts',
+
+  // model-fragments
+  './src/model-fragments.ts',
 ];
 
 export default createConfig(
