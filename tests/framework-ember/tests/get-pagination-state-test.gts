@@ -209,7 +209,7 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.true(paginationState.isLoading, 'The pagination state is loading');
     assert.false(paginationState.isSuccess, 'The pagination state is not successful');
     assert.false(paginationState.isError, 'The pagination state is not an error');
-    assert.equal(paginationState.data.length, 0, 'No data loaded yet');
+    assert.equal(Array.from(paginationState.data).length, 0, 'No data loaded yet');
 
     await request;
 
@@ -217,8 +217,8 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.true(paginationState.isSuccess, 'The pagination state is successful');
     assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
     assert.false(paginationState.isError, 'The pagination state is not an error');
-    assert.equal(paginationState.data.length, 10, 'Data contains 10 items');
-    assert.equal(paginationState.pages.length, 1, '1 page exist after load');
+    assert.equal(Array.from(paginationState.data).length, 10, 'Data contains 10 items');
+    assert.equal(Array.from(paginationState.pages).length, 1, '1 page exist after load');
   });
 
   test('It returns a pagination state that manages pages correctly', async function (assert) {
@@ -229,13 +229,10 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
 
     await request;
 
-    const initialPage = paginationState.initialPage;
-    const activePage = paginationState.activePage;
-
-    assert.equal(initialPage, activePage, 'Initial page is the active page');
-    assert.true(initialPage.isSuccess, 'Initial page is successful');
-    assert.false(initialPage.isLoading, 'Initial page is not loading');
-    assert.false(initialPage.isError, 'Initial page is not an error');
+    assert.equal(paginationState.initialPage, paginationState.activePage, 'Initial page is the active page');
+    assert.ok(paginationState.initialPage.isSuccess, 'Initial page is successful');
+    assert.notOk(paginationState.initialPage.isLoading, 'Initial page is not loading');
+    assert.notOk(paginationState.initialPage.isError, 'Initial page is not an error');
   });
 
   test('It returns a pagination state that updates on failure', async function (assert) {
@@ -246,8 +243,8 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.true(paginationState.isLoading, 'The pagination state is loading');
     assert.false(paginationState.isSuccess, 'The pagination state is not successful');
     assert.false(paginationState.isError, 'The pagination state is not an error');
-    assert.equal(paginationState.pages.length, 1, 'Initial page exists');
-    assert.equal(paginationState.data.length, 0, 'No data loaded yet');
+    assert.equal(Array.from(paginationState.pages).length, 1, 'Initial page exists');
+    assert.equal(Array.from(paginationState.data).length, 0, 'No data loaded yet');
 
     try {
       await request;
@@ -258,44 +255,46 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.false(paginationState.isSuccess, 'The pagination state is not successful');
     assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
     assert.true(paginationState.isError, 'The pagination state is an error');
-    assert.equal(paginationState.pages.length, 1, 'Page still exists after error');
-    assert.equal(paginationState.data.length, 0, 'No data after error');
+    assert.equal(Array.from(paginationState.pages).length, 1, 'Page still exists after error');
+    assert.equal(Array.from(paginationState.data).length, 0, 'No data after error');
     assert.true(paginationState.initialPage.isError, 'Initial page is in error state');
   });
 
   test('It handles next page navigation correctly', async function (assert) {
-    const url = buildBaseURL({ resourcePath: 'users/1' });
+    const url1 = buildBaseURL({ resourcePath: 'users/1' });
+    const url2 = buildBaseURL({ resourcePath: 'users/2' });
 
     await GET(this, 'users/1', () => ({
       data: users.slice(0, 3),
       links: {
         prev: null,
-        self: url,
-        next: buildBaseURL({ resourcePath: 'users/2' }),
+        self: url1,
+        next: url2,
       },
     }));
 
     await GET(this, 'users/2', () => ({
-      data: users.slice(3, 3),
+      data: users.slice(3, 6),
       links: {
-        prev: url,
-        self: buildBaseURL({ resourcePath: 'users/2' }),
+        prev: url1,
+        self: url2,
         next: null,
       },
     }));
 
-    const request = this.manager.request<PaginatedUserResource>({ url, method: 'GET' });
+    const request = this.manager.request<PaginatedUserResource>({ url: url1, method: 'GET' });
     const paginationState = getPaginationState(request);
 
     await request;
 
-    assert.equal(paginationState.data.length, 3, 'First page has 3 items');
+    assert.equal(Array.from(paginationState.pages).length, 2, '2 pages loaded');
+    assert.equal(Array.from(paginationState.data).length, 3, '3 items loaded');
 
     const activePage = paginationState.activePage;
     const nextLink = activePage.nextLink;
     assert.ok(nextLink, 'Next link exists');
 
-    const nextPageState = paginationState.getPageState({ self: nextLink });
+    const nextPageState = paginationState.getPageState(nextLink);
     assert.ok(nextPageState, 'Next page state can be created');
 
     const nextRequest = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
@@ -303,10 +302,11 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
 
     paginationState.activatePage(nextPageState);
 
-    await nextRequest;
+    await nextPage;
 
     // After loading next page
-    assert.ok(paginationState.data.length, 6, 'Data includes all loaded pages');
+    assert.equal(Array.from(paginationState.pages).length, 2, '2 pages are loaded');
+    assert.equal(Array.from(paginationState.data).length, 6, '6 items loaded');
     assert.true(paginationState.isSuccess, 'Still in success state');
     assert.false(paginationState.isLoading, 'Not in loading state');
     assert.false(paginationState.isError, 'Not in error state');
@@ -368,12 +368,12 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.ok(activePage.prevLink, 'Has prev link when not on first page');
 
     const prevLink = activePage.prevLink;
-    const prevPageState = paginationState.getPageState({ self: prevLink });
+    const prevPageState = paginationState.getPageState(prevLink);
     const prevRequest = this.manager.request<PaginatedUserResource>({ url: prevLink, method: 'GET' });
     const prevPage = prevPageState.load(prevRequest);
 
     const nextLink = activePage.nextLink;
-    const nextPageState = paginationState.getPageState({ self: nextLink });
+    const nextPageState = paginationState.getPageState(nextLink);
     const nextReq = this.manager.request<PaginatedUserResource>({ url: nextLink, method: 'GET' });
     const nextPage = nextPageState.load(nextReq);
 
@@ -405,7 +405,7 @@ module<LocalTestContext>('Integration | get-pagination-state', function (hooks) 
     assert.false(paginationState.isSuccess, 'The pagination state is not successful');
     assert.false(paginationState.isLoading, 'The pagination state is no longer loading');
     assert.true(paginationState.isError, 'The pagination state is an error');
-    assert.equal(paginationState.pages.length, 1, 'Page still exists after abort');
-    assert.equal(paginationState.data.length, 0, 'No data after abort');
+    assert.equal(Array.from(paginationState.pages).length, 1, 'Page still exists after abort');
+    assert.equal(Array.from(paginationState.data).length, 0, 'No data after abort');
   });
 });

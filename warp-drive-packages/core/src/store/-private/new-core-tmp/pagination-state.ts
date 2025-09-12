@@ -6,7 +6,7 @@ import { ReactiveDocument } from '../../../reactive/-private/document.ts';
 import type { Future } from '../../../request.ts';
 import type { StructuredErrorDocument } from '../../../types/request.ts';
 import { Link } from '../../../types/spec/json-api-raw.ts';
-import { defineSignal, memoized } from './reactivity/signal';
+import { memoized, signal } from './reactivity/signal';
 import { getRequestState, RequestCacheRequestState } from './request-state.ts';
 
 const PaginationCache = new WeakMap<Future<unknown>, PaginationState>();
@@ -21,41 +21,31 @@ function getHref(link?: Link | null): string | null {
   return link.href;
 }
 
-type PageStateCreateOptions = {
-  self: Future<unknown> | string;
-  prev?: string | null;
-  next?: string | null;
-};
-
 export class PageState<RT = unknown, E = unknown> {
   declare manager: PaginationState<RT, E>;
-  declare request: Future<RT> | null;
-  declare state: Readonly<RequestCacheRequestState<RT, StructuredErrorDocument<E>>>;
-  declare selfLink: string | null;
-  declare _prevLink: string | null;
-  declare _nextLink: string | null;
+  @signal declare request: Future<RT> | null;
+  @signal declare state: Readonly<RequestCacheRequestState<RT, StructuredErrorDocument<E>>>;
+  @signal declare selfLink: string | null;
+  @signal declare prevLink: string | null;
+  @signal declare nextLink: string | null;
 
-  constructor(manager: PaginationState<RT, E>, options: PageStateCreateOptions) {
+  constructor(manager: PaginationState<RT, E>, futureOrLink: Future<RT> | string) {
     this.manager = manager;
-    this._prevLink = options.prev ?? null;
-    this._nextLink = options.next ?? null;
-    if (typeof options.self === 'string') {
-      this.selfLink = options.self;
+    if (typeof futureOrLink === 'string') {
+      this.selfLink = futureOrLink;
     } else {
-      this.load(options.self as Future<RT>);
-      options.self.then((value) => {
-        const content = value.content as ReactiveDocument<RT[]>;
-        const url = getHref(content?.links?.self);
-        assert('Expected the page to have a self link', url);
-        this.selfLink = url;
-        this.manager.pagesCache.set(this.selfLink, this);
-      });
+      this.load(futureOrLink);
     }
   }
 
   @memoized
-  get value(): ReactiveDocument<RT[]> | null {
-    return this.state?.value as ReactiveDocument<RT[]>;
+  get value(): ReactiveDocument<RT> | null {
+    return this.state?.value as ReactiveDocument<RT>;
+  }
+
+  @memoized
+  get data(): RT[] | null {
+    return this.value?.data as RT[];
   }
 
   @memoized
@@ -84,46 +74,67 @@ export class PageState<RT = unknown, E = unknown> {
   }
 
   @memoized
-  get prevLink(): string | null {
-    return getHref(this.value?.links?.prev) ?? this._prevLink;
-  }
-
-  @memoized
-  get nextLink(): string | null {
-    return getHref(this.value?.links?.next) ?? this._nextLink;
-  }
-
-  @memoized
   get prev(): PageState<RT, E> | null {
     const url = this.prevLink;
-    return url ? this.manager.getPageState({ self: url, next: this.selfLink }) : null;
+    return url ? this.manager.getPageState(url) : null;
   }
 
   @memoized
   get next(): PageState<RT, E> | null {
     const url = this.nextLink;
-    return url ? this.manager.getPageState({ self: url, prev: this.selfLink }) : null;
+    return url ? this.manager.getPageState(url) : null;
   }
 
   load = async (request: Future<unknown>): Promise<void> => {
-    this.request = request as Future<RT>;
-    this.state = getRequestState<RT, E>(this.request);
-    await this.request;
+    try {
+      this.request = request as Future<RT>;
+      this.state = getRequestState<RT, E>(this.request);
+      const value = await this.request;
+      const content = value.content as ReactiveDocument<RT[]>;
+
+      const self = getHref(content?.links?.self) as string | null;
+      assert('Expected the page to have a self link', self);
+
+      // Ensure the page is cached under its self link when it's loaded only with a future
+      if (!this.selfLink || !this.manager.getPageState(self)) {
+        this.selfLink = self;
+        this.manager.pagesCache.set(this.selfLink, this);
+      }
+
+      const next = getHref(content?.links?.next);
+      if (next) {
+        this.nextLink = next;
+        const nextPage = this.manager.getPageState(next);
+        nextPage.updateLinks({ prev: self });
+      }
+
+      const prev = getHref(content?.links?.prev);
+      if (prev) {
+        const prevPage = this.manager.getPageState(prev);
+        this.prevLink = prev;
+        prevPage.updateLinks({ next: self });
+      }
+    } catch {}
+  };
+
+  updateLinks = ({ prev, next }: { prev?: string | null; next?: string | null }): void => {
+    if (prev) {
+      this.prevLink = prev;
+    }
+    if (next) {
+      this.nextLink = next;
+    }
   };
 }
 
-defineSignal(PageState.prototype, 'request', undefined);
-defineSignal(PageState.prototype, 'state', undefined);
-defineSignal(PageState.prototype, 'self', undefined);
-
 export class PaginationState<RT = unknown, E = unknown> {
-  declare initialPage: Readonly<PageState<RT, E>>;
-  declare activePage: Readonly<PageState<RT, E>>;
+  @signal declare initialPage: Readonly<PageState<RT, E>>;
+  @signal declare activePage: Readonly<PageState<RT, E>>;
   declare pagesCache: Map<string, PageState>;
 
   constructor(request: Future<RT>) {
     this.pagesCache = new Map<string, PageState>();
-    this.initialPage = new PageState<RT, E>(this, { self: request });
+    this.initialPage = new PageState<RT, E>(this, request);
     this.activePage = this.initialPage;
   }
 
@@ -183,26 +194,6 @@ export class PaginationState<RT = unknown, E = unknown> {
   }
 
   @memoized
-  get pages(): Readonly<PageState<RT, E>[]> {
-    if (!this.activePage) return [];
-
-    return [...this.prevPages, this.activePage, ...this.nextPages];
-  }
-
-  @memoized
-  get data(): RT[] {
-    if (!this.pages) return [];
-
-    return this.pages.reduce((acc, page) => {
-      const content = page.value;
-      if (content?.data) {
-        return [...acc, ...content.data];
-      }
-      return acc;
-    }, [] as RT[]);
-  }
-
-  @memoized
   get prev(): string | null {
     return this.firstPage.selfLink;
   }
@@ -231,25 +222,63 @@ export class PaginationState<RT = unknown, E = unknown> {
     return this.lastPage.request;
   }
 
+  @memoized
+  get startingPage(): Readonly<PageState<RT, E>> {
+    let page = this.activePage;
+    while (page.prev) {
+      page = page.prev;
+    }
+    return page;
+  }
+
   activatePage = (page: Readonly<PageState<unknown, unknown>>): void => {
     this.activePage = page as Readonly<PageState<RT, E>>;
   };
 
-  getPageState = (options: PageStateCreateOptions): Readonly<PageState<RT, E>> => {
-    const url = typeof options.self === 'string' ? options.self : options.self.toString();
+  getPageState = (futureOrLink: Future<unknown> | string): Readonly<PageState<RT, E>> => {
+    const url = typeof futureOrLink === 'string' ? futureOrLink : futureOrLink.toString();
     let state = this.pagesCache.get(url);
 
     if (!state) {
-      state = new PageState<RT, E>(this, options);
+      state = new PageState<RT, E>(this, futureOrLink as Future<RT>);
       this.pagesCache.set(url, state);
     }
 
     return state as Readonly<PageState<RT, E>>;
   };
-}
 
-defineSignal(PaginationState.prototype, 'initialPage', undefined);
-defineSignal(PaginationState.prototype, 'activePage', undefined);
+  @memoized
+  get pages(): Iterable<Readonly<PageState<RT, E>>> {
+    let self = this;
+    return {
+      *[Symbol.iterator]() {
+        let page: Readonly<PageState<RT, E>> | null = self.startingPage;
+        while (page) {
+          yield page;
+          page = page.next;
+        }
+      },
+    };
+  }
+
+  @memoized
+  get data(): Iterable<RT> {
+    let self = this;
+    return {
+      *[Symbol.iterator]() {
+        let page: Readonly<PageState<RT, E>> | null = self.startingPage;
+        while (page) {
+          if (page.data) {
+            for (const item of page.data) {
+              yield item;
+            }
+          }
+          page = page.next;
+        }
+      },
+    };
+  }
+}
 
 /**
  * Get the pagination state for a given request, this will return the same

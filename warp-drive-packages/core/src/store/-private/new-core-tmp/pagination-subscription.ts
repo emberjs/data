@@ -101,7 +101,7 @@ export class PaginationSubscription<RT, E> {
    * Loads a specific page by its URL.
    */
   loadPage = async (url: string): Promise<void> => {
-    const page = this.paginationState.getPageState({ self: url });
+    const page = this.paginationState.getPageState(url);
     this.paginationState.activatePage(page);
     if (!page.request) {
       const request = this.store.request({ method: 'GET', url });
