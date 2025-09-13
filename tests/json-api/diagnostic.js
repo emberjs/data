@@ -1,4 +1,4 @@
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 import holodeck from '@warp-drive/holodeck';
 
 await launch({
