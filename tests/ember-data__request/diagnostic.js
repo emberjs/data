@@ -4,6 +4,8 @@ import holodeck from '@warp-drive/holodeck';
 await launch({
   async setup(info) {
     await holodeck.launchProgram({
+      useBun: false,
+      useWorker: true,
       port: info.port + 1,
     });
   },
