@@ -89,6 +89,7 @@ interface CliOptions {
   out?: string;
   debug: boolean;
   interactive: boolean;
+  showSnippets?: boolean; // NEW
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -117,7 +118,7 @@ function readJsonFile<T>(filePath: string): T {
 }
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2);
-  const opts: CliOptions = { in: DEFAULT_INPUT, wd: DEFAULT_WD, debug: false, interactive: false };
+  const opts: CliOptions = { in: DEFAULT_INPUT, wd: DEFAULT_WD, debug: false, interactive: false, showSnippets: false };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if ((a === '--in' || a === '-i') && args[i + 1]) {
@@ -130,9 +131,15 @@ function parseArgs(): CliOptions {
       opts.debug = true;
     } else if (a === '--interactive' || a === '-I') {
       opts.interactive = true;
+    } else if (a === '--show-snippets' || a === '-S') {
+      opts.showSnippets = true;
     } else if (a === '--help' || a === '-h') {
       console.log(
-        `Usage: enrich-public-exports-mapping [--in path] [--wd path] [--out path] [--interactive] [--debug]`
+        `Usage: enrich-public-exports-mapping [--in path] [--wd path] [--out path] [--interactive] [--debug] [--show-snippets]\n\n` +
+          `Interactive prompt commands:\n` +
+          `  v <n>   View snippet for candidate at index n\n` +
+          `  vo      View snippet for the original mapping file/export\n` +
+          `  help    Show commands again\n`
       );
       process.exit(0);
     }
@@ -357,18 +364,200 @@ function createPrompter(enabled: boolean) {
   };
 }
 
+/* ------------------------------ Snippet Utilities ---------------------------- */
+const fileLineCache = new Map<string, string[]>();
+
+function loadFileLines(absPath: string): string[] | null {
+  if (fileLineCache.has(absPath)) return fileLineCache.get(absPath)!;
+  try {
+    const txt = readFileSync(absPath, 'utf8');
+    const lines = txt.split(/\r?\n/);
+    fileLineCache.set(absPath, lines);
+    return lines;
+  } catch {
+    return null;
+  }
+}
+
+function findExportLineIndices(lines: string[], exportName: string): number[] {
+  const indices: number[] = [];
+  const nameEsc = exportName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const namedDecl = new RegExp(`\\bexport\\b[^;\\n]*\\b${nameEsc}\\b`);
+  const namedBrace = new RegExp(`\\bexport\\s*{[^}]*\\b${nameEsc}\\b[^}]*}`);
+  const defaultDecl = /\bexport\s+default\b/;
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i];
+    if (exportName === 'default') {
+      if (defaultDecl.test(ln)) indices.push(i);
+    } else if (namedDecl.test(ln) || namedBrace.test(ln)) {
+      indices.push(i);
+    }
+  }
+  return indices;
+}
+
+function extractSnippet(absPath: string, exportName: string, context = 2): string {
+  const lines = loadFileLines(absPath);
+  if (!lines) return `(unable to read ${absPath})`;
+  const hits = findExportLineIndices(lines, exportName);
+  if (hits.length === 0) {
+    return `(no direct export statement for "${exportName}" found in ${absPath})`;
+  }
+  // Take first hit for simplicity
+  const idx = hits[0];
+  const start = Math.max(0, idx - context);
+  const end = Math.min(lines.length - 1, idx + context);
+  const numberWidth = String(end + 1).length;
+  return lines
+    .slice(start, end + 1)
+    .map((l, i) => {
+      const lineNo = (start + i + 1).toString().padStart(numberWidth, ' ');
+      return `${lineNo}: ${l}`;
+    })
+    .join('\n');
+}
+
+type ShikiHighlighter = {
+  codeToAnsi?: (code: string, opts: { lang: string; theme: string }) => string;
+  codeToThemedTokens?: (code: string, lang: string, theme: string) => any;
+};
+
+let __shiki: ShikiHighlighter | null = null;
+let __shikiReady: Promise<ShikiHighlighter> | null = null;
+const SHIKI_THEME = 'everforest-dark'; // pick a single theme for consistency (terminal)
+const SHIKI_LANGS = ['ts', 'js'];
+
+async function getShiki(): Promise<ShikiHighlighter> {
+  if (__shiki) return __shiki;
+  if (!__shikiReady) {
+    __shikiReady = (async () => {
+      try {
+        // Try modern API first
+        const shiki: any = await import('shiki');
+        if (typeof shiki.getHighlighter === 'function') {
+          const highlighter = await shiki.getHighlighter({
+            themes: [SHIKI_THEME],
+            langs: SHIKI_LANGS,
+          });
+          return highlighter;
+        }
+        // Fallback (future API variants)
+        return shiki;
+      } catch {
+        return {};
+      }
+    })();
+  }
+  __shiki = await __shikiReady;
+  return __shiki;
+}
+
+function detectSnippetLang(filePath: string): 'ts' | 'js' {
+  const ext = filePath.split('.').pop();
+  if (ext === 'ts' || ext === 'tsx' || ext === 'd.ts') return 'ts';
+  return 'js';
+}
+
+// Simple fallback minimal keyword colorizer (only used if Shiki unavailable)
+const ANSI = {
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  cyan: '\x1b[36m',
+  magenta: '\x1b[35m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+};
+function fallbackColor(code: string): string {
+  return code
+    .replace(
+      /\b(export|import|from|class|interface|type|enum|function|const|let|var|async|await)\b/g,
+      `${ANSI.cyan}$1${ANSI.reset}`
+    )
+    .replace(
+      /\b(new|return|extends|implements|public|private|protected|readonly)\b/g,
+      `${ANSI.magenta}$1${ANSI.reset}`
+    );
+}
+
+// Highlight raw snippet text (without line numbers) -> ANSI colored code lines
+async function highlightCode(raw: string, lang: 'ts' | 'js'): Promise<string> {
+  if (!process.stdout.isTTY || process.env.NO_COLOR) {
+    return raw;
+  }
+  try {
+    const shiki = await getShiki();
+    if (shiki && typeof (shiki as any).codeToAnsi === 'function') {
+      return (shiki as any).codeToAnsi(raw, { lang, theme: SHIKI_THEME });
+    }
+    if (shiki && typeof (shiki as any).codeToThemedTokens === 'function') {
+      // Older style: generate tokens then try renderToAnsi if exported
+      const tokens = (shiki as any).codeToThemedTokens(raw, lang, SHIKI_THEME);
+      const maybeRender = (await import('shiki')).renderToAnsi?.(tokens);
+      if (maybeRender) return maybeRender;
+    }
+    return fallbackColor(raw);
+  } catch {
+    return fallbackColor(raw);
+  }
+}
+
+/* ------------------------------ Snippet Utilities ---------------------------- */
+// (replace existing extractSnippet with a raw extractor + formatter)
+
+function extractSnippetRaw(
+  absPath: string,
+  exportName: string,
+  context = 2
+): { raw: string; start: number; error?: string } {
+  const lines = loadFileLines(absPath);
+  if (!lines) return { raw: `(unable to read ${absPath})`, start: 0, error: 'read' };
+  const hits = findExportLineIndices(lines, exportName);
+  if (hits.length === 0) {
+    return { raw: `(no direct export statement for "${exportName}" found in ${absPath})`, start: 0, error: 'notfound' };
+  }
+  const idx = hits[0];
+  const start = Math.max(0, idx - context);
+  const end = Math.min(lines.length - 1, idx + context);
+  return { raw: lines.slice(start, end + 1).join('\n'), start };
+}
+
+async function formatSnippet(
+  absPath: string,
+  exportName: string,
+  { context = 2 }: { context?: number } = {}
+): Promise<string> {
+  const { raw, start, error } = extractSnippetRaw(absPath, exportName, context);
+  if (error) return raw; // message string already
+  const lang = detectSnippetLang(absPath);
+  const highlighted = await highlightCode(raw, lang);
+  const lines = highlighted.split('\n');
+  const plainLineCount = raw.split('\n').length;
+  const numberWidth = String(start + plainLineCount).length;
+
+  // If highlighting inserted ANSI codes spanning lines, we rely on splitting above
+  return lines.map((l, i) => `${String(start + i + 1).padStart(numberWidth, ' ')}: ${l}`).join('\n');
+}
+
 /* ---------------------------- Interactive Selection -------------------------- */
 async function interactiveSelect(
   entry: MappingEntry,
   scored: ScoredCandidate[],
   primary: ScoredCandidate | undefined,
-  prompt: (q: string) => Promise<string>
+  prompt: (q: string) => Promise<string>,
+  {
+    repoRoot,
+    showSnippets,
+  }: {
+    repoRoot: string;
+    showSnippets: boolean;
+  }
 ): Promise<{ primary: ScoredCandidate | undefined; userMeta?: { userSelectedIndex?: number; userAction: string } }> {
-  // If no candidates, allow user to mark as none (default already none).
   const header = `${entry.module} :: ${entry.export}`;
   console.log('\n' + '-'.repeat(header.length));
   console.log(header);
   console.log('-'.repeat(header.length));
+
+  const originalAbs = resolve(repoRoot, entry.filePath);
 
   if (scored.length === 0) {
     console.log('No candidates found.');
@@ -379,13 +568,15 @@ async function interactiveSelect(
     return { primary: undefined, userMeta: { userAction: 'none' } };
   }
 
-  console.log('Candidates (replacement objects):');
   const sorted = [...scored].sort(
     (a, b) => b.score - a.score || (a.isRoot === b.isRoot ? a.module.localeCompare(b.module) : a.isRoot ? -1 : 1)
   );
   const defaultIndex = primary ? sorted.findIndex((c) => c === primary) : -1;
 
-  sorted.forEach((c, idx) => {
+  console.log('Candidates:');
+
+  for (let idx = 0; idx < sorted.length; idx++) {
+    const c = sorted[idx];
     const obj = {
       module: c.module,
       export: c.export,
@@ -396,35 +587,87 @@ async function interactiveSelect(
     };
     const marker = idx === defaultIndex ? ' (default)' : '';
     console.log(`[${idx}] ${JSON.stringify(obj)}${marker}`);
-  });
+    if (showSnippets) {
+      const abs = resolve(repoRoot, c.sourceFile);
+      const snippet = await formatSnippet(abs, c.export);
+      console.log(`    └─ snippet:\n${indent(snippet, 8)}`);
+    }
+  }
+
+  if (showSnippets) {
+    console.log('\nOriginal file snippet:');
+    console.log(indent(await formatSnippet(originalAbs, entry.export), 2));
+  }
 
   console.log(
-    '\nChoose an index to override the default primary.\n' +
-      'Press Enter or type d to accept default, n for none/notFound, s to skip (keep automatic), q to quit.'
+    '\nCommands: number = choose, Enter/d = accept default, n = none, s = skip, q = quit,\n' +
+      'v <n> = view candidate snippet, vo = view original snippet, help = show commands.'
   );
-  // Loop until valid response
+
   while (true) {
     const ans = await prompt('Selection [Enter=d]: ');
-    if (ans === '' || ans.toLowerCase() === 'd') {
+    const trimmed = ans.trim();
+
+    if (trimmed === '' || trimmed.toLowerCase() === 'd') {
       return { primary, userMeta: { userSelectedIndex: defaultIndex, userAction: 'auto' } };
     }
-    if (ans.toLowerCase() === 's') {
+    if (trimmed === 's') {
       return { primary, userMeta: { userSelectedIndex: defaultIndex, userAction: 'skip' } };
     }
-    if (ans.toLowerCase() === 'n') {
+    if (trimmed === 'n') {
       return { primary: undefined, userMeta: { userAction: 'none' } };
     }
-    if (ans.toLowerCase() === 'q') {
+    if (trimmed === 'q') {
       console.log('Aborting by user request.');
       process.exit(130);
     }
-    const idx = Number(ans);
+    if (trimmed === 'help') {
+      console.log(
+        'Commands:\n' +
+          '  <index>  choose candidate\n' +
+          '  Enter/d  accept default\n' +
+          '  n        mark none/notFound\n' +
+          '  s        skip (keep automatic)\n' +
+          '  q        quit\n' +
+          '  v <n>    view snippet for candidate n\n' +
+          '  vo       view snippet for original file\n'
+      );
+      continue;
+    }
+    if (trimmed === 'vo') {
+      console.log('\n[Original Snippet]');
+      console.log(await formatSnippet(originalAbs, entry.export));
+      continue;
+    }
+    if (trimmed.startsWith('v ')) {
+      const idxStr = trimmed.slice(2).trim();
+      const idx = Number(idxStr);
+      if (!Number.isNaN(idx) && idx >= 0 && idx < sorted.length) {
+        const cand = sorted[idx];
+        const abs = resolve(repoRoot, cand.sourceFile);
+        console.log(`\n[Snippet ${idx} ${cand.module} :: ${cand.export}]`);
+        console.log(await formatSnippet(abs, cand.export));
+      } else {
+        console.log('Invalid index for snippet.');
+      }
+      continue;
+    }
+
+    const idx = Number(trimmed);
     if (!Number.isNaN(idx) && idx >= 0 && idx < sorted.length) {
       const chosen = sorted[idx];
       return { primary: chosen, userMeta: { userSelectedIndex: idx, userAction: 'index' } };
     }
-    console.log('Invalid selection. Try again.');
+    console.log('Invalid selection. Type help for commands.');
   }
+}
+
+function indent(text: string, spaces = 2): string {
+  const pad = ' '.repeat(spaces);
+  return text
+    .split('\n')
+    .map((l) => pad + l)
+    .join('\n');
 }
 
 /* ------------------------------- Enrichment Core ----------------------------- */
@@ -435,15 +678,17 @@ async function enrich(
   {
     debug,
     interactive,
+    showSnippets,
   }: {
     debug: boolean;
     interactive: boolean;
+    showSnippets: boolean;
   }
 ): Promise<MappingEntry[]> {
   const prompt = createPrompter(interactive && process.stdin.isTTY);
 
   for (const entry of entries) {
-    entry.replacement = await processEntry(entry, repoRoot, exportIndex, prompt, { debug, interactive });
+    entry.replacement = await processEntry(entry, repoRoot, exportIndex, prompt, { debug, interactive }, showSnippets);
   }
   return entries;
 }
@@ -453,12 +698,12 @@ async function processEntry(
   repoRoot: string,
   exportIndex: Map<string, ExportCandidate[]>,
   prompt: (q: string) => Promise<string>,
-  { debug, interactive }: { debug: boolean; interactive: boolean }
+  { debug, interactive }: { debug: boolean; interactive: boolean },
+  showSnippets: boolean
 ): Promise<Record<string, unknown>> {
   const candidates = exportIndex.get(entry.export) || [];
   let allCandidates = [...candidates];
 
-  // For default exports, also look for main export name matches
   if (entry.export === 'default') {
     const moduleParts = entry.module.split('/');
     const lastPart = moduleParts[moduleParts.length - 1];
@@ -477,7 +722,7 @@ async function processEntry(
 
   let primary = choosePrimary(scored);
 
-  // Build `all` array now (sorted for determinism)
+  // Deterministic ordering
   const allSorted = scored.sort(
     (a, b) => b.score - a.score || (a.isRoot === b.isRoot ? a.module.localeCompare(b.module) : a.isRoot ? -1 : 1)
   );
@@ -491,8 +736,15 @@ async function processEntry(
   }));
 
   let userMeta: { userSelectedIndex?: number; userAction: string } | undefined;
-  if (interactive && process.stdin.isTTY) {
-    const result = await interactiveSelect(entry, allSorted, primary, prompt);
+
+  // NEW: If there's exactly one candidate, auto-accept it even in interactive mode.
+  if (interactive && process.stdin.isTTY && allSorted.length === 1 && primary) {
+    userMeta = { userSelectedIndex: 0, userAction: 'auto' };
+  } else if (interactive && process.stdin.isTTY) {
+    const result = await interactiveSelect(entry, allSorted, primary, prompt, {
+      repoRoot,
+      showSnippets,
+    });
     primary = result.primary;
     userMeta = result.userMeta;
   }
@@ -545,8 +797,8 @@ async function processEntry(
 
 /* -------------------------------- Entry Point -------------------------------- */
 async function main() {
-  const { in: inFile, wd: wdFile, out, debug, interactive } = parseArgs();
-  const repoRoot = resolve(__dirname, '..'); // points to `data/`
+  const { in: inFile, wd: wdFile, out, debug, interactive, showSnippets } = parseArgs();
+  const repoRoot = resolve(__dirname, '..');
 
   const entries: MappingEntry[] = readJsonFile(inFile);
 
@@ -561,6 +813,7 @@ async function main() {
   const enriched = await enrich(entries, repoRoot, exportIndex, {
     debug,
     interactive: interactive && process.stdin.isTTY,
+    showSnippets: !!showSnippets,
   });
 
   writeFileSync(out!, JSON.stringify(enriched, null, 2) + '\n', 'utf8');
