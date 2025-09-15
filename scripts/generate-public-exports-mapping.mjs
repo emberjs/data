@@ -47,10 +47,11 @@ import path from 'node:path';
 import url from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..'); // data/
-const PACKAGES_DIR = path.join(REPO_ROOT, 'packages');
-// const PACKAGES_DIR = path.join(REPO_ROOT, 'warp-drive-packages');
-const OUTPUT_FILE = path.join(REPO_ROOT, 'public-exports-mapping-main.json');
-// const OUTPUT_FILE = path.join(REPO_ROOT, 'public-exports-mapping-wd.json');
+// const PACKAGES_DIR = path.join(REPO_ROOT, 'packages');
+const PACKAGES_DIR = path.join(REPO_ROOT, 'warp-drive-packages');
+// const OUTPUT_FILE = path.join(REPO_ROOT, 'public-exports-mapping-5.5.json');
+// const OUTPUT_FILE = path.join(REPO_ROOT, 'public-exports-mapping-main.json');
+const OUTPUT_FILE = path.join(REPO_ROOT, 'public-exports-mapping-wd.json');
 
 const STAR = '*';
 
