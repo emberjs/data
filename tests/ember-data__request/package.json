@@ -20,9 +20,9 @@
     "_temporarily_deactivated_build:production": "bun run build:tests -e production",
     "lint": "eslint . --quiet --cache --cache-strategy=content",
     "check:types": "tsc --noEmit",
-    "test": "bun ./diagnostic.js",
-    "_temporarily_deactivated_test:production": "bun ./diagnostic.js",
-    "test:start": "bun ./diagnostic.js --serve --no-launch"
+    "test": "node ./diagnostic.js",
+    "_temporarily_deactivated_test:production": "node ./diagnostic.js",
+    "test:start": "node ./diagnostic.js --serve --no-launch"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",

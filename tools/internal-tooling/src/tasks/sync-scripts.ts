@@ -39,9 +39,9 @@ const TESTEM_TEST_APP = {
 };
 
 const DIAGNOSTIC_TEST_APP = {
-  test: 'bun ./diagnostic.js',
-  'test:production': 'bun ./diagnostic.js',
-  'test:start': 'bun ./diagnostic.js --serve --no-launch',
+  test: 'node ./diagnostic.js',
+  'test:production': 'node ./diagnostic.js',
+  'test:start': 'node ./diagnostic.js --serve --no-launch',
 };
 
 const SPECIAL_CASED_TEST_APPS = new Set(['fastboot-test-app', 'embroider-basic-compat']);

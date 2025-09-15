@@ -1,4 +1,21 @@
-export function getFlags() {
+export interface AvailableFlags {
+  debug: boolean;
+  serve: boolean;
+  noLaunch: boolean;
+  filter: boolean;
+  retry: boolean;
+  noWatch: boolean;
+  headless: boolean;
+  useExisting: boolean;
+}
+
+export interface Flags {
+  parsed: AvailableFlags;
+  filtered: Partial<AvailableFlags>;
+  flags: Set<string>;
+}
+
+export function getFlags(): Flags {
   const raw = process.argv.slice(2);
   for (let i = 0; i < raw.length; i++) {
     const rawArg = raw[i];
@@ -14,7 +31,7 @@ export function getFlags() {
     }
   }
   const flags = new Set(raw);
-  const filtered = {};
+  const filtered: Partial<AvailableFlags> = {};
 
   // global flags
   const noWatch = flags.has('--no-watch') || flags.has('-w');
