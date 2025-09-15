@@ -301,6 +301,10 @@ function createTestHandler(projectRoot) {
           body: body ? body : null,
           testRequestNumber,
         });
+
+        console.log(
+          `Replaying mock for ${req.method} ${niceUrl} (test: ${testId} request #${testRequestNumber}) from '${cacheKey}' if available`
+        );
         return replayRequest(context, cacheKey);
       }
     } catch (e) {
@@ -369,6 +373,12 @@ async function waitForLog(server, logMessage) {
   }
 }
 
+async function reprintLogs(server) {
+  for await (const chunk of server.stdout) {
+    process.stdout.write(chunk);
+  }
+}
+
 /*
 { port?: number, projectRoot: string }
 */
@@ -385,6 +395,7 @@ export async function createServer(options, useBun = false) {
     });
 
     await waitForLog(server, 'Serving Holodeck HTTP Mocks');
+    void reprintLogs(server);
 
     return {
       terminate() {
