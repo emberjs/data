@@ -1,6 +1,7 @@
 import { recordIdentifierFor } from '@warp-drive/core';
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
+import { POST } from '@warp-drive/holodeck/mock';
 import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 import { type Name, NameSchema } from '../-test-store/schemas/name';
@@ -105,7 +106,7 @@ module('Unit - `Fragment`', function (hooks) {
 
     prefixes.push({ name: 'Lord' } as Prefix);
 
-    assert.propEqual(prefixes, [{ name: 'Lord' }], 'new prefix is added to the fragment array');
+    assert.satisfies(prefixes, [{ name: 'Lord' }], 'new prefix is added to the fragment array');
   });
 
   test("fragment properties that are set to null are indicated in the owner record's `changedAttributes`", async function (this: AppTestContext, assert) {
@@ -125,7 +126,6 @@ module('Unit - `Fragment`', function (hooks) {
     const person = await this.store.findRecord<Person>('person', '1');
     person.set('name', null);
 
-    // @ts-expect-error TODO: fix this type error
     const [oldName, newName] = person.changedAttributes().name;
     assert.deepEqual(oldName, { first: 'Rob', last: 'Stark' }, 'old fragment is indicated in the diff object');
     assert.deepEqual(newName, null, 'new fragment is indicated in the diff object');
@@ -403,10 +403,6 @@ module('Unit - `Fragment`', function (hooks) {
       });
     });
 
-    hooks.afterEach(function () {
-      server.shutdown();
-    });
-
     test('`person` fragments/fragment arrays are not initially `null`', async function (this: AppTestContext, assert) {
       const person = this.store.createRecord<Person>('person', {
         title: 'Mr.',
@@ -421,8 +417,8 @@ module('Unit - `Fragment`', function (hooks) {
       await person.save();
 
       assert.equal(person.nickName, 'Johnner', 'nickName is correctly loaded');
-      assert.propEqual(
-        person.name,
+      assert.satisfies(
+        person.name as Name,
         {
           first: 'John',
           last: 'Doe',
@@ -430,7 +426,11 @@ module('Unit - `Fragment`', function (hooks) {
         },
         'name is correctly loaded'
       );
-      assert.propEqual(person.names?.slice(), [{ first: 'John', last: 'Doe', prefixes: [] }], 'names is correct');
+      assert.satisfies(
+        person.names?.slice() as Array<Name>,
+        [{ first: 'John', last: 'Doe', prefixes: [] as Array<Prefix> }],
+        'names is correct'
+      );
     });
 
     test('`person` fragments/fragment arrays are initially `null`', async function (this: AppTestContext, assert) {
@@ -446,8 +446,8 @@ module('Unit - `Fragment`', function (hooks) {
       await person.save();
 
       assert.equal(person.nickName, 'Johnner', 'nickName is correctly loaded');
-      assert.propEqual(
-        person.name,
+      assert.satisfies(
+        person.name as Name,
         {
           first: 'John',
           last: 'Doe',
@@ -455,7 +455,11 @@ module('Unit - `Fragment`', function (hooks) {
         },
         'name is correctly loaded'
       );
-      assert.propEqual(person.names?.slice(), [{ first: 'John', last: 'Doe', prefixes: [] }], 'names is correct');
+      assert.satisfies(
+        person.names?.slice() as Array<Name>,
+        [{ first: 'John', last: 'Doe', prefixes: [] as Array<Prefix> }],
+        'names is correct'
+      );
     });
   });
 });

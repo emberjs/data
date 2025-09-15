@@ -60,7 +60,7 @@ module('Unit - `FragmentArray`', function (hooks) {
     });
 
     const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
+    const fragments = person.names!;
     const length = fragments.length;
 
     fragments.createFragment({
@@ -97,7 +97,7 @@ module('Unit - `FragmentArray`', function (hooks) {
     });
 
     const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
+    const fragments = person.names!;
     const length = fragments.length;
 
     fragments.addFragment({
