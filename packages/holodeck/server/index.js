@@ -12,6 +12,7 @@ import zlib from 'node:zlib';
 import { homedir } from 'os';
 import path from 'path';
 import { threadId, parentPort } from 'node:worker_threads';
+import { spawn } from 'node:child_process';
 
 const isBun = typeof Bun !== 'undefined';
 const DEBUG =
@@ -375,6 +376,9 @@ async function waitForLog(server, logMessage) {
 
 async function reprintLogs(server) {
   for await (const chunk of server.stdout) {
+    if (!server.connected) {
+      return;
+    }
     process.stdout.write(chunk);
   }
 }
@@ -383,23 +387,21 @@ async function reprintLogs(server) {
 { port?: number, projectRoot: string }
 */
 export async function createServer(options, useBun = false) {
-  if (!useBun) {
+  if (isBun && !useBun) {
     const CURRENT_FILE = new URL(import.meta.url).pathname;
     const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
-    const server = Bun.spawn(['node', START_FILE, JSON.stringify(options)], {
+    const server = spawn('node', [START_FILE, JSON.stringify(options)], {
       env: Object.assign({}, process.env, { FORCE_COLOR: 1 }),
       cwd: process.cwd(),
-      stdin: 'inherit',
-      stdout: 'pipe',
-      stderr: 'inherit',
+      stdio: ['inherit', 'pipe', 'inherit'],
     });
 
     await waitForLog(server, 'Serving Holodeck HTTP Mocks');
     void reprintLogs(server);
 
     return {
-      terminate() {
-        server.kill();
+      terminate(signal) {
+        server.kill(signal);
         // server.unref();
       },
     };
