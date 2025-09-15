@@ -375,19 +375,22 @@ async function waitForLog(server, logMessage) {
 }
 
 async function reprintLogs(server) {
-  for await (const chunk of server.stdout) {
+  const fn = (data) => {
     if (!server.connected) {
+      console.log('server disconnected, stopping log reprint');
+      server.stdout.off('data', fn);
       return;
     }
-    process.stdout.write(chunk);
-  }
+    process.stdout.write(data);
+  };
+  server.stdout.on('data', fn);
 }
 
 /*
 { port?: number, projectRoot: string }
 */
 export async function createServer(options, useBun = false) {
-  if (isBun && !useBun) {
+  if (!useBun) {
     const CURRENT_FILE = new URL(import.meta.url).pathname;
     const START_FILE = path.join(CURRENT_FILE, '../start-node.js');
     const server = spawn('node', [START_FILE, JSON.stringify(options)], {
@@ -397,8 +400,11 @@ export async function createServer(options, useBun = false) {
     });
 
     await waitForLog(server, 'Serving Holodeck HTTP Mocks');
-    void reprintLogs(server);
-
+    try {
+      await reprintLogs(server);
+    } catch (e) {
+      console.log(e);
+    }
     return {
       terminate(signal) {
         server.kill(signal);
