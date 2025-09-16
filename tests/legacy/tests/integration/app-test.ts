@@ -1,6 +1,5 @@
-import type { TestContext } from '@ember/test-helpers';
-
 import type { ObjectSchema } from '@warp-drive/core-types/schema/fields';
+import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import {
   FragmentArrayExtension,
@@ -18,10 +17,10 @@ interface AppTestContext extends TestContext {
   store: Store;
 }
 
-module('Integration | Application', function (hooks) {
+module<AppTestContext>('Integration | Application', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function (this: AppTestContext) {
+  hooks.beforeEach(function () {
     this.store = createTestStore({}, this);
   });
 
