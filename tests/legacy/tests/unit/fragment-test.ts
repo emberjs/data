@@ -3,7 +3,7 @@ import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
 import { POST } from '@warp-drive/holodeck/mock';
 
-import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
+import { type Name, NameSchema } from '../-test-store/schemas/name';
 import { type Passenger, PassengerSchema } from '../-test-store/schemas/passenger';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
 import { type Prefix, PrefixSchema } from '../-test-store/schemas/prefix';
@@ -69,7 +69,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
     // Open question: is it important to preserve fragmentArrays on fragments
     // getting their value defaulted to `[]` in the json representation in the cache.
     // if so, we should do that via normalization.
-    const name = person.name as NameFragment;
+    const name = person.name as Name;
 
     name.set('last', 'Baratheon');
 
@@ -229,7 +229,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    const name = person.name as NameFragment;
+    const name = person.name as Name;
 
     name.set('last', 'Bolton');
     // @ts-expect-error TODO: fix this type error
@@ -400,8 +400,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
 
       const person = this.store.createRecord<Person>('person', {
         title: 'Mr.',
-        // @ts-expect-error this is fine
-        name: {},
+        name: {} as Name,
       });
 
       assert.ok(person.name, 'name is not null');

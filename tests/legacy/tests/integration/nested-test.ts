@@ -21,6 +21,7 @@ interface AppTestContext extends TestContext {
 module('Integration - Nested fragments', function (hooks) {
   setupRenderingTest(hooks);
 
+  // @ts-expect-error TODO: fix this type error
   hooks.beforeEach(function (this: AppTestContext) {
     this.store = createTestStore(
       {

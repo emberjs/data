@@ -1,7 +1,7 @@
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
 
-import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
+import { type Name, NameSchema } from '../-test-store/schemas/name';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
 import type { Prefix } from '../-test-store/schemas/prefix';
 import { PrefixSchema } from '../-test-store/schemas/prefix';
@@ -41,7 +41,7 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     });
 
     const person = await this.store.findRecord<Person>('person', '1');
-    // @ts-expect-error TODO: do we actually have owner and do we need it?
+    // @ts-expect-error TODO: fix this type error
     assert.equal(person.names.owner, person);
   });
 
@@ -106,7 +106,7 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
 
     assert.equal(fragments.length, length + 1, 'property size is correct');
     assert.satisfies(
-      // @ts-expect-error this is fine for now.
+      // @ts-expect-error TODO: fix this type error
       fragments.objectAt(1),
       {
         first: 'Yollo',
@@ -247,7 +247,7 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     });
 
     const fragments = person.names!;
-    const fragment = fragments.firstObject as NameFragment;
+    const fragment = fragments.firstObject as Name;
 
     assert.notOk(fragments.hasDirtyAttributes, 'fragment array is initially in a clean state');
 
@@ -281,7 +281,7 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     });
 
     const fragments = person.names!;
-    const fragment = fragments.firstObject as NameFragment;
+    const fragment = fragments.firstObject as Name;
 
     const originalState = fragments.toArray();
 
@@ -290,8 +290,9 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     fragments.createFragment({
       first: 'Lady',
       last: 'Stonehart',
-    } as NameFragment);
+    } as Name);
 
+    // @ts-expect-error TODO: fix this type error
     fragments.rollbackAttributes();
 
     assert.notOk(fragments.hasDirtyAttributes, 'fragment array is not dirty');
