@@ -2,35 +2,30 @@ import { recordIdentifierFor } from '@warp-drive/core';
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
 import { POST } from '@warp-drive/holodeck/mock';
-import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
-import { type Name, NameSchema } from '../-test-store/schemas/name';
+import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
 import { type Passenger, PassengerSchema } from '../-test-store/schemas/passenger';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
 import { type Prefix, PrefixSchema } from '../-test-store/schemas/prefix';
 import { type Vehicle, VehicleSchema } from '../-test-store/schemas/vehicle';
 import { type Zoo, ZooSchema } from '../-test-store/schemas/zoo';
-import { Store } from '../-test-store/store';
+import type { Store } from '../-test-store/store';
+import { createTestStore } from '../-test-store/store';
 
 interface AppTestContext extends TestContext {
   store: Store;
 }
 
-module('Unit - `Fragment`', function (hooks) {
+module<AppTestContext>('Unit - `Fragment`', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function (this: AppTestContext) {
-    this.owner.register('service:store', Store);
-    this.store = this.owner.lookup('service:store') as Store;
-    registerFragmentExtensions(this.store);
-    this.store.schema.registerResources([
-      PersonSchema,
-      NameSchema,
-      PassengerSchema,
-      PrefixSchema,
-      VehicleSchema,
-      ZooSchema,
-    ]);
+  hooks.beforeEach(function () {
+    this.store = createTestStore(
+      {
+        schemas: [PersonSchema, NameSchema, PassengerSchema, PrefixSchema, VehicleSchema, ZooSchema],
+      },
+      this
+    );
   });
 
   test('fragments support toString', function (this: AppTestContext, assert) {
@@ -57,8 +52,8 @@ module('Unit - `Fragment`', function (hooks) {
     assert.equal(name.toString(), 'Record<vehicle:1 (@lid:vehicle-1)>');
   });
 
-  test("changes to fragments are indicated in the owner record's `changedAttributes`", async function (this: AppTestContext, assert) {
-    this.store.push({
+  test("changes to fragments are indicated in the owner record's `changedAttributes`", function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -74,8 +69,7 @@ module('Unit - `Fragment`', function (hooks) {
     // Open question: is it important to preserve fragmentArrays on fragments
     // getting their value defaulted to `[]` in the json representation in the cache.
     // if so, we should do that via normalization.
-    const person = await this.store.findRecord<Person>('person', '1');
-    const name = person.name as Name;
+    const name = person.name as NameFragment;
 
     name.set('last', 'Baratheon');
 
@@ -220,8 +214,8 @@ module('Unit - `Fragment`', function (hooks) {
     }
   );
 
-  test('changes to attributes can be rolled back', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('changes to attributes can be rolled back', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -234,8 +228,7 @@ module('Unit - `Fragment`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
-    const name = person.name as Name;
+    const name = person.name as NameFragment;
 
     name.set('last', 'Bolton');
     // @ts-expect-error TODO: fix this type error
@@ -380,27 +373,29 @@ module('Unit - `Fragment`', function (hooks) {
     assert.equal(person.name, null);
   });
 
-  module('fragment bug when initially set to `null`', function (hooks) {
-    hooks.beforeEach(function () {
-      POST(this.owner, '/people', () => {
-        return [
-          200,
-          { 'Content-Type': 'application/json' },
-          JSON.stringify({
-            person: {
-              id: '1',
-              title: 'Mr.',
-              nickName: 'Johnner',
-              names: [{ first: 'John', last: 'Doe' }],
-              name: {
-                first: 'John',
-                last: 'Doe',
-                prefixes: [{ name: 'Mr.' }, { name: 'Sir' }],
-              },
+  module<AppTestContext>('fragment bug when initially set to `null`', function (innerHooks) {
+    innerHooks.beforeEach(async function () {
+      await POST(
+        this,
+        '/people',
+        () => ({
+          person: {
+            id: '1',
+            title: 'Mr.',
+            nickName: 'Johnner',
+            names: [{ first: 'John', last: 'Doe' }],
+            name: {
+              first: 'John',
+              last: 'Doe',
+              prefixes: [{ name: 'Mr.' }, { name: 'Sir' }],
             },
-          }),
-        ];
-      });
+          },
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ person: {} }),
+        }
+      );
     });
 
     test('`person` fragments/fragment arrays are not initially `null`', async function (this: AppTestContext, assert) {

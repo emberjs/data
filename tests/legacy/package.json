@@ -20,7 +20,7 @@
     "start": "export IS_TESTING=true; export NODE_ENV=development; vite build -m development --watch --outDir dist-test",
     "test": "export IS_TESTING=true; export NODE_ENV=development; bun ./diagnostic.js",
     "test:production": "export IS_TESTING=true; export NODE_ENV=production; bun ./diagnostic.js",
-    "test:start": "concurrently 'pnpm start' 'bun ./diagnostic.js --serve --no-launch'"
+    "test:start": "bun ./diagnostic.js --serve --no-launch"
   },
   "author": "",
   "license": "MIT",
@@ -50,7 +50,6 @@
     "@warp-drive/legacy": "workspace:*",
     "@warp-drive/utilities": "workspace:*",
     "babel-plugin-ember-template-compilation": "^2.2.5",
-    "concurrently": "^9.2.1",
     "decorator-transforms": "^2.2.2",
     "ember-source": "^6.6.0",
     "ember-strict-application-resolver": "^0.1.0",

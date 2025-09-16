@@ -1,9 +1,8 @@
-import type { TestContext } from '@ember/test-helpers';
-
+import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
-import { registerFragmentExtensions, type WithFragmentArray } from '@warp-drive/legacy/model-fragments';
+import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
-import { type Name, NameSchema } from '../-test-store/schemas/name';
+import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
 import { PrefixSchema } from '../-test-store/schemas/prefix';
 import { Store } from '../-test-store/store';
@@ -12,7 +11,7 @@ interface AppTestContext extends TestContext {
   store: Store;
 }
 
-module('Unit - `FragmentArray`', function (hooks) {
+module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: AppTestContext) {
@@ -43,8 +42,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     assert.equal(person.names.owner, person);
   });
 
-  test('fragments can be created and added through the fragment array', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('fragments can be created and added through the fragment array', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -59,16 +58,14 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
     const fragments = person.names!;
-    const length = fragments.length;
 
     fragments.createFragment({
       first: 'Hugor',
       last: 'Hill',
     } as Name);
 
-    assert.equal(fragments.length, length + 1, 'property size is correct');
+    assert.equal(fragments.length, 2, 'property size is correct');
     assert.deepEqual(
       fragments.objectAt(1),
       {
@@ -105,11 +102,11 @@ module('Unit - `FragmentArray`', function (hooks) {
     } as Name);
 
     assert.equal(fragments.length, length + 1, 'property size is correct');
-    console.log('OBJ1: ', fragments.objectAt(1));
     assert.deepEqual(
       fragments.objectAt(1),
       {
         first: 'Yollo',
+        // @ts-expect-error
         // TODO: should be `last: null`?
         last: undefined,
         prefixes: [],
@@ -118,8 +115,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     );
   });
 
-  test('objects can be added to the fragment array', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('objects can be added to the fragment array', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -134,8 +131,7 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
+    const fragments = person.names!;
     const length = fragments.length;
     fragments.addFragment({ first: 'Yollo', last: 'Baggins' } as Name);
 
@@ -146,8 +142,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     assert.equal(fragments.objectAt(1).last, 'Baggins');
   });
 
-  test('fragments can be removed from the fragment array', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('fragments can be removed from the fragment array', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -162,8 +158,7 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
+    const fragments = person.names!;
     const fragment = fragments.firstObject as Name;
     const length = fragments.length;
 
@@ -175,8 +170,8 @@ module('Unit - `FragmentArray`', function (hooks) {
 
   todo(
     'TODOchanges to array contents change the fragment array `hasDirtyAttributes` property',
-    async function (this: AppTestContext, assert) {
-      this.store.push({
+    function (this: AppTestContext, assert) {
+      const person = this.store.push<Person>({
         data: {
           type: 'person',
           id: '1',
@@ -195,8 +190,7 @@ module('Unit - `FragmentArray`', function (hooks) {
         },
       });
 
-      const person = await this.store.findRecord<Person>('person', '1');
-      const fragments = person.names;
+      const fragments = person.names!;
       const fragment = fragments.firstObject as Name;
       const newFragment = {
         first: 'Rhaenys',
@@ -233,8 +227,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     }
   );
 
-  test('changes to array contents change the fragment array `hasDirtyAttributes` property', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('changes to array contents change the fragment array `hasDirtyAttributes` property', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -249,9 +243,8 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
-    const fragment = fragments.firstObject as Name;
+    const fragments = person.names!;
+    const fragment = fragments.firstObject as NameFragment;
 
     assert.notOk(fragments.hasDirtyAttributes, 'fragment array is initially in a clean state');
 
@@ -264,8 +257,8 @@ module('Unit - `FragmentArray`', function (hooks) {
     assert.notOk(fragments.hasDirtyAttributes, 'fragment array is returned to clean state');
   });
 
-  test('changes to array contents and fragments can be rolled back', async function (this: AppTestContext, assert) {
-    this.store.push({
+  test('changes to array contents and fragments can be rolled back', function (this: AppTestContext, assert) {
+    const person = this.store.push<Person>({
       data: {
         type: 'person',
         id: '1',
@@ -284,9 +277,8 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    const person = await this.store.findRecord<Person>('person', '1');
-    const fragments = person.names;
-    const fragment = fragments.firstObject as Name;
+    const fragments = person.names!;
+    const fragment = fragments.firstObject as NameFragment;
 
     const originalState = fragments.toArray();
 
@@ -295,13 +287,12 @@ module('Unit - `FragmentArray`', function (hooks) {
     fragments.createFragment({
       first: 'Lady',
       last: 'Stonehart',
-    } as Name);
+    } as NameFragment);
 
-    // @ts-expect-error TODO: fix this type error
     fragments.rollbackAttributes();
 
     assert.notOk(fragments.hasDirtyAttributes, 'fragment array is not dirty');
-    assert.notOk(fragments.isAny('hasDirtyAttributes'), 'all fragments are in clean state');
+    assert.notOk(fragments.isAny('hasDirtyAttributes', true), 'all fragments are in clean state');
     assert.deepEqual(fragments.toArray(), originalState, 'original array contents is restored');
   });
 
@@ -339,7 +330,7 @@ module('Unit - `FragmentArray`', function (hooks) {
       },
     });
 
-    assert.propContains(person.names!.toArray(), [
+    assert.satisfies(person.names!.slice(), [
       {
         first: 'Catelyn',
         last: 'Tully',
@@ -348,7 +339,7 @@ module('Unit - `FragmentArray`', function (hooks) {
         first: 'Catelyn',
         last: 'Stark',
       },
-    ] as unknown as WithFragmentArray<Name>);
+    ] as unknown as Name[]);
 
     assert.deepEqual(person.names?.[0]?.prefixes.slice(), []);
 

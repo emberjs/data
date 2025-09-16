@@ -123,9 +123,11 @@ export class ShimModelClass<T = unknown> implements ModelSchema<T> {
   }
 }
 
-export function modelFor<T extends TypedRecordInstance>(
+export function fragmentsModelFor<T extends TypedRecordInstance>(
   this: Store,
   modelName: T extends TypedRecordInstance ? TypeFromInstance<T> : string
 ): ShimModelClass<T> {
   return getShimClass(this, modelName);
 }
+
+export const modelFor: typeof fragmentsModelFor = fragmentsModelFor;

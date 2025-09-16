@@ -260,9 +260,9 @@ function setupHolodeckFetch(owner: object, request: RequestInfo): { request: Req
   // and we don't want to trigger cors pre-flight
   // we convert PUT to POST to keep the request in the
   // "simple" cors category.
-  if (request.method === 'PUT') {
-    request.method = 'POST';
-  }
+  // if (request.method === 'PUT') {
+  //   request.method = 'POST';
+  // }
 
   const headers = new Headers(request.headers);
   if (headers.has('Content-Type')) {

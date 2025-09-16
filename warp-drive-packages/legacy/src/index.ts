@@ -33,13 +33,20 @@ import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtensio
 import type Model from './model';
 import { instantiateRecord as instantiateModel, modelFor, teardownRecord as teardownModel } from './model';
 import { DelegatingSchemaService, registerDerivations as registerLegacyDerivations } from './model/migration-support';
+import { FragmentArrayExtension, FragmentExtension } from './model-fragments';
+import { fragmentsModelFor } from './model-fragments/hooks/model-for';
 import { restoreDeprecatedStoreBehaviors } from './store';
 
 interface _LegacyStoreSetupOptions extends Omit<StoreSetupOptions, 'schemas'> {
   schemas?: Array<ResourceSchema | ObjectSchema>;
+
+  /**
+   * Whether to include support for ModelFragments migrations.
+   */
+  modelFragments?: boolean;
 }
 
-interface LegacyModelStoreSetupOptions extends _LegacyStoreSetupOptions {
+export interface LegacyModelStoreSetupOptions extends _LegacyStoreSetupOptions {
   /**
    * If true, it is presumed that no requests require use of the LegacyNetworkHandler
    * and associated adapters/serializer methods.
@@ -52,7 +59,7 @@ interface LegacyModelStoreSetupOptions extends _LegacyStoreSetupOptions {
   legacyRequests?: false;
 }
 
-interface LegacyModelAndNetworkStoreSetupOptions extends _LegacyStoreSetupOptions {
+export interface LegacyModelAndNetworkStoreSetupOptions extends _LegacyStoreSetupOptions {
   /**
    * If true, it is presumed that no requests require use of the LegacyNetworkHandler
    * and associated adapters/serializer methods.
@@ -65,7 +72,7 @@ interface LegacyModelAndNetworkStoreSetupOptions extends _LegacyStoreSetupOption
   legacyRequests?: false;
 }
 
-interface LegacyModelAndNetworkAndRequestStoreSetupOptions extends _LegacyStoreSetupOptions {
+export interface LegacyModelAndNetworkAndRequestStoreSetupOptions extends _LegacyStoreSetupOptions {
   /**
    * If true, it is presumed that no requests require use of the LegacyNetworkHandler
    * and associated adapters/serializer methods.
@@ -163,6 +170,12 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
       schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectArrayExtension);
       schema.CAUTION_MEGA_DANGER_ZONE_registerExtension(EmberObjectExtension);
 
+      // add support for fragments
+      if (options.modelFragments) {
+        schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentExtension);
+        schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentArrayExtension);
+      }
+
       // Add fallback for Models
       return new DelegatingSchemaService(this, schema);
     }
@@ -191,11 +204,16 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
     modelFor(type: string): ModelSchema;
     modelFor(type: string): ModelSchema {
       assertType(this.schema, type);
+      // TODO I'm not sure this is right
       assert(
-        `modelFor should only be used to lookup legacy models when in linksMode`,
-        !options.linksMode || this.schema.isDelegated({ type })
+        `modelFor should only be used to lookup legacy models when in linksMode: false`,
+        !options.linksMode || !this.schema.isDelegated({ type })
       );
-      return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
+      return (
+        (modelFor.call(this, type) as ModelSchema) ||
+        (fragmentsModelFor.call(this, type) as ModelSchema) ||
+        super.modelFor(type)
+      );
     }
 
     adapterFor(this: Store, modelName: string): MinimumAdapterInterface;

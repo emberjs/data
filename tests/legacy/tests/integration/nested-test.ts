@@ -78,16 +78,22 @@ module('Integration - Nested fragments', function (hooks) {
       },
     });
 
-    const payload = {
-      user: structuredClone(data as unknown as User),
-    };
+    await PUT(
+      this,
+      '/users/1',
+      () => {
+        const payload = {
+          user: structuredClone(data as unknown as User),
+        };
 
-    payload.user.id = '1';
-    payload.user.orders[0].products.splice(0, 1);
-
-    await PUT(this, '/users/1', () => {
-      return payload;
-    });
+        payload.user.id = '1';
+        payload.user.orders[0].products.splice(0, 1);
+        return payload;
+      },
+      {
+        body: '{"user":{"info":{"name":"Tyrion Lannister","notes":["smart","short"]},"orders":[{"amount":"799.98","products":[{}]},{"amount":"10999.99","products":[{"name":"Lives of Four Kings","sku":"old-book-32","price":"10999.99"}]}]}}',
+      }
+    );
 
     const user = await this.store.findRecord<User>('user', '1');
 

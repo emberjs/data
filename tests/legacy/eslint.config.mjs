@@ -41,6 +41,7 @@ export default [
 
   // browser (js/ts) ================
   typescript.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['app', 'tests'],
     allowedImports: AllowedImports,
     rules: {
@@ -52,6 +53,7 @@ export default [
 
   // gts
   gts.browser({
+    dirname: import.meta.dirname,
     srcDirs: ['app', 'tests'],
     allowedImports: AllowedImports,
     rules: {
