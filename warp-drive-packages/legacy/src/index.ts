@@ -209,9 +209,13 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
         `modelFor should only be used to lookup legacy models when in linksMode: false`,
         !options.linksMode || !this.schema.isDelegated({ type })
       );
+
       return (
+        // prefer real models if present
         (modelFor.call(this, type) as ModelSchema) ||
-        (fragmentsModelFor.call(this, type) as ModelSchema) ||
+        // fallback to ShimModelClass specific to fragments if fragments support in use
+        (options.modelFragments ? (fragmentsModelFor.call(this, type) as ModelSchema) : false) ||
+        // fallback to ShimModelClass
         super.modelFor(type)
       );
     }
