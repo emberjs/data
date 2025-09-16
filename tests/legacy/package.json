@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/legacy-tests",
-  "version": "5.7.0-alpha.26",
+  "version": "5.7.0-alpha.27",
   "private": true,
   "description": "A data layer for your Ember applications.",
   "repository": {

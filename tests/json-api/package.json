@@ -1,6 +1,6 @@
 {
   "name": "json-api",
-  "version": "5.8.0-alpha.16",
+  "version": "5.8.0-alpha.17",
   "private": true,
   "description": "Provides tests for @warp-drive/json-api",
   "keywords": [],
