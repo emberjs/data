@@ -105,6 +105,9 @@ export function createTestStore(options: Partial<LegacyStoreSetupOptions> = {}, 
       return this._serializer;
     }
   }
+
+  // @ts-expect-error - unregister is not in the type definitions
+  context.owner.unregister('service:store');
   context.owner.register('service:store', TestStore);
   const store = context.owner.lookup('service:store') as TestStore;
   installAdapterFor(context, store);

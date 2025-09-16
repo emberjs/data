@@ -394,7 +394,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
         }),
         {
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ person: {} }),
+          body: JSON.stringify({ person: { title: 'Mr.', name: {} } }),
         }
       );
     });

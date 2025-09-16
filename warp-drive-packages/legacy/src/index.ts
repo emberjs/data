@@ -104,7 +104,9 @@ export function useLegacyStore(
 ): typeof Store;
 export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typeof Store = Store): typeof Store {
   assert(`If legacyRequests is true, linksMode must be false`, !(options.linksMode && options.legacyRequests));
-  class LegacyConfiguredStore extends StoreKlass {
+  // we extend the store to ensure we don't leak our prototype overrides to other stores below.
+  class BaseKlass extends StoreKlass {}
+  class LegacyConfiguredStore extends BaseKlass {
     requestManager = new RequestManager()
       .use(
         [options.linksMode ? null : LegacyNetworkHandler, ...(options.handlers ?? []), Fetch].filter(
@@ -210,14 +212,18 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
         !options.linksMode || !this.schema.isDelegated({ type })
       );
 
-      return (
+      const klass =
         // prefer real models if present
         (modelFor.call(this, type) as ModelSchema) ||
         // fallback to ShimModelClass specific to fragments if fragments support in use
         (options.modelFragments ? (fragmentsModelFor.call(this, type) as ModelSchema) : false) ||
         // fallback to ShimModelClass
-        super.modelFor(type)
-      );
+        super.modelFor(type);
+
+      // eslint-disable-next-line no-console
+      console.log(`model for ${type}`, klass);
+
+      return klass;
     }
 
     adapterFor(this: Store, modelName: string): MinimumAdapterInterface;
@@ -272,7 +278,7 @@ export function useLegacyStore(options: LegacyStoreSetupOptions, StoreKlass: typ
   }
 
   if (options.legacyRequests) {
-    restoreDeprecatedStoreBehaviors(LegacyConfiguredStore);
+    restoreDeprecatedStoreBehaviors(BaseKlass);
   }
 
   return LegacyConfiguredStore;
