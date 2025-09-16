@@ -1,6 +1,6 @@
 import type { Type } from '@warp-drive/core-types/symbols';
 import type { TestContext } from '@warp-drive/diagnostic/ember';
-import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
+import { module, setupRenderingTest, skip, test } from '@warp-drive/diagnostic/ember';
 import { PUT } from '@warp-drive/holodeck/mock';
 import type { WithEmberObject } from '@warp-drive/legacy/compat/extensions';
 import type { WithLegacy } from '@warp-drive/legacy/model/migration-support';
@@ -170,7 +170,7 @@ module('Integration - Nested fragments', function (hooks) {
     );
   });
 
-  todo('Nested fragments can have default values', function (this: AppTestContext, assert) {
+  skip('Nested fragments can have default values', function (this: AppTestContext, assert) {
     const defaultInfo = {
       notes: ['dangerous', 'sorry'],
     };
