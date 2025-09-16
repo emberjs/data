@@ -1,6 +1,7 @@
 import { cached, tracked } from '@glimmer/tracking';
 
-import type { CAUTION_MEGA_DANGER_ZONE_Extension, ReactiveResource as SchemaRecord } from '@warp-drive/core/reactive';
+import type { CAUTION_MEGA_DANGER_ZONE_Extension } from '@warp-drive/core/reactive';
+import type { PrivateReactiveResource } from '@warp-drive/core/reactive/-private';
 import { Context } from '@warp-drive/core/reactive/-private';
 import type { Value } from '@warp-drive/core/types/json/raw';
 
@@ -13,7 +14,7 @@ export class Fragment {
 
   @cached
   get hasDirtyAttributes(): boolean {
-    const { path, resourceKey, store } = (this as unknown as SchemaRecord)[Context];
+    const { path, resourceKey, store } = (this as unknown as PrivateReactiveResource)[Context];
     const record = store.peekRecord(resourceKey) as Model;
 
     if (record.hasDirtyAttributes && path) {
@@ -29,11 +30,11 @@ export class Fragment {
   }
 
   get $type(): string | null | undefined {
-    const { field } = (this as unknown as SchemaRecord)[Context];
+    const { field } = (this as unknown as PrivateReactiveResource)[Context];
     return field?.type;
   }
 
-  rollbackAttributes(this: SchemaRecord): void {
+  rollbackAttributes(this: PrivateReactiveResource): void {
     const { path, resourceKey, store } = this[Context];
 
     if (path) {
