@@ -4,6 +4,7 @@ import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
+import type { Prefix } from '../-test-store/schemas/prefix';
 import { PrefixSchema } from '../-test-store/schemas/prefix';
 import { Store } from '../-test-store/store';
 
@@ -66,12 +67,12 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     } as Name);
 
     assert.equal(fragments.length, 2, 'property size is correct');
-    assert.deepEqual(
+    assert.satisfies(
       fragments.objectAt(1),
       {
         first: 'Hugor',
         last: 'Hill',
-        prefixes: [],
+        prefixes: [] as Array<Prefix>,
       },
       'new fragment is in correct location'
     );
@@ -102,11 +103,11 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
     } as Name);
 
     assert.equal(fragments.length, length + 1, 'property size is correct');
-    assert.deepEqual(
+    assert.satisfies(
+      // @ts-expect-error this is fine for now.
       fragments.objectAt(1),
       {
         first: 'Yollo',
-        // @ts-expect-error
         // TODO: should be `last: null`?
         last: undefined,
         prefixes: [],

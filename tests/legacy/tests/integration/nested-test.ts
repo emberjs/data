@@ -7,7 +7,6 @@ import type { WithEmberObject } from '@warp-drive/legacy/compat/extensions';
 import type { WithLegacy } from '@warp-drive/legacy/model/migration-support';
 import type { WithFragmentArray } from '@warp-drive/legacy/model-fragments';
 import {
-  modelFor,
   registerFragmentExtensions,
   withFragmentArrayDefaults,
   withFragmentDefaults,
@@ -87,7 +86,7 @@ module('Integration - Nested fragments', function (hooks) {
         };
 
         payload.user.id = '1';
-        payload.user.orders[0].products.splice(0, 1);
+        payload.user.orders![0].products.splice(0, 1);
         return payload;
       },
       {
@@ -157,7 +156,7 @@ module('Integration - Nested fragments', function (hooks) {
     };
 
     const user = this.store.createRecord<User>('user', data as User);
-    const orders = user.orders;
+    const orders = user.orders as WithFragmentArray<Order>;
 
     assert.equal(orders.length, 2, 'fragment array length is correct');
     assert.ok(orders.firstObject!.$type === 'fragment:order', 'fragment instances are created');

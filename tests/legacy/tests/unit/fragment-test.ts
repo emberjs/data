@@ -157,6 +157,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
       'new fragment is indicated in the diff object'
     );
 
+    // @ts-expect-error TODO: fix this type error
     this.store.cache.didCommit(identifier, {
       request: {},
       response: new Response(),
