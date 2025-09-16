@@ -600,6 +600,10 @@ export class DelegatingSchemaService implements SchemaService {
     this._preferred.registerHashFn(hashFn);
   }
 
+  CAUTION_MEGA_DANGER_ZONE_hasExtension(ext: { kind: 'object' | 'array'; name: string }): boolean {
+    this._preferred.CAUTION_MEGA_DANGER_ZONE_hasExtension!(ext);
+  }
+
   CAUTION_MEGA_DANGER_ZONE_registerExtension(extension: CAUTION_MEGA_DANGER_ZONE_Extension): void {
     this._preferred.CAUTION_MEGA_DANGER_ZONE_registerExtension!(extension);
   }
