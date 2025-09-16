@@ -1,23 +1,18 @@
 import type { Type } from '@warp-drive/core-types/symbols';
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
-import { installAdapterFor } from '@warp-drive/holodeck';
 import { PUT } from '@warp-drive/holodeck/mock';
 import type { WithEmberObject } from '@warp-drive/legacy/compat/extensions';
 import type { WithLegacy } from '@warp-drive/legacy/model/migration-support';
 import type { WithFragmentArray } from '@warp-drive/legacy/model-fragments';
-import {
-  registerFragmentExtensions,
-  withFragmentArrayDefaults,
-  withFragmentDefaults,
-  withLegacy,
-} from '@warp-drive/legacy/model-fragments';
+import { withFragmentArrayDefaults, withFragmentDefaults, withLegacy } from '@warp-drive/legacy/model-fragments';
 
 import { type Info, InfoSchema } from '../-test-store/schemas/info.ts';
 import { type Order, OrderSchema } from '../-test-store/schemas/order.js';
 import { type Product, ProductSchema } from '../-test-store/schemas/product.js';
 import { type User, UserSchema } from '../-test-store/schemas/user.js';
-import { Store } from '../-test-store/store.ts';
+import type { Store } from '../-test-store/store.ts';
+import { createTestStore } from '../-test-store/store.ts';
 
 interface AppTestContext extends TestContext {
   store: Store;
@@ -27,11 +22,12 @@ module('Integration - Nested fragments', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: AppTestContext) {
-    this.owner.register('service:store', Store);
-    this.store = this.owner.lookup('service:store') as Store;
-    installAdapterFor(this, this.store);
-    registerFragmentExtensions(this.store);
-    this.store.schema.registerResources([InfoSchema, OrderSchema, ProductSchema, UserSchema]);
+    this.store = createTestStore(
+      {
+        schemas: [InfoSchema, OrderSchema, ProductSchema, UserSchema],
+      },
+      this
+    );
   });
 
   test('properties can be nested', async function (this: AppTestContext, assert) {

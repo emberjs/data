@@ -1,12 +1,12 @@
 import type { TestContext } from '@warp-drive/diagnostic/ember';
 import { module, setupRenderingTest, test, todo } from '@warp-drive/diagnostic/ember';
-import { registerFragmentExtensions } from '@warp-drive/legacy/model-fragments';
 
 import { type Name, type NameFragment, NameSchema } from '../-test-store/schemas/name';
 import { type Person, PersonSchema } from '../-test-store/schemas/person';
 import type { Prefix } from '../-test-store/schemas/prefix';
 import { PrefixSchema } from '../-test-store/schemas/prefix';
-import { Store } from '../-test-store/store';
+import type { Store } from '../-test-store/store';
+import { createTestStore } from '../-test-store/store';
 
 interface AppTestContext extends TestContext {
   store: Store;
@@ -16,10 +16,12 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: AppTestContext) {
-    this.owner.register('service:store', Store);
-    this.store = this.owner.lookup('service:store') as Store;
-    this.store.schema.registerResources([PersonSchema, NameSchema, PrefixSchema]);
-    registerFragmentExtensions(this.store);
+    this.store = createTestStore(
+      {
+        schemas: [PersonSchema, NameSchema, PrefixSchema],
+      },
+      this
+    );
   });
 
   test('fragment arrays have an owner', async function (this: AppTestContext, assert) {
@@ -170,7 +172,7 @@ module<AppTestContext>('Unit - `FragmentArray`', function (hooks) {
   });
 
   todo(
-    'TODOchanges to array contents change the fragment array `hasDirtyAttributes` property',
+    'TODO - changes to array contents change the fragment array `hasDirtyAttributes` property',
     function (this: AppTestContext, assert) {
       const person = this.store.push<Person>({
         data: {

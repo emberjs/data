@@ -1,26 +1,21 @@
 import type ApplicationInstance from '@ember/application/instance';
 
 import type { Store } from '@warp-drive/core';
+import type { SchemaService } from '@warp-drive/core/types';
 
-import { EmberArrayLikeExtension, EmberObjectArrayExtension, EmberObjectExtension } from '../../compat/extensions.ts';
 import FragmentExtension from '../extensions/fragment.ts';
 import FragmentArrayExtension from '../extensions/fragment-array.ts';
-import { modelFor } from '../hooks/model-for.ts';
 
-export function registerFragmentExtensions(store: Store): void {
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentExtension);
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentArrayExtension);
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberArrayLikeExtension);
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberObjectArrayExtension);
-  store.schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(EmberObjectExtension);
-  store.modelFor = modelFor;
+export function registerFragmentExtensions(schema: SchemaService): void {
+  schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentExtension);
+  schema.CAUTION_MEGA_DANGER_ZONE_registerExtension?.(FragmentArrayExtension);
 }
 
 export function initialize(application: ApplicationInstance): void {
   const store = application.lookup('service:store') as Store | undefined;
 
   if (store) {
-    registerFragmentExtensions(store);
+    registerFragmentExtensions(store.schema);
   } else {
     // eslint-disable-next-line no-console
     console.warn(

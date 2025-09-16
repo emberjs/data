@@ -170,7 +170,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
   });
 
   todo(
-    "(redux) fragment properties that are initially null are indicated in the owner record's `changedAttributes`",
+    "TODO - (redux) fragment properties that are initially null are indicated in the owner record's `changedAttributes`",
     function (this: AppTestContext, assert) {
       const person = this.store.push<Person>({
         data: {
@@ -374,8 +374,8 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
     assert.equal(person.name, null);
   });
 
-  module<AppTestContext>('fragment bug when initially set to `null`', function (innerHooks) {
-    innerHooks.beforeEach(async function () {
+  module<AppTestContext>('fragment bug when initially set to `null`', function () {
+    test('`person` fragments/fragment arrays are not initially `null`', async function (this: AppTestContext, assert) {
       await POST(
         this,
         '/people',
@@ -397,9 +397,7 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
           body: JSON.stringify({ person: { title: 'Mr.', name: {} } }),
         }
       );
-    });
 
-    test('`person` fragments/fragment arrays are not initially `null`', async function (this: AppTestContext, assert) {
       const person = this.store.createRecord<Person>('person', {
         title: 'Mr.',
         // @ts-expect-error this is fine
@@ -430,6 +428,28 @@ module<AppTestContext>('Unit - `Fragment`', function (hooks) {
     });
 
     test('`person` fragments/fragment arrays are initially `null`', async function (this: AppTestContext, assert) {
+      await POST(
+        this,
+        '/people',
+        () => ({
+          person: {
+            id: '1',
+            title: 'Mr.',
+            nickName: 'Johnner',
+            names: [{ first: 'John', last: 'Doe' }],
+            name: {
+              first: 'John',
+              last: 'Doe',
+              prefixes: [{ name: 'Mr.' }, { name: 'Sir' }],
+            },
+          },
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ person: { title: 'Mr.', name: null, names: null } }),
+        }
+      );
+
       const person = this.store.createRecord<Person>('person', {
         title: 'Mr.',
         name: null,

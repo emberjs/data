@@ -5,14 +5,14 @@ import { module, setupRenderingTest, test } from '@warp-drive/diagnostic/ember';
 import {
   FragmentArrayExtension,
   FragmentExtension,
-  registerFragmentExtensions,
   withArrayDefaults,
   withFragmentArrayDefaults,
   withFragmentDefaults,
   withLegacy,
 } from '@warp-drive/legacy/model-fragments';
 
-import { Store } from '../-test-store/store.ts';
+import type { Store } from '../-test-store/store.ts';
+import { createTestStore } from '../-test-store/store.ts';
 
 interface AppTestContext extends TestContext {
   store: Store;
@@ -22,9 +22,7 @@ module('Integration | Application', function (hooks) {
   setupRenderingTest(hooks);
 
   hooks.beforeEach(function (this: AppTestContext) {
-    this.owner.register('service:store', Store);
-    this.store = this.owner.lookup('service:store') as Store;
-    registerFragmentExtensions(this.store);
+    this.store = createTestStore({}, this);
   });
 
   test('Fragment and FragmentArray are setup correctly', function (this: AppTestContext, assert) {
