@@ -1,0 +1,75 @@
+import { cached, tracked } from '@glimmer/tracking';
+
+import type { CAUTION_MEGA_DANGER_ZONE_Extension } from '@warp-drive/core/reactive';
+import { Context } from '@warp-drive/core/reactive/-private';
+import type { ManagedArray } from '@warp-drive/core/reactive/-private/fields/managed-array';
+
+import type Model from '../../model.ts';
+import type { WithFragmentArray } from '../index.ts';
+import type { Fragment } from './fragment.ts';
+
+export class FragmentArray<T extends Fragment> {
+  // We might want to check the parent values once we move this code to warp-drive.
+  @tracked isDestroying = false;
+  @tracked isDestroyed = false;
+
+  @cached
+  get hasDirtyAttributes(): boolean {
+    const { path, resourceKey, store } = (this as unknown as ManagedArray)[Context];
+    const record = store.peekRecord(resourceKey) as Model;
+
+    if (record.hasDirtyAttributes && path) {
+      const root = path.at(0) as string;
+      return root in record.changedAttributes();
+    }
+
+    return false;
+  }
+
+  addFragment(fragment?: T): Fragment[] | undefined {
+    if (!fragment) {
+      return;
+    }
+
+    return (this as unknown as WithFragmentArray<T>).addObject(fragment);
+  }
+
+  createFragment(fragment?: T): Fragment | undefined {
+    if (!fragment) {
+      return;
+    }
+
+    return (this as unknown as WithFragmentArray<T>).pushObject(fragment);
+  }
+
+  removeFragment(fragment?: T): void {
+    if (!fragment) {
+      return;
+    }
+
+    const index = (this as unknown as WithFragmentArray<T>).indexOf(fragment);
+
+    if (index !== -1) {
+      (this as unknown as WithFragmentArray<T>).splice(index, 1);
+    }
+  }
+
+  rollbackAttributes(): void {
+    for (const fragment of this as unknown as WithFragmentArray<T>) {
+      // @ts-expect-error TODO: fix these types
+      fragment?.rollbackAttributes?.();
+    }
+  }
+}
+
+export const FragmentArrayExtension: {
+  kind: 'array';
+  name: 'fragment-array';
+  features: typeof FragmentArray;
+} = {
+  kind: 'array' as const,
+  name: 'fragment-array' as const,
+  features: FragmentArray,
+} satisfies CAUTION_MEGA_DANGER_ZONE_Extension;
+
+export default FragmentArrayExtension;

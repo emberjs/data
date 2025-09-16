@@ -92,6 +92,16 @@ export interface ReactiveResource {
 }
 
 /**
+ * @private
+ */
+export interface PrivateReactiveResource extends ReactiveResource {
+  /**
+   * @private
+   */
+  [Context]: ObjectContext | ResourceContext;
+}
+
+/**
  * A class that uses a the ResourceSchema for a ResourceType
  * and a ResourceKey to transform data from the cache into a rich, reactive
  * object.
