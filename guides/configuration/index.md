@@ -117,6 +117,10 @@ how to cache it, and what sort of reactive objects to create for that data.
 ***Warp*Drive** provides [a utility to quickly setup a store configured
 with recommended defaults](/api/@warp-drive/core/functions/useRecommendedStore).
 
+:::tabs
+
+== PolarisMode
+
 ```ts
 import { useRecommendedStore } from '@warp-drive/core';
 import { JSONAPICache } from '@warp-drive/json-api';
@@ -129,9 +133,26 @@ export default useRecommendedStore({
 });
 ```
 
-**That's it!** Unless you need to configure support for [legacy (Ember only)](./ember.md) features
-or for migrating from older versions, it's time to start working with
-your data.
+== Legacy Mode (Ember Only)
+
+```ts
+import { useLegacyStore } from '@warp-drive/legacy';
+import { JSONAPICache } from '@warp-drive/json-api';
+
+export default useLegacyStore({
+  linksMode: false,
+  legacyRequests: true,
+  modelFragments: true,
+  cache: JSONAPICache,
+  schemas: [
+     // -- your schemas here
+  ],
+});
+```
+
+:::
+
+**That's it!** It's time to start working with your data.
 
 Alternatively, to understand more about what the above setup does, you can
 read about manually configuring the store in the [Advanced Guide](./advanced.md)

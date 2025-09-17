@@ -21,23 +21,25 @@ To consume `alpha` stage types, you must import the types in your project's `tsc
 For alpha stage types, we add `unstable-preview-types` to the path to help you remember the
 potential volatility.
 
-```diff
+```json
  {
    "compilerOptions": {
-+   "types": [
-+      "ember-source/types",
-+      "ember-data/unstable-preview-types",
-+      "@ember-data/store/unstable-preview-types",
-+      "@ember-data/adapter/unstable-preview-types",
-+      "@ember-data/graph/unstable-preview-types",
-+      "@ember-data/json-api/unstable-preview-types",
-+      "@ember-data/legacy-compat/unstable-preview-types",
-+      "@ember-data/request/unstable-preview-types",
-+      "@ember-data/request-utils/unstable-preview-types",
-+      "@ember-data/model/unstable-preview-types",
-+      "@ember-data/serializer/unstable-preview-types",
-+      "@warp-drive/core-types/unstable-preview-types"
-+    ]
+     "types": [
+       "ember-source/types",
+       "ember-data/unstable-preview-types", // [!code ++:13]
+       "@ember-data/store/unstable-preview-types",
+       "@ember-data/adapter/unstable-preview-types",
+       "@ember-data/graph/unstable-preview-types",
+       "@ember-data/json-api/unstable-preview-types",
+       "@ember-data/legacy-compat/unstable-preview-types",
+       "@ember-data/request/unstable-preview-types",
+       "@ember-data/request-utils/unstable-preview-types",
+       "@ember-data/model/unstable-preview-types",
+       "@ember-data/serializer/unstable-preview-types",
+       "@warp-drive/core-types/unstable-preview-types",
+       "@warp-drive/build-config/unstable-preview-types",,
+       "@warp-drive/schema-record/unstable-preview-types"
+     ]
    }
  }
 ```
