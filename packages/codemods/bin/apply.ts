@@ -8,6 +8,7 @@ import path from 'path';
 import type { SharedCodemodOptions as Options } from '../src/utils/options.js';
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
+import { loadConfig, mergeOptions } from '../src/schema-migration/utils/config.js';
 
 export function createApplyCommand(program: Command, codemods: CodemodConfig[]) {
   const applyCommand = program.command('apply').description('apply the given codemod to the target file paths');
@@ -17,11 +18,21 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
   for (const codemod of codemods) {
     const command = applyCommand
       .command(`${codemod.name}`)
-      .description(codemod.description)
-      .argument(
-        '<target-glob-pattern...>',
-        'Path to files or glob pattern. If using glob pattern, wrap in single quotes.'
-      )
+      .description(codemod.description);
+
+    // migrate-to-schema has different arguments
+    if (codemod.name === 'migrate-to-schema') {
+      command
+        .argument('[input-dir]', 'Input directory to search for models and mixins', './app');
+    } else {
+      command
+        .argument(
+          '<target-glob-pattern...>',
+          'Path to files or glob pattern. If using glob pattern, wrap in single quotes.'
+        );
+    }
+
+    command
       .addOption(new Option('-d, --dry', 'dry run (no changes are made to files)').default(false))
       .addOption(
         new Option('-v, --verbose <level>', 'Show more information about the transform process')
@@ -63,18 +74,170 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
         'Method name(s) to transform. By default, will transform all methods.'
       ).choices(['findAll', 'findRecord', 'query', 'queryRecord', 'saveRecord'])
     );
+
+  // Add arguments that are specific to the model-to-schema codemod
+  const modelToSchema = commands.get('model-to-schema');
+  if (modelToSchema) {
+    modelToSchema
+      .addOption(
+        new Option(
+          '--input-dir <path>',
+          'Input directory containing models'
+        ).default('./app/models')
+      )
+      .addOption(
+        new Option(
+          '--output-dir <path>',
+          'Output directory for schemas'
+        ).default('./app/schemas')
+      )
+      .addOption(
+        new Option(
+          '--config <path>',
+          'Path to configuration file'
+        )
+      );
+  }
+
+  // Add arguments that are specific to the mixin-to-schema codemod
+  const mixinToSchema = commands.get('mixin-to-schema');
+  if (mixinToSchema) {
+    mixinToSchema
+      .addOption(
+        new Option(
+          '--input-dir <path>',
+          'Input directory containing mixins'
+        ).default('./app/mixins')
+      )
+      .addOption(
+        new Option(
+          '--output-dir <path>',
+          'Output directory for traits'
+        ).default('./app/traits')
+      )
+      .addOption(
+        new Option(
+          '--config <path>',
+          'Path to configuration file'
+        )
+      );
+  }
+
+  // Add arguments that are specific to the migrate-to-schema codemod
+  const migrateToSchema = commands.get('migrate-to-schema');
+  if (migrateToSchema) {
+    migrateToSchema
+      .addOption(
+        new Option(
+          '--config <path>',
+          'Path to configuration file'
+        )
+      )
+      .addOption(
+        new Option(
+          '--models-only',
+          'Only process model files'
+        ).default(false)
+      )
+      .addOption(
+        new Option(
+          '--mixins-only',
+          'Only process mixin files'
+        ).default(false)
+      )
+      .addOption(
+        new Option(
+          '--skip-processed',
+          'Skip files that have already been processed'
+        ).default(false)
+      )
+      .addOption(
+        new Option(
+          '--model-source-dir <path>',
+          'Directory containing model files'
+        ).default('./app/models')
+      )
+      .addOption(
+        new Option(
+          '--mixin-source-dir <path>',
+          'Directory containing mixin files'
+        ).default('./app/mixins')
+      )
+      .addOption(
+        new Option(
+          '--output-dir <path>',
+          'Output directory for generated schemas'
+        ).default('./app/schemas')
+      );
+  }
 }
 
 function createApplyAction(transformName: string) {
-  return async (patterns: string[], options: Options & Record<string, unknown>) => {
+  return async (patterns: string[] | string, options: Options & Record<string, unknown>) => {
     logger.config(options);
     const log = logger.for(transformName);
 
-    log.debug('Running with options:', { targetGlobPattern: patterns, ...options });
-    const ig = ignore().add(['**/*.d.ts', '**/node_modules/**/*', '**/dist/**/*', ...(options.ignore ?? [])]);
+    // Special handling for migrate-to-schema command
+    if (transformName === 'migrate-to-schema') {
+      const { runMigration } = await import('../src/schema-migration/migrate-to-schema-index.js');
+      const inputDir = (typeof patterns === 'string' ? patterns : patterns[0]) || './app';
 
-    log.debug('Running for paths:', Bun.inspect(patterns));
-    if (options.dry) {
+      // Load and merge config file if provided
+      let configOptions = {};
+      if (options.config) {
+        try {
+          configOptions = loadConfig(options.config);
+          log.info(`Loaded configuration from: ${options.config}`);
+        } catch (error) {
+          log.error(`Failed to load config file: ${error instanceof Error ? error.message : String(error)}`);
+          throw error;
+        }
+      }
+
+      // Merge CLI options with config options (CLI takes precedence)
+      const cliOptions = {
+        inputDir,
+        dryRun: options.dry || false,
+        verbose: options.verbose === '2' || options.verbose === '1',
+        modelsOnly: options.modelsOnly || false,
+        mixinsOnly: options.mixinsOnly || false,
+        skipProcessed: options.skipProcessed || false,
+        modelSourceDir: options.modelSourceDir || './app/models',
+        mixinSourceDir: options.mixinSourceDir || './app/mixins',
+        outputDir: options.outputDir || './app/schemas',
+        ...options
+      };
+      const migrationOptions = mergeOptions(cliOptions, configOptions);
+
+      try {
+        await runMigration(migrationOptions);
+        log.success('Migration completed successfully! 🎉');
+      } catch (error) {
+        log.error('Migration failed:', error instanceof Error ? error.message : String(error));
+        throw error;
+      }
+      return;
+    }
+
+    // Load and merge config file for other transforms
+    let finalOptions = options;
+    if (options.config) {
+      try {
+        const configOptions = loadConfig(options.config);
+        log.info(`Loaded configuration from: ${options.config}`);
+        finalOptions = { ...mergeOptions(options, configOptions) };
+      } catch (error) {
+        log.error(`Failed to load config file: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
+      }
+    }
+
+    const patternArray = Array.isArray(patterns) ? patterns : [patterns];
+    log.debug('Running with options:', { targetGlobPattern: patternArray, ...finalOptions });
+    const ig = ignore().add(['**/*.d.ts', '**/node_modules/**/*', '**/dist/**/*', ...(finalOptions.ignore ?? [])]);
+
+    log.debug('Running for paths:', Bun.inspect(patternArray));
+    if (finalOptions.dry) {
       log.warn('Running in dry mode. No files will be modified.');
     }
 
@@ -101,7 +264,7 @@ function createApplyAction(transformName: string) {
     };
     const j = jscodeshift.withParser('ts');
 
-    for (const pattern of patterns) {
+    for (const pattern of patternArray) {
       const glob = new Bun.Glob(pattern);
       for await (const filepath of glob.scan('.')) {
         if (ig.ignores(path.join(filepath))) {
@@ -124,7 +287,7 @@ function createApplyAction(transformName: string) {
               report: (_msg: string): void => {}, // unused
             },
             // SAFETY: This isn't safe TBH. YOLO
-            options as Parameters<typeof transform>[2]
+            finalOptions as Parameters<typeof transform>[2]
           );
         } catch (error) {
           result.errors++;
@@ -140,7 +303,7 @@ function createApplyAction(transformName: string) {
         } else if (transformedSource === originalSource) {
           result.unmodified++;
         } else {
-          if (options.dry) {
+          if (finalOptions.dry) {
             log.info({
               filepath,
               message: 'Transformed source:\n\t' + transformedSource,
@@ -154,7 +317,7 @@ function createApplyAction(transformName: string) {
     }
 
     if (result.matches === 0) {
-      log.warn('No files matched the provided glob pattern(s):', patterns);
+      log.warn('No files matched the provided glob pattern(s):', patternArray);
     }
 
     if (result.errors > 0) {

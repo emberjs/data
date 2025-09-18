@@ -1,0 +1,445 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type and extension artifacts when model has methods and computed properties > model extension code 1`] = `
+"import Model, { attr } from '@ember-data/model';
+
+// The following is a workaround for the fact that we can't properly do
+// declaration merging in .js files. If this is converted to a .ts file,
+// we can remove this and just use the declaration merging.
+/** @import { ProcessedModel } from 'test-app/data/resources/processed-model.schema.types' */
+/** @type {{ new(): ProcessedModel }} */
+const Base = class {};
+export class ProcessedModelExtension extends Base {
+  get displayName() {
+  		return \`Processed: \${this.name}\`;
+  	}
+
+  processContent() {
+  		return (this.content || '').toUpperCase();
+  	}
+}
+
+/** @typedef {typeof ProcessedModelExtension} ProcessedModelExtensionSignature */"
+`;
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type and extension artifacts when model has methods and computed properties > model schema type interface 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+import type { ProcessedModelExtensionSignature } from '../extensions/processed-model';
+
+export interface ProcessedModel extends ProcessedModelExtensionSignature {
+	readonly [Type]: 'processed-model';
+	readonly name: string | null;
+	readonly content: string | null;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type artifact with proper interface for basic models > basic schema type interface 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+import type { Company } from 'test-app/data/resources/company.schema.types';
+import type { Project } from 'test-app/data/resources/project.schema.types';
+import type { AsyncHasMany } from '@ember-data/model';
+
+export interface User {
+	readonly [Type]: 'user';
+	readonly name: string | null;
+	readonly isActive: boolean | null;
+	readonly company: Company | null;
+	readonly projects: AsyncHasMany<Project>;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > handles custom type mappings in schema type interfaces > custom type mappings interface 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+
+export interface TypedModel {
+	readonly [Type]: 'typed-model';
+	readonly id: string | null;
+	readonly amount: number | null;
+	readonly metadata: Record<string, unknown> | null;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > handles relationship types correctly in schema type interfaces > relationship types interface 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+import type { User } from 'test-app/data/resources/user.schema.types';
+import type { Company } from 'test-app/data/resources/company.schema.types';
+import type { File } from 'test-app/data/resources/file.schema.types';
+import type { HasMany } from '@ember-data/model';
+import type { Tag } from 'test-app/data/resources/tag.schema.types';
+import type { AsyncHasMany } from '@ember-data/model';
+
+export interface RelationshipModel {
+	readonly [Type]: 'relationship-model';
+	readonly name: string | null;
+	readonly owner: User | null;
+	readonly company: Promise<Company>;
+	readonly attachments: HasMany<File>;
+	readonly tags: AsyncHasMany<Tag>;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > uses unknown type for unsupported transforms > unknown types interface 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+
+export interface UnknownTypesModel {
+	readonly [Type]: 'unknown-types-model';
+	readonly customField: unknown | null;
+	readonly anotherField: unknown | null;
+	readonly knownField: string | null;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > handles complex field options correctly > complex field options 1`] = `
+"import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+
+export const ComplexModelSchema = {
+  'type': 'complex-model',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'name',
+      'type': 'string',
+      'options': {
+        'defaultValue': 'default'
+      }
+    },
+    {
+      'kind': 'attribute',
+      'name': 'birthDate',
+      'type': 'date',
+      'options': {
+        'allowNull': true
+      }
+    },
+    {
+      'kind': 'belongsTo',
+      'name': 'owner',
+      'type': 'user',
+      'options': {
+        'async': true,
+        'inverse': 'profile',
+        'polymorphic': true
+      }
+    },
+    {
+      'kind': 'hasMany',
+      'name': 'attachments',
+      'type': 'file',
+      'options': {
+        'async': false,
+        'inverse': null,
+        'as': 'fileable'
+      }
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > handles model with mixins > schema with mixins 1`] = `
+"import Model, { attr } from '@ember-data/model';
+import FileableMixin from 'app/mixins/fileable';
+import TimestampableMixin from 'app/mixins/timestampable';
+
+
+export const DocumentSchema = {
+  'type': 'document',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'title',
+      'type': 'string'
+    },
+    {
+      'kind': 'attribute',
+      'name': 'content',
+      'type': 'string'
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > preserves TypeScript syntax in extension properties > typescript extension 1`] = `
+"import Model, { attr } from '@ember-data/model';
+import { service } from '@ember/service';
+
+import type { TypedModel } from 'test-app/data/resources/typed-model.schema.types';
+
+export interface TypedModelExtension extends TypedModel {}
+
+export class TypedModelExtension {
+  @service declare router: RouterService
+
+  complexMethod(): Promise<void> {
+  		return new Promise(resolve => {
+  			setTimeout(() => resolve(), 1000);
+  		});
+  	}
+
+  get computedValue(): string {
+  		return \`Processed: \${this.name}\`;
+  	}
+}
+
+export type TypedModelExtensionSignature = typeof TypedModelExtension;"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > produces schema and extension artifacts for basic model > artifact metadata 1`] = `
+[
+  {
+    "name": "UserSchema",
+    "suggestedFileName": "user.schema.js",
+    "type": "schema",
+  },
+  {
+    "name": "User",
+    "suggestedFileName": "user.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "name": "UserExtension",
+    "suggestedFileName": "user.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > produces schema and extension artifacts for basic model > extension code 1`] = `
+"import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+
+// The following is a workaround for the fact that we can't properly do
+// declaration merging in .js files. If this is converted to a .ts file,
+// we can remove this and just use the declaration merging.
+/** @import { User } from 'test-app/data/resources/user.schema.types' */
+/** @type {{ new(): User }} */
+const Base = class {};
+export class UserExtension extends Base {
+  get displayName() {
+  		return this.name || this.email;
+  	}
+
+  async save() {
+  		return super.save();
+  	}
+}
+
+/** @typedef {typeof UserExtension} UserExtensionSignature */"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > produces schema and extension artifacts for basic model > schema code 1`] = `
+"import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
+
+
+export const UserSchema = {
+  'type': 'user',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'name',
+      'type': 'string'
+    },
+    {
+      'kind': 'attribute',
+      'name': 'email',
+      'type': 'string'
+    },
+    {
+      'kind': 'attribute',
+      'name': 'isActive',
+      'type': 'boolean',
+      'options': {
+        'defaultValue': false
+      }
+    },
+    {
+      'kind': 'belongsTo',
+      'name': 'company',
+      'type': 'company',
+      'options': {
+        'async': false,
+        'inverse': null
+      }
+    },
+    {
+      'kind': 'hasMany',
+      'name': 'projects',
+      'type': 'project',
+      'options': {
+        'async': true,
+        'inverse': 'owner'
+      }
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > basic functionality > supports alternate import sources > custom import source 1`] = `
+"import Model, { attr, hasMany } from '@auditboard/warp-drive/v1/model';
+
+
+export const CustomModelSchema = {
+  'type': 'custom-model',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'name',
+      'type': 'string'
+    },
+    {
+      'kind': 'hasMany',
+      'name': 'items',
+      'type': 'item',
+      'options': {
+        'async': false
+      }
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > custom type mappings > applies custom type mappings to attribute types > custom type mappings in schema types 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+
+export interface CustomTypesModel {
+	readonly [Type]: 'custom-types-model';
+	readonly id: string | null;
+	readonly createdAt: Date | null;
+	readonly price: number | null;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > custom type mappings > falls back to unknown for unmapped custom types > unknown fallback for unmapped types 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+
+export interface UnmappedTypesModel {
+	readonly [Type]: 'unmapped-types-model';
+	readonly field1: unknown | null;
+	readonly field2: unknown | null;
+}
+"
+`;
+
+exports[`model-to-schema transform (artifacts) > edge cases > handles aliased imports correctly > aliased imports 1`] = `
+"import Model, { attr as attribute, hasMany as manyRelation } from '@ember-data/model';
+
+
+export const AliasedModelSchema = {
+  'type': 'aliased-model',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'name',
+      'type': 'string'
+    },
+    {
+      'kind': 'hasMany',
+      'name': 'items',
+      'type': 'item'
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > edge cases > preserves complex object literal options > complex options 1`] = `
+"import Model, { belongsTo } from '@ember-data/model';
+
+
+export const ComplexOptionsModelSchema = {
+  'type': 'complex-options-model',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'belongsTo',
+      'name': 'owner',
+      'type': 'user',
+      'options': {
+        'async': true,
+        'inverse': 'profile',
+        'polymorphic': false,
+        'resetOnRemoteUpdate': false
+      }
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > mixin handling > extracts mixin names and converts them to trait references > single mixin schema 1`] = `
+"import Model, { attr } from '@ember-data/model';
+import FileableMixin from '../mixins/fileable';
+
+
+export const DocumentSchema = {
+  'type': 'document',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'title',
+      'type': 'string'
+    }
+  ]
+};"
+`;
+
+exports[`model-to-schema transform (artifacts) > mixin handling > handles multiple mixins correctly > multiple mixins schema 1`] = `
+"import Model, { attr } from '@ember-data/model';
+import FileableMixin from '../mixins/fileable';
+import TimestampableMixin from '../mixins/timestampable';
+import AuditableMixin from '../mixins/auditable';
+
+
+export const ComplexDocumentSchema = {
+  'type': 'complex-document',
+  'legacy': true,
+  'identity': {
+    'kind': '@id',
+    'name': 'id'
+  },
+  'fields': [
+    {
+      'kind': 'attribute',
+      'name': 'title',
+      'type': 'string'
+    }
+  ]
+};"
+`;

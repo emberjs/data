@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Warp Drive Codemod Configuration",
+  "description": "Configuration file for warp-drive-codemod tool",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "description": "Configuration file version"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this configuration"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Show what changes would be made without applying them",
+      "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Show detailed output",
+      "default": false
+    },
+    "debug": {
+      "type": "boolean",
+      "description": "Show debugging information about AST parsing and transformation",
+      "default": false
+    },
+    "mirror": {
+      "type": "boolean",
+      "description": "Use @warp-drive-mirror instead of @warp-drive for imports",
+      "default": false
+    },
+    "emberDataImportSource": {
+      "type": "string",
+      "description": "Alternate import source for EmberData decorators",
+      "default": "@ember-data/model"
+    },
+    "intermediateModelPaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of intermediate model class import paths that should be converted to traits (e.g., ['soxhub-client/core/base-model', 'soxhub-client/core/data-field-model'])"
+    },
+    "modelImportSource": {
+      "type": "string",
+      "description": "Base import path for existing model imports to detect and replace (required)"
+    },
+    "mixinImportSource": {
+      "type": "string",
+      "description": "Base import path for existing mixin imports to detect and replace (optional)"
+    },
+    "modelSourceDir": {
+      "type": "string",
+      "description": "Directory containing model files for resolving absolute model imports (e.g., 'apps/client/app/models')"
+    },
+    "mixinSourceDir": {
+      "type": "string",
+      "description": "Directory containing mixin files for resolving absolute mixin imports (e.g., 'apps/client/app/mixins')"
+    },
+    "additionalModelSources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Import pattern to match (e.g., '@auditboard/client-core/models/')"
+          },
+          "dir": {
+            "type": "string",
+            "description": "Directory containing the files (e.g., 'libraries/client-core/models')"
+          }
+        },
+        "required": ["pattern", "dir"]
+      },
+      "description": "Additional model source patterns and their corresponding directories"
+    },
+    "additionalMixinSources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Import pattern to match (e.g., '@auditboard/client-core/mixins/')"
+          },
+          "dir": {
+            "type": "string",
+            "description": "Directory containing the files (e.g., 'libraries/client-core/mixins')"
+          }
+        },
+        "required": ["pattern", "dir"]
+      },
+      "description": "Additional mixin source patterns and their corresponding directories"
+    },
+    "resourcesImport": {
+      "type": "string",
+      "description": "Base import path for new resource type imports (required)"
+    },
+    "traitsDir": {
+      "type": "string",
+      "description": "Directory to write generated trait schemas to (required for mixin-to-schema transforms)"
+    },
+    "traitsImport": {
+      "type": "string",
+      "description": "Base import path for trait type imports (optional, defaults to relative imports)"
+    },
+    "extensionsDir": {
+      "type": "string",
+      "description": "Directory to write generated Extensions to (required for all transforms)"
+    },
+    "extensionsImport": {
+      "type": "string",
+      "description": "Base import path for extension type imports (optional, defaults to relative imports)"
+    },
+    "resourcesDir": {
+      "type": "string",
+      "description": "Directory to write generated Resources to (required for model-to-schema transforms)"
+    },
+    "typeMapping": {
+      "type": "object",
+      "description": "Mapping of custom EmberData transform types to TypeScript types",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "examples": [
+        {
+          "uuid": "string",
+          "currency": "number",
+          "json": "unknown"
+        }
+      ]
+    },
+    "runPostTransformLinting": {
+      "type": "boolean",
+      "description": "Run ESLint unused-imports rules after transformation (default: true)",
+      "default": true
+    },
+    "runPostTransformPrettier": {
+      "type": "boolean",
+      "description": "Run Prettier formatting after transformation (default: true)",
+      "default": true
+    },
+    "eslintConfigPath": {
+      "type": "string",
+      "description": "Path to ESLint configuration file (optional, defaults to project root eslint.config.cjs)"
+    },
+    "prettierConfigPath": {
+      "type": "string",
+      "description": "Path to Prettier configuration file (optional, uses project defaults)"
+    }
+  },
+  "additionalProperties": false
+}
