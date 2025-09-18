@@ -155,17 +155,44 @@ For complex projects, you can use a JSON configuration file:
 
 ```json
 {
-  "modelImportSource": "my-app/models",
-  "resourcesImport": "my-app/data/resources",
-  "outputDir": "./app/data/schemas",
-  "typeMapping": {
-    "uuid": "string",
-    "currency": "number",
-    "json": "Record<string, unknown>"
-  },
+  "$schema": "./tools/warp-drive-codemod/config-schema.json",
+  "version": "1.0.0",
+  "description": "Configuration for MyClient WarpDrive migration",
+  "dryRun": false,
+  "verbose": false,
+  "debug": false,
+  "mirror": true,
+  "emberDataImportSource": "@my-org/warp-drive/v1/model",
   "intermediateModelPaths": [
-    "my-app/core/base-model"
-  ]
+    "@my-org/client-core/core/custom-model",
+    "my-client/core/base-model",
+  ],
+  "modelImportSource": "my-client/models",
+  "mixinImportSource": "my-client/mixins",
+  "modelSourceDir": "./apps/client/app/models",
+  "mixinSourceDir": "./apps/client/app/mixins",
+  "additionalModelSources": [
+    {
+      "pattern": "@my-org/client-core/core/custom-model",
+      "dir": "libraries/client-core/package/src/core/custom-model"
+    }
+  ],
+  "additionalMixinSources": [
+    {
+      "pattern": "@my-org/client-core/mixins/*",
+      "dir": "libraries/client-core/package/src/mixins/*"
+    },
+    {
+      "pattern": "@my-org/schema-decorators/mixins/*",
+      "dir": "libraries/schema-decorators/mixins/*"
+    }
+  ],
+  "resourcesImport": "my-client/data/resources",
+  "traitsDir": "./apps/client/app/data/traits",
+  "traitsImport": "my-client/data/traits",
+  "extensionsDir": "./apps/client/app/data/extensions",
+  "extensionsImport": "my-client/data/extensions",
+  "resourcesDir": "./apps/client/app/data/resources"
 }
 ```
 
