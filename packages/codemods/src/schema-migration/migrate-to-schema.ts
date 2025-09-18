@@ -1,4 +1,3 @@
-import type { API, FileInfo } from 'jscodeshift';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { glob } from 'glob';
 import { resolve, join, dirname } from 'path';
@@ -16,15 +15,11 @@ interface MigrateOptions extends Partial<TransformOptions> {
 }
 
 /**
- * Combined transform that migrates both models and mixins to schemas
- * This is equivalent to the original "migrate" command
+ * Placeholder jscodeshift function - not used since migrate-to-schema runs as batch operation
+ * This is only exported for CLI compatibility
  */
-export default function (fileInfo: FileInfo, api: API, options: MigrateOptions = {}): string | undefined {
-  // This transform doesn't operate on individual files
-  // Instead it runs a batch migration
-  throw new Error(
-    'migrate-to-schema should be run as a batch operation, not on individual files. Use the CLI command directly.'
-  );
+export default function (): undefined {
+  return undefined;
 }
 
 /**

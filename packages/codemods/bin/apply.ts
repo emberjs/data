@@ -71,23 +71,6 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
       ).choices(['findAll', 'findRecord', 'query', 'queryRecord', 'saveRecord'])
     );
 
-  // Add arguments that are specific to the model-to-schema codemod
-  const modelToSchema = commands.get('model-to-schema');
-  if (modelToSchema) {
-    modelToSchema
-      .addOption(new Option('--input-dir <path>', 'Input directory containing models').default('./app/models'))
-      .addOption(new Option('--output-dir <path>', 'Output directory for schemas').default('./app/schemas'))
-      .addOption(new Option('--config <path>', 'Path to configuration file'));
-  }
-
-  // Add arguments that are specific to the mixin-to-schema codemod
-  const mixinToSchema = commands.get('mixin-to-schema');
-  if (mixinToSchema) {
-    mixinToSchema
-      .addOption(new Option('--input-dir <path>', 'Input directory containing mixins').default('./app/mixins'))
-      .addOption(new Option('--output-dir <path>', 'Output directory for traits').default('./app/traits'))
-      .addOption(new Option('--config <path>', 'Path to configuration file'));
-  }
 
   // Add arguments that are specific to the migrate-to-schema codemod
   const migrateToSchema = commands.get('migrate-to-schema');
@@ -110,7 +93,7 @@ function createApplyAction(transformName: string) {
 
     // Special handling for migrate-to-schema command
     if (transformName === 'migrate-to-schema') {
-      const { runMigration } = await import('../src/schema-migration/migrate-to-schema-index.js');
+      const { runMigration } = await import('../src/schema-migration/migrate-to-schema.js');
       const inputDir = (typeof patterns === 'string' ? patterns : patterns[0]) || './app';
 
       // Load and merge config file if provided
