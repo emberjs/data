@@ -165,7 +165,7 @@ For complex projects, you can use a JSON configuration file:
   "emberDataImportSource": "@my-org/warp-drive/v1/model",
   "intermediateModelPaths": [
     "@my-org/client-core/core/custom-model",
-    "my-client/core/base-model",
+    "my-client/core/base-model"
   ],
   "modelImportSource": "my-client/models",
   "mixinImportSource": "my-client/mixins",
