@@ -401,9 +401,11 @@ export interface RequestContext {
   /**
    * @see {@link ImmutableRequestInfo}
    */
-  request: ImmutableRequestInfo;
-  id: number;
+  readonly request: ImmutableRequestInfo;
+  readonly id: number;
 
   setStream(stream: ReadableStream | Promise<ReadableStream | null>): void;
   setResponse(response: Response | ResponseInfo | null): void;
+
+  readonly hasRequestedStream: boolean;
 }
