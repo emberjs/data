@@ -242,7 +242,7 @@ Key concepts:
 
 - [LegacyResourceSchema](/api/@warp-drive/core/types/schema/fields/interfaces/LegacyResourceSchema)
 - [LegacyModeFieldSchema](/api/@warp-drive/core/types/schema/fields/type-aliases/LegacyModeFieldSchema)
-- [registerTrait](http://localhost:5173/api/@warp-drive/core/types/schema/schema-service/interfaces/SchemaService#registertrait)
+- [registerTrait](/api/@warp-drive/core/types/schema/schema-service/interfaces/SchemaService#registertrait)
 - [LegacyTrait](/api/@warp-drive/core/types/schema/fields/interfaces/LegacyTrait)
 - [CAUTION_MEGA_DANGER_ZONE_registerExtension()](/api/@warp-drive/core/types/schema/schema-service/interfaces/SchemaService#caution-mega-danger-zone-registerextension)
 - [CAUTION_MEGA_DANGER_ZONE_Extension](/api/@warp-drive/core/reactive/interfaces/CAUTION_MEGA_DANGER_ZONE_Extension)
