@@ -93,7 +93,7 @@ bun add --exact ember-data-types@canary @ember-data-types/request@canary @ember-
 
 ```ts
 import Model from '@ember-data/model';
-import { TYPE } from '@warp-drive/core-types/symbol';
+import type { Type } from '@warp-drive/core-types/symbol';
 
 export default class User extends Model {
   declare [Type]: 'user';
@@ -253,8 +253,38 @@ Key concepts:
 
 == Before
 
-```ts
+```ts [app/models/user.ts]
+import Model, { attr, belongsTo, hasMany, type AsyncHasMany } from '@ember-data/model';
+import type { Type } from '@warp-drive/core-types/symbol';
+import { cached } from '@glimmer/tracking';
+import { computed } from '@ember/object';
 
+export default class User extends Model {
+  declare [Type]: 'user';
+
+  @attr firstName;
+  @attr lastName;
+
+  @belongsTo('user', { async: false, inverse: null })
+  declare bestFriend: User | null;
+
+  @hasMany('user', { async: true, inverse: null })
+  declare friends: AsyncHasMany<User>;
+
+  @cached
+  get fullName() {
+    return this.firstName + ' ' + this.lastName;
+  }
+
+  @computed('firstName')
+  get greeting() {
+    return 'Hello ' + this.firstName + '!';
+  }
+
+  sayHi() {
+    alert(this.greeting);
+  }
+}
 ```
 
 == After
@@ -262,15 +292,15 @@ Key concepts:
 :::code-group
 
 ```ts [app/data/user/schema.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/type.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/ext.ts]
-
+TBD
 ```
 
 :::
@@ -282,7 +312,7 @@ Key concepts:
 == Before
 
 ```ts
-
+TBD
 ```
 
 == After
@@ -290,15 +320,15 @@ Key concepts:
 :::code-group
 
 ```ts [app/data/user/schema.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/type.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/ext.ts]
-
+TBD
 ```
 
 :::
@@ -310,7 +340,7 @@ Key concepts:
 == Before
 
 ```ts
-
+TBD
 ```
 
 == After
@@ -318,15 +348,15 @@ Key concepts:
 :::code-group
 
 ```ts [app/data/user/schema.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/type.ts]
-
+TBD
 ```
 
 ```ts [app/data/user/ext.ts]
-
+TBD
 ```
 
 :::
