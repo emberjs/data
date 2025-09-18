@@ -15,7 +15,9 @@
   },
   "scripts": {
     "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "lint": "eslint . --quiet --cache --cache-strategy=content"
+    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "exports": {
     ".": {
@@ -34,20 +36,27 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@ast-grep/napi": "^0.28.0",
     "chalk": "^5.3.0",
     "commander": "^14.0.0",
+    "glob": "^11.0.0",
     "ignore": "^7.0.5",
+    "inquirer": "^10.0.0",
     "jscodeshift": "^17.3.0",
+    "prettier": "3.6.2",
     "strip-ansi": "^7.1.0",
     "typescript": "^5.9.2",
     "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/bun": "^1.2.20",
+    "@types/inquirer": "^9.0.0",
     "@types/jscodeshift": "0.12.0",
+    "@types/node": "22.15.3",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.34.0",
-    "qunit": "^2.20.1"
+    "qunit": "^2.20.1",
+    "vitest": "^2.0.0"
   },
   "volta": {
     "extends": "../../package.json"

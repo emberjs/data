@@ -1,0 +1,781 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mixin-to-schema transform (artifacts) > TypeScript type artifacts > generates only trait-type artifact when mixin has only data fields > data-only trait type interface 1`] = `
+"import type { User } from 'undefined/user.schema.types';
+
+export interface SimpleTrait {
+	title: string | null;
+	author: Promise<User>;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > TypeScript type artifacts > generates trait-type and extension artifacts when mixin has computed properties and methods > mixin extension code 1`] = `
+"import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+import { computed } from '@ember/object';
+
+export const nameableExtension = {
+  displayName: computed('name', function() {
+		return \`Name: \${this.name}\`;
+	}),
+  getName: getName() {
+		return this.name || 'Unknown';
+	}
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > TypeScript type artifacts > generates trait-type and extension artifacts when mixin has computed properties and methods > mixin trait type interface 1`] = `
+"export interface NameableTrait {
+	name: string | null;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > TypeScript type artifacts > generates trait-type artifact with empty interface for basic mixins > basic trait type interface 1`] = `
+"import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface FileableTrait {
+	files: HasMany<File>;
+	name: string | null;
+	isActive: boolean | null;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > TypeScript type artifacts > handles custom type mappings in mixin trait type interfaces > mixin custom type mappings interface 1`] = `
+"export interface TypedTrait {
+	id: unknown | null;
+	amount: unknown | null;
+	metadata: unknown | null;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > collects the real fileable mixin shape into trait and extension artifacts > artifact metadata 1`] = `
+[
+  {
+    "name": "fileableTrait",
+    "suggestedFileName": "fileable.schema.js",
+    "type": "trait",
+  },
+  {
+    "name": "FileableTrait",
+    "suggestedFileName": "fileable.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "name": "fileableExtension",
+    "suggestedFileName": "fileable.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > collects the real fileable mixin shape into trait and extension artifacts > extension code 1`] = `
+"import { computed } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
+import Mixin from '@ember/object/mixin';
+
+import { arrayHasLength } from '@auditboard/client-core/core/computed-extensions';
+import { attr, hasMany } from '@ember-data/model';
+
+import { sortBy } from 'soxhub-client/utils/sort-by';
+
+export class fileableExtension {
+  sortBy('files', 'createdAt:desc')
+
+  arrayHasLength('files')
+
+  readOnly('files.length')
+
+  computed('files.@each.status', function () {
+  		return this.files.filter((file) => !file.isReviewed);
+  	})
+
+  arrayHasLength('filesRequiringReview')
+
+  readOnly('filesRequiringReview.length')
+
+  hasDuplicateFileName(file) {
+  		return Boolean(this.files.find((fileRecord) => fileRecord.name === file.name));
+  	}
+}"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > collects the real fileable mixin shape into trait and extension artifacts > trait code 1`] = `
+"export const fileableTrait = {
+  "name": "fileable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file",
+      "options": {
+        "as": "fileable",
+        "async": false,
+        "inverse": "fileable"
+      }
+    },
+    {
+      "name": "showFilesRequiringReviewError",
+      "kind": "attribute",
+      "type": "boolean",
+      "options": {
+        "defaultValue": false
+      }
+    }
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > converts mixin with no trait fields to extension artifact > code 1`] = `
+"import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
+
+export const noTraitsExtension = {
+  complexMethod: complexMethod() { return 'processed'; },
+  computedValue: computed(function() { return 'computed'; })
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > converts mixin with no trait fields to extension artifact > metadata 1`] = `
+[
+  {
+    "name": "noTraitsExtension",
+    "suggestedFileName": "no-traits.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > preserves newlines and tabs in extension artifact properties without escaping > code 1`] = `
+"import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
+import { service } from '@ember/service';
+
+export const plannableExtension = {
+  library: service('library'),
+  projectPlans: computed('_modelName', 'intId', 'library.projectPlans.[]', function () {
+		return this.get('library.projectPlans')
+			?.filterBy('plannableType', classify(this._modelName))
+			.filterBy('plannableId', this.intId);
+	})
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > preserves newlines and tabs in extension artifact properties without escaping > metadata 1`] = `
+[
+  {
+    "name": "plannableExtension",
+    "suggestedFileName": "plannable.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces a trait artifact if identifier default export is initialized by Mixin.create > code 1`] = `
+"export const fileableTrait = {
+  "name": "fileable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file",
+      "options": {
+        "async": false
+      }
+    }
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces a trait artifact if identifier default export is initialized by Mixin.create > metadata 1`] = `
+[
+  {
+    "name": "fileableTrait",
+    "suggestedFileName": "fileable.schema.js",
+    "type": "trait",
+  },
+  {
+    "name": "FileableTrait",
+    "suggestedFileName": "fileable.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces trait and extension artifacts for direct Mixin.create > artifact metadata 1`] = `
+[
+  {
+    "name": "fileableTrait",
+    "suggestedFileName": "fileable.schema.js",
+    "type": "trait",
+  },
+  {
+    "name": "FileableTrait",
+    "suggestedFileName": "fileable.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "name": "fileableExtension",
+    "suggestedFileName": "fileable.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces trait and extension artifacts for direct Mixin.create > extension code 1`] = `
+"import { attr, hasMany } from '@ember-data/model';
+import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
+
+export const fileableExtension = {
+  titleCaseName: computed('name', function () { return (this.name || '').toUpperCase(); })
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces trait and extension artifacts for direct Mixin.create > trait code 1`] = `
+"export const fileableTrait = {
+  "name": "fileable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file",
+      "options": {
+        "as": "fileable",
+        "async": false
+      }
+    },
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "isActive",
+      "kind": "attribute",
+      "type": "boolean",
+      "options": {
+        "defaultValue": false
+      }
+    }
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > produces trait and extension artifacts for direct Mixin.create > trait type code 1`] = `
+"import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface FileableTrait {
+	files: HasMany<File>;
+	name: string | null;
+	isActive: boolean | null;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > supports alias of Mixin import and still produces a trait artifact > code 1`] = `
+"export const aliasedTrait = {
+  "name": "aliased",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    }
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > supports alias of Mixin import and still produces a trait artifact > metadata 1`] = `
+[
+  {
+    "name": "aliasedTrait",
+    "suggestedFileName": "aliased.schema.js",
+    "type": "trait",
+  },
+  {
+    "name": "AliasedTrait",
+    "suggestedFileName": "aliased.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > allows alternate import source via options (trait artifact) 1`] = `
+[
+  {
+    "code": "export const customSourceTrait = {
+  "name": "custom-source",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file"
+    }
+  ]
+};",
+    "name": "customSourceTrait",
+    "suggestedFileName": "custom-source.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface CustomSourceTrait {
+	name: string | null;
+	files: HasMany<File>;
+}
+",
+    "name": "CustomSourceTrait",
+    "suggestedFileName": "custom-source.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "code": "import Mixin from '@ember/object/mixin';
+import { attr, hasMany } from '@my-custom/model';
+import { computed } from '@ember/object';
+
+export const customSourceExtension = {
+  customProp: computed('name', function() { return this.name; })
+};",
+    "name": "customSourceExtension",
+    "suggestedFileName": "custom-source.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > correctly ignores renamed imports from unsupported sources (only hasMany recognized) 1`] = `
+[
+  {
+    "code": "export const renamedMixedSourcesTrait = {
+  "name": "renamed-mixed-sources",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file"
+    }
+  ]
+};",
+    "name": "renamedMixedSourcesTrait",
+    "suggestedFileName": "renamed-mixed-sources.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface RenamedMixedSourcesTrait {
+	files: HasMany<File>;
+}
+",
+    "name": "RenamedMixedSourcesTrait",
+    "suggestedFileName": "renamed-mixed-sources.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "code": "import Mixin from '@ember/object/mixin';
+import { hasMany as many } from '@ember-data/model';
+import { attr as attribute } from '@unsupported/source';
+
+export const renamedMixedSourcesExtension = {
+  name: attribute('string')
+};",
+    "name": "renamedMixedSourcesExtension",
+    "suggestedFileName": "renamed-mixed-sources.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > handles CLI option name conversion from kebab-case to camelCase (trait artifact) 1`] = `
+[
+  {
+    "code": "export const cliOptionTrait = {
+  "name": "cli-option",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    }
+  ]
+};",
+    "name": "cliOptionTrait",
+    "suggestedFileName": "cli-option.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "export interface CliOptionTrait {
+	name: string | null;
+}
+",
+    "name": "CliOptionTrait",
+    "suggestedFileName": "cli-option.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > handles aliased imports correctly (trait artifact) 1`] = `
+[
+  {
+    "code": "export const aliasedImportsTrait = {
+  "name": "aliased-imports",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file"
+    },
+    {
+      "name": "owner",
+      "kind": "belongsTo",
+      "type": "user"
+    }
+  ]
+};",
+    "name": "aliasedImportsTrait",
+    "suggestedFileName": "aliased-imports.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+import type { User } from 'undefined/user.schema.types';
+
+export interface AliasedImportsTrait {
+	name: string | null;
+	files: HasMany<File>;
+	owner: User | null;
+}
+",
+    "name": "AliasedImportsTrait",
+    "suggestedFileName": "aliased-imports.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > ignores decorators from unsupported import sources (only attr recognized) 1`] = `
+[
+  {
+    "code": "export const unsupportedSourceTrait = {
+  "name": "unsupported-source",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    }
+  ]
+};",
+    "name": "unsupportedSourceTrait",
+    "suggestedFileName": "unsupported-source.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "export interface UnsupportedSourceTrait {
+	name: string | null;
+}
+",
+    "name": "UnsupportedSourceTrait",
+    "suggestedFileName": "unsupported-source.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "code": "import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+import { hasMany } from '@unsupported/source';
+import { computed } from '@ember/object';
+
+export const unsupportedSourceExtension = {
+  files: hasMany('file'),
+  customProp: computed('name', function() { return this.name; })
+};",
+    "name": "unsupportedSourceExtension",
+    "suggestedFileName": "unsupported-source.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > only processes decorators from @ember-data/model by default (trait artifact) > artifact types 1`] = `
+[
+  {
+    "name": "defaultSourceTrait",
+    "type": "trait",
+  },
+  {
+    "name": "DefaultSourceTrait",
+    "type": "schema-type",
+  },
+  {
+    "name": "defaultSourceExtension",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > only processes decorators from @ember-data/model by default (trait artifact) > generated code 1`] = `
+[
+  "export const defaultSourceTrait = {
+  "name": "default-source",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file"
+    }
+  ]
+};",
+  "import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface DefaultSourceTrait {
+	name: string | null;
+	files: HasMany<File>;
+}
+",
+  "import Mixin from '@ember/object/mixin';
+import { attr, hasMany } from '@ember-data/model';
+import { computed } from '@ember/object';
+
+export const defaultSourceExtension = {
+  customProp: computed('name', function() { return this.name; })
+};",
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > processes belongsTo decorator correctly (trait artifact) 1`] = `
+[
+  {
+    "code": "export const belongsToTrait = {
+  "name": "belongs-to",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "owner",
+      "kind": "belongsTo",
+      "type": "user",
+      "options": {
+        "async": true
+      }
+    }
+  ]
+};",
+    "name": "belongsToTrait",
+    "suggestedFileName": "belongs-to.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "import type { User } from 'undefined/user.schema.types';
+
+export interface BelongsToTrait {
+	owner: Promise<User>;
+}
+",
+    "name": "BelongsToTrait",
+    "suggestedFileName": "belongs-to.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > produces an extension artifact when no valid EmberData imports are found 1`] = `
+[
+  {
+    "code": "import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
+import { attr } from '@unsupported/source';
+
+export const noValidImportsExtension = {
+  name: attr('string'),
+  customProp: computed('name', function() { return this.name; })
+};",
+    "name": "noValidImportsExtension",
+    "suggestedFileName": "no-valid-imports.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > import validation > supports @auditboard/warp-drive/v1/model as alternate import source when configured 1`] = `
+[
+  {
+    "code": "export const auditboardSourceTrait = {
+  "name": "auditboard-source",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "name",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file"
+    }
+  ]
+};",
+    "name": "auditboardSourceTrait",
+    "suggestedFileName": "auditboard-source.schema.js",
+    "type": "trait",
+  },
+  {
+    "code": "import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface AuditboardSourceTrait {
+	name: string | null;
+	files: HasMany<File>;
+}
+",
+    "name": "AuditboardSourceTrait",
+    "suggestedFileName": "auditboard-source.schema.types.js",
+    "type": "schema-type",
+  },
+  {
+    "code": "import Mixin from '@ember/object/mixin';
+import { attr, hasMany } from '@auditboard/warp-drive/v1/model';
+import { computed } from '@ember/object';
+
+export const auditboardSourceExtension = {
+  customProp: computed('name', function() { return this.name; })
+};",
+    "name": "auditboardSourceExtension",
+    "suggestedFileName": "auditboard-source.js",
+    "type": "extension",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait with extended traits when using createWithMixins > inheritance artifact metadata 1`] = `
+[
+  {
+    "name": "fileableTrait",
+    "suggestedFileName": "fileable.schema.js",
+    "type": "trait",
+  },
+  {
+    "name": "FileableTrait",
+    "suggestedFileName": "fileable.schema.types.js",
+    "type": "schema-type",
+  },
+]
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait with extended traits when using createWithMixins > inheritance trait code 1`] = `
+"export const fileableTrait = {
+  "name": "fileable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "description",
+      "kind": "attribute",
+      "type": "string"
+    },
+    {
+      "name": "files",
+      "kind": "hasMany",
+      "type": "file",
+      "options": {
+        "async": false
+      }
+    }
+  ],
+  "traits": [
+    "base-model",
+    "timestamp"
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait with extended traits when using createWithMixins > inheritance type code 1`] = `
+"import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface FileableTrait extends BaseModelTrait, TimestampTrait {
+	description: string | null;
+	files: HasMany<File>;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait with single extended trait > single inheritance trait code 1`] = `
+"export const describableTrait = {
+  "name": "describable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "description",
+      "kind": "attribute",
+      "type": "string"
+    }
+  ],
+  "traits": [
+    "base-model"
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait with single extended trait > single inheritance type code 1`] = `
+"export interface DescribableTrait extends BaseModelTrait {
+	description: string | null;
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait without traits property when no inheritance > no inheritance trait code 1`] = `
+"export const describableTrait = {
+  "name": "describable",
+  "mode": "legacy",
+  "fields": [
+    {
+      "name": "description",
+      "kind": "attribute",
+      "type": "string"
+    }
+  ]
+};"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces trait without traits property when no inheritance > no inheritance type code 1`] = `
+"export interface DescribableTrait {
+	description: string | null;
+}
+"
+`;

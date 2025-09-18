@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AST utilities > createTypeArtifact > creates extension-type artifact with correct filename and type > extension-type artifact code 1`] = `
+"export interface UserExtension {
+	displayName: unknown;
+}
+"
+`;
+
+exports[`AST utilities > createTypeArtifact > creates schema-type artifact with correct filename and type > schema-type artifact code 1`] = `
+"export interface UserSchema {
+	readonly name: string;
+}
+"
+`;
+
+exports[`AST utilities > createTypeArtifact > creates trait-type artifact with correct filename and type > trait-type artifact code 1`] = `
+"export interface FileableTrait {
+	readonly name: string;
+}
+"
+`;
+
+exports[`AST utilities > createTypeArtifact > includes extends clause and imports when provided > artifact with extends and imports 1`] = `
+"import type BaseInterface from "./base";;
+
+export interface UserInterface extends BaseInterface {
+	readonly name: string;
+}
+"
+`;
+
+exports[`AST utilities > generateInterfaceCode > generates basic interface with properties > basic interface 1`] = `
+"export interface TestInterface {
+	readonly name: string;
+	readonly age?: number;
+	isActive: boolean;
+}
+"
+`;
+
+exports[`AST utilities > generateInterfaceCode > generates empty interface when no properties > empty interface 1`] = `
+"export interface EmptyInterface {
+}
+"
+`;
+
+exports[`AST utilities > generateInterfaceCode > generates interface with comments > interface with comments 1`] = `
+"export interface TestInterface {
+	/** The user name */
+	readonly name: string;
+	/** Optional email address */
+	readonly email?: string;
+}
+"
+`;
+
+exports[`AST utilities > generateInterfaceCode > generates interface with extends clause > interface with extends 1`] = `
+"export interface TestInterface extends BaseInterface {
+	readonly title: string;
+}
+"
+`;
+
+exports[`AST utilities > generateInterfaceCode > generates interface with imports > interface with imports 1`] = `
+"import type User from "app/models/user";;
+
+export interface TestInterface {
+	readonly user: User;
+}
+"
+`;
+
+exports[`AST utilities > type mapping integration > applies custom type mappings consistently across all functions > interface with custom type mappings 1`] = `
+"export interface TestInterface {
+	readonly id: string;
+	readonly amount: number;
+	readonly metadata?: Record<string, unknown>;
+}
+"
+`;
