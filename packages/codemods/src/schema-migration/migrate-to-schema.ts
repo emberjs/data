@@ -307,35 +307,62 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
         continue;
       }
 
-      // Apply the model transform
-      const transformed = modelTransform(filePath, source, enhancedOptions);
+      // Apply the model transform to get artifacts
+      const { toArtifacts } = await import('./model-to-schema.js');
+      const artifacts = toArtifacts(filePath, source, enhancedOptions);
 
-      if (transformed !== source) {
+      if (artifacts.length > 0) {
         processed++;
 
-        // Generate output file path in resourcesDir instead of modifying original file
-        const outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
-        const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
-        const outputPath = join(resolve(outputDir), relativePath);
+        // Write each artifact to the appropriate directory
+        for (const artifact of artifacts) {
+          let outputDir: string;
+          let outputPath: string;
 
-        if (!finalOptions.dryRun) {
-          // Ensure output directory exists
-          const outputDirPath = dirname(outputPath);
-          if (!existsSync(outputDirPath)) {
-            mkdirSync(outputDirPath, { recursive: true });
+          if (artifact.type === 'schema') {
+            // Schema files go to resourcesDir
+            outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
+            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+            const outputName = relativePath.replace(/\.(js|ts)$/, '.js'); // Schemas are always .js
+            outputPath = join(resolve(outputDir), outputName);
+          } else if (artifact.type === 'schema-type') {
+            // Type files go to resourcesDir
+            outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
+            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+            outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
+          } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
+            // Extension files go to extensionsDir
+            outputDir = finalOptions.extensionsDir || './app/data/extensions';
+            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+            const outputName = artifact.type === 'extension'
+              ? relativePath.replace(/\.(js|ts)$/, '.js')
+              : relativePath.replace(/\.(js|ts)$/, '.schema.types.ts');
+            outputPath = join(resolve(outputDir), outputName);
+          } else {
+            // Default fallback
+            outputDir = finalOptions.outputDir || './app/schemas';
+            outputPath = join(resolve(outputDir), artifact.suggestedFileName);
           }
 
-          writeFileSync(outputPath, transformed, 'utf-8');
-          if (finalOptions.verbose) {
-            console.log(`✅ Generated: ${outputPath}`);
+          if (!finalOptions.dryRun) {
+            // Ensure output directory exists
+            const outputDirPath = dirname(outputPath);
+            if (!existsSync(outputDirPath)) {
+              mkdirSync(outputDirPath, { recursive: true });
+            }
+
+            writeFileSync(outputPath, artifact.code, 'utf-8');
+            if (finalOptions.verbose) {
+              console.log(`✅ Generated ${artifact.type}: ${outputPath}`);
+            }
+          } else if (finalOptions.verbose) {
+            console.log(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
           }
-        } else if (finalOptions.verbose) {
-          console.log(`✅ Would generate: ${outputPath} (dry run)`);
         }
       } else {
         skipped++;
         if (finalOptions.verbose) {
-          console.log(`⏭️  Skipped (no changes needed): ${filePath}`);
+          console.log(`⏭️  Skipped (no artifacts generated): ${filePath}`);
         }
       }
     } catch (error) {
@@ -362,30 +389,57 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
       }
 
 
-      // Apply the mixin transform
-      const transformed = mixinTransform(filePath, source, enhancedOptions);
+      // Apply the mixin transform to get artifacts
+      const { toArtifacts } = await import('./mixin-to-schema.js');
+      const artifacts = toArtifacts(filePath, source, enhancedOptions);
 
-      if (transformed !== source) {
+      if (artifacts.length > 0) {
         processed++;
 
-        // Generate output file path in traitsDir instead of modifying original file
-        const outputDir = finalOptions.traitsDir || './app/data/traits';
-        const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
-        const outputPath = join(resolve(outputDir), relativePath);
+        // Write each artifact to the appropriate directory
+        for (const artifact of artifacts) {
+          let outputDir: string;
+          let outputPath: string;
 
-        if (!finalOptions.dryRun) {
-          // Ensure output directory exists
-          const outputDirPath = dirname(outputPath);
-          if (!existsSync(outputDirPath)) {
-            mkdirSync(outputDirPath, { recursive: true });
+          if (artifact.type === 'trait') {
+            // Trait files go to traitsDir
+            outputDir = finalOptions.traitsDir || './app/data/traits';
+            const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
+            const outputName = relativePath.replace(/\.(js|ts)$/, '.js'); // Traits are always .js
+            outputPath = join(resolve(outputDir), outputName);
+          } else if (artifact.type === 'trait-type') {
+            // Type files go to traitsDir
+            outputDir = finalOptions.traitsDir || './app/data/traits';
+            const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
+            outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
+          } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
+            // Extension files go to extensionsDir
+            outputDir = finalOptions.extensionsDir || './app/data/extensions';
+            const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
+            const outputName = artifact.type === 'extension'
+              ? relativePath.replace(/\.(js|ts)$/, '.js')
+              : relativePath.replace(/\.(js|ts)$/, '.schema.types.ts');
+            outputPath = join(resolve(outputDir), outputName);
+          } else {
+            // Default fallback
+            outputDir = finalOptions.outputDir || './app/schemas';
+            outputPath = join(resolve(outputDir), artifact.suggestedFileName);
           }
 
-          writeFileSync(outputPath, transformed, 'utf-8');
-          if (finalOptions.verbose) {
-            console.log(`✅ Generated: ${outputPath}`);
+          if (!finalOptions.dryRun) {
+            // Ensure output directory exists
+            const outputDirPath = dirname(outputPath);
+            if (!existsSync(outputDirPath)) {
+              mkdirSync(outputDirPath, { recursive: true });
+            }
+
+            writeFileSync(outputPath, artifact.code, 'utf-8');
+            if (finalOptions.verbose) {
+              console.log(`✅ Generated ${artifact.type}: ${outputPath}`);
+            }
+          } else if (finalOptions.verbose) {
+            console.log(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
           }
-        } else if (finalOptions.verbose) {
-          console.log(`✅ Would generate: ${outputPath} (dry run)`);
         }
       } else {
         skipped++;
