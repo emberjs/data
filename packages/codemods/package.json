@@ -15,9 +15,7 @@
   },
   "scripts": {
     "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "exports": {
     ".": {
@@ -54,9 +52,7 @@
     "@types/jscodeshift": "0.12.0",
     "@types/node": "22.15.3",
     "@warp-drive/internal-config": "workspace:*",
-    "eslint": "^9.34.0",
-    "qunit": "^2.20.1",
-    "vitest": "^2.0.0"
+    "eslint": "^9.34.0"
   },
   "volta": {
     "extends": "../../package.json"

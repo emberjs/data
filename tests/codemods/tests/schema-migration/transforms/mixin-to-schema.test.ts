@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { toArtifacts } from '../../../src/schema-migration/mixin-to-schema.js';
+import { toArtifacts } from '../../../../../packages/codemods/src/schema-migration/mixin-to-schema.js';
 
 describe('mixin-to-schema transform (artifacts)', () => {
   describe('basic functionality', () => {

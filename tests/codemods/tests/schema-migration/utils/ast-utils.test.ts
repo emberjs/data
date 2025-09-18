@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import type { PropertyInfo } from '../../../src/schema-migration/utils/ast-utils.js';
+import type { PropertyInfo } from '../../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
 import {
   createExtensionArtifactWithTypes,
   createTypeArtifact,
   generateInterfaceCode,
   getTypeScriptTypeForAttribute,
-} from '../../../src/schema-migration/utils/ast-utils.js';
+} from '../../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
 
 describe('AST utilities', () => {
   describe('getTypeScriptTypeForAttribute', () => {

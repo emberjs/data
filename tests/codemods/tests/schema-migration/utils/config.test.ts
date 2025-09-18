@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { ConfigOptions } from '../../../src/schema-migration/utils/config.js';
+import type { ConfigOptions } from '../../../../../packages/codemods/src/schema-migration/utils/config.js';
 import {
   loadConfig,
   mergeOptions,
@@ -11,7 +11,7 @@ import {
   resolveConfigPaths,
   saveConfig,
   validateConfigForTransform,
-} from '../../../src/schema-migration/utils/config.js';
+} from '../../../../../packages/codemods/src/schema-migration/utils/config.js';
 
 const TEST_CONFIG_DIR = join(__dirname, 'fixtures', 'config-test');
 

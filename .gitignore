@@ -58,6 +58,8 @@ benchmarks/results/*.json
 /packages/*/DEBUG
 /tests/*/DEBUG
 
+/packages/codemods/codemods
+
 !.vscode/
 .idea/
 *.iml

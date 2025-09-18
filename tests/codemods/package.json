@@ -16,7 +16,9 @@
   "scripts": {
     "check:types": "",
     "disabled:lint": "eslint . --quiet --cache --cache-strategy=content",
-    "test": "tsx --test tests/index.spec.ts",
+    "test": "pnpm test:fixtures && pnpm test:unit",
+    "test:fixtures": "tsx --test tests/index.spec.ts",
+    "test:unit": "vitest run tests/",
     "fixme": "tsx --test tests/index.spec.ts",
     "_syncPnpm": "bun run sync-dependencies-meta-injected"
   },
@@ -38,7 +40,8 @@
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.34.0",
     "qunit": "^2.20.1",
-    "tsx": "^4.20.5"
+    "tsx": "^4.20.5",
+    "vitest": "^2.0.0"
   },
   "volta": {
     "extends": "../../package.json"

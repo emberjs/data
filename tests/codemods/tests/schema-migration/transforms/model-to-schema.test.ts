@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { toArtifacts } from '../../../src/schema-migration/model-to-schema.js';
+import { toArtifacts } from '../../../../../packages/codemods/src/schema-migration/model-to-schema.js';
 import { createTestOptions, DEFAULT_TEST_OPTIONS } from '../test-helpers';
 
 describe('model-to-schema transform (artifacts)', () => {
