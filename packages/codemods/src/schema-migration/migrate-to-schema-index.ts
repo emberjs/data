@@ -21,7 +21,9 @@ interface MigrateOptions extends Partial<TransformOptions> {
 export default function (fileInfo: FileInfo, api: API, options: MigrateOptions = {}): string | undefined {
   // This transform doesn't operate on individual files
   // Instead it runs a batch migration
-  throw new Error('migrate-to-schema should be run as a batch operation, not on individual files. Use the CLI command directly.');
+  throw new Error(
+    'migrate-to-schema should be run as a batch operation, not on individual files. Use the CLI command directly.'
+  );
 }
 
 /**
@@ -35,7 +37,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
     verbose: options.verbose || false,
     modelSourceDir: options.modelSourceDir || './app/models',
     mixinSourceDir: options.mixinSourceDir || './app/mixins',
-    ...options
+    ...options,
   };
 
   console.log(`🚀 Starting schema migration...`);
@@ -62,10 +64,11 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   if (!options.mixinsOnly) {
     const modelPattern = join(resolve(finalOptions.modelSourceDir || './app/models'), '**/*.{js,ts}');
     const modelFiles = await glob(modelPattern);
-    filesToProcess.push(...modelFiles.filter(file =>
-      existsSync(file) &&
-      (!options.skipProcessed || !isAlreadyProcessed(file, finalOptions))
-    ));
+    filesToProcess.push(
+      ...modelFiles.filter(
+        (file) => existsSync(file) && (!options.skipProcessed || !isAlreadyProcessed(file, finalOptions))
+      )
+    );
 
     if (finalOptions.verbose) {
       console.log(`📋 Found ${modelFiles.length} model files`);
@@ -76,10 +79,11 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   if (!options.modelsOnly) {
     const mixinPattern = join(resolve(finalOptions.mixinSourceDir || './app/mixins'), '**/*.{js,ts}');
     const mixinFiles = await glob(mixinPattern);
-    filesToProcess.push(...mixinFiles.filter(file =>
-      existsSync(file) &&
-      (!options.skipProcessed || !isAlreadyProcessed(file, finalOptions))
-    ));
+    filesToProcess.push(
+      ...mixinFiles.filter(
+        (file) => existsSync(file) && (!options.skipProcessed || !isAlreadyProcessed(file, finalOptions))
+      )
+    );
 
     if (finalOptions.verbose) {
       console.log(`📋 Found ${mixinFiles.length} mixin files`);
@@ -158,9 +162,7 @@ function isAlreadyProcessed(filePath: string, options: TransformOptions): boolea
 function isModelFile(filePath: string): boolean {
   try {
     const content = require('fs').readFileSync(filePath, 'utf-8');
-    return content.includes('DS.Model') ||
-           content.includes('@ember-data/model') ||
-           content.includes('Model.extend');
+    return content.includes('DS.Model') || content.includes('@ember-data/model') || content.includes('Model.extend');
   } catch {
     return false;
   }
@@ -172,9 +174,9 @@ function isModelFile(filePath: string): boolean {
 function isMixinFile(filePath: string): boolean {
   try {
     const content = require('fs').readFileSync(filePath, 'utf-8');
-    return content.includes('Ember.Mixin') ||
-           content.includes('@ember/object/mixin') ||
-           content.includes('Mixin.create');
+    return (
+      content.includes('Ember.Mixin') || content.includes('@ember/object/mixin') || content.includes('Mixin.create')
+    );
   } catch {
     return false;
   }

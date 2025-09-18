@@ -8,7 +8,11 @@ import type { TransformOptions } from './utils/ast-utils.js';
  */
 export default function (fileInfo: FileInfo, api: API, options: Partial<TransformOptions> = {}): string | undefined {
   // Skip if this doesn't look like a model file
-  if (!fileInfo.path.includes('models/') && !fileInfo.source.includes('DS.Model') && !fileInfo.source.includes('@ember-data/model')) {
+  if (
+    !fileInfo.path.includes('models/') &&
+    !fileInfo.source.includes('DS.Model') &&
+    !fileInfo.source.includes('@ember-data/model')
+  ) {
     return undefined;
   }
 
@@ -19,7 +23,7 @@ export default function (fileInfo: FileInfo, api: API, options: Partial<Transfor
       outputDir: options.outputDir || './app/schemas',
       dryRun: options.dryRun || false,
       verbose: options.verbose || false,
-      ...options
+      ...options,
     };
 
     // Use the original AST-grep based transform

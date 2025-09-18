@@ -16,20 +16,16 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
   const commands = new Map<string, Command>();
   // Add arguments that will be used for all codemods
   for (const codemod of codemods) {
-    const command = applyCommand
-      .command(`${codemod.name}`)
-      .description(codemod.description);
+    const command = applyCommand.command(`${codemod.name}`).description(codemod.description);
 
     // migrate-to-schema has different arguments
     if (codemod.name === 'migrate-to-schema') {
-      command
-        .argument('[input-dir]', 'Input directory to search for models and mixins', './app');
+      command.argument('[input-dir]', 'Input directory to search for models and mixins', './app');
     } else {
-      command
-        .argument(
-          '<target-glob-pattern...>',
-          'Path to files or glob pattern. If using glob pattern, wrap in single quotes.'
-        );
+      command.argument(
+        '<target-glob-pattern...>',
+        'Path to files or glob pattern. If using glob pattern, wrap in single quotes.'
+      );
     }
 
     command
@@ -79,96 +75,31 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
   const modelToSchema = commands.get('model-to-schema');
   if (modelToSchema) {
     modelToSchema
-      .addOption(
-        new Option(
-          '--input-dir <path>',
-          'Input directory containing models'
-        ).default('./app/models')
-      )
-      .addOption(
-        new Option(
-          '--output-dir <path>',
-          'Output directory for schemas'
-        ).default('./app/schemas')
-      )
-      .addOption(
-        new Option(
-          '--config <path>',
-          'Path to configuration file'
-        )
-      );
+      .addOption(new Option('--input-dir <path>', 'Input directory containing models').default('./app/models'))
+      .addOption(new Option('--output-dir <path>', 'Output directory for schemas').default('./app/schemas'))
+      .addOption(new Option('--config <path>', 'Path to configuration file'));
   }
 
   // Add arguments that are specific to the mixin-to-schema codemod
   const mixinToSchema = commands.get('mixin-to-schema');
   if (mixinToSchema) {
     mixinToSchema
-      .addOption(
-        new Option(
-          '--input-dir <path>',
-          'Input directory containing mixins'
-        ).default('./app/mixins')
-      )
-      .addOption(
-        new Option(
-          '--output-dir <path>',
-          'Output directory for traits'
-        ).default('./app/traits')
-      )
-      .addOption(
-        new Option(
-          '--config <path>',
-          'Path to configuration file'
-        )
-      );
+      .addOption(new Option('--input-dir <path>', 'Input directory containing mixins').default('./app/mixins'))
+      .addOption(new Option('--output-dir <path>', 'Output directory for traits').default('./app/traits'))
+      .addOption(new Option('--config <path>', 'Path to configuration file'));
   }
 
   // Add arguments that are specific to the migrate-to-schema codemod
   const migrateToSchema = commands.get('migrate-to-schema');
   if (migrateToSchema) {
     migrateToSchema
-      .addOption(
-        new Option(
-          '--config <path>',
-          'Path to configuration file'
-        )
-      )
-      .addOption(
-        new Option(
-          '--models-only',
-          'Only process model files'
-        ).default(false)
-      )
-      .addOption(
-        new Option(
-          '--mixins-only',
-          'Only process mixin files'
-        ).default(false)
-      )
-      .addOption(
-        new Option(
-          '--skip-processed',
-          'Skip files that have already been processed'
-        ).default(false)
-      )
-      .addOption(
-        new Option(
-          '--model-source-dir <path>',
-          'Directory containing model files'
-        ).default('./app/models')
-      )
-      .addOption(
-        new Option(
-          '--mixin-source-dir <path>',
-          'Directory containing mixin files'
-        ).default('./app/mixins')
-      )
-      .addOption(
-        new Option(
-          '--output-dir <path>',
-          'Output directory for generated schemas'
-        ).default('./app/schemas')
-      );
+      .addOption(new Option('--config <path>', 'Path to configuration file'))
+      .addOption(new Option('--models-only', 'Only process model files').default(false))
+      .addOption(new Option('--mixins-only', 'Only process mixin files').default(false))
+      .addOption(new Option('--skip-processed', 'Skip files that have already been processed').default(false))
+      .addOption(new Option('--model-source-dir <path>', 'Directory containing model files').default('./app/models'))
+      .addOption(new Option('--mixin-source-dir <path>', 'Directory containing mixin files').default('./app/mixins'))
+      .addOption(new Option('--output-dir <path>', 'Output directory for generated schemas').default('./app/schemas'));
   }
 }
 
@@ -205,7 +136,7 @@ function createApplyAction(transformName: string) {
         modelSourceDir: options.modelSourceDir || './app/models',
         mixinSourceDir: options.mixinSourceDir || './app/mixins',
         outputDir: options.outputDir || './app/schemas',
-        ...options
+        ...options,
       };
       const migrationOptions = mergeOptions(cliOptions, configOptions);
 

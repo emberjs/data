@@ -12,17 +12,14 @@ export const codemods: CodemodConfig[] = [
   },
   {
     name: 'model-to-schema',
-    description:
-      'Transforms EmberData models to schema definitions for WarpDrive.',
+    description: 'Transforms EmberData models to schema definitions for WarpDrive.',
   },
   {
     name: 'mixin-to-schema',
-    description:
-      'Transforms EmberData mixins to schema traits for WarpDrive.',
+    description: 'Transforms EmberData mixins to schema traits for WarpDrive.',
   },
   {
     name: 'migrate-to-schema',
-    description:
-      'Migrates both EmberData models and mixins to WarpDrive schemas in batch.',
+    description: 'Migrates both EmberData models and mixins to WarpDrive schemas in batch.',
   },
 ];

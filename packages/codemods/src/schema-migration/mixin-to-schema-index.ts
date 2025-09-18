@@ -6,7 +6,11 @@ import type { API, FileInfo } from 'jscodeshift';
  */
 export default function (fileInfo: FileInfo, api: API, options: any = {}): string | undefined {
   // Skip if this doesn't look like a mixin file
-  if (!fileInfo.path.includes('mixins/') && !fileInfo.source.includes('Ember.Mixin') && !fileInfo.source.includes('@ember/object/mixin')) {
+  if (
+    !fileInfo.path.includes('mixins/') &&
+    !fileInfo.source.includes('Ember.Mixin') &&
+    !fileInfo.source.includes('@ember/object/mixin')
+  ) {
     return undefined;
   }
 
