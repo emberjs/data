@@ -34,6 +34,234 @@ npx @ember-data/codemods apply <codemod-name> --help
 
 ## Codemods
 
+### schema-migration
+
+A set of codemods to help migrate EmberData models and mixins to WarpDrive schemas.
+
+#### Migrate Both Models and Mixins
+
+```
+npx @ember-data/codemods apply migrate-to-schema --help
+Usage: @ember-data/codemods apply migrate-to-schema [options] [input-dir]
+
+Migrates both EmberData models and mixins to WarpDrive schemas in batch.
+
+Arguments:
+  input-dir                              Input directory to search for models and mixins (default: "./app")
+
+Options:
+  -d, --dry                              dry run (no changes are made to files) (default: false)
+  -v, --verbose <level>                  Show more information about the transform process (choices: "0", "1",
+                                         "2", default: "0")
+  -l, --log-file [path]                  Write logs to a file. If option is set but no path is provided, logs are
+                                         written to ember-data-codemods.log
+  -i, --ignore <ignore-glob-pattern...>  Ignores the given file or glob pattern. If using glob pattern, wrap in
+                                         single quotes.
+  --config <path>                        Path to configuration file
+  --models-only                          Only process model files (default: false)
+  --mixins-only                          Only process mixin files (default: false)
+  --skip-processed                       Skip files that have already been processed (default: false)
+  --model-source-dir <path>              Directory containing model files (default: "./app/models")
+  --mixin-source-dir <path>              Directory containing mixin files (default: "./app/mixins")
+  --output-dir <path>                    Output directory for generated schemas (default: "./app/schemas")
+  -h, --help                             display help for command
+```
+
+```
+npx @ember-data/codemods apply model-to-schema --help
+Usage: @ember-data/codemods apply model-to-schema [options] <target-glob-pattern...>
+
+Transforms EmberData models to schema definitions for WarpDrive.
+
+Arguments:
+  target-glob-pattern                    Path to files or glob pattern. If using glob pattern, wrap in single
+                                         quotes.
+
+Options:
+  -d, --dry                              dry run (no changes are made to files) (default: false)
+  -v, --verbose <level>                  Show more information about the transform process (choices: "0", "1",
+                                         "2", default: "0")
+  -l, --log-file [path]                  Write logs to a file. If option is set but no path is provided, logs are
+                                         written to ember-data-codemods.log
+  -i, --ignore <ignore-glob-pattern...>  Ignores the given file or glob pattern. If using glob pattern, wrap in
+                                         single quotes.
+  --input-dir <path>                     Input directory containing models (default: "./app/models")
+  --output-dir <path>                    Output directory for schemas (default: "./app/schemas")
+  --config <path>                        Path to configuration file
+  -h, --help                             display help for command
+```
+
+```
+npx @ember-data/codemods apply mixin-to-schema --help
+Usage: @ember-data/codemods apply mixin-to-schema [options] <target-glob-pattern...>
+
+Transforms EmberData mixins to schema traits for WarpDrive.
+
+Arguments:
+  target-glob-pattern                    Path to files or glob pattern. If using glob pattern, wrap in single
+                                         quotes.
+
+Options:
+  -d, --dry                              dry run (no changes are made to files) (default: false)
+  -v, --verbose <level>                  Show more information about the transform process (choices: "0", "1",
+                                         "2", default: "0")
+  -l, --log-file [path]                  Write logs to a file. If option is set but no path is provided, logs are
+                                         written to ember-data-codemods.log
+  -i, --ignore <ignore-glob-pattern...>  Ignores the given file or glob pattern. If using glob pattern, wrap in
+                                         single quotes.
+  --input-dir <path>                     Input directory containing mixins (default: "./app/mixins")
+  --output-dir <path>                    Output directory for traits (default: "./app/traits")
+  --config <path>                        Path to configuration file
+  -h, --help                             display help for command
+```
+
+This codemod transforms EmberData models and mixins into WarpDrive's schema format, generating:
+- **Schema files**: Define the data structure using `LegacyResourceSchema`
+- **Extension files**: Preserve computed properties, methods, and other non-data logic
+- **Type files**: TypeScript interfaces for type safety
+- **Trait files**: Reusable schema components from mixins
+
+#### Basic Usage
+
+```bash
+# Transform all models and mixins in your app (batch mode)
+npx @ember-data/codemods apply migrate-to-schema ./app
+
+# Transform with custom output directory
+npx @ember-data/codemods apply migrate-to-schema \
+  --output-dir './app/data/schemas' \
+  ./app
+
+# Transform only models
+npx @ember-data/codemods apply migrate-to-schema \
+  --models-only \
+  ./app
+
+# Transform specific model files
+npx @ember-data/codemods apply model-to-schema './app/models/**/*.{js,ts}'
+
+# Transform specific mixin files
+npx @ember-data/codemods apply mixin-to-schema './app/mixins/**/*.{js,ts}'
+
+# Use a configuration file for complex setups
+npx @ember-data/codemods apply migrate-to-schema \
+  --config './schema-migration.config.json' \
+  ./app
+```
+
+#### Configuration File
+
+For complex projects, you can use a JSON configuration file:
+
+```json
+{
+  "$schema": "./tools/warp-drive-codemod/config-schema.json",
+  "version": "1.0.0",
+  "description": "Configuration for MyClient WarpDrive migration",
+  "dryRun": false,
+  "verbose": false,
+  "debug": false,
+  "mirror": true,
+  "emberDataImportSource": "@my-org/warp-drive/v1/model",
+  "intermediateModelPaths": [
+    "@my-org/client-core/core/custom-model",
+    "my-client/core/base-model",
+  ],
+  "modelImportSource": "my-client/models",
+  "mixinImportSource": "my-client/mixins",
+  "modelSourceDir": "./apps/client/app/models",
+  "mixinSourceDir": "./apps/client/app/mixins",
+  "additionalModelSources": [
+    {
+      "pattern": "@my-org/client-core/core/custom-model",
+      "dir": "libraries/client-core/package/src/core/custom-model"
+    }
+  ],
+  "additionalMixinSources": [
+    {
+      "pattern": "@my-org/client-core/mixins/*",
+      "dir": "libraries/client-core/package/src/mixins/*"
+    },
+    {
+      "pattern": "@my-org/schema-decorators/mixins/*",
+      "dir": "libraries/schema-decorators/mixins/*"
+    }
+  ],
+  "resourcesImport": "my-client/data/resources",
+  "traitsDir": "./apps/client/app/data/traits",
+  "traitsImport": "my-client/data/traits",
+  "extensionsDir": "./apps/client/app/data/extensions",
+  "extensionsImport": "my-client/data/extensions",
+  "resourcesDir": "./apps/client/app/data/resources"
+}
+```
+
+See `packages/codemods/src/schema-migration/config-schema.json` for full configuration options.
+
+#### Examples
+
+**Before (EmberData Model):**
+```ts
+import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+
+export default class User extends Model {
+  @attr('string') declare name: string;
+  @attr('string') declare email: string;
+  @belongsTo('company', { async: false }) declare company: Company;
+  @hasMany('project', { async: true }) declare projects: Project[];
+
+  get displayName() {
+    return this.name || this.email;
+  }
+
+  async updateProfile(data) {
+    this.setProperties(data);
+    return this.save();
+  }
+}
+```
+
+**After (Generated Schema):**
+```ts
+// app/schemas/user.schema.ts
+export const UserSchema = {
+  type: 'user',
+  fields: {
+    name: { kind: 'attribute', type: 'string' },
+    email: { kind: 'attribute', type: 'string' },
+    company: { kind: 'belongsTo', type: 'company', options: { async: false } },
+    projects: { kind: 'hasMany', type: 'project', options: { async: true } }
+  }
+};
+```
+
+**Generated Extension:**
+```ts
+// app/extensions/user.ts
+export class UserExtension {
+  get displayName() {
+    return this.name || this.email;
+  }
+
+  async updateProfile(data) {
+    this.setProperties(data);
+    return this.save();
+  }
+}
+```
+
+**Generated Types:**
+```ts
+// app/schemas/user.schema.types.ts
+export interface User {
+  [Type]: 'user';
+  name: string;
+  email: string;
+  company: Company;
+  projects: Project[];
+}
+```
+
 ### legacy-compat-builders
 
 ```
@@ -61,9 +289,9 @@ Options:
   -h, --help                             display help for command
 ```
 
-### Examples
+#### Examples
 
-#### `findAll`
+##### `findAll`
 
 ```ts
 // before
@@ -74,7 +302,7 @@ import { findAll } from '@ember-data/legacy-compat/builders';
 const { content: posts } = await store.request<Post[]>(findAll<Post>('post'));
 ```
 
-#### `findRecord`
+##### `findRecord`
 
 ```ts
 // before
@@ -87,7 +315,7 @@ const { content: post } = await store.request<Post>(findRecord<Post>({ type: 'po
 
 NOTE: This codemod will not transform `store.findRecord` calls with a 'preload' option set. This option is not supported by the legacy compat builders.
 
-#### `query`
+##### `query`
 
 ```ts
 // before
@@ -98,7 +326,7 @@ import { query } from '@ember-data/legacy-compat/builders';
 const { content: posts } = await store.request<Post[]>(query<Post>('post', { id: '1' }));
 ```
 
-#### `queryRecord`
+##### `queryRecord`
 
 ```ts
 // before
@@ -109,7 +337,7 @@ import { queryRecord } from '@ember-data/legacy-compat/builders';
 const { content: post } = await store.request<Post>(queryRecord<Post>('post', { id: '1' }));
 ```
 
-#### `saveRecord`
+##### `saveRecord`
 
 ```ts
 // before
@@ -124,12 +352,12 @@ const { content: savedPostWithGeneric } = await store.request<Post>(saveRecord(p
 const { content: savedPostNoGeneric } = await store.request(saveRecord(post));
 ```
 
-### Handling of `await`
+#### Handling of `await`
 
 Calls to legacy store methods that are not currently awaited will not be transformed. In order to provide feature parity with the legacy method, we need to access the `content` property from `Future` returned by `store.request`. In order to do this, we need to `await store.request`, but we can't safely add `await` with a codemod as we don't know if the consuming code will be able to handle the change.
 
 There is one exception to this rule. In the case where a route's `model` hook returns a call to a legacy store method, the codemod will transform the legacy store method and will add the `await` keyword.
 
-## Caveats
+#### Caveats
 
 GJS and GTS files are not currently supported. PRs welcome! 🧡
