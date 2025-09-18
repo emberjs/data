@@ -294,15 +294,63 @@ export default class User extends Model {
 :::code-group
 
 ```ts [app/data/user/schema.ts]
-TBD
+import { withDefaults } from '@warp-drive-mirror/legacy/model/migration-support';
+export const UserSchema {
+  type: 'user';
+  identity: { kind: '@id', name: 'id' },
+  fields: [
+    { kind: 'attribute', name: 'firstName' },
+    { kind: 'attribute', name: 'lastName' },
+    { 
+      kind: 'belongsTo',
+      name: 'bestFriend',
+      type: 'user',
+      options: { async: false, inverse: null }
+    },
+    {
+      kind: 'hasMany',
+      name: 'friends',
+      type: 'user',
+      options: { async: true, inverse: null }
+    },
+  ]
+}
 ```
 
 ```ts [app/data/user/type.ts]
-TBD
+import { WithLegacy } from '@warp-drive-mirror/legacy/model/migration-support';
+import { type AsyncHasMany } from '@warp-drive-mirror/legacy/model';
+import type { Type } from '@warp-drive-mirror/core/types/symbol';
+
+export type User = WithLegacy<{
+  [Type]: 'user';
+  firstName: string;
+  lastName: string;
+  user: User | null;
+  friends: AsyncHasMany<User>;
+}>;
 ```
 
 ```ts [app/data/user/ext.ts]
-TBD
+import { cached } from '@glimmer/tracking';
+import { computed } from '@ember/object';
+import { User } from './type.ts';
+
+export class UserExtension {
+  @cached
+  get fullName(this: User) {
+    return this.firstName + ' ' + this.lastName;
+  }
+
+  @computed('firstName')
+  get greeting(this: User) {
+    return 'Hello ' + this.firstName + '!';
+  }
+
+  sayHi() {
+    alert(this.greeting);
+  }
+}
 ```
 
 :::
