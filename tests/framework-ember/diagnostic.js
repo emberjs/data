@@ -1,10 +1,11 @@
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 import holodeck from '@warp-drive/holodeck';
 
 await launch({
   async setup(options) {
+    const port = options.port + 1;
     await holodeck.launchProgram({
-      port: options.port + 1,
+      port,
     });
   },
   async cleanup() {
