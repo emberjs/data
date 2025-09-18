@@ -69,6 +69,7 @@ Let's build a schema to do this!
 store.schema.registerResource({
   type: 'user',
   identity: { kind: '@id', name: 'id' },
+  legacy: true,
   fields: [
     { kind: 'field', name: 'firstName', sourceKey: 'first-name' },
     { kind: 'field', name: 'lastName', sourceKey: 'last-name' },
