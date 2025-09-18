@@ -28,7 +28,7 @@ import { peekManagedObject } from './fields/managed-object.ts';
 import type { SchemaService } from './schema.ts';
 import { Checkout, Commit, Context, Destroy } from './symbols.ts';
 
-const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', STRUCTURED]);
+const IgnoredGlobalFields = new Set<string>(['length', 'nodeType', 'then', 'setInterval', 'document', 'unknownProperty', 'size', STRUCTURED]);
 const symbolList = [Context, Destroy, RecordStore, Checkout, Commit];
 const RecordSymbols = new Set(symbolList);
 
