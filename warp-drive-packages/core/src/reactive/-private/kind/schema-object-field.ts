@@ -87,6 +87,7 @@ export function getSchemaObjectField(context: KindContext<SchemaObjectField>): u
     modeName: context.modeName,
     legacy: context.legacy,
     editable: context.editable,
+    destroyables: new Set(),
     path: context.path,
     field: context.field,
     value: objectType,
