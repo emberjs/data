@@ -1,0 +1,1304 @@
+[
+  {
+    "filePath": "packages/active-record/src/request.ts",
+    "module": "@ember-data/active-record/request",
+    "export": "createRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/active-record/src/request.ts",
+    "module": "@ember-data/active-record/request",
+    "export": "deleteRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/active-record/src/request.ts",
+    "module": "@ember-data/active-record/request",
+    "export": "findRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/active-record/src/request.ts",
+    "module": "@ember-data/active-record/request",
+    "export": "query",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/active-record/src/request.ts",
+    "module": "@ember-data/active-record/request",
+    "export": "updateRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/index.ts",
+    "module": "@ember-data/adapter",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/index.ts",
+    "module": "@ember-data/adapter",
+    "export": "BuildURLMixin",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "determineBodyPromise",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "fetch",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "parseResponseHeaders",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "serializeIntoHash",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "serializeQueryParams",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/-private.ts",
+    "module": "@ember-data/adapter/-private",
+    "export": "setupFastboot",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "AbortError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "ConflictError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "ForbiddenError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "InvalidError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "NotFoundError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "ServerError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "TimeoutError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/error.ts",
+    "module": "@ember-data/adapter/error",
+    "export": "UnauthorizedError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/json-api.ts",
+    "module": "@ember-data/adapter/json-api",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "FetchRequestInit",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "JQueryRequestInit",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "QueryState",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "RequestData",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/adapter/src/rest.ts",
+    "module": "@ember-data/adapter/rest",
+    "export": "fetchOptions",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/debug/src/index.ts",
+    "module": "@ember-data/debug",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/debug/src/_app_/data-adapter.js",
+    "module": "@ember-data/debug/_app_/data-adapter",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/debug/src/data-adapter.ts",
+    "module": "@ember-data/debug/data-adapter",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/graph/src/-private.ts",
+    "module": "@ember-data/graph/-private",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/json-api/src/index.ts",
+    "module": "@ember-data/json-api",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/json-api/src/request.ts",
+    "module": "@ember-data/json-api/request",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "AdapterPayload",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "CompatStore",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "LegacyNetworkHandler",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "LegacyStoreCompat",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "MinimumAdapterInterface",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "MinimumSerializerInterface",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "SerializerOptions",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "adapterFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "cleanup",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "normalize",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "pushPayload",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "serializeRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/index.ts",
+    "module": "@ember-data/legacy-compat",
+    "export": "serializerFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/-private.ts",
+    "module": "@ember-data/legacy-compat/-private",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/builders.ts",
+    "module": "@ember-data/legacy-compat/builders",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/legacy-compat/src/utils.ts",
+    "module": "@ember-data/legacy-compat/utils",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "AsyncBelongsTo",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "AsyncHasMany",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "HasMany",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "ManyArray",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "attr",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "belongsTo",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "buildSchema",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "hasMany",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "instantiateRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "modelFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/index.ts",
+    "module": "@ember-data/model",
+    "export": "teardownRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/-private.ts",
+    "module": "@ember-data/model/-private",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/hooks.ts",
+    "module": "@ember-data/model/hooks",
+    "export": "buildSchema",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/hooks.ts",
+    "module": "@ember-data/model/hooks",
+    "export": "instantiateRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/hooks.ts",
+    "module": "@ember-data/model/hooks",
+    "export": "modelFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/hooks.ts",
+    "module": "@ember-data/model/hooks",
+    "export": "teardownRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/model/src/migration-support.ts",
+    "module": "@ember-data/model/migration-support",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request/src/index.ts",
+    "module": "@ember-data/request",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request/src/index.ts",
+    "module": "@ember-data/request",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "CacheControlValue",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "CachePolicy",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "LifetimesService",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "PolicyConfig",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/index.ts",
+    "module": "@ember-data/request-utils",
+    "export": "parseCacheControl",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/handlers.ts",
+    "module": "@ember-data/request-utils/handlers",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request-utils/src/string.ts",
+    "module": "@ember-data/request-utils/string",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/request/src/fetch.ts",
+    "module": "@ember-data/request/fetch",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/rest/src/request.ts",
+    "module": "@ember-data/rest/request",
+    "export": "createRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/rest/src/request.ts",
+    "module": "@ember-data/rest/request",
+    "export": "deleteRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/rest/src/request.ts",
+    "module": "@ember-data/rest/request",
+    "export": "findRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/rest/src/request.ts",
+    "module": "@ember-data/rest/request",
+    "export": "query",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/rest/src/request.ts",
+    "module": "@ember-data/rest/request",
+    "export": "updateRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/index.ts",
+    "module": "@ember-data/serializer",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/json.ts",
+    "module": "@ember-data/serializer/json",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/json-api.ts",
+    "module": "@ember-data/serializer/json-api",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/rest.ts",
+    "module": "@ember-data/serializer/rest",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/rest.ts",
+    "module": "@ember-data/serializer/rest",
+    "export": "EmbeddedRecordsMixin",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/transform.ts",
+    "module": "@ember-data/serializer/transform",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/transform.ts",
+    "module": "@ember-data/serializer/transform",
+    "export": "BooleanTransform",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/transform.ts",
+    "module": "@ember-data/serializer/transform",
+    "export": "DateTransform",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/transform.ts",
+    "module": "@ember-data/serializer/transform",
+    "export": "NumberTransform",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/serializer/src/transform.ts",
+    "module": "@ember-data/serializer/transform",
+    "export": "StringTransform",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "CacheHandler",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "CacheOperation",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "CachePolicy",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "Document",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "DocumentCacheOperation",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "NotificationType",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "StoreRequestContext",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "StoreRequestInput",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "recordIdentifierFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "setIdentifierForgetMethod",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "setIdentifierGenerationMethod",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "setIdentifierResetMethod",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "setIdentifierUpdateMethod",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "setKeyInfoForResource",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/index.ts",
+    "module": "@ember-data/store",
+    "export": "storeFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/-private.ts",
+    "module": "@ember-data/store/-private",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/store/src/configure.ts",
+    "module": "@ember-data/store/configure",
+    "export": "setupSignals",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/tracking/src/index.ts",
+    "module": "@ember-data/tracking",
+    "export": "buildSignalConfig",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/-private.ts",
+    "module": "@warp-drive/core-types/-private",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/identifier.ts",
+    "module": "@warp-drive/core-types/identifier",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/record.ts",
+    "module": "@warp-drive/core-types/record",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/request.ts",
+    "module": "@warp-drive/core-types/request",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/runtime.ts",
+    "module": "@warp-drive/core-types/runtime",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/schema/fields.ts",
+    "module": "@warp-drive/core-types/schema/fields",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/core-types/src/symbols.ts",
+    "module": "@warp-drive/core-types/symbols",
+    "export": "*",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "MockServerHandler",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "createAdapterFor",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "getIsRecording",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "mock",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "setConfig",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "setIsRecording",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/index.ts",
+    "module": "@warp-drive/holodeck",
+    "export": "setTestId",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "DELETE",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "GET",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "PATCH",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "POST",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "PUT",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "ResponseGenerator",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "Scaffold",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/holodeck/src/mock.ts",
+    "module": "@warp-drive/holodeck/mock",
+    "export": "ScaffoldGenerator",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "Checkout",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "SchemaRecord",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "SchemaService",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "Transformation",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "fromIdentity",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "instantiateRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "registerDerivations",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "teardownRecord",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/index.ts",
+    "module": "@warp-drive/schema-record",
+    "export": "withDefaults",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/schema-record/src/-private.ts",
+    "module": "@warp-drive/schema-record/-private",
+    "export": "Context",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/index.ts",
+    "module": "ember-data",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/core.ts",
+    "module": "ember-data/-private/core",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/core.ts",
+    "module": "ember-data/-private/core",
+    "export": "DS",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/core.ts",
+    "module": "ember-data/-private/core",
+    "export": "DS",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "DS",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "Errors",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "ManyArray",
+    "typeOnly": true,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "PromiseArray",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "PromiseManyArray",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "PromiseObject",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "RecordArrayManager",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "Snapshot",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "SnapshotRecordArray",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "Store",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/-private/index.ts",
+    "module": "ember-data/-private/index",
+    "export": "coerceId",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapter.ts",
+    "module": "ember-data/adapter",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "AbortError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "AdapterError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "ConflictError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "ForbiddenError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "InvalidError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "NotFoundError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "ServerError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "TimeoutError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/errors.ts",
+    "module": "ember-data/adapters/errors",
+    "export": "UnauthorizedError",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/json-api.ts",
+    "module": "ember-data/adapters/json-api",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/adapters/rest.ts",
+    "module": "ember-data/adapters/rest",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/attr.ts",
+    "module": "ember-data/attr",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/model.ts",
+    "module": "ember-data/model",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/relationships.ts",
+    "module": "ember-data/relationships",
+    "export": "belongsTo",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/relationships.ts",
+    "module": "ember-data/relationships",
+    "export": "hasMany",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/serializer.ts",
+    "module": "ember-data/serializer",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/serializers/embedded-records-mixin.ts",
+    "module": "ember-data/serializers/embedded-records-mixin",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/serializers/json.ts",
+    "module": "ember-data/serializers/json",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/serializers/json-api.ts",
+    "module": "ember-data/serializers/json-api",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/serializers/rest.ts",
+    "module": "ember-data/serializers/rest",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/setup-container.ts",
+    "module": "ember-data/setup-container",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/store.ts",
+    "module": "ember-data/store",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/transform.ts",
+    "module": "ember-data/transform",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  },
+  {
+    "filePath": "packages/-ember-data/src/version.ts",
+    "module": "ember-data/version",
+    "export": "default",
+    "typeOnly": false,
+    "replacement": {}
+  }
+]
