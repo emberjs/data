@@ -19,7 +19,7 @@ export const nameableExtension = {
   displayName: computed('name', function() {
 		return \`Name: \${this.name}\`;
 	}),
-  getName: getName() {
+  getName() {
 		return this.name || 'Unknown';
 	}
 };"
@@ -136,7 +136,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > converts 
 import { computed } from '@ember/object';
 
 export const noTraitsExtension = {
-  complexMethod: complexMethod() { return 'processed'; },
+  complexMethod() { return 'processed'; },
   computedValue: computed(function() { return 'computed'; })
 };"
 `;

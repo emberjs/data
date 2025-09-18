@@ -4,6 +4,56 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import type { ExtractedType, PropertyInfo, TransformArtifact, TransformOptions } from './utils/ast-utils.js';
+
+/**
+ * Determines if an AST node represents object method syntax that doesn't need key: value format
+ * Handles: methods, getters, setters, async methods, generators, computed properties
+ */
+function isObjectMethodSyntax(property: SgNode): boolean {
+  const propertyKind = property.kind();
+
+  // Method definitions: methodName() { ... }
+  if (propertyKind === 'method_definition') {
+    return true;
+  }
+
+  // Check for getter/setter: get/set propertyName() { ... }
+  if (propertyKind === 'pair') {
+    const key = property.field('key');
+    if (key) {
+      const keyText = key.text();
+      // Getters and setters
+      if (keyText === 'get' || keyText === 'set') {
+        return true;
+      }
+    }
+
+    // Check for async methods: async methodName() { ... }
+    const value = property.field('value');
+    if (value) {
+      const valueKind = value.kind();
+      if (valueKind === 'function' || valueKind === 'arrow_function') {
+        // Check if preceded by async keyword or if it's a generator function
+        const propertyText = property.text();
+        if (propertyText.includes('async ') || propertyText.includes('function*') || propertyText.includes('*')) {
+          return true;
+        }
+      }
+    }
+  }
+
+  // Check for computed property names: [computedKey]: value or [computedKey]() { ... }
+  if (propertyKind === 'pair') {
+    const key = property.field('key');
+    if (key?.kind() === 'computed_property_name') {
+      // For computed properties, we need key: value syntax unless it's a method
+      const value = property.field('value');
+      return value?.kind() === 'function';
+    }
+  }
+
+  return false;
+}
 import {
   createExtensionFromOriginalFile,
   createTypeArtifact,
@@ -83,6 +133,7 @@ export default interface ${typeName} {
  * Transform to convert Ember mixins to WarpDrive LegacyTrait patterns
  */
 export default function transform(filePath: string, source: string, options: TransformOptions): string {
+
   return withTransformWrapper(
     filePath,
     source,
@@ -104,6 +155,13 @@ export default function transform(filePath: string, source: string, options: Tra
  * files to the requested output directories.
  */
 export function toArtifacts(filePath: string, source: string, options: TransformOptions): TransformArtifact[] {
+
+  // Check if this mixin is connected to models (skip if not)
+  if (options.modelConnectedMixins && !options.modelConnectedMixins.has(filePath)) {
+    debugLog(options, `Mixin ${filePath} is not connected to models, skipping artifact generation`);
+    return [];
+  }
+
   const lang = getLanguageFromPath(filePath);
 
   try {
@@ -177,6 +235,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
       debugLog(options, 'No trait fields or extension properties found, returning empty artifacts');
       return [];
     }
+
 
     const artifacts: TransformArtifact[] = [];
     const fileExtension = getFileExtension(filePath);
@@ -313,6 +372,13 @@ export function toArtifacts(filePath: string, source: string, options: Transform
  */
 function handleMixinTransform(root: SgNode, source: string, filePath: string, options: TransformOptions): string {
   try {
+
+    // Check if this mixin is connected to models (skip if not)
+    if (options.modelConnectedMixins && !options.modelConnectedMixins.has(filePath)) {
+      debugLog(options, `Mixin ${filePath} is not connected to models, skipping transform`);
+      return source;
+    }
+
     // Resolve local identifier used for the Mixin default import
     const mixinSources = [DEFAULT_MIXIN_SOURCE];
     const mixinImportLocal = findEmberImportLocalName(root, mixinSources, options, filePath, process.cwd());
@@ -506,7 +572,7 @@ function extractTraitFields(
   extendedTraits: string[];
 } {
   const traitFields: Array<{ name: string; kind: string; type?: string; options?: Record<string, unknown> }> = [];
-  const extensionProperties: Array<{ name: string; originalKey: string; value: string; typeInfo?: ExtractedType }> = [];
+  const extensionProperties: Array<{ name: string; originalKey: string; value: string; typeInfo?: ExtractedType; isObjectMethod?: boolean }> = [];
   const extendedTraits: string[] = [];
 
   // Look for associated interface in the same file
@@ -696,6 +762,7 @@ function extractTraitFields(
       originalKey,
       value: valueNode.text(),
       typeInfo,
+      isObjectMethod: isObjectMethodSyntax(property),
     });
   }
 

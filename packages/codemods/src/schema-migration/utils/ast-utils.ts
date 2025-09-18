@@ -7,6 +7,8 @@ export interface TransformOptions {
   dryRun?: boolean;
   /** Use @warp-drive-mirror instead of @warp-drive for imports */
   mirror?: boolean;
+  /** Set of absolute file paths for mixins that are connected to models */
+  modelConnectedMixins?: Set<string>;
   /** Specify alternate import sources for EmberData decorators (default: '@ember-data/model') */
   emberDataImportSource?: string;
   /** List of intermediate model class import paths that should be converted to traits (e.g., ['soxhub-client/core/base-model', 'soxhub-client/core/data-field-model']) */
@@ -546,7 +548,7 @@ export function extractPascalCaseName(filePath: string): string {
  */
 export function generateExtensionCode(
   extensionName: string,
-  extensionProperties: Array<{ name: string; originalKey: string; value: string }>,
+  extensionProperties: Array<{ name: string; originalKey: string; value: string; isObjectMethod?: boolean }>,
   format: 'object' | 'class' = 'object',
   interfaceToExtend?: string,
   isTypeScript = true,
@@ -583,6 +585,12 @@ export function generateExtensionCode(
   // Object format used by mixin-to-schema transform
   const properties = extensionProperties
     .map((prop) => {
+      // If this is an object method syntax (method, getter, setter, etc.), use as-is
+      if (prop.isObjectMethod) {
+        return `  ${prop.value}`;
+      }
+
+      // For regular properties, use key: value syntax
       const key = prop.originalKey;
       return `  ${key}: ${prop.value}`;
     })
@@ -1110,7 +1118,7 @@ export function createExtensionFromOriginalFile(
   source: string,
   baseName: string,
   extensionName: string,
-  extensionProperties: Array<{ name: string; originalKey: string; value: string }>,
+  extensionProperties: Array<{ name: string; originalKey: string; value: string; isObjectMethod?: boolean }>,
   defaultExportNode: SgNode | null,
   options?: TransformOptions,
   interfaceToExtend?: string,
@@ -1611,7 +1619,7 @@ export function findDefaultExport(root: SgNode, options?: TransformOptions): SgN
 export function createExtensionArtifact(
   baseName: string,
   entityName: string,
-  extensionProperties: Array<{ name: string; originalKey: string; value: string }>,
+  extensionProperties: Array<{ name: string; originalKey: string; value: string; isObjectMethod?: boolean }>,
   extensionFormat: 'class' | 'object',
   fileExtension?: string
 ): TransformArtifact | null {
