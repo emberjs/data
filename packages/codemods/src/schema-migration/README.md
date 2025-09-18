@@ -68,7 +68,7 @@ Create a `schema-migration.config.json` file for complex projects:
 
 ```json
 {
-  "$schema": "./node_modules/@ember-data/codemods/src/schema-migration/config-schema.json",
+  "$schema": "https://raw.githubusercontent.com/emberjs/data/main/packages/codemods/src/schema-migration/config-schema.json",
   "modelImportSource": "my-app/models",
   "resourcesImport": "my-app/data/resources",
   "outputDir": "./app/data/schemas",

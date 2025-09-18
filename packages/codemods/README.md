@@ -155,7 +155,7 @@ For complex projects, you can use a JSON configuration file:
 
 ```json
 {
-  "$schema": "./tools/warp-drive-codemod/config-schema.json",
+  "$schema": "https://raw.githubusercontent.com/emberjs/data/main/packages/codemods/src/schema-migration/config-schema.json",
   "version": "1.0.0",
   "description": "Configuration for MyClient WarpDrive migration",
   "dryRun": false,
