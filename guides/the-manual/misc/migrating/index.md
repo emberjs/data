@@ -295,9 +295,9 @@ export default class User extends Model {
 
 ```ts [app/data/user/schema.ts]
 import { withDefaults } from '@warp-drive-mirror/legacy/model/migration-support';
-export const UserSchema {
+
+export const UserSchema = withDefaults({
   type: 'user';
-  identity: { kind: '@id', name: 'id' },
   fields: [
     { kind: 'attribute', name: 'firstName' },
     { kind: 'attribute', name: 'lastName' },
@@ -313,8 +313,9 @@ export const UserSchema {
       type: 'user',
       options: { async: true, inverse: null }
     },
-  ]
-}
+  ],
+  objectExtensions: ['user-extension'],
+});
 ```
 
 ```ts [app/data/user/type.ts]
@@ -351,6 +352,12 @@ export class UserExtension {
     alert(this.greeting);
   }
 }
+
+export const UserExtension = {
+  name: 'user-extension',
+  kind: 'object',
+  features: UserExtension,
+}
 ```
 
 :::
@@ -380,6 +387,7 @@ export default class User extends Model.extend(Timestamped) {
 
 ```ts [app/mixins/timestamped.ts]
 import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
 
 export default Mixin.create({
   createdAt: attr(),
@@ -405,15 +413,79 @@ export default Mixin.create({
 :::code-group
 
 ```ts [app/data/user/schema.ts]
-TBD
+import { withDefaults } from '@warp-drive-mirror/legacy/model/migration-support';
+
+export const UserSchema = withDefaults({
+  type: 'user';
+  fields: [
+    { kind: 'attribute', name: 'firstName' },
+    { kind: 'attribute', name: 'lastName' },
+  ],
+  traits: ['timestamped'],
+  objectExtensions: ['timestamped-extension']
+});
 ```
 
 ```ts [app/data/user/type.ts]
-TBD
+import { WithLegacy } from '@warp-drive-mirror/legacy/model/migration-support';
+import { type AsyncHasMany } from '@warp-drive-mirror/legacy/model';
+import type { Type } from '@warp-drive-mirror/core/types/symbol';
+import type { Timestamped } from '../timstamped/type.ts';
+
+export interface User extends Timestamped {
+  [Type]: 'user';
+  firstName: string;
+  lastName: string;
+  user: User | null;
+  friends: AsyncHasMany<User>;
+};
+
+export type LegacyUser = WithLegacy<User>;
 ```
 
-```ts [app/data/user/ext.ts]
-TBD
+```ts [app/data/timestamped/schema.ts]
+export const TimetampedTrait = {
+  name: 'timestamped',
+  mode: 'legacy',
+  fields: [
+    { kind: 'attribute', name: 'createdAt' },
+    { kind: 'attribute', name: 'deletedAt' },
+    { kind: 'attribute', name: 'updatedAt' },
+  ],
+}
+```
+
+```ts [app/data/timestamped/type.ts]
+export interface Timestamped {
+  createdAt: number;
+  deletedAt: number | null;
+  updatedAt: number;
+
+  softDelete: Promise<void>;
+}
+```
+
+```ts [app/data/timestamped/ext.ts]
+import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+
+export const TimestampedExtension = {
+  kind: 'object',
+  name: 'timestamped-extension',
+  features: {
+    async softDelete() {
+      const result = await fetch(`/api/${this.constructor.modelName}/${this.id}`, { method: 'DELETE' });
+      const newTimestamps = await result.json();
+      this.store.push({
+        data: {
+          type: this.constructor.modelName,
+          id: this.id,
+          attributes: newTimestamps
+        }
+      });
+    }
+  }
+});
 ```
 
 :::
