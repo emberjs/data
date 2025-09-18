@@ -249,6 +249,8 @@ Key concepts:
 
 #### A Basic Model
 
+We migrate models with ResourceSchemas and extensions.
+
 :::tabs
 
 == Before
@@ -307,12 +309,47 @@ TBD
 
 #### A Model with Mixins
 
+We can migrate mixins with traits and extensions.
+
 :::tabs
 
 == Before
 
-```ts
-TBD
+:::code-group
+
+```ts [app/models/user.ts]
+import Model, { attr } from '@ember-data/model';
+import type { Type } from '@warp-drive/core-types/symbol';
+import Timestamped from '../mixins/timestamped';
+
+export default class User extends Model.extend(Timestamped) {
+  declare [Type]: 'user';
+
+  @attr firstName;
+  @attr lastName;
+}
+```
+
+```ts [app/mixins/timestamped.ts]
+import Mixin from '@ember/object/mixin';
+
+export default Mixin.create({
+  createdAt: attr(),
+  deletedAt: attr(),
+  updatedAt: attr(),
+
+  async softDelete() {
+    const result = await fetch(`/api/${this.constructor.modelName}/${this.id}`, { method: 'DELETE' });
+    const newTimestamps = await result.json();
+    this.store.push({
+      data: {
+        type: this.constructor.modelName,
+        id: this.id,
+        attributes: newTimestamps
+      }
+    });
+  }
+});
 ```
 
 == After
