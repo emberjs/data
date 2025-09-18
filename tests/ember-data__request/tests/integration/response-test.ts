@@ -33,13 +33,13 @@ module('RequestManager | Response', function () {
         ok: true,
         redirected: false,
         headers: [
-          ['content-type', 'application/json;charset=utf-8'],
+          ['content-type', 'application/json'],
           // ['date', 'Wed, 23 Nov 2022 05:17:11 GMT'],
           // ['etag', 'W/"39-1849db13af9"'],
           // ['last-modified', 'Tue, 22 Nov 2022 04:55:48 GMT'],
         ],
         status: 200,
-        statusText: 'OK',
+        statusText: '',
         type: 'basic',
       },
       'The response is processed correctly'

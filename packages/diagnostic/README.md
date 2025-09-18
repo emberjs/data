@@ -264,7 +264,7 @@ If our build assets are located in `<dir>/dist-test/*` and the entry point for t
 
 *\<dir>/diagnostic.js*
 ```ts
-import launch from '@warp-drive/diagnostic/server/default-setup.js';
+import { launch } from '@warp-drive/diagnostic/server';
 
 await launch();
 ```
@@ -293,7 +293,7 @@ For github-actions, [use the official bun action](https://github.com/oven-sh/set
 Finally, give your tests a run to make sure they still work as expected.
 
 ```sh
-bun ./diagnostic.js
+node ./diagnostic.js
 ```
 
 And update any necessary scripts in `package.json`
@@ -303,7 +303,7 @@ And update any necessary scripts in `package.json`
   "scripts": {
      "build" "ember build",
 -    "test": "ember test"
-+    "test": "bun run build && bun ./diagnostic.js"
++    "test": "bun run build && node ./diagnostic.js"
   }
 }
 ```

@@ -11,17 +11,17 @@ export default [
   // browser (js/ts) ================
   typescript.browser({
     dirname: import.meta.dirname,
-    srcDirs: ['src'],
+    srcDirs: ['client/src'],
     allowedImports: ['@ember/test-helpers', '@glimmer/manager', '@ember/runloop'],
     rules: {
       'no-console': 'off',
     },
   }),
 
-  // node (module) ================
-  node.esm({
-    files: ['server/**/*.{js,ts}'],
-    globals: { Bun: true },
+  typescript.node({
+    dirname: import.meta.dirname,
+    srcDirs: ['server/src'],
+    tsconfig: 'server/tsconfig.json',
     rules: {
       'no-console': 'off',
     },

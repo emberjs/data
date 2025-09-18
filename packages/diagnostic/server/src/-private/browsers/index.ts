@@ -1,15 +1,18 @@
-import os from 'os';
-import path from 'path';
+/* eslint-disable @typescript-eslint/require-await */
+import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import tmp from 'tmp';
 
-import { debug } from '../utils/debug.js';
-import { isWin, platformName } from '../utils/platform.js';
+import { debug, loggingIsEnabled } from '../utils/debug.js';
+import { isSupportedPlatform, isWin, platformName } from '../utils/platform.ts';
 
 export function getHomeDir() {
   return process.env.HOME || process.env.USERPROFILE;
 }
 
-function chromeWinPaths(name) {
+function chromeWinPaths(name: string) {
   const homeDir = getHomeDir();
   return [
     homeDir + '\\Local Settings\\Application Data\\Google\\' + name + '\\Application\\chrome.exe',
@@ -19,7 +22,7 @@ function chromeWinPaths(name) {
   ];
 }
 
-function chromeDarwinPaths(name) {
+function chromeDarwinPaths(name: string) {
   const homeDir = getHomeDir();
   return [
     homeDir + '/Applications/' + name + '.app/Contents/MacOS/' + name,
@@ -30,7 +33,7 @@ function chromeDarwinPaths(name) {
 const ChromePaths = {
   win: chromeWinPaths,
   darwin: chromeDarwinPaths,
-};
+} as const;
 
 const ChromeTags = {
   win: {
@@ -43,24 +46,22 @@ const ChromeTags = {
     beta: 'Google Chrome Beta',
     canary: 'Google Chrome Canary',
   },
-};
+} as const;
 
 const ChromeExeNames = {
   stable: ['google-chrome-stable', 'google-chrome', 'chrome'],
   beta: ['google-chrome-beta'],
   canary: ['google-chrome-unstable'],
-};
+} as const;
 
-async function executableExists(exe) {
+async function executableExists(exe: string) {
   const cmd = isWin() ? 'where' : 'which';
-  const result = Bun.spawnSync([cmd, exe], {
-    stdout: 'inherit',
-  });
+  const result = spawnSync(cmd, [exe]);
 
-  return result.success;
+  return result.status === 0;
 }
 
-async function isInstalled(browser) {
+async function isInstalled(browser: BrowserLookup) {
   const result = await checkBrowser(browser.possiblePath, fileExists);
   if (result) {
     return result;
@@ -71,12 +72,11 @@ async function isInstalled(browser) {
   });
 }
 
-async function fileExists(file) {
-  const pointer = Bun.file(file);
-  return pointer.exists();
+async function fileExists(file: string): Promise<boolean> {
+  return existsSync(file);
 }
 
-async function checkBrowser(lookups, method) {
+async function checkBrowser(lookups: string | string[], method: (option: string) => Promise<unknown>) {
   if (!lookups) {
     return false;
   }
@@ -96,16 +96,22 @@ async function checkBrowser(lookups, method) {
   }
 }
 
-async function getChrome(browser, tag) {
+interface BrowserLookup {
+  name: 'chrome' | 'chrome-beta' | 'chrome-canary';
+  possiblePath: string[];
+  possibleExe: string[];
+}
+
+async function getChrome(browser: 'chrome' | 'chrome-beta' | 'chrome-canary', tag: 'stable' | 'beta' | 'canary') {
   const platform = platformName();
-  const pathName = ChromeTags[platform]?.[tag];
-  const paths = ChromePaths[platform]?.(pathName) ?? [];
+  const pathName = isSupportedPlatform(platform) ? ChromeTags[platform]?.[tag] : null;
+  const paths = isSupportedPlatform(platform) ? (ChromePaths[platform]?.(pathName!) ?? []) : [];
 
   const lookupInfo = {
     name: browser.toLowerCase(),
     possiblePath: paths,
     possibleExe: ChromeExeNames[tag],
-  };
+  } as unknown as BrowserLookup;
 
   const result = await isInstalled(lookupInfo);
   if (!result) {
@@ -123,7 +129,7 @@ async function getChrome(browser, tag) {
   return result;
 }
 
-export async function getBrowser(browser) {
+export async function getBrowser(browser: 'chrome' | 'chrome-beta' | 'chrome-canary') {
   const name = browser.toLowerCase();
   if (name === 'chrome') {
     return getChrome(name, 'stable');
@@ -138,11 +144,11 @@ export async function getBrowser(browser) {
   throw new Error(`@warp-drive/diagnostic has no launch information for ${browser}`);
 }
 
-const TMP_DIRS = new Map();
+const TMP_DIRS = new Map<'chrome', tmp.DirResult>();
 
-export function getTmpDir(browser) {
+export function getTmpDir(browser: 'chrome'): string {
   if (TMP_DIRS.has(browser)) {
-    return TMP_DIRS.get(browser).name;
+    return TMP_DIRS.get(browser)!.name;
   }
 
   const userDataDir = os.tmpdir();
@@ -157,11 +163,14 @@ export function getTmpDir(browser) {
   return tmpDir.name;
 }
 
-export function recommendedArgs(browser, options = {}) {
+export function recommendedArgs(
+  browser: 'chrome',
+  options: { useEventSimulation?: boolean; debug?: boolean; memory?: boolean } = {}
+): string[] {
   if (!browser || browser.toLowerCase() !== 'chrome') {
     return [];
   }
-  const DEBUG = options.debug || debug.enabled;
+  const DEBUG = options.debug || loggingIsEnabled();
   const DEBUG_MEMORY = options.memory || process.env.DEBUG_MEMORY;
   const SERVE = 'serve' in options ? options.serve : false;
   const HEADLESS = 'headless' in options ? options.headless : !SERVE;
@@ -309,5 +318,5 @@ export function recommendedArgs(browser, options = {}) {
     // '--no-proxy-server',
     // '--proxy-bypass-list=*',
     // "--proxy-server='direct://'",
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
 }
