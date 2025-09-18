@@ -1,8 +1,7 @@
 {
   "name": "@ember-data/codemods",
   "version": "5.8.0-alpha.18",
-  "private": true,
-  "description": "Codemods for EmberData paradigms",
+  "description": "Codemods for WarpDrive/EmberData paradigms",
   "keywords": [],
   "repository": {
     "type": "git",
