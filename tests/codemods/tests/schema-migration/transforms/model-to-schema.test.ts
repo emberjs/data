@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { toArtifacts } from '../../../../../packages/codemods/src/schema-migration/model-to-schema.js';
+import transform, { toArtifacts } from '../../../../../packages/codemods/src/schema-migration/model-to-schema.js';
 import { createTestOptions, DEFAULT_TEST_OPTIONS } from '../test-helpers';
 
 describe('model-to-schema transform (artifacts)', () => {
@@ -489,6 +489,69 @@ export default class RegularTestModel extends Model {
       expect(schemaType?.code).toContain('@ember-data/model');
       expect(schemaType?.code).not.toContain('@warp-drive-mirror/core/types/symbols');
       expect(schemaType?.code).not.toContain('@warp-drive-mirror/legacy/model');
+    });
+  });
+
+  describe('relative imports transformation', () => {
+    it('transforms relative model imports to schema type imports when converting a model', () => {
+      const input = `import type { ConnectedEntityType } from 'soxhub-client/components/module-automations/const/automation-workflow-instance';
+import Model, { attr, belongsTo } from '@ember-data/model';
+
+import type AuditableEntity from './auditable-entity';
+import type AutomationWorkflowVersion from './automation-workflow-version';
+
+export default class TestModel extends Model {
+  @attr('string') name;
+  @belongsTo('auditable-entity', { async: false }) auditableEntity;
+  @belongsTo('automation-workflow-version', { async: false }) version;
+}`;
+
+      const result = transform('app/models/test.ts', input, DEFAULT_TEST_OPTIONS);
+
+      // Should transform relative imports to schema type imports
+      expect(result).toContain("import type { AuditableEntity } from './auditable-entity.schema.types';");
+      expect(result).toContain("import type { AutomationWorkflowVersion } from './automation-workflow-version.schema.types';");
+
+      // Should preserve non-relative imports
+      expect(result).toContain("import type { ConnectedEntityType } from 'soxhub-client/components/module-automations/const/automation-workflow-instance';");
+
+      // Should not transform the original relative import syntax
+      expect(result).not.toContain("import type AuditableEntity from './auditable-entity';");
+      expect(result).not.toContain("import type AutomationWorkflowVersion from './automation-workflow-version';");
+
+      // Should convert the model to a schema - adjust expectation based on actual output
+      expect(result).toContain('export const Test');
+    });
+
+    it('only transforms type imports with relative paths', () => {
+      const input = `import { someFunction } from './some-utility';
+import Model, { attr } from '@ember-data/model';
+import type SomeType from './some-type';
+import RegularImport from './regular-import';
+import type { NamedType } from './named-type';
+import type AbsoluteType from 'some-package/type';
+
+export default class TestModel extends Model {
+  @attr('string') name;
+}`;
+
+      const result = transform('app/models/test.ts', input, DEFAULT_TEST_OPTIONS);
+
+      // Should only transform default type imports with relative paths
+      expect(result).toContain("import type { SomeType } from './some-type.schema.types';");
+
+      // Should not transform non-type imports
+      expect(result).toContain("import { someFunction } from './some-utility';");
+      expect(result).toContain("import RegularImport from './regular-import';");
+
+      // Should not transform already-named type imports
+      expect(result).toContain("import type { NamedType } from './named-type';");
+
+      // Should not transform absolute imports
+      expect(result).toContain("import type AbsoluteType from 'some-package/type';");
+
+      // Should still generate the schema
+      expect(result).toContain('export const Test'); // Accept either TestSchema or TestModelSchema
     });
   });
 });

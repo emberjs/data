@@ -214,6 +214,9 @@ export default function transform(filePath: string, source: string, options: Tra
         `Found ${schemaFields.length} schema fields and ${extensionProperties.length} extension properties`
       );
 
+      // Transform relative model imports to schema type imports first
+      const transformedSource = transformModelImportsInSource(sourceContent, _root);
+
       // Generate the replacement schema
       const replacement = generateLegacyResourceSchema(
         modelName,
@@ -222,15 +225,15 @@ export default function transform(filePath: string, source: string, options: Tra
         mixinTraits,
         mixinExtensions,
         extensionProperties,
-        sourceContent
+        transformedSource
       );
 
       if (!defaultExportNode) {
-        return sourceContent;
+        return transformedSource;
       }
 
       const original = defaultExportNode.text();
-      return sourceContent.replace(original, replacement);
+      return transformedSource.replace(original, replacement);
     }
   );
 }
@@ -1451,6 +1454,37 @@ function generateLegacyResourceSchema(
   return generateExportStatement(schemaName, legacySchema, useSingleQuotes);
 }
 
+/**
+ * Transform relative model imports in source to schema type imports
+ */
+function transformModelImportsInSource(source: string, root: SgNode): string {
+  let result = source;
+
+  // Find all import declarations
+  const imports = root.findAll({ rule: { kind: 'import_statement' } });
+
+  for (const importNode of imports) {
+    const importText = importNode.text();
+
+    // Check if this is a relative import to another model file
+    // Pattern: import type SomeThing from './some-thing';
+    const relativeImportMatch = importText.match(/import\s+type\s+(\w+)\s+from\s+['"](\.\/.+?)['"];?/);
+
+    if (relativeImportMatch) {
+      const [fullMatch, typeName, relativePath] = relativeImportMatch;
+
+      // Transform to named import from schema.types
+      // e.g., import type SomeThing from './some-thing';
+      // becomes import type { SomeThing } from './some-thing.schema.types';
+      const transformedImport = `import type { ${typeName} } from '${relativePath}.schema.types';`;
+
+      result = result.replace(fullMatch, transformedImport);
+    }
+  }
+
+  return result;
+}
+
 /** Generate schema code by preserving existing file content and replacing model with schema */
 function generateSchemaCode(
   schemaName: string,
@@ -1468,9 +1502,12 @@ function generateSchemaCode(
   const useSingleQuotes = detectQuoteStyle(originalSource) === 'single';
   const exportStatement = generateExportStatement(schemaName, legacySchema, useSingleQuotes);
 
+  // Transform relative model imports to schema type imports
+  let transformedSource = transformModelImportsInSource(originalSource, root);
+
   // If no default export node, just append the schema to the existing content
   if (!defaultExportNode) {
-    return `${originalSource}\n\n${exportStatement}`;
+    return `${transformedSource}\n\n${exportStatement}`;
   }
 
   // Use the already-parsed AST root node
@@ -1506,7 +1543,7 @@ function generateSchemaCode(
     if (exportText.includes('class ')) {
       // Class is directly in the export (export default class XcSuggestion)
       // Remove the entire export statement
-      let result = originalSource.replace(exportText, '');
+      let result = transformedSource.replace(exportText, '');
       // Clean up extra newlines
       result = result.replace(/\n\n\n+/g, '\n\n');
       return `${result}\n${exportStatement}`;
@@ -1515,7 +1552,7 @@ function generateSchemaCode(
     // Remove both the class declaration and the export statement
     const classText = classDeclaration.text();
 
-    let result = originalSource.replace(classText, '');
+    let result = transformedSource.replace(classText, '');
     result = result.replace(exportText, '');
 
     // Clean up extra newlines
@@ -1525,7 +1562,7 @@ function generateSchemaCode(
 
   // Fallback: just replace the export statement
   const original = defaultExportNode.text();
-  return originalSource.replace(original, exportStatement);
+  return transformedSource.replace(original, exportStatement);
 }
 
 /** Generate only the schema code block (legacy function for compatibility) */
