@@ -186,11 +186,11 @@ export default class EmptyModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/empty-model.js', input, DEFAULT_TEST_OPTIONS);
-      // Empty models still generate a schema artifact (with just identity) and schema-type artifact
+      // Empty models still generate a schema artifact (with just identity) and resource-type artifact
       expect(artifacts).toHaveLength(2);
       expect(artifacts[0]?.type).toBe('schema');
       expect(artifacts[0]?.code).toContain('export const EmptyModelSchema');
-      expect(artifacts[1]?.type).toBe('schema-type');
+      expect(artifacts[1]?.type).toBe('resource-type');
     });
 
     it('handles aliased imports correctly', () => {
@@ -301,7 +301,7 @@ export default class ComplexDocument extends Model.extend(FileableMixin, Timesta
   });
 
   describe('TypeScript type artifacts', () => {
-    it('generates schema-type artifact with proper interface for basic models', () => {
+    it('generates resource-type artifact with proper interface for basic models', () => {
       const input = `import Model, { attr, hasMany, belongsTo } from '@ember-data/model';
 
 export default class User extends Model {
@@ -313,16 +313,16 @@ export default class User extends Model {
 
       const artifacts = toArtifacts('app/models/user.js', input, DEFAULT_TEST_OPTIONS);
 
-      // Should have schema and schema-type artifacts (no extension for data-only models)
+      // Should have schema and resource-type artifacts (no extension for data-only models)
       expect(artifacts).toHaveLength(2);
-      expect(artifacts.map((a) => a.type).sort()).toEqual(['schema', 'schema-type']);
+      expect(artifacts.map((a) => a.type).sort()).toEqual(['resource-type', 'schema']);
 
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
       expect(schemaType?.code).toMatchSnapshot('basic schema type interface');
       expect(schemaType?.suggestedFileName).toBe('user.schema.types.js');
     });
 
-    it('generates schema-type and extension artifacts when model has methods and computed properties', () => {
+    it('generates resource-type and extension artifacts when model has methods and computed properties', () => {
       const input = `import Model, { attr } from '@ember-data/model';
 
 export default class ProcessedModel extends Model {
@@ -340,11 +340,11 @@ export default class ProcessedModel extends Model {
 
       const artifacts = toArtifacts('app/models/processed-model.js', input, DEFAULT_TEST_OPTIONS);
 
-      // Should have schema, schema-type, and extension artifacts
+      // Should have schema, resource-type, and extension artifacts
       expect(artifacts).toHaveLength(3);
-      expect(artifacts.map((a) => a.type).sort()).toEqual(['extension', 'schema', 'schema-type']);
+      expect(artifacts.map((a) => a.type).sort()).toEqual(['extension', 'resource-type', 'schema']);
 
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
       const extension = artifacts.find((a) => a.type === 'extension');
 
       expect(schemaType?.code).toMatchSnapshot('model schema type interface');
@@ -373,7 +373,7 @@ export default class TypedModel extends Model {
         input,
         createTestOptions({ typeMapping: customTypeMappings })
       );
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toMatchSnapshot('custom type mappings interface');
     });
@@ -390,7 +390,7 @@ export default class RelationshipModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/relationship-model.js', input, DEFAULT_TEST_OPTIONS);
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toMatchSnapshot('relationship types interface');
     });
@@ -405,7 +405,7 @@ export default class UnknownTypesModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/unknown-types-model.js', input, DEFAULT_TEST_OPTIONS);
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toMatchSnapshot('unknown types interface');
       expect(schemaType?.code).toContain('unknown');
@@ -433,7 +433,7 @@ export default class CustomTypesModel extends Model {
         input,
         createTestOptions({ typeMapping: customTypeMappings })
       );
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toMatchSnapshot('custom type mappings in schema types');
     });
@@ -447,7 +447,7 @@ export default class UnmappedTypesModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/unmapped-types-model.js', input, DEFAULT_TEST_OPTIONS);
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toMatchSnapshot('unknown fallback for unmapped types');
       expect(schemaType?.code).toContain('unknown');
@@ -465,7 +465,7 @@ export default class MirrorTestModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/mirror-test-model.js', input, createTestOptions({ mirror: true }));
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toContain('@warp-drive-mirror/core/types/symbols');
       expect(schemaType?.code).toContain('@ember-data/model');
@@ -483,7 +483,7 @@ export default class RegularTestModel extends Model {
 }`;
 
       const artifacts = toArtifacts('app/models/regular-test-model.js', input, DEFAULT_TEST_OPTIONS);
-      const schemaType = artifacts.find((a) => a.type === 'schema-type');
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
 
       expect(schemaType?.code).toContain('@warp-drive/core/types/symbols');
       expect(schemaType?.code).toContain('@ember-data/model');

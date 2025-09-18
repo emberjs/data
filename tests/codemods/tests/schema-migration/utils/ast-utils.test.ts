@@ -108,15 +108,15 @@ describe('AST utilities', () => {
   });
 
   describe('createTypeArtifact', () => {
-    it('creates schema-type artifact with correct filename and type', () => {
+    it('creates resource-type artifact with correct filename and type', () => {
       const properties = [{ name: 'name', type: 'string', readonly: true, optional: false }];
 
-      const artifact = createTypeArtifact('user', 'UserSchema', properties, 'schema');
+      const artifact = createTypeArtifact('user', 'UserSchema', properties, 'resource');
 
-      expect(artifact.type).toBe('schema-type');
+      expect(artifact.type).toBe('resource-type');
       expect(artifact.name).toBe('UserSchema');
       expect(artifact.suggestedFileName).toBe('user.schema.types.ts');
-      expect(artifact.code).toMatchSnapshot('schema-type artifact code');
+      expect(artifact.code).toMatchSnapshot('resource-type artifact code');
     });
 
     it('creates extension-type artifact with correct filename and type', () => {

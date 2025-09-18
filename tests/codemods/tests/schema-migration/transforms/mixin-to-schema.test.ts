@@ -26,7 +26,7 @@ export default Mixin.create({
 
       // Test generated code separately for better readability
       const trait = artifacts.find((a) => a.type === 'trait');
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
       const extension = artifacts.find((a) => a.type === 'extension');
       expect(trait?.code).toMatchSnapshot('trait code');
       expect(traitType?.code).toMatchSnapshot('trait type code');
@@ -142,7 +142,7 @@ export default Mixin.create({
 
       // Test generated code separately for better readability
       const trait = artifacts.find((a) => a.type === 'trait');
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
       const extension = artifacts.find((a) => a.type === 'extension');
       expect(trait?.code).toMatchSnapshot('trait code');
       expect(extension?.code).toMatchSnapshot('extension code');
@@ -311,9 +311,9 @@ export default Mixin.create({
 
       // Should have trait and trait-type artifacts (no extension if no computed/methods)
       expect(artifacts).toHaveLength(2);
-      expect(artifacts.map((a) => a.type).sort()).toEqual(['schema-type', 'trait']);
+      expect(artifacts.map((a) => a.type).sort()).toEqual(['trait', 'trait-type']);
 
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
       expect(traitType?.code).toMatchSnapshot('basic trait type interface');
       expect(traitType?.suggestedFileName).toBe('fileable.schema.types.js');
     });
@@ -339,9 +339,9 @@ export default Mixin.create({
 
       // Should have trait, extension, and trait-type artifacts (no extension-type needed)
       expect(artifacts).toHaveLength(3);
-      expect(artifacts.map((a) => a.type).sort()).toEqual(['extension', 'schema-type', 'trait']);
+      expect(artifacts.map((a) => a.type).sort()).toEqual(['extension', 'trait', 'trait-type']);
 
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
       const extension = artifacts.find((a) => a.type === 'extension');
 
       expect(traitType?.code).toMatchSnapshot('mixin trait type interface');
@@ -363,9 +363,9 @@ export default Mixin.create({
 
       // Should have trait and trait-type only (no extension for data-only mixins)
       expect(artifacts).toHaveLength(2);
-      expect(artifacts.map((a) => a.type).sort()).toEqual(['schema-type', 'trait']);
+      expect(artifacts.map((a) => a.type).sort()).toEqual(['trait', 'trait-type']);
 
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
       expect(traitType?.code).toMatchSnapshot('data-only trait type interface');
     });
 
@@ -386,7 +386,7 @@ export default Mixin.create({
       };
 
       const artifacts = toArtifacts('app/mixins/typed.js', input, { customTypeMappings });
-      const traitType = artifacts.find((a) => a.type === 'schema-type');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
 
       expect(traitType?.code).toMatchSnapshot('mixin custom type mappings interface');
     });
@@ -433,7 +433,7 @@ export default Mixin.createWithMixins(BaseModelMixin, TimestampMixin, {
       expect(artifacts).toHaveLength(2);
 
       const trait = artifacts.find((a) => a.type === 'trait');
-      const typeArtifact = artifacts.find((a) => a.type === 'schema-type');
+      const typeArtifact = artifacts.find((a) => a.type === 'trait-type');
 
       expect(trait).toBeDefined();
       expect(typeArtifact).toBeDefined();
@@ -470,7 +470,7 @@ export default Mixin.createWithMixins(BaseModelMixin, {
       const artifacts = toArtifacts('app/mixins/describable.js', input, {});
 
       const trait = artifacts.find((a) => a.type === 'trait');
-      const typeArtifact = artifacts.find((a) => a.type === 'schema-type');
+      const typeArtifact = artifacts.find((a) => a.type === 'trait-type');
 
       expect(trait).toBeDefined();
       expect(typeArtifact).toBeDefined();
@@ -497,7 +497,7 @@ export default Mixin.create({
       const artifacts = toArtifacts('app/mixins/describable.js', input, {});
 
       const trait = artifacts.find((a) => a.type === 'trait');
-      const typeArtifact = artifacts.find((a) => a.type === 'schema-type');
+      const typeArtifact = artifacts.find((a) => a.type === 'trait-type');
 
       expect(trait).toBeDefined();
       expect(typeArtifact).toBeDefined();

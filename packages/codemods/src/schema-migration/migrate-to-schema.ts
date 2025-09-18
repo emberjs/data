@@ -128,11 +128,11 @@ async function analyzeModelMixinUsage(options: TransformOptions): Promise<Set<st
 function extractMixinImports(source: string, filePath: string, options: TransformOptions): string[] {
   const mixinPaths: string[] = [];
 
-  // Look for imports from mixins directories
-  const mixinImportRegex = /import\s+\w+\s+from\s+['"]([^'"]*\/mixins\/[^'"]*)['"]/g;
+  // Look for all import statements and resolve them to see if they point to mixins
+  const importRegex = /import\s+\w+\s+from\s+['"]([^'"]+)['"]/g;
   let match;
 
-  while ((match = mixinImportRegex.exec(source)) !== null) {
+  while ((match = importRegex.exec(source)) !== null) {
     const importPath = match[1];
     const resolved = resolveMixinPath(importPath, filePath, options);
     if (resolved) {
@@ -150,8 +150,8 @@ function extractMixinImports(source: string, filePath: string, options: Transfor
 
     while ((identifierMatch = identifierRegex.exec(extendArgs)) !== null) {
       const identifier = identifierMatch[1];
-      // Check if this identifier is imported from a mixins directory
-      const importRegex = new RegExp(`import\\s+${identifier}\\s+from\\s+['"]([^'"]*\/mixins\/[^'"]*)['"']`);
+      // Check if this identifier is imported and resolve to see if it's a mixin
+      const importRegex = new RegExp(`import\\s+${identifier}\\s+from\\s+['"]([^'"]+)['"']`);
       const importMatch = source.match(importRegex);
       if (importMatch) {
         const resolved = resolveMixinPath(importMatch[1], filePath, options);
@@ -170,25 +170,40 @@ function extractMixinImports(source: string, filePath: string, options: Transfor
  */
 function resolveMixinPath(importPath: string, currentFilePath: string, options: TransformOptions): string | null {
   try {
+    let resolvedPath: string;
+
     // Handle relative paths
     if (importPath.startsWith('.')) {
-      const resolved = resolve(dirname(currentFilePath), importPath);
-      // Add .js extension if not present
-      const withExt = resolved.endsWith('.js') || resolved.endsWith('.ts') ? resolved : `${resolved}.js`;
-      return existsSync(withExt) ? withExt : (existsSync(`${resolved}.ts`) ? `${resolved}.ts` : null);
+      resolvedPath = resolve(dirname(currentFilePath), importPath);
+    } else {
+      // Handle absolute/module paths - try to resolve them relative to current file
+      resolvedPath = resolve(dirname(currentFilePath), importPath);
     }
 
-    // Handle absolute paths from mixins directory
-    if (importPath.includes('/mixins/')) {
-      // Extract the path relative to mixins directory
-      const mixinsPart = importPath.substring(importPath.indexOf('/mixins/') + '/mixins/'.length);
-      const fullPath = join(resolve(options.mixinSourceDir || './app/mixins'), mixinsPart);
-      const withExt = fullPath.endsWith('.js') || fullPath.endsWith('.ts') ? fullPath : `${fullPath}.js`;
-      return existsSync(withExt) ? withExt : (existsSync(`${fullPath}.ts`) ? `${fullPath}.ts` : null);
+    // Try different extensions
+    const possiblePaths = [
+      resolvedPath,
+      `${resolvedPath}.js`,
+      `${resolvedPath}.ts`,
+    ];
+
+    const mixinSourceDir = resolve(options.mixinSourceDir || './app/mixins');
+
+    for (const path of possiblePaths) {
+      if (existsSync(path)) {
+        // Check if this resolved path is within the mixins source directory
+        if (path.startsWith(mixinSourceDir)) {
+          return path;
+        }
+        break;
+      }
     }
 
     return null;
-  } catch {
+  } catch (error) {
+    if (options.verbose) {
+      console.log(`📋 DEBUG: Error resolving path '${importPath}':`, error);
+    }
     return null;
   }
 }
@@ -211,9 +226,10 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   console.log(`📁 Input directory: ${resolve(finalOptions.inputDir)}`);
   console.log(`📁 Output directory: ${resolve(finalOptions.outputDir)}`);
 
-  // Ensure output directories exist
+  // Ensure output directories exist (specific directories are created as needed)
   if (!finalOptions.dryRun) {
-    mkdirSync(resolve(finalOptions.outputDir), { recursive: true });
+    // Only create specific directories if they are configured
+    // The generic outputDir is only used for fallback artifacts and shouldn't be pre-created
     if (finalOptions.traitsDir) {
       mkdirSync(resolve(finalOptions.traitsDir), { recursive: true });
     }
@@ -321,13 +337,13 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
           if (artifact.type === 'schema') {
             // Schema files go to resourcesDir
-            outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
+            outputDir = finalOptions.resourcesDir || './app/data/resources';
             const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
             const outputName = relativePath.replace(/\.(js|ts)$/, '.js'); // Schemas are always .js
             outputPath = join(resolve(outputDir), outputName);
-          } else if (artifact.type === 'schema-type') {
-            // Type files go to resourcesDir
-            outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
+          } else if (artifact.type === 'resource-type') {
+            // Type files are colocated with their schemas in resourcesDir
+            outputDir = finalOptions.resourcesDir || './app/data/resources';
             const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
             outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
           } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
@@ -408,7 +424,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
             const outputName = relativePath.replace(/\.(js|ts)$/, '.js'); // Traits are always .js
             outputPath = join(resolve(outputDir), outputName);
           } else if (artifact.type === 'trait-type') {
-            // Type files go to traitsDir
+            // Type files are colocated with their traits in traitsDir
             outputDir = finalOptions.traitsDir || './app/data/traits';
             const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
             outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));

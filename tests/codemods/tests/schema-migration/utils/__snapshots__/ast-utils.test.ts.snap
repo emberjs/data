@@ -7,7 +7,7 @@ exports[`AST utilities > createTypeArtifact > creates extension-type artifact wi
 "
 `;
 
-exports[`AST utilities > createTypeArtifact > creates schema-type artifact with correct filename and type > schema-type artifact code 1`] = `
+exports[`AST utilities > createTypeArtifact > creates resource-type artifact with correct filename and type > resource-type artifact code 1`] = `
 "export interface UserSchema {
 	readonly name: string;
 }

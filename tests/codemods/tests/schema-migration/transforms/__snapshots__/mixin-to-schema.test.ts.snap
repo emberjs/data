@@ -63,7 +63,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > collects 
   {
     "name": "FileableTrait",
     "suggestedFileName": "fileable.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "name": "fileableExtension",
@@ -203,7 +203,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > produces 
   {
     "name": "FileableTrait",
     "suggestedFileName": "fileable.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;
@@ -218,7 +218,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > produces 
   {
     "name": "FileableTrait",
     "suggestedFileName": "fileable.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "name": "fileableExtension",
@@ -305,7 +305,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > supports 
   {
     "name": "AliasedTrait",
     "suggestedFileName": "aliased.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;
@@ -344,7 +344,7 @@ export interface CustomSourceTrait {
 ",
     "name": "CustomSourceTrait",
     "suggestedFileName": "custom-source.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "code": "import Mixin from '@ember/object/mixin';
@@ -389,7 +389,7 @@ export interface RenamedMixedSourcesTrait {
 ",
     "name": "RenamedMixedSourcesTrait",
     "suggestedFileName": "renamed-mixed-sources.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "code": "import Mixin from '@ember/object/mixin';
@@ -431,7 +431,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > handles CLI
 ",
     "name": "CliOptionTrait",
     "suggestedFileName": "cli-option.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;
@@ -477,7 +477,7 @@ export interface AliasedImportsTrait {
 ",
     "name": "AliasedImportsTrait",
     "suggestedFileName": "aliased-imports.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;
@@ -507,7 +507,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > ignores dec
 ",
     "name": "UnsupportedSourceTrait",
     "suggestedFileName": "unsupported-source.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "code": "import Mixin from '@ember/object/mixin';
@@ -534,7 +534,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > only proces
   },
   {
     "name": "DefaultSourceTrait",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "name": "defaultSourceExtension",
@@ -609,7 +609,7 @@ export interface BelongsToTrait {
 ",
     "name": "BelongsToTrait",
     "suggestedFileName": "belongs-to.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;
@@ -666,7 +666,7 @@ export interface AuditboardSourceTrait {
 ",
     "name": "AuditboardSourceTrait",
     "suggestedFileName": "auditboard-source.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
   {
     "code": "import Mixin from '@ember/object/mixin';
@@ -693,7 +693,7 @@ exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces tr
   {
     "name": "FileableTrait",
     "suggestedFileName": "fileable.schema.types.js",
-    "type": "schema-type",
+    "type": "trait-type",
   },
 ]
 `;

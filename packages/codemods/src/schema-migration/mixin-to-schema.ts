@@ -329,7 +329,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
         baseName,
         traitInterfaceName,
         traitFieldTypes,
-        'schema',
+        'trait',
         extendsClause,
         imports.size > 0 ? Array.from(imports) : undefined,
         fileExtension

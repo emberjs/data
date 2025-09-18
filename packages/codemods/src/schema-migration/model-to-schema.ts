@@ -406,7 +406,7 @@ export function processIntermediateModelsToTraits(
           let baseDir: string | undefined;
 
           if (
-            (artifact.type === 'trait' || artifact.type === 'trait-type' || artifact.type === 'schema-type') &&
+            (artifact.type === 'trait' || artifact.type === 'trait-type') &&
             options.traitsDir
           ) {
             baseDir = options.traitsDir;
@@ -612,7 +612,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
     baseName,
     schemaInterfaceName,
     schemaFieldTypes,
-    'schema',
+    'resource',
     extendsClause,
     Array.from(schemaImports),
     originalExtension

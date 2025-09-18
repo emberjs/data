@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type and extension artifacts when model has methods and computed properties > model extension code 1`] = `
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates resource-type and extension artifacts when model has methods and computed properties > model extension code 1`] = `
 "import Model, { attr } from '@ember-data/model';
 
 // The following is a workaround for the fact that we can't properly do
@@ -22,7 +22,7 @@ export class ProcessedModelExtension extends Base {
 /** @typedef {typeof ProcessedModelExtension} ProcessedModelExtensionSignature */"
 `;
 
-exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type and extension artifacts when model has methods and computed properties > model schema type interface 1`] = `
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates resource-type and extension artifacts when model has methods and computed properties > model schema type interface 1`] = `
 "import type { Type } from '@warp-drive/core/types/symbols';
 import type { ProcessedModelExtensionSignature } from '../extensions/processed-model';
 
@@ -34,7 +34,7 @@ export interface ProcessedModel extends ProcessedModelExtensionSignature {
 "
 `;
 
-exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates schema-type artifact with proper interface for basic models > basic schema type interface 1`] = `
+exports[`model-to-schema transform (artifacts) > TypeScript type artifacts > generates resource-type artifact with proper interface for basic models > basic schema type interface 1`] = `
 "import type { Type } from '@warp-drive/core/types/symbols';
 import type { Company } from 'test-app/data/resources/company.schema.types';
 import type { Project } from 'test-app/data/resources/project.schema.types';
@@ -209,7 +209,7 @@ exports[`model-to-schema transform (artifacts) > basic functionality > produces 
   {
     "name": "User",
     "suggestedFileName": "user.schema.types.js",
-    "type": "schema-type",
+    "type": "resource-type",
   },
   {
     "name": "UserExtension",
