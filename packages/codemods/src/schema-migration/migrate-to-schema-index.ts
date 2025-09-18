@@ -1,8 +1,9 @@
 import type { API, FileInfo } from 'jscodeshift';
 import { existsSync, mkdirSync } from 'fs';
 import { glob } from 'glob';
-import { resolve, join } from 'path';
-import { processIntermediateModelsToTraits } from './model-to-schema.js';
+import { resolve, join, dirname } from 'path';
+import modelTransform, { processIntermediateModelsToTraits } from './model-to-schema.js';
+import mixinTransform from './mixin-to-schema.js';
 import type { TransformOptions } from './utils/ast-utils.js';
 
 interface MigrateOptions extends Partial<TransformOptions> {
@@ -97,37 +98,109 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
   console.log(`📋 Processing ${filesToProcess.length} files total`);
 
+  // Separate model and mixin files
+  const modelFiles = filesToProcess.filter((file) => file.includes('/models/') || isModelFile(file));
+  const mixinFiles = filesToProcess.filter((file) => file.includes('/mixins/') || isMixinFile(file));
+
   let processed = 0;
   let skipped = 0;
   let errors = 0;
 
-  // Process each file
-  for (const filePath of filesToProcess) {
+  // Process model files individually using the model transform
+  for (const filePath of modelFiles) {
     try {
       if (finalOptions.verbose) {
         console.log(`🔄 Processing: ${filePath}`);
       }
 
-      // Determine if this is a model or mixin file and process accordingly
-      if (filePath.includes('/models/') || isModelFile(filePath)) {
-        const result = processIntermediateModelsToTraits(
-          [filePath], // Pass as array of paths
-          finalOptions.additionalModelSources || [], // Pass additionalModelSources
-          finalOptions.additionalMixinSources || [], // Pass additionalMixinSources
-          finalOptions // Pass options
-        );
-        if (result.artifacts && result.artifacts.length > 0) {
-          processed++;
-        } else {
-          skipped++;
+      const source = existsSync(filePath) ? require('fs').readFileSync(filePath, 'utf-8') : '';
+      if (!source) {
+        console.error(`❌ Could not read file: ${filePath}`);
+        errors++;
+        continue;
+      }
+
+      // Apply the model transform
+      const transformed = modelTransform(filePath, source, finalOptions);
+
+      if (transformed !== source) {
+        processed++;
+
+        // Generate output file path in resourcesDir instead of modifying original file
+        const outputDir = finalOptions.resourcesDir || finalOptions.outputDir || './app/data/resources';
+        const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+        const outputPath = join(resolve(outputDir), relativePath);
+
+        if (!finalOptions.dryRun) {
+          // Ensure output directory exists
+          const outputDirPath = dirname(outputPath);
+          if (!existsSync(outputDirPath)) {
+            require('fs').mkdirSync(outputDirPath, { recursive: true });
+          }
+
+          require('fs').writeFileSync(outputPath, transformed, 'utf-8');
+          if (finalOptions.verbose) {
+            console.log(`✅ Generated: ${outputPath}`);
+          }
+        } else if (finalOptions.verbose) {
+          console.log(`✅ Would generate: ${outputPath} (dry run)`);
         }
-      } else if (filePath.includes('/mixins/') || isMixinFile(filePath)) {
-        // For now, mixin processing is placeholder
-        // In a full implementation, this would call the mixin transform
-        console.log(`⚠️  Mixin processing not fully implemented: ${filePath}`);
-        skipped++;
       } else {
         skipped++;
+        if (finalOptions.verbose) {
+          console.log(`⏭️  Skipped (no changes needed): ${filePath}`);
+        }
+      }
+    } catch (error) {
+      errors++;
+      console.error(`❌ Error processing ${filePath}:`, error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  // Process mixin files (only model mixins will be transformed)
+  for (const filePath of mixinFiles) {
+    try {
+      if (finalOptions.verbose) {
+        console.log(`🔄 Processing: ${filePath}`);
+      }
+
+      const source = existsSync(filePath) ? require('fs').readFileSync(filePath, 'utf-8') : '';
+      if (!source) {
+        console.error(`❌ Could not read file: ${filePath}`);
+        errors++;
+        continue;
+      }
+
+      // Apply the mixin transform
+      const transformed = mixinTransform(filePath, source, finalOptions);
+
+      if (transformed !== source) {
+        processed++;
+
+        // Generate output file path in traitsDir instead of modifying original file
+        const outputDir = finalOptions.traitsDir || './app/data/traits';
+        const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
+        const outputPath = join(resolve(outputDir), relativePath);
+
+        if (!finalOptions.dryRun) {
+          // Ensure output directory exists
+          const outputDirPath = dirname(outputPath);
+          if (!existsSync(outputDirPath)) {
+            require('fs').mkdirSync(outputDirPath, { recursive: true });
+          }
+
+          require('fs').writeFileSync(outputPath, transformed, 'utf-8');
+          if (finalOptions.verbose) {
+            console.log(`✅ Generated: ${outputPath}`);
+          }
+        } else if (finalOptions.verbose) {
+          console.log(`✅ Would generate: ${outputPath} (dry run)`);
+        }
+      } else {
+        skipped++;
+        if (finalOptions.verbose) {
+          console.log(`⏭️  Skipped (not a model mixin): ${filePath}`);
+        }
       }
     } catch (error) {
       errors++;
@@ -137,7 +210,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
   console.log(`\n✅ Migration complete!`);
   console.log(`   📊 Processed: ${processed} files`);
-  console.log(`   ⏭️  Skipped: ${skipped} files`);
+  console.log(`   ⏭️  Skipped: ${skipped} files (not applicable for transformation)`);
   if (errors > 0) {
     console.log(`   ❌ Errors: ${errors} files`);
   }
