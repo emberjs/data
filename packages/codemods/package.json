@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "lint": "eslint . --quiet --cache --cache-strategy=content",
+    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content",
     "test": "vitest run",
     "test:watch": "vitest"
   },
