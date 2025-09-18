@@ -10,7 +10,7 @@ function buildMapping() {
   // In this monorepo, this file lives at: <repoRoot>/public-exports-mapping-5.5.enriched.json
   const candidates = [
     // from this file at packages/eslint-plugin-warp-drive/src/rules/, walk up to repo root
-    path.join(__dirname, '../../../../public-exports-mapping-5.5.enriched.json'),
+    path.join(__dirname, './public-exports-mapping-5.5.enriched.json'),
     // from package root (if tests change CWD)
     path.join(process.cwd(), 'public-exports-mapping-5.5.enriched.json'),
   ];
