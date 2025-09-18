@@ -44,7 +44,7 @@ If you use Typescript, before migrating, you should update your types to WarpDri
 }
 ```
 
-### Step 2 - install the `@ember-data-types/*` `@warp-drive-types/*` and` `ember-data-types` packages as necessary using the latest versions.
+### Step 2 - install the `@ember-data-types/*` `@warp-drive-types/*` and  `ember-data-types` packages as necessary using the latest versions.
 
 ::: code-group
 
