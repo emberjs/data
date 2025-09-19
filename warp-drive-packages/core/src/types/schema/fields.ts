@@ -1393,6 +1393,9 @@ export interface LegacyBelongsToField {
      *
      * If null, the relationship is unidirectional.
      *
+     * If the inverse field definition uses a sourceKey,
+     * this should still be the name of the field, not the sourceKey.
+     *
      * @public
      */
     inverse: string | null;
@@ -1550,6 +1553,9 @@ export interface LinksModeBelongsToField {
      * bidirectional relationship.
      *
      * If null, the relationship is unidirectional.
+     *
+     * If the inverse field definition uses a sourceKey,
+     * this should still be the name of the field, not the sourceKey.
      *
      * @public
      */
@@ -1731,6 +1737,9 @@ export interface LegacyHasManyField {
      * bidirectional relationship.
      *
      * If null, the relationship is unidirectional.
+     *
+     * If the inverse field definition uses a sourceKey,
+     * this should still be the name of the field, not the sourceKey.
      *
      * @public
      */
@@ -1914,6 +1923,9 @@ export interface LinksModeHasManyField {
      * bidirectional relationship.
      *
      * If null, the relationship is unidirectional.
+     *
+     * If the inverse field definition uses a sourceKey,
+     * this should still be the name of the field, not the sourceKey.
      *
      * @public
      */

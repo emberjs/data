@@ -106,9 +106,14 @@ export function temporaryConvertToLegacy(
 export interface UpgradedMeta {
   kind: 'implicit' | RelationshipFieldKind;
   /**
-   * The field name on `this` record
+   * The field sourceKey on `this` record,
+   * name if sourceKey is not set.
    */
   key: string;
+  /**
+   * The field name on `this` record
+   */
+  name: string;
   /**
    * The `type` of the related record
    *
@@ -123,9 +128,14 @@ export interface UpgradedMeta {
 
   inverseKind: 'implicit' | RelationshipFieldKind;
   /**
-   * The field name on the opposing record
+   * The field sourceKey on the opposing record,
+   * name if sourceKey is not set.
    */
   inverseKey: string;
+  /**
+   * The field name on the opposing record,
+   */
+  inverseName: string;
   /**
    * The `type` of `this` record
    */
@@ -183,6 +193,7 @@ function implicitKeyFor(type: string, key: string): string {
 function syncMeta(definition: UpgradedMeta, inverseDefinition: UpgradedMeta) {
   definition.inverseKind = inverseDefinition.kind;
   definition.inverseKey = inverseDefinition.key;
+  definition.inverseName = inverseDefinition.name;
   definition.inverseType = inverseDefinition.type;
   definition.inverseIsAsync = inverseDefinition.isAsync;
   definition.inverseIsCollection = inverseDefinition.isCollection;
@@ -202,7 +213,8 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   const niceMeta: UpgradedMeta = {} as UpgradedMeta;
   const options = meta.options;
   niceMeta.kind = meta.kind;
-  niceMeta.key = meta.name;
+  niceMeta.key = meta.sourceKey ?? meta.name;
+  niceMeta.name = meta.name;
   niceMeta.type = meta.type;
   assert(`Expected relationship definition to specify async`, typeof options?.async === 'boolean');
   niceMeta.isAsync = options.async;
@@ -212,6 +224,7 @@ function upgradeMeta(meta: RelationshipField): UpgradedMeta {
   niceMeta.isLinksMode = options.linksMode ?? false;
 
   niceMeta.inverseKey = (options && options.inverse) || STR_LATER;
+  niceMeta.inverseName = (options && options.inverse) || STR_LATER;
   niceMeta.inverseType = STR_LATER;
   niceMeta.inverseIsAsync = BOOL_LATER;
   niceMeta.inverseIsImplicit = (options && options.inverse === null) || BOOL_LATER;
@@ -387,8 +400,9 @@ export function upgradeDefinition(
   );
 
   const relationships = storeWrapper.schema.fields(key);
+  const relationshipsBySourceKey = storeWrapper.schema.cacheFields?.(key) ?? relationships;
   assert(`Expected to have a relationship definition for ${type} but none was found.`, relationships);
-  const meta = relationships.get(propertyName);
+  const meta = relationshipsBySourceKey.get(propertyName);
 
   if (!meta) {
     // TODO potentially we should just be permissive here since this is an implicit relationship
@@ -436,6 +450,7 @@ export function upgradeDefinition(
       inverseDefinition = {
         kind: 'belongsTo', // this must be updated when we find the first belongsTo or hasMany definition that matches
         key: definition.inverseKey,
+        name: definition.inverseName,
         type: type,
         isAsync: false, // this must be updated when we find the first belongsTo or hasMany definition that matches
         isImplicit: false,
@@ -448,6 +463,7 @@ export function upgradeDefinition(
       inverseDefinition = null;
     } else {
       // CASE: We have an explicit inverse or were able to resolve one
+      // for the inverse we use "name" for lookup not "sourceKey"
       const inverseDefinitions = storeWrapper.schema.fields({ type: inverseType });
       assert(`Expected to have a relationship definition for ${inverseType} but none was found.`, inverseDefinitions);
       const metaFromInverse = inverseDefinitions.get(inverseKey);
@@ -578,7 +594,8 @@ export function upgradeDefinition(
 }
 
 function inverseForRelationship(store: Store, resourceKey: ResourceKey | { type: string }, key: string) {
-  const definition = store.schema.fields(resourceKey).get(key);
+  const fields = store.schema.fields(resourceKey);
+  const definition = fields.get(key);
   if (!definition) {
     return null;
   }
