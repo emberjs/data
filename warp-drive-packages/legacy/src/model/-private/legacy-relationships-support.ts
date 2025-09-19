@@ -21,7 +21,7 @@ import type { CollectionRelationship } from '@warp-drive/core/types/cache/relati
 import type { LocalRelationshipOperation } from '@warp-drive/core/types/graph';
 import type { OpaqueRecordInstance, TypeFromInstanceOrString } from '@warp-drive/core/types/record';
 import { EnableHydration } from '@warp-drive/core/types/request';
-import type { LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
+import type { LegacyBelongsToField, LegacyHasManyField } from '@warp-drive/core/types/schema/fields';
 import type {
   CollectionResourceRelationship,
   InnerRelationshipDocument,
@@ -140,11 +140,13 @@ export class LegacySupport {
     relationship: ResourceEdge,
     options?: BaseFinderOptions
   ): Promise<OpaqueRecordInstance | null> {
+    const name = getRealFieldName(this, key);
+
     // TODO @runspired follow up if parent isNew then we should not be attempting load here
     // TODO @runspired follow up on whether this should be in the relationship requests cache
     return this._findBelongsToByJsonApiResource(resource, this.identifier, relationship, options).then(
-      (identifier: ResourceKey | null) => handleCompletedRelationshipRequest(this, key, relationship, identifier),
-      (e: Error) => handleCompletedRelationshipRequest(this, key, relationship, null, e)
+      (identifier: ResourceKey | null) => handleCompletedRelationshipRequest(this, name, relationship, identifier),
+      (e: Error) => handleCompletedRelationshipRequest(this, name, relationship, null, e)
     );
   }
 
@@ -154,29 +156,38 @@ export class LegacySupport {
       return loadingPromise;
     }
 
-    const relationship = this.graph.get(this.identifier, key);
-    assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
+    const name = getRealFieldName(this, key);
+    const resource = this.store.cache.getRelationship(this.identifier, name);
 
-    const resource = this.cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
+    const relationship = this.graph.get(this.identifier, name);
+    assert(
+      `Expected ${key === name ? name : `${key} (source: ${name})`} to be a belongs-to relationship`,
+      isBelongsTo(relationship)
+    );
+
     relationship.state.hasFailedLoadAttempt = false;
     relationship.state.shouldForceReload = true;
-    const promise = this._findBelongsTo(key, resource, relationship, options);
-    if (this._relationshipProxyCache[key]) {
+    const promise = this._findBelongsTo(name, resource as SingleResourceRelationship, relationship, options);
+    if (this._relationshipProxyCache[name]) {
       // @ts-expect-error
-      return this._updatePromiseProxyFor('belongsTo', key, { promise });
+      return this._updatePromiseProxyFor('belongsTo', name, { promise });
     }
     return promise;
   }
 
   getBelongsTo(key: string, options?: BaseFinderOptions): PromiseBelongsTo | OpaqueRecordInstance | null {
-    const { identifier, cache } = this;
-    const resource = cache.getRelationship(this.identifier, key) as SingleResourceRelationship;
+    const { identifier } = this;
+    const name = getRealFieldName(this, key);
+    const resource = this.store.cache.getRelationship(this.identifier, name);
     const relatedIdentifier = resource && resource.data ? resource.data : null;
     assert(`Expected a stable identifier`, !relatedIdentifier || isResourceKey(relatedIdentifier));
 
     const store = this.store;
-    const relationship = this.graph.get(this.identifier, key);
-    assert(`Expected ${key} to be a belongs-to relationship`, isBelongsTo(relationship));
+    const relationship = this.graph.get(this.identifier, name);
+    assert(
+      `Expected ${key === name ? name : `${key} (source: ${name})`} to be a belongs-to relationship`,
+      isBelongsTo(relationship)
+    );
 
     const isAsync = relationship.definition.isAsync;
     const _belongsToState: BelongsToProxyMeta = {
@@ -188,13 +199,13 @@ export class LegacySupport {
 
     if (isAsync) {
       if (relationship.state.hasFailedLoadAttempt) {
-        return this._relationshipProxyCache[key] as PromiseBelongsTo;
+        return this._relationshipProxyCache[name] as PromiseBelongsTo;
       }
 
-      const promise = this._findBelongsTo(key, resource, relationship, options);
+      const promise = this._findBelongsTo(name, resource as SingleResourceRelationship, relationship, options);
       const isLoaded = relatedIdentifier && store._instanceCache.recordIsLoaded(relatedIdentifier);
 
-      return this._updatePromiseProxyFor('belongsTo', key, {
+      return this._updatePromiseProxyFor('belongsTo', name, {
         promise,
         content: isLoaded ? store._instanceCache.getRecord(relatedIdentifier) : null,
         _belongsToState,
@@ -204,7 +215,7 @@ export class LegacySupport {
         return null;
       } else {
         assert(
-          `You looked up the '${key}' relationship on a '${identifier.type}' with id ${
+          `You looked up the '${key === name ? name : `${key} (source: ${name})`}' relationship on a '${identifier.type}' with id ${
             identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`belongsTo(<type>, { async: true, inverse: <inverse> })\`)`,
           store._instanceCache.recordIsLoaded(relatedIdentifier, true)
@@ -215,11 +226,12 @@ export class LegacySupport {
   }
 
   setDirtyBelongsTo(key: string, value: OpaqueRecordInstance | null): void {
+    const name = getRealFieldName(this, key);
     return this.cache.mutate(
       {
         op: 'replaceRelatedRecord',
         record: this.identifier,
-        field: key,
+        field: name,
         value: extractIdentifierFromRecord(value),
       },
       // @ts-expect-error
@@ -248,14 +260,17 @@ export class LegacySupport {
   }
 
   getManyArray<T>(key: string, definition?: UpgradedMeta): LegacyManyArray<T> {
+    const name = getRealFieldName(this, key);
+
     if (this.graph) {
-      let manyArray: LegacyManyArray<T> | undefined = this._manyArrayCache[key] as LegacyManyArray<T> | undefined;
+      let manyArray: LegacyManyArray<T> | undefined = this._manyArrayCache[name] as LegacyManyArray<T> | undefined;
       if (!definition) {
-        definition = this.graph.get(this.identifier, key).definition;
+        definition = this.graph.get(this.identifier, name).definition;
       }
 
       if (!manyArray) {
-        const [identifiers, doc] = this._getCurrentState<T>(this.identifier, key);
+        const [identifiers, doc] = this._getCurrentState<T>(this.identifier, name);
+        const field = getField(this, name);
 
         manyArray = createLegacyManyArray({
           store: this.store,
@@ -267,13 +282,13 @@ export class LegacySupport {
           editable: true,
           isAsync: definition.isAsync,
           isPolymorphic: definition.isPolymorphic,
-          field: this.store.schema.fields(this.identifier).get(key) as LegacyHasManyField,
+          field: field as LegacyHasManyField,
           identifier: this.identifier,
           links: doc.links || null,
           meta: doc.meta || null,
         });
 
-        this._manyArrayCache[key] = manyArray;
+        this._manyArrayCache[name] = manyArray;
       }
 
       return manyArray;
@@ -287,13 +302,15 @@ export class LegacySupport {
     manyArray: LegacyManyArray,
     options?: BaseFinderOptions
   ): Promise<LegacyManyArray> {
+    const name = getRealFieldName(this, key);
+
     if (this.graph) {
-      let loadingPromise = this._relationshipPromisesCache[key] as Promise<LegacyManyArray> | undefined;
+      let loadingPromise = this._relationshipPromisesCache[name] as Promise<LegacyManyArray> | undefined;
       if (loadingPromise) {
         return loadingPromise;
       }
 
-      const jsonApi = this.cache.getRelationship(this.identifier, key) as CollectionRelationship;
+      const jsonApi = this.cache.getRelationship(this.identifier, name) as CollectionRelationship;
       const promise = this._findHasManyByJsonApiResource(jsonApi, this.identifier, relationship, options);
 
       if (!promise) {
@@ -302,31 +319,33 @@ export class LegacySupport {
       }
 
       loadingPromise = promise.then(
-        () => handleCompletedRelationshipRequest(this, key, relationship, manyArray),
-        (e: Error) => handleCompletedRelationshipRequest(this, key, relationship, manyArray, e)
+        () => handleCompletedRelationshipRequest(this, name, relationship, manyArray),
+        (e: Error) => handleCompletedRelationshipRequest(this, name, relationship, manyArray, e)
       );
-      this._relationshipPromisesCache[key] = loadingPromise;
+      this._relationshipPromisesCache[name] = loadingPromise;
       return loadingPromise;
     }
     assert('hasMany only works with the @ember-data/json-api package');
   }
 
   reloadHasMany<T>(key: string, options?: BaseFinderOptions): Promise<LegacyManyArray<T>> | PromiseManyArray<T> {
+    const name = getRealFieldName(this, key);
+
     if (this.graph) {
-      const loadingPromise = this._relationshipPromisesCache[key];
+      const loadingPromise = this._relationshipPromisesCache[name];
       if (loadingPromise) {
         return loadingPromise as Promise<LegacyManyArray<T>>;
       }
-      const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
+      const relationship = this.graph.get(this.identifier, name) as CollectionEdge;
       const { definition, state } = relationship;
 
       state.hasFailedLoadAttempt = false;
       state.shouldForceReload = true;
-      const manyArray = this.getManyArray(key, definition);
-      const promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
+      const manyArray = this.getManyArray(name, definition);
+      const promise = this.fetchAsyncHasMany(name, relationship, manyArray, options);
 
-      if (this._relationshipProxyCache[key]) {
-        return this._updatePromiseProxyFor('hasMany', key, { promise }) as PromiseManyArray<T>;
+      if (this._relationshipProxyCache[name]) {
+        return this._updatePromiseProxyFor('hasMany', name, { promise }) as PromiseManyArray<T>;
       }
 
       return promise as Promise<LegacyManyArray<T>>;
@@ -335,22 +354,24 @@ export class LegacySupport {
   }
 
   getHasMany(key: string, options?: BaseFinderOptions): PromiseManyArray | LegacyManyArray {
+    const name = getRealFieldName(this, key);
+
     if (this.graph) {
-      const relationship = this.graph.get(this.identifier, key) as CollectionEdge;
+      const relationship = this.graph.get(this.identifier, name) as CollectionEdge;
       const { definition, state } = relationship;
-      const manyArray = this.getManyArray(key, definition);
+      const manyArray = this.getManyArray(name, definition);
 
       if (definition.isAsync) {
         if (state.hasFailedLoadAttempt) {
-          return this._relationshipProxyCache[key] as PromiseManyArray;
+          return this._relationshipProxyCache[name] as PromiseManyArray;
         }
 
-        const promise = this.fetchAsyncHasMany(key, relationship, manyArray, options);
+        const promise = this.fetchAsyncHasMany(name, relationship, manyArray, options);
 
-        return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
+        return this._updatePromiseProxyFor('hasMany', name, { promise, content: manyArray });
       } else {
         assert(
-          `You looked up the '${key}' relationship on a '${this.identifier.type}' with id ${
+          `You looked up the '${key === name ? name : `${key} (source: ${name})`}' relationship on a '${this.identifier.type}' with id ${
             this.identifier.id || 'null'
           } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('hasMany(<type>, { async: true, inverse: <inverse> })')`,
           !anyUnloaded(this.store, relationship)
@@ -401,9 +422,11 @@ export class LegacySupport {
     return promiseProxy;
   }
 
-  referenceFor(kind: 'belongsTo', name: string): BelongsToReference;
-  referenceFor(kind: 'hasMany', name: string): HasManyReference;
-  referenceFor(kind: 'belongsTo' | 'hasMany', name: string) {
+  referenceFor(kind: 'belongsTo', key: string): BelongsToReference;
+  referenceFor(kind: 'hasMany', key: string): HasManyReference;
+  referenceFor(kind: 'belongsTo' | 'hasMany', key: string) {
+    const name = getRealFieldName(this, key);
+
     let reference = this.references[name];
 
     if (!reference) {
@@ -421,7 +444,7 @@ export class LegacySupport {
           const modelName = identifier.type;
           const actualRelationshipKind = relationship.definition.kind;
           assert(
-            `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
+            `You tried to get the '${key === name ? name : `${key} (source: ${name})`}' relationship on a '${modelName}' via record.${kind}('${key}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${key}') instead.`,
             actualRelationshipKind === kind
           );
         }
@@ -430,9 +453,9 @@ export class LegacySupport {
       const relationshipKind = relationship.definition.kind;
 
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(this.store, graph, identifier, relationship as ResourceEdge, name);
+        reference = new BelongsToReference(this.store, graph, identifier, relationship as ResourceEdge, key);
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, graph, identifier, relationship as CollectionEdge, name);
+        reference = new HasManyReference(this.store, graph, identifier, relationship as CollectionEdge, key);
       }
 
       this.references[name] = reference;
@@ -541,12 +564,13 @@ export class LegacySupport {
       return Promise.resolve(null);
     }
     const key = relationship.definition.key;
+    const name = getRealFieldName(this, key);
 
     // interleaved promises mean that we MUST cache this here
     // in order to prevent infinite re-render if the request
     // fails.
-    if (this._pending[key]) {
-      return this._pending[key];
+    if (this._pending[name]) {
+      return this._pending[name];
     }
 
     const identifier = resource.data ? resource.data : null;
@@ -591,14 +615,14 @@ export class LegacySupport {
             cacheOptions: { [Symbol.for('wd:skip-cache')]: true },
           };
       const future = this.store.request<ResourceKey | null>(req);
-      this._pending[key] = future
+      this._pending[name] = future
         .then((doc) =>
           field.options.linksMode ? (doc.content as unknown as Document<ResourceKey | null>).data! : doc.content
         )
         .finally(() => {
-          this._pending[key] = undefined;
+          this._pending[name] = undefined;
         });
-      return this._pending[key];
+      return this._pending[name];
     }
 
     const preferLocalCache = hasReceivedData && allInverseRecordsAreLoaded && !isEmpty;
@@ -623,7 +647,7 @@ export class LegacySupport {
       assert(`Cannot fetch belongs-to relationship with no information`, identifier);
       options.reload = options.reload || !attemptLocalCache || undefined;
 
-      this._pending[key] = this.store
+      this._pending[name] = this.store
         .request<ResourceKey | null>({
           op: 'findBelongsTo',
           records: [identifier],
@@ -632,9 +656,9 @@ export class LegacySupport {
         })
         .then((doc) => doc.content)
         .finally(() => {
-          this._pending[key] = undefined;
+          this._pending[name] = undefined;
         });
-      return this._pending[key];
+      return this._pending[name];
     }
 
     // we were explicitly told we have no data and no links.
@@ -802,4 +826,15 @@ export function areAllInverseRecordsLoaded(store: Store, resource: InnerRelation
 
 function isBelongsTo(relationship: GraphEdge): relationship is ResourceEdge {
   return relationship.definition.kind === 'belongsTo';
+}
+
+function getField(context: LegacySupport, key: string): LegacyHasManyField | LegacyBelongsToField {
+  const { identifier, store } = context;
+  return (store.schema.fields(identifier).get(key) ??
+    store.schema.cacheFields?.(identifier).get(key)) as LegacyBelongsToField;
+}
+
+function getRealFieldName(context: LegacySupport, key: string): string {
+  const field = getField(context, key);
+  return field.sourceKey ?? field.name;
 }
