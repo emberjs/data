@@ -112,7 +112,7 @@ export type User = WithLegacy<{
 
 Several migration paths from Models to PolarisMode records exist.
 
-- [The Two Store Approach](../../migrating/two-store-migration.md) enables migrating while also upgrading versions and starting relatively fresh. This enables the same resource type (for instance `user`) to be used in legacymode in some areas of the app and in polaris mode in others by sourcing data from separately
+- [The Two Store Approach](../../../../migrating/two-store-migration.md) enables migrating while also upgrading versions and starting relatively fresh. This enables the same resource type (for instance `user`) to be used in legacymode in some areas of the app and in polaris mode in others by sourcing data from separately
 configured store instances.
 - **The Jump To ReactiveResource Approach** is best for apps that do not have many properties or methods on models beyond `attr` `belongsTo` and `hasMany` defined fields. In this approach, all models are converted to types and schemas in LegacyMode in one push.
 - **The Incremental Model Migration Approach** is best for apps that have added complex logic, computed fields, methods, and overrides to their Models. Models and ReactiveResources can work with each other, including via relationships. In this approach, all records for each `type` of resource will always be either a legacy `Model` instance or a `ReactiveResource` instance depending on if the resource has been migrated yet or not. The store's schema service is configured to understand both Models and raw schemas as sources of schema, and is configured to instantiate model classes.
