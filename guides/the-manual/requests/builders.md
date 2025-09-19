@@ -82,7 +82,7 @@ export function getCompanyPreviewList(search: string) {
 == Supporting Types
 
 ```ts [types/companyPreview.ts]
-import { Type } from '@warp-drive/core/types/symbol';
+import { Type } from '@warp-drive/core/types/symbols';
 import { Mask } from '@warp-drive/core/types/record';
 import type { User, Address, Company } from '#/data/types';
 

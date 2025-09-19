@@ -8,6 +8,8 @@ categoryOrder: 4
 
 # Migrating 4.x to 5.x
 
+This guide will *likely* work for apps on 3.28 that have resolved EmberData deprecations from the 3.x series.
+
 ## Pre-Migration (update to Native Types)
 
 If you use Typescript, before migrating, you should update your types to WarpDrive's native types.
@@ -51,22 +53,103 @@ If you use Typescript, before migrating, you should update your types to WarpDri
 ::: code-group
 
 ```sh [pnpm]
-pnpm add -E ember-data-types@canary @ember-data-types/request@canary @ember-data-types/adapter@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @warp-drive-types/core-types@canary
+pnpm add -E ember-data-types@canary \
+  @ember-data-types/adapter@canary \
+  @ember-data-types/graph@canary \
+  @ember-data-types/json-api@canary \
+  @ember-data-types/legacy-compat@canary \
+  @ember-data-types/model@canary \
+  @ember-data-types/request@canary \
+  @ember-data-types/request-utils@canary \
+  @ember-data-types/serializer@canary \
+  @ember-data-types/store@canary \
+  @warp-drive-types/core-types@canary \
+  @warp-drive/core@canary \
+  @warp-drive/json-api@canary \
+  @warp-drive/legacy@canary \
+  @warp-drive/utilities@canary
 ```
 
 ```sh [npm]
-npm add -E ember-data-types@canary @ember-data-types/request@canary @ember-data-types/adapter@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @warp-drive-types/core-types@canary
+npm add -E ember-data-types@canary \
+  @ember-data-types/adapter@canary \
+  @ember-data-types/graph@canary \
+  @ember-data-types/json-api@canary \
+  @ember-data-types/legacy-compat@canary \
+  @ember-data-types/model@canary \
+  @ember-data-types/request@canary \
+  @ember-data-types/request-utils@canary \
+  @ember-data-types/serializer@canary \
+  @ember-data-types/store@canary \
+  @warp-drive-types/core-types@canary
+  @warp-drive/core@canary \
+  @warp-drive/json-api@canary \
+  @warp-drive/legacy@canary \
+  @warp-drive/utilities@canary
 ```
 
 ```sh [yarn]
-yarn add -E ember-data-types@canary @ember-data-types/request@canary @ember-data-types/adapter@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @warp-drive-types/core-types@canary
+yarn add -E ember-data-types@canary \
+  @ember-data-types/adapter@canary \
+  @ember-data-types/graph@canary \
+  @ember-data-types/json-api@canary \
+  @ember-data-types/legacy-compat@canary \
+  @ember-data-types/model@canary \
+  @ember-data-types/request@canary \
+  @ember-data-types/request-utils@canary \
+  @ember-data-types/serializer@canary \
+  @ember-data-types/store@canary \
+  @warp-drive-types/core-types@canary
+  @warp-drive/core@canary \
+  @warp-drive/json-api@canary \
+  @warp-drive/legacy@canary \
+  @warp-drive/utilities@canary
 ```
 
 ```sh [bun]
-bun add --exact ember-data-types@canary @ember-data-types/request@canary @ember-data-types/adapter@canary @ember-data-types/serializer@canary @ember-data-types/store@canary @ember-data-types/graph@canary @ember-data-types/json-api@canary @ember-data-types/legacy-compat@canary @ember-data-types/model@canary @warp-drive-types/core-types@canary
+bun add --exact ember-data-types@canary \
+  @ember-data-types/adapter@canary \
+  @ember-data-types/graph@canary \
+  @ember-data-types/json-api@canary \
+  @ember-data-types/legacy-compat@canary \
+  @ember-data-types/model@canary \
+  @ember-data-types/request@canary \
+  @ember-data-types/request-utils@canary \
+  @ember-data-types/serializer@canary \
+  @ember-data-types/store@canary \
+  @warp-drive-types/core-types@canary
+  @warp-drive/core@canary \
+  @warp-drive/json-api@canary \
+  @warp-drive/legacy@canary \
+  @warp-drive/utilities@canary
 ```
 
 :::
+
+This will install the following at the latest canary
+
+
+```package.json
+{
+  "dependencies": { 
+    "ember-data-types": "alpha", // [!code ++:15]
+    "@ember-data-types/adapter": "alpha",
+    "@ember-data-types/graph": "alpha",
+    "@ember-data-types/json-api": "alpha",
+    "@ember-data-types/legacy-compat": "alpha",
+    "@ember-data-types/model": "alpha",
+    "@ember-data-types/request-utils": "alpha",
+    "@ember-data-types/request": "alpha",
+    "@ember-data-types/serializer": "alpha",
+    "@ember-data-types/store": "alpha",
+    "@warp-drive-types/core-types": "alpha",
+    "@warp-drive/core": "alpha",
+    "@warp-drive/json-api": "alpha"
+    "@warp-drive/legacy": "alpha",
+    "@warp-drive/utilities": "alpha",
+  }
+}
+```
 
 ### Step 3 - configure tsconfig.json
 
@@ -95,7 +178,7 @@ bun add --exact ember-data-types@canary @ember-data-types/request@canary @ember-
 
 ```ts
 import Model from '@ember-data/model';
-import type { Type } from '@warp-drive/core-types/symbol';
+import type { Type } from '@warp-drive/core-types/symbols';
 
 export default class User extends Model {
   declare [Type]: 'user';
@@ -259,7 +342,7 @@ We migrate models with ResourceSchemas and extensions.
 
 ```ts [app/models/user.ts]
 import Model, { attr, belongsTo, hasMany, type AsyncHasMany } from '@ember-data/model';
-import type { Type } from '@warp-drive/core-types/symbol';
+import type { Type } from '@warp-drive/core-types/symbols';
 import { cached } from '@glimmer/tracking';
 import { computed } from '@ember/object';
 
@@ -323,7 +406,7 @@ export const UserSchema = withDefaults({
 ```ts [app/data/user/type.ts]
 import { WithLegacy } from '@warp-drive-mirror/legacy/model/migration-support';
 import { type AsyncHasMany } from '@warp-drive-mirror/legacy/model';
-import type { Type } from '@warp-drive-mirror/core/types/symbol';
+import type { Type } from '@warp-drive-mirror/core/types/symbols';
 
 export type User = WithLegacy<{
   [Type]: 'user';
@@ -376,7 +459,7 @@ We can migrate mixins with traits and extensions.
 
 ```ts [app/models/user.ts]
 import Model, { attr } from '@ember-data/model';
-import type { Type } from '@warp-drive/core-types/symbol';
+import type { Type } from '@warp-drive/core-types/symbols';
 import Timestamped from '../mixins/timestamped';
 
 export default class User extends Model.extend(Timestamped) {
@@ -431,7 +514,7 @@ export const UserSchema = withDefaults({
 ```ts [app/data/user/type.ts]
 import { WithLegacy } from '@warp-drive-mirror/legacy/model/migration-support';
 import { type AsyncHasMany } from '@warp-drive-mirror/legacy/model';
-import type { Type } from '@warp-drive-mirror/core/types/symbol';
+import type { Type } from '@warp-drive-mirror/core/types/symbols';
 import type { Timestamped } from '../timstamped/type.ts';
 
 export interface User extends Timestamped {
