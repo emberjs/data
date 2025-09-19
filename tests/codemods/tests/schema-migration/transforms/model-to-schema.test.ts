@@ -319,7 +319,7 @@ export default class User extends Model {
 
       const schemaType = artifacts.find((a) => a.type === 'resource-type');
       expect(schemaType?.code).toMatchSnapshot('basic schema type interface');
-      expect(schemaType?.suggestedFileName).toBe('user.schema.types.js');
+      expect(schemaType?.suggestedFileName).toBe('user.schema.types.ts');
     });
 
     it('generates resource-type and extension artifacts when model has methods and computed properties', () => {
@@ -349,7 +349,7 @@ export default class ProcessedModel extends Model {
 
       expect(schemaType?.code).toMatchSnapshot('model schema type interface');
       expect(extension?.code).toMatchSnapshot('model extension code');
-      expect(schemaType?.suggestedFileName).toBe('processed-model.schema.types.js');
+      expect(schemaType?.suggestedFileName).toBe('processed-model.schema.types.ts');
       expect(extension?.suggestedFileName).toBe('processed-model.js');
     });
 

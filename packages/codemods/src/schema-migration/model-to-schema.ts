@@ -332,7 +332,9 @@ export function processIntermediateModelsToTraits(
     // Convert import path to file system path
     let relativePath: string;
     if (modelPath.startsWith('soxhub-client/')) {
-      relativePath = modelPath.replace('soxhub-client/', 'apps/client/app/');
+      // Convert soxhub-client paths to relative paths from the current working directory
+      // e.g., 'soxhub-client/core/data-field-model' -> './app/core/data-field-model'
+      relativePath = modelPath.replace('soxhub-client/', './app/');
     } else {
       // Try to resolve using additionalModelSources and additionalMixinSources
       relativePath = resolveImportPath(modelPath, additionalModelSources || [], additionalMixinSources || []);
@@ -615,7 +617,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
     'resource',
     extendsClause,
     Array.from(schemaImports),
-    originalExtension
+    '.ts' // Type files should always be .ts regardless of source file extension
   );
   artifacts.push(schemaTypeArtifact);
 

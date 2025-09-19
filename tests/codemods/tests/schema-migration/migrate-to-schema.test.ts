@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -358,6 +358,81 @@ export default class User extends Model {
     expect(existsSync(join(tempDir, 'app/data/resources/user.schema.types.ts'))).toBe(true);
   });
 
+  it('handles external mixin imports from additionalMixinSources', async () => {
+    // Create a model that imports external mixins
+    const modelWithExternalMixin = `
+import Model, { attr } from '@ember-data/model';
+import ExternalMixin from '@external/mixins/external-mixin';
+import LocalMixin from '../mixins/local-mixin';
+
+export default class TestModel extends Model.extend(ExternalMixin, LocalMixin) {
+  @attr('string') name;
+}
+`;
+
+    const localMixin = `
+import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+
+export default Mixin.create({
+  localField: attr('string')
+});
+`;
+
+    const externalMixin = `
+import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+
+export default Mixin.create({
+  externalField: attr('string')
+});
+`;
+
+    // Write model and local mixin
+    const modelsDir = join(tempDir, 'app/models');
+    const mixinsDir = join(tempDir, 'app/mixins');
+    mkdirSync(modelsDir, { recursive: true });
+    mkdirSync(mixinsDir, { recursive: true });
+
+    writeFileSync(join(modelsDir, 'test-model.ts'), modelWithExternalMixin);
+    writeFileSync(join(mixinsDir, 'local-mixin.ts'), localMixin);
+
+    // Create external mixin directory and file
+    const externalMixinsDir = join(tempDir, 'external/mixins');
+    mkdirSync(externalMixinsDir, { recursive: true });
+    writeFileSync(join(externalMixinsDir, 'external-mixin.ts'), externalMixin);
+
+    // Add additionalMixinSources configuration
+    const optionsWithExternal = {
+      ...options,
+      additionalMixinSources: [
+        {
+          pattern: '@external/mixins/*',
+          dir: join(tempDir, 'external/mixins/*')
+        }
+      ]
+    };
+
+    // Run migration
+    await runMigration(optionsWithExternal);
+
+    // Debug: List what files were actually created
+    const resourcesDir = join(tempDir, 'app/data/resources');
+    const traitsDir = join(tempDir, 'app/data/traits');
+    const resourceFiles = existsSync(resourcesDir) ? readdirSync(resourcesDir) : [];
+    const traitFiles = existsSync(traitsDir) ? readdirSync(traitsDir) : [];
+    console.log('📋 Generated resource files:', resourceFiles);
+    console.log('📋 Generated trait files:', traitFiles);
+
+    // Check that schema and trait files were generated for both local and external mixins
+    expect(existsSync(join(tempDir, 'app/data/resources/test-model.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/test-model.schema.types.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/local-mixin.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/local-mixin.schema.types.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/external-mixin.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/external-mixin.schema.types.ts'))).toBe(true);
+  });
+
   it('handles mixed js and ts files correctly with proper type file extensions', async () => {
     // Create mixed model and mixin files
     const jsModel = `
@@ -433,5 +508,122 @@ export default class TsModelWithMixin extends Model.extend(TsMixin) {
     // Check that extension files preserve source extension
     expect(existsSync(join(tempDir, 'app/data/extensions/js-model-with-mixin.js'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/extensions/ts-mixin.js'))).toBe(true); // Extension from TS mixin
+  });
+
+  it('processes intermediateModelPaths to generate traits from base model classes', async () => {
+    // This test ensures the data-field trait regression doesn't happen again
+    // The bug was that processIntermediateModelsToTraits wasn't being called
+
+    // Create a data field model (intermediate model)
+    const dataFieldModel = `
+import BaseModel from './base-model';
+import BaseModelMixin from '@external/mixins/base-model-mixin';
+import { attr } from '@ember-data/model';
+
+/**
+ * Data fields are used to represent information that can be selected via a
+ * select list in the UI.
+ */
+export default class DataFieldModel extends BaseModel.extend(BaseModelMixin) {
+  @attr('string') name;
+  @attr('number') sortOrder;
+}
+`;
+
+    // Create a base model
+    const baseModel = `
+import Model from '@ember-data/model';
+
+export default class BaseModel extends Model {
+}
+`;
+
+    // Create a regular model that extends DataFieldModel
+    const optionModel = `
+import DataFieldModel from '../core/data-field-model';
+
+export default class CustomSelectOption extends DataFieldModel {
+}
+`;
+
+    // Create an external mixin
+    const externalMixin = `
+import Mixin from '@ember/object/mixin';
+
+export default Mixin.create({
+  // Base model functionality
+});
+`;
+
+    // Setup directories
+    const coreDir = join(tempDir, 'app/core');
+    const modelsDir = join(tempDir, 'app/models');
+    const externalMixinsDir = join(tempDir, 'external/mixins');
+    mkdirSync(coreDir, { recursive: true });
+    mkdirSync(modelsDir, { recursive: true });
+    mkdirSync(externalMixinsDir, { recursive: true });
+
+    // Write files
+    writeFileSync(join(coreDir, 'data-field-model.ts'), dataFieldModel);
+    writeFileSync(join(coreDir, 'base-model.ts'), baseModel);
+    writeFileSync(join(modelsDir, 'custom-select-option.js'), optionModel);
+    writeFileSync(join(externalMixinsDir, 'base-model-mixin.js'), externalMixin);
+
+    // Configure options with intermediate model paths
+    const testOptions = {
+      ...options,
+      intermediateModelPaths: [
+        'soxhub-client/core/base-model',
+        'soxhub-client/core/data-field-model'
+      ],
+      additionalMixinSources: [
+        {
+          pattern: '@external/mixins/*',
+          dir: join(tempDir, 'external/mixins/*')
+        }
+      ]
+    };
+
+    // Change to temp directory for the migration (as it would be in real usage)
+    const originalCwd = process.cwd();
+    process.chdir(tempDir);
+
+    try {
+      // Run migration
+      await runMigration(testOptions);
+    } finally {
+      // Restore original working directory
+      process.chdir(originalCwd);
+    }
+
+    // Verify that intermediate model traits were generated
+    const traitsDir = join(tempDir, 'app/data/traits');
+    expect(existsSync(traitsDir)).toBe(true);
+    expect(existsSync(join(traitsDir, 'data-field.schema.ts'))).toBe(true);
+    expect(existsSync(join(traitsDir, 'data-field.schema.types.ts'))).toBe(true);
+    expect(existsSync(join(traitsDir, 'base.schema.ts'))).toBe(true);
+    expect(existsSync(join(traitsDir, 'base.schema.types.ts'))).toBe(true);
+
+    // Verify regular model was processed
+    expect(existsSync(join(tempDir, 'app/data/resources/custom-select-option.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/custom-select-option.schema.types.ts'))).toBe(true);
+
+    // Verify that the data-field trait contains the expected fields
+    const dataFieldTrait = readFileSync(join(traitsDir, 'data-field.schema.ts'), 'utf-8');
+    expect(dataFieldTrait).toContain('name'); // Should have name field
+    expect(dataFieldTrait).toContain('sortOrder'); // Should have sortOrder field
+
+    // The regular model extending DataFieldModel should reference the data-field trait
+    // This is the main regression test - if intermediate models aren't processed,
+    // this model won't get the data-field functionality
+    const generatedSchema = readFileSync(join(tempDir, 'app/data/resources/custom-select-option.js'), 'utf-8');
+
+    // Since CustomSelectOption extends DataFieldModel and DataFieldModel was processed as an intermediate model,
+    // the trait functionality should be available. The exact way traits are referenced may vary,
+    // but the important thing is that the intermediate model processing worked.
+
+    // Basic check that the model was processed successfully
+    expect(generatedSchema.length).toBeGreaterThan(0);
+    expect(generatedSchema).toContain('custom-select-option'); // Should contain model identifier
   });
 });

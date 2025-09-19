@@ -62,7 +62,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > collects 
   },
   {
     "name": "FileableTrait",
-    "suggestedFileName": "fileable.schema.types.js",
+    "suggestedFileName": "fileable.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -202,7 +202,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > produces 
   },
   {
     "name": "FileableTrait",
-    "suggestedFileName": "fileable.schema.types.js",
+    "suggestedFileName": "fileable.schema.types.ts",
     "type": "trait-type",
   },
 ]
@@ -217,7 +217,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > produces 
   },
   {
     "name": "FileableTrait",
-    "suggestedFileName": "fileable.schema.types.js",
+    "suggestedFileName": "fileable.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -304,7 +304,7 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > supports 
   },
   {
     "name": "AliasedTrait",
-    "suggestedFileName": "aliased.schema.types.js",
+    "suggestedFileName": "aliased.schema.types.ts",
     "type": "trait-type",
   },
 ]
@@ -343,7 +343,7 @@ export interface CustomSourceTrait {
 }
 ",
     "name": "CustomSourceTrait",
-    "suggestedFileName": "custom-source.schema.types.js",
+    "suggestedFileName": "custom-source.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -388,7 +388,7 @@ export interface RenamedMixedSourcesTrait {
 }
 ",
     "name": "RenamedMixedSourcesTrait",
-    "suggestedFileName": "renamed-mixed-sources.schema.types.js",
+    "suggestedFileName": "renamed-mixed-sources.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -430,7 +430,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > handles CLI
 }
 ",
     "name": "CliOptionTrait",
-    "suggestedFileName": "cli-option.schema.types.js",
+    "suggestedFileName": "cli-option.schema.types.ts",
     "type": "trait-type",
   },
 ]
@@ -476,7 +476,7 @@ export interface AliasedImportsTrait {
 }
 ",
     "name": "AliasedImportsTrait",
-    "suggestedFileName": "aliased-imports.schema.types.js",
+    "suggestedFileName": "aliased-imports.schema.types.ts",
     "type": "trait-type",
   },
 ]
@@ -506,7 +506,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > ignores dec
 }
 ",
     "name": "UnsupportedSourceTrait",
-    "suggestedFileName": "unsupported-source.schema.types.js",
+    "suggestedFileName": "unsupported-source.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -608,7 +608,7 @@ export interface BelongsToTrait {
 }
 ",
     "name": "BelongsToTrait",
-    "suggestedFileName": "belongs-to.schema.types.js",
+    "suggestedFileName": "belongs-to.schema.types.ts",
     "type": "trait-type",
   },
 ]
@@ -665,7 +665,7 @@ export interface AuditboardSourceTrait {
 }
 ",
     "name": "AuditboardSourceTrait",
-    "suggestedFileName": "auditboard-source.schema.types.js",
+    "suggestedFileName": "auditboard-source.schema.types.ts",
     "type": "trait-type",
   },
   {
@@ -692,7 +692,7 @@ exports[`mixin-to-schema transform (artifacts) > mixin inheritance > produces tr
   },
   {
     "name": "FileableTrait",
-    "suggestedFileName": "fileable.schema.types.js",
+    "suggestedFileName": "fileable.schema.types.ts",
     "type": "trait-type",
   },
 ]

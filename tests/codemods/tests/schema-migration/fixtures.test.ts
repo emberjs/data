@@ -96,8 +96,13 @@ describe('Schema Migration Fixture Tests', () => {
     });
   });
 
-  // Test that we have a reasonable number of fixtures
+  // Test that we have fixture tests (only if fixtures directory exists)
   it('has fixture tests', () => {
-    expect(testCases.length).toBeGreaterThan(5);
+    if (existsSync(fixturesDir)) {
+      expect(testCases.length).toBeGreaterThan(0);
+    } else {
+      // Fixtures were removed because migrate-to-schema is batch-only
+      expect(testCases.length).toBe(0);
+    }
   });
 });

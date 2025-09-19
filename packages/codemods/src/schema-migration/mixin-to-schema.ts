@@ -332,7 +332,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
         'trait',
         extendsClause,
         imports.size > 0 ? Array.from(imports) : undefined,
-        fileExtension
+        '.ts' // Type files should always be .ts regardless of source file extension
       );
       artifacts.push(traitTypeArtifact);
     }

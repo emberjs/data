@@ -315,7 +315,7 @@ export default Mixin.create({
 
       const traitType = artifacts.find((a) => a.type === 'trait-type');
       expect(traitType?.code).toMatchSnapshot('basic trait type interface');
-      expect(traitType?.suggestedFileName).toBe('fileable.schema.types.js');
+      expect(traitType?.suggestedFileName).toBe('fileable.schema.types.ts');
     });
 
     it('generates trait-type and extension artifacts when mixin has computed properties and methods', () => {
@@ -346,7 +346,7 @@ export default Mixin.create({
 
       expect(traitType?.code).toMatchSnapshot('mixin trait type interface');
       expect(extension?.code).toMatchSnapshot('mixin extension code');
-      expect(traitType?.suggestedFileName).toBe('nameable.schema.types.js');
+      expect(traitType?.suggestedFileName).toBe('nameable.schema.types.ts');
       expect(extension?.suggestedFileName).toBe('nameable.js');
     });
 

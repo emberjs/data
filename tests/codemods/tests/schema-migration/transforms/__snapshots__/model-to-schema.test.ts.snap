@@ -208,7 +208,7 @@ exports[`model-to-schema transform (artifacts) > basic functionality > produces 
   },
   {
     "name": "User",
-    "suggestedFileName": "user.schema.types.js",
+    "suggestedFileName": "user.schema.types.ts",
     "type": "resource-type",
   },
   {
