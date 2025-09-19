@@ -249,10 +249,12 @@ function validateResourceAttributes(
   resource: Record<string, unknown>,
   path: PathLike
 ) {
-  const schema = reporter.schema.fields({ type });
+  const fields = reporter.schema.fields({ type });
+  const cacheFields = reporter.schema.cacheFields?.({ type }) ?? fields;
+
   for (const [key] of Object.entries(resource)) {
-    const field = getRemoteField(schema, key);
-    const actualField = schema.get(key);
+    const field = getRemoteField(cacheFields, key);
+    const actualField = cacheFields.get(key);
     if (!field && actualField) {
       reporter.warn(
         [...path, key],
