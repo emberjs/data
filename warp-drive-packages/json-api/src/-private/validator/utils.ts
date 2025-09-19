@@ -131,7 +131,8 @@ export class Reporter {
   searchFields(type: string, field: string): FuseResult<string>[] {
     if (!this._fieldFilters.has(type)) {
       const allFields = this.schema.fields({ type });
-      const attrs = Array.from(allFields.values())
+      const allCacheFields = this.schema.cacheFields?.({ type }) ?? allFields;
+      const attrs = Array.from(allCacheFields.values())
         .filter(isRemoteField)
         .map((v) => v.name);
       this._fieldFilters.set(type, new Fuse(attrs));
