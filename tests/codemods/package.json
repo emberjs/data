@@ -15,7 +15,7 @@
   "type": "module",
   "scripts": {
     "check:types": "",
-    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content",
+    "lint": "eslint . --quiet --cache --cache-strategy=content",
     "test": "pnpm test:fixtures && pnpm test:unit",
     "test:fixtures": "tsx --test tests/index.spec.ts",
     "test:unit": "vitest run tests/",
@@ -36,7 +36,8 @@
   "devDependencies": {
     "@ember-data/codemods": "workspace:*",
     "@types/bun": "^1.2.20",
-    "@types/jscodeshift": "0.12.0",
+    "@types/ember-data__model": "^4.0.5",
+    "@types/jscodeshift": "^17.3.0",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.34.0",
     "qunit": "^2.20.1",

@@ -15,11 +15,15 @@
   },
   "scripts": {
     "build:cli": "bun build bin/codemods.ts --compile --target node --outfile codemods --sourcemap",
-    "disabled:lint": "eslint . --quiet --cache --cache-strategy=content"
+    "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
   "exports": {
     ".": {
       "default": "./src/index.ts"
+    },
+    "./schema-migration/*": {
+      "types": "./unstable-preview-types/src/schema-migration/*",
+      "default": "./src/schema-migration/*"
     }
   },
   "files": [
@@ -49,7 +53,7 @@
   "devDependencies": {
     "@types/bun": "^1.2.20",
     "@types/inquirer": "^9.0.0",
-    "@types/jscodeshift": "0.12.0",
+    "@types/jscodeshift": "^17.3.0",
     "@types/node": "22.15.3",
     "@warp-drive/internal-config": "workspace:*",
     "eslint": "^9.34.0"

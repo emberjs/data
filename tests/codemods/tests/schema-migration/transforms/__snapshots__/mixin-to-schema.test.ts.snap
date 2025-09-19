@@ -131,6 +131,17 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > collects 
 };"
 `;
 
+exports[`mixin-to-schema transform (artifacts) > basic functionality > collects the real fileable mixin shape into trait and extension artifacts > trait-type code 1`] = `
+"import type { HasMany } from '@ember-data/model';
+import type { File } from 'undefined/file.schema.types';
+
+export interface FileableTrait {
+	files: HasMany<File>;
+	showFilesRequiringReviewError: boolean | null;
+}
+"
+`;
+
 exports[`mixin-to-schema transform (artifacts) > basic functionality > converts mixin with no trait fields to extension artifact > code 1`] = `
 "import Mixin from '@ember/object/mixin';
 import { computed } from '@ember/object';

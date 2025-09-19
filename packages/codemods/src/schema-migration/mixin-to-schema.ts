@@ -4,6 +4,32 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import type { ExtractedType, PropertyInfo, TransformArtifact, TransformOptions } from './utils/ast-utils.js';
+import {
+  createExtensionFromOriginalFile,
+  createTypeArtifact,
+  debugLog,
+  DEFAULT_EMBER_DATA_SOURCE,
+  DEFAULT_MIXIN_SOURCE,
+  extractBaseName,
+  extractCamelCaseName,
+  extractJSDocTypes,
+  extractTypeFromMethod,
+  extractTypesFromInterface,
+  findAssociatedInterface,
+  findDefaultExport,
+  findEmberImportLocalName,
+  generateExportStatement,
+  getEmberDataImports,
+  getExportedIdentifier,
+  getFieldKindFromDecorator,
+  getFileExtension,
+  getLanguageFromPath,
+  getTypeScriptTypeForAttribute,
+  getTypeScriptTypeForBelongsTo,
+  getTypeScriptTypeForHasMany,
+  toPascalCase,
+  withTransformWrapper,
+} from './utils/ast-utils.js';
 
 /**
  * Determines if an AST node represents object method syntax that doesn't need key: value format
@@ -54,32 +80,6 @@ function isObjectMethodSyntax(property: SgNode): boolean {
 
   return false;
 }
-import {
-  createExtensionFromOriginalFile,
-  createTypeArtifact,
-  debugLog,
-  DEFAULT_EMBER_DATA_SOURCE,
-  DEFAULT_MIXIN_SOURCE,
-  extractBaseName,
-  extractCamelCaseName,
-  extractJSDocTypes,
-  extractTypeFromMethod,
-  extractTypesFromInterface,
-  findAssociatedInterface,
-  findDefaultExport,
-  findEmberImportLocalName,
-  generateExportStatement,
-  getEmberDataImports,
-  getExportedIdentifier,
-  getFieldKindFromDecorator,
-  getFileExtension,
-  getLanguageFromPath,
-  getTypeScriptTypeForAttribute,
-  getTypeScriptTypeForBelongsTo,
-  getTypeScriptTypeForHasMany,
-  toPascalCase,
-  withTransformWrapper,
-} from './utils/ast-utils.js';
 
 /**
  * Check if a resource type file exists and create a stub if it doesn't
@@ -781,21 +781,6 @@ function extractTraitFields(
 // NOTE: previously we supported generating a split of trait + extension. The
 // new behavior only replaces the mixin export and preserves the rest of the file.
 
-/**
- * Generate JSDoc pattern for JavaScript extensions with proper type merging
- */
-function generateJavaScriptExtensionJSDoc(
-  extensionClassName: string,
-  traitInterfaceName: string,
-  traitImportPath: string
-): string {
-  return `// The following is a workaround for the fact that we can't properly do
-// declaration merging in .js files. If this is converted to a .ts file,
-// we can remove this and just use the declaration merging.
-/** @import { ${traitInterfaceName} } from '${traitImportPath}' */
-/** @type {{ new(): ${traitInterfaceName} }} */
-const Base = class {};`;
-}
 
 /**
  * Generate LegacyTrait schema object

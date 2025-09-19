@@ -1,14 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
+import { join } from 'path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { runMigration } from '../../../../packages/codemods/src/schema-migration/migrate-to-schema.js';
-import type { TransformOptions } from '../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
+import { type MigrateOptions, runMigration } from '../../../../packages/codemods/src/schema-migration/migrate-to-schema.js';
 
 describe('migrate-to-schema batch operation', () => {
   let tempDir: string;
-  let options: TransformOptions;
+  let options: MigrateOptions;
 
   beforeEach(() => {
     // Create a temporary directory for each test
@@ -163,7 +162,7 @@ export default class User extends Model {
     writeFileSync(join(modelsDir, 'user.ts'), modelSource);
 
     // Run migration with dryRun
-    const dryRunOptions = { ...options, dryRun: true };
+    const dryRunOptions: MigrateOptions = { ...options, dryRun: true };
     await runMigration(dryRunOptions);
 
     // Check that no files were generated
@@ -235,7 +234,7 @@ export default Mixin.create({
     writeFileSync(join(mixinsDir, 'common.ts'), mixinSource);
 
     // Test models-only option
-    const modelsOnlyOptions = { ...options, modelsOnly: true };
+    const modelsOnlyOptions: MigrateOptions = { ...options, modelsOnly: true };
     await runMigration(modelsOnlyOptions);
 
     // Check that only model artifacts were generated
@@ -403,7 +402,7 @@ export default Mixin.create({
     writeFileSync(join(externalMixinsDir, 'external-mixin.ts'), externalMixin);
 
     // Add additionalMixinSources configuration
-    const optionsWithExternal = {
+    const optionsWithExternal: MigrateOptions = {
       ...options,
       additionalMixinSources: [
         {
@@ -416,13 +415,6 @@ export default Mixin.create({
     // Run migration
     await runMigration(optionsWithExternal);
 
-    // Debug: List what files were actually created
-    const resourcesDir = join(tempDir, 'app/data/resources');
-    const traitsDir = join(tempDir, 'app/data/traits');
-    const resourceFiles = existsSync(resourcesDir) ? readdirSync(resourcesDir) : [];
-    const traitFiles = existsSync(traitsDir) ? readdirSync(traitsDir) : [];
-    console.log('📋 Generated resource files:', resourceFiles);
-    console.log('📋 Generated trait files:', traitFiles);
 
     // Check that schema and trait files were generated for both local and external mixins
     expect(existsSync(join(tempDir, 'app/data/resources/test-model.js'))).toBe(true);
@@ -570,7 +562,7 @@ export default Mixin.create({
     writeFileSync(join(externalMixinsDir, 'base-model-mixin.js'), externalMixin);
 
     // Configure options with intermediate model paths
-    const testOptions = {
+    const testOptions: MigrateOptions = {
       ...options,
       intermediateModelPaths: [
         'soxhub-client/core/base-model',

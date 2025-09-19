@@ -5,10 +5,12 @@ import ignore from 'ignore';
 import jscodeshift from 'jscodeshift';
 import path from 'path';
 
-import type { SharedCodemodOptions as Options } from '../src/utils/options.js';
+import type { Options as LegacyCompatBuildersOptions } from '../src/legacy-compat-builders/options.js';
+import { type ConfigOptions,loadConfig, mergeOptions } from '../src/schema-migration/utils/config.js';
+import type { SharedCodemodOptions } from '../src/utils/options.js';
 import { logger } from '../utils/logger.js';
 import type { CodemodConfig } from './config.js';
-import { loadConfig, mergeOptions } from '../src/schema-migration/utils/config.js';
+
 
 export function createApplyCommand(program: Command, codemods: CodemodConfig[]) {
   const applyCommand = program.command('apply').description('apply the given codemod to the target file paths');
@@ -87,7 +89,7 @@ export function createApplyCommand(program: Command, codemods: CodemodConfig[]) 
 }
 
 function createApplyAction(transformName: string) {
-  return async (patterns: string[] | string, options: Options & Record<string, unknown>) => {
+  return async (patterns: string[] | string, options: SharedCodemodOptions & Record<string, unknown>) => {
     logger.config(options);
     const log = logger.for(transformName);
 
@@ -100,7 +102,7 @@ function createApplyAction(transformName: string) {
       let configOptions = {};
       if (options.config) {
         try {
-          configOptions = loadConfig(options.config);
+          configOptions = loadConfig(String(options.config));
           log.info(`Loaded configuration from: ${options.config}`);
         } catch (error) {
           log.error(`Failed to load config file: ${error instanceof Error ? error.message : String(error)}`);
@@ -110,16 +112,21 @@ function createApplyAction(transformName: string) {
 
       // Merge CLI options with config options (CLI takes precedence)
       const cliOptions = {
-        inputDir,
-        dryRun: options.dry || false,
-        verbose: options.verbose === '2' || options.verbose === '1',
-        modelsOnly: options.modelsOnly || false,
-        mixinsOnly: options.mixinsOnly || false,
-        skipProcessed: options.skipProcessed || false,
-        modelSourceDir: options.modelSourceDir || './app/models',
-        mixinSourceDir: options.mixinSourceDir || './app/mixins',
-        outputDir: options.outputDir || './app/schemas',
         ...options,
+        inputDir,
+        dryRun: Boolean(options.dry),
+        verbose: options.verbose === '1' || options.verbose === '2',
+        debug: Boolean(options.debug),
+        modelsOnly: Boolean(options.modelsOnly),
+        mixinsOnly: Boolean(options.mixinsOnly),
+        skipProcessed: Boolean(options.skipProcessed),
+        modelSourceDir: String(options.modelSourceDir || './app/models'),
+        mixinSourceDir: String(options.mixinSourceDir || './app/mixins'),
+        outputDir: String(options.outputDir || './app/schemas'),
+        // Ensure intermediateModelPaths is an array if provided
+        intermediateModelPaths: Array.isArray(options.intermediateModelPaths)
+          ? options.intermediateModelPaths
+          : options.intermediateModelPaths ? [options.intermediateModelPaths] : undefined,
       };
       const migrationOptions = mergeOptions(cliOptions, configOptions);
 
@@ -134,12 +141,23 @@ function createApplyAction(transformName: string) {
     }
 
     // Load and merge config file for other transforms
-    let finalOptions = options;
+    let finalOptions: SharedCodemodOptions & ConfigOptions = options as SharedCodemodOptions & ConfigOptions;
     if (options.config) {
       try {
-        const configOptions = loadConfig(options.config);
+        const configOptions = loadConfig(String(options.config));
         log.info(`Loaded configuration from: ${options.config}`);
-        finalOptions = { ...mergeOptions(options, configOptions) };
+        // Normalize CLI options before merging (convert types to match ConfigOptions)
+        const normalizedCliOptions = {
+          ...options,
+          debug: Boolean(options.debug),
+          verbose: options.verbose === '1' || options.verbose === '2', // Convert string to boolean
+          // Ensure intermediateModelPaths is an array if provided
+          intermediateModelPaths: Array.isArray(options.intermediateModelPaths)
+            ? options.intermediateModelPaths
+            : options.intermediateModelPaths ? [options.intermediateModelPaths] : undefined,
+        };
+        // mergeOptions preserves the CLI type structure while merging config
+        finalOptions = mergeOptions(normalizedCliOptions as ConfigOptions, configOptions) as typeof finalOptions;
       } catch (error) {
         log.error(`Failed to load config file: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
@@ -200,8 +218,9 @@ function createApplyAction(transformName: string) {
               stats: (_name: string, _quantity?: number): void => {}, // unused
               report: (_msg: string): void => {}, // unused
             },
-            // SAFETY: This isn't safe TBH. YOLO
-            finalOptions as Parameters<typeof transform>[2]
+            // Options are properly typed per transform in CLI setup,
+            // but JSCodeshift generic API requires flexible typing
+            finalOptions as SharedCodemodOptions & LegacyCompatBuildersOptions
           );
         } catch (error) {
           result.errors++;

@@ -1,5 +1,7 @@
 import type { SgNode } from '@ast-grep/napi';
 import { Lang, parse } from '@ast-grep/napi';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 
 export interface TransformOptions {
   verbose?: boolean;
@@ -41,6 +43,10 @@ export interface TransformOptions {
   typeMapping?: Record<string, string>;
   /** Internal flag to indicate we're processing an intermediate model that should become a trait */
   processingIntermediateModel?: boolean;
+  /** Input directory for scanning models and mixins (default: './app') */
+  inputDir?: string;
+  /** Output directory for generated schema files (default: './app/schemas') */
+  outputDir?: string;
 }
 
 /**
@@ -231,6 +237,8 @@ export interface PropertyInfo {
   value: string;
   /** Extracted TypeScript type information */
   typeInfo?: ExtractedType;
+  /** Whether this property is defined using object method syntax */
+  isObjectMethod?: boolean;
 }
 
 /**
@@ -620,6 +628,7 @@ export function generateExtensionCode(
  */
 export function debugLog(options: TransformOptions | undefined, ...args: unknown[]): void {
   if (options?.debug) {
+    // eslint-disable-next-line no-console
     console.log(...args);
   }
 }
@@ -659,7 +668,7 @@ function processImports(source: string, filePath: string, baseDir: string, optio
         // Handle relative imports
         debugLog(options, `Processing relative import: ${cleanSourceText}`);
         isRelativeImport = true;
-        resolvedPath = resolveRelativeImport(cleanSourceText, filePath, baseDir, options);
+        resolvedPath = resolveRelativeImport(cleanSourceText, filePath, baseDir);
       } else if (isSpecialMixinImport(cleanSourceText, options)) {
         // Handle special cases where model imports are actually mixins (e.g., workflowable)
         debugLog(options, `Processing special mixin import: ${cleanSourceText}`);
@@ -869,7 +878,6 @@ function resolveAbsoluteMixinImport(importPath: string, baseDir: string, options
     const filePath = `${mixinSource.dir}/${mixinName}.ts`;
 
     // Check if the file exists
-    const { existsSync } = require('fs');
     if (existsSync(filePath)) {
       return filePath;
     }
@@ -929,7 +937,6 @@ function resolveAbsoluteModelImport(importPath: string, baseDir: string, options
     debugLog(options, `Trying file path: ${filePath}`);
 
     // Check if the file exists
-    const { existsSync } = require('fs');
     if (existsSync(filePath)) {
       debugLog(options, `Found model file: ${filePath}`);
       return filePath;
@@ -965,8 +972,7 @@ function convertImportToAbsolute(
   try {
     // Check if the resolved file is a model file
     try {
-      const { readFileSync } = require('fs');
-      const source = readFileSync(resolvedPath, 'utf8');
+        const source = readFileSync(resolvedPath, 'utf8');
       if (isModelFile(resolvedPath, source, options)) {
         // Convert model import to resource schema import
         const modelName = extractBaseName(resolvedPath);
@@ -1020,78 +1026,10 @@ function convertImportToAbsolute(
 }
 
 /**
- * Convert a relative import to the appropriate absolute import based on what type of file it points to
- */
-function convertRelativeImportToAbsolute(
-  originalImport: string,
-  resolvedPath: string,
-  baseDir: string,
-  importNode: SgNode,
-  options?: TransformOptions
-): string | null {
-  try {
-    // Check if the resolved file is a model file
-    try {
-      const { readFileSync } = require('fs');
-      const source = readFileSync(resolvedPath, 'utf8');
-      if (isModelFile(resolvedPath, source, options)) {
-        // Convert model import to resource schema import
-        const modelName = extractBaseName(resolvedPath);
-        const pascalCaseName = toPascalCase(modelName);
-        const resourceImport = transformModelToResourceImport(modelName, pascalCaseName, options);
-
-        // Extract just the import path from the full import statement
-        const importPathMatch = resourceImport.match(/from '([^']+)'/);
-        if (importPathMatch) {
-          debugLog(options, `Converting model import ${originalImport} to resource import: ${importPathMatch[1]}`);
-          return importPathMatch[1];
-        }
-      }
-    } catch (fileError) {
-      debugLog(options, `Error reading file ${resolvedPath}: ${String(fileError)}`);
-    }
-
-    // Check if this is a special mixin import
-    if (isSpecialMixinImport(originalImport, options)) {
-      // Convert special mixin import to trait import
-      const mixinName = extractBaseName(resolvedPath);
-      const traitName = mixinNameToTraitName(mixinName, true); // true for dasherized format
-      const traitImport = options?.traitsImport
-        ? `${options.traitsImport}/${traitName}.schema.types`
-        : `../traits/${traitName}.schema.types`;
-
-      debugLog(options, `Converting special mixin import ${originalImport} to trait import: ${traitImport}`);
-      return traitImport;
-    }
-
-    // Check if the resolved file is a mixin file
-    if (isMixinFile(resolvedPath, options)) {
-      // Convert mixin import to trait import
-      const mixinName = extractBaseName(resolvedPath);
-      const traitName = mixinNameToTraitName(mixinName, true); // true for dasherized format
-      const traitImport = options?.traitsImport
-        ? `${options.traitsImport}/${traitName}.schema.types`
-        : `../traits/${traitName}.schema.types`;
-
-      debugLog(options, `Converting mixin import ${originalImport} to trait import: ${traitImport}`);
-      return traitImport;
-    }
-
-    // For other files, convert to absolute import path
-    const absoluteImportPath = convertToAbsoluteImportPath(resolvedPath, baseDir, options);
-    return absoluteImportPath;
-  } catch (error) {
-    debugLog(options, `Error converting relative import: ${String(error)}`);
-    return null;
-  }
-}
-
-/**
  * Check if a file is a mixin file by analyzing its content
  */
 function isMixinFile(filePath: string, options?: TransformOptions): boolean {
   try {
-    const { readFileSync } = require('fs');
     const source = readFileSync(filePath, 'utf8');
 
     const lang = getLanguageFromPath(filePath);
@@ -1228,6 +1166,7 @@ export function createExtensionFromOriginalFile(
  */
 export function errorLog(options: TransformOptions | undefined, ...args: unknown[]): void {
   if (options?.verbose) {
+    // eslint-disable-next-line no-console
     console.error(...args);
   }
 }
@@ -1339,7 +1278,7 @@ export function isModelFile(filePath: string, source: string, options?: Transfor
             kind: 'class_declaration',
             has: {
               kind: 'identifier',
-              text: exportedIdentifier,
+              regex: exportedIdentifier,
             },
           },
         });
@@ -1381,8 +1320,6 @@ export function resolveRelativeImport(importPath: string, fromFile: string, base
   }
 
   try {
-    const { dirname, resolve } = require('path');
-    const { existsSync } = require('fs');
 
     const fromDir = dirname(fromFile);
     const resolvedPath = resolve(fromDir, importPath);
@@ -1466,10 +1403,9 @@ export function findEmberImportLocalName(
       const resolvedPath = resolveRelativeImport(cleanSourceText, fromFile, baseDir);
       if (resolvedPath) {
         try {
-          const { readFileSync } = require('fs');
-          const source = readFileSync(resolvedPath, 'utf8');
+                const fileContent = readFileSync(resolvedPath, 'utf8');
 
-          if (isModelFile(resolvedPath, source, options)) {
+          if (isModelFile(resolvedPath, fileContent, options)) {
             debugLog(options, `Found relative import pointing to model file: ${cleanSourceText} -> ${resolvedPath}`);
 
             const importClause = importNode.children().find((child) => child.kind() === 'import_clause');
@@ -1550,7 +1486,7 @@ function parseObjectPropertiesFromNode(objectNode: SgNode): Record<string, unkno
 export function parseObjectLiteralFromNode(objectNode: SgNode): Record<string, unknown> {
   try {
     return parseObjectPropertiesFromNode(objectNode);
-  } catch (_error) {
+  } catch {
     // Return empty object if parsing fails
     return {};
   }
@@ -1563,7 +1499,7 @@ export function parseObjectLiteralFromNode(objectNode: SgNode): Record<string, u
 export function parseObjectLiteral(objectText: string): Record<string, unknown> {
   try {
     // Determine language based on the object text content
-    const ast = parse(Lang.Ts, objectText);
+    const ast = parse(Lang.TypeScript, objectText);
     const root = ast.root();
 
     // Find the object literal
@@ -1573,7 +1509,7 @@ export function parseObjectLiteral(objectText: string): Record<string, unknown> 
     }
 
     return parseObjectPropertiesFromNode(objectLiteral);
-  } catch (_error) {
+  } catch {
     // Return empty object if parsing fails
     return {};
   }
@@ -2380,7 +2316,7 @@ export function createTypeArtifact(
     optional?: boolean;
     comment?: string;
   }>,
-  artifactContext?: 'schema' | 'extension' | 'trait',
+  artifactContext?: 'resource' | 'extension' | 'trait',
   extendsClause?: string,
   imports?: string[],
   fileExtension?: string

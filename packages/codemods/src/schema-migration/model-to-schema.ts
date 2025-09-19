@@ -4,6 +4,38 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 
 import type { SchemaField, TransformArtifact, TransformOptions } from './utils/ast-utils.js';
+import {
+  buildLegacySchemaObject,
+  convertToSchemaFieldWithNodes,
+  createExtensionFromOriginalFile,
+  createTypeArtifact,
+  debugLog,
+  DEFAULT_EMBER_DATA_SOURCE,
+  detectQuoteStyle,
+  errorLog,
+  extractBaseName,
+  extractPascalCaseName,
+  extractTypeFromDeclaration,
+  extractTypeFromDecoratorWithNodes,
+  extractTypeFromMethod,
+  findDefaultExport,
+  findEmberImportLocalName,
+  generateCommonWarpDriveImports,
+  generateExportStatement,
+  generateTraitSchemaCode,
+  getEmberDataImports,
+  getExportedIdentifier,
+  getLanguageFromPath,
+  getMixinImports,
+  getTypeScriptTypeForAttribute,
+  getTypeScriptTypeForBelongsTo,
+  getTypeScriptTypeForHasMany,
+  mixinNameToTraitName,
+  parseDecoratorArgumentsWithNodes,
+  toPascalCase,
+  transformModelToResourceImport,
+  withTransformWrapper,
+} from './utils/ast-utils.js';
 
 /**
  * Determines if an AST node represents object method syntax that doesn't need key: value format
@@ -30,39 +62,6 @@ function isClassMethodSyntax(methodNode: SgNode): boolean {
 
   return false;
 }
-import {
-  buildLegacySchemaObject,
-  convertToSchemaFieldWithNodes,
-  createExtensionFromOriginalFile,
-  createTypeArtifact,
-  debugLog,
-  DEFAULT_EMBER_DATA_SOURCE,
-  detectQuoteStyle,
-  errorLog,
-  extractBaseName,
-  extractPascalCaseName,
-  extractTypeFromDeclaration,
-  extractTypeFromDecoratorWithNodes,
-  extractTypeFromMethod,
-  findDefaultExport,
-  findEmberImportLocalName,
-  generateCommonWarpDriveImports,
-  generateExportStatement,
-  generateTraitSchemaCode,
-  getEmberDataImports,
-  getExportedIdentifier,
-  getFileExtension,
-  getLanguageFromPath,
-  getMixinImports,
-  getTypeScriptTypeForAttribute,
-  getTypeScriptTypeForBelongsTo,
-  getTypeScriptTypeForHasMany,
-  mixinNameToTraitName,
-  parseDecoratorArgumentsWithNodes,
-  toPascalCase,
-  transformModelToResourceImport,
-  withTransformWrapper,
-} from './utils/ast-utils.js';
 
 /**
  * Shared result type for model analysis
@@ -96,7 +95,6 @@ function analyzeModelFile(filePath: string, source: string, options: TransformOp
   const lang = getLanguageFromPath(filePath);
   const modelName = extractPascalCaseName(filePath);
   const baseName = extractBaseName(filePath);
-  const fileExtension = getFileExtension(filePath);
 
   const invalidResult: ModelAnalysisResult = {
     isValid: false,
@@ -127,7 +125,7 @@ function analyzeModelFile(filePath: string, source: string, options: TransformOp
     }
 
     // Check if this is a valid model class (either with EmberData decorators or extending intermediate models)
-    const isValidModel = isModelClass(defaultExportNode, modelImportLocal, undefined, root, options);
+    const isValidModel = isModelClass(defaultExportNode, modelImportLocal ?? undefined, undefined, root, options);
     debugLog(options, `DEBUG: Is valid model: ${isValidModel}`);
     if (!isValidModel) {
       debugLog(options, 'DEBUG: Not a valid model class, skipping');
@@ -167,7 +165,7 @@ function analyzeModelFile(filePath: string, source: string, options: TransformOp
     );
     return {
       isValid: true,
-      modelImportLocal,
+      modelImportLocal: modelImportLocal ?? undefined,
       defaultExportNode,
       schemaFields,
       extensionProperties,
@@ -482,7 +480,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
     mixinTraits,
     mixinExtensions,
     source,
-    defaultExportNode,
+    defaultExportNode ?? null,
     root
   );
   // Determine the file extension based on the original model file
@@ -633,7 +631,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
     baseName,
     `${modelName}Extension`,
     extensionProperties,
-    analysis.defaultExportNode,
+    analysis.defaultExportNode ?? null,
     options,
     modelInterfaceName,
     modelImportPath
@@ -874,7 +872,7 @@ function generateIntermediateModelTraitArtifacts(
       traitName,
       `${traitPascalName}Extension`,
       extensionProperties,
-      defaultExportNode,
+      defaultExportNode ?? null,
       options,
       traitInterfaceName,
       traitImportPath
@@ -970,7 +968,7 @@ function isModelClass(
           kind: 'class_declaration',
           has: {
             kind: 'identifier',
-            text: exportedIdentifier,
+            regex: exportedIdentifier,
           },
         },
       });
@@ -1072,7 +1070,7 @@ function extractModelFields(
   mixinExtensions: string[];
 } {
   const schemaFields: SchemaField[] = [];
-  const extensionProperties: Array<{ name: string; originalKey: string; value: string; typeInfo?: ExtractedType }> = [];
+  const extensionProperties: Array<{ name: string; originalKey: string; value: string; typeInfo?: ExtractedType; isObjectMethod?: boolean }> = [];
   const mixinTraits: string[] = [];
   const mixinExtensions: string[] = [];
 
@@ -1352,7 +1350,7 @@ function extractMixinTraits(
         kind: 'member_expression',
         has: {
           kind: 'property_identifier',
-          text: 'extend',
+          regex: 'extend',
         },
       },
     },
@@ -1505,7 +1503,7 @@ function generateSchemaCode(
   const exportStatement = generateExportStatement(schemaName, legacySchema, useSingleQuotes);
 
   // Transform relative model imports to schema type imports
-  let transformedSource = transformModelImportsInSource(originalSource, root);
+  const transformedSource = transformModelImportsInSource(originalSource, root);
 
   // If no default export node, just append the schema to the existing content
   if (!defaultExportNode) {
@@ -1530,7 +1528,7 @@ function generateSchemaCode(
           kind: 'class_declaration',
           has: {
             kind: 'identifier',
-            text: exportedIdentifier,
+            regex: exportedIdentifier,
           },
         },
       });
@@ -1567,27 +1565,3 @@ function generateSchemaCode(
   return transformedSource.replace(original, exportStatement);
 }
 
-/** Generate only the schema code block (legacy function for compatibility) */
-function generateSchemaCodeLegacy(
-  schemaName: string,
-  type: string,
-  schemaFields: SchemaField[],
-  mixinTraits: string[],
-  mixinExtensions: string[],
-  imports = new Set<string>(),
-  source?: string
-): string {
-  const legacySchema = buildLegacySchemaObject(type, schemaFields, mixinTraits, mixinExtensions);
-
-  // Detect quote style from source if provided
-  const useSingleQuotes = source ? detectQuoteStyle(source) === 'single' : false;
-  const exportStatement = generateExportStatement(schemaName, legacySchema, useSingleQuotes);
-
-  // Include imports if any exist
-  if (imports.size > 0) {
-    const importStatements = Array.from(imports).sort().join('\n');
-    return `${importStatements}\n\n${exportStatement}`;
-  }
-
-  return exportStatement;
-}

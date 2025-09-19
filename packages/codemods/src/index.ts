@@ -1,7 +1,7 @@
 import { default as legacyCompatBuilders } from './legacy-compat-builders/index.js';
 import { log } from './legacy-compat-builders/log.js';
-import migrateToSchema from './schema-migration/migrate-to-schema.js';
 import { log as migrateToSchemaLog } from './schema-migration/log.js';
+import migrateToSchema from './schema-migration/migrate-to-schema.js';
 
 // exports for testing
 export const Codemods = {

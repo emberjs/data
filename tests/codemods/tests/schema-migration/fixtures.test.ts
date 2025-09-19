@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readdirSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { describe, expect, it } from 'vitest';
 
-import { toArtifacts as modelToArtifacts } from '../../../../packages/codemods/src/schema-migration/model-to-schema.js';
-import { toArtifacts as mixinToArtifacts } from '../../../../packages/codemods/src/schema-migration/mixin-to-schema.js';
-import type { TransformOptions } from '../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
-import { DEFAULT_TEST_OPTIONS } from './test-helpers';
+import { toArtifacts as mixinToArtifacts } from '@ember-data/codemods/schema-migration/mixin-to-schema.js';
+import { toArtifacts as modelToArtifacts } from '@ember-data/codemods/schema-migration/model-to-schema.js';
+import type { TransformArtifact } from '@ember-data/codemods/schema-migration/utils/ast-utils.js';
+
+import { DEFAULT_TEST_OPTIONS } from './test-helpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,7 +30,7 @@ function findFixtureTests(): TestCase[] {
     const categoryDir = join(fixturesDir, category);
     if (!existsSync(categoryDir)) continue;
 
-    const files = require('fs').readdirSync(categoryDir);
+    const files = readdirSync(categoryDir);
     const inputFiles = files.filter((f: string) => f.endsWith('.input.ts') || f.endsWith('.input.js'));
 
     for (const inputFile of inputFiles) {
@@ -70,22 +70,24 @@ describe('Schema Migration Fixture Tests', () => {
       const expectedOutput = readFileSync(outputPath, 'utf-8');
 
       // Get artifacts using the appropriate transform
-      const transformFn = type === 'mixin' ? mixinToArtifacts : modelToArtifacts;
-
-      // Create a simulated model/mixin path from the fixture name
       const baseName = name.split('/')[1]; // Get filename from 'models/basic-attributes'
       const modelPath = type === 'mixin'
         ? `app/mixins/${baseName}.js`
         : `app/models/${baseName}.js`;
 
-      const artifacts = transformFn(modelPath, input, DEFAULT_TEST_OPTIONS);
+      // Get artifacts using the appropriate transform with explicit typing
+      const artifacts: TransformArtifact[] = type === 'mixin'
+        ? (mixinToArtifacts(modelPath, input, DEFAULT_TEST_OPTIONS))
+        : (modelToArtifacts(modelPath, input, DEFAULT_TEST_OPTIONS));
 
       // Find the main schema artifact
-      const schemaArtifact = artifacts.find(a => a.type === 'schema' || a.type === 'trait');
+      const schemaArtifact: TransformArtifact | undefined = artifacts.find((artifact: TransformArtifact) =>
+        artifact.type === 'schema' || artifact.type === 'trait'
+      );
 
       if (!schemaArtifact) {
-        console.log(`Skipping ${name} - no schema/trait artifacts generated. Available: ${artifacts.map(a => a.type).join(', ')}`);
-        return; // Skip this test case for now
+        // Skip this test case for now - no schema/trait artifacts generated
+        return;
       }
 
       // Normalize whitespace for comparison

@@ -1,20 +1,20 @@
+import { parse } from '@ast-grep/napi';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { glob } from 'glob';
-import { resolve, join, dirname, basename } from 'path';
-import modelTransform, { processIntermediateModelsToTraits } from './model-to-schema.js';
-import mixinTransform from './mixin-to-schema.js';
+import { basename,dirname, join, resolve } from 'path';
+
+import { processIntermediateModelsToTraits } from './model-to-schema.js';
 import type { TransformOptions } from './utils/ast-utils.js';
 import {
-  isModelFile as astIsModelFile,
-  getLanguageFromPath,
-  findEmberImportLocalName,
-  DEFAULT_MIXIN_SOURCE,
   debugLog,
-  resolveRelativeImport
+  DEFAULT_MIXIN_SOURCE,
+  findEmberImportLocalName,
+  getLanguageFromPath,
+  isModelFile as astIsModelFile
 } from './utils/ast-utils.js';
-import { parse } from '@ast-grep/napi';
+import { Logger } from './utils/logger.js';
 
-interface MigrateOptions extends Partial<TransformOptions> {
+export interface MigrateOptions extends Partial<TransformOptions> {
   mixinsOnly?: boolean;
   modelsOnly?: boolean;
   skipProcessed?: boolean;
@@ -82,9 +82,10 @@ function analyzeModelMixinUsage(
   const modelMixins = new Set<string>();
   const mixinDependencies = new Map<string, Set<string>>();
 
+  const logger = new Logger(options.verbose);
   if (options.verbose) {
-    console.log(`🔍 Analyzing mixin usage relationships...`);
-    console.log(`📊 Found ${modelFiles.length} models and ${mixinFiles.length} mixins`);
+    logger.info(`🔍 Analyzing mixin usage relationships...`);
+    logger.info(`📊 Found ${modelFiles.length} models and ${mixinFiles.length} mixins`);
   }
 
   // Analyze model files for direct mixin usage
@@ -98,22 +99,22 @@ function analyzeModelMixinUsage(
 
       modelsProcessed++;
       if (modelsProcessed % 100 === 0 && options.verbose) {
-        console.log(`📊 Analyzed ${modelsProcessed}/${modelFiles.length} models...`);
+        logger.info(`📊 Analyzed ${modelsProcessed}/${modelFiles.length} models...`);
       }
 
       for (const mixinPath of mixinsUsedByModel) {
         modelMixins.add(mixinPath);
         if (options.verbose) {
-          console.log(`📋 Model ${modelFile} uses mixin ${mixinPath}`);
+          logger.info(`📋 Model ${modelFile} uses mixin ${mixinPath}`);
         }
       }
 
       if (options.verbose && mixinsUsedByModel.length === 0) {
-        console.log(`📋 Model ${modelFile} uses no mixins`);
+        logger.info(`📋 Model ${modelFile} uses no mixins`);
       }
     } catch (error) {
       if (options.verbose) {
-        console.error(`❌ Error analyzing model ${modelFile}:`, error);
+        logger.error(`❌ Error analyzing model ${modelFile}: ${String(error)}`);
       }
     }
   }
@@ -128,11 +129,11 @@ function analyzeModelMixinUsage(
       mixinDependencies.set(mixinFile, new Set(mixinsUsedByMixin));
 
       if (options.verbose && mixinsUsedByMixin.length > 0) {
-        console.log(`📋 Mixin ${mixinFile} uses mixins: ${mixinsUsedByMixin.join(', ')}`);
+        logger.info(`📋 Mixin ${mixinFile} uses mixins: ${mixinsUsedByMixin.join(', ')}`);
       }
     } catch (error) {
       if (options.verbose) {
-        console.error(`❌ Error analyzing mixin ${mixinFile}:`, error);
+        logger.error(`❌ Error analyzing mixin ${mixinFile}: ${String(error)}`);
       }
     }
   }
@@ -151,7 +152,7 @@ function analyzeModelMixinUsage(
             transitiveModelMixins.add(dep);
             changed = true;
             if (options.verbose) {
-              console.log(`📋 Mixin ${dep} is transitively connected to models via ${mixinFile}`);
+              logger.info(`📋 Mixin ${dep} is transitively connected to models via ${mixinFile}`);
             }
           }
         }
@@ -160,10 +161,10 @@ function analyzeModelMixinUsage(
   }
 
   if (options.verbose) {
-    console.log(`✅ Found ${transitiveModelMixins.size} mixins connected to models (${modelMixins.size} direct, ${transitiveModelMixins.size - modelMixins.size} transitive)`);
-    console.log(`📋 Model-connected mixins:`);
+    logger.info(`✅ Found ${transitiveModelMixins.size} mixins connected to models (${modelMixins.size} direct, ${transitiveModelMixins.size - modelMixins.size} transitive)`);
+    logger.info(`📋 Model-connected mixins:`);
     for (const mixinPath of transitiveModelMixins) {
-      console.log(`   - ${mixinPath}`);
+      logger.info(`   - ${mixinPath}`);
     }
   }
 
@@ -222,13 +223,13 @@ function extractMixinImports(source: string, filePath: string, options: Transfor
     debugLog(options, `[DEBUG] extractMixinImports for ${filePath}: found ${importStatements.length} import statements`);
 
     for (const importStatement of importStatements) {
-      const source = importStatement.find({ rule: { kind: 'string' } });
-      if (!source) {
+      const sourceNode = importStatement.find({ rule: { kind: 'string' } });
+      if (!sourceNode) {
         debugLog(options, `[DEBUG] Import statement has no string literal: ${importStatement.text()}`);
         continue;
       }
 
-      const importPath = source.text().replace(/['"]/g, '');
+      const importPath = sourceNode.text().replace(/['"]/g, '');
       debugLog(options, `[DEBUG] Processing import: ${importPath}`);
 
       // Find the imported identifier(s)
@@ -269,7 +270,7 @@ function extractMixinImports(source: string, filePath: string, options: Transfor
     }
 
     // Check all imports to see if they resolve to mixin files
-    for (const [identifier, importPath] of importMap) {
+    for (const [, importPath] of importMap) {
       const resolved = resolveMixinPath(importPath, filePath, options);
       debugLog(options, `[DEBUG] resolveMixinPath(${importPath}): ${resolved || 'null'}`);
       if (resolved) {
@@ -286,7 +287,7 @@ function extractMixinImports(source: string, filePath: string, options: Transfor
           has: {
             field: 'property',
             kind: 'property_identifier',
-            text: 'extend'
+            regex: 'extend'
           }
         }
       }
@@ -440,7 +441,7 @@ function resolveMixinPath(importPath: string, currentFilePath: string, options: 
     return null;
   } catch (error) {
     if (options.verbose) {
-      console.log(`📋 DEBUG: Error resolving path '${importPath}':`, error);
+      debugLog(options, `📋 DEBUG: Error resolving path '${importPath}': ${String(error)}`);
     }
     return null;
   }
@@ -460,9 +461,10 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
     ...options,
   };
 
-  console.log(`🚀 Starting schema migration...`);
-  console.log(`📁 Input directory: ${resolve(finalOptions.inputDir)}`);
-  console.log(`📁 Output directory: ${resolve(finalOptions.outputDir)}`);
+  const logger = new Logger(finalOptions.verbose);
+  logger.info(`🚀 Starting schema migration...`);
+  logger.info(`📁 Input directory: ${resolve(finalOptions.inputDir || './app')}`);
+  logger.info(`📁 Output directory: ${resolve(finalOptions.outputDir || './app/schemas')}`);
 
   // Ensure output directories exist (specific directories are created as needed)
   if (!finalOptions.dryRun) {
@@ -492,7 +494,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
     );
 
     if (finalOptions.verbose) {
-      console.log(`📋 Found ${modelFiles.length} model files`);
+      logger.info(`📋 Found ${modelFiles.length} model files`);
     }
   }
 
@@ -528,27 +530,27 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
           );
 
           if (finalOptions.verbose) {
-            console.log(`📋 Found ${additionalMixinFiles.length} additional mixin files from ${source.dir}`);
+            logger.info(`📋 Found ${additionalMixinFiles.length} additional mixin files from ${source.dir}`);
           }
         } catch (error) {
           if (finalOptions.verbose) {
-            console.log(`⚠️ Error discovering mixins from ${source.dir}:`, error);
+            logger.warn(`⚠️ Error discovering mixins from ${source.dir}: ${String(error)}`);
           }
         }
       }
     }
 
     if (finalOptions.verbose) {
-      console.log(`📋 Found ${mixinFiles.length} mixin files`);
+      logger.info(`📋 Found ${mixinFiles.length} mixin files`);
     }
   }
 
   if (filesToProcess.length === 0) {
-    console.log('✅ No files found to process.');
+    logger.info('✅ No files found to process.');
     return;
   }
 
-  console.log(`📋 Processing ${filesToProcess.length} files total`);
+  logger.info(`📋 Processing ${filesToProcess.length} files total`);
 
   // Separate model and mixin files using AST analysis
   const modelFiles: string[] = [];
@@ -566,7 +568,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
       const validation = validateFileAST(file, source, finalOptions);
       if (!validation.valid) {
         if (finalOptions.verbose) {
-          console.error(`⚠️  Skipping ${file}: Invalid syntax - ${validation.error}`);
+          logger.warn(`⚠️  Skipping ${file}: Invalid syntax - ${validation.error}`);
         }
         continue;
       }
@@ -576,14 +578,14 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
       const isLikelyMixin = file.includes('/mixins/');
 
       if (finalOptions.verbose) {
-        console.log(`🔍 Analyzing file: ${file} (likely model: ${isLikelyModel}, likely mixin: ${isLikelyMixin})`);
+        logger.debug(`🔍 Analyzing file: ${file} (likely model: ${isLikelyModel}, likely mixin: ${isLikelyMixin})`);
       }
 
       // Check model first if it's in models directory, otherwise check both
       if (isLikelyModel) {
         const isModel = isModelFile(file, source);
         if (finalOptions.verbose) {
-          console.log(`📋 AST analysis result for ${file}: isModel=${isModel}`);
+          logger.debug(`📋 AST analysis result for ${file}: isModel=${isModel}`);
         }
         if (isModel) {
           modelFiles.push(file);
@@ -591,7 +593,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
       } else if (isLikelyMixin) {
         const isMixin = isMixinFile(file, source, finalOptions);
         if (finalOptions.verbose) {
-          console.log(`📋 AST analysis result for ${file}: isMixin=${isMixin}`);
+          logger.debug(`📋 AST analysis result for ${file}: isMixin=${isMixin}`);
         }
         if (isMixin) {
           mixinFiles.push(file);
@@ -601,7 +603,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
         const isModel = isModelFile(file, source);
         const isMixin = isMixinFile(file, source, finalOptions);
         if (finalOptions.verbose) {
-          console.log(`📋 AST analysis result for ${file}: isModel=${isModel}, isMixin=${isMixin}`);
+          logger.debug(`📋 AST analysis result for ${file}: isModel=${isModel}, isMixin=${isMixin}`);
         }
         if (isModel) {
           modelFiles.push(file);
@@ -611,23 +613,23 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
       }
     } catch (error) {
       if (finalOptions.verbose) {
-        console.error(`⚠️  Could not read or parse ${file}: ${String(error)}`);
+        logger.error(`⚠️  Could not read or parse ${file}: ${String(error)}`);
       }
     }
   }
 
-  console.log(`📋 Found ${modelFiles.length} model files and ${mixinFiles.length} mixin files`);
+  logger.info(`📋 Found ${modelFiles.length} model files and ${mixinFiles.length} mixin files`);
 
   // Analyze which mixins are actually used by models (do this early, before processing)
   let modelConnectedMixins = new Set<string>();
   if (!options.mixinsOnly) {
     try {
-      console.log(`🔍 Starting mixin usage analysis...`);
+      logger.info(`🔍 Starting mixin usage analysis...`);
       modelConnectedMixins = analyzeModelMixinUsage(modelFiles, mixinFiles, fileSourceCache, finalOptions);
-      console.log(`✅ Analysis complete. Found ${modelConnectedMixins.size} connected mixins.`);
+      logger.info(`✅ Analysis complete. Found ${modelConnectedMixins.size} connected mixins.`);
     } catch (error) {
-      console.error(`❌ Error during mixin usage analysis:`, error);
-      console.log(`⚠️  Falling back to processing all mixins`);
+      logger.error(`❌ Error during mixin usage analysis: ${String(error)}`);
+      logger.warn(`⚠️  Falling back to processing all mixins`);
     }
   }
 
@@ -635,7 +637,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   // This must be done before processing regular models that extend these intermediate models
   if (finalOptions.intermediateModelPaths && finalOptions.intermediateModelPaths.length > 0) {
     try {
-      console.log(`🔄 Processing ${finalOptions.intermediateModelPaths.length} intermediate models...`);
+      logger.info(`🔄 Processing ${finalOptions.intermediateModelPaths.length} intermediate models...`);
       const intermediateResults = processIntermediateModelsToTraits(
         Array.isArray(finalOptions.intermediateModelPaths)
           ? finalOptions.intermediateModelPaths
@@ -652,17 +654,17 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
         if (artifact.type === 'trait') {
           // Trait files go to traitsDir
-          outputDir = finalOptions.traitsDir || './app/data/traits';
+          outputDir = finalOptions.traitsDir ?? './app/data/traits';
           outputPath = join(resolve(outputDir), artifact.suggestedFileName);
         } else if (artifact.type === 'trait-type') {
           // Type files are colocated with their traits in traitsDir
-          outputDir = finalOptions.traitsDir || './app/data/traits';
+          outputDir = finalOptions.traitsDir ?? './app/data/traits';
           // Generate type file name from the trait artifact name
           const typeFileName = artifact.suggestedFileName.replace(/\.js$/, '.schema.types.ts');
           outputPath = join(resolve(outputDir), typeFileName);
         } else {
           // Default fallback
-          outputDir = finalOptions.outputDir || './app/schemas';
+          outputDir = finalOptions.outputDir ?? './app/schemas';
           outputPath = join(resolve(outputDir), artifact.suggestedFileName);
         }
 
@@ -675,23 +677,23 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
           writeFileSync(outputPath, artifact.code, 'utf-8');
           if (finalOptions.verbose) {
-            console.log(`✅ Generated intermediate ${artifact.type}: ${outputPath}`);
+            logger.info(`✅ Generated intermediate ${artifact.type}: ${outputPath}`);
           }
         } else if (finalOptions.verbose) {
-          console.log(`✅ Would generate intermediate ${artifact.type}: ${outputPath} (dry run)`);
+          logger.info(`✅ Would generate intermediate ${artifact.type}: ${outputPath} (dry run)`);
         }
       }
 
       if (intermediateResults.errors.length > 0) {
-        console.error(`⚠️ Errors processing intermediate models:`);
+        logger.error(`⚠️ Errors processing intermediate models:`);
         for (const error of intermediateResults.errors) {
-          console.error(`   ${error}`);
+          logger.error(`   ${String(error)}`);
         }
       }
 
-      console.log(`✅ Processed ${intermediateResults.artifacts.length} intermediate model artifacts`);
+      logger.info(`✅ Processed ${intermediateResults.artifacts.length} intermediate model artifacts`);
     } catch (error) {
-      console.error(`❌ Error processing intermediate models:`, error);
+      logger.error(`❌ Error processing intermediate models: ${String(error)}`);
     }
   }
 
@@ -709,13 +711,13 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   for (const filePath of modelFiles) {
     try {
       if (finalOptions.verbose) {
-        console.log(`🔄 Processing: ${filePath}`);
+        logger.debug(`🔄 Processing: ${filePath}`);
       }
 
       // Use cached source instead of re-reading
       const source = fileSourceCache.get(filePath);
       if (!source) {
-        console.error(`❌ Could not get cached source for file: ${filePath}`);
+        logger.error(`❌ Could not get cached source for file: ${filePath}`);
         errors++;
         continue;
       }
@@ -753,7 +755,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
             outputPath = join(resolve(outputDir), outputName);
           } else {
             // Default fallback
-            outputDir = finalOptions.outputDir || './app/schemas';
+            outputDir = finalOptions.outputDir ?? './app/schemas';
             outputPath = join(resolve(outputDir), artifact.suggestedFileName);
           }
 
@@ -766,21 +768,21 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
             writeFileSync(outputPath, artifact.code, 'utf-8');
             if (finalOptions.verbose) {
-              console.log(`✅ Generated ${artifact.type}: ${outputPath}`);
+              logger.info(`✅ Generated ${artifact.type}: ${outputPath}`);
             }
           } else if (finalOptions.verbose) {
-            console.log(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
+            logger.info(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
           }
         }
       } else {
         skipped++;
         if (finalOptions.verbose) {
-          console.log(`⏭️  Skipped (no artifacts generated): ${filePath}`);
+          logger.debug(`⏭️  Skipped (no artifacts generated): ${filePath}`);
         }
       }
     } catch (error) {
       errors++;
-      console.error(`❌ Error processing ${filePath}:`, error instanceof Error ? error.message : String(error));
+      logger.error(`❌ Error processing ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -789,13 +791,13 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
   for (const filePath of mixinFiles) {
     try {
       if (finalOptions.verbose) {
-        console.log(`🔄 Processing: ${filePath}`);
+        logger.debug(`🔄 Processing: ${filePath}`);
       }
 
       // Use cached source instead of re-reading
       const source = fileSourceCache.get(filePath);
       if (!source) {
-        console.error(`❌ Could not get cached source for file: ${filePath}`);
+        logger.error(`❌ Could not get cached source for file: ${filePath}`);
         errors++;
         continue;
       }
@@ -815,13 +817,13 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
           if (artifact.type === 'trait') {
             // Trait files go to traitsDir
-            outputDir = finalOptions.traitsDir || './app/data/traits';
+            outputDir = finalOptions.traitsDir ?? './app/data/traits';
             const relativePath = getRelativePathForMixin(filePath, finalOptions);
             const outputName = relativePath.replace(/\.(js|ts)$/, '.js'); // Traits are always .js
             outputPath = join(resolve(outputDir), outputName);
           } else if (artifact.type === 'trait-type') {
             // Type files are colocated with their traits in traitsDir
-            outputDir = finalOptions.traitsDir || './app/data/traits';
+            outputDir = finalOptions.traitsDir ?? './app/data/traits';
             const relativePath = getRelativePathForMixin(filePath, finalOptions);
             outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
           } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
@@ -834,7 +836,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
             outputPath = join(resolve(outputDir), outputName);
           } else {
             // Default fallback
-            outputDir = finalOptions.outputDir || './app/schemas';
+            outputDir = finalOptions.outputDir ?? './app/schemas';
             outputPath = join(resolve(outputDir), artifact.suggestedFileName);
           }
 
@@ -847,29 +849,29 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
             writeFileSync(outputPath, artifact.code, 'utf-8');
             if (finalOptions.verbose) {
-              console.log(`✅ Generated ${artifact.type}: ${outputPath}`);
+              logger.info(`✅ Generated ${artifact.type}: ${outputPath}`);
             }
           } else if (finalOptions.verbose) {
-            console.log(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
+            logger.info(`✅ Would generate ${artifact.type}: ${outputPath} (dry run)`);
           }
         }
       } else {
         skipped++;
         if (finalOptions.verbose) {
-          console.log(`⏭️  Skipped (not a model mixin): ${filePath}`);
+          logger.debug(`⏭️  Skipped (not a model mixin): ${filePath}`);
         }
       }
     } catch (error) {
       errors++;
-      console.error(`❌ Error processing ${filePath}:`, error instanceof Error ? error.message : String(error));
+      logger.error(`❌ Error processing ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  console.log(`\n✅ Migration complete!`);
-  console.log(`   📊 Processed: ${processed} files`);
-  console.log(`   ⏭️  Skipped: ${skipped} files (not applicable for transformation)`);
+  logger.info(`\n✅ Migration complete!`);
+  logger.info(`   📊 Processed: ${processed} files`);
+  logger.info(`   ⏭️  Skipped: ${skipped} files (not applicable for transformation)`);
   if (errors > 0) {
-    console.log(`   ❌ Errors: ${errors} files`);
+    logger.info(`   ❌ Errors: ${errors} files`);
   }
 }
 

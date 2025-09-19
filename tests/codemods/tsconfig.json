@@ -34,8 +34,8 @@
     "experimentalDecorators": true,
     "incremental": true,
     "paths": {
-      "@ember-data/codemods": ["../../packages/codemods/unstable-preview-types"],
-      "@ember-data/codemods/*": ["../../packages/codemods/unstable-preview-types/*"]
+      "@ember-data/codemods": ["../../packages/codemods/unstable-preview-types/src/index"],
+      "@ember-data/codemods/*": ["../../packages/codemods/unstable-preview-types/src/*"]
     },
     "checkJs": false
   },

@@ -170,12 +170,12 @@ async function runInlineTest(
   testOptions?: TestOptions
 ) {
   let output = input.source;
-  const options = { ...defaultOptions, ...(info.options ?? {}) };
+  const options: Parameters<Codemod>[2] = info.options ? { ...defaultOptions, ...info.options } : defaultOptions;
 
   const expectedErrorMessage = info.expectedError;
   let actualError: unknown;
   try {
-    output = applyTransform(module as Transform, options, input, testOptions);
+    output = applyTransform(module as Transform, options, input, testOptions || undefined);
   } catch (error: unknown) {
     actualError = error;
   }

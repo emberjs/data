@@ -46,13 +46,16 @@ export function parseExistingImports(
     path.value.specifiers?.forEach((specifier) => {
       switch (specifier.type) {
         case 'ImportSpecifier': {
-          knownSpecifierNames.add(specifier.local?.name ?? specifier.imported.name);
+          const localName = typeof specifier.local?.name === 'string' ? specifier.local.name : String(specifier.local?.name?.name || '');
+          const importedName = typeof specifier.imported.name === 'string' ? specifier.imported.name : String(specifier.imported.name?.name || specifier.imported.name);
+          knownSpecifierNames.add(localName || importedName);
           break;
         }
         case 'ImportDefaultSpecifier':
         case 'ImportNamespaceSpecifier': {
           if (specifier.local) {
-            knownSpecifierNames.add(specifier.local?.name);
+            const localName = typeof specifier.local?.name === 'string' ? specifier.local.name : String(specifier.local?.name?.name || specifier.local?.name || '');
+            if (localName) knownSpecifierNames.add(localName);
           }
           break;
         }
@@ -96,7 +99,8 @@ function parseImport(path: ASTPath<ImportDeclaration>, importInfo: ImportInfo): 
 
   return match
     ? {
-        localName: match.local?.name ?? match.imported.name,
+        localName: String((typeof match.local?.name === 'string' ? match.local.name : match.local?.name?.name || match.local?.name) ??
+                  (typeof match.imported.name === 'string' ? match.imported.name : match.imported.name?.name || match.imported.name)),
         specifier: match,
         path,
       }
@@ -164,7 +168,7 @@ export function addImport(
  * if removing the last specifier.
  */
 export function removeImport(j: JSCodeshift, { specifier: specifierToRemove, path }: ExistingImport): void {
-  log.debug(`removing ${specifierToRemove.imported.name} import`);
+  log.debug(`removing ${String(specifierToRemove.imported.name)} import`);
 
   const importDeclaration = path.value;
   const { specifiers } = importDeclaration;

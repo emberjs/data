@@ -1,4 +1,4 @@
-import type { TransformOptions } from '../../src/schema-migration/utils/ast-utils.js';
+import type { TransformOptions } from '../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
 
 /**
  * Default test options that provide all required configuration

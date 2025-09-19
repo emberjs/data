@@ -145,6 +145,7 @@ export default Mixin.create({
       const traitType = artifacts.find((a) => a.type === 'trait-type');
       const extension = artifacts.find((a) => a.type === 'extension');
       expect(trait?.code).toMatchSnapshot('trait code');
+      expect(traitType?.code).toMatchSnapshot('trait-type code');
       expect(extension?.code).toMatchSnapshot('extension code');
     });
   });
@@ -341,8 +342,8 @@ export default Mixin.create({
       expect(artifacts).toHaveLength(3);
       expect(artifacts.map((a) => a.type).sort()).toEqual(['extension', 'trait', 'trait-type']);
 
-      const traitType = artifacts.find((a) => a.type === 'trait-type');
       const extension = artifacts.find((a) => a.type === 'extension');
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
 
       expect(traitType?.code).toMatchSnapshot('mixin trait type interface');
       expect(extension?.code).toMatchSnapshot('mixin extension code');

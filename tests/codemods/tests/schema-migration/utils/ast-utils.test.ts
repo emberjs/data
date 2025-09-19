@@ -165,11 +165,6 @@ describe('AST utilities', () => {
     it('creates extension artifact with corresponding type artifact', () => {
       const baseName = 'user';
       const extensionName = 'UserExtension';
-      const _extensionCode = `export class UserExtension {
-  get displayName() {
-    return this.name;
-  }
-}`;
       const properties: PropertyInfo[] = [
         {
           name: 'displayName',
