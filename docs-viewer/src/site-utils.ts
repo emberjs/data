@@ -245,14 +245,19 @@ function deepConvert(obj: Record<string, any>) {
   const sortedGroups = new Array(groups.length).fill(null);
 
   for (const group of groups) {
-    delete group.path;
-    delete group.slug;
     if (group.index !== null) {
+      if (group.index < 0 || group.index >= groups.length) {
+        throw new Error(`Invalid index ${group.index} for ${group.path}, must be between 0 and ${groups.length - 1}`);
+      }
       if (sortedGroups[group.index] !== null) {
-        throw new Error(`Duplicate index ${group.index} for ${group.path}`);
+        throw new Error(`Duplicate index ${group.index} for ${group.path}, matches ${sortedGroups[group.index]}`);
       }
       sortedGroups[group.index] = group;
     }
+
+    delete group.path;
+    delete group.slug;
+
     if (group.items) {
       if (Object.keys(group.items).length === 0) {
         delete group.items;

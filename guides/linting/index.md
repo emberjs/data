@@ -1,5 +1,7 @@
 ---
-order: 3
+order: 0
+catgoryOrder: 3
+categoryTitle: Linting
 ---
 
 # Linting
