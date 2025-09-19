@@ -836,5 +836,5 @@ function getField(context: LegacySupport, key: string): LegacyHasManyField | Leg
 
 function getRealFieldName(context: LegacySupport, key: string): string {
   const field = getField(context, key);
-  return field.sourceKey ?? field.name;
+  return field ? (field.sourceKey ?? field.name) : key;
 }
