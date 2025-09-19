@@ -64,7 +64,7 @@ export default class User extends Model {
     await runMigration(options);
 
     // Check that schema file was generated
-    const schemaPath = join(tempDir, 'app/data/resources/user.js');
+    const schemaPath = join(tempDir, 'app/data/resources/user.schema.ts');
     expect(existsSync(schemaPath)).toBe(true);
 
     // Check that type file was generated
@@ -72,7 +72,7 @@ export default class User extends Model {
     expect(existsSync(typePath)).toBe(true);
 
     // Check that extension file was generated
-    const extensionPath = join(tempDir, 'app/data/extensions/user.js');
+    const extensionPath = join(tempDir, 'app/data/extensions/user.schema.ts');
     expect(existsSync(extensionPath)).toBe(true);
   });
 
@@ -97,7 +97,7 @@ export default Mixin.create({
     await runMigration(options);
 
     // Check that no trait file was generated (since mixin is not connected to models)
-    const traitPath = join(tempDir, 'app/data/traits/unused.js');
+    const traitPath = join(tempDir, 'app/data/traits/unused.schema.ts');
     expect(existsSync(traitPath)).toBe(false);
   });
 
@@ -135,15 +135,15 @@ export default class Company extends Model {
     await runMigration(options);
 
     // Check that all schema files were generated
-    expect(existsSync(join(tempDir, 'app/data/resources/user.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/resources/company.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/user.schema.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/company.schema.ts'))).toBe(true);
 
     // Check that all type files were generated
     expect(existsSync(join(tempDir, 'app/data/resources/user.schema.types.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/company.schema.types.ts'))).toBe(true);
 
     // Check that extension file was generated for company (it has a computed property)
-    expect(existsSync(join(tempDir, 'app/data/extensions/company.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/extensions/company.schema.ts'))).toBe(true);
   });
 
   it('respects dryRun option and does not create files', async () => {
@@ -166,7 +166,7 @@ export default class User extends Model {
     await runMigration(dryRunOptions);
 
     // Check that no files were generated
-    expect(existsSync(join(tempDir, 'app/data/resources/user.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/resources/user.schema.ts'))).toBe(false);
     expect(existsSync(join(tempDir, 'app/data/resources/user.schema.types.ts'))).toBe(false);
   });
 
@@ -201,9 +201,9 @@ export default class User extends Model {
     expect(existsSync(join(tempDir, 'app/data/extensions'))).toBe(true);
 
     // Verify files were created
-    expect(existsSync(join(tempDir, 'app/data/resources/user.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/user.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/user.schema.types.ts'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/extensions/user.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/extensions/user.schema.ts'))).toBe(true);
   });
 
 
@@ -238,11 +238,11 @@ export default Mixin.create({
     await runMigration(modelsOnlyOptions);
 
     // Check that only model artifacts were generated
-    expect(existsSync(join(tempDir, 'app/data/resources/user.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/traits/common.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/resources/user.schema.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/common.schema.ts'))).toBe(false);
   });
 
-  it('ensures type files are always .ts regardless of source file extension', async () => {
+  it('ensures schema files match source extension and type files are always .ts', async () => {
     // Create model files with different extensions
     const jsModelSource = `
 import Model, { attr } from '@ember-data/model';
@@ -268,6 +268,10 @@ export default class TsModel extends Model {
 
     // Run migration
     await runMigration(options);
+
+    // Check that schema files match their source extensions
+    expect(existsSync(join(tempDir, 'app/data/resources/js-model.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/ts-model.schema.ts'))).toBe(true);
 
     // Check that both type files are .ts regardless of source extension
     expect(existsSync(join(tempDir, 'app/data/resources/js-model.schema.types.ts'))).toBe(true);
@@ -321,13 +325,13 @@ export default class AdminModel extends Model.extend(ConnectedMixin) {
     await runMigration({...options, verbose: true});
 
     // Check that schema and type files are colocated in resources
-    expect(existsSync(join(tempDir, 'app/data/resources/admin/nested-model.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/admin/nested-model.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/admin/nested-model.schema.types.ts'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/resources/admin/admin-model.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/admin/admin-model.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/admin/admin-model.schema.types.ts'))).toBe(true);
 
     // Check that trait and trait-type files are colocated in traits
-    expect(existsSync(join(tempDir, 'app/data/traits/admin/connected.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/admin/connected.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/traits/admin/connected.schema.types.ts'))).toBe(true);
   });
 
@@ -417,11 +421,11 @@ export default Mixin.create({
 
 
     // Check that schema and trait files were generated for both local and external mixins
-    expect(existsSync(join(tempDir, 'app/data/resources/test-model.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/test-model.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/test-model.schema.types.ts'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/traits/local-mixin.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/local-mixin.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/traits/local-mixin.schema.types.ts'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/traits/external-mixin.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/external-mixin.schema.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/traits/external-mixin.schema.types.ts'))).toBe(true);
   });
 
@@ -485,11 +489,11 @@ export default class TsModelWithMixin extends Model.extend(TsMixin) {
     // Run migration
     await runMigration(options);
 
-    // Check that all schema files are .js regardless of source
-    expect(existsSync(join(tempDir, 'app/data/resources/js-model-with-mixin.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/resources/ts-model-with-mixin.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/traits/js-mixin.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/traits/ts-mixin.js'))).toBe(true);
+    // Check that schema files match their source extensions
+    expect(existsSync(join(tempDir, 'app/data/resources/js-model-with-mixin.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/ts-model-with-mixin.schema.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/js-mixin.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/ts-mixin.schema.ts'))).toBe(true);
 
     // Check that all type files are .ts regardless of source extension
     expect(existsSync(join(tempDir, 'app/data/resources/js-model-with-mixin.schema.types.ts'))).toBe(true);
@@ -497,9 +501,9 @@ export default class TsModelWithMixin extends Model.extend(TsMixin) {
     expect(existsSync(join(tempDir, 'app/data/traits/js-mixin.schema.types.ts'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/traits/ts-mixin.schema.types.ts'))).toBe(true);
 
-    // Check that extension files preserve source extension
-    expect(existsSync(join(tempDir, 'app/data/extensions/js-model-with-mixin.js'))).toBe(true);
-    expect(existsSync(join(tempDir, 'app/data/extensions/ts-mixin.js'))).toBe(true); // Extension from TS mixin
+    // Check that extension files include .schema and match source extension
+    expect(existsSync(join(tempDir, 'app/data/extensions/js-model-with-mixin.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/extensions/ts-mixin.schema.ts'))).toBe(true); // Extension from TS mixin
   });
 
   it('processes intermediateModelPaths to generate traits from base model classes', async () => {
@@ -596,8 +600,8 @@ export default Mixin.create({
     expect(existsSync(join(traitsDir, 'base.schema.ts'))).toBe(true);
     expect(existsSync(join(traitsDir, 'base.schema.types.ts'))).toBe(true);
 
-    // Verify regular model was processed
-    expect(existsSync(join(tempDir, 'app/data/resources/custom-select-option.js'))).toBe(true);
+    // Verify regular model was processed (JS file, so schema should be .schema.js)
+    expect(existsSync(join(tempDir, 'app/data/resources/custom-select-option.schema.js'))).toBe(true);
     expect(existsSync(join(tempDir, 'app/data/resources/custom-select-option.schema.types.ts'))).toBe(true);
 
     // Verify that the data-field trait contains the expected fields
@@ -608,7 +612,7 @@ export default Mixin.create({
     // The regular model extending DataFieldModel should reference the data-field trait
     // This is the main regression test - if intermediate models aren't processed,
     // this model won't get the data-field functionality
-    const generatedSchema = readFileSync(join(tempDir, 'app/data/resources/custom-select-option.js'), 'utf-8');
+    const generatedSchema = readFileSync(join(tempDir, 'app/data/resources/custom-select-option.schema.js'), 'utf-8');
 
     // Since CustomSelectOption extends DataFieldModel and DataFieldModel was processed as an intermediate model,
     // the trait functionality should be available. The exact way traits are referenced may vary,
@@ -617,5 +621,81 @@ export default Mixin.create({
     // Basic check that the model was processed successfully
     expect(generatedSchema.length).toBeGreaterThan(0);
     expect(generatedSchema).toContain('custom-select-option'); // Should contain model identifier
+  });
+
+  it('ensures resources and traits include .schema with matching suffixes', async () => {
+    // This test specifically verifies the new naming requirement:
+    // resources and traits should include .schema in their filename
+    // and their suffix should match that of their original source file
+
+    const jsModel = `
+import Model, { attr } from '@ember-data/model';
+import TestMixin from '../mixins/test-mixin';
+
+export default class JsTestModel extends Model.extend(TestMixin) {
+  @attr('string') name;
+
+  get displayName() {
+    return 'JS: ' + this.name;
+  }
+}
+`;
+
+    const tsMixin = `
+import Mixin from '@ember/object/mixin';
+import { attr } from '@ember-data/model';
+
+export default Mixin.create({
+  testField: attr('boolean'),
+
+  testMethod() {
+    return 'test';
+  }
+});
+`;
+
+    const tsModel = `
+import Model, { attr } from '@ember-data/model';
+
+export default class TsTestModel extends Model {
+  @attr('string') title;
+}
+`;
+
+    // Write files with different extensions
+    const modelsDir = join(tempDir, 'app/models');
+    const mixinsDir = join(tempDir, 'app/mixins');
+    mkdirSync(modelsDir, { recursive: true });
+    mkdirSync(mixinsDir, { recursive: true });
+
+    writeFileSync(join(modelsDir, 'js-test-model.js'), jsModel);
+    writeFileSync(join(modelsDir, 'ts-test-model.ts'), tsModel);
+    writeFileSync(join(mixinsDir, 'test-mixin.ts'), tsMixin);
+
+    // Run migration
+    await runMigration(options);
+
+    // Verify resource schema files include .schema and match source extensions
+    expect(existsSync(join(tempDir, 'app/data/resources/js-test-model.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/ts-test-model.schema.ts'))).toBe(true);
+
+    // Verify trait schema files include .schema and match source extensions
+    expect(existsSync(join(tempDir, 'app/data/traits/test-mixin.schema.ts'))).toBe(true);
+
+    // Verify extension schema files include .schema and match source extensions
+    expect(existsSync(join(tempDir, 'app/data/extensions/js-test-model.schema.js'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/extensions/test-mixin.schema.ts'))).toBe(true);
+
+    // Verify type files always end in .ts (regardless of source extension)
+    expect(existsSync(join(tempDir, 'app/data/resources/js-test-model.schema.types.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/resources/ts-test-model.schema.types.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'app/data/traits/test-mixin.schema.types.ts'))).toBe(true);
+
+    // Verify old naming patterns do NOT exist
+    expect(existsSync(join(tempDir, 'app/data/resources/js-test-model.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/resources/ts-test-model.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/traits/test-mixin.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/extensions/js-test-model.js'))).toBe(false);
+    expect(existsSync(join(tempDir, 'app/data/extensions/test-mixin.js'))).toBe(false);
   });
 });
