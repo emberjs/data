@@ -398,6 +398,24 @@ export const ComplexOptionsModelSchema = {
 };"
 `;
 
+exports[`model-to-schema transform (artifacts) > mirror flag > uses configured emberDataImportSource for HasMany types in type artifacts > custom EmberData source for HasMany types 1`] = `
+"import type { Type } from '@warp-drive/core/types/symbols';
+import type { Tag } from 'test-app/data/resources/tag.schema.types';
+import type { HasMany } from '@auditboard/warp-drive/v1/model';
+import type { Project } from 'test-app/data/resources/project.schema.types';
+import type { AsyncHasMany } from '@auditboard/warp-drive/v1/model';
+import type { User } from 'test-app/data/resources/user.schema.types';
+
+export interface RelationshipModel {
+	readonly [Type]: 'relationship-model';
+	readonly name: string | null;
+	readonly tags: HasMany<Tag>;
+	readonly projects: AsyncHasMany<Project>;
+	readonly owner: User | null;
+}
+"
+`;
+
 exports[`model-to-schema transform (artifacts) > mixin handling > extracts mixin names and converts them to trait references > single mixin schema 1`] = `
 "import Model, { attr } from '@ember-data/model';
 import FileableMixin from '../mixins/fileable';

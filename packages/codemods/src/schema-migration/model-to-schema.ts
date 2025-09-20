@@ -262,7 +262,8 @@ function resolveImportPath(
     }
   }
 
-  // If no pattern matches, return the original path
+  // If no pattern matches, return the original path unchanged
+  // This means the config must provide explicit mappings for all intermediate model paths
   return importPath;
 }
 
@@ -327,27 +328,21 @@ export function processIntermediateModelsToTraits(
   >();
 
   for (const modelPath of intermediateModelPaths) {
-    // Convert import path to file system path
-    let relativePath: string;
-    if (modelPath.startsWith('soxhub-client/')) {
-      // Convert soxhub-client paths to relative paths from the current working directory
-      // e.g., 'soxhub-client/core/data-field-model' -> './app/core/data-field-model'
-      relativePath = modelPath.replace('soxhub-client/', './app/');
-    } else {
-      // Try to resolve using additionalModelSources and additionalMixinSources
-      relativePath = resolveImportPath(modelPath, additionalModelSources || [], additionalMixinSources || []);
-      debugLog(options, `DEBUG: Resolved path for ${modelPath}: ${relativePath}`);
-    }
+    // Convert import path to file system path using additionalModelSources and additionalMixinSources
+    const relativePath = resolveImportPath(modelPath, additionalModelSources || [], additionalMixinSources || []);
+    debugLog(options, `Resolved intermediate model path ${modelPath} to: ${relativePath}`);
     const possiblePaths = [`${relativePath}.ts`, `${relativePath}.js`];
 
     let filePath: string | null = null;
     let source: string | null = null;
 
+    debugLog(options, `Checking intermediate model paths for ${modelPath}: ${possiblePaths.join(', ')}`);
     for (const possiblePath of possiblePaths) {
       try {
         if (existsSync(possiblePath)) {
           filePath = possiblePath;
           source = readFileSync(possiblePath, 'utf-8');
+          debugLog(options, `Found intermediate model file: ${possiblePath}`);
           break;
         }
       } catch (error) {
@@ -546,16 +541,8 @@ export function toArtifacts(filePath: string, source: string, options: Transform
       if (field.type && field.type !== baseName) {
         const typeName = toPascalCase(field.type);
 
-        // Check if this is a special case that should be imported as a trait
-        if (field.type === 'workflowable') {
-          // Import workflowable as a trait, not a resource
-          const traitImport = options?.traitsImport
-            ? `type { ${typeName} } from '${options.traitsImport}/${field.type}.schema.types'`
-            : `type { ${typeName} } from '../traits/${field.type}.schema.types'`;
-          schemaImports.add(traitImport);
-        } else {
-          schemaImports.add(transformModelToResourceImport(field.type, typeName, options));
-        }
+        // Use dynamic logic to determine if this should be imported from traits or resources
+        schemaImports.add(transformModelToResourceImport(field.type, typeName, options));
 
         // Add HasMany type imports for hasMany relationships
         if (field.kind === 'hasMany') {
@@ -634,7 +621,8 @@ export function toArtifacts(filePath: string, source: string, options: Transform
     analysis.defaultExportNode ?? null,
     options,
     modelInterfaceName,
-    modelImportPath
+    modelImportPath,
+    'model'  // Source is a model file
   );
 
   debugLog(options, `Extension artifact created: ${!!extensionArtifact}`);
@@ -793,16 +781,8 @@ function generateIntermediateModelTraitArtifacts(
       if (field.type && field.type !== traitName) {
         const typeName = toPascalCase(field.type);
 
-        // Check if this is a special case that should be imported as a trait
-        if (field.type === 'workflowable') {
-          // Import workflowable as a trait, not a resource
-          const traitImport = options?.traitsImport
-            ? `type { ${typeName} } from '${options.traitsImport}/${field.type}.schema.types'`
-            : `type { ${typeName} } from '../traits/${field.type}.schema.types'`;
-          traitImports.add(traitImport);
-        } else {
-          traitImports.add(transformModelToResourceImport(field.type, typeName, options));
-        }
+        // Use dynamic logic to determine if this should be imported from traits or resources
+        traitImports.add(transformModelToResourceImport(field.type, typeName, options));
 
         // Add HasMany type imports for hasMany relationships
         if (field.kind === 'hasMany') {
@@ -875,7 +855,8 @@ function generateIntermediateModelTraitArtifacts(
       defaultExportNode ?? null,
       options,
       traitInterfaceName,
-      traitImportPath
+      traitImportPath,
+      'model'  // Source is a model file (intermediate model generating trait)
     );
     if (extensionArtifact) {
       artifacts.push(extensionArtifact);

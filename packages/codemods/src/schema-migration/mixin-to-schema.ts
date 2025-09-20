@@ -156,11 +156,7 @@ export default function transform(filePath: string, source: string, options: Tra
  */
 export function toArtifacts(filePath: string, source: string, options: TransformOptions): TransformArtifact[] {
 
-  // Check if this mixin is connected to models (skip if not)
-  if (options.modelConnectedMixins && !options.modelConnectedMixins.has(filePath)) {
-    debugLog(options, `Mixin ${filePath} is not connected to models, skipping artifact generation`);
-    return [];
-  }
+  // Process all mixins - polymorphic mixins may not be "connected" but still need traits for relationships
 
   const lang = getLanguageFromPath(filePath);
 
@@ -231,14 +227,14 @@ export function toArtifacts(filePath: string, source: string, options: Transform
       `Extract result: ${traitFields.length} trait fields, ${extensionProperties.length} extension properties, ${extendedTraits.length} extended traits`
     );
 
-    if (traitFields.length === 0 && extensionProperties.length === 0) {
-      debugLog(options, 'No trait fields or extension properties found, returning empty artifacts');
-      return [];
-    }
+    // Continue with artifact generation even if empty - needed for polymorphic relationships
 
 
     const artifacts: TransformArtifact[] = [];
     const fileExtension = getFileExtension(filePath);
+
+    // Always generate trait type interface, even for empty mixins (needed for polymorphic relationships)
+    const traitInterfaceName = `${mixinName.charAt(0).toUpperCase() + mixinName.slice(1)}Trait`;
 
     if (traitFields.length > 0) {
       const name = `${mixinName}Trait`;
@@ -250,8 +246,6 @@ export function toArtifacts(filePath: string, source: string, options: Transform
         suggestedFileName: `${baseName}.schema${fileExtension}`,
       });
 
-      // Generate trait type interface
-      const traitInterfaceName = `${mixinName.charAt(0).toUpperCase() + mixinName.slice(1)}Trait`;
 
       // Convert trait fields to TypeScript interface properties
       const traitFieldTypes = traitFields.map((field) => {
@@ -300,10 +294,11 @@ export function toArtifacts(filePath: string, source: string, options: Transform
 
           // Add HasMany type imports for hasMany relationships
           if (field.kind === 'hasMany') {
+            const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
             if (field.options?.async) {
-              imports.add("type { AsyncHasMany } from '@ember-data/model'");
+              imports.add(`type { AsyncHasMany } from '${emberDataSource}'`);
             } else {
-              imports.add("type { HasMany } from '@ember-data/model'");
+              imports.add(`type { HasMany } from '${emberDataSource}'`);
             }
           }
         }
@@ -335,11 +330,22 @@ export function toArtifacts(filePath: string, source: string, options: Transform
         '.ts' // Type files should always be .ts regardless of source file extension
       );
       artifacts.push(traitTypeArtifact);
+    } else {
+      // For empty mixins, still generate an empty trait type interface
+      const traitTypeArtifact = createTypeArtifact(
+        baseName,
+        traitInterfaceName,
+        [], // No properties for empty mixin
+        'trait',
+        undefined, // No extends clause
+        undefined, // No imports needed
+        '.ts' // Type files should always be .ts regardless of source file extension
+      );
+      artifacts.push(traitTypeArtifact);
     }
 
     // Create extension artifact by modifying the original file
     // For mixins, extensions should extend the trait interface
-    const traitInterfaceName = `${mixinName.charAt(0).toUpperCase() + mixinName.slice(1)}Trait`;
     const traitImportPath = options?.traitsImport
       ? `${options.traitsImport}/${baseName}.schema.types`
       : `../traits/${baseName}.schema.types`;
@@ -352,7 +358,8 @@ export function toArtifacts(filePath: string, source: string, options: Transform
       defaultExportNode,
       options,
       traitInterfaceName,
-      traitImportPath
+      traitImportPath,
+      'mixin'  // Source is a mixin file
     );
 
     if (extensionArtifact) {
@@ -373,11 +380,7 @@ export function toArtifacts(filePath: string, source: string, options: Transform
 function handleMixinTransform(root: SgNode, source: string, filePath: string, options: TransformOptions): string {
   try {
 
-    // Check if this mixin is connected to models (skip if not)
-    if (options.modelConnectedMixins && !options.modelConnectedMixins.has(filePath)) {
-      debugLog(options, `Mixin ${filePath} is not connected to models, skipping transform`);
-      return source;
-    }
+    // Process all mixins - polymorphic mixins may not be "connected" but still need processing
 
     // Resolve local identifier used for the Mixin default import
     const mixinSources = [DEFAULT_MIXIN_SOURCE];

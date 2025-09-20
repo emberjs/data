@@ -83,25 +83,19 @@ import { attr, hasMany } from '@ember-data/model';
 
 import { sortBy } from 'soxhub-client/utils/sort-by';
 
-export class fileableExtension {
-  sortBy('files', 'createdAt:desc')
-
-  arrayHasLength('files')
-
-  readOnly('files.length')
-
-  computed('files.@each.status', function () {
-  		return this.files.filter((file) => !file.isReviewed);
-  	})
-
-  arrayHasLength('filesRequiringReview')
-
-  readOnly('filesRequiringReview.length')
-
+export const fileableExtension = {
+  sortedFiles: sortBy('files', 'createdAt:desc'),
+  hasFiles: arrayHasLength('files'),
+  numFiles: readOnly('files.length'),
+  filesRequiringReview: computed('files.@each.status', function () {
+		return this.files.filter((file) => !file.isReviewed);
+	}),
+  hasFilesRequiringReview: arrayHasLength('filesRequiringReview'),
+  numFilesRequiringReview: readOnly('filesRequiringReview.length'),
   hasDuplicateFileName(file) {
-  		return Boolean(this.files.find((fileRecord) => fileRecord.name === file.name));
-  	}
-}"
+		return Boolean(this.files.find((fileRecord) => fileRecord.name === file.name));
+	}
+};"
 `;
 
 exports[`mixin-to-schema transform (artifacts) > basic functionality > collects the real fileable mixin shape into trait and extension artifacts > trait code 1`] = `
@@ -143,17 +137,18 @@ export interface FileableTrait {
 `;
 
 exports[`mixin-to-schema transform (artifacts) > basic functionality > converts mixin with no trait fields to extension artifact > code 1`] = `
-"import Mixin from '@ember/object/mixin';
-import { computed } from '@ember/object';
-
-export const noTraitsExtension = {
-  complexMethod() { return 'processed'; },
-  computedValue: computed(function() { return 'computed'; })
-};"
+"export interface NoTraitsTrait {
+}
+"
 `;
 
 exports[`mixin-to-schema transform (artifacts) > basic functionality > converts mixin with no trait fields to extension artifact > metadata 1`] = `
 [
+  {
+    "name": "NoTraitsTrait",
+    "suggestedFileName": "no-traits.schema.types.ts",
+    "type": "trait-type",
+  },
   {
     "name": "noTraitsExtension",
     "suggestedFileName": "no-traits.js",
@@ -162,23 +157,35 @@ exports[`mixin-to-schema transform (artifacts) > basic functionality > converts 
 ]
 `;
 
-exports[`mixin-to-schema transform (artifacts) > basic functionality > preserves newlines and tabs in extension artifact properties without escaping > code 1`] = `
-"import Mixin from '@ember/object/mixin';
-import { computed } from '@ember/object';
-import { service } from '@ember/service';
+exports[`mixin-to-schema transform (artifacts) > basic functionality > generates empty trait for empty mixin > empty mixin metadata 1`] = `
+[
+  {
+    "name": "EmptyTrait",
+    "suggestedFileName": "empty.schema.types.ts",
+    "type": "trait-type",
+  },
+]
+`;
 
-export const plannableExtension = {
-  library: service('library'),
-  projectPlans: computed('_modelName', 'intId', 'library.projectPlans.[]', function () {
-		return this.get('library.projectPlans')
-			?.filterBy('plannableType', classify(this._modelName))
-			.filterBy('plannableId', this.intId);
-	})
-};"
+exports[`mixin-to-schema transform (artifacts) > basic functionality > generates empty trait for empty mixin > empty trait type code 1`] = `
+"export interface EmptyTrait {
+}
+"
+`;
+
+exports[`mixin-to-schema transform (artifacts) > basic functionality > preserves newlines and tabs in extension artifact properties without escaping > code 1`] = `
+"export interface PlannableTrait {
+}
+"
 `;
 
 exports[`mixin-to-schema transform (artifacts) > basic functionality > preserves newlines and tabs in extension artifact properties without escaping > metadata 1`] = `
 [
+  {
+    "name": "PlannableTrait",
+    "suggestedFileName": "plannable.schema.types.ts",
+    "type": "trait-type",
+  },
   {
     "name": "plannableExtension",
     "suggestedFileName": "plannable.js",
@@ -345,7 +352,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > allows alte
     "type": "trait",
   },
   {
-    "code": "import type { HasMany } from '@ember-data/model';
+    "code": "import type { HasMany } from '@my-custom/model';
 import type { File } from 'undefined/file.schema.types';
 
 export interface CustomSourceTrait {
@@ -628,6 +635,14 @@ export interface BelongsToTrait {
 exports[`mixin-to-schema transform (artifacts) > import validation > produces an extension artifact when no valid EmberData imports are found 1`] = `
 [
   {
+    "code": "export interface NoValidImportsTrait {
+}
+",
+    "name": "NoValidImportsTrait",
+    "suggestedFileName": "no-valid-imports.schema.types.ts",
+    "type": "trait-type",
+  },
+  {
     "code": "import Mixin from '@ember/object/mixin';
 import { computed } from '@ember/object';
 import { attr } from '@unsupported/source';
@@ -667,7 +682,7 @@ exports[`mixin-to-schema transform (artifacts) > import validation > supports @a
     "type": "trait",
   },
   {
-    "code": "import type { HasMany } from '@ember-data/model';
+    "code": "import type { HasMany } from '@auditboard/warp-drive/v1/model';
 import type { File } from 'undefined/file.schema.types';
 
 export interface AuditboardSourceTrait {

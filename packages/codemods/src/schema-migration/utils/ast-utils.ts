@@ -11,6 +11,10 @@ export interface TransformOptions {
   mirror?: boolean;
   /** Set of absolute file paths for mixins that are connected to models */
   modelConnectedMixins?: Set<string>;
+  /** List of all discovered mixin file paths (for polymorphic detection) */
+  allMixinFiles?: string[];
+  /** List of all discovered model file paths (for resource vs trait detection) */
+  allModelFiles?: string[];
   /** Specify alternate import sources for EmberData decorators (default: '@ember-data/model') */
   emberDataImportSource?: string;
   /** List of intermediate model class import paths that should be converted to traits (e.g., ['soxhub-client/core/base-model', 'soxhub-client/core/data-field-model']) */
@@ -89,10 +93,11 @@ export function generateCommonWarpDriveImports(options?: TransformOptions): {
   asyncHasManyImport: string;
   hasManyImport: string;
 } {
+  const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
   return {
     typeImport: generateWarpDriveTypeImport('Type', '@warp-drive/core/types/symbols', options),
-    asyncHasManyImport: generateWarpDriveTypeImport('AsyncHasMany', '@ember-data/model', options),
-    hasManyImport: generateWarpDriveTypeImport('HasMany', '@ember-data/model', options),
+    asyncHasManyImport: generateWarpDriveTypeImport('AsyncHasMany', emberDataSource, options),
+    hasManyImport: generateWarpDriveTypeImport('HasMany', emberDataSource, options),
   };
 }
 
@@ -117,18 +122,112 @@ export function getResourcesImport(options?: TransformOptions): string {
 }
 
 /**
- * Transform a model type name to a resource type import path
- * e.g., 'user' with modelImportSource 'my-app/models' and resourcesImport 'my-app/data/resources'
- * becomes 'my-app/data/resources/user.schema.types'
+ * Check if a type should be imported from traits instead of resources
+ * This checks if the type corresponds to a connected mixin or intermediate model
+ */
+function shouldImportFromTraits(
+  relatedType: string,
+  options?: TransformOptions
+): boolean {
+  // Check if any of the connected mixins correspond to this related type
+  const connectedMixins = options?.modelConnectedMixins;
+  if (connectedMixins) {
+    for (const mixinPath of connectedMixins) {
+      // Extract the mixin name from the path
+      const mixinName = extractBaseName(mixinPath);
+      if (mixinName === relatedType) {
+        return true;
+      }
+    }
+  }
+
+  // Check if any of the intermediate models correspond to this related type
+  const intermediateModelPaths = options?.intermediateModelPaths;
+  if (intermediateModelPaths) {
+    for (const modelPath of intermediateModelPaths) {
+      // Extract the trait name from the model path using the same logic as generateIntermediateModelTraitArtifacts
+      // e.g., "soxhub-client/core/data-field-model" -> "data-field"
+      const traitBaseName =
+        modelPath
+          .split('/')
+          .pop()
+          ?.replace(/-?model$/i, '') || modelPath;
+      const traitName = traitBaseName
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase()
+        .replace(/^-/, '');
+
+      if (traitName === relatedType) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Transform a model type name to the appropriate import path (resource first, trait fallback)
+ * Prioritizes resources, falls back to traits if no corresponding model exists
+ * e.g., 'user' becomes 'my-app/data/resources/user.schema.types' if user model exists
+ * e.g., 'shareable' becomes 'my-app/data/traits/shareable.schema.types' if only shareable mixin exists
  */
 export function transformModelToResourceImport(
   relatedType: string,
   modelName: string,
   options?: TransformOptions
 ): string {
+  // Always check traits first for intermediate models (they're always traits)
+  if (shouldImportFromTraits(relatedType, options)) {
+    const traitsImport = options?.traitsImport;
+    // Trait interfaces are named with 'Trait' suffix but aliased back to non-suffix for backward compatibility
+    const traitInterfaceName = `${toPascalCase(relatedType)}Trait`;
+    const aliasName = toPascalCase(relatedType); // Use the original name as alias for backward compatibility
+    if (traitsImport) {
+      return `type { ${traitInterfaceName} as ${aliasName} } from '${traitsImport}/${relatedType}.schema.types'`;
+    } else {
+      return `type { ${traitInterfaceName} as ${aliasName} } from '../traits/${relatedType}.schema.types'`;
+    }
+  }
+
+  // Check if we have a model for this related type
+  let hasModel = false;
+  const allModelFiles = options?.allModelFiles;
+  if (allModelFiles) {
+    for (const modelPath of allModelFiles) {
+      const modelBaseName = extractBaseName(modelPath);
+      if (modelBaseName === relatedType) {
+        hasModel = true;
+        debugLog(options, `Found model for ${relatedType}, using resource import`);
+        break;
+      }
+    }
+  }
+
+  // If no model found, check if we have a mixin/trait to fall back to
+  if (!hasModel) {
+    const allMixinFiles = options?.allMixinFiles;
+    if (allMixinFiles) {
+      for (const mixinPath of allMixinFiles) {
+        const mixinName = extractBaseName(mixinPath);
+        if (mixinName === relatedType) {
+          // Fall back to trait import
+          const traitsImport = options?.traitsImport;
+          const traitInterfaceName = `${toPascalCase(relatedType)}Trait`;
+          const aliasName = toPascalCase(relatedType);
+          debugLog(options, `No model found for ${relatedType}, falling back to trait`);
+          if (traitsImport) {
+            return `type { ${traitInterfaceName} as ${aliasName} } from '${traitsImport}/${relatedType}.schema.types'`;
+          } else {
+            return `type { ${traitInterfaceName} as ${aliasName} } from '../traits/${relatedType}.schema.types'`;
+          }
+        }
+      }
+    }
+  }
+
+  // Default to resource import (either we found a model, or we're assuming it's a resource)
   const resourcesImport = getResourcesImport(options);
-  // Use relatedType for the file path since that's the actual model name
-  // Use named import since interfaces are exported as named exports
   return `type { ${modelName} } from '${resourcesImport}/${relatedType}.schema.types'`;
 }
 
@@ -1060,7 +1159,8 @@ export function createExtensionFromOriginalFile(
   defaultExportNode: SgNode | null,
   options?: TransformOptions,
   interfaceToExtend?: string,
-  interfaceImportPath?: string
+  interfaceImportPath?: string,
+  sourceType: 'mixin' | 'model' = 'model'
 ): TransformArtifact | null {
   if (extensionProperties.length === 0) {
     return null;
@@ -1073,32 +1173,17 @@ export function createExtensionFromOriginalFile(
 
     debugLog(options, `Creating extension from ${filePath} with ${extensionProperties.length} properties`);
 
-    // Find the class declaration (for models) or mixin create call (for mixins)
-    const classDeclaration = root.find({ rule: { kind: 'class_declaration' } });
-    const mixinCreateCall = root.find({ rule: { kind: 'call_expression' } });
+    // Determine format based on source type: mixins use object format, models use class format
+    const format = sourceType === 'mixin' ? 'object' : 'class';
 
-    if (!classDeclaration && !mixinCreateCall) {
-      debugLog(options, 'No class declaration or mixin create call found for extension generation');
-      return null;
-    }
-
-    const isMixin = !classDeclaration && mixinCreateCall;
-    debugLog(options, `Extension generation for ${isMixin ? 'mixin' : 'model'} file`);
-
-    // For mixin files, we can proceed without a class declaration
-
-    // Check if we need class syntax (decorators, getters, setters, async methods)
-    const needsClassSyntax = extensionProperties.some((prop) => {
-      const value = prop.value.trim();
-      return value.includes('@') || value.includes('get ') || value.includes('set ') || value.includes('async ');
-    });
+    debugLog(options, `Extension generation for ${sourceType} using ${format} format`);
 
     // Generate the extension class/object
     const isTypeScript = filePath.endsWith('.ts');
     const extensionCode = generateExtensionCode(
       extensionName,
       extensionProperties,
-      needsClassSyntax ? 'class' : 'object',
+      format,
       interfaceToExtend,
       isTypeScript,
       interfaceImportPath
@@ -1748,10 +1833,12 @@ export function extractTypeFromDecoratorWithNodes(
 
         if (isAsync) {
           tsType = `AsyncHasMany<${modelName}>`;
-          imports.push(`type { AsyncHasMany } from '@ember-data/model'`);
+          const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
+          imports.push(`type { AsyncHasMany } from '${emberDataSource}'`);
         } else {
           tsType = `HasMany<${modelName}>`;
-          imports.push(`type { HasMany } from '@ember-data/model'`);
+          const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
+          imports.push(`type { HasMany } from '${emberDataSource}'`);
         }
 
         return {
@@ -1857,10 +1944,12 @@ export function extractTypeFromDecorator(
 
         if (isAsync) {
           tsType = `AsyncHasMany<${modelName}>`;
-          imports.push(`type { AsyncHasMany } from '@ember-data/model'`);
+          const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
+          imports.push(`type { AsyncHasMany } from '${emberDataSource}'`);
         } else {
           tsType = `HasMany<${modelName}>`;
-          imports.push(`type { HasMany } from '@ember-data/model'`);
+          const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
+          imports.push(`type { HasMany } from '${emberDataSource}'`);
         }
 
         // Add import for the related model type using resource import transformation
@@ -1890,7 +1979,8 @@ function extractImportsFromType(typeText: string, options?: TransformOptions): s
 
   // Look for specific types that need imports
   if (typeText.includes('AsyncHasMany') || typeText.includes('HasMany')) {
-    imports.push(`type { AsyncHasMany, HasMany } from '@ember-data/model'`);
+    const emberDataSource = options?.emberDataImportSource || DEFAULT_EMBER_DATA_SOURCE;
+    imports.push(`type { AsyncHasMany, HasMany } from '${emberDataSource}'`);
   }
 
   return imports;

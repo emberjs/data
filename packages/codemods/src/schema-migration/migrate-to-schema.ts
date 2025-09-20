@@ -172,6 +172,64 @@ function analyzeModelMixinUsage(
 }
 
 /**
+ * Get the output path for an artifact based on its type and source file
+ */
+function getArtifactOutputPath(
+  artifact: { type: string; suggestedFileName?: string },
+  filePath: string,
+  finalOptions: TransformOptions,
+  isFromMixin = false
+): { outputDir: string; outputPath: string } {
+  let outputDir: string;
+  let outputPath: string;
+
+  if (artifact.type === 'schema') {
+    // Schema files go to resourcesDir
+    outputDir = finalOptions.resourcesDir || './app/data/resources';
+    const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+    // Resources should include .schema and match original source file extension
+    const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
+    const outputName = relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
+    outputPath = join(resolve(outputDir), outputName);
+  } else if (artifact.type === 'resource-type') {
+    // Type files are colocated with their schemas in resourcesDir
+    outputDir = finalOptions.resourcesDir || './app/data/resources';
+    const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
+    outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
+  } else if (artifact.type === 'trait') {
+    // Trait files go to traitsDir
+    outputDir = finalOptions.traitsDir ?? './app/data/traits';
+    const relativePath = getRelativePathForMixin(filePath, finalOptions);
+    // Traits should include .schema and match original source file extension
+    const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
+    const outputName = relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
+    outputPath = join(resolve(outputDir), outputName);
+  } else if (artifact.type === 'trait-type') {
+    // Type files are colocated with their traits in traitsDir
+    outputDir = finalOptions.traitsDir ?? './app/data/traits';
+    const relativePath = getRelativePathForMixin(filePath, finalOptions);
+    outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
+  } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
+    // Extension files go to extensionsDir
+    outputDir = finalOptions.extensionsDir || './app/data/extensions';
+    const sourceDir = isFromMixin
+      ? resolve(finalOptions.mixinSourceDir || './app/mixins')
+      : resolve(finalOptions.modelSourceDir || './app/models');
+    const relativePath = filePath.replace(sourceDir, '');
+    const outputName = artifact.type === 'extension'
+      ? relativePath // Extensions keep original filename and extension
+      : relativePath.replace(/\.(js|ts)$/, '.schema.types.ts');
+    outputPath = join(resolve(outputDir), outputName);
+  } else {
+    // Default fallback
+    outputDir = finalOptions.outputDir ?? './app/schemas';
+    outputPath = join(resolve(outputDir), artifact.suggestedFileName || 'unknown');
+  }
+
+  return { outputDir, outputPath };
+}
+
+/**
  * Get the relative path for a mixin file, handling both local and external mixins
  */
 function getRelativePathForMixin(filePath: string, options: TransformOptions): string {
@@ -633,6 +691,11 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
     }
   }
 
+  // Add connected mixins and file lists to options so they can be used for import path resolution
+  finalOptions.modelConnectedMixins = modelConnectedMixins;
+  finalOptions.allModelFiles = modelFiles;
+  finalOptions.allMixinFiles = mixinFiles;
+
   // Process intermediate models to generate trait artifacts first
   // This must be done before processing regular models that extend these intermediate models
   if (finalOptions.intermediateModelPaths && finalOptions.intermediateModelPaths.length > 0) {
@@ -731,39 +794,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
         // Write each artifact to the appropriate directory
         for (const artifact of artifacts) {
-          let outputDir: string;
-          let outputPath: string;
-
-          if (artifact.type === 'schema') {
-            // Schema files go to resourcesDir
-            outputDir = finalOptions.resourcesDir || './app/data/resources';
-            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
-            // Resources should include .schema and match original source file extension
-            const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
-            const outputName = relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
-            outputPath = join(resolve(outputDir), outputName);
-          } else if (artifact.type === 'resource-type') {
-            // Type files are colocated with their schemas in resourcesDir
-            outputDir = finalOptions.resourcesDir || './app/data/resources';
-            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
-            outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
-          } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
-            // Extension files go to extensionsDir
-            outputDir = finalOptions.extensionsDir || './app/data/extensions';
-            const relativePath = filePath.replace(resolve(finalOptions.modelSourceDir || './app/models'), '');
-            const outputName = artifact.type === 'extension'
-              ? (() => {
-                  // Extensions should include .schema and match original source file extension
-                  const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
-                  return relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
-                })()
-              : relativePath.replace(/\.(js|ts)$/, '.schema.types.ts');
-            outputPath = join(resolve(outputDir), outputName);
-          } else {
-            // Default fallback
-            outputDir = finalOptions.outputDir ?? './app/schemas';
-            outputPath = join(resolve(outputDir), artifact.suggestedFileName);
-          }
+          const { outputPath } = getArtifactOutputPath(artifact, filePath, finalOptions, false);
 
           if (!finalOptions.dryRun) {
             // Ensure output directory exists
@@ -818,39 +849,7 @@ export async function runMigration(options: MigrateOptions): Promise<void> {
 
         // Write each artifact to the appropriate directory
         for (const artifact of artifacts) {
-          let outputDir: string;
-          let outputPath: string;
-
-          if (artifact.type === 'trait') {
-            // Trait files go to traitsDir
-            outputDir = finalOptions.traitsDir ?? './app/data/traits';
-            const relativePath = getRelativePathForMixin(filePath, finalOptions);
-            // Traits should include .schema and match original source file extension
-            const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
-            const outputName = relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
-            outputPath = join(resolve(outputDir), outputName);
-          } else if (artifact.type === 'trait-type') {
-            // Type files are colocated with their traits in traitsDir
-            outputDir = finalOptions.traitsDir ?? './app/data/traits';
-            const relativePath = getRelativePathForMixin(filePath, finalOptions);
-            outputPath = join(resolve(outputDir), relativePath.replace(/\.(js|ts)$/, '.schema.types.ts'));
-          } else if (artifact.type === 'extension' || artifact.type === 'extension-type') {
-            // Extension files go to extensionsDir
-            outputDir = finalOptions.extensionsDir || './app/data/extensions';
-            const relativePath = filePath.replace(resolve(finalOptions.mixinSourceDir || './app/mixins'), '');
-            const outputName = artifact.type === 'extension'
-              ? (() => {
-                  // Extensions should include .schema and match original source file extension
-                  const extension = filePath.endsWith('.ts') ? '.ts' : '.js';
-                  return relativePath.replace(/\.(js|ts)$/, `.schema${extension}`);
-                })()
-              : relativePath.replace(/\.(js|ts)$/, '.schema.types.ts');
-            outputPath = join(resolve(outputDir), outputName);
-          } else {
-            // Default fallback
-            outputDir = finalOptions.outputDir ?? './app/schemas';
-            outputPath = join(resolve(outputDir), artifact.suggestedFileName);
-          }
+          const { outputPath } = getArtifactOutputPath(artifact, filePath, finalOptions, true);
 
           if (!finalOptions.dryRun) {
             // Ensure output directory exists

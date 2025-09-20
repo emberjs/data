@@ -6,6 +6,7 @@ import {
   createTypeArtifact,
   generateInterfaceCode,
   getTypeScriptTypeForAttribute,
+  transformModelToResourceImport,
 } from '../../../../../packages/codemods/src/schema-migration/utils/ast-utils.js';
 
 describe('AST utilities', () => {
@@ -231,6 +232,81 @@ describe('AST utilities', () => {
       const code = generateInterfaceCode('TestInterface', properties);
       expect(code).toMatchSnapshot('interface with custom type mappings');
       // Should map uuid to string, currency to number, json to Record<string, unknown>
+    });
+  });
+
+  describe('transformModelToResourceImport', () => {
+    it('generates trait imports for intermediate models', () => {
+      const options = {
+        intermediateModelPaths: ['soxhub-client/core/data-field-model', 'my-app/core/base-model'],
+        traitsImport: 'my-app/data/traits',
+        resourcesImport: 'my-app/data/resources',
+      };
+
+      // Test that data-field-model maps to data-field trait
+      const result1 = transformModelToResourceImport('data-field', 'User', options);
+      expect(result1).toBe("type { DataFieldTrait as DataField } from 'my-app/data/traits/data-field.schema.types'");
+
+      // Test that base-model maps to base trait
+      const result2 = transformModelToResourceImport('base', 'User', options);
+      expect(result2).toBe("type { BaseTrait as Base } from 'my-app/data/traits/base.schema.types'");
+
+      // Test that regular models still go to resources (interface name comes from modelName param)
+      const result3 = transformModelToResourceImport('user', 'Document', options);
+      expect(result3).toBe("type { Document } from 'my-app/data/resources/user.schema.types'");
+    });
+
+    it('generates trait imports for connected mixins', () => {
+      const options = {
+        modelConnectedMixins: new Set(['/path/to/workstreamable.js']),
+        traitsImport: 'my-app/data/traits',
+        resourcesImport: 'my-app/data/resources',
+      };
+
+      const result = transformModelToResourceImport('workstreamable', 'User', options);
+      expect(result).toBe("type { WorkstreamableTrait as Workstreamable } from 'my-app/data/traits/workstreamable.schema.types'");
+    });
+
+    it('prioritizes resources, falls back to traits when no model exists', () => {
+      const options = {
+        allModelFiles: ['/app/models/user.js', '/app/models/company.js'],
+        allMixinFiles: ['/app/mixins/shareable.js', '/app/mixins/suggested.js'],
+        traitsImport: 'my-app/data/traits',
+        resourcesImport: 'my-app/data/resources',
+      };
+
+      // Test that existing model routes to resource import
+      const result1 = transformModelToResourceImport('user', 'User', options);
+      expect(result1).toBe("type { User } from 'my-app/data/resources/user.schema.types'");
+
+      // Test that mixin without model routes to trait import
+      const result2 = transformModelToResourceImport('shareable', 'Shareable', options);
+      expect(result2).toBe("type { ShareableTrait as Shareable } from 'my-app/data/traits/shareable.schema.types'");
+
+      // Test that suggested mixin routes to trait import
+      const result3 = transformModelToResourceImport('suggested', 'Suggested', options);
+      expect(result3).toBe("type { SuggestedTrait as Suggested } from 'my-app/data/traits/suggested.schema.types'");
+
+      // Test that non-existent type defaults to resource
+      const result4 = transformModelToResourceImport('nonexistent', 'Nonexistent', options);
+      expect(result4).toBe("type { Nonexistent } from 'my-app/data/resources/nonexistent.schema.types'");
+    });
+
+    it('handles models with same name as mixins by prioritizing model', () => {
+      const options = {
+        allModelFiles: ['/app/models/user.js', '/app/models/notification.js'],
+        allMixinFiles: ['/app/mixins/shareable.js', '/app/mixins/notification.js'], // notification exists as both
+        traitsImport: 'my-app/data/traits',
+        resourcesImport: 'my-app/data/resources',
+      };
+
+      // Test that when both model and mixin exist, model takes priority
+      const result1 = transformModelToResourceImport('notification', 'Notification', options);
+      expect(result1).toBe("type { Notification } from 'my-app/data/resources/notification.schema.types'");
+
+      // Test that mixin-only still works
+      const result2 = transformModelToResourceImport('shareable', 'Shareable', options);
+      expect(result2).toBe("type { ShareableTrait as Shareable } from 'my-app/data/traits/shareable.schema.types'");
     });
   });
 });

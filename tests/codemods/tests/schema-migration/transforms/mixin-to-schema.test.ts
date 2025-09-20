@@ -4,6 +4,24 @@ import { toArtifacts } from '../../../../../packages/codemods/src/schema-migrati
 
 describe('mixin-to-schema transform (artifacts)', () => {
   describe('basic functionality', () => {
+    it('generates empty trait for empty mixin', () => {
+      const input = `import Mixin from '@ember/object/mixin';
+
+export default Mixin.create({});`;
+
+      const artifacts = toArtifacts('app/mixins/empty.js', input, {});
+      expect(artifacts).toHaveLength(1); // Just trait-type artifact
+
+      // Test artifact metadata
+      expect(
+        artifacts.map((a) => ({ type: a.type, suggestedFileName: a.suggestedFileName, name: a.name }))
+      ).toMatchSnapshot('empty mixin metadata');
+
+      // Test generated code
+      const traitType = artifacts.find((a) => a.type === 'trait-type');
+      expect(traitType?.code).toMatchSnapshot('empty trait type code');
+    });
+
     it('produces trait and extension artifacts for direct Mixin.create', () => {
       const input = `import { attr, hasMany } from '@ember-data/model';
 import Mixin from '@ember/object/mixin';

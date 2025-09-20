@@ -490,6 +490,37 @@ export default class RegularTestModel extends Model {
       expect(schemaType?.code).not.toContain('@warp-drive-mirror/core/types/symbols');
       expect(schemaType?.code).not.toContain('@warp-drive-mirror/legacy/model');
     });
+
+    it('uses configured emberDataImportSource for HasMany types in type artifacts', () => {
+      const input = `import Model, { attr, hasMany, belongsTo } from '@auditboard/warp-drive/v1/model';
+
+export default class RelationshipModel extends Model {
+  @attr('string') name;
+  @hasMany('tag', { async: false }) tags;
+  @hasMany('project', { async: true }) projects;
+  @belongsTo('user', { async: false }) owner;
+}`;
+
+      const artifacts = toArtifacts(
+        'app/models/relationship-model.js',
+        input,
+        createTestOptions({
+          emberDataImportSource: '@auditboard/warp-drive/v1/model',
+        })
+      );
+
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
+
+      expect(artifacts.length).toBeGreaterThan(0);
+      expect(schemaType).toBeDefined();
+      if (schemaType?.code) {
+        expect(schemaType.code).toMatchSnapshot('custom EmberData source for HasMany types');
+        expect(schemaType.code).toContain('@auditboard/warp-drive/v1/model');
+        expect(schemaType.code).toContain('HasMany');
+        expect(schemaType.code).toContain('AsyncHasMany');
+        expect(schemaType.code).not.toContain('@ember-data/model');
+      }
+    });
   });
 
   describe('relative imports transformation', () => {
@@ -552,6 +583,39 @@ export default class TestModel extends Model {
 
       // Should still generate the schema
       expect(result).toContain('export const Test'); // Accept either TestSchema or TestModelSchema
+    });
+  });
+
+  describe('trait import aliasing', () => {
+    it('generates aliased trait imports for backward compatibility', () => {
+      const input = `import Model, { belongsTo } from '@ember-data/model';
+import WorkstreamableMixin from '../mixins/workstreamable';
+
+export default class TestModel extends Model.extend(WorkstreamableMixin) {
+  @belongsTo('workstreamable', { async: false }) workstreamable;
+}`;
+
+      const artifacts = toArtifacts(
+        'app/models/test-model.js',
+        input,
+        createTestOptions({
+          // Mark workstreamable as a connected mixin so it imports from traits
+          modelConnectedMixins: new Set(['/path/to/app/mixins/workstreamable.js']),
+        })
+      );
+
+      const schemaType = artifacts.find((a) => a.type === 'resource-type');
+
+      expect(artifacts.length).toBeGreaterThan(0);
+      expect(schemaType).toBeDefined();
+      if (schemaType?.code) {
+        // Should import WorkstreamableTrait but alias it as Workstreamable for backward compatibility
+        expect(schemaType.code).toContain('type { WorkstreamableTrait as Workstreamable }');
+        expect(schemaType.code).toContain('../traits/workstreamable.schema.types');
+
+        // Should use the aliased name in the interface
+        expect(schemaType.code).toContain('readonly workstreamable: Workstreamable | null');
+      }
     });
   });
 });
