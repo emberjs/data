@@ -37,7 +37,7 @@ potential volatility.
        "@ember-data/model/unstable-preview-types",
        "@ember-data/serializer/unstable-preview-types",
        "@warp-drive/core-types/unstable-preview-types",
-       "@warp-drive/build-config/unstable-preview-types",,
+       "@warp-drive/build-config/unstable-preview-types",
        "@warp-drive/schema-record/unstable-preview-types"
      ]
    }
