@@ -31,6 +31,10 @@
  * - The starter's package.json swaps a trailing `-solution` for `-starter` in its name,
  *   a trailing `/solution` for `/starter` in `repository.directory`, and a leading
  *   `Completed` for `Starter` in its description.
+ *
+ * It also writes the devDependencies of packages/tutorials/package.json: every
+ * app's dependencies. The release pins them when it publishes the package, and
+ * bin/create.mjs reads a created app's versions from them.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -216,4 +220,29 @@ for (const tutorial of tutorials) {
     for (const file of extra) rmSync(join(starterDir, file), { force: true });
     console.log(`${tutorial}/starter: ${changed.length} written, ${extra.length} removed.`);
   }
+}
+
+// Every app's dependencies, from each solution/package.json (a starter has the same ones).
+const rootPackagePath = join(tutorialsDir, 'package.json');
+const rootPackage = JSON.parse(readFileSync(rootPackagePath, 'utf8'));
+const appDependencies = {};
+for (const tutorial of known) {
+  const pkg = JSON.parse(readFileSync(join(tutorialsDir, tutorial, 'solution', 'package.json'), 'utf8'));
+  Object.assign(appDependencies, pkg.dependencies, pkg.devDependencies);
+}
+const devDependencies = Object.fromEntries(Object.entries(appDependencies).sort(([a], [b]) => a.localeCompare(b)));
+if (JSON.stringify(devDependencies) !== JSON.stringify(rootPackage.devDependencies)) {
+  if (check) {
+    console.error(
+      `packages/tutorials/package.json devDependencies are out of date. They must list every app's` +
+        ` dependencies. Run:\n  node packages/tutorials/scripts/make-starter.mjs`
+    );
+    process.exitCode = 1;
+  } else {
+    rootPackage.devDependencies = devDependencies;
+    writeFileSync(rootPackagePath, `${JSON.stringify(rootPackage, null, 2)}\n`);
+    console.log('packages/tutorials/package.json: devDependencies written.');
+  }
+} else if (check) {
+  console.log('packages/tutorials/package.json devDependencies are up to date.');
 }
