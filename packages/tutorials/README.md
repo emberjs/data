@@ -54,7 +54,7 @@ The guides write their code inline, so they don't update when `solution/` does.
 | Fix a bug, or update for a WarpDrive API change | Edit `solution/`, then regenerate |
 | Change what a learner sees at a `TODO` | Edit the `#replace-in-starter` line, then regenerate |
 | Move taught code to another chapter | Change the chapter number in its `#replace-in-starter` line, then regenerate |
-| Add a dependency | Add it to `solution/package.json`, run `pnpm install`, then regenerate. Commit `pnpm-lock.yaml` too. |
+| Add a dependency | Add it to `solution/package.json` and regenerate, which also updates this package's `devDependencies`. Then run `pnpm install` and commit `pnpm-lock.yaml`. |
 
 If you changed code in a block the starter replaces, update that chapter of the guide to match.
 
@@ -72,6 +72,7 @@ write chapter 3's requests.
 | Failure | Meaning |
 | --- | --- |
 | `starter is out of date` | `starter/` doesn't match the generator's output. Regenerate, or move a direct edit into `solution/`. |
+| `packages/tutorials/package.json devDependencies are out of date` | An app's dependencies changed without regenerating. Regenerate. |
 | `blocks can't nest`, `never closed`, `without a block to close`, `can't close` | A block's start and end markers don't pair up. Each start needs its matching end. |
 | `malformed tutorial starter directive` | A directive is misspelled or outdated, `#replace-in-starter` has no text, or another directive has text. |
 | `#omit-file-from-starter must be the file's first line` | Move the directive to line 1. |
