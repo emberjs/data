@@ -31,7 +31,7 @@ resolve inside this repo. The published package pins them in one place: its own
 | `make-starter.mjs` | Writes `devDependencies` in `packages/tutorials/package.json` from the apps. CI fails if they're stale. |
 | Publish | The release rewrites `workspace:*` to the released version, and `pnpm pack` rewrites `catalog:` to the catalog's version. |
 | `prepack` (`scripts/prepack.mjs`) | Writes each app's `package.template.json` (its `package.json` minus the versions) and copies its `.gitignore` to `gitignore`, since npm drops `.gitignore` files. `postpack` deletes them. |
-| `npx` (`bin/create.mjs`) | Copies the app, renames `gitignore` to `.gitignore`, and writes its `package.json` from the template and the pinned `devDependencies`. |
+| `npx` (`bin/create.mjs`) | Copies the app, renames `gitignore` to `.gitignore`, and writes its `package.json` from the template and the pinned `devDependencies`. With `--solution`, it also drops the starter directives. |
 
 npx doesn't install `devDependencies`, so learners only download the apps. `files` in
 `package.json` leaves out each app's `package.json`, `node_modules`, and build output.
