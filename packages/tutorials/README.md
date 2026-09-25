@@ -8,8 +8,35 @@ Each tutorial has a directory per framework, holding a `solution/` app and the
 | --------------- | --------- | ---------------------------------------------------------------- |
 | `todomvc-ember` | Ember     | [TodoMVC](https://warp-drive.io/guides/tutorials/todomvc/) |
 
-This package is private for now. It will be published so learners can create an
-app with `npx @warp-drive/tutorials`.
+## Creating an app
+
+```sh
+npx @warp-drive/tutorials@canary todomvc-ember [dir] [--solution]
+```
+
+This creates the tutorial's starter app in `dir` (default: the tutorial's name), or
+its finished app with `--solution`. The app is standalone: `cd` into it, then
+`pnpm install` and `pnpm start`.
+
+This package is private for now, so the command works once it's published.
+
+## How the package is built
+
+Each app's `package.json` uses `catalog:` and `workspace:*` versions, which only
+resolve inside this repo. The published package pins them in one place: its own
+`devDependencies`, which list every app's dependencies.
+
+| Step | What happens |
+| --- | --- |
+| `make-starter.mjs` | Writes `devDependencies` in `packages/tutorials/package.json` from the apps. CI fails if they're stale. |
+| Publish | The release rewrites `workspace:*` to the released version, and `pnpm pack` rewrites `catalog:` to the catalog's version. |
+| `prepack` (`scripts/prepack.mjs`) | Writes each app's `package.template.json` (its `package.json` minus the versions) and copies its `.gitignore` to `gitignore`, since npm drops `.gitignore` files. `postpack` deletes them. |
+| `npx` (`bin/create.mjs`) | Copies the app, renames `gitignore` to `.gitignore`, and writes its `package.json` from the template and the pinned `devDependencies`. |
+
+npx doesn't install `devDependencies`, so learners only download the apps. `files` in
+`package.json` leaves out each app's `package.json`, `node_modules`, and build output.
+
+To check the tarball, run `pnpm pack` in `packages/tutorials`.
 
 ## Updating a tutorial
 
