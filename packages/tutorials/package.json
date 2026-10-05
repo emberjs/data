@@ -32,7 +32,6 @@
     "prepack": "node ./scripts/prepack.mjs",
     "postpack": "node ./scripts/prepack.mjs --clean"
   },
-  "private": true,
   "devDependencies": {
     "@babel/core": "catalog:",
     "@babel/plugin-transform-runtime": "catalog:",

@@ -18,8 +18,6 @@ This creates the tutorial's starter app in `dir` (default: the tutorial's name),
 its finished app with `--solution`. The app is standalone: `cd` into it, then
 `pnpm install` and `pnpm start`.
 
-This package is private for now, so the command works once it's published.
-
 ## How the package is built
 
 Each app's `package.json` uses `catalog:` and `workspace:*` versions, which only
