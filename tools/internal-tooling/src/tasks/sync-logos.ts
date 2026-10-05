@@ -89,6 +89,11 @@ export async function main() {
       log(`\t\t🔒 Skipping private package ${project.pkg.name}`);
       return;
     }
+    // The tutorials package ships standalone apps for learners, not a library, so it has no logos.
+    if (project.pkg.name === '@warp-drive/tutorials') {
+      log(`\t\t🔒 Skipping ${project.pkg.name}`);
+      return;
+    }
 
     log(`\t\t🔁 Syncing logos to ${project.project.dir}`);
 

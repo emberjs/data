@@ -159,6 +159,13 @@
       "typesPublish": false,
       "mirrorPublish": false,
       "unpkgPublish": false
+    },
+    "@warp-drive/tutorials": {
+      "stage": "stable",
+      "types": "private",
+      "typesPublish": false,
+      "mirrorPublish": false,
+      "unpkgPublish": false
     }
   }
 }
