@@ -25,11 +25,12 @@ module('Unit | signals | RequestSubscription recovery', function () {
           assert.true(subscription.reqState.isSuccess);
         }
 
+        const { reload } = subscription.contentFeatures;
         const recovering =
           operation === 'retry'
             ? subscription.errorFeatures.retry()
             : operation === 'reload'
-              ? subscription.contentFeatures.reload()
+              ? reload()
               : subscription.contentFeatures.refresh();
         await control.responses[1].started.promise;
         assert.true(isUpdating(control));
@@ -132,11 +133,12 @@ module('Unit | signals | RequestSubscription recovery', function () {
     try {
       control.responses[0].resolve({ data: { name: 'Original' } });
       await subscription.request;
+      const { reload } = subscription.contentFeatures;
       for (const property of ['isOnline', 'isHidden'] as const) {
         subscription.isOnline = property !== 'isOnline';
         subscription.isHidden = property === 'isHidden';
         await assert.throws(() => subscription.errorFeatures.retry(), /not online or the tab is hidden/);
-        await assert.throws(() => subscription.contentFeatures.reload(), /not online or the tab is hidden/);
+        await assert.throws(reload, /not online or the tab is hidden/);
         await assert.throws(() => subscription.contentFeatures.refresh(), /not online or the tab is hidden/);
         assert.equal(control.calls, 1, 'unavailable recovery does not issue another request');
         assert.true(subscription.reqState.isSuccess);
