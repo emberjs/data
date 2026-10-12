@@ -216,7 +216,10 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
     }
   >;
   'failed retries remain recoverable until a request succeeds': SpecTest<LocalTestContext, RecoverySpecProps>;
-  'failed reloads return to recovery instead of rejecting the event handler': SpecTest<LocalTestContext, RecoverySpecProps>;
+  'failed reloads return to recovery instead of rejecting the event handler': SpecTest<
+    LocalTestContext,
+    RecoverySpecProps
+  >;
   'failed refreshes preserve content and allow a later reload': SpecTest<LocalTestContext, RecoverySpecProps>;
   'cancelled retries remain recoverable until a request succeeds': SpecTest<LocalTestContext, RecoverySpecProps>;
   'externally retriggered request works as expected': SpecTest<

@@ -1,4 +1,5 @@
 import { setupRecoveryRequests } from '@warp-drive-internal/specs/request-recovery';
+
 import { getRequestState } from '@warp-drive/core/reactive';
 import { module, test } from '@warp-drive/diagnostic';
 
@@ -24,11 +25,12 @@ module('Unit | signals | RequestSubscription recovery', function () {
           assert.true(subscription.reqState.isSuccess);
         }
 
-        const recovering = operation === 'retry'
-          ? subscription.errorFeatures.retry()
-          : operation === 'reload'
-            ? subscription.contentFeatures.reload()
-            : subscription.contentFeatures.refresh();
+        const recovering =
+          operation === 'retry'
+            ? subscription.errorFeatures.retry()
+            : operation === 'reload'
+              ? subscription.contentFeatures.reload()
+              : subscription.contentFeatures.refresh();
         await control.responses[1]!.started.promise;
         assert.true(isUpdating(control));
         const failedFuture = subscription.contentFeatures.latestRequest;

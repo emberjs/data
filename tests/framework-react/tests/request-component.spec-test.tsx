@@ -21,20 +21,28 @@ function renderRecovery({ store, subscription }: RecoveryProps) {
         error: ({ error, features }) => (
           <>
             <p data-test-id="recovery-error">{error.message}</p>
-            <button data-test-id="recovery-retry" onClick={features.retry}>Retry</button>
+            <button data-test-id="recovery-retry" onClick={features.retry}>
+              Retry
+            </button>
           </>
         ),
         cancelled: ({ features }) => (
           <>
             <p data-test-id="recovery-cancelled">Cancelled</p>
-            <button data-test-id="recovery-retry" onClick={features.retry}>Retry</button>
+            <button data-test-id="recovery-retry" onClick={features.retry}>
+              Retry
+            </button>
           </>
         ),
         content: ({ result, features }) => (
           <>
             <p data-test-id="recovery-content">{result.data.name}</p>
-            <button data-test-id="recovery-reload" onClick={features.reload}>Reload</button>
-            <button data-test-id="recovery-refresh" onClick={features.refresh}>Refresh</button>
+            <button data-test-id="recovery-reload" onClick={features.reload}>
+              Reload
+            </button>
+            <button data-test-id="recovery-refresh" onClick={features.refresh}>
+              Refresh
+            </button>
           </>
         ),
       }}
