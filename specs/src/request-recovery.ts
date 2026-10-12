@@ -1,6 +1,6 @@
 import { RequestManager } from '@warp-drive/core';
-import { createRequestSubscription } from '@warp-drive/core/reactive';
-import { createDeferred } from '@warp-drive/core/request';
+import { createRequestSubscription, type RequestSubscription } from '@warp-drive/core/reactive';
+import { createDeferred, type Deferred } from '@warp-drive/core/request';
 import { DISPOSE } from '@warp-drive/core/signals/-leaked';
 import type { RequestContext } from '@warp-drive/core/types/request';
 
@@ -8,7 +8,19 @@ export interface RecoveryDocument {
   data: { name: string };
 }
 
-export function setupRecoveryRequests() {
+interface RecoveryResponse extends Deferred<RecoveryDocument> {
+  started: Deferred<void>;
+}
+
+export interface RecoveryControl {
+  manager: RequestManager;
+  subscription: RequestSubscription<RecoveryDocument, unknown>;
+  responses: RecoveryResponse[];
+  readonly calls: number;
+  dispose(): void;
+}
+
+export function setupRecoveryRequests(): RecoveryControl {
   const responses = Array.from({ length: 4 }, () => ({
     ...createDeferred<RecoveryDocument>(),
     started: createDeferred<void>(),
