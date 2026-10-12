@@ -238,11 +238,10 @@ export class RecordArrayManager {
       if (signal.value === 'cache-sync') {
         const doc = this.store.cache.peek(identifier);
         assert(`Expected to find a document for ${identifier.lid} but found none`, doc);
-        const data = !('data' in doc) || !Array.isArray(doc.data) ? [] : doc.data;
-        // TODO technically we should destroy here if
-        // !('data' in doc) || !Array.isArray(doc.data)
-        // is true.
-        this.populateManagedArray(array, data, null);
+        if ('data' in doc) {
+          const data = Array.isArray(doc.data) ? doc.data : [];
+          this.populateManagedArray(array, data, null);
+        }
       }
     }
   }
