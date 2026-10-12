@@ -61,6 +61,10 @@ export interface RecoveryFeatures {
   isHidden: boolean;
   /**
    * Retries the request, reloading it from the server.
+   * Resolves after the request settles, including failures. The {@link RequestSubscription.request | request Future}
+   * still rejects on failure; inspect its {@link getRequestState | request state} for error details.
+   *
+   * @throws The returned promise rejects when reloading is unavailable because the network is offline or the tab is hidden.
    */
   retry: () => Promise<void>;
 }
@@ -89,10 +93,18 @@ export interface ContentFeatures<RT> {
   isRefreshing: boolean;
   /**
    * Refreshes the request, updating it in the background.
+   * Resolves after the latest request settles, retaining current content if the refresh fails.
+   * The latest request Future still rejects on failure; inspect its {@link RequestState} for error details.
+   *
+   * @throws The returned promise rejects when refreshing is unavailable because the network is offline or the tab is hidden.
    */
   refresh: () => Promise<void>;
   /**
    * Retries the request, reloading it from the server.
+   * Resolves after the request settles, including failures. The {@link RequestSubscription.request | request Future}
+   * still rejects on failure; inspect its {@link getRequestState | request state} for error details.
+   *
+   * @throws The returned promise rejects when reloading is unavailable because the network is offline or the tab is hidden.
    */
   reload: () => Promise<void>;
   /**
@@ -690,9 +702,10 @@ export class RequestSubscription<RT, E> {
       }
 
       void this._scheduleInterval();
-      void this._latestRequest.finally(() => {
+      const onSettled = () => {
         this._isUpdating = false;
-      });
+      };
+      void this._latestRequest.then(onSettled, onSettled);
     } else {
       // TODO probably want this
       // void this.scheduleInterval();
@@ -716,18 +729,28 @@ export class RequestSubscription<RT, E> {
 
   /**
    * Retry the request, reloading it from the server.
+   * The {@link RequestSubscription.request | request Future} still rejects on failure;
+   * inspect its {@link getRequestState | request state} for error details.
+   *
+   * @return Resolves after the request settles, including failures.
+   * @throws The returned promise rejects when reloading is unavailable because the network is offline or the tab is hidden.
    */
   retry = async (): Promise<void> => {
     this._maybeUpdate('reload');
-    await this._localRequest;
+    await this._localRequest?.catch(() => undefined);
   };
 
   /**
    * Refresh the request, updating it in the background.
+   * Retains current content if the refresh fails. The latest request Future still rejects on
+   * failure; inspect its {@link getRequestState | request state} for error details.
+   *
+   * @return Resolves after the latest request settles, including failures.
+   * @throws The returned promise rejects when refreshing is unavailable because the network is offline or the tab is hidden.
    */
   refresh = async (): Promise<void> => {
     this._maybeUpdate('refresh');
-    await this._latestRequest;
+    await this._latestRequest?.catch(() => undefined);
   };
 
   /**

@@ -7,7 +7,30 @@ import type { SingleResourceDataDocument } from '@warp-drive/core/types/spec/doc
 import type { Type } from '@warp-drive/core/types/symbols';
 import { useEmber } from '@warp-drive/diagnostic/ember';
 import { Request } from '@warp-drive/ember';
-import { RequestSpec } from '@warp-drive-internal/specs/request-component.spec';
+import { RequestSpec, type RequestSpecSignature } from '@warp-drive-internal/specs/request-component.spec';
+
+type RecoveryProps = RequestSpecSignature['failed retries remain recoverable until a request succeeds']['$props'];
+
+function renderRecovery({ store, subscription }: RecoveryProps) {
+  return <template>
+    <Request @store={{store}} @subscription={{subscription}}>
+      <:loading><p data-test-id="recovery-loading">Pending</p></:loading>
+      <:error as |error features|>
+        <p data-test-id="recovery-error">{{error.message}}</p>
+        <button data-test-id="recovery-retry" {{on "click" features.retry}}>Retry</button>
+      </:error>
+      <:cancelled as |_error features|>
+        <p data-test-id="recovery-cancelled">Cancelled</p>
+        <button data-test-id="recovery-retry" {{on "click" features.retry}}>Retry</button>
+      </:cancelled>
+      <:content as |result features|>
+        <p data-test-id="recovery-content">{{result.data.name}}</p>
+        <button data-test-id="recovery-reload" {{on "click" features.reload}}>Reload</button>
+        <button data-test-id="recovery-refresh" {{on "click" features.refresh}}>Refresh</button>
+      </:content>
+    </Request>
+  </template>;
+}
 
 const arr = (...args: unknown[]) => args;
 
@@ -65,6 +88,11 @@ RequestSpec.use(useEmber(), function (b) {
         </Request>
       </template>;
     })
+
+    .test('failed retries remain recoverable until a request succeeds', renderRecovery)
+    .test('failed reloads return to recovery instead of rejecting the event handler', renderRecovery)
+    .test('failed refreshes preserve content and allow a later reload', renderRecovery)
+    .test('cancelled retries remain recoverable until a request succeeds', renderRecovery)
 
     .test('externally retriggered request works as expected', function (props) {
       const { source, countFor, retry, store } = props;
