@@ -14,13 +14,13 @@ module('Unit | signals | RequestSubscription recovery', function () {
       const { subscription } = control;
       try {
         if (operation === 'retry') {
-          control.responses[0]!.reject(new Error('Initial failure'));
+          control.responses[0].reject(new Error('Initial failure'));
           await assert.throws(async () => {
             await subscription.request;
           }, /Initial failure/);
           assert.true(subscription.reqState.isError);
         } else {
-          control.responses[0]!.resolve({ data: { name: 'Original' } });
+          control.responses[0].resolve({ data: { name: 'Original' } });
           await subscription.request;
           assert.true(subscription.reqState.isSuccess);
         }
@@ -31,11 +31,11 @@ module('Unit | signals | RequestSubscription recovery', function () {
             : operation === 'reload'
               ? subscription.contentFeatures.reload()
               : subscription.contentFeatures.refresh();
-        await control.responses[1]!.started.promise;
+        await control.responses[1].started.promise;
         assert.true(isUpdating(control));
         const failedFuture = subscription.contentFeatures.latestRequest;
         assert.ok(failedFuture);
-        control.responses[1]!.reject(new Error('Recovery failure'));
+        control.responses[1].reject(new Error('Recovery failure'));
         await recovering;
 
         assert.false(isUpdating(control), 'settling a failed update releases the notification guard');
@@ -52,8 +52,8 @@ module('Unit | signals | RequestSubscription recovery', function () {
         }
 
         const retrying = subscription.errorFeatures.retry();
-        await control.responses[2]!.started.promise;
-        control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+        await control.responses[2].started.promise;
+        control.responses[2].resolve({ data: { name: 'Recovered' } });
         await retrying;
         assert.true(subscription.reqState.isSuccess);
         assert.equal(subscription.result.data.name, 'Recovered');
@@ -69,12 +69,12 @@ module('Unit | signals | RequestSubscription recovery', function () {
     const control = setupRecoveryRequests();
     const { subscription } = control;
     try {
-      control.responses[0]!.reject(new Error('Initial failure'));
+      control.responses[0].reject(new Error('Initial failure'));
       await assert.throws(async () => {
         await subscription.request;
       }, /Initial failure/);
       const retrying = subscription.errorFeatures.retry();
-      await control.responses[1]!.started.promise;
+      await control.responses[1].started.promise;
       assert.true(isUpdating(control));
       const cancelledFuture = subscription.request;
       cancelledFuture.abort();
@@ -88,8 +88,8 @@ module('Unit | signals | RequestSubscription recovery', function () {
       }, /aborted/i);
 
       const recovering = subscription.errorFeatures.retry();
-      await control.responses[2]!.started.promise;
-      control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+      await control.responses[2].started.promise;
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
       await recovering;
       assert.true(subscription.reqState.isSuccess);
       assert.equal(subscription.result.data.name, 'Recovered');
@@ -103,10 +103,10 @@ module('Unit | signals | RequestSubscription recovery', function () {
     const control = setupRecoveryRequests();
     const { subscription } = control;
     try {
-      control.responses[0]!.resolve({ data: { name: 'Original' } });
+      control.responses[0].resolve({ data: { name: 'Original' } });
       await subscription.request;
       const refreshing = subscription.contentFeatures.refresh();
-      await control.responses[1]!.started.promise;
+      await control.responses[1].started.promise;
       assert.true(isUpdating(control));
       const cancelledFuture = subscription.contentFeatures.latestRequest;
       assert.ok(cancelledFuture);
@@ -130,7 +130,7 @@ module('Unit | signals | RequestSubscription recovery', function () {
     const control = setupRecoveryRequests();
     const { subscription } = control;
     try {
-      control.responses[0]!.resolve({ data: { name: 'Original' } });
+      control.responses[0].resolve({ data: { name: 'Original' } });
       await subscription.request;
       for (const property of ['isOnline', 'isHidden'] as const) {
         subscription.isOnline = property !== 'isOnline';

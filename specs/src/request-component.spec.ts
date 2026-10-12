@@ -585,14 +585,14 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     try {
       await this.render({ store: control.manager, subscription: control.subscription });
       assert.dom('[data-test-id="recovery-loading"]').hasText('Pending');
-      control.responses[0]!.reject(new Error('First failure'));
+      control.responses[0].reject(new Error('First failure'));
       await this.h.waitFor('[data-test-id="recovery-error"]');
       assert.dom('[data-test-id="recovery-error"]').hasText('First failure');
 
       const retrying = this.h.click('[data-test-id="recovery-retry"]');
       await this.h.waitUntil(() => control.calls === 2);
       await this.h.waitUntil(() => this.h.find('[data-test-id="recovery-loading"]'));
-      control.responses[1]!.reject(new Error('Retry failure'));
+      control.responses[1].reject(new Error('Retry failure'));
       await retrying;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-error"]').hasText('Retry failure');
@@ -601,7 +601,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
       const recovering = this.h.click('[data-test-id="recovery-retry"]');
       await this.h.waitUntil(() => control.calls === 3);
-      control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
       await recovering;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
@@ -618,13 +618,13 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     const control = setupRecoveryRequests();
     try {
       await this.render({ store: control.manager, subscription: control.subscription });
-      control.responses[0]!.resolve({ data: { name: 'Original' } });
+      control.responses[0].resolve({ data: { name: 'Original' } });
       await this.h.waitFor('[data-test-id="recovery-content"]');
 
       const reloading = this.h.click('[data-test-id="recovery-reload"]');
       await this.h.waitUntil(() => control.calls === 2);
       await this.h.waitUntil(() => this.h.find('[data-test-id="recovery-loading"]'));
-      control.responses[1]!.reject(new Error('Reload failure'));
+      control.responses[1].reject(new Error('Reload failure'));
       await reloading;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-error"]').hasText('Reload failure');
@@ -632,7 +632,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
       const retrying = this.h.click('[data-test-id="recovery-retry"]');
       await this.h.waitUntil(() => control.calls === 3);
-      control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
       await retrying;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
@@ -647,14 +647,14 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     const control = setupRecoveryRequests();
     try {
       await this.render({ store: control.manager, subscription: control.subscription });
-      control.responses[0]!.resolve({ data: { name: 'Original' } });
+      control.responses[0].resolve({ data: { name: 'Original' } });
       await this.h.waitFor('[data-test-id="recovery-content"]');
 
       const refreshing = this.h.click('[data-test-id="recovery-refresh"]');
       await this.h.waitUntil(() => control.calls === 2);
       assert.dom('[data-test-id="recovery-content"]').hasText('Original');
       assert.dom('[data-test-id="recovery-loading"]').doesNotExist();
-      control.responses[1]!.reject(new Error('Refresh failure'));
+      control.responses[1].reject(new Error('Refresh failure'));
       await refreshing;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-content"]').hasText('Original');
@@ -666,7 +666,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
       const reloading = this.h.click('[data-test-id="recovery-reload"]');
       await this.h.waitUntil(() => control.calls === 3);
-      control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
       await reloading;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
@@ -681,7 +681,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     const control = setupRecoveryRequests();
     try {
       await this.render({ store: control.manager, subscription: control.subscription });
-      control.responses[0]!.reject(new Error('First failure'));
+      control.responses[0].reject(new Error('First failure'));
       await this.h.waitFor('[data-test-id="recovery-error"]');
       const retrying = this.h.click('[data-test-id="recovery-retry"]');
       await this.h.waitUntil(() => control.calls === 2);
@@ -694,7 +694,7 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
 
       const recovering = this.h.click('[data-test-id="recovery-retry"]');
       await this.h.waitUntil(() => control.calls === 3);
-      control.responses[2]!.resolve({ data: { name: 'Recovered' } });
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
       await recovering;
       await this.h.rerender();
       assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
