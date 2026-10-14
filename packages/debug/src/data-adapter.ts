@@ -1,5 +1,4 @@
 import type { NativeArray } from '@ember/array';
-import { A } from '@ember/array';
 import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import * as s from '@ember/service';
@@ -203,9 +202,12 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       discoveredTypes.forEach((value, key) => {
         discoveredTypes.set(key, false);
       });
-      this.releaseMethods.removeObject(release);
+      const index = this.releaseMethods.indexOf(release);
+      if (index !== -1) {
+        this.releaseMethods.splice(index, 1);
+      }
     };
-    this.releaseMethods.pushObject(release);
+    this.releaseMethods.push(release);
     return release;
   }
 
@@ -331,7 +333,9 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       keywords.push(record[key as keyof T]);
     });
 
-    return A(keywords);
+    // `A()` is deprecated (RFC 1114); the inspector only reads these as data,
+    // so a native array is enough. The cast keeps compat with older ember-source types.
+    return keywords as unknown as NativeArray<unknown>;
   }
 
   /**
