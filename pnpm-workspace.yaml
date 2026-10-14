@@ -433,7 +433,7 @@ catalog:
   vitepress-plugin-tabs: ^0.9.1
   vitest: ^5.0.3
   vue: ^3.5.43
-  vue-tsc: ^3.3.12
+  vue-tsc: ^3.3.13
   winston: ^3.19.0
 
 ## The following settings previously lived under the root package.json's
