@@ -299,8 +299,8 @@ catalog:
   "@babel/preset-env": ^7.29.7
   "@babel/preset-react": ^7.29.7
   "@babel/preset-typescript": ^7.29.7
-  "@babel/runtime": ^7.29.7
-  "@babel/traverse": ^7.29.8
+  "@babel/runtime": ^7.29.10
+  "@babel/traverse": ^7.29.10
   "@ember/app-tsconfig": ^2.1.0
   "@ember/edition-utils": ^1.2.0
   "@ember/optional-features": ^3.0.0
@@ -503,7 +503,7 @@ overrides:
   rollup: ^4.64.5
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
-  "@babel/traverse": ^7.29.8
+  "@babel/traverse": ^7.29.10
   prettier: ^3.9.10
   "@types/node": "catalog:"
   "@vue/compiler-sfc": 3.5.43
