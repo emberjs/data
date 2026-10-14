@@ -1732,19 +1732,19 @@ importers:
         version: 4.1.2
       '@embroider/core':
         specifier: 'catalog:'
-        version: 4.6.7(@glint/template@1.9.0)
+        version: 4.6.9(@glint/template@1.9.0)
       '@embroider/macros':
-        specifier: ^1.21.1
-        version: 1.21.1(@glint/template@1.9.0)
+        specifier: ^1.21.3
+        version: 1.21.3(@glint/template@1.9.0)
       '@embroider/vite':
         specifier: 'catalog:'
-        version: 1.7.13(d866788c680c55a103847ebeadb7752e)
+        version: 1.7.15(371b098c35af02efe15360c6c11eb222)
       '@glimmer/component':
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
         specifier: 1.11.6
-        version: 1.11.6(c1afbbef7d96f37fd3187c5cb555e449)
+        version: 1.11.6(301a696b5edeb7879dfaa05e514d4f9e)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -1774,7 +1774,7 @@ importers:
         version: 2.4.0(@babel/core@7.29.7)
       ember-content-mapper:
         specifier: 'catalog:'
-        version: 0.3.1(c1afbbef7d96f37fd3187c5cb555e449)
+        version: 0.3.1(301a696b5edeb7879dfaa05e514d4f9e)
       ember-modifier:
         specifier: 'catalog:'
         version: 4.3.0(@babel/core@7.29.7)
@@ -1783,7 +1783,7 @@ importers:
         version: 9.0.3(d288926beed7c17909b8497cf18e0738)
       ember-qunit:
         specifier: 'catalog:'
-        version: 9.1.0(35ac5e09cb2450f21fa60f75ff0fbeb5)
+        version: 9.2.0(35ac5e09cb2450f21fa60f75ff0fbeb5)
       ember-source:
         specifier: 'catalog:'
         version: 7.3.0(@glimmer/component@2.1.1)
@@ -1797,8 +1797,8 @@ importers:
         specifier: 'catalog:'
         version: 3.6.0
       testem:
-        specifier: ~3.21.0
-        version: 3.21.0(@babel/core@7.29.7)
+        specifier: ~3.21.3
+        version: 3.21.3(@babel/core@7.29.7)
       todomvc-app-css:
         specifier: 'catalog:'
         version: 2.4.3
@@ -1807,13 +1807,13 @@ importers:
         version: 1.0.5
       typescript-7:
         specifier: 'catalog:'
-        version: typescript@7.1.0-dev.20260928.1
+        version: typescript@7.1.0-dev.20261006.1
       typescript-toastify:
         specifier: 'catalog:'
         version: 1.0.4
       vite:
         specifier: 'catalog:'
-        version: 8.3.1
+        version: 8.3.3
 
   packages/tutorials/todomvc-ember/solution:
     devDependencies:
