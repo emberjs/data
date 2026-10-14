@@ -349,7 +349,7 @@ catalog:
   "@vitejs/plugin-vue": ^6.0.9
   "@vue/babel-plugin-jsx": ^3.0.0
   babel-plugin-debug-macros: ^2.0.0
-  babel-plugin-ember-template-compilation: ^4.0.0
+  babel-plugin-ember-template-compilation: ^4.0.1
   badge-maker: 6.0.0
   commander: ^15.0.0
   comment-json: ^5.0.0
