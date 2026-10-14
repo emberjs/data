@@ -65,7 +65,7 @@
     "turbo": "catalog:"
   },
   "engines": {
-    "node": ">= 26.10.0",
+    "node": ">= 26.11.1",
     "yarn": "use pnpm",
     "npm": "use pnpm",
     "pnpm": "12.11.2"
@@ -75,7 +75,7 @@
     "runtime": [
       {
         "name": "node",
-        "version": "26.10.0"
+        "version": "26.11.1"
       }
     ]
   },
