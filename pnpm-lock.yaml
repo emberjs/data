@@ -233,8 +233,8 @@ catalogs:
       specifier: ^2.1.1
       version: 2.1.1
     '@hono/node-server':
-      specifier: ^2.1.3
-      version: 2.1.3
+      specifier: ^2.1.4
+      version: 2.1.4
     '@hono/node-ws':
       specifier: ^1.2.0
       version: 1.3.1
@@ -1119,10 +1119,10 @@ importers:
         version: 1.21.3
       '@hono/node-server':
         specifier: 'catalog:'
-        version: 2.1.3(hono@4.13.13)
+        version: 2.1.4(hono@4.13.13)
       '@hono/node-ws':
         specifier: 'catalog:'
-        version: 1.3.1(978dc3922f8798d34d10c84e7a6091b1)
+        version: 1.3.1(6e771c590dfef0461483cbd90e3588fc)
       '@warp-drive/core':
         specifier: workspace:*
         version: file:warp-drive-packages/core(@babel/core@7.29.7)
@@ -1259,8 +1259,8 @@ importers:
   packages/holodeck:
     dependencies:
       '@hono/node-server':
-        specifier: ^2.1.3
-        version: 2.1.3(hono@4.13.13)
+        specifier: ^2.1.4
+        version: 2.1.4(hono@4.13.13)
       hono:
         specifier: ^4.13.13
         version: 4.13.13
@@ -5314,11 +5314,11 @@ packages:
     resolution: {integrity: sha512-n/SZW+12rwikx/f8YcSv9JCi5p9vn1Bnts9ZtVvfErG4h0gbjHI1H1ZMhVUnaOC7yzFc6PtsCKIK8XeTnL90Gw==}
     engines: {node: ^18 || ^20 || ^22 || >=24}
 
-  '@hono/node-server@2.1.3':
-    resolution: {integrity: sha512-TA//nWMqPhbfdfneACk6t5a9eqbS9lABEPyKn0/xZTah3H3U2XaVg85rJFl0/Fyit0I552YDHgXGVSf3GwqbUw==}
+  '@hono/node-server@2.1.4':
+    resolution: {integrity: sha512-2g1qeHl4BduwDn6L8nkAvDrPUWPMlkQ//a5NhP/zIyaXKMjZNRV+cG9Csu+BiJFf6+68pqzjf4Hi5sJGKHuS1g==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4
+      hono: ^4 || ^5.0.0-0
 
   '@hono/node-ws@1.3.1':
     resolution: {integrity: sha512-vo/MwCnpJAVHBkGzWjCJ28wF45fYHAfbPZcH2rodZODHtch2GHA94KtMfusmVycTUtsLAsaNsHhtY6P8X3RQsA==}
@@ -14453,13 +14453,13 @@ snapshots:
 
   '@handlebars/parser@2.2.2': {}
 
-  '@hono/node-server@2.1.3(hono@4.13.13)':
+  '@hono/node-server@2.1.4(hono@4.13.13)':
     dependencies:
       hono: 4.13.13
 
-  '@hono/node-ws@1.3.1(978dc3922f8798d34d10c84e7a6091b1)':
+  '@hono/node-ws@1.3.1(6e771c590dfef0461483cbd90e3588fc)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       hono: 4.13.13
       ws: 8.21.3
     transitivePeerDependencies:
@@ -16720,8 +16720,8 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(0aeb4903dc31c671ba18fa933abc5dd4)':
     dependencies:
       '@embroider/macros': 1.21.3
-      '@hono/node-server': 2.1.3(hono@4.13.13)
-      '@hono/node-ws': 1.3.1(978dc3922f8798d34d10c84e7a6091b1)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
+      '@hono/node-ws': 1.3.1(6e771c590dfef0461483cbd90e3588fc)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.29.7)
       debug: 4.4.3
@@ -16740,8 +16740,8 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(@babel/core@7.29.7)':
     dependencies:
       '@embroider/macros': 1.21.3
-      '@hono/node-server': 2.1.3(hono@4.13.13)
-      '@hono/node-ws': 1.3.1(978dc3922f8798d34d10c84e7a6091b1)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
+      '@hono/node-ws': 1.3.1(6e771c590dfef0461483cbd90e3588fc)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.29.7)
       debug: 4.4.3
@@ -16758,8 +16758,8 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(a10e3d29b4c298437c5600599f1b5217)':
     dependencies:
       '@embroider/macros': 1.21.3
-      '@hono/node-server': 2.1.3(hono@4.13.13)
-      '@hono/node-ws': 1.3.1(978dc3922f8798d34d10c84e7a6091b1)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
+      '@hono/node-ws': 1.3.1(6e771c590dfef0461483cbd90e3588fc)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       '@warp-drive/react': file:warp-drive-packages/react(@babel/core@7.29.7)
       debug: 4.4.3
@@ -16779,8 +16779,8 @@ snapshots:
   '@warp-drive/diagnostic@file:packages/diagnostic(befc1f471b20ed099dd4ec60a955f5c6)':
     dependencies:
       '@embroider/macros': 1.21.3(@glint/template@1.9.0)
-      '@hono/node-server': 2.1.3(hono@4.13.13)
-      '@hono/node-ws': 1.3.1(978dc3922f8798d34d10c84e7a6091b1)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
+      '@hono/node-ws': 1.3.1(6e771c590dfef0461483cbd90e3588fc)
       '@warp-drive/core': file:warp-drive-packages/core(e0ff4349d3585fabae29421d7a4b80a6)
       '@warp-drive/react': file:warp-drive-packages/react(e0ff4349d3585fabae29421d7a4b80a6)
       debug: 4.4.3
@@ -16843,7 +16843,7 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(03abbaa9f63acaebd13d49b7d579fd2d)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       '@warp-drive/core': file:warp-drive-packages/core(e0ff4349d3585fabae29421d7a4b80a6)
       hono: 4.13.13
     optionalDependencies:
@@ -16852,13 +16852,13 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(4ded94bf05a058c4d301833388abca58)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       hono: 4.13.13
 
   '@warp-drive/holodeck@file:packages/holodeck(5a70a2788c4907e26503bd3b21ca013b)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       hono: 4.13.13
     optionalDependencies:
@@ -16867,7 +16867,7 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(7177c548027c2a74b121edf1bbb1c07d)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       '@warp-drive/core': file:warp-drive-packages/core(e0ff4349d3585fabae29421d7a4b80a6)
       hono: 4.13.13
     optionalDependencies:
@@ -16875,7 +16875,7 @@ snapshots:
 
   '@warp-drive/holodeck@file:packages/holodeck(a510bc545ed25bc6a53fefeb5da03d5b)':
     dependencies:
-      '@hono/node-server': 2.1.3(hono@4.13.13)
+      '@hono/node-server': 2.1.4(hono@4.13.13)
       '@warp-drive/core': file:warp-drive-packages/core(@babel/core@7.29.7)
       hono: 4.13.13
     optionalDependencies:
