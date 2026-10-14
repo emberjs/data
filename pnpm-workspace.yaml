@@ -499,7 +499,7 @@ overrides:
   testem: ~3.21.3
   typescript: 6.0.3
   lodash: ^4.18.1
-  caniuse-lite: ^1.0.30001814
+  caniuse-lite: ^1.0.30001815
   rollup: ^4.64.0
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
