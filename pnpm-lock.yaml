@@ -545,8 +545,8 @@ catalogs:
       specifier: ^2.0.0-alpha.20
       version: 2.0.0-alpha.20
     vitepress-plugin-group-icons:
-      specifier: ^1.7.6
-      version: 1.7.6
+      specifier: ^1.7.7
+      version: 1.7.7
     vitepress-plugin-llms:
       specifier: ^1.14.0
       version: 1.14.0
@@ -773,7 +773,7 @@ importers:
         version: 2.0.0-alpha.20(@types/node@26.6.5)(typescript@6.0.3)
       vitepress-plugin-group-icons:
         specifier: 'catalog:'
-        version: 1.7.6(vite@8.3.4(@types/node@26.6.5))
+        version: 1.7.7(vite@8.3.4(@types/node@26.6.5))
       vitepress-plugin-llms:
         specifier: 'catalog:'
         version: 1.14.0
@@ -12091,8 +12091,8 @@ packages:
       vite:
         optional: true
 
-  vitepress-plugin-group-icons@1.7.6:
-    resolution: {integrity: sha512-fXSpQAYHpFpEsZLKWQAwbRx/+0uRSHmY58YNAQcz0AVirGsM6w22jtSmQhOGLEj8ZKyeRtTJrpx6otUI6wvoaQ==}
+  vitepress-plugin-group-icons@1.7.7:
+    resolution: {integrity: sha512-bRTsUoSfAzH+LupakaeDWc4dECuFSdSjTHdfjJ/PW8pTOdpSEZjGfq4H0dYDcrK6zEsGlO+rRiZXr9WEPGWsPQ==}
     peerDependencies:
       vite: '>=3'
     peerDependenciesMeta:
@@ -17623,7 +17623,7 @@ snapshots:
       vite-plugin-image-optimizer: 2.0.3(561ef154a97fb74a4d20fa167ecc42d4)
       vite-plugin-pwa: 2.0.0(vite@8.3.4(@types/node@26.6.5))
       vitepress: 2.0.0-alpha.20(@types/node@26.6.5)(typescript@6.0.3)
-      vitepress-plugin-group-icons: 1.7.6(vite@8.3.4(@types/node@26.6.5))
+      vitepress-plugin-group-icons: 1.7.7(vite@8.3.4(@types/node@26.6.5))
       vitepress-plugin-llms: 1.14.0
       vitepress-plugin-mermaid: 2.0.17(f3b5bfe7fdacbcd26e4c952ba0994500)
       vitepress-plugin-tabs: 0.9.1(86e418e1fab32ffa08102709656d3a04)
@@ -22851,7 +22851,7 @@ snapshots:
     optionalDependencies:
       vite: 8.3.4
 
-  vitepress-plugin-group-icons@1.7.6(vite@8.3.4(@types/node@26.6.5)):
+  vitepress-plugin-group-icons@1.7.7(vite@8.3.4(@types/node@26.6.5)):
     dependencies:
       '@iconify-json/logos': 1.2.14
       '@iconify-json/vscode-icons': 1.2.82
