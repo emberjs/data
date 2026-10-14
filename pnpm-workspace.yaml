@@ -376,7 +376,7 @@ catalog:
   eslint-plugin-qunit: ^8.2.6
   execa: ^10.1.0
   expect-type: ^1.4.0
-  express: ^5.2.1
+  express: ^5.3.0
   front-matter: ^4.0.2
   fs-extra: ^11.4.1
   git-repo-version: ^1.0.2
