@@ -326,8 +326,8 @@ catalogs:
       specifier: ^2.0.0
       version: 2.0.0
     babel-plugin-ember-template-compilation:
-      specifier: ^4.0.0
-      version: 4.0.0
+      specifier: ^4.0.1
+      version: 4.0.1
     badge-maker:
       specifier: 6.0.0
       version: 6.0.0
@@ -1773,7 +1773,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -1878,7 +1878,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2166,7 +2166,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2319,7 +2319,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2457,7 +2457,7 @@ importers:
         version: file:warp-drive-packages/utilities(4ded94bf05a058c4d301833388abca58)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2536,7 +2536,7 @@ importers:
         version: file:warp-drive-packages/utilities(4ded94bf05a058c4d301833388abca58)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2632,7 +2632,7 @@ importers:
         version: file:tools/internal-config(766a6aeee9136d850b5a2f7544023e8a)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2713,7 +2713,7 @@ importers:
         version: file:tools/internal-config(766a6aeee9136d850b5a2f7544023e8a)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2803,7 +2803,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -2944,7 +2944,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3031,7 +3031,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3307,7 +3307,7 @@ importers:
         version: file:warp-drive-packages/utilities(4ded94bf05a058c4d301833388abca58)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3394,7 +3394,7 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3478,7 +3478,7 @@ importers:
         version: file:warp-drive-packages/utilities(4ded94bf05a058c4d301833388abca58)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3589,7 +3589,7 @@ importers:
         version: file:tools/internal-config(766a6aeee9136d850b5a2f7544023e8a)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -3901,7 +3901,7 @@ importers:
         version: file:tools/internal-config(aec12731b8654344b0d6d353a97aba3a)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
@@ -7928,6 +7928,10 @@ packages:
 
   babel-plugin-ember-template-compilation@4.0.0:
     resolution: {integrity: sha512-J2dR6ZPfPNuIR7vzhneO9xR0aTvOHITszuGif2EOYw3Qg3KlIVEd/hNnEeubyWgjYXn06Sgm6/NdNXEMNSsWYQ==}
+    engines: {node: '>= 18.*'}
+
+  babel-plugin-ember-template-compilation@4.0.1:
+    resolution: {integrity: sha512-t1o2O+91u4oLtku0sysC2nAuwBoyH9lDWmRoKHdAktt5fFaD8b2slKsWq2dyXrZ+/FW/jFa5rWdN3zK9VB0qvQ==}
     engines: {node: '>= 18.*'}
 
   babel-plugin-polyfill-corejs2@0.4.17:
@@ -18037,6 +18041,12 @@ snapshots:
       import-meta-resolve: 4.2.0
 
   babel-plugin-ember-template-compilation@4.0.0:
+    dependencies:
+      '@glimmer/syntax': 0.95.0
+      babel-import-util: 3.0.1
+      import-meta-resolve: 4.2.0
+
+  babel-plugin-ember-template-compilation@4.0.1:
     dependencies:
       '@glimmer/syntax': 0.95.0
       babel-import-util: 3.0.1
