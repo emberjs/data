@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "requireindex": "^1.2.0",
-    "ember-eslint-parser": "^0.14.6",
+    "ember-eslint-parser": "^0.14.9",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/utilities": "workspace:*"
   },
