@@ -393,7 +393,7 @@ catalog:
   oxlint: ^1.86.0
   oxlint-tsgolint: ^7.0.2003
   pretender: ^3.4.7
-  prettier: ^3.9.9
+  prettier: ^3.9.10
   prettier-plugin-ember-template-tag: ^2.1.8
   qunit: ^3.0.0
   qunit-console-grouper: ^0.3.0
@@ -504,7 +504,7 @@ overrides:
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
   "@babel/traverse": ^7.29.8
-  prettier: ^3.9.9
+  prettier: ^3.9.10
   "@types/node": "catalog:"
   "@vue/compiler-sfc": 3.5.43
   "@shikijs/langs": 4.5.0
