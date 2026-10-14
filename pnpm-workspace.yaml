@@ -403,7 +403,7 @@ catalog:
   semver: ^7.8.5
   sharp: ^0.35.5
   silent-error: ^1.1.1
-  svelte: ^5.57.1
+  svelte: ^5.57.2
   svgo: ^4.1.0
   terser: ^5.51.2
   testem: ^3.21.3
