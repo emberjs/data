@@ -1726,7 +1726,7 @@ importers:
         version: 7.29.9(@babel/core@7.29.7)
       '@babel/runtime':
         specifier: 'catalog:'
-        version: 7.29.7
+        version: 7.29.10
       '@ember/test-helpers':
         specifier: 'catalog:'
         version: 5.5.1(patch_hash=7680615b77300d92d3140102222390ad35a3f33ffd5cccafa1b9dd02f25f05db)(@babel/core@7.29.7)
@@ -1741,13 +1741,13 @@ importers:
         version: 1.21.3(@glint/template@1.9.0)
       '@embroider/vite':
         specifier: 'catalog:'
-        version: 1.7.15(371b098c35af02efe15360c6c11eb222)
+        version: 1.7.15(2571b9d66f6dcb46bacb769b3264bff9)
       '@glimmer/component':
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
         specifier: 1.11.6
-        version: 1.11.6(301a696b5edeb7879dfaa05e514d4f9e)
+        version: 1.11.6(10844881d947d72d54613cdf252ab2e7)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -1771,13 +1771,13 @@ importers:
         version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
       babel-plugin-ember-template-compilation:
         specifier: 'catalog:'
-        version: 4.0.0
+        version: 4.0.1
       decorator-transforms:
         specifier: 'catalog:'
         version: 2.4.0(@babel/core@7.29.7)
       ember-content-mapper:
         specifier: 'catalog:'
-        version: 0.3.1(301a696b5edeb7879dfaa05e514d4f9e)
+        version: 0.3.1(10844881d947d72d54613cdf252ab2e7)
       ember-modifier:
         specifier: 'catalog:'
         version: 4.3.0(@babel/core@7.29.7)
@@ -1810,13 +1810,13 @@ importers:
         version: 1.0.5
       typescript-7:
         specifier: 'catalog:'
-        version: typescript@7.1.0-dev.20261006.1
+        version: typescript@7.1.0-dev.20261011.1
       typescript-toastify:
         specifier: 'catalog:'
         version: 1.0.4
       vite:
         specifier: 'catalog:'
-        version: 8.3.3
+        version: 8.3.4
 
   packages/tutorials/todomvc-ember/solution:
     devDependencies:
