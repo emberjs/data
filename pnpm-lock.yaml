@@ -434,8 +434,8 @@ catalogs:
       specifier: ^1.0.2
       version: 1.0.2
     mermaid:
-      specifier: ^12.1.0
-      version: 12.1.0
+      specifier: ^12.2.0
+      version: 12.2.0
     mocha:
       specifier: ^12.0.3
       version: 12.0.3
@@ -734,7 +734,7 @@ importers:
         version: 1.0.2
       mermaid:
         specifier: 'catalog:'
-        version: 12.1.0
+        version: 12.2.0
       sharp:
         specifier: 'catalog:'
         version: 0.35.5(@types/node@26.6.5)
@@ -779,7 +779,7 @@ importers:
         version: 1.14.0
       vitepress-plugin-mermaid:
         specifier: 'catalog:'
-        version: 2.0.17(f3b5bfe7fdacbcd26e4c952ba0994500)
+        version: 2.0.17(b16dbb8a6957e668a8ae6ee3178d9d3c)
       vitepress-plugin-tabs:
         specifier: 'catalog:'
         version: 0.9.1(86e418e1fab32ffa08102709656d3a04)
@@ -8304,10 +8304,6 @@ packages:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
 
-  commander@8.3.0:
-    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
-    engines: {node: '>= 12'}
-
   comment-json@5.0.0:
     resolution: {integrity: sha512-uiqLcOiVDJtBP8WGkZHEP+FZIhTzP1dxvn59EfoYUi9gqupjrBWVQkO2atDrbnKPwLeotFYDsuNb26uBMqB+hw==}
     engines: {node: '>= 6'}
@@ -9957,8 +9953,8 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
-  katex@0.16.47:
-    resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
+  katex@0.18.10:
+    resolution: {integrity: sha512-/B6p9eY9DX7aHBfpkHdpirDTZ5QH9xTwL9y837PWuzuv41O5jFdqNQwVQEQsimY0/iVNkwBY4+4hMfhQ7d4Dbw==}
     hasBin: true
 
   keyv@5.6.0:
@@ -10231,8 +10227,8 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
-  mermaid@12.1.0:
-    resolution: {integrity: sha512-wlVCp+8eTupfCeeFvoZNNiTuHrvag0P2jz/ILgb/f/6jkVokUefOcujefi8qUe/j2asHiSePncVsz/xzzA80LQ==}
+  mermaid@12.2.0:
+    resolution: {integrity: sha512-w7nr/SFrLO7BaVTs3dQTvYSV6nYSBj0Yy9DjBhsIJtAcHqRzXSq4Pg32ujHZ/AdWsAMNEvvhbm5dt9E2tOiHzw==}
     engines: {node: '>=22.12.0'}
 
   micromark-core-commonmark@2.0.3:
@@ -17610,7 +17606,7 @@ snapshots:
       execa: 10.1.1
       front-matter: 4.0.2
       markdown-title: 1.0.2
-      mermaid: 12.1.0
+      mermaid: 12.2.0
       sharp: 0.35.5(@types/node@26.6.5)
       svgo: 4.1.0
       typedoc: 0.28.20(typescript@6.0.3)
@@ -17625,7 +17621,7 @@ snapshots:
       vitepress: 2.0.0-alpha.20(@types/node@26.6.5)(typescript@6.0.3)
       vitepress-plugin-group-icons: 1.7.7(vite@8.3.4(@types/node@26.6.5))
       vitepress-plugin-llms: 1.14.0
-      vitepress-plugin-mermaid: 2.0.17(f3b5bfe7fdacbcd26e4c952ba0994500)
+      vitepress-plugin-mermaid: 2.0.17(b16dbb8a6957e668a8ae6ee3178d9d3c)
       vitepress-plugin-tabs: 0.9.1(86e418e1fab32ffa08102709656d3a04)
       vue: 3.5.43(typescript@6.0.3)
     transitivePeerDependencies:
@@ -18504,8 +18500,6 @@ snapshots:
   commander@2.20.3: {}
 
   commander@7.2.0: {}
-
-  commander@8.3.0: {}
 
   comment-json@5.0.0:
     dependencies:
@@ -20319,9 +20313,9 @@ snapshots:
 
   jsonpointer@5.0.1: {}
 
-  katex@0.16.47:
+  katex@0.18.10:
     dependencies:
-      commander: 8.3.0
+      commander: 15.0.0
 
   keyv@5.6.0:
     dependencies:
@@ -20623,7 +20617,7 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  mermaid@12.1.0:
+  mermaid@12.2.0:
     dependencies:
       '@braintree/sanitize-url': 7.1.2
       '@iconify/utils': 3.1.7
@@ -20641,7 +20635,7 @@ snapshots:
       dompurify: 3.4.16
       elkjs: 0.9.3
       es-toolkit: 1.52.0
-      katex: 0.16.47
+      katex: 0.18.10
       khroma: 2.1.0
       marked: 16.4.2
       roughjs: 4.6.6
@@ -22878,9 +22872,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vitepress-plugin-mermaid@2.0.17(f3b5bfe7fdacbcd26e4c952ba0994500):
+  vitepress-plugin-mermaid@2.0.17(b16dbb8a6957e668a8ae6ee3178d9d3c):
     dependencies:
-      mermaid: 12.1.0
+      mermaid: 12.2.0
       vitepress: 2.0.0-alpha.20(@types/node@26.6.5)(typescript@6.0.3)
       vue: 3.5.43(typescript@6.0.3)
     optionalDependencies:
