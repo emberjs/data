@@ -1,8 +1,8 @@
-import type { NativeArray } from '@ember/array';
-import { A } from '@ember/array';
-import DataAdapter from '@ember/debug/data-adapter';
 import { addObserver, removeObserver } from '@ember/object/observers';
+import type Owner from '@ember/owner';
+import { getOwner, setOwner } from '@ember/owner';
 import * as s from '@ember/service';
+import { createCache, getValue } from '@glimmer/tracking/primitives/cache';
 
 import { getGlobalConfig, macroCondition } from '@embroider/macros';
 
@@ -117,6 +117,151 @@ function installDebugInfo(ModelKlass: typeof Model) {
   (ModelKlass.prototype as unknown as { _debugInfo: typeof debugInfo })._debugInfo = debugInfo;
 }
 
+type Cache<T> = ReturnType<typeof createCache<T>>;
+type RecordCallback = (records: WrappedRecord<Model>[]) => void;
+
+/**
+  Calls `fn` once for each record, then lets the inspector know which
+  records were added, updated, and removed since the last call.
+
+  A record is "updated" when something `wrapRecord` read for it changed.
+  This uses autotracking through the public cache primitives, so the
+  inspector sees the same values the app renders.
+
+  @private
+*/
+class RecordsWatcher {
+  declare records: Model[];
+  declare wrapRecord: (record: Model) => WrappedRecord<Model>;
+  declare recordsAdded: RecordCallback;
+  declare recordsUpdated: RecordCallback;
+  declare recordsRemoved: RecordCallback;
+  declare release: () => void;
+
+  declare watchRecord: (record: Model) => () => void;
+
+  recordCaches: Map<Model, Cache<void>> = new Map();
+  unwatchRecord: Map<Model, () => void> = new Map();
+  added: WrappedRecord<Model>[] = [];
+  updated: WrappedRecord<Model>[] = [];
+  declare recordArrayCache: Cache<Set<Model>>;
+
+  constructor(
+    records: Model[],
+    recordsAdded: RecordCallback,
+    recordsUpdated: RecordCallback,
+    recordsRemoved: RecordCallback,
+    wrapRecord: (record: Model) => WrappedRecord<Model>,
+    watchRecord: (record: Model) => () => void,
+    release: () => void
+  ) {
+    this.records = records;
+    this.watchRecord = watchRecord;
+    this.recordsAdded = recordsAdded;
+    this.recordsUpdated = recordsUpdated;
+    this.recordsRemoved = recordsRemoved;
+    this.wrapRecord = wrapRecord;
+    this.release = () => {
+      this.unwatchRecord.forEach((unwatch) => unwatch());
+      this.unwatchRecord.clear();
+      release();
+    };
+
+    this.recordArrayCache = createCache(() => {
+      const seen = new Set<Model>();
+      for (const record of this.records) {
+        getValue(this.getCacheForItem(record));
+        seen.add(record);
+      }
+      return seen;
+    });
+  }
+
+  getCacheForItem(record: Model): Cache<void> {
+    let recordCache = this.recordCaches.get(record);
+
+    if (!recordCache) {
+      let hasBeenAdded = false;
+
+      recordCache = createCache(() => {
+        if (!hasBeenAdded) {
+          this.added.push(this.wrapRecord(record));
+          hasBeenAdded = true;
+        } else {
+          this.updated.push(this.wrapRecord(record));
+        }
+      });
+
+      this.recordCaches.set(record, recordCache);
+      this.unwatchRecord.set(record, this.watchRecord(record));
+    }
+
+    return recordCache;
+  }
+
+  revalidate(): void {
+    const seen = getValue(this.recordArrayCache)!;
+
+    // Find removed records outside of the cache, so that reading the wrapped
+    // values of removed records is not tracked.
+    const removed: WrappedRecord<Model>[] = [];
+    this.recordCaches.forEach((_cache, record) => {
+      if (!seen.has(record)) {
+        removed.push(this.wrapRecord(record));
+        this.recordCaches.delete(record);
+        this.unwatchRecord.get(record)?.();
+        this.unwatchRecord.delete(record);
+      }
+    });
+
+    if (this.added.length > 0) {
+      const added = this.added;
+      this.added = [];
+      this.recordsAdded(added);
+    }
+
+    if (this.updated.length > 0) {
+      const updated = this.updated;
+      this.updated = [];
+      this.recordsUpdated(updated);
+    }
+
+    if (removed.length > 0) {
+      this.recordsRemoved(removed);
+    }
+  }
+}
+
+/**
+  Calls `onChange` when the records of a type change, after the first check.
+
+  @private
+*/
+class TypeWatcher {
+  declare cache: Cache<void>;
+  declare release: () => void;
+
+  constructor(records: Model[], onChange: () => void, release: () => void) {
+    let hasBeenAccessed = false;
+    this.release = release;
+
+    this.cache = createCache(() => {
+      // Iterate only to track changes to the records array
+      Array.from(records);
+
+      if (hasBeenAccessed) {
+        onChange();
+      } else {
+        hasBeenAccessed = true;
+      }
+    });
+  }
+
+  revalidate(): void {
+    getValue(this.cache);
+  }
+}
+
 function typesMapFor(store: Store): Map<string, boolean> {
   let typesMap = StoreTypesMap.get(store);
 
@@ -129,13 +274,57 @@ function typesMapFor(store: Store): Map<string, boolean> {
 }
 
 /**
-  Implements `@ember/debug/data-adapter` with for EmberData
-  integration with the ember-inspector.
+  The data adapter for the ember-inspector's Data tab.
+
+  The inspector looks it up as `data-adapter:main` and uses only
+  `attributeLimit`, `acceptsModelName`, `getFilters`, `watchModelTypes`
+  and `watchRecords`. This class gives that contract itself instead of
+  extending `@ember/debug/data-adapter`. The Ember class watches records
+  with private Ember APIs and a backburner hook. Here, changes come from
+  the store's notifications, and change detection uses the public cache
+  primitives.
 
   @private
 */
-class InspectorDataAdapter extends DataAdapter<Model> {
+class InspectorDataAdapter {
   @service('store') declare store: Store;
+
+  /**
+    The number of attributes to send as columns.
+    The inspector sets this to 100.
+
+    @private
+  */
+  attributeLimit = 3;
+
+  /**
+    Tells the inspector to call `watchRecords` with a model name.
+
+    @private
+  */
+  acceptsModelName = true;
+
+  /**
+    Methods to call on destruction to remove all watchers.
+
+    @private
+  */
+  releaseMethods: Array<() => void> = [];
+
+  recordsWatchers: Map<Model[], RecordsWatcher> = new Map();
+  typeWatchers: Map<Model[], TypeWatcher> = new Map();
+  isDestroyed = false;
+
+  #unsubscribe: (() => void) | null = null;
+  #isFlushScheduled = false;
+
+  static create<T extends InspectorDataAdapter>(this: new (owner: Owner) => T, props: object): T {
+    return new this(getOwner(props)!);
+  }
+
+  constructor(owner: Owner) {
+    setOwner(this, owner);
+  }
 
   /**
     Specifies how records can be filtered based on the state of the record
@@ -203,9 +392,12 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       discoveredTypes.forEach((value, key) => {
         discoveredTypes.set(key, false);
       });
-      this.releaseMethods.removeObject(release);
+      const index = this.releaseMethods.indexOf(release);
+      if (index !== -1) {
+        this.releaseMethods.splice(index, 1);
+      }
     };
-    this.releaseMethods.pushObject(release);
+    this.releaseMethods.push(release);
     return release;
   }
 
@@ -230,6 +422,175 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       releaseMethods.push(this.observeModelType(type, typesUpdated));
       typesAdded([wrapped]);
       discoveredTypes.set(type, true);
+    }
+  }
+
+  /**
+    Fetch the records of a given type and observe them for changes.
+
+    @private
+    @return Method to call to remove the watcher
+  */
+  watchRecords(
+    modelName: string,
+    recordsAdded: RecordCallback,
+    recordsUpdated: RecordCallback,
+    recordsRemoved: RecordCallback
+  ): () => void {
+    const klass = this._nameToClass(modelName);
+    const records = this.getRecords(klass, modelName);
+    const { recordsWatchers } = this;
+
+    let recordsWatcher = recordsWatchers.get(records);
+
+    if (!recordsWatcher) {
+      recordsWatcher = new RecordsWatcher(
+        records,
+        recordsAdded,
+        recordsUpdated,
+        recordsRemoved,
+        (record) => this.wrapRecord(record),
+        (record) => this.watchRecordChanges(record),
+        () => {
+          recordsWatchers.delete(records);
+          this.updateSubscription();
+        }
+      );
+
+      recordsWatchers.set(records, recordsWatcher);
+      this.updateSubscription();
+
+      recordsWatcher.revalidate();
+    }
+
+    return recordsWatcher.release;
+  }
+
+  /**
+    Observes the records of a type, and calls `typesUpdated` when they change.
+
+    @private
+    @return Method to call to remove the watcher
+  */
+  observeModelType(modelName: string, typesUpdated: WrappedTypeCallback): () => void {
+    const klass = this._nameToClass(modelName);
+    const records = this.getRecords(klass, modelName);
+    const { typeWatchers } = this;
+
+    let typeWatcher = typeWatchers.get(records);
+
+    if (!typeWatcher) {
+      typeWatcher = new TypeWatcher(
+        records,
+        () => typesUpdated([this.wrapModelType(klass, modelName)]),
+        () => {
+          typeWatchers.delete(records);
+          this.updateSubscription();
+        }
+      );
+
+      typeWatchers.set(records, typeWatcher);
+      this.updateSubscription();
+
+      typeWatcher.revalidate();
+    }
+
+    return typeWatcher.release;
+  }
+
+  /**
+    Subscribes to store notifications while there are watchers.
+    A notification schedules one check of all watchers.
+
+    @private
+  */
+  updateSubscription(): void {
+    const hasWatchers = this.typeWatchers.size > 0 || this.recordsWatchers.size > 0;
+
+    if (hasWatchers && this.#unsubscribe === null) {
+      const { store } = this;
+      const token = store.notifications.subscribe('resource', () => this.scheduleFlush());
+      this.#unsubscribe = () => store.notifications.unsubscribe(token);
+    } else if (!hasWatchers && this.#unsubscribe !== null) {
+      this.#unsubscribe();
+      this.#unsubscribe = null;
+    }
+  }
+
+  /**
+    Schedules a check of all watchers when the record changes.
+    The `'resource'` subscription only gets added and removed records,
+    so each watched record needs its own subscription for its fields and state.
+
+    @private
+    @return Method to call to unsubscribe
+  */
+  watchRecordChanges(record: Model): () => void {
+    const { store } = this;
+    const token = store.notifications.subscribe(recordIdentifierFor(record), () => this.scheduleFlush());
+    return () => store.notifications.unsubscribe(token);
+  }
+
+  scheduleFlush(): void {
+    if (this.#isFlushScheduled) {
+      return;
+    }
+    this.#isFlushScheduled = true;
+
+    queueMicrotask(() => {
+      this.#isFlushScheduled = false;
+      if (this.isDestroyed) {
+        return;
+      }
+      this.typeWatchers.forEach((watcher) => watcher.revalidate());
+      this.recordsWatchers.forEach((watcher) => watcher.revalidate());
+    });
+  }
+
+  /**
+    Wraps a model type with its record count and columns.
+
+    @private
+  */
+  wrapModelType<N extends string>(klass: ModelSchema, name: N): WrappedType<N> {
+    const records = this.getRecords(klass, name);
+
+    return {
+      name,
+      count: records.length,
+      columns: this.columnsForType(klass),
+      object: klass,
+    };
+  }
+
+  /**
+    Wraps a record with the values the inspector shows.
+
+    @private
+  */
+  wrapRecord(record: Model): WrappedRecord<Model> {
+    return {
+      object: record,
+      columnValues: this.getRecordColumnValues(record),
+      searchKeywords: this.getRecordKeywords(record),
+      filterValues: this.getRecordFilterValues(record),
+      color: this.getRecordColor(record),
+    };
+  }
+
+  destroy(): void {
+    if (this.isDestroyed) {
+      return;
+    }
+    this.isDestroyed = true;
+
+    this.typeWatchers.forEach((watcher) => watcher.release());
+    this.recordsWatchers.forEach((watcher) => watcher.release());
+    this.releaseMethods.slice().forEach((fn) => fn());
+
+    if (this.#unsubscribe !== null) {
+      this.#unsubscribe();
+      this.#unsubscribe = null;
     }
   }
 
@@ -292,7 +653,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       }
     }
     assert('Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support', !!modelName);
-    return this.store.peekAll(modelName) as unknown as NativeArray<Model>;
+    return this.store.peekAll(modelName) as unknown as Model[];
   }
 
   /**
@@ -322,7 +683,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
     @private
     @return Relevant keywords for search based on the record's attribute values
   */
-  getRecordKeywords<T extends Model>(record: T): NativeArray<unknown> {
+  getRecordKeywords<T extends Model>(record: T): unknown[] {
     const keywords: unknown[] = [record.id];
     const keys = ['id'];
 
@@ -331,7 +692,7 @@ class InspectorDataAdapter extends DataAdapter<Model> {
       keywords.push(record[key as keyof T]);
     });
 
-    return A(keywords);
+    return keywords;
   }
 
   /**
