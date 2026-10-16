@@ -350,7 +350,7 @@ export class RequestSubscription<RT, E> {
   private async _beginPolling() {
     // read the initial request separately from awaiting it, errors thrown while
     // reading args (e.g. a throwing `@request` getter) must not be ignored
-    let initialRequest: Future<RT> | null = null;
+    let initialRequest: Future<RT> | null;
     try {
       initialRequest = this.isIdle ? null : this.request;
     } catch (e) {

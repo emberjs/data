@@ -427,22 +427,28 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       },
     };
 
-    const reasons: unknown[] = [];
+    // the browser dispatches `unhandledrejection` as its own task, so wait for the event
+    // rather than a fixed tick.
+    const rejection = createDeferred<unknown>();
     const onRejection = (event: PromiseRejectionEvent) => {
       event.preventDefault();
-      reasons.push(event.reason);
+      rejection.resolve(event.reason);
     };
     window.addEventListener('unhandledrejection', onRejection);
 
+    let reason: unknown;
     try {
       createRequestSubscription(this.store, args);
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      reason = await Promise.race([
+        rejection.promise,
+        new Promise((resolve) => setTimeout(() => resolve(undefined), 1000)),
+      ]);
     } finally {
       window.removeEventListener('unhandledrejection', onRejection);
     }
 
     const messages: string[] = [];
-    for (let e = reasons[0] as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
+    for (let e = reason as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
       messages.push(String(e.message));
     }
 
