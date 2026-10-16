@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/tutorials",
   "description": "Starter and solution apps for the WarpDrive tutorials",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.17",
   "license": "MIT",
   "type": "module",
   "private": true,

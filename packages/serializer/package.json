@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/serializer",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.17",
   "description": "(Legacy) JSON, REST and JSON:API implementations of the Serializer interface, re-exported from `@warp-drive/legacy/serializer`; new apps should normalize data in request handlers instead.",
   "keywords": [
     "ember-addon"

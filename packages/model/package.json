@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/model",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.17",
   "description": "(Legacy) `Model` class and its `attr`, `belongsTo` and `hasMany` decorators, re-exported from `@warp-drive/legacy/model`; new apps should define schemas for `@warp-drive/core` instead.",
   "keywords": [
     "ember-addon"
