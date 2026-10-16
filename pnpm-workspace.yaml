@@ -322,7 +322,7 @@ catalog:
   "@html-next/vertical-collection": ^5.0.5
   "@jridgewell/trace-mapping": ^0.3.31
   "@mdit/plugin-footnote": ^1.1.2
-  "@nullvoxpopuli/ember-rolldown": ^2.10.0
+  "@nullvoxpopuli/ember-rolldown": ^2.11.0
   "@pnpm/find-workspace-dir": 1000.1.5
   "@pnpm/find-workspace-packages": 6.0.9
   "@pnpm/logger": 1100.0.0
@@ -431,7 +431,7 @@ catalog:
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-llms: ^1.14.0
   vitepress-plugin-tabs: ^0.9.1
-  vitest: ^5.0.3
+  vitest: ^5.0.4
   vue: ^3.5.43
   vue-tsc: ^3.3.13
   winston: ^3.19.0
@@ -500,7 +500,7 @@ overrides:
   typescript: 6.0.3
   lodash: ^4.18.1
   caniuse-lite: ^1.0.30001816
-  rollup: ^4.64.5
+  rollup: ^4.64.6
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
   "@babel/traverse": ^7.29.10
