@@ -412,11 +412,10 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     assert.verifySteps([`request: GET ${url}`]);
   });
 
-  test('errors thrown while reading args are surfaced rather than swallowed', function (assert) {
+  test('errors thrown while reading args are surfaced rather than swallowed', async function (assert) {
     // A throwing arg (e.g. `@request={{this.buildRequest}}` where the getter throws)
-    // is only evaluated once successfully-or-not by the underlying reference, and
-    // reads as `undefined` afterwards. The subscription must not swallow the first
-    // read's error, or the user only ever sees a misleading "must provide @request" error.
+    // reads as `undefined` after its first read. The subscription must not swallow the
+    // first read's error, or the user only ever sees a misleading "must provide @request" error.
     let reads = 0;
     const args = {
       get request(): Future<unknown> | undefined {
@@ -428,15 +427,22 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
       },
     };
 
-    let thrown: unknown;
+    const reasons: unknown[] = [];
+    const onRejection = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+      reasons.push(event.reason);
+    };
+    window.addEventListener('unhandledrejection', onRejection);
+
     try {
-      void createRequestSubscription(this.store, args).request;
-    } catch (e) {
-      thrown = e;
+      createRequestSubscription(this.store, args);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    } finally {
+      window.removeEventListener('unhandledrejection', onRejection);
     }
 
     const messages: string[] = [];
-    for (let e = thrown as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
+    for (let e = reasons[0] as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
       messages.push(String(e.message));
     }
 

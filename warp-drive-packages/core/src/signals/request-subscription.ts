@@ -340,19 +340,23 @@ export class RequestSubscription<RT, E> {
     this.isDestroyed = false;
     this[DISPOSE] = _DISPOSE;
 
-    // Evaluate the initial request synchronously so that an error thrown
-    // while reading args (e.g. a throwing `@request` getter) surfaces to
-    // the caller instead of being swallowed while awaiting below.
-    const initialRequest = this.isIdle ? null : this.request;
-
     this._installListeners();
-    void this._beginPolling(initialRequest);
+    void this._beginPolling();
   }
 
   /**
    * @internal
    */
-  private async _beginPolling(initialRequest: Future<RT> | null) {
+  private async _beginPolling() {
+    // read the initial request separately from awaiting it, errors thrown while
+    // reading args (e.g. a throwing `@request` getter) must not be ignored
+    let initialRequest: Future<RT> | null = null;
+    try {
+      initialRequest = this.isIdle ? null : this.request;
+    } catch (e) {
+      throw new Error(`Unable to begin polling the request`, { cause: e });
+    }
+
     // await the initial request
     try {
       if (initialRequest) {
