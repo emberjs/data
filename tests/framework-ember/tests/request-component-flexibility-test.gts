@@ -411,4 +411,35 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
+
+  test('errors thrown while reading args are surfaced rather than swallowed', function (assert) {
+    // A throwing arg (e.g. `@request={{this.buildRequest}}` where the getter throws)
+    // is only evaluated once successfully-or-not by the underlying reference, and
+    // reads as `undefined` afterwards. The subscription must not swallow the first
+    // read's error, or the user only ever sees a misleading "must provide @request" error.
+    let reads = 0;
+    const args = {
+      get request(): Future<unknown> | undefined {
+        reads++;
+        if (reads === 1) {
+          throw new Error('hidden');
+        }
+        return undefined;
+      },
+    };
+
+    let thrown: unknown;
+    try {
+      createRequestSubscription(this.store, args).request;
+    } catch (e) {
+      thrown = e;
+    }
+
+    const messages: string[] = [];
+    for (let e = thrown as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
+      messages.push(String(e.message));
+    }
+
+    assert.true(messages.includes('hidden'), `the original error is surfaced, saw: ${messages.join(' <- ')}`);
+  });
 });
