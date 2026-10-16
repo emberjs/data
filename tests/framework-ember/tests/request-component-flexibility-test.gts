@@ -430,7 +430,7 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
 
     let thrown: unknown;
     try {
-      createRequestSubscription(this.store, args).request;
+      void createRequestSubscription(this.store, args).request;
     } catch (e) {
       thrown = e;
     }
