@@ -1,236 +1,319 @@
 ---
 title: Advanced Handlers
-description: Write Handler objects that use RequestContext, setStream, setResponse, and next to retry errors, handle aborts, and curry streams down the chain; draft page.
-draft: true
+description: Learn what a request handler receives and can return, how handlers run in order, how responses and streams pass along the chain, and how to retry errors and handle aborts.
 ---
 
+# Advanced Handlers
 
-`manager.request` returns a `Future`, which allows access to limited information about the request while it is still pending and fulfills with the final state when the request completes and the response has been read.
+A handler is one step in the chain a [RequestManager](/api/@warp-drive/core/classes/RequestManager)
+runs every request through. [Handlers](./handlers.md) walks through writing a first one. This page
+explains how handlers work in detail, then how to use that to retry failed requests and handle
+aborts.
 
-```ts
-const usersFuture = manager.request({
-  url: `/api/v1/users.list`
-});
-```
+## What a Handler Receives and Returns
 
-A `Future` is cancellable via `abort`.
+A handler is any object with a `request(context, next)` method. The method must return a promise,
+so most handlers are `async` functions; in development, returning anything else throws.
 
-```ts
-usersFuture.abort();
-```
+It receives two arguments:
 
-Handlers may *optionally* expose a `ReadableStream` to the `Future` for streaming data; however, when doing so the handler should not resolve until it has fully read the response stream itself.
+- **`context`** describes the request being handled:
+  - `context.request` is the request: its `url`, `method`, `headers`, `signal` and any other
+    [request options](./index.md#request-options). It is read-only, and in development it is
+    frozen. To change it, pass a copy to `next`, such as
+    `Object.assign({}, context.request, { headers })`, and build new headers with
+    `new Headers(context.request.headers)`.
+  - `context.setResponse(response)` records the response for this handler: a native `Response`,
+    or an object with the same `status`, `headers` and other fields. Call it at most once.
+  - `context.setStream(stream)` gives the application a stream of the response body. Call it at
+    most once. [Passing Streams Along the Chain](#passing-streams-along-the-chain) explains when
+    you need it.
+- **`next(request)`** passes a request on to the next handler. It returns a
+  [Future](/api/@warp-drive/core/request/types/Future), a promise that resolves with
+  `{ request, response, content }` or rejects with an error.
 
-```ts
-interface Future<T> extends Promise<StructuredDocument<T>> {
-  abort(): void;
+A handler either answers the request itself or calls `next` and returns what it gets back. It can
+return:
 
-  async getStream(): ReadableStream | null;
-}
-```
+- **Any value.** That value becomes the request's `content`.
+- **The `{ request, response, content }` object that `next` resolved with.** Its `content` becomes
+  the request's `content`; the `request` and `response` are this handler's own, as
+  [What a Handler Sees of the Response](#what-a-handler-sees-of-the-response) describes.
+- **The Future that `next` returned**, without awaiting it. The request's content, response and
+  stream all come straight from the next handler, and so do its errors.
 
-A Future resolves or rejects with a `StructuredDocument`.
+In the examples on this page, `T` is the type of the request's content.
 
-```ts
-interface StructuredDocument<T> {
-  request: RequestInfo;
-  response: ResponseInfo | null;
-  content?: T;
-  error?: Error;
-}
-```
+This handler answers requests for `/settings` from `localStorage` and passes every other request
+along:
 
-The `RequestInfo` specified by `document.request` is the same as originally provided to `manager.request`. If any handler fulfilled this request using different request info it is not represented here. This contract helps to ensure that `retry` and `caching` are possible since the original arguments are correctly preserved. This also allows handlers to "fork" the request or fulfill from multiple sources without the details of fulfillment muddying the original request.
-
-The `ResponseInfo` is a serializable fulfilled subset of a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) if set via `setResponse`. If no response was ever set this will be `null`.
-
-```ts
-/**
- * All readonly properties available on a Response
- *
- */
-interface ResponseInfo {
-  headers?: Record<string, string>;
-  ok?: boolean;
-  redirected?: boolean;
-  status?: HTTPStatusCode;
-  statusText?: string;
-  type?: 'basic' | 'cors';
-  url?: string;
-}
-```
-
----
-
-### Request Handlers
-
-Requests are fulfilled by handlers. A handler receives the request context
-as well as a `next` function with which to pass along a request to the next
-handler if it so chooses.
-
-A handler may be any object with a `request` method. This allows both stateful and non-stateful
-handlers to be utilized.
-
-If a handler calls `next`, it receives a `Future` which resolves to a `StructuredDocument`
-that it can then compose how it sees fit with its own response.
-
-```ts
-
-type NextFn<P> = (req: RequestInfo) => Future<P>;
-
-interface Handler {
-  async request<T>(context: RequestContext, next: NextFn<P>): T;
-}
-```
-
-`RequestContext` contains a readonly version of the `RequestInfo` as well as a few methods for building up the `StructuredDocument` and `Future` that will be part of the response.
-
-```ts
-interface RequestContext<T> {
-  readonly request: RequestInfo;
-
-  setStream(stream: ReadableStream | Promise<ReadableStream>): void;
-  setResponse(response: Response | ResponseInfo): void;
-}
-```
-
-A basic `fetch` handler with support for streaming content updates while
-the download is still underway might look like the following, where we use
-[`response.clone()`](https://developer.mozilla.org/en-US/docs/Web/API/Response/clone) to `tee` the `ReadableStream` into two streams.
-
-A more efficient handler might read from the response stream, building up the
-response content before passing along the chunk downstream.
-
-```ts
-import type { Handler } from '@warp-drive/core/request';
+```ts [settings-handler.ts]
+import type { Handler, NextFn } from '@warp-drive/core/request';
 import type { RequestContext } from '@warp-drive/core/types/request';
 
-const FetchHandler: Handler = {
-  async request<T>(context: RequestContext) {
-    const response = await fetch(context.request);
-    context.setResponse(response);
-    context.setStream(response.clone().body);
+export const SettingsHandler: Handler = {
+  request<T>(context: RequestContext, next: NextFn<T>) {
+    if (context.request.url !== '/settings') {
+      return next(context.request);
+    }
 
-    return response.json();
-  }
-}
+    context.setResponse(new Response(null, { status: 200 }));
+    return Promise.resolve(JSON.parse(localStorage.getItem('settings') ?? '{}') as T);
+  },
+};
 ```
 
-Request handlers are registered by configuring the manager via `use`
+The API docs for [Handler](/api/@warp-drive/core/request/types/Handler),
+[NextFn](/api/@warp-drive/core/request/types/NextFn) and
+[RequestContext](/api/@warp-drive/core/types/request/types/RequestContext) have the full
+signatures.
+
+## Handler Order
+
+`use` registers handlers in the order they will run:
 
 ```ts
-manager.use([Handler1, Handler2])
+const manager = new RequestManager().use([A, B, C]);
 ```
 
-Handlers will be invoked in the order they are registered ("fifo", first-in first-out), and may only be registered up until the first request is made. It is recommended, but not required to register all handlers at one time in order to ensure explicitly visible handler ordering.
+A request goes to `A` first. When `A` calls `next`, the request goes to `B`, and when `B` calls
+`next`, it goes to `C`. The last handler must answer the request itself; in development, calling
+`next` from it throws "No handler was able to handle this request". The result then travels back
+the other way: `C`'s result is what `B`'s `next` call resolves with, and what `A` returns is what
+the application receives.
 
----
+You can call `use` more than once, and each call adds to the end of the list. Register every
+handler before the first request; in development, calling `use` after that throws. Registering
+them all in one call keeps the order easy to see. A cache handler registered with
+[useCache](/api/@warp-drive/core/classes/RequestManager#usecache), such as the
+[CacheHandler](/api/@warp-drive/core/variables/CacheHandler) a `Store` uses, always runs before
+all of them, so it can answer a request from the cache before any other handler sees it. See
+[Caching](../caching/index.md) for how it decides.
 
-#### Handling Errors
+## What a Handler Sees of the Response
 
-Each handler in the chain can catch errors from upstream and choose to
-either handle the error, re-throw the error, or throw a new error.
+Awaiting `next` gives a handler an object of the same `{ request, response, content }` shape the
+application gets, described in [Using The Response](./using-the-response.md). From inside the chain:
+
+- **`request`** is the request this handler passed to `next`, not the one the application made.
+  Each handler's own result carries the request it received, so the application always gets back
+  its original request.
+- **`response`** is the response a later handler recorded with `setResponse`, or `null` if none
+  did. When that was a native `Response`, as it is for the
+  [Fetch](/api/@warp-drive/core/variables/Fetch) handler, this is a read-only copy of its `status`,
+  `statusText`, `ok`, `headers`, `url`, `type` and `redirected`, called a
+  [ResponseInfo](/api/@warp-drive/core/types/request/types/ResponseInfo). It has no body: the Fetch
+  handler has already read the body into `content`. Treat it as read-only. In development its
+  `headers` throw if you change them; `headers.clone()` returns an editable copy.
+- **`content`** is whatever the next handler returned.
+
+If a handler does not call `setResponse` and calls `next` exactly once, the response from `next`
+becomes its own response. If it calls `next` more than once, its response is `null` unless it sets
+one or returns a Future from `next`.
+
+This handler logs each request's status and duration and returns the content unchanged:
+
+```ts [timing-handler.ts]
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { RequestContext } from '@warp-drive/core/types/request';
+
+export const TimingHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    const start = performance.now();
+    const { response, content } = await next(context.request);
+
+    console.log(`${context.request.url}: ${response?.status} in ${performance.now() - start}ms`);
+    return content;
+  },
+};
+```
+
+When `next` rejects, the error carries the same `request` and `response`, plus the `content`
+received before the failure, if any. The
+[StructuredDocument](/api/@warp-drive/core/types/request/types/StructuredDocument) API docs have
+both shapes.
+
+## Passing Streams Along the Chain
+
+`await fetch()` resolves as soon as the response headers arrive, so the application can read the
+body while it downloads. `await manager.request()` resolves only after the handlers have read the
+body. To read it as it arrives, the application calls `getStream()` on the Future, which resolves
+with a [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream) of the
+body, or `null`. The Fetch handler only creates that stream when the application asks for it.
+
+Each handler's result has its own stream, which the handler sets with `context.setStream`. It can
+do so at most once, at any time until its `request` method resolves. So a handler that awaits
+`next` should hand the next handler's stream along right away:
 
 ```ts
 import type { Handler, NextFn } from '@warp-drive/core/request';
 import type { RequestContext } from '@warp-drive/core/types/request';
 
+export const LoggingHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    const future = next(context.request);
+    context.setStream(future.getStream()); // pass the stream along now
+
+    const { content } = await future;
+    console.log(`loaded ${context.request.url}`);
+    return content;
+  },
+};
+```
+
+Without that line, the next handler's stream is only passed along once this handler has
+finished, as the next section describes. By then the whole body has downloaded, which defeats the
+point of streaming it.
+
+A handler that calls `next` more than once has several streams. It can pick one to pass along,
+combine them into one or set none. A handler that reads the stream itself can pass along a
+different stream, or none.
+
+## Automatic Currying of Stream and Response
+
+"Currying" here is not the functional-programming term. It means a handler's result takes its
+response, stream or content from the result of its `next` call. ***Warp*Drive** does this for you in the common case of a handler that calls
+`next` once:
+
+- **Response:** if the handler never calls `setResponse`, it gets the response from `next`, as
+  [What a Handler Sees of the Response](#what-a-handler-sees-of-the-response) describes.
+- **Stream:** if the handler never calls `setStream` and never calls `getStream` on the Future from
+  `next`, it gets the stream from `next` once it finishes.
+- **Everything, immediately:** if the handler returns the Future from `next` itself, its content,
+  response, errors and stream all come from that Future, and the stream is passed along at once.
+
+The last case only applies when the `request` method returns the Future itself. An `async`
+function always returns a new promise, so `async request(context, next) { return next(context.request); }`
+gets the first two behaviors but not the third. To pass everything along at once, drop `async`:
+
+```ts
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { RequestContext } from '@warp-drive/core/types/request';
+
+export const PassThroughHandler: Handler = {
+  request<T>(context: RequestContext, next: NextFn<T>) {
+    return next(context.request);
+  },
+};
+```
+
+## Handling Errors
+
+When a handler later in the chain throws, the error rejects the `next` call of each handler
+before it, in reverse order. So each handler can catch errors from the handlers after it and
+choose to handle the error, re-throw it or throw a new one.
+
+This handler retries a request that timed out. It checks the request's `signal` first, so a
+request the application aborted is never retried.
+
+```ts [retry-handler.ts]
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { RequestContext } from '@warp-drive/core/types/request';
+
 const MAX_RETRIES = 5;
-const AuthHandler: Handler = {
+
+// The Fetch handler rejects with a FetchError whose `status` is the
+// response's HTTP status. Choose the errors worth retrying for your API.
+function isTimeoutError(e: unknown): boolean {
+  const error = e as { isRequestError?: boolean; status?: number };
+  return error.isRequestError === true && (error.status === 408 || error.status === 504);
+}
+
+export const RetryHandler: Handler = {
   async request<T>(context: RequestContext, next: NextFn<T>) {
     let attempts = 0;
 
-    while (attempts < MAX_RETRIES) {
+    while (true) {
       attempts++;
       try {
-        const response = await next(context.request);
-        return response;
+        const result = await next(context.request);
+        // after more than one call to next, the response is not passed along for us
+        context.setResponse(result.response);
+        return result;
       } catch (e) {
+        // never retry a request that was aborted
+        if (context.request.signal?.aborted) throw e;
+
         if (isTimeoutError(e) && attempts < MAX_RETRIES) {
-          // retry request
           continue;
         }
-        // rethrow if it is not a timeout error
         throw e;
       }
     }
-  }
-}
+  },
+};
 ```
 
----
+Because it may call `next` more than once, the handler sets the response itself; otherwise the
+application would get a `null` response for any request that needed a retry.
 
-#### Handling Abort
-
-Aborting a request will reject the current handler in the chain. However,
-every handler can potentially catch this error. If your handler needs to
-separate AbortError from other Error types, it is recommended to check
-`context.request.signal.aborted` (or if a custom controller was supplied `controller.signal.aborted`).
-
-In this manner it is possible for a request to recover from an abort and
-still proceed; however, as a best practice this should be used for necessary
-cleanup only and the original AbortError re-thrown if the abort signal comes
-from the root controller.
-
-**AbortControllers are Always Present and Always Entangled**
-
-If the initial request does not supply an [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), one will be generated.
-
-The [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for this controller is automatically added to the request passed into the first handler.
-
-Each handler has the option to supply a new controller to the request when calling `next`.
-If a new controller is provided it will be automatically entangled with the root controller.
-If the root controller aborts, so will any entangled controllers.
-
-If an entangled controller aborts, the root controller will not abort.
-This allows for advanced request-flow scenarios to abort subsections of the request tree without aborting the entire request.
-
----
-
-#### Stream Currying
-
-`RequestManager.request` and `next` differ from `fetch` in one **crucial detail** in that the outer Promise resolves only once the response stream has been processed.
-
-For context, it helps to understand a few of the use-cases that RequestManager
-is intended to allow.
-
-- to manage and return streaming content (such as video files)
-- to fulfill a request from multiple sources or by splitting one request into multiple requests
-  - for instance one API call for a user and another for the user's friends
-  - or e.g. fulfilling part of the request from one source (one API, in-memory, localStorage, IndexedDB
-   etc.) and the rest from another source (a different API, a WebWorker, etc.)
-- to coalesce multiple requests
-- to decorate a request with additional info
-  - e.g. an Auth handler that ensures the correct tokens or headers or cookies are attached.
-
-`await fetch(<req>)` resolves at the moment headers are received. This allows for the body of the request to be processed as a stream by application
-code *while chunks are still being received by the browser*.
-
-When an app chooses to `await response.json()` what occurs is the browser reads the stream to completion and then returns the result. Additionally, this stream may only be read **once**.
-
-The `RequestManager` preserves this ability to subscribe to and utilize the stream by either the application or the handler – thereby delivering the full power and flexibility of native APIs – without restricting developers in ways that lead to complicated workarounds.
-
-Each handler may call `setStream` only once, but may do so *at any time* until the promise that the handler returns has resolved. The associated promise returned by calling `future.getStream` will resolve with the stream set by `setStream` if that method is called, or `null` if that method
-has not been called by the time that the handler's request method has resolved.
-
-Handlers that do not create a stream of their own, but which call `next`, should defensively pipe the stream forward. While this is not required (see automatic currying below) it is better to do so in most cases as otherwise the stream may not become available to downstream handlers or the application until the upstream handler has fully read it.
+Register it before the handler that makes the request, so that handler's errors reach it:
 
 ```ts
-context.setStream(future.getStream());
+import { RequestManager, Fetch } from '@warp-drive/core';
+import { RetryHandler } from './retry-handler';
+
+const manager = new RequestManager().use([RetryHandler, Fetch]);
 ```
 
-Handlers that either call `next` multiple times or otherwise have reason to create multiple  fetch requests should either choose to return no stream, meaningfully combine the streams, or select a single prioritized stream.
+The [FetchError](/api/@warp-drive/core/types/request/types/FetchError) API docs list the other
+properties on errors from `Fetch`, such as `statusText` and `code`. The example retries at once;
+add a delay between attempts if your API needs one, and retry only requests that are safe to
+repeat.
 
-Of course, any handler may choose to read and handle the stream, and return either no stream or a different stream in the process.
+## Handling Abort
 
----
+Aborting a request rejects the current handler in the chain, and every handler before it can
+catch that error just like any other. A handler that needs to tell an abort apart from other
+errors should check `context.request.signal.aborted`, or `controller.signal.aborted` if it
+supplied its own controller (see below).
 
-#### Automatic Currying of Stream and Response
+A handler can use this to recover from an abort and still proceed. As a best practice, use it
+only for necessary cleanup, and re-throw the original `AbortError` when the abort came from
+the root controller.
 
-In order to simplify the common case for handlers which decorate a request, if `next` is called only a single time and `setResponse` was never called by the handler, the response set by the next handler in the chain will be applied to that handler's outcome. For instance, this makes the following pattern possible `return (await next(<req>)).content;`.
+### AbortControllers are Always Present and Always Entangled
 
-Similarly, if `next` is called only a single time and neither `setStream` nor `getStream` was called, we automatically curry the stream from the future returned by `next` onto the future returned by the handler.
+The **root controller** is the [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
+for the whole request: the one passed as `controller` to `manager.request` or `store.request`,
+or, if none was, one that ***Warp*Drive** creates. Calling `abort()` on the request's `Future`
+aborts it. Its [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) is on
+`context.request.signal` for every handler in the chain, unless an earlier handler supplied its
+own controller.
 
-Finally, if the return value of a handler is a `Future`, we curry `content` and `errors` as well, thus enabling the simplest form `return next(<req>)`.
+A handler can give the rest of the chain its own controller by passing it as the request's
+`controller` when calling `next`, along with its `signal`. ***Warp*Drive** entangles the new
+controller with the root controller: if the root controller aborts, so does the new one. The
+reverse is not true. Aborting the new controller rejects that `next` call, but the root
+controller and the rest of the request keep going, so a handler can abort one part of the
+work it does without aborting the whole request.
 
-In the case of the `Future` being returned, `Stream` proxying is automatic and immediate and does not wait for the `Future` to resolve.
+```ts
+import type { Handler, NextFn } from '@warp-drive/core/request';
+import type { RequestContext } from '@warp-drive/core/types/request';
+
+export const TimeLimitHandler: Handler = {
+  async request<T>(context: RequestContext, next: NextFn<T>) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+
+    try {
+      return await next(
+        Object.assign({}, context.request, { controller, signal: controller.signal })
+      );
+    } catch (e) {
+      // our own signal is the root's (or an earlier handler's);
+      // if it aborted, the abort did not come from us, so pass it on
+      if (context.request.signal?.aborted) throw e;
+
+      // only our controller aborted: fall back instead of failing
+      return next(Object.assign({}, context.request, { url: '/api/fallback' }));
+    } finally {
+      clearTimeout(timer);
+    }
+  },
+};
+```
+
+Pass `signal` as well as `controller`: the request a handler receives already has a `signal`,
+and without overriding it the next handler keeps the old one.

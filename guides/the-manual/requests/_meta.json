@@ -1,4 +1,4 @@
 {
   "title": "Requests",
-  "items": ["typing-requests", "using-the-response", "builders", "handlers"]
+  "items": ["typing-requests", "using-the-response", "builders", "handlers", "handlers-advanced"]
 }
