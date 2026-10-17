@@ -43,6 +43,15 @@ description: Start here to configure relationships in WarpDrive; links each card
 - [Joins]()
 -->
 
-# Misc
+## Terminology
 
-- [Terminology](../misc/terminology.md#relationships)
+- **Inverse**: the field on the related resource that points back to this one. If users have pets and pets have
+  owners, the inverse of `user.pets` is `pet.owners`, and the inverse of `pet.owners` is `user.pets`. A
+  to-none relationship has no inverse, which its schema declares as `inverse: null`. See [Inverses](./features/inverses.md).
+- **Self-referential**: a relationship that points back at the same resource type, such as `person.parents` and
+  `person.children`, which both belong to `person`.
+- **Reflexive**: a self-referential relationship that is also its own inverse, such as `user.friends`.
+- **Circular**: a self-referential or reflexive relationship whose value is the same record on both sides, such
+  as a user who is their own best friend (`ego.bestFriend === ego`).
+- **Polymorphic**: a relationship that more than one resource type can satisfy, such as `user.vehicles` holding
+  `car`, `boat` and `airplane` records. See [Polymorphism](./features/polymorphism.md).

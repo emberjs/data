@@ -26,7 +26,7 @@
  * - local changes immediately reflect app wide
  * - records have all the APIs of Model (references, state props, currentState, methods etc)
  * - the continued use of `@warp-drive/legacy` is required (though most imports from it can be removed)
- * - `async: true` relationships are supported (but not recommended outside of [LinksMode](/guides/the-manual/misc/links-mode.md))
+ * - `async: true` relationships are supported, but not in [LinksMode](/guides/the-manual/misc/links-mode.md), which currently requires `async: false`
  *
  * ---
  *

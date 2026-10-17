@@ -57,6 +57,8 @@ In other words, a related link lets you omit the related resource(s) from `inclu
 
 A relationship whose `data` key is missing entirely, or explicitly `undefined`, is never valid on its own — WarpDrive cannot distinguish "no data was returned" from "the relationship is genuinely empty" without either a `links.related` link or an explicit empty value (`null` / `[]`).
 
+Development builds of the JSON:API cache check these rules and throw when a payload breaks them; production builds skip the check. The "fully linked" rule applies only to the resources in a document's primary `data`. A resource in `included` is checked only for the missing-`data` rule above.
+
 ```ts
 interface LinksModeRelationship {
   meta?: Record<string, Value>;
@@ -75,7 +77,7 @@ interface LinksModeRelationship {
 
 ### Related Links May Be Provided by Handlers
 
-This means that, in order to use links mode, a relationship payload given to the cache MUST contain this related link. 
+This means that, in order to use links mode, a relationship payload given to the cache MUST contain either a related link or full linkage.
 
 If your API does not provide this link, a [request handler](/api/@warp-drive/core/request/types/Handler) could be utilized to decorate an API response to add them provided that your handlers (or your API) are able to understand that link.
 
@@ -85,7 +87,9 @@ Note that this approach can even work if your API requires you to send a POST re
 
 ### When a Relationship Is Fetched, the Related Link Is Used
 
-Fetching a relationship via any of `relationship.reload`, `reference.reload`, `reference.load` or `await record.relationship` will issue a request to your handler chain. That request will look like the following:
+Fetching a relationship via `relationship.reload` or `reference.reload` will issue a request to your handler chain, as will `reference.load` when some of the related records are not yet loaded. The request takes one of two shapes, depending on what issued it.
+
+Requests issued through Model's relationship support, which includes the reference methods (`record.belongsTo('homeAddress').reload()`, `record.hasMany('friends').load()`) and `reload()` on the `hasMany` array of a Model, look like the following:
 
 ```ts
 interface FetchRelationshipRequest {
@@ -95,6 +99,7 @@ interface FetchRelationshipRequest {
   method: 'GET';
   records: ResourceKey[]; // the current membership of the relationship
   data: {
+    useLink: boolean;
     field: LegacyBelongsToField | LegacyHasManyField;
     links: Links;
     meta: Meta;
@@ -108,15 +113,35 @@ interface FetchRelationshipRequest {
 }
 ```
 
-The three most important things in this request are:
+Calling `reload()` on the `hasMany` array of a ReactiveResource, in either LegacyMode or PolarisMode, issues a request that carries these details under `options` instead of `data`:
 
-- the `op` code: this is how the cache will know to use the response to update the state of a relationship
-- `data.field`: this is how the cache will know which field it should update
-- `data.record`: this is how the cache will know which record to associate the response to.
+```ts
+interface FetchHasManyRequest {
+  op: 'findHasMany';
+  store: Store;
+  url: string; // the related link
+  method: 'GET';
+  records: ResourceKey[]; // the current membership of the relationship
+  cacheOptions: {
+    reload?: boolean;
+    backgroundReload?: boolean;
+    types: string[]; // the related type
+  };
+  options: {
+    field: LegacyHasManyField;
+    identifier: ResourceKey; // the parent record
+    links: Links;
+    meta: Meta;
+  };
+  [EnableHydration]: false;
+}
+```
+
+The JSON:API cache uses a response to update a relationship only when the request's `op` is `findHasMany`. It reads which field to update from `options.field`, and which record the response belongs to from `options.identifier`. For `findBelongsTo`, the cache stores the response as a document but does not update the relationship from it.
 
 The normalized API response (what your handler must return either directly from your API or with some normalization on the client) that should be passed to the JSON:API cache should be a standard JSON:API document.
 
-The contents of `data` will be inserted into the resource cache and the list of records contained therein will be used to update the state of the relationship. The `meta` and `links` of the response will become the `meta` and `links` available for the
+For a `findHasMany` request, the contents of `data` will be inserted into the resource cache and the list of records contained therein will be used to update the state of the relationship. The `meta` and `links` of the response will become the `meta` and `links` available for the
 relationship as well.
 
 Sideloads (included records) are valid to include in these responses.
@@ -147,7 +172,14 @@ export default class User extends Model {
 }
 ```
 
-This works for both `async` and `non-async` relationships and only changes the fetching behavior of the field it is defined on. For instance, in the example above, `homeAddress` is fetched in links mode while `<Address>.residents` might still be using the legacy adapter experience.
+LinksMode currently works only with `async: false`. In development builds, the cache throws when it receives a payload that includes an `async: true` LinksMode relationship.
+
+Besides how the field is fetched, LinksMode changes two other things:
+
+- the cache checks the field's payloads against the rules in [Related Link Becomes Required](#related-link-becomes-required-unless-fully-linked) (development builds only)
+- the deprecated `resetOnRemoteUpdate` behavior is turned off for the field
+
+The change to fetching applies only to the field it is defined on. For instance, in the example above, `homeAddress` is fetched in links mode while `<Address>.residents` might still be using the legacy adapter experience. Turning off `resetOnRemoteUpdate` is different: it is turned off for both sides of the relationship, so `<Address>.residents` loses it too.
 
 <br>
 
@@ -174,8 +206,10 @@ const UserSchema = {
 } satisfies ResourceSchema;
 ```
 
-The behavior of a relationship for a ReactiveResource in LegacyMode is always identical to that of a the same
-relationship defined on a Model.
+A LinksMode relationship on a ReactiveResource in LegacyMode behaves much like the same relationship defined on a Model,
+but not identically: reading the field goes through the same code PolarisMode uses rather than through Model's. One
+visible difference is the request that `reload()` on a `hasMany` array issues; see
+[When a Relationship Is Fetched](#when-a-relationship-is-fetched-the-related-link-is-used).
 
 <br>
 
@@ -213,7 +247,7 @@ not as readily exposed via references as they are with Model.
 
 For `belongsTo` this is a particularly large drawback. `belongsTo` has no mechanism by which to expose its links or a reload method. There are work arounds via the cache API / via derivations if needed, but cumbersome.
 
-For `hasMany`, this restriction is not too difficult as it can be loaded via its link by calling `reload`, e.g. `user.friends.reload()`. As with hasMany in LegacyMode, its links are also available via `user.friends.links`.
+For `hasMany`, this restriction is not too difficult as it can be loaded via its link by calling `reload`, e.g. `user.friends.reload()`. As with hasMany in LegacyMode, its links are also available via `user.friends.links`. Unlike LegacyMode, assigning a new array to a PolarisMode `hasMany` (`user.friends = [...]`) is not supported; development builds throw an assertion.
 
 This makes PolarisMode relationships intentionally limited. This limitation is not permanent – there is a replacement
 in the works for `belongsTo` and `hasMany` that aligns relationships with the intended Polaris experience.

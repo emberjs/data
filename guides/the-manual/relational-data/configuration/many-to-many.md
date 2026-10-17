@@ -13,7 +13,7 @@ graph LR;
 
 > **Note** In our charts we use dotted lines for singular relationships and thick solid lines for collection relationships.
 
-Or, maybe more accurately since this is a [*reflexive*](../../misc/terminology.md#reflexive) relationship:
+Or, maybe more accurately since this is a *reflexive* relationship (`friends` points back at the same field on the same type, so it is its own inverse):
 
 ```mermaid
 graph LR;
