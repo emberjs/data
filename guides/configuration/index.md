@@ -138,9 +138,13 @@ export default useRecommendedStore({
 
 == LegacyMode (recommended, Ember Only)
 
+
+
 >[!TIP]
 > While [LegacyMode](/guides/the-manual/schemas/resources/legacy-mode.md) can work with
 > Non-Ember apps, we recommend waiting for [PolarisMode](/guides/the-manual/schemas/resources/polaris-mode.md) to become recommended in V6, or limit usage to experimental exploration.
+
+In app/services/store.ts
 
 ```ts
 import { useLegacyStore } from '@warp-drive/legacy';
