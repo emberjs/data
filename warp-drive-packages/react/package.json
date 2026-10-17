@@ -45,7 +45,7 @@
     "@embroider/macros": "^1.21.3",
     "@warp-drive/alien-signals": "workspace:*",
     "@warp-drive/core": "workspace:*",
-    "react": "^19.3.0"
+    "react": "^19.3.1"
   },
   "peerDependenciesMeta": {},
   "devDependencies": {
