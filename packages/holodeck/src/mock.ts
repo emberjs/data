@@ -27,6 +27,13 @@ export interface Scaffold {
  */
 export type ScaffoldGenerator = () => Scaffold;
 
+// JSON shape that permits arrays, objects, primitives, and null
+type JSONPrimitive = string | number | boolean | null;
+type JSONValue =
+  | JSONPrimitive
+  | { [k: string]: JSONValue }
+  | JSONValue[];
+
 /**
  * A mock whose method and url are known up front, with the rest of the
  * scaffold built only when holodeck is recording. This is what the mock
@@ -48,7 +55,7 @@ export interface LazyScaffold {
  * fixture.
  * @public
  */
-export type ResponseGenerator = () => Record<string, unknown>;
+export type ResponseGenerator = () => JSONValue;
 
 /**
  * Sets up Mocking for a GET request on the mock server
