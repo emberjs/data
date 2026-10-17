@@ -173,6 +173,13 @@ export interface BuildURLMixin {
    */
   buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
   /**
+   * Builds the URL for a type, or for a type and ID, without a snapshot or
+   * request type. For example, `buildURL('post')` returns `/posts`.
+   *
+   * @public
+   */
+  buildURL(this: MixtBuildURLMixin, modelName: string, id?: string | null): string;
+  /**
    * @private
    */
   _buildURL(this: MixtBuildURLMixin, modelName: string | null | undefined, id?: string | null): string;
@@ -360,11 +367,12 @@ function buildURL(
   requestType: 'deleteRecord'
 ): string;
 function buildURL(this: MixtBuildURLMixin, modelName: string, id: string, snapshot: Snapshot): string;
+function buildURL(this: MixtBuildURLMixin, modelName: string, id?: string | null): string;
 function buildURL(
   this: MixtBuildURLMixin,
   modelName: string,
-  id: string | string[] | Record<string, unknown> | null,
-  snapshot: Snapshot | Snapshot[] | SnapshotRecordArray | null,
+  id?: string | string[] | Record<string, unknown> | null,
+  snapshot?: Snapshot | Snapshot[] | SnapshotRecordArray | null,
   requestType?:
     | 'findRecord'
     | 'findAll'

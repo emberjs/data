@@ -26,6 +26,10 @@ module('unit/adapters/build-url-mixin/build-url - BuildURLMixin#buildURL', funct
     assert.strictEqual(adapter.buildURL('rootModel', 1), '/1');
   });
 
+  test('buildURL - with only a model name, builds the collection URL', function (assert) {
+    assert.strictEqual(adapter.buildURL('super-user'), '/superUsers');
+  });
+
   test('buildURL - find requestType delegates to urlForFindRecord', function (assert) {
     assert.expect(4);
     const snapshotStub = { snapshot: true };
