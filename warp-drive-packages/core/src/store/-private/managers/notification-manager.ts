@@ -107,7 +107,19 @@ const UnscopedChannel: '___(unique) Symbol(UnscopedChannel)' = getOrSetGlobal('U
 type ChannelSet = Set<NotificationChannel | typeof UnscopedChannel>;
 
 export interface NotificationCallback {
-  (cacheKey: ResourceKey, notificationType: 'attributes' | 'relationships', key?: string): void;
+  /**
+   * For `'attributes'` and `'relationships'` notifications, `channel` is the
+   * {@link NotificationChannel} every coalesced touch for `key` was tagged with
+   * during this flush: `'local'` or `'remote'` when all touches agreed, and
+   * `undefined` when any touch was unscoped or the touches disagreed (in which
+   * case the subscriber should assume both projections may have changed).
+   */
+  (
+    cacheKey: ResourceKey,
+    notificationType: 'attributes' | 'relationships',
+    key?: string,
+    channel?: NotificationChannel
+  ): void;
   (cacheKey: ResourceKey, notificationType: 'errors' | 'meta' | 'identity' | 'state'): void;
   (cacheKey: ResourceKey, notificationType: CacheOperation): void;
   // (cacheKey: ResourceKey, notificationType: NotificationType, key?: string): void;
@@ -634,6 +646,7 @@ function _flushNotification(
   if (!callbacks || !callbacks.length) {
     return false;
   }
+  const channel = channels ? resolveChannel(channels) : undefined;
   callbacks.forEach((cb) => {
     if (channels) {
       // @ts-expect-error channel is stashed on the callback only for ResourceKey subscriptions;
@@ -644,9 +657,22 @@ function _flushNotification(
       }
     }
     // @ts-expect-error overload doesn't narrow within body
-    cb(cacheKey, value, key);
+    cb(cacheKey, value, key, channel);
   });
   return true;
+}
+
+/**
+ * Collapses a {@link ChannelSet} into the single channel to hand to subscribers:
+ * the channel itself when every coalesced touch carried the same one, otherwise
+ * `undefined` (an unscoped touch, or touches on both channels).
+ */
+function resolveChannel(channels: ChannelSet): NotificationChannel | undefined {
+  if (channels.size !== 1 || channels.has(UnscopedChannel)) {
+    return undefined;
+  }
+  const [channel] = channels;
+  return channel as NotificationChannel;
 }
 
 function hasSubscribers(

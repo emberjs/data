@@ -41,6 +41,7 @@ import type { TypedRecordInstance, TypeFromInstance } from '../../types/record.t
 import type { CacheOptions, RequestInfo, StructuredDocument } from '../../types/request.ts';
 import { EnableHydration } from '../../types/request.ts';
 import { getRuntimeConfig, setLogging } from '../../types/runtime.ts';
+import { isManyKind, isSingleKind } from '../../types/schema/fields.ts';
 import type { SchemaService } from '../../types/schema/schema-service.ts';
 import type { ResourceDocument } from '../../types/spec/document.ts';
 import type {
@@ -2604,12 +2605,12 @@ function normalizeProperties(
 
         if (!field) continue;
 
-        if (field.kind === 'hasMany') {
+        if (isManyKind(field.kind)) {
           if (DEBUG) {
             assertRecordsPassedToHasMany(properties[prop] as OpaqueRecordInstance[]);
           }
           properties[prop] = extractIdentifiersFromRecords(properties[prop] as OpaqueRecordInstance[]);
-        } else if (field.kind === 'belongsTo') {
+        } else if (isSingleKind(field.kind)) {
           properties[prop] = extractIdentifierFromRecord(properties[prop]);
         }
       }

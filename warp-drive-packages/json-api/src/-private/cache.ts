@@ -50,6 +50,7 @@ import type {
   SchemaArrayField,
   SchemaObjectField,
 } from '@warp-drive/core/types/schema/fields';
+import { isRelationshipKind, isSingleKind } from '@warp-drive/core/types/schema/fields';
 import type { SchemaService } from '@warp-drive/core/types/schema/schema-service';
 import type {
   CollectionResourceDataDocument,
@@ -1038,6 +1039,7 @@ export class JSONAPICache implements Cache {
             createOptions[name] = propertyValue;
             break;
           case 'belongsTo':
+          case 'resource':
             this.mutate({
               op: 'replaceRelatedRecord',
               field: name,
@@ -1049,6 +1051,7 @@ export class JSONAPICache implements Cache {
             relationship.state.isEmpty = false;
             break;
           case 'hasMany':
+          case 'collection':
             this.mutate({
               op: 'replaceRelatedRecords',
               field: name,
@@ -2477,7 +2480,7 @@ function setupRelationships(
 
 function isRelationship(field: FieldSchema): field is LegacyRelationshipField | CollectionField | ResourceField {
   const { kind } = field;
-  return kind === 'hasMany' || kind === 'belongsTo' || kind === 'resource' || kind === 'collection';
+  return isRelationshipKind(kind);
 }
 
 /**
@@ -3000,7 +3003,7 @@ function didCommit(
           // assert against bad API behavior where a belongsTo relationship
           // is saved but the return payload indicates a different final state.
           fields.forEach((field, name) => {
-            if (field.kind === 'belongsTo') {
+            if (isSingleKind(field.kind)) {
               const relationshipData = data.relationships![name]?.data;
               if (relationshipData !== undefined) {
                 const inFlightData = cached.inflightRelationships?.[name] as SingleResourceRelationship;
@@ -3088,7 +3091,7 @@ function willCommit(cache: JSONAPICache, identifier: ResourceKey): void {
       // save off info about saved relationships
       const fields = getCacheFields(cache, identifier);
       fields.forEach((schema, name) => {
-        if (schema.kind === 'belongsTo') {
+        if (isSingleKind(schema.kind)) {
           if (cache.__graph._isDirty(identifier, name)) {
             const relationshipData = cache.__graph.getData(identifier, name);
             const inFlight = (cached.inflightRelationships =

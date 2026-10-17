@@ -48,8 +48,6 @@ module('Reads | resource', function (hooks) {
           {
             name: 'bestFriend',
             type: 'user',
-            // @ts-expect-error we've left this type off on purpose
-            // since the functionality is incomplete
             kind: 'resource',
             options: { inverse: 'bestFriend', async: true },
           },

@@ -1057,16 +1057,29 @@ export interface DerivedField {
  * Represents a field that is a reference to
  * another resource.
  *
- * SUPPORT FOR THIS FEATURE IS NOT YET COMPLETE
- * IN ReactiveResource. It is not yet part of
- * {@link PolarisModeFieldSchema} or {@link LegacyModeFieldSchema}.
- * Reading the field returns an object with the related
- * record as `data`, plus `links`, `meta` and a `fetch()`
- * method, but it does not yet update when the
- * relationship changes, and setting it is not supported.
+ * The value of a `resource` field on a ReactiveResource is a
+ * `ReactiveRelationshipDocument` whose `data` is the related
+ * resource (or `null`), and whose `links` and `meta` mirror the
+ * relationship payload received from the API.
  *
- * @summary Field schema of kind `resource` for a reference to another resource; not yet implemented by
- * `ReactiveResource`.
+ * ```ts
+ * const user = store.peekRecord<User>('user', '1');
+ * user.bestFriend.data; // User | null | undefined
+ * user.bestFriend.links; // { related: '/users/1/best-friend' }
+ * ```
+ *
+ * The relationship payload for this field is expected to have the
+ * shape `{ data?: { type, id } | null, links?: Links, meta?: Meta }`.
+ * When `data` is omitted from the payload `doc.data` is `undefined`
+ * and `doc.fetch()` may be used to load the related resource via
+ * the `related` link.
+ *
+ * In LegacyMode the relationship is mutable via `doc.data = record`.
+ * In PolarisMode it is immutable unless the parent resource has been
+ * checked out for editing.
+ *
+ * @summary Field schema of kind `resource` for a reference to another resource, whose value is a
+ * `ReactiveRelationshipDocument`.
  * @public
  */
 export interface ResourceField {
@@ -1127,12 +1140,22 @@ export interface ResourceField {
    */
   options?: {
     /**
-     * Whether the relationship is async
+     * Whether the relationship is async.
      *
-     * If true, it is expected that the cache
-     * data for this field will contain a link
-     * that can be used to fetch the related
-     * resource when needed.
+     * For `resource` fields `async` describes what the API
+     * sends for the relationship (see the Relationship
+     * Specification in the manual):
+     *
+     * - `true`: every payload for the relationship MUST carry a
+     *   `links` object with a `related` link. `data` may be
+     *   omitted; when present, the referenced resource MUST be
+     *   included in the payload.
+     * - `false` (default): whenever the relationship is present
+     *   in a payload its `data` member MUST be present and the
+     *   referenced resource MUST be included in the payload.
+     *   The relationship SHOULD NOT carry `links`.
+     *
+     * Related resources are never fetched automatically.
      *
      * @public
      */
@@ -1174,17 +1197,37 @@ export interface ResourceField {
 
 /**
  * Represents a field that is a reference to
- * a collection of other resources, potentially
- * paginate.
+ * a collection of other resources.
  *
- * SUPPORT FOR THIS FEATURE IS NOT YET IMPLEMENTED
- * BY ReactiveResource. It is not yet part of
- * {@link PolarisModeFieldSchema} or {@link LegacyModeFieldSchema},
- * and reading or setting the field fails an assertion
- * in development builds.
+ * The value of a `collection` field on a ReactiveResource is a
+ * `ReactiveRelationshipDocument` whose `data` is a reactive array
+ * of the related resources, and whose `links` and `meta` mirror the
+ * relationship payload received from the API.
  *
- * @summary Field schema of kind `collection` for a possibly paginated reference to other resources; not yet implemented
- * by `ReactiveResource`.
+ * ```ts
+ * const user = store.peekRecord<User>('user', '1');
+ * user.friends.data; // User[] | undefined
+ * user.friends.links; // { related: '/users/1/friends' }
+ * ```
+ *
+ * The relationship payload for this field is expected to have the
+ * shape `{ data?: { type, id }[], links?: Links, meta?: Meta }`.
+ * When `data` is omitted from the payload `doc.data` is `undefined`
+ * and `doc.fetch()` may be used to load the related resources via
+ * the `related` link.
+ *
+ * Collection relationships are not paginated: pagination links present
+ * on the relationship are surfaced on `doc.links` but are never merged
+ * into the relationship's membership. Large, sortable, filterable or
+ * paginated lists should be loaded with a top-level request instead.
+ *
+ * In LegacyMode the relationship is mutable via `doc.data.push(record)`
+ * (and the other array mutation methods) or `doc.data = [records]`.
+ * In PolarisMode it is immutable unless the parent resource has been
+ * checked out for editing.
+ *
+ * @summary Field schema of kind `collection` for a reference to other resources, whose value is a
+ * `ReactiveRelationshipDocument`.
  * @public
  */
 export interface CollectionField {
@@ -1245,23 +1288,24 @@ export interface CollectionField {
    */
   options?: {
     /**
-     * Whether the relationship is async
+     * Whether the relationship is async.
      *
-     * If true, it is expected that the cache
-     * data for this field will contain links
-     * that can be used to fetch the related
-     * resources when needed.
+     * For `collection` fields `async` describes what the API
+     * sends for the relationship (see the Relationship
+     * Specification in the manual):
      *
-     * When false, it is expected that all related
-     * resources are loaded together with this resource,
-     * and that the cache data for this field will
-     * contain the full list of pointers.
+     * - `true`: every payload for the relationship MUST carry a
+     *   `links` object with a `related` link. `data` may be
+     *   omitted; when present, every referenced resource MUST be
+     *   included in the payload.
+     * - `false` (default): whenever the relationship is present
+     *   in a payload its `data` member MUST be present (an array,
+     *   possibly empty) and every referenced resource MUST be
+     *   included in the payload. The relationship SHOULD NOT
+     *   carry `links`.
      *
-     * When true, it is expected that the relationship
-     * is paginated. If the relationship is not paginated,
-     * then the cache data for "page 1" would contain the
-     * full list of pointers, and loading "page 1" would
-     * load all related resources.
+     * Related resources are never fetched automatically. Use
+     * `doc.fetch()` or a top-level request to load them.
      *
      * @public
      */
@@ -2137,8 +2181,8 @@ export interface LinksModeHasManyField {
  * - {@link ArrayField}
  * - {@link SchemaArrayField}
  * - {@link DerivedField}
- * - {@link ResourceField | ResourceField (not yet implemented)}
- * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link ResourceField}
+ * - {@link CollectionField}
  * - {@link LegacyAttributeField}
  * - {@link LegacyBelongsToField}
  * - {@link LegacyHasManyField}
@@ -2156,8 +2200,8 @@ export type LegacyModeFieldSchema =
   | ArrayField
   | SchemaArrayField
   | DerivedField
-  //  | ResourceField // not yet implemented
-  //  | CollectionField // not yet implemented
+  | ResourceField
+  | CollectionField
   | LegacyAttributeField
   | LegacyBelongsToField
   | LegacyHasManyField;
@@ -2175,8 +2219,8 @@ export type LegacyModeFieldSchema =
  * - {@link ArrayField}
  * - {@link SchemaArrayField}
  * - {@link DerivedField}
- * - {@link ResourceField | ResourceField (not yet implemented)}
- * - {@link CollectionField | CollectionField (not yet implemented)}
+ * - {@link ResourceField}
+ * - {@link CollectionField}
  * - {@link LinksModeBelongsToField}
  * - {@link LinksModeHasManyField}
  *
@@ -2193,8 +2237,8 @@ export type PolarisModeFieldSchema =
   | ArrayField
   | SchemaArrayField
   | DerivedField
-  //  | ResourceField
-  //  | CollectionField
+  | ResourceField
+  | CollectionField
   | LinksModeBelongsToField
   | LinksModeHasManyField;
 
@@ -2661,6 +2705,35 @@ export function objectSchema<T extends ObjectSchema>(schema: T): T {
  * `@id`.
  * @public
  */
+/**
+ * Whether a field kind is a to-many relationship: the legacy `hasMany` or the
+ * `collection` kind.
+ *
+ * @public
+ */
+export function isManyKind(kind: string): kind is 'hasMany' | 'collection' {
+  return kind === 'hasMany' || kind === 'collection';
+}
+
+/**
+ * Whether a field kind is a to-one relationship: the legacy `belongsTo` or the
+ * `resource` kind.
+ *
+ * @public
+ */
+export function isSingleKind(kind: string): kind is 'belongsTo' | 'resource' {
+  return kind === 'belongsTo' || kind === 'resource';
+}
+
+/**
+ * Whether a field kind is any relationship kind, legacy or not.
+ *
+ * @public
+ */
+export function isRelationshipKind(kind: string): kind is 'belongsTo' | 'hasMany' | 'resource' | 'collection' {
+  return isManyKind(kind) || isSingleKind(kind);
+}
+
 export function isResourceSchema(schema: ResourceSchema | ObjectSchema): schema is ResourceSchema {
   return schema?.identity?.kind === '@id';
 }

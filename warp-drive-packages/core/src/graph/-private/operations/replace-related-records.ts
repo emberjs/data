@@ -408,6 +408,8 @@ export function addToInverse(
         removeFromInverse(graph, relationship.remoteState, relationship.definition.inverseKey, resourceKey, isRemote);
       }
       relationship.remoteState = value;
+      // the inverse now knows its remote state, even though no payload for it has been seen
+      relationship.state.hasReceivedRemoteData = true;
       // remote state definitely changed here (we just assigned it), independent of
       // whether local also needs reconciling below -- notify unconditionally so a
       // remote-only reader isn't at the mercy of the localState check further down.
@@ -437,7 +439,10 @@ export function addToInverse(
         relationship.remoteState.push(value);
         relationship.remoteMembers.add(value);
         if (relationship.additions?.has(value)) {
+          // this confirms a local addition: the local projection already shows the member,
+          // but the remote projection just gained it and remote-only readers must re-pull.
           relationship.additions.delete(value);
+          flushCanonical(graph, relationship, 'remote');
         } else {
           relationship.isDirty = true;
           relationship.state.hasReceivedData = true;
@@ -497,6 +502,7 @@ export function removeFromInverse(
     if (isRemote) {
       graph._addToTransaction(relationship);
       relationship.remoteState = null;
+      relationship.state.hasReceivedRemoteData = true;
       // remote state definitely changed here; see the equivalent comment in addToInverse.
       notifyChange(graph, relationship);
     }
@@ -510,8 +516,13 @@ export function removeFromInverse(
   } else if (isHasMany(relationship)) {
     if (isRemote) {
       graph._addToTransaction(relationship);
+      const wasMember = relationship.remoteMembers.has(value);
       if (_removeRemote(relationship, value)) {
         notifyChange(graph, relationship);
+      } else if (wasMember) {
+        // this confirms a local removal: the local projection already dropped the member,
+        // but the remote projection just lost it and remote-only readers must re-pull.
+        notifyChange(graph, relationship, 'remote');
       }
     } else {
       if (_removeLocal(relationship, value)) {

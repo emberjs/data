@@ -133,6 +133,7 @@ if (DEBUG) {
       name: definition.inverseName,
       type: definition.inverseType,
       kind: definition.inverseKind,
+      fieldKind: definition.inverseKind,
       isAsync: definition.inverseIsAsync,
       isPolymorphic: true,
       isLinksMode: definition.isLinksMode,
