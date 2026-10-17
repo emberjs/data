@@ -313,7 +313,7 @@ export default class AppStore extends Store {
 
   instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {
     if (this.schema.isDelegated(key)) {
-      return instantiateModel.call(this, key, createRecordArgs)
+      return instantiateModel.call(this, key, createArgs)
     }
     return instantiateRecord(this, key, createArgs);
   }
@@ -421,7 +421,7 @@ import type { TypeFromInstance } from '@warp-drive/core-types/record'; // [!code
 import {  // [!code focus:4]
   buildSchema,
   modelFor,
-} from '@warp-drive/schema-record';
+} from '@ember-data/model';
 
 export default class AppStore extends Store {
   requestManager = new RequestManager()
@@ -451,7 +451,7 @@ import { DelegatingSchemaService } from '@ember-data/model/migration-support';
 
 import {  // [!code focus:3]
   modelFor,
-} from '@warp-drive/schema-record';
+} from '@ember-data/model';
 import { // [!code focus:4]
   registerDerivations,
   SchemaService,
@@ -668,7 +668,7 @@ export default class AppStore extends Store {
 
   instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {  // [!code focus:6]
     if (this.schema.isDelegated(key)) {
-      return instantiateModel.call(this, key, createRecordArgs)
+      return instantiateModel.call(this, key, createArgs)
     }
     return instantiateRecord(this, key, createArgs);
   }

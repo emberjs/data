@@ -33,6 +33,29 @@ simultaneously deprecate these from legacy.
 The `@warp-drive/legacy` package is opt-in. New apps should not use it, existing apps
 should work to remove the features it provides. Consider it your cleanup checklist.
 
+## Choosing `useLegacyStore` Options
+
+[`useLegacyStore`](/api/@warp-drive/legacy/functions/useLegacyStore) creates the store shown in
+the LegacyMode tab of [Configure The Store](./index.md#configure-the-store). Three of its options
+decide how many legacy features that store restores:
+
+- `linksMode: true` presumes no request needs the
+  [LegacyNetworkHandler](/api/@warp-drive/legacy/compat/variables/LegacyNetworkHandler) or an
+  adapter or serializer, so the store leaves the handler out and asserts if `adapterFor`,
+  `serializerFor`, `pushPayload`, `normalize` or `serializeRecord` is called. `linksMode: false`
+  adds the handler and keeps those hooks working.
+- `legacyRequests: true` restores the deprecated `findRecord`, `findAll`, `query`,
+  `queryRecord`, `getReference` and `saveRecord` methods on the store. It requires
+  `linksMode: false`, and defaults to `false`.
+- `modelFragments: true` adds support for migrating from ModelFragments. It defaults to `false`.
+
+Each option you turn on is one more item on that cleanup checklist. The
+[`linksMode`](/api/@warp-drive/legacy/types/LegacyModelAndNetworkAndRequestStoreSetupOptions#linksmode),
+[`legacyRequests`](/api/@warp-drive/legacy/types/LegacyModelAndNetworkAndRequestStoreSetupOptions#legacyrequests)
+and
+[`modelFragments`](/api/@warp-drive/legacy/types/LegacyModelAndNetworkAndRequestStoreSetupOptions#modelfragments)
+API docs cover each option in full.
+
 ## Restoring EmberObject Features
 
 - use per-trait or per-resource or per-field extension

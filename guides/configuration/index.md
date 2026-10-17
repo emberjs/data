@@ -157,6 +157,10 @@ export default useLegacyStore({
 });
 ```
 
+The `linksMode`, `legacyRequests` and `modelFragments` options switch legacy features on or
+off. [Choosing `useLegacyStore` Options](./ember.md#choosing-uselegacystore-options) says what
+each one restores.
+
 :::
 
 **That's it!** It's time to start working with your data.

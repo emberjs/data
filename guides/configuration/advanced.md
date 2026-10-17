@@ -1,6 +1,6 @@
 ---
 title: Setup - Advanced
-description: Build a Store class by hand, adding RequestManager, SchemaService, JSONAPICache, instantiateRecord, and DefaultCachePolicy step by step, with Ember Model and migration variants.
+description: Build a Store class by hand, adding RequestManager, SchemaService, JSONAPICache, instantiateRecord, and DefaultCachePolicy step by step.
 ---
 
 
@@ -29,9 +29,14 @@ In other frameworks you will want to create a singleton
 store in module state that you will import and use when needed.
 :::
 
-:::tabs key:config
-
-== Universal
+::: tip 💡 Using `Model`?
+This guide builds a store for [ReactiveResource](/api/@warp-drive/core/reactive/types/ReactiveResource)
+and schemas. [`useLegacyStore`](/api/@warp-drive/legacy/functions/useLegacyStore), shown in the
+LegacyMode tab of [Configure The Store](./index.md#configure-the-store), builds a store that uses
+`Model` alongside schemas for you. To build one by hand on the older `@ember-data/*` packages,
+see the legacy [Configure the Store](./legacy-package-setup/setup/universal.md#configure-the-store)
+guide.
+:::
 
 ```ts [services/store.ts]
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
@@ -83,153 +88,6 @@ export default class AppStore extends Store {
 }
 ```
 
-== Model (Ember Only)
-
-```ts [services/store.ts]
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { CachePolicy } from '@ember-data/request-utils';
-
-import JSONAPICache from '@ember-data/json-api';
-
-import type { ResourceKey } from '@warp-drive/core/types';
-import type { TypeFromInstance } from '@warp-drive/core/types/record';
-
-import type Model from '@ember-data/model';
-import {
-  buildSchema,
-  instantiateRecord,
-  modelFor,
-  teardownRecord
-} from '@ember-data/model';
-
-export default class AppStore extends Store {
-
-  requestManager = new RequestManager()
-    .use([Fetch])
-    .useCache(CacheHandler);
-
-  lifetimes = new CachePolicy({
-    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
-    constraints: {
-      headers: {
-        'X-WarpDrive-Expires': true,
-        'Cache-Control': true,
-        'Expires': true,
-      }
-    }
-  });
-
-  createSchemaService(): SchemaService {
-    return buildSchema(this);
-  }
-
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
-
-  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {
-    return instantiateRecord.call(this, key, createRecordArgs);
-  }
-
-  teardownRecord(record: unknown): void {
-    return teardownRecord.call(this, record as Model);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-== Migration (Ember Only)
-
-```ts [services/store.ts]
-import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-import { CachePolicy } from '@ember-data/request-utils';
-
-import JSONAPICache from '@ember-data/json-api';
-
-import type { ResourceKey } from '@warp-drive/core/types';
-import type { TypeFromInstance } from '@warp-drive/core/types/record';
-import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-
-import type Model from '@ember-data/model';
-import {
-  instantiateRecord as instantiateModel,
-  modelFor,
-  teardownRecord as teardownModel
-} from '@ember-data/model';
-import {
-  instantiateRecord,
-  registerDerivations,
-  SchemaService,
-  teardownRecord
-} from '@warp-drive/core/reactive';
-
-export default class AppStore extends Store {
-
-  requestManager = new RequestManager()
-    .use([Fetch])
-    .useCache(CacheHandler);
-
-  lifetimes = new CachePolicy({
-    apiCacheHardExpires: 15 * 60 * 1000, // 15 minutes
-    apiCacheSoftExpires: 1 * 30 * 1000, // 30 seconds
-    constraints: {
-      headers: {
-        'X-WarpDrive-Expires': true,
-        'Cache-Control': true,
-        'Expires': true,
-      }
-    }
-  });
-
-  createSchemaService() {
-    const schema = new SchemaService();
-    registerDerivations(schema);
-    return new DelegatingSchemaService(this, schema);
-  }
-
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
-
-  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {
-    if (this.schema.isDelegated(key)) {
-      return instantiateModel.call(this, key, createRecordArgs)
-    }
-    return instantiateRecord(this, key, createArgs);
-  }
-
-  teardownRecord(record: unknown): void {
-    const key = recordIdentifierFor(record);
-    if (this.schema.isDelegated(key)) {
-      return teardownModel.call(this, record as Model);
-    }
-    return teardownRecord(record);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-:::
-
 ## Start With A Store
 
 The store is the central piece of the ***Warp*Drive** experience. It functions as a coordinator,
@@ -274,10 +132,6 @@ applications.
 → Learn more about [Resource Schemas](../the-manual/schemas/index.md)
 :::
 
-:::tabs key:config
-
-== Universal
-
 ```ts [services/store.ts]
 import { Fetch, RequestManager, Store } from '@warp-drive/core';
 import {  // [!code focus:4]
@@ -297,78 +151,6 @@ export default class AppStore extends Store {
 
 }
 ```
-
-== Model (Ember Only)
-
-```ts [services/store.ts]
-import Store from '@ember-data/store';
-import type { ModelSchema, SchemaService } from '@ember-data/store/types'; // [!code focus]
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-
-import type { TypeFromInstance } from '@warp-drive/core/types/record'; // [!code focus]
-
-import {  // [!code focus:4]
-  buildSchema,
-  modelFor,
-} from '@ember-data/model';
-
-export default class AppStore extends Store {
-  requestManager = new RequestManager()
-    .use([Fetch]);
-
-  createSchemaService(): SchemaService { // [!code focus:3]
-    return buildSchema(this);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>; // [!code focus:6]
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-== Migration (Ember Only)
-
-```ts [services/store.ts]
-import Store from '@ember-data/store';
-import type { ModelSchema } from '@ember-data/store/types'; // [!code focus]
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-
-import type { TypeFromInstance } from '@warp-drive/core/types/record'; // [!code focus:2]
-import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-
-import {  // [!code focus:3]
-  modelFor,
-} from '@ember-data/model';
-import { // [!code focus:4]
-  registerDerivations,
-  SchemaService,
-} from '@warp-drive/core/reactive';
-
-export default class AppStore extends Store {
-  requestManager = new RequestManager()
-    .use([Fetch]);
-
-  createSchemaService() { // [!code focus:5]
-    const schema = new SchemaService();
-    registerDerivations(schema);
-    return new DelegatingSchemaService(this, schema);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>; // [!code focus:6]
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-:::
 
 ## Add a Cache
 
@@ -418,10 +200,6 @@ be missing out on the best part. Reactive objects transform raw cached data into
 reactive data. The resulting objects are immutable, always displaying the latest state
 in the cache while preventing accidental or unsafe mutation in your app.
 
-:::tabs key:config
-
-== ReactiveResource
-
 ```ts [services/store.ts]
 import { CacheHandler, Fetch, RequestManager, Store } from '@warp-drive/core';
 import type {
@@ -461,127 +239,6 @@ export default class AppStore extends Store {
   }
 }
 ```
-
-== Model (Ember Only)
-
-```ts [services/store.ts]
-import Store, { CacheHandler } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema, SchemaService } from '@ember-data/store/types';
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-
-import JSONAPICache from '@ember-data/json-api';
-
-import type { ResourceKey } from '@warp-drive/core/types'; // [!code focus]
-import type { TypeFromInstance } from '@warp-drive/core/types/record';
-
-import type Model from '@ember-data/model'; // [!code focus]
-import {
-  buildSchema,
-  instantiateRecord, // [!code focus]
-  modelFor,
-  teardownRecord  // [!code focus]
-} from '@ember-data/model';
-
-export default class AppStore extends Store {
-
-  requestManager = new RequestManager()
-    .use([Fetch])
-    .useCache(CacheHandler);
-
-  createSchemaService(): SchemaService {
-    return buildSchema(this);
-  }
-
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
-
-  instantiateRecord(key: ResourceKey, createRecordArgs: Record<string, unknown>) {  // [!code focus:3]
-    return instantiateRecord.call(this, key, createRecordArgs);
-  }
-
-  teardownRecord(record: unknown): void {  // [!code focus:3]
-    return teardownRecord.call(this, record as Model);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-== Migration (Ember Only)
-
-```ts [services/store.ts]
-import Store, { CacheHandler, recordIdentifierFor } from '@ember-data/store';
-import type { CacheCapabilitiesManager, ModelSchema } from '@ember-data/store/types';
-
-import RequestManager from '@ember-data/request';
-import Fetch from '@ember-data/request/fetch';
-
-import JSONAPICache from '@ember-data/json-api';
-
-import type { ResourceKey } from '@warp-drive/core/types'; // [!code focus]
-import type { TypeFromInstance } from '@warp-drive/core/types/record';
-import { DelegatingSchemaService } from '@ember-data/model/migration-support';
-
-import type Model from '@ember-data/model'; // [!code focus]
-import {
-  instantiateRecord as instantiateModel, // [!code focus]
-  modelFor,
-  teardownRecord as teardownModel // [!code focus]
-} from '@ember-data/model';
-import {
-  instantiateRecord, // [!code focus]
-  registerDerivations,
-  SchemaService,
-  teardownRecord // [!code focus]
-} from '@warp-drive/core/reactive';
-
-export default class AppStore extends Store {
-
-  requestManager = new RequestManager()
-    .use([Fetch])
-    .useCache(CacheHandler);
-
-  createSchemaService() {
-    const schema = new SchemaService();
-    registerDerivations(schema);
-    return new DelegatingSchemaService(this, schema);
-  }
-
-  createCache(capabilities: CacheCapabilitiesManager) {
-    return new JSONAPICache(capabilities);
-  }
-
-  instantiateRecord(key: ResourceKey, createArgs?: Record<string, unknown>) {  // [!code focus:6]
-    if (this.schema.isDelegated(key)) {
-      return instantiateModel.call(this, key, createRecordArgs)
-    }
-    return instantiateRecord(this, key, createArgs);
-  }
-
-  teardownRecord(record: unknown): void {  // [!code focus:7]
-    const key = recordIdentifierFor(record);
-    if (this.schema.isDelegated(key)) {
-      return teardownModel.call(this, record as Model);
-    }
-    return teardownRecord(record);
-  }
-
-  modelFor<T>(type: TypeFromInstance<T>): ModelSchema<T>;
-  modelFor(type: string): ModelSchema;
-  modelFor(type: string): ModelSchema {
-    return (modelFor.call(this, type) as ModelSchema) || super.modelFor(type);
-  }
-}
-```
-
-:::
 
 ## Decide How Long Requests are Valid for with a CachePolicy
 
