@@ -38,6 +38,7 @@ export const entryPoints = [
   // store
   './src/store.ts',
   './src/store/-private.ts',
+  './src/devtools-hook.ts',
   './src/configure.ts',
   './src/signals/-leaked.ts',
 

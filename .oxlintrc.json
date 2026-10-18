@@ -833,10 +833,19 @@
         "tests/framework-vue/**",
         "tests/json-api/**",
         "tests/legacy/**",
+        "warp-drive-packages/devtools-extension/**",
         "warp-drive-packages/svelte/**"
       ],
       "rules": {
         "no-restricted-imports": ["error"]
+      }
+    },
+    {
+      // the extension's service worker, content script and devtools page are plain
+      // scripts that run where the `chrome.*` extension APIs exist
+      "files": ["warp-drive-packages/devtools-extension/public/**"],
+      "globals": {
+        "chrome": "readonly"
       }
     },
     {

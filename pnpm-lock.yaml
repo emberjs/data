@@ -3854,6 +3854,60 @@ importers:
         specifier: 'catalog:'
         version: typescript@7.1.0-dev.20261013.1
 
+  warp-drive-packages/devtools-extension:
+    devDependencies:
+      '@babel/core':
+        specifier: 'catalog:'
+        version: 7.29.7
+      '@babel/plugin-transform-typescript':
+        specifier: 'catalog:'
+        version: 7.29.9(@babel/core@7.29.7)
+      '@embroider/core':
+        specifier: 'catalog:'
+        version: 4.6.9(@glint/template@1.9.0)
+      '@embroider/macros':
+        specifier: ^1.21.3
+        version: 1.21.3(@glint/template@1.9.0)
+      '@embroider/vite':
+        specifier: 'catalog:'
+        version: 1.7.15(2571b9d66f6dcb46bacb769b3264bff9)
+      '@glimmer/component':
+        specifier: 'catalog:'
+        version: 2.1.1
+      '@glint/ember-tsc':
+        specifier: 1.11.6
+        version: 1.11.6(eb979bc3106b2434bb5fddbeb05fd9f1)
+      '@glint/template':
+        specifier: 1.9.0
+        version: 1.9.0
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(e0ff4349d3585fabae29421d7a4b80a6)
+      '@warp-drive/internal-config':
+        specifier: workspace:*
+        version: file:tools/internal-config(@glint/template@1.9.0)(vite@8.3.4)
+      babel-plugin-ember-template-compilation:
+        specifier: 'catalog:'
+        version: 4.0.1
+      decorator-transforms:
+        specifier: 'catalog:'
+        version: 2.4.0(@babel/core@7.29.7)
+      ember-content-mapper:
+        specifier: 'catalog:'
+        version: 0.3.1(eb979bc3106b2434bb5fddbeb05fd9f1)
+      ember-source:
+        specifier: 'catalog:'
+        version: 7.3.0(@glimmer/component@2.1.1)
+      ember-strict-application-resolver:
+        specifier: 'catalog:'
+        version: 0.1.1(@babel/core@7.29.7)
+      typescript-7:
+        specifier: 'catalog:'
+        version: typescript@7.1.0-dev.20261013.1
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.4
+
   warp-drive-packages/ember:
     dependencies:
       '@embroider/macros':
@@ -17037,6 +17091,60 @@ snapshots:
       '@eslint/js': 10.0.1(eslint@10.12.0)
       '@nullvoxpopuli/ember-rolldown': 2.11.0(17da4368fedfbc7dd340dd414fdcd872)
       '@rolldown/plugin-babel': 0.2.4(dc41019be45a04d74b5484cdd3f2a806)
+      '@rollup/plugin-babel': 7.1.0(@babel/core@7.29.7)
+      '@types/debug': 4.1.13
+      '@typescript-eslint/eslint-plugin': 8.71.2(51fd41f6fa8201ac8fa9ef7cc8082a2e)
+      '@typescript-eslint/parser': 8.71.2(eslint@10.12.0)(typescript@6.0.3)
+      comment-json: 5.0.0
+      debug: 4.4.3
+      ember-eslint-parser: 0.14.9(bfe5119bb50b9c7e8398ca573262da16)
+      eslint: 10.12.0
+      eslint-config-prettier: 10.1.8(eslint@10.12.0)
+      eslint-plugin-import-x: 4.17.1(eslint@10.12.0)
+      eslint-plugin-mocha: 12.0.2(eslint@10.12.0)
+      eslint-plugin-n: 18.4.1(eslint@10.12.0)(typescript@6.0.3)
+      eslint-plugin-qunit: 8.2.6(eslint@10.12.0)
+      globals: 17.13.0
+      tsdown: 0.23.1(typescript@6.0.3)
+      typescript: 6.0.3
+      typescript-eslint: 8.71.2(eslint@10.12.0)(typescript@6.0.3)
+    transitivePeerDependencies:
+      - '@arethetypeswrong/core'
+      - '@babel/plugin-transform-runtime'
+      - '@babel/runtime'
+      - '@glint/template'
+      - '@tsdown/css'
+      - '@tsdown/exe'
+      - '@types/babel__core'
+      - '@typescript-eslint/utils'
+      - '@typescript/native-preview'
+      - '@vitejs/devtools'
+      - '@volar/typescript'
+      - '@vue/language-core'
+      - bufferutil
+      - canvas
+      - eslint-import-resolver-node
+      - jiti
+      - oxc-resolver
+      - publint
+      - rolldown
+      - rollup
+      - supports-color
+      - ts-declaration-location
+      - tsx
+      - unplugin-unused
+      - unrun
+      - utf-8-validate
+      - vite
+      - vue-tsc
+
+  '@warp-drive/internal-config@file:tools/internal-config(@glint/template@1.9.0)(vite@8.3.4)':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/eslint-parser': 8.0.7(@babel/core@7.29.7)(eslint@10.12.0)
+      '@eslint/js': 10.0.1(eslint@10.12.0)
+      '@nullvoxpopuli/ember-rolldown': 2.11.0(b7759385674e3d5d4dc10cb36216d10f)
+      '@rolldown/plugin-babel': 0.2.4(@babel/core@7.29.7)(vite@8.3.4)
       '@rollup/plugin-babel': 7.1.0(@babel/core@7.29.7)
       '@types/debug': 4.1.13
       '@typescript-eslint/eslint-plugin': 8.71.2(51fd41f6fa8201ac8fa9ef7cc8082a2e)

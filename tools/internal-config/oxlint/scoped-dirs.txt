@@ -87,3 +87,5 @@ warp-drive-packages/svelte/src
 warp-drive-packages/tc39-proposal-signals/src
 warp-drive-packages/utilities/src
 warp-drive-packages/vue/src
+warp-drive-packages/devtools-extension/app
+warp-drive-packages/devtools-extension/public

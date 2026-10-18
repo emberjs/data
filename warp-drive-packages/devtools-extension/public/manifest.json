@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "WarpDrive DevTools",
+  "description": "Inspect WarpDrive stores and requests from the browser DevTools.",
+  "version": "0.1.0",
+  "devtools_page": "devtools.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    }
+  ]
+}

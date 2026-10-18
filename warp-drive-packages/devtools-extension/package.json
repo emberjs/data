@@ -1,0 +1,45 @@
+{
+  "name": "@warp-drive/devtools-extension",
+  "private": true,
+  "version": "5.10.0-alpha.17",
+  "description": "The WarpDrive browser DevTools extension: an Ember + WarpDrive panel",
+  "license": "MIT",
+  "author": "Chris Thoburn <runspired@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
+    "directory": "warp-drive-packages/devtools-extension"
+  },
+  "homepage": "https://github.com/warp-drive-data/warp-drive",
+  "bugs": "https://github.com/warp-drive-data/warp-drive/issues",
+  "type": "module",
+  "scripts": {
+    "build:pkg": "vite build",
+    "start": "vite build --watch",
+    "check:types": "node ./node_modules/typescript-7/bin/tsc --noEmit --runExternalCode",
+    "sync": "echo \"syncing\""
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/plugin-transform-typescript": "catalog:",
+    "@embroider/core": "catalog:",
+    "@embroider/macros": "catalog:",
+    "@embroider/vite": "catalog:",
+    "@glimmer/component": "catalog:",
+    "@glint/ember-tsc": "catalog:",
+    "@glint/template": "catalog:",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/internal-config": "workspace:*",
+    "babel-plugin-ember-template-compilation": "catalog:",
+    "decorator-transforms": "catalog:",
+    "ember-content-mapper": "catalog:",
+    "ember-source": "catalog:",
+    "ember-strict-application-resolver": "catalog:",
+    "typescript-7": "catalog:",
+    "vite": "catalog:"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

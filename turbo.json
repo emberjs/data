@@ -207,6 +207,24 @@
       "outputLogs": "new-only",
       "env": ["IS_UNPKG_BUILD"]
     },
+    // The DevTools extension is an app (app/, public/, index.html), not a
+    // src/-based library, so the generic build:pkg inputs would not notice
+    // edits to it. It imports @warp-drive/core's built devtools-hook.
+    "@warp-drive/devtools-extension#build:pkg": {
+      "inputs": [
+        "app/**",
+        "public/**",
+        "types/**",
+        "index.html",
+        "tsconfig.json",
+        "package.json",
+        "babel.*",
+        "vite.config.*"
+      ],
+      "outputs": ["dist/**"],
+      "dependsOn": ["@warp-drive/core#build:pkg", "//#sync"],
+      "outputLogs": "new-only"
+    },
     "@ember-data/codemods#build:pkg": {
       "inputs": ["src/**", "utils/**", "tsdown.config.mjs", "tsconfig.json", "package.json"],
       "outputs": ["dist/**"],
