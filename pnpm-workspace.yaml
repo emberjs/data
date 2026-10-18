@@ -329,8 +329,8 @@ catalog:
   "@rolldown/plugin-babel": ^0.2.4
   "@rollup/plugin-babel": ^7.1.0
   "@sqlite.org/sqlite-wasm": 3.46.0-build2
-  "@sveltejs/kit": ^3.0.1
-  "@sveltejs/package": ^3.0.0
+  "@sveltejs/kit": ^3.1.0
+  "@sveltejs/package": ^3.0.1
   "@sveltejs/vite-plugin-svelte": ^7.3.1
   "@types/babel__core": ^7.20.5
   "@types/debug": ^4.1.13
