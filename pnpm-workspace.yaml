@@ -412,7 +412,7 @@ catalog:
   tsdown: ^0.23.1
   turbo: ^2.11.8
   typedoc: ^0.28.20
-  typedoc-plugin-markdown: ^4.13.1
+  typedoc-plugin-markdown: ^4.14.0
   typedoc-plugin-mdn-links: ^5.1.1
   typedoc-plugin-no-inherit: ^1.6.1
   typedoc-vitepress-theme: ^1.1.4
@@ -427,7 +427,7 @@ catalog:
   vite-plugin-image-optimizer: ^2.0.3
   vite-plugin-pwa: ^2.0.0
   vitepress: ^2.0.0-alpha.20
-  vitepress-plugin-group-icons: ^1.7.7
+  vitepress-plugin-group-icons: ^1.8.1
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-llms: ^1.14.0
   vitepress-plugin-tabs: ^0.9.1
