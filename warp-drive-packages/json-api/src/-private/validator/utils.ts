@@ -1,9 +1,10 @@
+import { importSync } from '@embroider/macros';
 import type { FuseResult } from 'fuse.js';
 import Fuse from 'fuse.js';
-import type { ArrayNode, ObjectNode } from 'json-to-ast';
-import jsonToAst from 'json-to-ast';
+import type { ArrayNode, ObjectNode, ValueNode } from 'json-to-ast';
 
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
+import { DEBUG } from '@warp-drive/core/build-config/env';
 import { assert } from '@warp-drive/core/build-config/macros';
 import type { CacheCapabilitiesManager, SchemaService } from '@warp-drive/core/types';
 import type {
@@ -152,7 +153,7 @@ export class Reporter {
    */
   maxDistinctIssues = 50;
 
-  declare _ast: ReturnType<typeof jsonToAst> | undefined;
+  declare _ast: ValueNode | undefined;
   declare _jsonStr: string | undefined;
 
   // lazy: only parse the document into a string/AST if we actually need to
@@ -165,11 +166,14 @@ export class Reporter {
     return this._jsonStr;
   }
 
-  get ast(): ReturnType<typeof jsonToAst> {
+  get ast(): ValueNode {
     if (!this._ast) {
-      this._ast = jsonToAst(this.jsonStr, { loc: true });
+      if (DEBUG) {
+        const jsonToAst = (importSync('json-to-ast') as { default: typeof import('json-to-ast') }).default;
+        this._ast = jsonToAst(this.jsonStr, { loc: true });
+      }
     }
-    return this._ast;
+    return this._ast!;
   }
 
   // TODO @runspired make this configurable to consuming apps before
