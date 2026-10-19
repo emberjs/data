@@ -1,7 +1,7 @@
+import type { ArrayNode, ObjectNode, ValueNode } from '@humanwhocodes/momoa';
+import { parse } from '@humanwhocodes/momoa';
 import type { FuseResult } from 'fuse.js';
 import Fuse from 'fuse.js';
-import type { ArrayNode, ObjectNode } from 'json-to-ast';
-import jsonToAst from 'json-to-ast';
 
 import { JSON_API_CACHE_VALIDATION_ERRORS } from '@warp-drive/core/build-config/canary-features';
 import { assert } from '@warp-drive/core/build-config/macros';
@@ -152,7 +152,7 @@ export class Reporter {
    */
   maxDistinctIssues = 50;
 
-  declare _ast: ReturnType<typeof jsonToAst> | undefined;
+  declare _ast: ValueNode | undefined;
   declare _jsonStr: string | undefined;
 
   // lazy: only parse the document into a string/AST if we actually need to
@@ -165,9 +165,9 @@ export class Reporter {
     return this._jsonStr;
   }
 
-  get ast(): ReturnType<typeof jsonToAst> {
+  get ast(): ValueNode {
     if (!this._ast) {
-      this._ast = jsonToAst(this.jsonStr, { loc: true });
+      this._ast = parse(this.jsonStr).body;
     }
     return this._ast;
   }
@@ -264,7 +264,7 @@ export class Reporter {
     end: { line: number; column: number; offset: number };
   } {
     if (path.length === 0) {
-      return this.ast.loc!;
+      return this.ast.loc;
     }
 
     let priorNode = this.ast as ObjectNode | ArrayNode;
@@ -276,20 +276,20 @@ export class Reporter {
       if (typeof segment === 'number') {
         assert(`Because the segment is a number, expected a node of type Array`, node.type === 'Array');
 
-        if (node.children && node.children[segment]) {
+        if (node.elements[segment]) {
           priorNode = node;
-          const childNode = node.children[segment];
+          const childNode = node.elements[segment].value;
 
           if (childNode.type === 'Object' || childNode.type === 'Array') {
             node = childNode;
           } else {
             // set to the closest node we can find
-            return node.loc!;
+            return node.loc;
           }
         } else {
           // set to the closest node we can find
           // as we had no children
-          return priorNode.loc!;
+          return priorNode.loc;
         }
 
         //
@@ -298,12 +298,7 @@ export class Reporter {
       } else {
         assert(`Because the segment is a string, expected a node of type Object`, node.type === 'Object');
 
-        const child = node.children.find((childCandidate) => {
-          if (childCandidate.type === 'Property') {
-            return childCandidate.key.type === 'Identifier' && childCandidate.key.value === segment;
-          }
-          return false;
-        });
+        const child = node.members.find((member) => member.name.type === 'String' && member.name.value === segment);
 
         if (child) {
           if (child.value.type === 'Object' || child.value.type === 'Array') {
@@ -311,16 +306,16 @@ export class Reporter {
             node = child.value;
           } else {
             // set to the closest node we can find
-            return kind === 'key' ? child.key.loc! : child.value.loc!;
+            return kind === 'key' ? child.name.loc : child.value.loc;
           }
         } else {
           // set to the closest node we can find
-          return priorNode.loc!;
+          return priorNode.loc;
         }
       }
     }
 
-    return node.loc!;
+    return node.loc;
   }
 
   error(path: PathLike, message: string, kind: 'key' | 'value' = 'key'): void {

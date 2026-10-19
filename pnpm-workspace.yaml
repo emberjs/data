@@ -336,7 +336,6 @@ catalog:
   "@types/debug": ^4.1.13
   "@types/jquery": ^4.0.1
   "@types/jscodeshift": ^17.3.0
-  "@types/json-to-ast": ^2.1.4
   "@types/morgan": ^1.9.10
   "@types/node": ^26.6.5
   "@types/qunit": 2.19.14
