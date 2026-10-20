@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/utilities",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "description": "Request-building utilities for WarpDrive, including URL and query-param helpers such as `buildBaseURL` and ready-made request builders for JSON:API, REST and ActiveRecord APIs.",
   "keywords": [
     "ember-addon"

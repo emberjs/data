@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/schema-record",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "description": "(Legacy) Re-export of the reactive-resource API such as `SchemaService`, `instantiateRecord` and `withDefaults`; new code should import these from `@warp-drive/core/reactive`.",
   "keywords": [
     "ember-addon"

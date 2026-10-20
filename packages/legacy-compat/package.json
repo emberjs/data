@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/legacy-compat",
   "description": "(Legacy) Shims such as `LegacyNetworkHandler`, `adapterFor` and `serializerFor` that keep Adapters and Serializers working with the `RequestManager`; now published as `@warp-drive/legacy/compat`.",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {

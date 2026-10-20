@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/rest",
   "description": "(Legacy) REST request builders such as `findRecord`, `query` and `createRecord` that produce camelCase, pluralized URLs; new apps should import them from `@warp-drive/utilities/rest` instead.",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",

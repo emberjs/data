@@ -1,6 +1,6 @@
 {
   "name": "core-tests",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "description": "Provides tests for @warp-drive/core",
   "private": true,
   "repository": {

@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request-utils",
   "description": "(Legacy) URL and query-param helpers such as `buildBaseURL` and `buildQueryParams` for request builders; new apps should import them from `@warp-drive/utilities` instead.",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "private": false,
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",

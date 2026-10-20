@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core-types",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "description": "(Legacy) Type-only re-exports of the `@warp-drive/core/types` modules, kept so existing `@warp-drive/core-types` imports compile; new code should import from `@warp-drive/core/types`.",
   "keywords": [
     "ember-addon"

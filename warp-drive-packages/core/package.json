@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/core",
-  "version": "5.10.0-alpha.17",
+  "version": "5.10.0-alpha.18",
   "description": "The core WarpDrive package, providing the `Store`, the `RequestManager` and its handlers, the Cache interface, reactive resources and `useRecommendedStore` for app setup.",
   "keywords": [
     "ember-addon"
