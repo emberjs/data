@@ -42,14 +42,13 @@
   },
   "dependencies": {
     "@embroider/macros": "^1.21.3",
-    "fuse.js": "7.5.0",
-    "json-to-ast": "2.1.0"
+    "@humanwhocodes/momoa": "3.3.13",
+    "fuse.js": "7.5.0"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
     "@babel/plugin-transform-typescript": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@types/json-to-ast": "catalog:",
     "@warp-drive/core": "workspace:*",
     "@warp-drive/internal-config": "workspace:*",
     "decorator-transforms": "catalog:",
