@@ -1,10 +1,9 @@
 ---
-description: Find where the Incremental Adoption Guide now lives, since it has moved to the 4.x to 5.x upgrade guides and this page only redirects readers there
+title: Incremental Adoption Guide
+description: Find the current home of the guide to adopting the request APIs on ember-data 4.12, which has moved to /upgrading/ember-data/incremental-adoption and is no longer maintained on this page.
 draft: true
 ---
 
-# Incremental Adoption Guide
-
 :::danger **We've moved!**
-The Incremental Adoption Guide has [moved](/upgrading/v5/incremental-adoption.md)
+This guide has [moved](/upgrading/ember-data/incremental-adoption.md)
 :::

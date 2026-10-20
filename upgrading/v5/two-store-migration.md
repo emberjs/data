@@ -6,7 +6,7 @@ description: Run a second WarpDrive store built from the -mirror packages beside
 
 # Migrating Between Versions Using The Two Store Approach
 
-<SinceBadge version="5.0.0" /> &nbsp; authored 2023-06-10
+<SinceBadge version="5.0.0" /> &nbsp; authored 2023-06-10, revised 2026-09-24
 
 Sometimes apps build over features, private APIs 🙈, or 3rd party libraries that later become deprecated and removed.
 
@@ -36,6 +36,10 @@ For convenience, some types, constants and symbols that are safe to interop betw
 
 Mirror packages are available for versions `^4.13.0 | >=5.3.8`.
 
+::: tip On ember-data 4.12 or earlier?
+Its packages never overlap with `@warp-drive/*`, so you don't need the mirror packages. See [Migrating from ember-data](/upgrading/ember-data/index.md).
+:::
+
 ## TypeScript
 
 All mirror packages are also versions which ship their own types. To use those types, configure your `tsconfig.json` to be able to find them [as shown here](/guides/the-manual/typescript/configuration.md#using-native-types), adding the appropriate `-mirror` appendage to each package name (PS: you can have distinct types for both your older and your newer version!).
@@ -46,12 +50,14 @@ Utilizing the two-store approach has a few tradeoffs:
 
 1. If you want compatible type signatures for use by your components, you should upgrade your app to make use of native types first, likely using the [types-package approach](/guides/the-manual/typescript/installation.md#using-types-packages).
 
-In fact, it is likely that if you want TypeScript for the v2 store that you are *forced* to remove the `@types/ember*` packages from your project entirely and upgrade to using native types for ember-source and ember-data. This is because the native types for WarpDrive depend on ember's native types.
+WarpDrive's native types depend on Ember's native types, so an app still on the `@types/ember*` packages type-checks the v2 store only through local casts at the call sites that read a request's result. That is workable while the migration covers a few routes. Move to native types before the second store touches most of the app, or the casts become the type system.
 
 2. You should not use both `ember-data` and `ember-data-mirror` or there will be an unresolveable race condition for which one is the `store` service. Instead one of the stores, usually the mirror, MUST import and fully configure the store. The [4.x → 5.x guide](./index.md#step-4-configure-the-store) does this with [`useLegacyStore`](/api/@warp-drive/legacy/functions/useLegacyStore), which reproduces the store that `ember-data` configured "by default" historically. Its options let you drop pieces of that default you no longer want, such as adapters and serializers, or Model itself.
 
 3. Due to (#2) above, your build MUST call [`setConfig`](/api/@warp-drive/core/build-config/functions/setConfig) from the mirror package so the mirror gets its own build config. See [Configure The Build](./index.md#step-2-configure-the-build) in the 4.x → 5.x guide.
 
 4. Record instances created by one store may not be used by another store, this primarily means they cannot be set as values of relationships. The records (and data) of each store is a wholly distinct context. You may find [ember-provide-consume-context](https://github.com/customerio/ember-provide-consume-context) useful for helping to manage this. Migrating "leaf first" or well-encapsulated parts of your app will generally lead to the pit-of-success.
+
+For the application-side patterns that go with this setup, moving one route at a time, see [Migrating from ember-data](/upgrading/ember-data/index.md#keep-each-screen-on-one-store). They apply the same way with mirror packages.
 
 

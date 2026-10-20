@@ -1,6 +1,6 @@
 ---
 title: Upgrading
-description: Find the permanent, versioned upgrade guides for each WarpDrive major, starting with the 4.x to 5.x guide, plus where deprecation guides currently live.
+description: Find the permanent, versioned upgrade guides, which one fits the ember-data or WarpDrive version your app is on, and where deprecation guides currently live.
 ---
 
 # Upgrading ***Warp*Drive**
@@ -21,14 +21,25 @@ whoever finds them years from now.
   near the top of the page.
 - **Content is organized by major version.** Each major version gets its own sub-section (e.g.
   [4.x → 5.x](/upgrading/v5/)) containing that version's upgrade guide plus any deprecation or
-  feature-specific migration guides written for it.
+  feature-specific migration guides written for it. The one exception is
+  [ember-data → WarpDrive](/upgrading/ember-data/), for apps that start from `ember-data` packages
+  alone.
 
 See [Upgrading and Blog Pages](/guides/contributing/writing-documentation/writing-guides.md#upgrading-and-blog-pages)
 for the authoring rules that keep these guarantees true.
 
-## Major Versions
+## Which Guide Do I Need?
 
-- [4.x → 5.x](/upgrading/v5/)
+Check which `ember-data` version your app is on.
+
+- **4.12 or earlier.** These releases publish only `ember-data` and `@ember-data/*` packages. Start at
+  [ember-data → WarpDrive](/upgrading/ember-data/). It runs the latest WarpDrive beside your
+  current `ember-data` and moves one route at a time. To stay on 4.12 and adopt the new request
+  APIs in the store you already have, see
+  [Adopting the Request APIs on 4.12](/upgrading/ember-data/incremental-adoption.md).
+- **4.13 or any 5.x.** These releases already depend on `@warp-drive/*` packages. Start at
+  [4.x → 5.x](/upgrading/v5/), which uses
+  [mirror packages](/upgrading/v5/two-store-migration.md#mirror-versions) to run both versions side by side.
 
 ## Deprecations
 

@@ -9,11 +9,11 @@ legacyAdvice: "New apps should start from [Installation](/guides/installation/in
 
 # Migrating 4.x to 5.x
 
-<SinceBadge version="5.0.0" /> &nbsp; authored 2023-06-10
+<SinceBadge version="5.0.0" /> &nbsp; authored 2023-06-10, revised 2026-09-24
 
 This guide will *likely* work for apps on 3.28 that have resolved EmberData deprecations from the 3.x series.
 
-This guide is primarily intended for apps that got ***"stuck"*** on either 4.6 (due to ModelFragments) or 4.12 (typically due to the ArrayLike deprecation)
+This guide is primarily intended for apps that got ***"stuck"*** on either 4.6 (due to ModelFragments) or 4.12 (typically due to the ArrayLike deprecation). If you are still on `ember-data` 4.12, start at [Migrating from ember-data](/upgrading/ember-data/index.md), which sends you back here for the setup steps.
 
 Note - it is not actually a requirement of 5.x to replace Models with Schemas (nor to replace adapters/serializers with requests). These things are deprecated *in* 5.x, but they still work.
 
@@ -263,6 +263,10 @@ ArrayLike API usage is likely to give you the most issues here, if anything does
 
 ### Step 1 - Install the Mirror Packages
 
+::: tip On ember-data 4.12 or earlier?
+You can skip the mirror packages. See [Migrating from ember-data](/upgrading/ember-data/index.md).
+:::
+
 ::: code-group
 
 ```sh [pnpm]
@@ -303,7 +307,7 @@ This will install the following at the latest release
 
 ::: tabs key:paradigm
 
-== Classic Config
+== Ember CLI + Embroider
 
 ```ts [ember-cli-build.js]
 'use strict';
@@ -326,6 +330,32 @@ module.exports = async function (defaults) {
   });
 
   return compatBuild(app, buildOnce);
+};
+```
+
+== Classic Broccoli Build
+
+```ts [ember-cli-build.js]
+'use strict';
+const EmberApp = require('ember-cli/lib/broccoli/ember-app');
+
+module.exports = async function (defaults) {
+  const { setConfig } = await import('@warp-drive-mirror/core/build-config'); // [!code focus]
+  const app = new EmberApp(defaults, {});
+
+  setConfig(app, __dirname, { // [!code focus:9]
+    // this should be the most recent <major>.<minor> version for
+    // which all deprecations have been fully resolved
+    // and should be updated when that changes
+    compatWith: '4.12',
+    deprecations: {
+      // ... list individual deprecations that have been resolved here
+    }
+  });
+
+  // setConfig needs no Embroider. It registers the build-time
+  // flags through @embroider/macros, which classic builds run too.
+  return app.toTree();
 };
 ```
 

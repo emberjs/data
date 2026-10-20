@@ -259,3 +259,4 @@ export class TrailRunner {
   @hasMany({ type: 'trail-runner', inverse: null, async: false })
   declare friends: TrailRunner[];
 }
+```

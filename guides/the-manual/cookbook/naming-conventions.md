@@ -4,8 +4,6 @@ description: Decide whether resource types should be singular or plural and dash
 
 # Resource Type Naming: singular or plural? What to choose? Why is that?
 
-- ⮐ [Cookbook](./index.md)
-
 Every resource in ***Warp*Drive** has a type: the `type` string that identifies it in API
 responses, in its [ResourceSchema](../schemas/resources/index.md), in the relationship fields
 that point to it and in the requests that fetch it. ***Warp*Drive** has no rule about what that
@@ -114,7 +112,3 @@ The JSON:API spec is agnostic about how `type` is named. Here is the quote from 
 > Note: This spec is agnostic about inflection rules, so the value of `type` can be either plural or singular. However, the same value should be used consistently throughout an implementation.
 
 You can read more about it in the [JSON:API spec](https://jsonapi.org/format/#document-resource-object-identification).
-
----
-
-- ⮐ [Cookbook](./index.md)
