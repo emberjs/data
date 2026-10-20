@@ -22,6 +22,7 @@
     "start": "node node_modules/tsdown/dist/run.mjs --watch",
     "check:types": "node ./node_modules/typescript-7/bin/tsc --noEmit --runExternalCode"
   },
+  "type": "module",
   "files": [
     "addon-main.cjs",
     "dist",

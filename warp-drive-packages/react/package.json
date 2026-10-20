@@ -24,6 +24,7 @@
     "check:types": "node ./node_modules/typescript-7/bin/tsc --noEmit",
     "start": "node node_modules/tsdown/dist/run.mjs --watch"
   },
+  "type": "module",
   "files": [
     "addon-main.cjs",
     "dist",

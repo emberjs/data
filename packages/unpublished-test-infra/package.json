@@ -41,6 +41,7 @@
     "sync": "echo \"syncing\"",
     "check:types": "node ./node_modules/typescript-7/bin/tsc --noEmit"
   },
+  "type": "module",
   "peerDependencies": {
     "@ember/test-helpers": "3.3.0 || ^4.0.4 || ^5.1.0",
     "@warp-drive/diagnostic": "workspace:*",

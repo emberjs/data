@@ -43,6 +43,7 @@
     "sync": "echo \"syncing\"",
     "start": "node node_modules/tsdown/dist/run.mjs --watch"
   },
+  "type": "module",
   "ember-addon": {
     "main": "addon-main.cjs",
     "type": "addon",

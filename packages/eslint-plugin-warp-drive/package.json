@@ -52,5 +52,6 @@
     "skip:test": "mocha tests",
     "lint": "eslint . --quiet --cache --cache-strategy=content"
   },
+  "type": "commonjs",
   "license": "MIT"
 }

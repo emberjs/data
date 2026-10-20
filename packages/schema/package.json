@@ -25,6 +25,7 @@
     "check:types": "tsc --noEmit",
     "test": "node --test tests/*.spec.ts"
   },
+  "type": "module",
   "files": [
     "README.md",
     "src",

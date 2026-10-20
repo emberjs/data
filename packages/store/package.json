@@ -36,6 +36,7 @@
     "sync": "echo \"syncing\"",
     "start": "node node_modules/tsdown/dist/run.mjs --watch"
   },
+  "type": "module",
   "dependencies": {
     "@embroider/macros": "^1.21.3",
     "@warp-drive/core": "workspace:*"

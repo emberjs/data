@@ -56,6 +56,7 @@
     "sync": "echo \"syncing\"",
     "start": "node node_modules/tsdown/dist/run.mjs --watch"
   },
+  "type": "module",
   "peerDependencies": {
     "@sqlite.org/sqlite-wasm": "3.46.0-build2",
     "@warp-drive/core": "workspace:*"

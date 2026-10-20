@@ -20,6 +20,7 @@
     "sync": "echo \"syncing\"",
     "start": "node node_modules/tsdown/dist/run.mjs --watch"
   },
+  "type": "module",
   "files": [
     "addon-main.cjs",
     "dist",
