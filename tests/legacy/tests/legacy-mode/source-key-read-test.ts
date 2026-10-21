@@ -1,3 +1,4 @@
+import type Owner from '@ember/owner';
 import { setOwner } from '@ember/owner';
 
 import type { Type } from '@warp-drive/core/types/symbols';
@@ -166,7 +167,7 @@ module('Legacy | Reads | SourceKey', function (hooks) {
       [Type]: 'blog-post';
     };
 
-    function setupStore(owner: object, sourceKeys: { blogPosts?: string; author?: string }) {
+    function setupStore(owner: Owner, sourceKeys: { blogPosts?: string; author?: string }) {
       const store = new Store();
       setOwner(store, owner);
       const { schema } = store;
