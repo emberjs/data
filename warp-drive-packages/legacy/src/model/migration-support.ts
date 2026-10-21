@@ -482,9 +482,10 @@ export function registerDerivations(schema: SchemaService): void {
       },
       notify(store: Store, record: object, cacheKey: ResourceKey, field: LegacyHasManyField): boolean {
         const support = lookupLegacySupport(record as unknown as MinimalLegacyRecord);
-        // FIXME field.name here should likely be field.sourceKey || field.name
-        const manyArray = support && support._manyArrayCache[field.name];
-        const hasPromise = support && (support._relationshipPromisesCache[field.name] as Promise<unknown> | undefined);
+        // LegacySupport caches relationships by `sourceKey ?? name`
+        const key = field.sourceKey ?? field.name;
+        const manyArray = support && support._manyArrayCache[key];
+        const hasPromise = support && (support._relationshipPromisesCache[key] as Promise<unknown> | undefined);
 
         if (manyArray && hasPromise) {
           // do nothing, we will notify the ManyArray directly
