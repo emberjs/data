@@ -543,9 +543,9 @@ patchedDependencies:
   ## An entry keeps its file-level doc comment (`@module`) when its first statement is an
   ## import or `export ... from` (sxzz/rolldown-plugin-dts#311, open). @warp-drive/ember's API
   ## docs are built from its dist .d.ts, and lose their layout without that comment's
-  ## `@mergeModuleWith <project>`. The patch is keyed to an exact version, so move it to
-  ## whatever version tsdown pulls in, and drop it once a release includes the fix.
-  rolldown-plugin-dts@0.28.8: patches/rolldown-plugin-dts@0.28.8.patch
+  ## `@mergeModuleWith <project>`. Keyed to a range so 0.28.x bumps keep it; install fails if
+  ## it stops applying. Widen the range for 0.29, and drop it once a release includes the fix.
+  "rolldown-plugin-dts@>=0.28.8 <0.29": patches/rolldown-plugin-dts@0.28.patch
 
 ## pnpm 11 requires explicit opt-in for dependency postinstall/build scripts.
 ## unrs-resolver (native resolver used transitively by eslint-import-context)
