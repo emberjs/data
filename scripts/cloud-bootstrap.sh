@@ -3,7 +3,6 @@ if [ "$CLAUDE_CODE_REMOTE" != "true" ]; then
   exit 0
 fi
 
-export PATH="/opt/node26/bin:$PATH"
 cd "$CLAUDE_PROJECT_DIR"
 
 # Mirrors the repo's own "takeoff" script
