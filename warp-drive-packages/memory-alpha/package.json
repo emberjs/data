@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/memory-alpha",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.18",
   "description": "WarpDrive knowledge packaged as plain markdown skill files for AI coding agents, with no code or exports, to read directly or adapt into Claude Skills, MCP servers or editor rules.",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",

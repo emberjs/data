@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { settled } from '@ember/test-helpers';
 
@@ -24,12 +23,7 @@ module('integration/debug-adapter - DebugAdapter', function (hooks) {
 
     owner.register('model:post', Post);
     store = owner.lookup('service:store');
-    const _adapter = DebugAdapter.extend({
-      getModelTypes() {
-        return A([{ klass: store.modelFor('post'), name: 'post' }]);
-      },
-    });
-    owner.register('data-adapter:main', _adapter);
+    owner.register('data-adapter:main', DebugAdapter);
   });
 
   test('Watching Types Seen Before Inspector Initialized', async function (assert) {

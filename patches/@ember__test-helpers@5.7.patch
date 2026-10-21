@@ -1,5 +1,5 @@
 diff --git a/declarations/index.d.ts b/declarations/index.d.ts
-index dabebc2c90af3e14b28fb96578f2ccf2393573ef..ec107fd3c4ca76d41fd337c159067aae4d51afab 100644
+index dabebc2..ec107fd 100644
 --- a/declarations/index.d.ts
 +++ b/declarations/index.d.ts
 @@ -6,7 +6,7 @@ export type { BaseContext, DeprecationFailure, TestContext, Warning, SetupContex
@@ -12,7 +12,7 @@ index dabebc2c90af3e14b28fb96578f2ccf2393573ef..ec107fd3c4ca76d41fd337c159067aae
  export { default as rerender } from './rerender.ts';
  export { default as setupApplicationContext, visit, currentRouteName, currentURL, } from './setup-application-context.ts';
 diff --git a/declarations/setup-rendering-context.d.ts b/declarations/setup-rendering-context.d.ts
-index 933ae9046751ce93e5a65e484df1d28961157fd2..313434746489d3f6aca00165ac8963f281f8bfc8 100644
+index 933ae90..3134347 100644
 --- a/declarations/setup-rendering-context.d.ts
 +++ b/declarations/setup-rendering-context.d.ts
 @@ -1,6 +1,6 @@
@@ -23,11 +23,31 @@ index 933ae9046751ce93e5a65e484df1d28961157fd2..313434746489d3f6aca00165ac8963f2
  export interface RenderingTestContext extends TestContext {
      element: Element | Document;
      [hasCalledSetupRenderingContext]?: true;
-diff --git a/dist/build-owner.js b/dist/build-owner.js
-index b19c6aa9c1b03b3c858b403164169d6c65205a21..4152a03a24b93f19e17f596d0439673b1aa33d64 100644
---- a/dist/build-owner.js
-+++ b/dist/build-owner.js
-@@ -20,13 +20,17 @@ import buildRegistry from './-internal/build-registry.js';
+diff --git a/dist/index.js b/dist/index.js
+index c100398..59e6d96 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -131,7 +131,7 @@ const EMPTY_TEMPLATE = precompileTemplate("", {
+ const INVOKE_PROVIDED_COMPONENT = precompileTemplate("<this.ProvidedComponent />", {
+   strictMode: false
+ });
+-const hasCalledSetupRenderingContext = Symbol();
++const hasCalledSetupRenderingContext = Symbol('hasCalledSetupRenderingContext');
+ //  Isolates the notion of transforming a TextContext into a RenderingTestContext.
+ // eslint-disable-next-line require-jsdoc
+ function prepare(context) {
+@@ -2243,5 +2243,5 @@ function waitForFocus(target, options = {}) {
+   });
+ }
+ 
+-export { blur, clearRender, click, doubleClick, fillIn, find, findAll, focus, getContext, getRootElement, getTestMetadata, registerHook, render, rerender, runHooks, scrollTo, select, settled, setupRenderingContext, triggerTab as tab, tap, teardownContext, triggerEvent, triggerKeyEvent, typeIn, unsetContext, validateErrorHandler, waitFor, waitForFocus, waitUntil };
++export { blur, clearRender, click, doubleClick, fillIn, find, findAll, focus, getContext, getRootElement, getTestMetadata, hasCalledSetupRenderingContext, registerHook, render, rerender, runHooks, scrollTo, select, settled, setupRenderingContext, triggerTab as tab, tap, teardownContext, triggerEvent, triggerKeyEvent, typeIn, unsetContext, validateErrorHandler, waitFor, waitForFocus, waitUntil };
+ //# sourceMappingURL=index.js.map
+diff --git a/dist/setup-context-BwSdAogx.js b/dist/setup-context-BwSdAogx.js
+index 0b7c05a..3bb7921 100644
+--- a/dist/setup-context-BwSdAogx.js
++++ b/dist/setup-context-BwSdAogx.js
+@@ -221,13 +221,17 @@ function buildRegistry(resolver) {
    @param {Ember.Resolver} [resolver] the resolver to use to back a "mock owner"
    @returns {Promise<Ember.ApplicationInstance>} a promise resolving to the generated "owner"
  */
@@ -47,24 +67,7 @@ index b19c6aa9c1b03b3c858b403164169d6c65205a21..4152a03a24b93f19e17f596d0439673b
    }
    if (!resolver) {
      throw new Error('You must set up the ember-test-helpers environment with either `setResolver` or `setApplication` before running any tests.');
-diff --git a/dist/index.js b/dist/index.js
-index 968b6df934869f0a49d9dd9dc9d6ee2f6affe1e4..44e44f4e2ec4a327d679e0b4777f57f13ea39464 100644
---- a/dist/index.js
-+++ b/dist/index.js
-@@ -3,7 +3,7 @@ export { getApplication, setApplication } from './application.js';
- export { default as hasEmberVersion } from './has-ember-version.js';
- export { c as currentRouteName, a as currentURL, g as getContext, b as getDeprecations, d as getDeprecationsDuringCallback, e as getSettledState, f as getWarnings, h as getWarningsDuringCallback, j as isSettled, p as pauseTest, r as resetOnerror, k as resumeTest, l as setContext, s as settled, m as setupApplicationContext, n as setupContext, o as setupOnerror, u as unsetContext, v as visit } from './setup-context-DegmztrF.js';
- export { default as teardownContext } from './teardown-context.js';
--export { clearRender, render, default as setupRenderingContext } from './setup-rendering-context.js';
-+export { clearRender, render, default as setupRenderingContext, hasCalledSetupRenderingContext } from './setup-rendering-context.js';
- export { default as rerender } from './rerender.js';
- export { default as waitUntil } from './wait-until.js';
- export { default as validateErrorHandler } from './validate-error-handler.js';
-diff --git a/dist/setup-context-DegmztrF.js b/dist/setup-context-DegmztrF.js
-index 5a5d7ef2222f7d1c782be3eb408095ad2dc7bd13..2bec54847adddd3d6cab2e15a39e1764b654e2f4 100644
---- a/dist/setup-context-DegmztrF.js
-+++ b/dist/setup-context-DegmztrF.js
-@@ -784,7 +784,8 @@ function setupContext(base, options = {}) {
+@@ -1226,7 +1230,8 @@ function setupContext(base, options = {}) {
      return;
    }).then(() => {
      const {
@@ -74,7 +77,7 @@ index 5a5d7ef2222f7d1c782be3eb408095ad2dc7bd13..2bec54847adddd3d6cab2e15a39e1764
      } = options;
  
      // This handles precedence, specifying a specific option of
-@@ -794,9 +795,9 @@ function setupContext(base, options = {}) {
+@@ -1236,9 +1241,9 @@ function setupContext(base, options = {}) {
      // At some later time this can be extended to support specifying a custom
      // engine or application...
      if (resolver) {
@@ -86,16 +89,3 @@ index 5a5d7ef2222f7d1c782be3eb408095ad2dc7bd13..2bec54847adddd3d6cab2e15a39e1764
    }).then(owner => {
      Object.defineProperty(context, 'owner', {
        configurable: true,
-diff --git a/dist/setup-rendering-context.js b/dist/setup-rendering-context.js
-index 28a899ef8a6754f6b18aad4c557ecd048b817451..8a876aacd547a7f19d9ef3601b23d46815bfb3a9 100644
---- a/dist/setup-rendering-context.js
-+++ b/dist/setup-rendering-context.js
-@@ -18,7 +18,7 @@ const EMPTY_TEMPLATE = precompileTemplate("", {
- const INVOKE_PROVIDED_COMPONENT = precompileTemplate("<this.ProvidedComponent />", {
-   strictMode: false
- });
--const hasCalledSetupRenderingContext = Symbol();
-+export const hasCalledSetupRenderingContext = Symbol('hasCalledSetupRenderingContext');
- //  Isolates the notion of transforming a TextContext into a RenderingTestContext.
- // eslint-disable-next-line require-jsdoc
- function prepare(context) {

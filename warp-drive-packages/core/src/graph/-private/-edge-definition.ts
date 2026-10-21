@@ -440,7 +440,8 @@ export function upgradeDefinition(
     assert(`Expected the inverse model to exist`, storeWrapper.schema.hasResource({ type: inverseType }));
     inverseDefinition = null;
   } else {
-    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), key, propertyName);
+    // `propertyName` may be the field's `sourceKey`, but `fields()` is keyed by `name`
+    inverseKey = /*#__NOINLINE__*/ inverseForRelationship(getStore(storeWrapper), key, meta.name);
 
     // CASE: If we are polymorphic, and we declared an inverse that is non-null
     // we must assume that the lack of inverseKey means that there is no
@@ -474,6 +475,8 @@ export function upgradeDefinition(
       assert(`Expected ${inverseKey} to be a relationship`, isRelationshipField(metaFromInverse));
 
       inverseDefinition = upgradeMeta(metaFromInverse);
+      // the graph keys relationships by `sourceKey ?? name`, so the inverse side must be too
+      inverseKey = inverseDefinition.key;
     }
   }
 

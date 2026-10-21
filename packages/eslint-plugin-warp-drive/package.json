@@ -2,7 +2,7 @@
   "name": "eslint-plugin-warp-drive",
   "description": "ESLint rules and a recommended flat config for apps using WarpDrive, catching invalid resource types, ids and relationships, legacy imports and discouraged request patterns.",
   "main": "./src/index.js",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.18",
   "private": false,
   "repository": {
     "type": "git",

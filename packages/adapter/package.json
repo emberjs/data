@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.18",
   "description": "(Legacy) REST and JSON:API implementations of the Adapter interface, re-exported from `@warp-drive/legacy/adapter`; new apps should write request handlers for the `RequestManager` instead.",
   "keywords": [
     "ember-addon"

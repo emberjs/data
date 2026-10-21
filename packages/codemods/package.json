@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/codemods",
-  "version": "5.10.0-alpha.16",
+  "version": "5.10.0-alpha.18",
   "description": "Codemods for WarpDrive/EmberData paradigms",
   "keywords": [],
   "repository": {
@@ -13,7 +13,7 @@
     "codemods": "./dist/index.js"
   },
   "engines": {
-    "node": ">=24.21.0"
+    "node": ">=24.22.0"
   },
   "scripts": {
     "sync": "echo \"syncing\"",
@@ -39,7 +39,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ast-grep/napi": "^0.50.0"
+    "@ast-grep/napi": "^0.51.0"
   },
   "devDependencies": {
     "@types/jscodeshift": "catalog:",
