@@ -430,7 +430,7 @@ catalog:
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-llms: ^1.14.0
   vitepress-plugin-tabs: ^0.9.1
-  vitest: ^5.0.4
+  vitest: ^5.0.5
   vue: ^3.5.44
   vue-tsc: ^3.3.13
   winston: ^3.19.0
@@ -499,7 +499,7 @@ overrides:
   typescript: 6.0.3
   lodash: ^4.18.1
   caniuse-lite: ^1.0.30001816
-  rollup: ^4.64.6
+  rollup: ^4.64.10
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
   "@babel/traverse": ^7.29.10
