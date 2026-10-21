@@ -367,11 +367,11 @@ catalog:
   ember-source: ~7.3.1
   ember-source-channel-url: ^3.0.0
   ember-strict-application-resolver: ^0.1.1
-  eslint: ^10.12.0
+  eslint: ^10.13.0
   eslint-config-prettier: ^10.1.8
   eslint-plugin-import-x: ^4.17.1
   eslint-plugin-mocha: ^12.0.2
-  eslint-plugin-n: ^18.4.1
+  eslint-plugin-n: ^18.5.0
   eslint-plugin-qunit: ^8.2.6
   execa: ^10.2.0
   expect-type: ^1.4.0
