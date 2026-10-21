@@ -539,7 +539,7 @@ patchedDependencies:
   "@ember/test-helpers@5.2.0": patches/@ember__test-helpers@5.2.0.patch
   ember-source@4.4.5: patches/ember-source@4.4.5.patch
   ember-source@3.28.12: patches/ember-source@3.28.12.patch
-  "@ember/test-helpers@>=5.5.0 <6": patches/@ember__test-helpers@5.5.patch
+  "@ember/test-helpers@>=5.7.0 <6": patches/@ember__test-helpers@5.7.patch
   ## Two d.ts bundling fixes: sxzz/rolldown-plugin-dts#310 (open) adds `export {}` to a
   ## chunk that would otherwise export its unexported declarations, and an entry keeps its
   ## file-level doc comment (`@module`) when its first statement is an import or
