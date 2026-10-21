@@ -68,9 +68,9 @@
     "node": ">= 26.12.0",
     "yarn": "use pnpm",
     "npm": "use pnpm",
-    "pnpm": "12.13.0"
+    "pnpm": "12.14.0"
   },
-  "packageManager": "pnpm@12.13.0",
+  "packageManager": "pnpm@12.14.0",
   "devEngines": {
     "runtime": [
       {
