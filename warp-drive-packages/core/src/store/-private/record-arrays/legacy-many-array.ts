@@ -199,7 +199,8 @@ export function createLegacyManyArray<T>(options: LegacyManyArrayCreateOptions):
       isAsync: options.isAsync,
       isPolymorphic: options.isPolymorphic,
       identifier: options.identifier,
-      key: options.field.name,
+      // the cache addresses relationships by `sourceKey ?? name`
+      key: options.field.sourceKey ?? options.field.name,
       reload,
       createRecord,
       notify,
@@ -549,7 +550,6 @@ function mutateAddToRelatedRecords<T>(
 ) {
   const identifier = collection[Context].features!.identifier as ResourceKey;
 
-  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -569,7 +569,6 @@ function mutateRemoveFromRelatedRecords<T>(
 ) {
   const identifier = collection[Context].features!.identifier as ResourceKey;
 
-  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -593,7 +592,6 @@ function mutateReplaceRelatedRecord<T>(
 ) {
   const identifier = collection[Context].features!.identifier as ResourceKey;
 
-  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -613,7 +611,6 @@ function mutateReplaceRelatedRecords<T>(
 ) {
   const identifier = collection[Context].features!.identifier as ResourceKey;
 
-  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {
@@ -629,7 +626,6 @@ function mutateReplaceRelatedRecords<T>(
 function mutateSortRelatedRecords<T>(collection: LegacyManyArray<T>, value: ResourceKey[], _SIGNAL: WarpDriveSignal) {
   const identifier = collection[Context].features!.identifier as ResourceKey;
 
-  // FIXME field needs to use sourceKey
   mutate(
     collection,
     {

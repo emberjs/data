@@ -278,6 +278,10 @@ module('Legacy | Reads | SourceKey', function (hooks) {
 
       post.author = null;
       assert.equal(author.blogPosts.length, 0, 'clearing the belongsTo updates the inverse hasMany');
+
+      author.blogPosts.push(post);
+      assert.equal(author.blogPosts.length, 1, 'adding to the hasMany updates it');
+      assert.equal(post.author, author, 'adding to the hasMany updates the inverse belongsTo');
     });
   });
 });
