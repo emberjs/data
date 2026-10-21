@@ -8,6 +8,7 @@ import {
   teardownRecord,
   withDefaults,
   getRequestState,
+  type RequestSubscription,
 } from '@warp-drive/core/reactive';
 import type { CacheHandler, Future, NextFn } from '@warp-drive/core/request';
 import type { RecoveryFeatures } from '@warp-drive/core/signals/-leaked';
@@ -24,6 +25,8 @@ import { mock, MockServerHandler } from '@warp-drive/holodeck';
 import { GET } from '@warp-drive/holodeck/mock';
 import { JSONAPICache } from '@warp-drive/json-api';
 import { buildBaseURL } from '@warp-drive/utilities';
+
+import { setupRecoveryRequests, type RecoveryDocument } from './request-recovery';
 
 type User = {
   id: string;
@@ -86,6 +89,11 @@ type UserResource = {
     };
   };
 };
+
+interface RecoverySpecProps {
+  store: RequestManager;
+  subscription: RequestSubscription<RecoveryDocument, unknown>;
+}
 
 class SimpleCacheHandler implements CacheHandler {
   _cache: Map<string, unknown> = new Map();
@@ -207,6 +215,13 @@ export interface RequestSpecSignature extends Record<string, SpecTest<LocalTestC
       retry: (state: { retry: () => Promise<void> }) => void;
     }
   >;
+  'failed retries remain recoverable until a request succeeds': SpecTest<LocalTestContext, RecoverySpecProps>;
+  'failed reloads return to recovery instead of rejecting the event handler': SpecTest<
+    LocalTestContext,
+    RecoverySpecProps
+  >;
+  'failed refreshes preserve content and allow a later reload': SpecTest<LocalTestContext, RecoverySpecProps>;
+  'cancelled retries remain recoverable until a request succeeds': SpecTest<LocalTestContext, RecoverySpecProps>;
   'externally retriggered request works as expected': SpecTest<
     LocalTestContext,
     {
@@ -562,6 +577,131 @@ export const RequestSpec: SuiteBuilder<LocalTestContext, RequestSpecSignature> =
     assert.verifySteps(['retry'], 'we called retry');
     assert.equal(counter, 4, 'counter is 4');
     assert.dom().hasText('Chris ThoburnCount: 4');
+  })
+
+  .for('failed retries remain recoverable until a request succeeds')
+  .use<RecoverySpecProps>(async function (assert) {
+    const control = setupRecoveryRequests();
+    try {
+      await this.render({ store: control.manager, subscription: control.subscription });
+      assert.dom('[data-test-id="recovery-loading"]').hasText('Pending');
+      control.responses[0].reject(new Error('First failure'));
+      await this.h.waitFor('[data-test-id="recovery-error"]');
+      assert.dom('[data-test-id="recovery-error"]').hasText('First failure');
+
+      const retrying = this.h.click('[data-test-id="recovery-retry"]');
+      await this.h.waitUntil(() => control.calls === 2);
+      await this.h.waitUntil(() => this.h.find('[data-test-id="recovery-loading"]'));
+      control.responses[1].reject(new Error('Retry failure'));
+      await retrying;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-error"]').hasText('Retry failure');
+      assert.dom('[data-test-id="recovery-retry"]').exists();
+      assert.true(control.subscription.reqState.isError);
+
+      const recovering = this.h.click('[data-test-id="recovery-retry"]');
+      await this.h.waitUntil(() => control.calls === 3);
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
+      await recovering;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
+      assert.dom('[data-test-id="recovery-error"]').doesNotExist();
+      assert.true(control.subscription.reqState.isSuccess);
+      assert.equal(control.calls, 3);
+    } finally {
+      control.dispose();
+    }
+  })
+
+  .for('failed reloads return to recovery instead of rejecting the event handler')
+  .use<RecoverySpecProps>(async function (assert) {
+    const control = setupRecoveryRequests();
+    try {
+      await this.render({ store: control.manager, subscription: control.subscription });
+      control.responses[0].resolve({ data: { name: 'Original' } });
+      await this.h.waitFor('[data-test-id="recovery-content"]');
+
+      const reloading = this.h.click('[data-test-id="recovery-reload"]');
+      await this.h.waitUntil(() => control.calls === 2);
+      await this.h.waitUntil(() => this.h.find('[data-test-id="recovery-loading"]'));
+      control.responses[1].reject(new Error('Reload failure'));
+      await reloading;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-error"]').hasText('Reload failure');
+      assert.dom('[data-test-id="recovery-content"]').doesNotExist();
+
+      const retrying = this.h.click('[data-test-id="recovery-retry"]');
+      await this.h.waitUntil(() => control.calls === 3);
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
+      await retrying;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
+      assert.true(control.subscription.reqState.isSuccess);
+    } finally {
+      control.dispose();
+    }
+  })
+
+  .for('failed refreshes preserve content and allow a later reload')
+  .use<RecoverySpecProps>(async function (assert) {
+    const control = setupRecoveryRequests();
+    try {
+      await this.render({ store: control.manager, subscription: control.subscription });
+      control.responses[0].resolve({ data: { name: 'Original' } });
+      await this.h.waitFor('[data-test-id="recovery-content"]');
+
+      const refreshing = this.h.click('[data-test-id="recovery-refresh"]');
+      await this.h.waitUntil(() => control.calls === 2);
+      assert.dom('[data-test-id="recovery-content"]').hasText('Original');
+      assert.dom('[data-test-id="recovery-loading"]').doesNotExist();
+      control.responses[1].reject(new Error('Refresh failure'));
+      await refreshing;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-content"]').hasText('Original');
+      assert.dom('[data-test-id="recovery-error"]').doesNotExist();
+      const latest = control.subscription.contentFeatures.latestRequest;
+      assert.ok(latest);
+      assert.true(getRequestState(latest!).isError);
+      assert.false(control.subscription.contentFeatures.isRefreshing);
+
+      const reloading = this.h.click('[data-test-id="recovery-reload"]');
+      await this.h.waitUntil(() => control.calls === 3);
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
+      await reloading;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
+      assert.true(control.subscription.reqState.isSuccess);
+    } finally {
+      control.dispose();
+    }
+  })
+
+  .for('cancelled retries remain recoverable until a request succeeds')
+  .use<RecoverySpecProps>(async function (assert) {
+    const control = setupRecoveryRequests();
+    try {
+      await this.render({ store: control.manager, subscription: control.subscription });
+      control.responses[0].reject(new Error('First failure'));
+      await this.h.waitFor('[data-test-id="recovery-error"]');
+      const retrying = this.h.click('[data-test-id="recovery-retry"]');
+      await this.h.waitUntil(() => control.calls === 2);
+      control.subscription.request.abort();
+      await retrying;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-cancelled"]').exists();
+      assert.dom('[data-test-id="recovery-error"]').doesNotExist();
+      assert.true(control.subscription.reqState.isCancelled);
+
+      const recovering = this.h.click('[data-test-id="recovery-retry"]');
+      await this.h.waitUntil(() => control.calls === 3);
+      control.responses[2].resolve({ data: { name: 'Recovered' } });
+      await recovering;
+      await this.h.rerender();
+      assert.dom('[data-test-id="recovery-content"]').hasText('Recovered');
+      assert.dom('[data-test-id="recovery-cancelled"]').doesNotExist();
+    } finally {
+      control.dispose();
+    }
   })
 
   .for('externally retriggered request works as expected')

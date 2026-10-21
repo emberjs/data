@@ -1,4 +1,4 @@
-import { RequestSpec } from "@warp-drive-internal/specs/request-component.spec";
+import { RequestSpec, type RequestSpecSignature } from "@warp-drive-internal/specs/request-component.spec";
 import { useMemo, useRef } from "react";
 
 import { DEBUG } from "@warp-drive/core/build-config/env";
@@ -8,6 +8,47 @@ import type { Type } from "@warp-drive/core/types/symbols";
 // import { RequestSpec } from "./request-component.spec";
 import { useReact } from "@warp-drive/diagnostic/react";
 import { ReactiveContext, Request } from "@warp-drive/react";
+
+type RecoveryProps = RequestSpecSignature["failed retries remain recoverable until a request succeeds"]["$props"];
+
+function renderRecovery({ store, subscription }: RecoveryProps) {
+  return (
+    <Request
+      store={store}
+      subscription={subscription}
+      states={{
+        loading: () => <p data-test-id="recovery-loading">Pending</p>,
+        error: ({ error, features }) => (
+          <>
+            <p data-test-id="recovery-error">{error.message}</p>
+            <button data-test-id="recovery-retry" onClick={features.retry}>
+              Retry
+            </button>
+          </>
+        ),
+        cancelled: ({ features }) => (
+          <>
+            <p data-test-id="recovery-cancelled">Cancelled</p>
+            <button data-test-id="recovery-retry" onClick={features.retry}>
+              Retry
+            </button>
+          </>
+        ),
+        content: ({ result, features }) => (
+          <>
+            <p data-test-id="recovery-content">{result.data.name}</p>
+            <button data-test-id="recovery-reload" onClick={features.reload}>
+              Reload
+            </button>
+            <button data-test-id="recovery-refresh" onClick={features.refresh}>
+              Refresh
+            </button>
+          </>
+        ),
+      }}
+    />
+  );
+}
 
 function useBetterMemo<T>(getValue: () => T, deps: React.DependencyList) {
   const count = useRef<{ invoked: number; last: T }>({ invoked: 0, last: null as unknown as T });
@@ -182,6 +223,11 @@ RequestSpec.use(useReact(), function (b) {
         />
       );
     })
+
+    .test("failed retries remain recoverable until a request succeeds", renderRecovery)
+    .test("failed reloads return to recovery instead of rejecting the event handler", renderRecovery)
+    .test("failed refreshes preserve content and allow a later reload", renderRecovery)
+    .test("cancelled retries remain recoverable until a request succeeds", renderRecovery)
 
     .test("externally retriggered request works as expected", function (props) {
       const { store, source, countFor, retry } = props;
