@@ -395,8 +395,8 @@ catalogs:
       specifier: ^8.2.6
       version: 8.2.6
     execa:
-      specifier: ^10.1.1
-      version: 10.1.1
+      specifier: ^10.2.0
+      version: 10.2.0
     expect-type:
       specifier: ^1.4.0
       version: 1.4.0
@@ -659,7 +659,7 @@ importers:
         version: 7.3.1(@glimmer/component@2.1.1)
       execa:
         specifier: 'catalog:'
-        version: 10.1.1
+        version: 10.2.0
       git-repo-version:
         specifier: 'catalog:'
         version: 1.0.2
@@ -722,7 +722,7 @@ importers:
         version: 4.4.3
       execa:
         specifier: 'catalog:'
-        version: 10.1.1
+        version: 10.2.0
       front-matter:
         specifier: 'catalog:'
         version: 4.0.2
@@ -5070,7 +5070,7 @@ packages:
 
   '@ember-data/codemods@file:packages/codemods':
     resolution: {directory: packages/codemods, type: directory}
-    engines: {node: '>=24.21.0'}
+    engines: {node: '>=24.22.0'}
     hasBin: true
 
   '@ember-data/debug@file:packages/debug':
@@ -7646,7 +7646,7 @@ packages:
 
   '@warp-drive/holodeck@file:packages/holodeck':
     resolution: {directory: packages/holodeck, type: directory}
-    engines: {node: '>= 24.21.0'}
+    engines: {node: '>= 24.22.0'}
     hasBin: true
     peerDependencies:
       '@warp-drive/core': workspace:*
@@ -9228,8 +9228,8 @@ packages:
     resolution: {integrity: sha512-f/qE2gImHRa4Cp2y1stEOSgw8wTFyUdVJX7G//bMwbaV9JqISFxg99NbmVQeP7YLnDUZ2un851jlaDrlpmGehQ==}
     engines: {node: '>=12'}
 
-  execa@10.1.1:
-    resolution: {integrity: sha512-yJAC9ulsE6fU0K6wzJBIH+wI+KAtMeu6Ck8rs23OVzvEhqXjGADdI6K+YNIDAjcQQ6AwXTD96cKExJo6xFJXyg==}
+  execa@10.2.0:
+    resolution: {integrity: sha512-j1pFOVxaybMVCTNHSBuISL2KQcDS3KIE1wBmUp4n2X+1FgaQI2ZDJVy9TYxDyMCzYojRIMh9O8X/UoWZtxTJdw==}
     engines: {node: '>=22'}
 
   execa@5.1.1:
@@ -17583,7 +17583,7 @@ snapshots:
       '@types/node': 26.6.5
       '@vite-pwa/vitepress': 1.1.0(812e54e62990cf810b0e14cc3202d86b)
       debug: 4.4.3
-      execa: 10.1.1
+      execa: 10.2.0
       front-matter: 4.0.2
       markdown-title: 1.0.2
       mermaid: 12.2.0
@@ -19446,7 +19446,7 @@ snapshots:
 
   events-to-array@2.0.3: {}
 
-  execa@10.1.1:
+  execa@10.2.0:
     dependencies:
       '@sindresorhus/merge-streams': 4.0.0
       figures: 6.1.0
