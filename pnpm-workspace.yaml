@@ -540,11 +540,12 @@ patchedDependencies:
   ember-source@4.4.5: patches/ember-source@4.4.5.patch
   ember-source@3.28.12: patches/ember-source@3.28.12.patch
   "@ember/test-helpers@>=5.7.0 <6": patches/@ember__test-helpers@5.7.patch
-  ## Two d.ts bundling fixes: sxzz/rolldown-plugin-dts#310 (open) adds `export {}` to a
-  ## chunk that would otherwise export its unexported declarations, and an entry keeps its
-  ## file-level doc comment (`@module`) when its first statement is an import or
-  ## `export ... from` (sxzz/rolldown-plugin-dts#311, open). Drop once a release includes both.
-  rolldown-plugin-dts@0.28.6: patches/rolldown-plugin-dts@0.28.6.patch
+  ## An entry keeps its file-level doc comment (`@module`) when its first statement is an
+  ## import or `export ... from` (sxzz/rolldown-plugin-dts#311, open). @warp-drive/ember's API
+  ## docs are built from its dist .d.ts, and lose their layout without that comment's
+  ## `@mergeModuleWith <project>`. The patch is keyed to an exact version, so move it to
+  ## whatever version tsdown pulls in, and drop it once a release includes the fix.
+  rolldown-plugin-dts@0.28.8: patches/rolldown-plugin-dts@0.28.8.patch
 
 ## pnpm 11 requires explicit opt-in for dependency postinstall/build scripts.
 ## unrs-resolver (native resolver used transitively by eslint-import-context)
