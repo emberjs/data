@@ -616,7 +616,7 @@ patchedDependencies:
   ember-source@3.28.12: 306d1f8a8f79f778b8ba547074e7040b1a08820d640d00b16ef8357dae8779ab
   ember-source@4.4.5: c4ad8e3def33c3f12f4d7d0931ea823b63e5f00d95b397206e9c19b38f4ac7a8
   qunit@2.19.4: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
-  rolldown-plugin-dts@0.28.6: b047c24ef1ad63cf423f6beca755004f3e47191f01c1f4f32a5c2e7010e54393
+  rolldown-plugin-dts@0.28.8: c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f
   testem@3.11.0: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
 
 importers:
@@ -21491,7 +21491,7 @@ snapshots:
 
   robust-predicates@3.0.3: {}
 
-  rolldown-plugin-dts@0.28.8(5352c2f13370d50f939d390cb72b712e):
+  rolldown-plugin-dts@0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(5352c2f13370d50f939d390cb72b712e):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -21505,7 +21505,7 @@ snapshots:
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown-plugin-dts@0.28.8(9245c1898b0f690e56ffa1a3310657d7):
+  rolldown-plugin-dts@0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(9245c1898b0f690e56ffa1a3310657d7):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -21520,7 +21520,7 @@ snapshots:
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown-plugin-dts@0.28.8(9b4215e9c273b5aaafece9fd77e05ced):
+  rolldown-plugin-dts@0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(9b4215e9c273b5aaafece9fd77e05ced):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -21535,7 +21535,7 @@ snapshots:
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown-plugin-dts@0.28.8(rolldown@1.2.13)(typescript@6.0.3):
+  rolldown-plugin-dts@0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(rolldown@1.2.13)(typescript@6.0.3):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -22350,7 +22350,7 @@ snapshots:
       obug: 3.0.0
       picomatch: 4.0.7
       rolldown: 1.2.13
-      rolldown-plugin-dts: 0.28.8(9245c1898b0f690e56ffa1a3310657d7)
+      rolldown-plugin-dts: 0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(9245c1898b0f690e56ffa1a3310657d7)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
@@ -22375,7 +22375,7 @@ snapshots:
       obug: 3.0.0
       picomatch: 4.0.7
       rolldown: 1.2.13
-      rolldown-plugin-dts: 0.28.8(9b4215e9c273b5aaafece9fd77e05ced)
+      rolldown-plugin-dts: 0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(9b4215e9c273b5aaafece9fd77e05ced)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
@@ -22400,7 +22400,7 @@ snapshots:
       obug: 3.0.0
       picomatch: 4.0.7
       rolldown: 1.2.13
-      rolldown-plugin-dts: 0.28.8(rolldown@1.2.13)(typescript@6.0.3)
+      rolldown-plugin-dts: 0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(rolldown@1.2.13)(typescript@6.0.3)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
@@ -22425,7 +22425,7 @@ snapshots:
       obug: 3.0.0
       picomatch: 4.0.7
       rolldown: 1.2.13
-      rolldown-plugin-dts: 0.28.8(5352c2f13370d50f939d390cb72b712e)
+      rolldown-plugin-dts: 0.28.8(patch_hash=c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f)(5352c2f13370d50f939d390cb72b712e)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2

@@ -1,0 +1,49 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 35d0f3433d586855feaeee40f905fe7c5f7a7ba5..7ab685f9e8d9d32269d2c6e15b636c784778bad2 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1157,6 +1157,7 @@ function createFakeJsPlugin({ sourcemap, cjsDefault, sideEffects }) {
+ 	let declarationIdx = 0;
+ 	const declarationMap = /* @__PURE__ */ new Map();
+ 	const commentsMap = /* @__PURE__ */ new Map();
++	const fileCommentsMap = /* @__PURE__ */ new Map();
+ 	const moduleExportsMap = /* @__PURE__ */ new Map();
+ 	const warnedCjsDtsInputs = /* @__PURE__ */ new Set();
+ 	return {
+@@ -1220,7 +1221,13 @@ function createFakeJsPlugin({ sourcemap, cjsDefault, sideEffects }) {
+ 		const namespaceStmts = /* @__PURE__ */ new Map();
+ 		for (const [i, stmt] of program.body.entries()) {
+ 			const setStmt = (stmt) => program.body[i] = stmt;
+-			if (rewriteImportExport(stmt, setStmt, appendStmts)) continue;
++			if (rewriteImportExport(stmt, setStmt, appendStmts)) {
++				if (i === 0) {
++					const docComments = stmt.comments?.filter(isDocComment);
++					if (docComments?.length) fileCommentsMap.set(id, docComments);
++				}
++				continue;
++			}
+ 			const sideEffect = stmt.type === "TSModuleDeclaration" && stmt.kind !== "namespace";
+ 			if (sideEffect && stmt.type === "TSModuleDeclaration" && is.StringLiteral(stmt.id) && stmt.id.value[0] === ".") this.warn(`\`declare module ${JSON.stringify(stmt.id.value)}\` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in ${id}.`);
+ 			const isDefaultExport = stmt.type === "ExportDefaultDeclaration";
+@@ -1433,6 +1440,11 @@ function createFakeJsPlugin({ sourcemap, cjsDefault, sideEffects }) {
+ 			source: null,
+ 			attributes: []
+ 		}));
++		const fileComments = chunk.facadeModuleId && fileCommentsMap.get(chunk.facadeModuleId);
++		if (fileComments) {
++			program.body[0].comments ||= [];
++			program.body[0].comments.unshift(...fileComments);
++		}
+ 		const comments = /* @__PURE__ */ new Set();
+ 		const commentsValue = /* @__PURE__ */ new Set();
+ 		for (const id of chunk.moduleIds) {
+@@ -1477,6 +1489,9 @@ function createFakeJsPlugin({ sourcemap, cjsDefault, sideEffects }) {
+ 		return declarationMap.get(declarationId);
+ 	}
+ }
++function isDocComment(comment) {
++	return comment.position === "before" && comment.type === "Block" && comment.value.startsWith("*");
++}
+ function needsScopeMarker(body) {
+ 	let hasModuleStatement = false;
+ 	let hasPrivateDeclaration = false;
