@@ -367,11 +367,11 @@ catalog:
   ember-source: ~7.3.1
   ember-source-channel-url: ^3.0.0
   ember-strict-application-resolver: ^0.1.1
-  eslint: ^10.12.0
+  eslint: ^10.13.0
   eslint-config-prettier: ^10.1.8
   eslint-plugin-import-x: ^4.17.1
   eslint-plugin-mocha: ^12.0.2
-  eslint-plugin-n: ^18.4.1
+  eslint-plugin-n: ^18.5.0
   eslint-plugin-qunit: ^8.2.6
   execa: ^10.2.0
   expect-type: ^1.4.0
@@ -409,7 +409,7 @@ catalog:
   todomvc-app-css: ^2.4.3
   todomvc-common: ^1.0.5
   tsdown: ^0.23.1
-  turbo: ^2.11.8
+  turbo: ^2.11.9
   typedoc: ^0.28.20
   typedoc-plugin-markdown: ^4.14.0
   typedoc-plugin-mdn-links: ^5.1.1
@@ -430,7 +430,7 @@ catalog:
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-llms: ^1.14.0
   vitepress-plugin-tabs: ^0.9.1
-  vitest: ^5.0.4
+  vitest: ^5.0.5
   vue: ^3.5.44
   vue-tsc: ^3.3.13
   winston: ^3.19.0
@@ -499,7 +499,7 @@ overrides:
   typescript: 6.0.3
   lodash: ^4.18.1
   caniuse-lite: ^1.0.30001816
-  rollup: ^4.64.6
+  rollup: ^4.64.10
   "@babel/types": ^7.29.8
   "@babel/parser": ^7.29.9
   "@babel/traverse": ^7.29.10
