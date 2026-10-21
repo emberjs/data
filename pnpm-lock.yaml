@@ -616,7 +616,7 @@ patchedDependencies:
   ember-source@3.28.12: 306d1f8a8f79f778b8ba547074e7040b1a08820d640d00b16ef8357dae8779ab
   ember-source@4.4.5: c4ad8e3def33c3f12f4d7d0931ea823b63e5f00d95b397206e9c19b38f4ac7a8
   qunit@2.19.4: 44177f0047189d474ebdeba20fc8ddc3c8c2a5777d65cbb5f0fac0979bf66301
-  rolldown-plugin-dts@0.28.8: c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f
+  rolldown-plugin-dts@>=0.28.8 <0.29: c8a4ef906ad60d770ea77cdbc7317ef8f8f554c276b676b0566db1d1b831593f
   testem@3.11.0: cf147865cff81f2d0f3ed51d274f9fdee7b4ad675a902248aa317c07272fbea5
 
 importers:
