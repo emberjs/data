@@ -1,0 +1,45 @@
+# Creates every tutorial's apps from a packed @warp-drive/tutorials, outside the workspace, and
+# installs, type-checks, builds and tests them against the repo's own @warp-drive packages. See
+# packages/tutorials/scripts/verify-tarball.mjs.
+#
+# Not a required check: a path-filtered required check stays pending forever on PRs it skips.
+# It runs on every push to main, so a WarpDrive change that breaks a tutorial shows up there.
+name: Tutorials
+
+on:
+  pull_request:
+    paths:
+      - 'packages/tutorials/**'
+      - '.github/workflows/tutorials.yml'
+  push:
+    branches:
+      - main
+
+env:
+  TURBO_API: http://127.0.0.1:9080
+  TURBO_TOKEN: this-is-not-a-secret
+  TURBO_TEAM: myself
+
+# `actions: read` lets the turbo remote-cache proxy find existing artifacts; see the note on
+# `permissions` in main.yml.
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ci-tutorials-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  tutorials-packaging:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: ./.github/actions/setup
+        with:
+          install: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key-suffix: tutorials-packaging
+      - name: Create, install, build and test every tutorial app from the packed tarball
+        run: node packages/tutorials/scripts/verify-tarball.mjs
