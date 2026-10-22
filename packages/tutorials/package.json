@@ -4,7 +4,6 @@
   "version": "5.10.0-alpha.18",
   "license": "MIT",
   "type": "module",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:warp-drive-data/warp-drive.git",
@@ -15,5 +14,59 @@
   "keywords": [
     "tutorial",
     "warpdrive"
-  ]
+  ],
+  "bin": {
+    "tutorials": "./bin/create.mjs"
+  },
+  "files": [
+    "bin",
+    "*/starter",
+    "*/solution",
+    "!*/*/package.json",
+    "!*/*/node_modules",
+    "!*/*/dist",
+    "!*/*/dist-test",
+    "!*/*/.gitignore"
+  ],
+  "scripts": {
+    "prepack": "node ./scripts/prepack.mjs",
+    "postpack": "node ./scripts/prepack.mjs --clean"
+  },
+  "private": true,
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/plugin-transform-runtime": "catalog:",
+    "@babel/plugin-transform-typescript": "catalog:",
+    "@babel/runtime": "catalog:",
+    "@ember/test-helpers": "catalog:",
+    "@ember/test-waiters": "catalog:",
+    "@embroider/core": "catalog:",
+    "@embroider/macros": "catalog:",
+    "@embroider/vite": "catalog:",
+    "@glimmer/component": "catalog:",
+    "@glint/ember-tsc": "catalog:",
+    "@glint/template": "catalog:",
+    "@rollup/plugin-babel": "catalog:",
+    "@types/qunit": "catalog:",
+    "@warp-drive/core": "workspace:*",
+    "@warp-drive/ember": "workspace:*",
+    "@warp-drive/json-api": "workspace:*",
+    "@warp-drive/utilities": "workspace:*",
+    "babel-plugin-ember-template-compilation": "catalog:",
+    "decorator-transforms": "catalog:",
+    "ember-content-mapper": "catalog:",
+    "ember-modifier": "catalog:",
+    "ember-page-title": "catalog:",
+    "ember-qunit": "catalog:",
+    "ember-source": "catalog:",
+    "ember-strict-application-resolver": "catalog:",
+    "qunit": "catalog:",
+    "qunit-dom": "catalog:",
+    "testem": "catalog:",
+    "todomvc-app-css": "catalog:",
+    "todomvc-common": "catalog:",
+    "typescript-7": "catalog:",
+    "typescript-toastify": "catalog:",
+    "vite": "catalog:"
+  }
 }

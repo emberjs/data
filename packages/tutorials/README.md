@@ -8,8 +8,35 @@ Each tutorial has a directory per framework, holding a `solution/` app and the
 | --------------- | --------- | ---------------------------------------------------------------- |
 | `todomvc-ember` | Ember     | [TodoMVC](https://warp-drive.io/guides/tutorials/todomvc/) |
 
-This package is private for now. It will be published so learners can create an
-app with `npx @warp-drive/tutorials`.
+## Creating an app
+
+```sh
+npx @warp-drive/tutorials@canary todomvc-ember [dir] [--solution]
+```
+
+This creates the tutorial's starter app in `dir` (default: the tutorial's name), or
+its finished app with `--solution`. The app is standalone: `cd` into it, then
+`pnpm install` and `pnpm start`.
+
+This package is private for now, so the command works once it's published.
+
+## How the package is built
+
+Each app's `package.json` uses `catalog:` and `workspace:*` versions, which only
+resolve inside this repo. The published package pins them in one place: its own
+`devDependencies`, which list every app's dependencies.
+
+| Step | What happens |
+| --- | --- |
+| `make-starter.mjs` | Writes `devDependencies` in `packages/tutorials/package.json` from the apps. CI fails if they're stale. |
+| Publish | The release rewrites `workspace:*` to the released version, and `pnpm pack` rewrites `catalog:` to the catalog's version. |
+| `prepack` (`scripts/prepack.mjs`) | Writes each app's `package.template.json` (its `package.json` minus the versions) and copies its `.gitignore` to `gitignore`, since npm drops `.gitignore` files. `postpack` deletes them. |
+| `npx` (`bin/create.mjs`) | Copies the app, renames `gitignore` to `.gitignore`, and writes its `package.json` from the template and the pinned `devDependencies`. With `--solution`, it also drops the starter directives. |
+
+npx doesn't install `devDependencies`, so learners only download the apps. `files` in
+`package.json` leaves out each app's `package.json`, `node_modules`, and build output.
+
+To check the tarball, run `pnpm pack` in `packages/tutorials`.
 
 ## Updating a tutorial
 
@@ -54,7 +81,7 @@ The guides write their code inline, so they don't update when `solution/` does.
 | Fix a bug, or update for a WarpDrive API change | Edit `solution/`, then regenerate |
 | Change what a learner sees at a `TODO` | Edit the `#replace-in-starter` line, then regenerate |
 | Move taught code to another chapter | Change the chapter number in its `#replace-in-starter` line, then regenerate |
-| Add a dependency | Add it to `solution/package.json`, run `pnpm install`, then regenerate. Commit `pnpm-lock.yaml` too. |
+| Add a dependency | Add it to `solution/package.json` and regenerate, which also updates this package's `devDependencies`. Then run `pnpm install` and commit `pnpm-lock.yaml`. |
 
 If you changed code in a block the starter replaces, update that chapter of the guide to match.
 
@@ -72,6 +99,7 @@ write chapter 3's requests.
 | Failure | Meaning |
 | --- | --- |
 | `starter is out of date` | `starter/` doesn't match the generator's output. Regenerate, or move a direct edit into `solution/`. |
+| `packages/tutorials/package.json devDependencies are out of date` | An app's dependencies changed without regenerating. Regenerate. |
 | `blocks can't nest`, `never closed`, `without a block to close`, `can't close` | A block's start and end markers don't pair up. Each start needs its matching end. |
 | `malformed tutorial starter directive` | A directive is misspelled or outdated, `#replace-in-starter` has no text, or another directive has text. |
 | `#omit-file-from-starter must be the file's first line` | Move the directive to line 1. |

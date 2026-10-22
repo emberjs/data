@@ -1710,7 +1710,110 @@ importers:
         specifier: 'catalog:'
         version: typescript@7.1.0-dev.20261019.1
 
-  packages/tutorials: {}
+  packages/tutorials:
+    devDependencies:
+      '@babel/core':
+        specifier: 'catalog:'
+        version: 7.29.7
+      '@babel/plugin-transform-runtime':
+        specifier: 'catalog:'
+        version: 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-typescript':
+        specifier: 'catalog:'
+        version: 7.29.9(@babel/core@7.29.7)
+      '@babel/runtime':
+        specifier: 'catalog:'
+        version: 7.29.10
+      '@ember/test-helpers':
+        specifier: 'catalog:'
+        version: 5.7.0(patch_hash=3639d6e115849879aff25f95590bbf4931d45a65f5553817c8bc89b2a64a6fc0)(@babel/core@7.29.7)
+      '@ember/test-waiters':
+        specifier: 'catalog:'
+        version: 4.1.2
+      '@embroider/core':
+        specifier: 'catalog:'
+        version: 4.6.9(@glint/template@1.9.0)
+      '@embroider/macros':
+        specifier: ^1.21.3
+        version: 1.21.3(@glint/template@1.9.0)
+      '@embroider/vite':
+        specifier: 'catalog:'
+        version: 1.7.15(2571b9d66f6dcb46bacb769b3264bff9)
+      '@glimmer/component':
+        specifier: 'catalog:'
+        version: 2.1.1
+      '@glint/ember-tsc':
+        specifier: 1.11.6
+        version: 1.11.6(b62113303e98be6ecdf6e54188717cdd)
+      '@glint/template':
+        specifier: 1.9.0
+        version: 1.9.0
+      '@rollup/plugin-babel':
+        specifier: 'catalog:'
+        version: 7.1.0(@babel/core@7.29.7)
+      '@types/qunit':
+        specifier: 'catalog:'
+        version: 2.19.14
+      '@warp-drive/core':
+        specifier: workspace:*
+        version: file:warp-drive-packages/core(e0ff4349d3585fabae29421d7a4b80a6)
+      '@warp-drive/ember':
+        specifier: workspace:*
+        version: file:warp-drive-packages/ember(c3b811ac8aadeb1fb26c7cc7a16e4531)
+      '@warp-drive/json-api':
+        specifier: workspace:*
+        version: file:warp-drive-packages/json-api(edee9e53a6af44fd6387ab28cd9cc109)
+      '@warp-drive/utilities':
+        specifier: workspace:*
+        version: file:warp-drive-packages/utilities(edee9e53a6af44fd6387ab28cd9cc109)
+      babel-plugin-ember-template-compilation:
+        specifier: 'catalog:'
+        version: 4.0.1
+      decorator-transforms:
+        specifier: 'catalog:'
+        version: 2.4.0(@babel/core@7.29.7)
+      ember-content-mapper:
+        specifier: 'catalog:'
+        version: 0.3.1(b62113303e98be6ecdf6e54188717cdd)
+      ember-modifier:
+        specifier: 'catalog:'
+        version: 4.3.0(@babel/core@7.29.7)
+      ember-page-title:
+        specifier: 'catalog:'
+        version: 9.0.3(c02380c7a12df71e9308af9ecc23ef61)
+      ember-qunit:
+        specifier: 'catalog:'
+        version: 9.2.0(487ed23b203e8587bcf91af8a41c6a25)
+      ember-source:
+        specifier: 'catalog:'
+        version: 7.3.1(@glimmer/component@2.1.1)
+      ember-strict-application-resolver:
+        specifier: 'catalog:'
+        version: 0.1.1(@babel/core@7.29.7)
+      qunit:
+        specifier: 3.0.0
+        version: 3.0.0
+      qunit-dom:
+        specifier: 'catalog:'
+        version: 3.6.0
+      testem:
+        specifier: ~3.21.3
+        version: 3.21.3(@babel/core@7.29.7)
+      todomvc-app-css:
+        specifier: 'catalog:'
+        version: 2.4.3
+      todomvc-common:
+        specifier: 'catalog:'
+        version: 1.0.5
+      typescript-7:
+        specifier: 'catalog:'
+        version: typescript@7.1.0-dev.20261018.1
+      typescript-toastify:
+        specifier: 'catalog:'
+        version: 1.0.4
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.4
 
   packages/tutorials/todomvc-ember/solution:
     devDependencies:
