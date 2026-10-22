@@ -316,7 +316,7 @@ catalog:
   "@eslint/js": ^10.0.1
   "@glimmer/component": ^2.1.1
   "@glint/ember-tsc": ^1.12.0
-  "@glint/template": ^1.9.0
+  "@glint/template": ^1.9.1
   "@hono/node-server": ^2.1.5
   "@hono/node-ws": ^1.2.0
   "@html-next/vertical-collection": ^5.0.5
@@ -479,7 +479,7 @@ overrides:
   broccoli-merge-trees: ^4.2.0
   "@glimmer/validator": ^0.95.0
   "@glint/ember-tsc": 1.12.0
-  "@glint/template": 1.9.0
+  "@glint/template": 1.9.1
   ember-cli-babel: ^8.3.2
   "@embroider/macros>ember-cli-babel": "-"
   ember-source>ember-cli-babel: "-"
