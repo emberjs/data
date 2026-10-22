@@ -419,8 +419,8 @@ catalogs:
       specifier: ^4.13.13
       version: 4.13.13
     ignore:
-      specifier: ^7.0.12
-      version: 7.0.12
+      specifier: ^7.0.13
+      version: 7.0.13
     jscodeshift:
       specifier: ^17.4.0
       version: 17.4.0
@@ -1024,7 +1024,7 @@ importers:
         version: 10.13.0
       ignore:
         specifier: 'catalog:'
-        version: 7.0.12
+        version: 7.0.13
       jscodeshift:
         specifier: 'catalog:'
         version: 17.4.0
@@ -9675,6 +9675,10 @@ packages:
 
   ignore@7.0.12:
     resolution: {integrity: sha512-/8UvqAPU9DGTI9k4mxtf49U37Isfwr8Uts96+SBHIkFxPJnHS0Ew4f00sM4Scd8V8EjM0jUNtVDdv1kPdt35lg==}
+    engines: {node: '>= 4'}
+
+  ignore@7.0.13:
+    resolution: {integrity: sha512-2E8Q6rh+1RRSq/YdaGsNfXsEZy9FVqv6BSSrkmZJP7BnaoPnRfKL+YaofPvP+5rzdk144qSm6i4+hvPgUcbV4Q==}
     engines: {node: '>= 4'}
 
   import-meta-resolve@4.2.0:
@@ -20040,6 +20044,8 @@ snapshots:
   ignore@5.3.2: {}
 
   ignore@7.0.12: {}
+
+  ignore@7.0.13: {}
 
   import-meta-resolve@4.2.0: {}
 

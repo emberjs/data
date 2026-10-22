@@ -381,7 +381,7 @@ catalog:
   git-repo-version: ^1.0.2
   globals: ^17.13.0
   hono: ^4.13.13
-  ignore: ^7.0.12
+  ignore: ^7.0.13
   jscodeshift: ^17.4.0
   lerna-changelog: ^2.2.0
   markdown-title: ^1.0.2
