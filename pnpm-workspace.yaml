@@ -355,7 +355,7 @@ catalog:
   debug: ^4.4.3
   decorator-transforms: ^2.4.0
   dom-element-descriptors: ^0.5.1
-  ember-content-mapper: ^0.3.1
+  ember-content-mapper: ^0.3.2
   ember-eslint-parser: ^0.14.9
   ember-inflector: ^7.0.0
   # 4.3.0 was published without npm provenance (4.2.x had it), which trustPolicy rejects.
