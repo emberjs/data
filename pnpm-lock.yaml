@@ -574,7 +574,7 @@ overrides:
   qunit-console-grouper>broccoli-funnel: '-'
   broccoli-merge-trees: ^4.2.0
   '@glimmer/validator': ^0.95.0
-  '@glint/ember-tsc': 1.11.6
+  '@glint/ember-tsc': 1.12.0
   '@glint/template': 1.9.0
   ember-cli-babel: ^8.3.2
   '@embroider/macros>ember-cli-babel': '-'
@@ -634,8 +634,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -1745,8 +1745,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(e97618f6e82966051f5c9e09bc49a819)
+        specifier: 1.12.0
+        version: 1.12.0(e97618f6e82966051f5c9e09bc49a819)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -1850,8 +1850,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(e97618f6e82966051f5c9e09bc49a819)
+        specifier: 1.12.0
+        version: 1.12.0(e97618f6e82966051f5c9e09bc49a819)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -2129,8 +2129,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -2273,8 +2273,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -2769,8 +2769,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(6f3efca8fc0d2f6b9d40b66e1d445ea8)
+        specifier: 1.12.0
+        version: 1.12.0(6f3efca8fc0d2f6b9d40b66e1d445ea8)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -2901,8 +2901,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(6f3efca8fc0d2f6b9d40b66e1d445ea8)
+        specifier: 1.12.0
+        version: 1.12.0(6f3efca8fc0d2f6b9d40b66e1d445ea8)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -2991,8 +2991,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -3357,8 +3357,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -3888,8 +3888,8 @@ importers:
         specifier: 'catalog:'
         version: 2.1.1
       '@glint/ember-tsc':
-        specifier: 1.11.6
-        version: 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+        specifier: 1.12.0
+        version: 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       '@glint/template':
         specifier: 1.9.0
         version: 1.9.0
@@ -5284,8 +5284,8 @@ packages:
   '@glimmer/wire-format@0.94.8':
     resolution: {integrity: sha512-A+Cp5m6vZMAEu0Kg/YwU2dJZXyYxVJs2zI57d3CP6NctmX7FsT8WjViiRUmt5abVmMmRH5b8BUovqY6GSMAdrw==}
 
-  '@glint/ember-tsc@1.11.6':
-    resolution: {integrity: sha512-+UEkP71/fCijNBd2teUm3fjlnY9A22ZY20VNSYVnMf+i+TO4Zp91Ws4zJpjjAFc2TMppjscMluQLrbKrUHn/BQ==}
+  '@glint/ember-tsc@1.12.0':
+    resolution: {integrity: sha512-WIA5k1nSep328RQ+W/Iu2KKVfB9/5Ojp/vx8qWKqLK4uya3YvQEXK3s2Q1xvudYkSfXCOwG8SZSZDuBn6wVIPg==}
     hasBin: true
     peerDependencies:
       ember-modifier: '*'
@@ -14323,7 +14323,7 @@ snapshots:
     dependencies:
       '@glimmer/interfaces': 0.94.6
 
-  '@glint/ember-tsc@1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)':
+  '@glint/ember-tsc@1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)':
     dependencies:
       '@glimmer/syntax': 0.95.0
       '@glint/template': 1.9.0
@@ -14348,7 +14348,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/ember-tsc@1.11.6(6f3efca8fc0d2f6b9d40b66e1d445ea8)':
+  '@glint/ember-tsc@1.12.0(6f3efca8fc0d2f6b9d40b66e1d445ea8)':
     dependencies:
       '@glimmer/syntax': 0.95.0
       '@glint/template': 1.9.0
@@ -14373,7 +14373,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@glint/ember-tsc@1.11.6(e97618f6e82966051f5c9e09bc49a819)':
+  '@glint/ember-tsc@1.12.0(e97618f6e82966051f5c9e09bc49a819)':
     dependencies:
       '@glimmer/syntax': 0.95.0
       '@glint/template': 1.9.0
@@ -18925,7 +18925,7 @@ snapshots:
 
   ember-content-mapper@0.3.1(04d7e29e14ea51faebe99e922f9dbd3f):
     dependencies:
-      '@glint/ember-tsc': 1.11.6(04d7e29e14ea51faebe99e922f9dbd3f)
+      '@glint/ember-tsc': 1.12.0(04d7e29e14ea51faebe99e922f9dbd3f)
       tinypool: 2.1.2
       vscode-jsonrpc: 9.0.3
     transitivePeerDependencies:
@@ -18936,7 +18936,7 @@ snapshots:
 
   ember-content-mapper@0.3.1(6f3efca8fc0d2f6b9d40b66e1d445ea8):
     dependencies:
-      '@glint/ember-tsc': 1.11.6(6f3efca8fc0d2f6b9d40b66e1d445ea8)
+      '@glint/ember-tsc': 1.12.0(6f3efca8fc0d2f6b9d40b66e1d445ea8)
       tinypool: 2.1.2
       vscode-jsonrpc: 9.0.3
     transitivePeerDependencies:
@@ -18947,7 +18947,7 @@ snapshots:
 
   ember-content-mapper@0.3.1(e97618f6e82966051f5c9e09bc49a819):
     dependencies:
-      '@glint/ember-tsc': 1.11.6(e97618f6e82966051f5c9e09bc49a819)
+      '@glint/ember-tsc': 1.12.0(e97618f6e82966051f5c9e09bc49a819)
       tinypool: 2.1.2
       vscode-jsonrpc: 9.0.3
     transitivePeerDependencies:

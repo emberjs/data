@@ -315,7 +315,7 @@ catalog:
   "@embroider/vite": ^1.7.15
   "@eslint/js": ^10.0.1
   "@glimmer/component": ^2.1.1
-  "@glint/ember-tsc": ^1.11.6
+  "@glint/ember-tsc": ^1.12.0
   "@glint/template": ^1.9.0
   "@hono/node-server": ^2.1.5
   "@hono/node-ws": ^1.2.0
@@ -478,7 +478,7 @@ overrides:
   qunit-console-grouper>broccoli-funnel: "-"
   broccoli-merge-trees: ^4.2.0
   "@glimmer/validator": ^0.95.0
-  "@glint/ember-tsc": 1.11.6
+  "@glint/ember-tsc": 1.12.0
   "@glint/template": 1.9.0
   ember-cli-babel: ^8.3.2
   "@embroider/macros>ember-cli-babel": "-"
