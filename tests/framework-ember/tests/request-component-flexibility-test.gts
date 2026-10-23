@@ -411,4 +411,47 @@ module<LocalTestContext>('Integration | <Request /> | Flexibility', function (ho
     assert.dom('p').hasText('James Thoburn');
     assert.verifySteps([`request: GET ${url}`]);
   });
+
+  test('errors thrown while reading args are surfaced rather than swallowed', async function (assert) {
+    // A throwing arg (e.g. `@request={{this.buildRequest}}` where the getter throws)
+    // reads as `undefined` after its first read. The subscription must not swallow the
+    // first read's error, or the user only ever sees a misleading "must provide @request" error.
+    let reads = 0;
+    const args = {
+      get request(): Future<unknown> | undefined {
+        reads++;
+        if (reads === 1) {
+          throw new Error('hidden');
+        }
+        return undefined;
+      },
+    };
+
+    // the browser dispatches `unhandledrejection` as its own task, so wait for the event
+    // rather than a fixed tick.
+    const rejection = createDeferred<unknown>();
+    const onRejection = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+      rejection.resolve(event.reason);
+    };
+    window.addEventListener('unhandledrejection', onRejection);
+
+    let reason: unknown;
+    try {
+      createRequestSubscription(this.store, args);
+      reason = await Promise.race([
+        rejection.promise,
+        new Promise((resolve) => setTimeout(() => resolve(undefined), 1000)),
+      ]);
+    } finally {
+      window.removeEventListener('unhandledrejection', onRejection);
+    }
+
+    const messages: string[] = [];
+    for (let e = reason as { message?: string; cause?: unknown } | undefined; e; e = e.cause as typeof e) {
+      messages.push(String(e.message));
+    }
+
+    assert.true(messages.includes('hidden'), `the original error is surfaced, saw: ${messages.join(' <- ')}`);
+  });
 });

@@ -348,10 +348,19 @@ export class RequestSubscription<RT, E> {
    * @internal
    */
   private async _beginPolling() {
+    // read the initial request separately from awaiting it, errors thrown while
+    // reading args (e.g. a throwing `@request` getter) must not be ignored
+    let initialRequest: Future<RT> | null;
+    try {
+      initialRequest = this.isIdle ? null : this.request;
+    } catch (e) {
+      throw new Error(`Unable to begin polling the request`, { cause: e });
+    }
+
     // await the initial request
     try {
-      if (!this.isIdle) {
-        await this.request;
+      if (initialRequest) {
+        await initialRequest;
       }
     } catch {
       // ignore errors here, we just want to wait for the request to finish
