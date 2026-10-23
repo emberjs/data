@@ -13,7 +13,7 @@
     "codemods": "./dist/index.js"
   },
   "engines": {
-    "node": ">=24.22.0"
+    "node": ">=24.22.1"
   },
   "scripts": {
     "sync": "echo \"syncing\"",
