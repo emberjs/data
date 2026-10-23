@@ -1,6 +1,6 @@
 {
   "name": "utilities-tests",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "private": true,
   "description": "Provides tests for @warp-drive/utilities",
   "keywords": [],

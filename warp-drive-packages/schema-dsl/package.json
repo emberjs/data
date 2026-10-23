@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/schema-dsl",
   "private": true,
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "description": "TypeScript decorators such as `@Resource` and `@field` for authoring WarpDrive schemas as classes, compiled to plain JSON schemas at build time by a Vite plugin.",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",

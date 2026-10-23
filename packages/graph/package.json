@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/graph",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "description": "(Internal) Package re-exporting the relationship graph from `@warp-drive/core` for use by the JSON:API cache; not intended for direct application use.",
   "keywords": [
     "ember-addon"

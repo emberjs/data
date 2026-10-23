@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/legacy",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "description": "Opt-in support for features deprecated out of `@warp-drive/core`, such as Models, Adapters, Serializers and legacy store APIs, for apps that still need to migrate away from them.",
   "keywords": [
     "ember-addon"

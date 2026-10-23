@@ -1,7 +1,7 @@
 {
   "name": "@ember-data/request",
   "description": "(Legacy) Package that once provided the `RequestManager` and its related facilities; new apps should import them from `@warp-drive/core` instead.",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {

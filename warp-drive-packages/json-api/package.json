@@ -1,6 +1,6 @@
 {
   "name": "@warp-drive/json-api",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "description": "The recommended in-memory JSON:API document and resource cache for WarpDrive, `JSONAPICache`, which most apps pass to `useRecommendedStore`.",
   "keywords": [
     "ember-addon"

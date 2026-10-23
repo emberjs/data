@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/react",
   "description": "React bindings for WarpDrive, providing `StoreProvider`, `useStore` and the `<Request />` component for rendering request states with React reactivity.",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {

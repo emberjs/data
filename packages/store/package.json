@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/store",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "description": "(Legacy) EmberData `Store` class that coordinates the cache, the `RequestManager` and record presentation; new apps should use the `Store` from `@warp-drive/core` instead.",
   "keywords": [
     "ember-addon"

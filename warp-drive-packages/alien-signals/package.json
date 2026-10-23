@@ -1,7 +1,7 @@
 {
   "name": "@warp-drive/alien-signals",
   "description": "Configures WarpDrive reactivity to use a signals graph built on alien-signals; import its install entry in apps, or build a framework integration on its primitives.",
-  "version": "5.10.0-alpha.18",
+  "version": "5.10.0-alpha.19",
   "license": "MIT",
   "author": "Chris Thoburn <runspired@users.noreply.github.com>",
   "repository": {
