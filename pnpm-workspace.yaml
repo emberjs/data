@@ -409,7 +409,7 @@ catalog:
   todomvc-app-css: ^2.4.3
   todomvc-common: ^1.0.5
   tsdown: ^0.23.1
-  turbo: ^2.11.9
+  turbo: ^2.11.10
   typedoc: ^0.28.20
   typedoc-plugin-markdown: ^4.14.0
   typedoc-plugin-mdn-links: ^5.1.1
