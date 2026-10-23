@@ -1,0 +1,169 @@
+:root {
+  color-scheme: light dark;
+  --bg: Canvas;
+  --fg: CanvasText;
+  --muted: color-mix(in srgb, CanvasText 55%, transparent);
+  --border: color-mix(in srgb, CanvasText 18%, transparent);
+  --hover: color-mix(in srgb, CanvasText 8%, transparent);
+  --accent: #e58f1d;
+  --ok: #2e9d4b;
+  --err: #d33a3a;
+  --pending: #b08900;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.stores {
+  display: flex;
+  gap: 4px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.stores button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar,
+.main {
+  overflow: auto;
+}
+
+.sidebar {
+  border-right: 1px solid var(--border);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  text-align: left;
+}
+
+.row:hover {
+  background: var(--hover);
+}
+
+.row.selected {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.row-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.row-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.badge {
+  align-self: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge.pending {
+  color: var(--pending);
+}
+
+.badge.success {
+  color: var(--ok);
+}
+
+.badge.error,
+.badge.cancelled {
+  color: var(--err);
+}
+
+.main {
+  padding: 12px;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.details dt {
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.empty,
+.banner {
+  margin: 0;
+  padding: 24px;
+  color: var(--muted);
+}
+
+.banner.error {
+  color: var(--err);
+}

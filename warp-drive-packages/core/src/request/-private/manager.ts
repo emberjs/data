@@ -4,6 +4,7 @@ import { DEBUG, TESTING } from '@warp-drive/core/build-config/env';
 import type { Store } from '../../index';
 // oxlint-disable-next-line no-unused-vars
 import type { ReactiveDocument } from '../../reactive/-private/document';
+import { installDevtoolsHook } from '../../devtools-hook.ts';
 // oxlint-disable-next-line no-unused-vars
 import { withReactiveResponse, withResponseType } from '../../request';
 import { waitFor } from '../../signals/-private';
@@ -13,6 +14,7 @@ import type { RequestKey } from '../../types/identifier';
 import {
   EnableHydration,
   type RequestInfo,
+  type StructuredDataDocument,
   type StructuredDocument,
   type StructuredErrorDocument,
 } from '../../types/request';
@@ -287,6 +289,10 @@ export class RequestManager {
     // if it is able to fulfill the request from the cache
     const cacheResult = getRequestResult(requestId);
 
+    if (DEBUG) {
+      traceRequest(request, context, promise, cacheResult !== undefined);
+    }
+
     if (TESTING) {
       if (!request.disableTestWaiter) {
         const newPromise = waitFor(promise);
@@ -355,6 +361,73 @@ export class RequestManager {
   static create(options?: GenericCreateArgs): RequestManager {
     return new this(options);
   }
+}
+
+/**
+ * Reports a request's lifecycle to the DevTools hook: one `pending` event
+ * now and one terminal event when it settles. Only called in DEBUG builds.
+ */
+function traceRequest(request: RequestInfo, context: GodContext, promise: Promise<unknown>, fromCache: boolean): void {
+  const hook = installDevtoolsHook();
+  const startedAt = Date.now();
+  const storeId = hook.storeIdFor(context.requester);
+  const op = typeof request.op === 'string' ? request.op : null;
+
+  hook.recordRequest({
+    id: context.id,
+    storeId,
+    url: request.url ?? null,
+    method: request.method ?? null,
+    op,
+    status: 'pending',
+    startedAt,
+    endedAt: null,
+    durationMs: null,
+    fromCache,
+    responseStatus: null,
+    cacheKey: null,
+    error: null,
+  });
+
+  promise.then(
+    (result) => {
+      const endedAt = Date.now();
+      const doc = result as StructuredDataDocument<unknown>;
+      hook.recordRequest({
+        id: context.id,
+        storeId,
+        url: doc.request?.url ?? request.url ?? null,
+        method: doc.request?.method ?? request.method ?? null,
+        op,
+        status: 'success',
+        startedAt,
+        endedAt,
+        durationMs: endedAt - startedAt,
+        fromCache,
+        responseStatus: doc.response?.status ?? null,
+        cacheKey: context.identifier?.lid ?? null,
+        error: null,
+      });
+    },
+    (error: StructuredErrorDocument) => {
+      const endedAt = Date.now();
+      hook.recordRequest({
+        id: context.id,
+        storeId,
+        url: error.request?.url ?? request.url ?? null,
+        method: error.request?.method ?? request.method ?? null,
+        op,
+        status: error.name === 'AbortError' ? 'cancelled' : 'error',
+        startedAt,
+        endedAt,
+        durationMs: endedAt - startedAt,
+        fromCache,
+        responseStatus: error.response?.status ?? null,
+        cacheKey: context.identifier?.lid ?? null,
+        error: typeof error.message === 'string' ? error.message : String(error),
+      });
+    }
+  );
 }
 
 /**

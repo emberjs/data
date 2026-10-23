@@ -17,6 +17,7 @@ import { assert } from '@warp-drive/core/build-config/macros';
 
 import type { CacheCapabilitiesManager } from '../-types/q/cache-capabilities-manager.ts';
 import type { OpaqueRecordInstance } from '../-types/q/record-instance.ts';
+import { installDevtoolsHook } from '../../devtools-hook.ts';
 import type { Graph } from '../../graph/-private.ts';
 // oxlint-disable-next-line no-unused-vars
 import { getRequestState, ReactiveResource } from '../../reactive.ts';
@@ -1601,6 +1602,10 @@ export class Store extends BaseClass {
 
     this.isDestroying = false;
     this.isDestroyed = false;
+
+    if (DEBUG) {
+      installDevtoolsHook().registerStore(this);
+    }
   }
 
   /** @internal */
@@ -2424,6 +2429,10 @@ export class Store extends BaseClass {
     this.cacheKeyManager.destroy();
     this._instanceCache.clear();
     this.isDestroyed = true;
+
+    if (DEBUG) {
+      installDevtoolsHook().unregisterStore(this);
+    }
   }
 
   /**
