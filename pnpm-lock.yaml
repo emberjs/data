@@ -500,8 +500,8 @@ catalogs:
       specifier: ^0.28.20
       version: 0.28.20
     typedoc-plugin-markdown:
-      specifier: ^4.14.0
-      version: 4.14.0
+      specifier: ^4.14.1
+      version: 4.14.1
     typedoc-plugin-mdn-links:
       specifier: ^5.1.1
       version: 5.1.1
@@ -743,7 +743,7 @@ importers:
         version: 0.28.20(typescript@6.0.3)
       typedoc-plugin-markdown:
         specifier: 'catalog:'
-        version: 4.14.0(typedoc@0.28.20(typescript@6.0.3))
+        version: 4.14.1(typedoc@0.28.20(typescript@6.0.3))
       typedoc-plugin-mdn-links:
         specifier: 'catalog:'
         version: 5.1.1(typedoc@0.28.20(typescript@6.0.3))
@@ -752,7 +752,7 @@ importers:
         version: 1.6.1(typedoc@0.28.20(typescript@6.0.3))
       typedoc-vitepress-theme:
         specifier: 'catalog:'
-        version: 1.1.4(2c92f14642a056ddb6db1c3a1bd94e90)
+        version: 1.1.4(a44ae4a1357d2f0290b63a61e0e7efe5)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -11708,8 +11708,8 @@ packages:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
 
-  typedoc-plugin-markdown@4.14.0:
-    resolution: {integrity: sha512-Y2a3oDV9ekrbkk6RBSGH8GyNkh0xIdemIOOTr3tiRN/33nvFGStOs9nw+6Q84gF1XFkcVZrgM4Ckcsf6e/YpKQ==}
+  typedoc-plugin-markdown@4.14.1:
+    resolution: {integrity: sha512-24XX0oqyBsjBIBNoSH4wbgQkouci/CmgmO1ZBSaVkrcflqXFL2PQ5zFOpkz+Ewow5xQ3q2You+wrcmilNepRKg==}
     engines: {node: '>= 18'}
     peerDependencies:
       typedoc: 0.28.x
@@ -17599,10 +17599,10 @@ snapshots:
       sharp: 0.35.5(@types/node@26.6.5)
       svgo: 4.1.0
       typedoc: 0.28.20(typescript@6.0.3)
-      typedoc-plugin-markdown: 4.14.0(typedoc@0.28.20(typescript@6.0.3))
+      typedoc-plugin-markdown: 4.14.1(typedoc@0.28.20(typescript@6.0.3))
       typedoc-plugin-mdn-links: 5.1.1(typedoc@0.28.20(typescript@6.0.3))
       typedoc-plugin-no-inherit: 1.6.1(typedoc@0.28.20(typescript@6.0.3))
-      typedoc-vitepress-theme: 1.1.4(2c92f14642a056ddb6db1c3a1bd94e90)
+      typedoc-vitepress-theme: 1.1.4(a44ae4a1357d2f0290b63a61e0e7efe5)
       typescript: 6.0.3
       vite: 8.3.4(@types/node@26.6.5)
       vite-plugin-image-optimizer: 2.0.3(561ef154a97fb74a4d20fa167ecc42d4)
@@ -22466,7 +22466,7 @@ snapshots:
       media-typer: 1.1.1
       mime-types: 3.0.2
 
-  typedoc-plugin-markdown@4.14.0(typedoc@0.28.20(typescript@6.0.3)):
+  typedoc-plugin-markdown@4.14.1(typedoc@0.28.20(typescript@6.0.3)):
     dependencies:
       typedoc: 0.28.20(typescript@6.0.3)
 
@@ -22478,10 +22478,10 @@ snapshots:
     dependencies:
       typedoc: 0.28.20(typescript@6.0.3)
 
-  typedoc-vitepress-theme@1.1.4(2c92f14642a056ddb6db1c3a1bd94e90):
+  typedoc-vitepress-theme@1.1.4(a44ae4a1357d2f0290b63a61e0e7efe5):
     dependencies:
       typedoc: 0.28.20(typescript@6.0.3)
-      typedoc-plugin-markdown: 4.14.0(typedoc@0.28.20(typescript@6.0.3))
+      typedoc-plugin-markdown: 4.14.1(typedoc@0.28.20(typescript@6.0.3))
 
   typedoc@0.28.20(typescript@6.0.3):
     dependencies:
