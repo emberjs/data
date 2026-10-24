@@ -1,0 +1,14 @@
+---
+url: https://canary.warp-drive.io/api/@warp-drive/utilities/derivations.md
+description: >-
+  The `concat` derivation, which joins a record's listed fields into one string
+  with an optional separator.
+---
+
+## Namespaces
+
+* [concat](namespaces/concat/index.md)
+
+## Variables
+
+* [concat](variables/concat.md)

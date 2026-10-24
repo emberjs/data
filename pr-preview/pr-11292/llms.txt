@@ -1,0 +1,1524 @@
+# The Manual
+
+> Boldly Read What No Dev Has Read Before
+
+Comprehensive Documentation for Engineers Aiming for the Stars 💫
+
+## Table of Contents
+
+### Installation
+
+- [Instructions](https://canary.warp-drive.io/pr-preview/pr-11292/guides/installation.md): Install @warp-drive/core and @warp-drive/json-api with exact pinned versions, then add the reactivity package and install import for Ember, React, or TC39 Signals.
+- [UNPKG](https://canary.warp-drive.io/pr-preview/pr-11292/guides/installation/unpkg.md): Load prebuilt ESM builds of WarpDrive packages from UNPKG and pick the unpkg, unpkg-dev, unpkg-deprecated, or unpkg-dev-deprecated export condition you need.
+
+### Configuration
+
+- [Setup](https://canary.warp-drive.io/pr-preview/pr-11292/guides/configuration.md): Set up WarpDrive's babel build plugin with compatWith and create a store with useRecommendedStore or useLegacyStore, the two steps required before making any request.
+- [Setup - Advanced](https://canary.warp-drive.io/pr-preview/pr-11292/guides/configuration/advanced.md): Build a Store class by hand, adding RequestManager, SchemaService, JSONAPICache, instantiateRecord, and DefaultCachePolicy step by step, with Ember Model and migration variants.
+- [Setup - Legacy (Ember)](https://canary.warp-drive.io/pr-preview/pr-11292/guides/configuration/ember.md): Restore legacy Adapter, Serializer, Model, and EmberObject features through @warp-drive/legacy in an Ember app, and decide when LegacyNetworkHandler is still needed.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/configuration/legacy-package-setup.md): Install the pre-unification @ember-data/* and @warp-drive/* packages with exact pinned versions, for apps still on the legacy multi-package setup rather than @warp-drive/core.
+
+#### Older Packages (Ember Only)
+
+- [Overview](https://canary.warp-drive.io/guides/configuration/legacy-package-setup.md): Install the pre-unification @ember-data/* and @warp-drive/* packages with exact pinned versions, for apps still on the legacy multi-package setup rather than @warp-drive/core.
+- [Ember.js](https://canary.warp-drive.io/guides/configuration/legacy-package-setup/setup/ember.md): Configure a legacy Ember app to import @warp-drive/ember/install, drop @ember-data/tracking, and add LegacyNetworkHandler plus adapterFor and serializerFor hooks to the store.
+
+##### Setup
+
+- [Ember.js](https://canary.warp-drive.io/guides/configuration/legacy-package-setup/setup/ember.md): Configure a legacy Ember app to import @warp-drive/ember/install, drop @ember-data/tracking, and add LegacyNetworkHandler plus adapterFor and serializerFor hooks to the store.
+- [Setup](https://canary.warp-drive.io/guides/configuration/legacy-package-setup/setup/universal.md): Configure the legacy multi-package setup with setConfig in ember-cli-build, unstable-preview-types in tsconfig, and a hand-built Store using RequestManager and JSONAPICache.
+
+### Tutorials
+
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/tutorials.md): Placeholder for WarpDrive's step-by-step tutorials, which are still under construction with no walkthroughs published yet; use the manual instead for now.
+
+### The Manual
+
+- [Introduction](https://canary.warp-drive.io/pr-preview/pr-11292/guides.md): Learn what WarpDrive offers as a framework-agnostic data layer, from fine-grained reactivity and Fetch-style requests to schemas, the relational cache, mutations, and handlers.
+- [Making Requests](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests.md): Start here to make requests with store.request, the <Request /> component, and getRequestState, then set RequestInfo options and chain handlers in a RequestManager.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/schemas.md): Start here for the schemas section to see how a ResourceSchema maps raw cached fields to camelCase reactive properties and relationships, then pick LegacyMode or PolarisMode.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/relational-data.md): Start here to configure relationships in WarpDrive; links each cardinality page from one-to-none through many-to-many plus the inverses, LinksMode, and polymorphism guides.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/caching.md): Understand how the CacheHandler resolves a RequestKey, applies CachePolicy for staleness, and stores responses, resources, fields, and relationships by replace or upsert.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/reactivity.md): Understand how WarpDrive uses signals as side-signals or gates to notify consumers of cache changes while letting you plug in your own or your framework's signals implementation.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/typescript.md): Start here to opt in to WarpDrive's alpha-stage TypeScript types, then follow the installation, configuration, brands, model typing, and includes typing pages in order.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/debugging.md): Enable WarpDrive's regionalized debug logging with `setWarpDriveLogging` at runtime or via build config, using flags such as LOG_REQUESTS, LOG_CACHE, and LOG_GRAPH.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/testing.md)
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/mutations.md): Start here for how-to patterns on changing data in WarpDrive; routes to the Mutating State and Patching The Cache pages, both of which are still under construction.
+- [Experiments](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/experiments.md): Browse WarpDrive's experimental, pre-RFC features that may change or be removed, currently Storage Resources and Pagination, and pick which one to read next.
+- [Index](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/cookbook.md): Start here for task-focused WarpDrive recipes, including the incremental adoption guide for legacy apps and guidance on singular versus plural resource types.
+- [Community Resources](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/community-resources.md): Find conference talks, blog posts, and podcasts about WarpDrive and EmberData from 2019 onward, and learn how to add your own to the list via PR.
+
+#### Requests
+
+- [Making Requests](https://canary.warp-drive.io/guides/the-manual/requests.md): Start here to make requests with store.request, the <Request /> component, and getRequestState, then set RequestInfo options and chain handlers in a RequestManager.
+- [Typing Requests](https://canary.warp-drive.io/guides/the-manual/requests/typing-requests.md): Type request responses with withResponseType and withReactiveResponse, including the ReactiveDataDocument meta, errors, and error-meta type params.
+- [Using The Response](https://canary.warp-drive.io/guides/the-manual/requests/using-the-response.md): Read the Future a request returns, use its lid, getStream, and abort, handle FetchError rejections, and know when content is a ReactiveDocument.
+- [Builders](https://canary.warp-drive.io/guides/the-manual/requests/builders.md): Write pure builder functions that return typed RequestInfo objects, and produce stable RequestKeys with sortQueryParams, buildQueryParams, and filterEmpty.
+- [Handlers](https://canary.warp-drive.io/guides/the-manual/requests/handlers.md): Write a Handler middleware that calls next and normalizes a REST response into a JSON:API document with dasherize and singularize so the cache can consume it.
+
+#### Schemas
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/schemas.md): Start here for the schemas section to see how a ResourceSchema maps raw cached fields to camelCase reactive properties and relationships, then pick LegacyMode or PolarisMode.
+- [ResourceSchemas](https://canary.warp-drive.io/guides/the-manual/schemas/resources.md): Create a top-level ResourceSchema with `withDefaults`, choose `field`, `resource`, `collection`, or `schema-object` kinds, register it, and pick LegacyMode or PolarisMode.
+- [ObjectSchemas](https://canary.warp-drive.io/guides/the-manual/schemas/object-schemas.md): Define an embedded ObjectSchema with a null identity, reference it from a resource via a `schema-object` field, and register it with `registerResource` so nested data is reactive.
+- [SimpleFields](https://canary.warp-drive.io/guides/the-manual/schemas/simple-fields.md): Declare primitive string, number, boolean, or date attributes on a ResourceSchema or ObjectSchema as `field` kinds and attach a `type` to route them through a Transformation.
+- [Relational Fields](https://canary.warp-drive.io/guides/the-manual/schemas/relational-fields.md): Placeholder for the guide to relational fields such as `resource`, `collection`, `belongsTo`, and `hasMany` on a ResourceSchema; no content yet.
+- [Complex Fields](https://canary.warp-drive.io/guides/the-manual/schemas/complex-fields.md): Embed nested objects and lists inside a resource with `schema-object` and `schema-array` fields backed by an identity-less ObjectSchema, keeping every nested value reactive.
+- [Traits](https://canary.warp-drive.io/guides/the-manual/schemas/traits.md): Group reusable fields such as timestamps into a Trait, register it with `registerTrait`, and merge it into any ResourceSchema by listing its name in the `traits` array.
+- [Derivations](https://canary.warp-drive.io/guides/the-manual/schemas/derivations.md): Define memoized read-only `derived` fields, register the derivation function by its `Type` key on the store, and spot when relational or optional data makes it the wrong tool.
+- [Transformations](https://canary.warp-drive.io/guides/the-manual/schemas/transformations.md): Convert one field between its cache shape and app shape by writing a Transformation with `hydrate`, `serialize`, and `defaultValue`, then register it via `useRecommendedStore`.
+- [Extensions](https://canary.warp-drive.io/guides/the-manual/schemas/extensions.md): Placeholder for the guide to schema extensions, which add custom methods and properties to reactive arrays, objects, and resources during migration; no content yet.
+
+##### Resources
+
+- [ResourceSchemas](https://canary.warp-drive.io/guides/the-manual/schemas/resources.md): Create a top-level ResourceSchema with `withDefaults`, choose `field`, `resource`, `collection`, or `schema-object` kinds, register it, and pick LegacyMode or PolarisMode.
+- [LegacyMode (recommended)](https://canary.warp-drive.io/guides/the-manual/schemas/resources/legacy-mode.md): Emulate Model with ReactiveResource in LegacyMode using `attribute`, `belongsTo`, and `hasMany` fields, `registerDerivations` from `@warp-drive/legacy`, and `WithLegacy` types.
+- [PolarisMode (preview)](https://canary.warp-drive.io/guides/the-manual/schemas/resources/polaris-mode.md): Decide whether to try preview PolarisMode by weighing its immutable records and explicit editing against its current relationship and state-property limitations.
+
+#### Relational Data
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/relational-data.md): Start here to configure relationships in WarpDrive; links each cardinality page from one-to-none through many-to-many plus the inverses, LinksMode, and polymorphism guides.
+- [Many To Many Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-many.md): Define a bidirectional many-to-many hasMany relationship with a managed inverse, or split it into two many-to-none collections, via Model, JSON schema, or LegacyMode withDefaults.
+- [Relationship Inverses](https://canary.warp-drive.io/guides/the-manual/relational-data/features/inverses.md): Placeholder for the guide to relationship inverses, how WarpDrive keeps both sides of a relationship in sync; still under construction, with no content yet.
+
+##### Configuration
+
+- [Many To Many Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-many.md): Define a bidirectional many-to-many hasMany relationship with a managed inverse, or split it into two many-to-none collections, via Model, JSON schema, or LegacyMode withDefaults.
+- [Many To None Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-none.md): Define a unidirectional many-to-none hasMany relationship with inverse null, for collections whose other side is too large to track, via Model, JSON schema, or LegacyMode.
+- [Many To One Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-one.md): Configure a many-to-one relationship, which WarpDrive treats as the one-to-many configuration viewed from the belongsTo side; this stub redirects to that page.
+- [One To Many Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-many.md): Define a bidirectional one-to-many relationship pairing belongsTo with hasMany and managed inverses, or split it into one-to-none plus many-to-none, via Model or schema.
+- [One To None Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-none.md): Define a unidirectional one-to-none belongsTo relationship with inverse null and learn how WarpDrive tracks its implicit inverse, via Model, JSON schema, or LegacyMode.
+- [One To One Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-one.md): Define a bidirectional one-to-one relationship with belongsTo on both sides and managed inverses, or split it into two one-to-none relationships, via Model or schema.
+
+##### Features
+
+- [Relationship Inverses](https://canary.warp-drive.io/guides/the-manual/relational-data/features/inverses.md): Placeholder for the guide to relationship inverses, how WarpDrive keeps both sides of a relationship in sync; still under construction, with no content yet.
+- [Relationship Polymorphism](https://canary.warp-drive.io/guides/the-manual/relational-data/features/polymorphism.md): Define open or closed polymorphic relationships using the polymorphic, inverse, and as field options on Model or schema, and handle abstract-to-concrete type upgrades on fetch.
+
+#### Caching
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/caching.md): Understand how the CacheHandler resolves a RequestKey, applies CachePolicy for staleness, and stores responses, resources, fields, and relationships by replace or upsert.
+- [Key Terminology](https://canary.warp-drive.io/guides/the-manual/caching/key-terms.md): Learn the difference between StructuredDocument, ResourceDocument, and ReactiveDocument, and what ResourceType, ResourceKey, ResourceSchema, and Collection mean.
+
+#### Reactivity
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/reactivity.md): Understand how WarpDrive uses signals as side-signals or gates to notify consumers of cache changes while letting you plug in your own or your framework's signals implementation.
+- [Async as Reactive State](https://canary.warp-drive.io/guides/the-manual/reactivity/derivation.md): Replace tracked loading, error, and value properties with getPromiseState and the Await component so a component stores a promise and derives pending, error, and success state.
+- [Reactive Control Flow](https://canary.warp-drive.io/guides/the-manual/reactivity/control-flow.md): Render request states declaratively with the Request component or getRequestState in Ember and React, handling loading, error, and retry without imperative async/await.
+
+#### TypeScript
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/typescript.md): Start here to opt in to WarpDrive's alpha-stage TypeScript types, then follow the installation, configuration, brands, model typing, and includes typing pages in order.
+- [Configuration](https://canary.warp-drive.io/guides/the-manual/typescript/configuration.md): Add the unstable-preview-types entries to tsconfig.json so your app consumes WarpDrive's alpha-stage native types from either the runtime packages or the -types packages.
+- [Installation](https://canary.warp-drive.io/guides/the-manual/typescript/installation.md): Install WarpDrive's native types with `npx warp-drive retrofit types@canary` or by hand, replacing DefinitelyTyped @types packages with typed releases or -types packages.
+- [Typing Includes](https://canary.warp-drive.io/guides/the-manual/typescript/typing-includes.md): Type relationship-path include strings with the `Includes` and `StringSatisfiesIncludes` utils and `createIncludeValidator` so typos in includes fail at compile time.
+- [Typing Models & Transforms](https://canary.warp-drive.io/guides/the-manual/typescript/typing-models.md): Brand legacy Model classes and Transforms with the `Type` symbol and add generics to `attr`, `belongsTo`, and `hasMany` so relationships and store calls infer types.
+- [WarpDrive's Types Strategy](https://canary.warp-drive.io/guides/the-manual/typescript/why-brands.md): Understand why WarpDrive brands classes with a `Type` symbol and passes them as generics to `findRecord` instead of using type registries or class tokens.
+
+#### Debugging
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/debugging.md): Enable WarpDrive's regionalized debug logging with `setWarpDriveLogging` at runtime or via build config, using flags such as LOG_REQUESTS, LOG_CACHE, and LOG_GRAPH.
+
+#### Testing with Holodeck
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/testing.md)
+- [Server Setup](https://canary.warp-drive.io/guides/the-manual/testing/server-setup.md)
+- [Client Setup](https://canary.warp-drive.io/guides/the-manual/testing/client-setup.md)
+- [Test Framework Integration](https://canary.warp-drive.io/guides/the-manual/testing/test-framework-integration.md)
+- [Common Setups](https://canary.warp-drive.io/guides/the-manual/testing/common-setups.md): Serve the test page and the holodeck mock server from one origin, so mocked requests need no CORS and no preflight, with the forwarder that Vite, testem, and Caddy setups share.
+- [Writing Mocks](https://canary.warp-drive.io/guides/the-manual/testing/writing-mocks.md)
+- [Recording and Replaying](https://canary.warp-drive.io/guides/the-manual/testing/record-and-replay.md)
+- [Troubleshooting](https://canary.warp-drive.io/guides/the-manual/testing/troubleshooting.md)
+- [HoloPrograms](https://canary.warp-drive.io/guides/the-manual/testing/holo-programs.md)
+
+##### Common Setups
+
+- [Common Setups](https://canary.warp-drive.io/guides/the-manual/testing/common-setups.md): Serve the test page and the holodeck mock server from one origin, so mocked requests need no CORS and no preflight, with the forwarder that Vite, testem, and Caddy setups share.
+- [Vite Dev Server](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/vite.md): Forward holodeck's requests through the Vite dev server with a five-line plugin, so the suite you open at /tests runs on one origin.
+- [Testem](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/testem.md): Forward holodeck's requests through testem's own server with its middleware option, so the suite pnpm test runs has one origin.
+- [Caddy](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/caddy.md): Put Caddy in front of the Vite dev server and holodeck, so the test page is served over HTTPS on one origin with the certificate holodeck already has.
+
+#### Mutations
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/mutations.md): Start here for how-to patterns on changing data in WarpDrive; routes to the Mutating State and Patching The Cache pages, both of which are still under construction.
+- [Mutations](https://canary.warp-drive.io/guides/the-manual/mutations/mutations.md): Placeholder for the Mutating State how-to on changing records and relationships through the Store; still under construction, with no content yet.
+- [Operations](https://canary.warp-drive.io/guides/the-manual/mutations/operations.md): Placeholder for the Patching The Cache how-to on applying operations directly to the cache; still under construction, with no content yet.
+
+#### Experiments
+
+- [Experiments](https://canary.warp-drive.io/guides/the-manual/experiments.md): Browse WarpDrive's experimental, pre-RFC features that may change or be removed, currently Storage Resources and Pagination, and pick which one to read next.
+- [Pagination](https://canary.warp-drive.io/guides/the-manual/experiments/pagination.md): Paginate a collection with the experimental `getPaginationState` primitives and the `<Paginate />` and `<EachLink />` Ember components in paged or infinite mode.
+- [Storage Resources](https://canary.warp-drive.io/guides/the-manual/experiments/storage-resources.md): Persist reactive class fields to localStorage or sessionStorage with the experimental `LocalResource`, `SessionResource`, `field`, `effect`, and `param` decorators.
+
+#### Cookbook
+
+- [Index](https://canary.warp-drive.io/guides/the-manual/cookbook.md): Start here for task-focused WarpDrive recipes, including the incremental adoption guide for legacy apps and guidance on singular versus plural resource types.
+- [Auth Handler](https://canary.warp-drive.io/guides/the-manual/cookbook/auth-handlers.md): Write a request `Handler` that adds JWT bearer tokens or CSRF tokens to outgoing requests, including an Ember class-based handler with injected services.
+- [Requests](https://canary.warp-drive.io/guides/the-manual/cookbook/basic-usage.md): Build a `RequestManager` with the `Fetch` handler, configure `setBuildURLConfig`, issue a JSON:API `query` request, page through results, and handle errors.
+- [Holodeck in Dev Mode](https://canary.warp-drive.io/guides/the-manual/cookbook/holodeck-in-dev-mode.md)
+- [Incremental adoption guide for existing projects](https://canary.warp-drive.io/guides/the-manual/cookbook/incremental-adoption-guide.md): Move an existing 4.12 EmberData app still on adapters and serializers onto RequestManager, LegacyNetworkHandler, and request builders one step at a time.
+- [Model Name: singular or plural? What to choose? Why is that?](https://canary.warp-drive.io/guides/the-manual/cookbook/naming-conventions.md): Decide whether resource types should be singular or plural and dasherized or snake_case, and see what consistency across the API, store calls, and models requires.
+
+### Skills
+
+- [Define a Resource Schema](https://canary.warp-drive.io/pr-preview/pr-11292/skills/schemas/define-a-resource-schema.md)
+- [Fetch and Cache Data](https://canary.warp-drive.io/pr-preview/pr-11292/skills/requests/fetch-and-cache-data.md)
+- [Set Up Holodeck](https://canary.warp-drive.io/pr-preview/pr-11292/skills/holodeck/set-up-holodeck.md)
+- [Read the Docs as Markdown](https://canary.warp-drive.io/pr-preview/pr-11292/skills/docs/read-the-docs-as-markdown.md)
+- [Start In A Fresh Worktree](https://canary.warp-drive.io/pr-preview/pr-11292/skills/contributors/start-in-a-fresh-worktree.md)
+
+#### Schemas
+
+- [Define a Resource Schema](https://canary.warp-drive.io/skills/schemas/define-a-resource-schema.md)
+
+#### Requests
+
+- [Fetch and Cache Data](https://canary.warp-drive.io/skills/requests/fetch-and-cache-data.md)
+
+#### Holodeck
+
+- [Set Up Holodeck](https://canary.warp-drive.io/skills/holodeck/set-up-holodeck.md)
+- [Mock HTTP Requests in Tests](https://canary.warp-drive.io/skills/holodeck/mock-http-requests-in-tests.md)
+- [Use RECORD in Holodeck Mocks](https://canary.warp-drive.io/skills/holodeck/using-record.md)
+
+#### Docs
+
+- [Read the Docs as Markdown](https://canary.warp-drive.io/skills/docs/read-the-docs-as-markdown.md)
+
+#### Contributors
+
+- [Start In A Fresh Worktree](https://canary.warp-drive.io/skills/contributors/start-in-a-fresh-worktree.md)
+- [Keep Commits Human-Authored](https://canary.warp-drive.io/skills/contributors/keep-commits-human-authored.md)
+- [Fix at the Source](https://canary.warp-drive.io/skills/contributors/fix-at-the-source.md)
+- [Commit Mock Cache Fixtures](https://canary.warp-drive.io/skills/contributors/commit-mock-cache-fixtures.md)
+- [Writing and Implementing RFCs](https://canary.warp-drive.io/skills/contributors/writing-and-implementing-rfcs.md)
+- [Write Documentation](https://canary.warp-drive.io/skills/contributors/write-documentation.md)
+- [Use CI as the Source of Truth](https://canary.warp-drive.io/skills/contributors/use-ci-as-the-source-of-truth.md)
+- [Extract Test Setup Into Functions](https://canary.warp-drive.io/skills/contributors/extract-test-setup-into-functions.md)
+- [Submit a PR](https://canary.warp-drive.io/skills/contributors/submit-a-pr.md)
+
+### Linting
+
+- [Linting](https://canary.warp-drive.io/pr-preview/pr-11292/guides/linting.md): Install eslint-plugin-warp-drive and enable its recommended, template, and React flat configs, including the ember-eslint-parser setup that Glimmer template rules need.
+
+### Contributing
+
+- [Become A Contributor](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/become-a-contributor.md): Start contributing to WarpDrive itself: find the issue tracker, RFC label, and Discord, then follow links to project setup, architecture, docs, and the RFC process.
+- [Reporting Issues](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/issues.md): Report a WarpDrive bug through GitHub issues using the repo's issue template, and know to ask on Discord first when unsure whether something is a bug.
+- [Setting Up The Project](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/setting-up-the-project.md): Set up a WarpDrive contributor checkout: install mise, pnpm, and mkcert, run `pnpm install`, create holodeck certs, and use `pnpm start` plus `pnpm sync` while developing.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/project-architecture.md): See how WarpDrive's packages and primitives fit together through interface-driven boundaries, via an architectural diagram for contributors to the library itself.
+- [Key Concepts](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/key-concepts.md): Choose the right identity type in WarpDrive internals: ResourceIdentifier, RecordIdentifier, or ResourceKey, based on whether lid is required and must be stable.
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/writing-documentation.md): Which type of doc to write for a change, who each type is for, how the docs site is built from the repo, and the checks to run before opening the PR.
+- [Submitting PRs](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/submitting-prs.md): Open a PR against WarpDrive main with the right tests, a title like `feat: ...` that auto-applies its `:label:` changelog label, and `target:` labels for any backports.
+- [The RFC Process](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/rfc-process.md): Propose a WarpDrive feature or deprecation: discuss it on Discord, draft from rfcs/0000-template.md, open a PR labeled `:label: rfc`, and shepherd it through emberjs/rfcs.
+- [Performing A Release](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/RELEASE.md): Perform a WarpDrive release from the GitHub Actions workflow: order the lts, release, beta, and canary channels, then polish the GitHub release notes and announce it.
+- [The Project Roadmap](https://canary.warp-drive.io/pr-preview/pr-11292/guides/contributing/ROADMAP.md): Check which Polaris edition goals WarpDrive has shipped or still has open, what is planned beyond Polaris, and which features and deprecations land in each 5.x release.
+
+#### Writing Documentation
+
+- [Overview](https://canary.warp-drive.io/guides/contributing/writing-documentation.md): Which type of doc to write for a change, who each type is for, how the docs site is built from the repo, and the checks to run before opening the PR.
+- [Writing Guides](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-guides.md): How to write a tutorial, concept, or reference guide for the docs site, where the files live, and what frontmatter and tags shape the Markdown that coding agents read.
+- [Writing API Docs](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-api-docs.md): How to write the TSDoc comments that become the API reference, including which tags to use, the @summary each API page needs, usage examples, and what stays out of the published docs.
+- [Writing Agent Skills](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-agent-skills.md): How to add or change a skill in @warp-drive/memory-alpha so coding agents find and follow it, including the routing tables, file rules, and checks.
+
+### RFCs
+
+- [Transactional Notification Delivery and Reactive Request State](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0001-warp-drive-transactional-notifications.md): Proposes delivering all WarpDrive cache notifications in one synchronous batch at transaction close and rebuilding request state as signals-backed data.
+- [A Framework-Agnostic Build Plugin for WarpDrive](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0002-warp-drive-build-plugin.md): Proposes a framework-agnostic `@warp-drive/core/build-plugin` bundler plugin that replaces the babel and @embroider/macros build configuration for WarpDrive.
+- [A Browser Devtools Extension](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0003-warp-drive-devtools-extension.md): Proposes a Chrome and Firefox devtools extension for inspecting WarpDrive requests, cache, and schemas, attached via a production-strippable hook in @warp-drive/core.
+- [Dropping V1 Addon and Classic ember-cli Macros Support in 6.0](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0004-drop-v1-addon-and-classic-macros-support.md)
+- [Deprecating the Legacy ember-data Packages and @warp-drive/core-types](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0005-deprecate-legacy-packages.md): Proposes deprecating the ember-data package, every @ember-data/* package, and @warp-drive/core-types now, in favor of their already-shipping @warp-drive/* successors, with removal from publishing targeted for 6.0.
+- [Pointer and Reference Fields](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0006-pointer-and-reference-fields.md): Proposes four PolarisMode relationship field kinds (pointer, pointer-array, reference, reference-array) for relationships WarpDrive never fetches or validates for delivery, where pointers assert the related resource is loaded and references tolerate its absence.
+- [Virtualized Resources](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0007-virtualized-resources.md): Proposes virtual resource schemas, the frontend equivalent of a materialized view, whose fields reflect fields of other cached resources through pointers so that data read or written through the view stays consistent everywhere.
+- [A $state Field for PolarisMode ReactiveResources](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0008-reactive-resource-state.md): Proposes adding a reactive, read-only $state field to the PolarisMode defaults that reports a resource's lifecycle state (new, empty, deleted, dirty) and its per-field local changes, replacing the LegacyMode state flags that still apply and dropping the ones that don't.
+
+### Upgrading
+
+- [Migrating 4.x to 5.x](https://canary.warp-drive.io/pr-preview/pr-11292/upgrading/v5.md): Migrate an EmberData 4.6 or 4.12 app to WarpDrive 5.x step by step, using native types, mirror packages, useLegacyStore, and schemas in place of Models.
+
+#### 4.x → 5.x
+
+- [Migrating 4.x to 5.x](https://canary.warp-drive.io/upgrading/v5.md): Migrate an EmberData 4.6 or 4.12 app to WarpDrive 5.x step by step, using native types, mirror packages, useLegacyStore, and schemas in place of Models.
+- [Migrating Between Versions Using The Two Store Approach](https://canary.warp-drive.io/upgrading/v5/two-store-migration.md): Run a second WarpDrive store built from the -mirror packages beside your existing 4.x store so parts of an app can adopt 5.x incrementally, with the tradeoffs to expect.
+- [Using Codemods](https://canary.warp-drive.io/upgrading/v5/codemods.md): Run the `@ember-data/codemods` migrate-to-schema and legacy-compat-builders codemods to convert 4.x Models and mixins into 5.x schemas and store.request builders.
+
+### Blog
+
+- [5.x](https://canary.warp-drive.io/pr-preview/pr-11292/blog/v5.md): Browse the WarpDrive 5.x blog posts, starting with the 5.10 announcement of the permanent Upgrading and Blog sections on warp-drive.io.
+
+#### 5.x
+
+- [5.x](https://canary.warp-drive.io/blog/v5.md): Browse the WarpDrive 5.x blog posts, starting with the 5.10 announcement of the permanent Upgrading and Blog sections on warp-drive.io.
+- [Introducing Upgrading & Blog](https://canary.warp-drive.io/blog/v5/introducing-upgrading-and-blog.md): Learn why WarpDrive 5.10 added the permanent Upgrading and Blog sections to warp-drive.io and where the former /guides/migrating/ pages now live.
+
+### API Docs
+
+- [@warp-drive/core](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core.md)
+- [@warp-drive/json-api](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/json-api.md)
+- [@warp-drive/utilities](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities.md)
+- [@warp-drive/legacy](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy.md)
+- [@warp-drive/experiments](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments.md)
+- [@warp-drive/ember](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/ember.md)
+- [@warp-drive/react](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/react.md)
+- [@warp-drive/holodeck](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/holodeck.md)
+- [@warp-drive/schema-dsl](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl.md)
+- [eslint-plugin-warp-drive](https://canary.warp-drive.io/pr-preview/pr-11292/api/eslint-plugin-warp-drive.md)
+- [@warp-drive/memory-alpha](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/memory-alpha.md)
+
+#### @warp-drive/core
+
+- [@warp-drive/core/build-config](https://canary.warp-drive.io/api/@warp-drive/core/build-config.md)
+- [@warp-drive/core/configure](https://canary.warp-drive.io/api/@warp-drive/core/configure.md)
+- [@warp-drive/core/reactive](https://canary.warp-drive.io/api/@warp-drive/core/reactive.md)
+- [@warp-drive/core/request](https://canary.warp-drive.io/api/@warp-drive/core/request.md)
+- [@warp-drive/core/store](https://canary.warp-drive.io/api/@warp-drive/core/store.md)
+- [@warp-drive/core/types](https://canary.warp-drive.io/api/@warp-drive/core/types.md)
+
+##### exports
+
+- [ConfiguredStore](https://canary.warp-drive.io/api/@warp-drive/core/classes/ConfiguredStore.md)
+- [RequestManager](https://canary.warp-drive.io/api/@warp-drive/core/classes/RequestManager.md): Runs each request through a chain of handlers that can fulfill, modify, or pass it along, and returns a `Future` for the response.
+- [Store](https://canary.warp-drive.io/api/@warp-drive/core/classes/Store.md)
+- [CacheHandler](https://canary.warp-drive.io/api/@warp-drive/core/variables/CacheHandler.md)
+- [Fetch](https://canary.warp-drive.io/api/@warp-drive/core/variables/Fetch.md)
+- [recordIdentifierFor()](https://canary.warp-drive.io/api/@warp-drive/core/functions/recordIdentifierFor.md)
+- [setIdentifierForgetMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierForgetMethod.md)
+- [setIdentifierGenerationMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierGenerationMethod.md)
+- [setIdentifierResetMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierResetMethod.md)
+- [setIdentifierUpdateMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierUpdateMethod.md)
+- [setKeyInfoForResource()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setKeyInfoForResource.md)
+- [useRecommendedStore()](https://canary.warp-drive.io/api/@warp-drive/core/functions/useRecommendedStore.md)
+
+##### /build-config
+
+- [@warp-drive/core/build-config/babel-macros](https://canary.warp-drive.io/api/@warp-drive/core/build-config/babel-macros.md)
+- [@warp-drive/core/build-config/canary-features](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features.md)
+- [@warp-drive/core/build-config/debugging](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging.md)
+- [@warp-drive/core/build-config/deprecations](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations.md)
+
+###### exports
+
+- [babelPlugin()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/functions/babelPlugin.md)
+- [setConfig()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/functions/setConfig.md)
+
+###### /babel-macros
+
+####### exports
+
+- [macros()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/babel-macros/functions/macros.md)
+
+###### /canary-features
+
+####### exports
+
+- [ENFORCE_STRICT_RESOURCE_FINALIZATION](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features/variables/ENFORCE_STRICT_RESOURCE_FINALIZATION.md)
+- [JSON_API_CACHE_VALIDATION_ERRORS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features/variables/JSON_API_CACHE_VALIDATION_ERRORS.md)
+
+###### /debugging
+
+####### exports
+
+- [DEBUG_RELATIONSHIP_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/DEBUG_RELATIONSHIP_NOTIFICATIONS.md)
+- [LOG_CACHE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_CACHE.md)
+- [LOG_CACHE_POLICY](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_CACHE_POLICY.md)
+- [LOG_GRAPH](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_GRAPH.md)
+- [LOG_IDENTIFIERS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_IDENTIFIERS.md)
+- [LOG_INSTANCE_CACHE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_INSTANCE_CACHE.md)
+- [LOG_METRIC_COUNTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_METRIC_COUNTS.md)
+- [LOG_MUTATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_MUTATIONS.md)
+- [LOG_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_NOTIFICATIONS.md)
+- [LOG_OPERATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_OPERATIONS.md)
+- [LOG_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_PAYLOADS.md)
+- [LOG_REACT_SIGNAL_INTEGRATION](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REACT_SIGNAL_INTEGRATION.md)
+- [LOG_REQUEST_STATUS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REQUEST_STATUS.md)
+- [LOG_REQUESTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REQUESTS.md)
+
+####### /Namespaces
+
+- [@warp-drive/core/build-config/debugging/t](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/namespaces/t.md)
+
+###### /deprecations
+
+####### exports
+
+- [DEPRECATE_COMPUTED_CHAINS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_COMPUTED_CHAINS.md)
+- [DEPRECATE_EMBER_INFLECTOR](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_EMBER_INFLECTOR.md)
+- [DEPRECATE_LEGACY_IMPORTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_LEGACY_IMPORTS.md)
+- [DEPRECATE_MANY_ARRAY_DUPLICATES](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_MANY_ARRAY_DUPLICATES.md)
+- [DEPRECATE_NON_STRICT_ID](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_STRICT_ID.md)
+- [DEPRECATE_NON_STRICT_TYPES](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_STRICT_TYPES.md)
+- [DEPRECATE_NON_UNIQUE_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_UNIQUE_PAYLOADS.md)
+- [DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE.md)
+- [DEPRECATE_STORE_EXTENDS_EMBER_OBJECT](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_STORE_EXTENDS_EMBER_OBJECT.md)
+- [DEPRECATE_TRACKING_PACKAGE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_TRACKING_PACKAGE.md)
+- [DISABLE_7X_DEPRECATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DISABLE_7X_DEPRECATIONS.md)
+- [ENABLE_LEGACY_REQUEST_METHODS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS.md)
+- [ENABLE_LEGACY_SCHEMA_SERVICE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_SCHEMA_SERVICE.md)
+
+##### /configure
+
+###### exports
+
+- [setupSignals()](https://canary.warp-drive.io/api/@warp-drive/core/configure/functions/setupSignals.md)
+
+##### /reactive
+
+###### exports
+
+- [SchemaService](https://canary.warp-drive.io/api/@warp-drive/core/reactive/classes/SchemaService.md)
+- [Checkout](https://canary.warp-drive.io/api/@warp-drive/core/reactive/variables/Checkout.md)
+- [fromIdentity](https://canary.warp-drive.io/api/@warp-drive/core/reactive/variables/fromIdentity.md)
+- [checkout()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/checkout.md)
+- [commit()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/commit.md)
+- [createRequestSubscription()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/createRequestSubscription.md)
+- [getPromiseState()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/getPromiseState.md)
+- [getRequestState()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/getRequestState.md)
+- [instantiateRecord()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/instantiateRecord.md)
+- [registerDerivations()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/registerDerivations.md)
+- [teardownRecord()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/teardownRecord.md)
+- [withDefaults()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/withDefaults.md)
+
+##### /request
+
+###### exports
+
+- [withBrand](https://canary.warp-drive.io/api/@warp-drive/core/request/variables/withBrand.md)
+- [createDeferred()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/createDeferred.md)
+- [getPromiseResult()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/getPromiseResult.md)
+- [setPromiseResult()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/setPromiseResult.md)
+- [withReactiveResponse()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/withReactiveResponse.md)
+- [withResponseType()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/withResponseType.md)
+
+##### /store
+
+###### exports
+
+- [DefaultCachePolicy](https://canary.warp-drive.io/api/@warp-drive/core/store/classes/DefaultCachePolicy.md)
+- [parseCacheControl()](https://canary.warp-drive.io/api/@warp-drive/core/store/functions/parseCacheControl.md)
+
+##### /types
+
+- [@warp-drive/core/types/cache](https://canary.warp-drive.io/api/@warp-drive/core/types/cache.md)
+- [@warp-drive/core/types/graph](https://canary.warp-drive.io/api/@warp-drive/core/types/graph.md)
+- [@warp-drive/core/types/identifier](https://canary.warp-drive.io/api/@warp-drive/core/types/identifier.md)
+- [@warp-drive/core/types/params](https://canary.warp-drive.io/api/@warp-drive/core/types/params.md)
+- [@warp-drive/core/types/record](https://canary.warp-drive.io/api/@warp-drive/core/types/record.md)
+- [@warp-drive/core/types/request](https://canary.warp-drive.io/api/@warp-drive/core/types/request.md)
+- [@warp-drive/core/types/symbols](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols.md)
+- [@warp-drive/core/types/utils](https://canary.warp-drive.io/api/@warp-drive/core/types/utils.md)
+
+###### /cache
+
+- [@warp-drive/core/types/cache/aliases](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/aliases.md)
+- [@warp-drive/core/types/cache/change](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/change.md)
+- [@warp-drive/core/types/cache/mutations](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/mutations.md)
+- [@warp-drive/core/types/cache/operations](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/operations.md)
+- [@warp-drive/core/types/cache/relationship](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/relationship.md)
+
+###### /json
+
+- [@warp-drive/core/types/json/raw](https://canary.warp-drive.io/api/@warp-drive/core/types/json/raw.md)
+
+###### /record
+
+####### exports
+
+- [createIncludeValidator()](https://canary.warp-drive.io/api/@warp-drive/core/types/record/functions/createIncludeValidator.md)
+
+###### /request
+
+####### exports
+
+- [EnableHydration](https://canary.warp-drive.io/api/@warp-drive/core/types/request/variables/EnableHydration.md)
+- [SkipCache](https://canary.warp-drive.io/api/@warp-drive/core/types/request/variables/SkipCache.md)
+
+###### /schema
+
+- [@warp-drive/core/types/schema/concepts](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/concepts.md)
+- [@warp-drive/core/types/schema/fields](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields.md)
+- [@warp-drive/core/types/schema/schema-service](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/schema-service.md)
+
+####### /fields
+
+######## exports
+
+- [isLegacyResourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isLegacyResourceSchema.md)
+- [isResourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isResourceSchema.md)
+- [objectSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/objectSchema.md)
+- [resourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/resourceSchema.md)
+
+###### /spec
+
+- [@warp-drive/core/types/spec/document](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/document.md)
+- [@warp-drive/core/types/spec/error](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/error.md)
+- [@warp-drive/core/types/spec/json-api-raw](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/json-api-raw.md)
+
+###### /symbols
+
+####### exports
+
+- [RecordStore](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/RecordStore.md)
+- [RequestSignature](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/RequestSignature.md)
+- [ResourceType](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/ResourceType.md)
+- [TransformName](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/TransformName.md)
+- [Type](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/Type.md)
+
+#### @warp-drive/json-api
+
+##### exports
+
+- [JSONAPICache](https://canary.warp-drive.io/api/@warp-drive/json-api/classes/JSONAPICache.md)
+
+#### @warp-drive/utilities
+
+- [@warp-drive/utilities/active-record](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record.md)
+- [@warp-drive/utilities/derivations](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations.md)
+- [@warp-drive/utilities/handlers](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers.md)
+- [@warp-drive/utilities/json-api](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api.md)
+- [@warp-drive/utilities/rest](https://canary.warp-drive.io/api/@warp-drive/utilities/rest.md)
+- [@warp-drive/utilities/string](https://canary.warp-drive.io/api/@warp-drive/utilities/string.md)
+
+##### exports
+
+- [buildBaseURL()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/buildBaseURL.md)
+- [buildQueryParams()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/buildQueryParams.md)
+- [filterEmpty()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/filterEmpty.md)
+- [setBuildURLConfig()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/setBuildURLConfig.md)
+- [sortQueryParams()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/sortQueryParams.md)
+
+##### /active-record
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/createRecord.md)
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/deleteRecord.md)
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/findRecord.md)
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/query.md)
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/updateRecord.md)
+
+##### /derivations
+
+###### exports
+
+- [concat](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations/variables/concat.md)
+
+###### /Namespaces
+
+- [@warp-drive/utilities/derivations/concat](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations/namespaces/concat.md)
+
+##### /handlers
+
+###### /Handlers
+
+- [AutoCompress](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/classes/AutoCompress.md)
+- [Gate](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/classes/Gate.md)
+- [MetaDocHandler](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/MetaDocHandler.md)
+
+###### /Constants
+
+- [MAX_URL_LENGTH](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/MAX_URL_LENGTH.md)
+- [SupportsRequestStreams](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/SupportsRequestStreams.md)
+- [TAB_ASSIGNED](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/TAB_ASSIGNED.md)
+- [TAB_ID](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/TAB_ID.md)
+
+###### /Utility Functions
+
+- [addTraceHeader()](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/functions/addTraceHeader.md)
+- [assertInvalidUrlLength()](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/functions/assertInvalidUrlLength.md)
+
+##### /json-api
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/createRecord.md)
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/deleteRecord.md)
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/findRecord.md)
+- [postQuery()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/postQuery.md)
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/query.md)
+- [serializePatch()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/serializePatch.md)
+- [serializeResources()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/serializeResources.md)
+- [setBuildURLConfig()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/setBuildURLConfig.md)
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/updateRecord.md)
+
+##### /rest
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/createRecord.md)
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/deleteRecord.md)
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/findRecord.md)
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/query.md)
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/updateRecord.md)
+
+##### /string
+
+###### exports
+
+- [dasherize](https://canary.warp-drive.io/api/@warp-drive/utilities/string/variables/dasherize.md)
+- [camelize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/camelize.md)
+- [capitalize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/capitalize.md)
+- [clear()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/clear.md)
+- [clearRules()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/clearRules.md)
+- [irregular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/irregular.md)
+- [loadIrregular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/loadIrregular.md)
+- [loadUncountable()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/loadUncountable.md)
+- [plural()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/plural.md)
+- [pluralize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/pluralize.md)
+- [resetToDefaults()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/resetToDefaults.md)
+- [setMaxLRUCacheSize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/setMaxLRUCacheSize.md)
+- [singular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/singular.md)
+- [singularize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/singularize.md)
+- [uncountable()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/uncountable.md)
+- [underscore()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/underscore.md)
+
+#### @warp-drive/legacy
+
+- [@warp-drive/legacy/adapter](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter.md)
+- [@warp-drive/legacy/compat](https://canary.warp-drive.io/api/@warp-drive/legacy/compat.md)
+- [@warp-drive/legacy/model](https://canary.warp-drive.io/api/@warp-drive/legacy/model.md)
+- [@warp-drive/legacy/model-fragments](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments.md)
+- [@warp-drive/legacy/serializer](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer.md)
+- [@warp-drive/legacy/store](https://canary.warp-drive.io/api/@warp-drive/legacy/store.md)
+
+##### exports
+
+- [ConfiguredStore](https://canary.warp-drive.io/api/@warp-drive/legacy/classes/ConfiguredStore.md)
+- [useLegacyStore()](https://canary.warp-drive.io/api/@warp-drive/legacy/functions/useLegacyStore.md)
+
+##### /adapter
+
+- [@warp-drive/legacy/adapter/error](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error.md)
+- [@warp-drive/legacy/adapter/json-api](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/json-api.md)
+- [@warp-drive/legacy/adapter/rest](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/rest.md)
+
+###### exports
+
+- [Adapter](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/classes/Adapter.md)
+- [BuildURLMixin](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/variables/BuildURLMixin.md)
+
+###### /error
+
+####### exports
+
+- [AbortError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/AbortError.md)
+- [AdapterError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/AdapterError.md)
+- [ConflictError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/ConflictError.md)
+- [ForbiddenError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/ForbiddenError.md)
+- [InvalidError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/InvalidError.md)
+- [NotFoundError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/NotFoundError.md)
+- [ServerError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/ServerError.md)
+- [TimeoutError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/TimeoutError.md)
+- [UnauthorizedError](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/error/variables/UnauthorizedError.md)
+
+###### /json-api
+
+####### exports
+
+- [JSONAPIAdapter](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/json-api/classes/JSONAPIAdapter.md)
+
+###### /rest
+
+####### exports
+
+- [RESTAdapter](https://canary.warp-drive.io/api/@warp-drive/legacy/adapter/rest/classes/RESTAdapter.md)
+
+##### /compat
+
+- [@warp-drive/legacy/compat/builders](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders.md)
+- [@warp-drive/legacy/compat/extensions](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/extensions.md)
+- [@warp-drive/legacy/compat/utils](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils.md)
+
+###### exports
+
+- [LegacyNetworkHandler](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/variables/LegacyNetworkHandler.md)
+- [adapterFor()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/adapterFor.md)
+- [cleanup()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/cleanup.md)
+- [normalize()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/normalize.md)
+- [pushPayload()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/pushPayload.md)
+- [serializeRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/serializeRecord.md)
+- [serializerFor()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/functions/serializerFor.md)
+
+###### /builders
+
+####### exports
+
+- [findAll()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders/functions/findAll.md)
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders/functions/findRecord.md)
+- [query()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders/functions/query.md)
+- [queryRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders/functions/queryRecord.md)
+- [saveRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/builders/functions/saveRecord.md)
+
+###### /extensions
+
+####### exports
+
+- [EmberArrayLikeExtension](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/extensions/variables/EmberArrayLikeExtension.md)
+- [EmberObjectArrayExtension](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/extensions/variables/EmberObjectArrayExtension.md)
+- [EmberObjectExtension](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/extensions/variables/EmberObjectExtension.md)
+
+###### /utils
+
+####### exports
+
+- [configureAssertFn()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/configureAssertFn.md)
+- [configureMismatchReporter()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/configureMismatchReporter.md)
+- [configureTypeNormalization()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/configureTypeNormalization.md)
+- [expectId()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/expectId.md)
+- [formattedId()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/formattedId.md)
+- [formattedType()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/formattedType.md)
+- [isEquivId()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/isEquivId.md)
+- [isEquivType()](https://canary.warp-drive.io/api/@warp-drive/legacy/compat/utils/functions/isEquivType.md)
+
+##### /model
+
+- [@warp-drive/legacy/model/migration-support](https://canary.warp-drive.io/api/@warp-drive/legacy/model/migration-support.md)
+
+###### exports
+
+- [Model](https://canary.warp-drive.io/api/@warp-drive/legacy/model/classes/Model.md)
+- [attr()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/attr.md)
+- [belongsTo()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/belongsTo.md)
+- [buildSchema()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/buildSchema.md)
+- [hasMany()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/hasMany.md)
+- [instantiateRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/instantiateRecord.md)
+- [modelFor()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/modelFor.md)
+- [restoreDeprecatedModelRequestBehaviors()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/restoreDeprecatedModelRequestBehaviors.md)
+- [teardownRecord()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/functions/teardownRecord.md)
+
+###### /migration-support
+
+####### exports
+
+- [DelegatingSchemaService](https://canary.warp-drive.io/api/@warp-drive/legacy/model/migration-support/classes/DelegatingSchemaService.md)
+- [registerDerivations()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/migration-support/functions/registerDerivations.md)
+- [withDefaults()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/migration-support/functions/withDefaults.md)
+- [withRestoredDeprecatedModelRequestBehaviors()](https://canary.warp-drive.io/api/@warp-drive/legacy/model/migration-support/functions/withRestoredDeprecatedModelRequestBehaviors.md)
+
+##### /model-fragments
+
+###### exports
+
+- [Fragment](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/classes/Fragment.md)
+- [FragmentArray](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/classes/FragmentArray.md)
+- [FragmentArrayExtension](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/variables/FragmentArrayExtension.md)
+- [FragmentExtension](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/variables/FragmentExtension.md)
+- [modelFor](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/variables/modelFor.md)
+- [registerFragmentExtensions()](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/functions/registerFragmentExtensions.md)
+- [withArrayDefaults()](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/functions/withArrayDefaults.md)
+- [withFragmentArrayDefaults()](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/functions/withFragmentArrayDefaults.md)
+- [withFragmentDefaults()](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/functions/withFragmentDefaults.md)
+- [withLegacy()](https://canary.warp-drive.io/api/@warp-drive/legacy/model-fragments/functions/withLegacy.md)
+
+##### /serializer
+
+- [@warp-drive/legacy/serializer/json](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/json.md)
+- [@warp-drive/legacy/serializer/json-api](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/json-api.md)
+- [@warp-drive/legacy/serializer/rest](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/rest.md)
+- [@warp-drive/legacy/serializer/transform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform.md)
+
+###### exports
+
+- [Serializer](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/classes/Serializer.md)
+
+###### /json
+
+####### exports
+
+- [JSONSerializer](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/json/classes/JSONSerializer.md)
+
+###### /json-api
+
+####### exports
+
+- [JSONAPISerializer](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/json-api/classes/JSONAPISerializer.md)
+
+###### /rest
+
+####### exports
+
+- [EmbeddedRecordsMixin](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/rest/classes/EmbeddedRecordsMixin.md)
+- [RESTSerializer](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/rest/classes/RESTSerializer.md)
+
+###### /transform
+
+####### exports
+
+- [BooleanTransform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform/classes/BooleanTransform.md)
+- [DateTransform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform/classes/DateTransform.md)
+- [NumberTransform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform/classes/NumberTransform.md)
+- [StringTransform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform/classes/StringTransform.md)
+- [Transform](https://canary.warp-drive.io/api/@warp-drive/legacy/serializer/transform/classes/Transform.md)
+
+##### /store
+
+###### exports
+
+- [restoreDeprecatedStoreBehaviors()](https://canary.warp-drive.io/api/@warp-drive/legacy/store/functions/restoreDeprecatedStoreBehaviors.md)
+
+#### @warp-drive/experiments
+
+- [@warp-drive/experiments/data-worker](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker.md)
+- [@warp-drive/experiments/document-storage](https://canary.warp-drive.io/api/@warp-drive/experiments/document-storage.md)
+- [@warp-drive/experiments/image-fetch](https://canary.warp-drive.io/api/@warp-drive/experiments/image-fetch.md)
+- [@warp-drive/experiments/image-worker](https://canary.warp-drive.io/api/@warp-drive/experiments/image-worker.md)
+- [@warp-drive/experiments/pagination](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination.md)
+- [@warp-drive/experiments/storage](https://canary.warp-drive.io/api/@warp-drive/experiments/storage.md)
+- [@warp-drive/experiments/worker-fetch](https://canary.warp-drive.io/api/@warp-drive/experiments/worker-fetch.md)
+
+##### /data-worker
+
+###### exports
+
+- [DataWorker](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker/classes/DataWorker.md)
+- [CacheHandler](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker/variables/CacheHandler.md)
+
+##### /document-storage
+
+###### exports
+
+- [DocumentStorage](https://canary.warp-drive.io/api/@warp-drive/experiments/document-storage/classes/DocumentStorage.md)
+
+##### /image-fetch
+
+###### exports
+
+- [ImageFetch](https://canary.warp-drive.io/api/@warp-drive/experiments/image-fetch/classes/ImageFetch.md)
+
+##### /image-worker
+
+###### exports
+
+- [ImageWorker](https://canary.warp-drive.io/api/@warp-drive/experiments/image-worker/classes/ImageWorker.md)
+
+##### /pagination
+
+###### exports
+
+- [defaultPageHints](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/variables/defaultPageHints.md)
+- [clearPaginationCache()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/clearPaginationCache.md)
+- [createPaginationLinksSubscription()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/createPaginationLinksSubscription.md)
+- [createPaginationSubscription()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/createPaginationSubscription.md)
+- [getPaginationCache()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationCache.md)
+- [getPaginationLinks()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationLinks.md)
+- [getPaginationState()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationState.md)
+
+##### /storage
+
+###### exports
+
+- [CacheStorage](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/classes/CacheStorage.md)
+- [DEFAULT_CACHE_ID](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/variables/DEFAULT_CACHE_ID.md)
+- [_initializeFields()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/initializeFields.md)
+- [BooleanParam()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/BooleanParam.md)
+- [CacheResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/CacheResource.md)
+- [configureLocalStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/configureLocalStorage.md)
+- [configureSessionStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/configureSessionStorage.md)
+- [effect()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/effect.md)
+- [field()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/field.md)
+- [getCacheStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getCacheStorage.md)
+- [getLocalStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getLocalStorage.md)
+- [getSessionStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getSessionStorage.md)
+- [input()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/input.md)
+- [LocalResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/LocalResource.md)
+- [NumberParam()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/NumberParam.md)
+- [onStorageEvent()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/onStorageEvent.md)
+- [param()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/param.md)
+- [SessionResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/SessionResource.md)
+
+##### /worker-fetch
+
+###### exports
+
+- [WorkerFetch](https://canary.warp-drive.io/api/@warp-drive/experiments/worker-fetch/classes/WorkerFetch.md)
+
+#### @warp-drive/ember
+
+- [@warp-drive/ember/experiments](https://canary.warp-drive.io/api/@warp-drive/ember/experiments.md)
+- [@warp-drive/ember/install](https://canary.warp-drive.io/api/@warp-drive/ember/install.md)
+
+##### exports
+
+- [<Await />](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Await.md)
+- [Request](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Request.md)
+- [Throw](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Throw.md)
+
+##### /experiments
+
+###### exports
+
+- [<EachLink />](https://canary.warp-drive.io/api/@warp-drive/ember/experiments/classes/EachLink.md)
+- [<Paginate />](https://canary.warp-drive.io/api/@warp-drive/ember/experiments/classes/Paginate.md)
+
+##### /install
+
+###### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@warp-drive/ember/install/functions/buildSignalConfig.md)
+
+#### @warp-drive/react
+
+- [@warp-drive/react/install](https://canary.warp-drive.io/api/@warp-drive/react/install.md)
+
+##### exports
+
+- [WatcherContext](https://canary.warp-drive.io/api/@warp-drive/react/variables/WatcherContext.md)
+- [ReactiveContext()](https://canary.warp-drive.io/api/@warp-drive/react/functions/ReactiveContext.md)
+- [Request()](https://canary.warp-drive.io/api/@warp-drive/react/functions/Request.md)
+- [StoreProvider()](https://canary.warp-drive.io/api/@warp-drive/react/functions/StoreProvider.md)
+- [useStore()](https://canary.warp-drive.io/api/@warp-drive/react/functions/useStore.md)
+
+##### /install
+
+###### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@warp-drive/react/install/functions/buildSignalConfig.md)
+- [settled()](https://canary.warp-drive.io/api/@warp-drive/react/install/functions/settled.md)
+
+#### @warp-drive/holodeck
+
+- [@warp-drive/holodeck/mock](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock.md)
+
+##### exports
+
+- [MockServerHandler](https://canary.warp-drive.io/api/@warp-drive/holodeck/classes/MockServerHandler.md)
+- [getIsRecording()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/getIsRecording.md)
+- [installAdapterFor()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/installAdapterFor.md)
+- [mock()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/mock.md)
+- [setConfig()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setConfig.md)
+- [setIsRecording()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setIsRecording.md)
+- [setTestId()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setTestId.md)
+
+##### /mock
+
+###### exports
+
+- [DELETE()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/DELETE.md)
+- [GET()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/GET.md)
+- [HEAD()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/HEAD.md)
+- [PATCH()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/PATCH.md)
+- [POST()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/POST.md)
+- [PUT()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/PUT.md)
+
+#### @warp-drive/schema-dsl
+
+##### /Entity Decorators
+
+- [ObjectSchema()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/ObjectSchema.md)
+- [Resource()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/Resource.md)
+- [trait()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/trait.md)
+- [Trait()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/Trait-1.md)
+
+##### /Field Decorators
+
+- [alias()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/alias.md)
+- [array()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/array.md)
+- [attribute()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/attribute.md)
+- [belongsTo()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/belongsTo.md)
+- [createonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/createonly.md)
+- [derived()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/derived.md)
+- [editonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/editonly.md)
+- [field()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/field.md)
+- [hash()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/hash.md)
+- [hasMany()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/hasMany.md)
+- [id()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/id.md)
+- [local()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/local.md)
+- [object()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/object.md)
+- [optional()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/optional.md)
+- [readonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/readonly.md)
+- [schemaArray()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/schemaArray.md)
+- [schemaObject()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/schemaObject.md)
+
+#### eslint-plugin-warp-drive
+
+- [eslint-plugin-warp-drive/recommended](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/recommended.md)
+
+##### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/variables/export=.md)
+
+##### /recommended
+
+###### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/recommended/variables/export=.md)
+
+##### /rules
+
+- [eslint-plugin-warp-drive/rules/no-create-record-rerender](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-create-record-rerender.md)
+- [eslint-plugin-warp-drive/rules/no-external-request-patterns](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-external-request-patterns.md)
+- [eslint-plugin-warp-drive/rules/no-invalid-relationships](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-relationships.md)
+- [eslint-plugin-warp-drive/rules/no-invalid-resource-ids](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-ids.md)
+- [eslint-plugin-warp-drive/rules/no-invalid-resource-types](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-types.md)
+- [eslint-plugin-warp-drive/rules/no-legacy-imports](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-imports.md)
+- [eslint-plugin-warp-drive/rules/no-legacy-request-patterns](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-request-patterns.md)
+- [eslint-plugin-warp-drive/rules/no-test-module-hooks](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-test-module-hooks.md)
+- [eslint-plugin-warp-drive/rules/require-request-error-block](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/require-request-error-block.md)
+- [eslint-plugin-warp-drive/rules/template-always-use-request-content](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-always-use-request-content.md)
+- [eslint-plugin-warp-drive/rules/template-require-request-error-block](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-require-request-error-block.md)
+
+###### /no-create-record-rerender
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-create-record-rerender/variables/export=.md)
+
+###### /no-external-request-patterns
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-external-request-patterns/variables/export=.md)
+
+###### /no-invalid-relationships
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-relationships/variables/export=.md)
+
+###### /no-invalid-resource-ids
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-ids/variables/export=.md)
+
+###### /no-invalid-resource-types
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-types/variables/export=.md)
+
+###### /no-legacy-imports
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-imports/variables/export=.md)
+
+###### /no-legacy-request-patterns
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-request-patterns/variables/export=.md)
+
+###### /no-test-module-hooks
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-test-module-hooks/variables/export=.md)
+
+###### /require-request-error-block
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/require-request-error-block/variables/export=.md)
+
+###### /template-always-use-request-content
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-always-use-request-content/variables/export=.md)
+
+###### /template-require-request-error-block
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-require-request-error-block/variables/export=.md)
+
+### Legacy API Docs
+
+- [@ember-data/adapter](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/adapter.md)
+- [@ember-data/active-record](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/active-record.md)
+- [@ember-data/legacy-compat](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/legacy-compat.md)
+- [@ember-data/model](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/model.md)
+- [@ember-data/json-api](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/json-api.md)
+- [@ember-data/store](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/store.md)
+- [@ember-data/graph](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/graph.md)
+- [@ember-data/request](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/request.md)
+- [@ember-data/request-utils](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/request-utils.md)
+- [@ember-data/rest](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/rest.md)
+- [@ember-data/serializer](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/serializer.md)
+- [@ember-data/tracking](https://canary.warp-drive.io/pr-preview/pr-11292/api/@ember-data/tracking.md)
+- [@warp-drive/core-types](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types.md)
+- [@warp-drive/build-config](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/build-config.md)
+- [@warp-drive/schema-record](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-record.md)
+
+#### @ember-data/adapter
+
+- [@ember-data/adapter/error](https://canary.warp-drive.io/api/@ember-data/adapter/error.md)
+- [@ember-data/adapter/json-api](https://canary.warp-drive.io/api/@ember-data/adapter/json-api.md)
+- [@ember-data/adapter/rest](https://canary.warp-drive.io/api/@ember-data/adapter/rest.md)
+
+#### @ember-data/active-record
+
+- [@ember-data/active-record/request](https://canary.warp-drive.io/api/@ember-data/active-record/request.md)
+
+#### @ember-data/legacy-compat
+
+- [@ember-data/legacy-compat/builders](https://canary.warp-drive.io/api/@ember-data/legacy-compat/builders.md)
+- [@ember-data/legacy-compat/utils](https://canary.warp-drive.io/api/@ember-data/legacy-compat/utils.md)
+
+#### @ember-data/model
+
+- [@ember-data/model/hooks](https://canary.warp-drive.io/api/@ember-data/model/hooks.md)
+- [@ember-data/model/migration-support](https://canary.warp-drive.io/api/@ember-data/model/migration-support.md)
+
+#### @ember-data/json-api
+
+- [@ember-data/json-api/request](https://canary.warp-drive.io/api/@ember-data/json-api/request.md)
+
+#### @ember-data/store
+
+- [@ember-data/store/configure](https://canary.warp-drive.io/api/@ember-data/store/configure.md)
+- [@ember-data/store/types](https://canary.warp-drive.io/api/@ember-data/store/types.md)
+
+#### @ember-data/request
+
+- [@ember-data/request/fetch](https://canary.warp-drive.io/api/@ember-data/request/fetch.md)
+
+#### @ember-data/request-utils
+
+- [@ember-data/request-utils/handlers](https://canary.warp-drive.io/api/@ember-data/request-utils/handlers.md)
+- [@ember-data/request-utils/string](https://canary.warp-drive.io/api/@ember-data/request-utils/string.md)
+
+##### exports
+
+- [LifetimesService](https://canary.warp-drive.io/api/@ember-data/request-utils/classes/LifetimesService.md)
+
+#### @ember-data/rest
+
+- [@ember-data/rest/request](https://canary.warp-drive.io/api/@ember-data/rest/request.md)
+
+#### @ember-data/serializer
+
+- [@ember-data/serializer/json](https://canary.warp-drive.io/api/@ember-data/serializer/json.md)
+- [@ember-data/serializer/json-api](https://canary.warp-drive.io/api/@ember-data/serializer/json-api.md)
+- [@ember-data/serializer/rest](https://canary.warp-drive.io/api/@ember-data/serializer/rest.md)
+- [@ember-data/serializer/transform](https://canary.warp-drive.io/api/@ember-data/serializer/transform.md)
+
+#### @ember-data/tracking
+
+##### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@ember-data/tracking/functions/buildSignalConfig.md)
+
+#### @warp-drive/core-types
+
+- [@warp-drive/core-types/cache](https://canary.warp-drive.io/api/@warp-drive/core-types/cache.md)
+- [@warp-drive/core-types/graph](https://canary.warp-drive.io/api/@warp-drive/core-types/graph.md)
+- [@warp-drive/core-types/identifier](https://canary.warp-drive.io/api/@warp-drive/core-types/identifier.md)
+- [@warp-drive/core-types/params](https://canary.warp-drive.io/api/@warp-drive/core-types/params.md)
+- [@warp-drive/core-types/record](https://canary.warp-drive.io/api/@warp-drive/core-types/record.md)
+- [@warp-drive/core-types/request](https://canary.warp-drive.io/api/@warp-drive/core-types/request.md)
+- [@warp-drive/core-types/symbols](https://canary.warp-drive.io/api/@warp-drive/core-types/symbols.md)
+- [@warp-drive/core-types/utils](https://canary.warp-drive.io/api/@warp-drive/core-types/utils.md)
+
+##### /json
+
+- [@warp-drive/core-types/json/raw](https://canary.warp-drive.io/api/@warp-drive/core-types/json/raw.md)
+
+##### /schema
+
+- [@warp-drive/core-types/schema/concepts](https://canary.warp-drive.io/api/@warp-drive/core-types/schema/concepts.md)
+- [@warp-drive/core-types/schema/fields](https://canary.warp-drive.io/api/@warp-drive/core-types/schema/fields.md)
+
+##### /spec
+
+- [@warp-drive/core-types/spec/document](https://canary.warp-drive.io/api/@warp-drive/core-types/spec/document.md)
+- [@warp-drive/core-types/spec/error](https://canary.warp-drive.io/api/@warp-drive/core-types/spec/error.md)
+- [@warp-drive/core-types/spec/json-api-raw](https://canary.warp-drive.io/api/@warp-drive/core-types/spec/json-api-raw.md)
+
+#### @warp-drive/build-config
+
+- [@warp-drive/build-config/babel-macros](https://canary.warp-drive.io/api/@warp-drive/build-config/babel-macros.md)
+- [@warp-drive/build-config/canary-features](https://canary.warp-drive.io/api/@warp-drive/build-config/canary-features.md)
+- [@warp-drive/build-config/debugging](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging.md)
+- [@warp-drive/build-config/deprecations](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations.md)
+
+##### exports
+
+- [babelPlugin()](https://canary.warp-drive.io/api/@warp-drive/build-config/functions/babelPlugin.md)
+- [setConfig()](https://canary.warp-drive.io/api/@warp-drive/build-config/functions/setConfig.md)
+
+##### /babel-macros
+
+###### exports
+
+- [macros()](https://canary.warp-drive.io/api/@warp-drive/build-config/babel-macros/functions/macros.md)
+
+##### /canary-features
+
+###### exports
+
+- [ENFORCE_STRICT_RESOURCE_FINALIZATION](https://canary.warp-drive.io/api/@warp-drive/build-config/canary-features/variables/ENFORCE_STRICT_RESOURCE_FINALIZATION.md)
+- [JSON_API_CACHE_VALIDATION_ERRORS](https://canary.warp-drive.io/api/@warp-drive/build-config/canary-features/variables/JSON_API_CACHE_VALIDATION_ERRORS.md)
+
+##### /debugging
+
+###### exports
+
+- [DEBUG_RELATIONSHIP_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/DEBUG_RELATIONSHIP_NOTIFICATIONS.md)
+- [LOG_CACHE](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_CACHE.md)
+- [LOG_CACHE_POLICY](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_CACHE_POLICY.md)
+- [LOG_GRAPH](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_GRAPH.md)
+- [LOG_IDENTIFIERS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_IDENTIFIERS.md)
+- [LOG_INSTANCE_CACHE](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_INSTANCE_CACHE.md)
+- [LOG_METRIC_COUNTS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_METRIC_COUNTS.md)
+- [LOG_MUTATIONS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_MUTATIONS.md)
+- [LOG_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_NOTIFICATIONS.md)
+- [LOG_OPERATIONS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_OPERATIONS.md)
+- [LOG_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_PAYLOADS.md)
+- [LOG_REACT_SIGNAL_INTEGRATION](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_REACT_SIGNAL_INTEGRATION.md)
+- [LOG_REQUEST_STATUS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_REQUEST_STATUS.md)
+- [LOG_REQUESTS](https://canary.warp-drive.io/api/@warp-drive/build-config/debugging/variables/LOG_REQUESTS.md)
+
+##### /deprecations
+
+###### exports
+
+- [DEPRECATE_COMPUTED_CHAINS](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_COMPUTED_CHAINS.md)
+- [DEPRECATE_EMBER_INFLECTOR](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_EMBER_INFLECTOR.md)
+- [DEPRECATE_LEGACY_IMPORTS](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_LEGACY_IMPORTS.md)
+- [DEPRECATE_MANY_ARRAY_DUPLICATES](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_MANY_ARRAY_DUPLICATES.md)
+- [DEPRECATE_NON_STRICT_ID](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_NON_STRICT_ID.md)
+- [DEPRECATE_NON_STRICT_TYPES](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_NON_STRICT_TYPES.md)
+- [DEPRECATE_NON_UNIQUE_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_NON_UNIQUE_PAYLOADS.md)
+- [DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE.md)
+- [DEPRECATE_STORE_EXTENDS_EMBER_OBJECT](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_STORE_EXTENDS_EMBER_OBJECT.md)
+- [DEPRECATE_TRACKING_PACKAGE](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DEPRECATE_TRACKING_PACKAGE.md)
+- [DISABLE_7X_DEPRECATIONS](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/DISABLE_7X_DEPRECATIONS.md)
+- [ENABLE_LEGACY_REQUEST_METHODS](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS.md)
+- [ENABLE_LEGACY_SCHEMA_SERVICE](https://canary.warp-drive.io/api/@warp-drive/build-config/deprecations/variables/ENABLE_LEGACY_SCHEMA_SERVICE.md)
+
+### Other
+
+- [@warp-drive/core-types/cache/aliases](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types/cache/aliases.md)
+- [@warp-drive/core-types/cache/change](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types/cache/change.md)
+- [@warp-drive/core-types/cache/mutations](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types/cache/mutations.md)
+- [@warp-drive/core-types/cache/operations](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types/cache/operations.md)
+- [@warp-drive/core-types/cache/relationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core-types/cache/relationship.md)
+- [AbortError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/AbortError.md)
+- [AdapterError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/AdapterError.md)
+- [AdapterPayload](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/AdapterPayload.md)
+- [AdapterRequestError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/AdapterRequestError.md)
+- [AdapterRequestErrorConstructor](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/AdapterRequestErrorConstructor.md)
+- [AddResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/AddResourceOperation.md)
+- [AddToDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/AddToDocumentOperation.md)
+- [AddToResourceRelationshipMutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/AddToResourceRelationshipMutation.md)
+- [AddToResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/AddToResourceRelationshipOperation.md)
+- [Advanced Builders](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/builders-advanced.md): Structure builders around API patterns or domain logic, compose them, and use builder and type utilities, including with tRPC or GraphQL; this page is a draft outline.
+- [Advanced Handlers](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/handlers-advanced.md): Write Handler objects that use RequestContext, setStream, setResponse, and next to retry errors, handle aborts, and curry streams down the chain; draft page.
+- [AliasOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/AliasOptions.md)
+- [ApiError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/error/types/ApiError.md)
+- [ArrayField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ArrayField.md)
+- [ArrayFieldOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/ArrayFieldOptions.md)
+- [ArrayType](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/extensions/types/ArrayType.md)
+- [ArrayValue](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/json/raw/types/ArrayValue.md)
+- [AsyncHasMany](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/model/types/AsyncHasMany.md)
+- [AttributeOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/AttributeOptions.md)
+- [AttributesSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/schema-service/types/AttributesSchema.md)
+- [AttrOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/AttrOptions.md)
+- [Autogeneration Notice](https://canary.warp-drive.io/pr-preview/pr-11292/public/logos/synced/README.md)
+- [AutorefreshBehaviorCombos](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/AutorefreshBehaviorCombos.md)
+- [AutorefreshBehaviorType](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/AutorefreshBehaviorType.md)
+- [Awaitable](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/Awaitable.md)
+- [BaseFinderOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/BaseFinderOptions.md)
+- [BelongsToOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/BelongsToOptions.md)
+- [BuildURLConfig](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/BuildURLConfig.md)
+- [BuildURLMixin](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/types/BuildURLMixin.md)
+- [BuiltIn Handlers](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/handlers-builtin.md): Learn when to reach for a Handler, how to compose and type handlers, and which handlers WarpDrive ships built in; this page is a draft outline.
+- [Cache](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/types/Cache.md)
+- [CacheableFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/CacheableFieldSchema.md)
+- [CacheCapabilitiesManager](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/CacheCapabilitiesManager.md)
+- [CacheControlValue](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/store/types/CacheControlValue.md)
+- [CacheHandler](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/CacheHandler.md)
+- [CacheKeyType](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/CacheKeyType.md)
+- [CacheOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/CacheOperation.md)
+- [CacheOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/CacheOptions.md)
+- [CachePolicy](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/CachePolicy.md)
+- [CacheStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/CacheStorageEvent.md)
+- [CAUTION_MEGA_DANGER_ZONE_Extension](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/CAUTION_MEGA_DANGER_ZONE_Extension.md)
+- [Change](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/change/types/Change.md)
+- [ChangedAttributesHash](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/types/ChangedAttributesHash.md)
+- [CollectionField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/CollectionField.md)
+- [CollectionRelationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/relationship/types/CollectionRelationship.md)
+- [CollectionResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/CollectionResourceDataDocument.md)
+- [CollectionResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/CollectionResourceDocument.md)
+- [CollectionResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/CollectionResourceRelationship.md)
+- [CompatStore](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/CompatStore.md)
+- [ConflictError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/ConflictError.md)
+- [ConstrainedRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ConstrainedRequestOptions.md)
+- [ContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ContentFeatures.md)
+- [Context](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/Context.md)
+- [CreateRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/CreateRecordUrlOptions.md)
+- [CreateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/CreateRequestOptions.md)
+- [Deferred](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/Deferred.md)
+- [DeleteRecordOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/DeleteRecordOperation.md)
+- [DeleteRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/DeleteRecordUrlOptions.md)
+- [DeleteRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/DeleteRequestOptions.md)
+- [Derivation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/concepts/types/Derivation.md)
+- [DerivedField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/DerivedField.md)
+- [DerivedOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/DerivedOptions.md)
+- [Document](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/Document.md)
+- [DocumentCacheOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/DocumentCacheOperation.md)
+- [EffectStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/EffectStorageEvent.md)
+- [EmptyResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/EmptyResourceDocument.md)
+- [ExistingResourceObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/ExistingResourceObject.md)
+- [ExtensionDef](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ExtensionDef.md)
+- [ExtractSuggestedCacheTypes](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/ExtractSuggestedCacheTypes.md)
+- [FetchError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/FetchError.md)
+- [FetchRequestInit](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/rest/types/FetchRequestInit.md)
+- [FieldOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/FieldOptions.md)
+- [FieldSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/FieldSchema.md)
+- [FindAllOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/FindAllOptions.md)
+- [FindManyUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/FindManyUrlOptions.md)
+- [FindRecordOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/FindRecordOptions.md)
+- [FindRecordOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/FindRecordOptions.md)
+- [FindRecordRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/FindRecordRequestOptions.md)
+- [FindRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/FindRecordUrlOptions.md)
+- [FindRelatedCollectionUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/FindRelatedCollectionUrlOptions.md)
+- [FindRelatedResourceUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/FindRelatedResourceUrlOptions.md)
+- [ForbiddenError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/ForbiddenError.md)
+- [Future](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/Future.md)
+- [GenericField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/GenericField.md)
+- [GenericUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/GenericUrlOptions.md)
+- [Handler](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/Handler.md)
+- [HashField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/HashField.md)
+- [HashFn](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/concepts/types/HashFn.md)
+- [HashOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/HashOptions.md)
+- [HasManyOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/HasManyOptions.md)
+- [HooksOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/configure/types/HooksOptions.md)
+- [HTTPMethod](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/HTTPMethod.md)
+- [IdentityField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/IdentityField.md)
+- [IdOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/IdOptions.md)
+- [ImmutableCreateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ImmutableCreateRequestOptions.md)
+- [ImmutableDeleteRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ImmutableDeleteRequestOptions.md)
+- [ImmutableHeaders](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ImmutableHeaders.md)
+- [ImmutableRequestInfo](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ImmutableRequestInfo.md)
+- [ImmutableUpdateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ImmutableUpdateRequestOptions.md)
+- [Includes](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/Includes.md)
+- [InfinitePaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/InfinitePaginationContentFeatures.md)
+- [InfinitePaginationState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/InfinitePaginationState.md)
+- [InnerRelationshipDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/InnerRelationshipDocument.md)
+- [InternalCacheStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/InternalCacheStorageEvent.md)
+- [InvalidError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/InvalidError.md)
+- [JQueryRequestInit](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/rest/types/JQueryRequestInit.md)
+- [KeyFn](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/KeyFn.md)
+- [LazyScaffold](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/holodeck/mock/types/LazyScaffold.md)
+- [Legacy Builders](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/builders-legacy.md): Write request builders for apps still on the legacy adapter/serializer pattern; this page is a draft placeholder with no content yet.
+- [Legacy Handlers](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/handlers-legacy.md): Write request handlers for apps still on the legacy adapter/serializer pattern; this page is a draft placeholder with no content yet.
+- [LegacyAliasField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyAliasField.md)
+- [LegacyAttributeField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyAttributeField.md)
+- [LegacyBelongsToField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyBelongsToField.md)
+- [LegacyField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyField.md)
+- [LegacyHasManyField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyHasManyField.md)
+- [LegacyLiveArray](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/LegacyLiveArray.md)
+- [LegacyManyArray](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/LegacyManyArray.md)
+- [LegacyModeFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyModeFieldSchema.md)
+- [LegacyModelAndNetworkAndRequestStoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/types/LegacyModelAndNetworkAndRequestStoreSetupOptions.md)
+- [LegacyModelAndNetworkStoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/types/LegacyModelAndNetworkStoreSetupOptions.md)
+- [LegacyModelStoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/types/LegacyModelStoreSetupOptions.md)
+- [LegacyQueryArray](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/LegacyQueryArray.md)
+- [LegacyRelationshipField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyRelationshipField.md)
+- [LegacyResourceQuery](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/LegacyResourceQuery.md)
+- [LegacyResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyResourceSchema.md)
+- [LegacyStoreCompat](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/LegacyStoreCompat.md)
+- [LegacyStoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/types/LegacyStoreSetupOptions.md)
+- [LegacyTrait](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LegacyTrait.md)
+- [Link](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/Link.md)
+- [LinkObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/LinkObject.md)
+- [Links](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/Links.md)
+- [LinksMode](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/misc/links-mode.md): Set linksMode on a belongsTo or hasMany so it fetches through the request pipeline instead of the legacy adapter, on Model, LegacyMode, or PolarisMode schemas.
+- [LinksModeBelongsToField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LinksModeBelongsToField.md)
+- [LinksModeHasManyField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LinksModeHasManyField.md)
+- [LLM Optimized Documentation](https://canary.warp-drive.io/pr-preview/pr-11292/llm-docs.md): Where to find llms.txt, llms-full.txt, and the plain-Markdown twin of every page, and how the Copy page button uses them.
+- [LocalField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/LocalField.md)
+- [LocalOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/LocalOptions.md)
+- [LocalRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/LocalRelationshipOperation.md)
+- [ManagedRequestPriority](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/ManagedRequestPriority.md)
+- [Mask](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/Mask.md)
+- [MergeOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/MergeOperation.md)
+- [Meta](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/Meta.md)
+- [MinimumAdapterInterface](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/MinimumAdapterInterface.md)
+- [MinimumSerializerInterface](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/MinimumSerializerInterface.md)
+- [Miscellaneous](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/misc.md): Find WarpDrive guides that do not yet have a permanent section, such as LinksMode and terminology, before they are moved into the main manual.
+- [ModelSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/ModelSchema.md)
+- [Mutable](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/utils/types/Mutable.md)
+- [Mutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/Mutation.md)
+- [NewResourceKey](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/NewResourceKey.md)
+- [NewResourceObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/NewResourceObject.md)
+- [NextFn](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/request/types/NextFn.md)
+- [NotFoundError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/NotFoundError.md)
+- [NotificationChannel](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/NotificationChannel.md)
+- [NotificationManager](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/store/types/NotificationManager.md)
+- [NotificationType](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/NotificationType.md)
+- [NotifyKeys](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/NotifyKeys.md)
+- [ObjectAliasField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ObjectAliasField.md)
+- [ObjectField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ObjectField.md)
+- [ObjectFieldOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/ObjectFieldOptions.md)
+- [ObjectFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ObjectFieldSchema.md)
+- [ObjectSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ObjectSchema.md)
+- [ObjectSchemaOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/ObjectSchemaOptions.md)
+- [ObjectValue](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/json/raw/types/ObjectValue.md)
+- [Op](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/Op.md)
+- [OpaqueRecordInstance](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/OpaqueRecordInstance.md)
+- [Operation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/Operation.md)
+- [Operation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/Operation.md)
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/realtime.md): Placeholder for the Realtime section of the manual, which will cover streaming and live-updating data; still under construction, with no content yet.
+- [PageCache](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PageCache.md)
+- [PagedPaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PagedPaginationContentFeatures.md)
+- [PagedPaginationState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PagedPaginationState.md)
+- [PageHints](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PageHints.md)
+- [PaginateArgs](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginateArgs.md)
+- [PaginateMode](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginateMode.md)
+- [PaginationCache](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationCache.md)
+- [PaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationContentFeatures.md)
+- [PaginationContentFeaturesFor](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationContentFeaturesFor.md)
+- [PaginationLink](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationLink.md)
+- [PaginationLinks](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/PaginationLinks.md)
+- [PaginationLinks](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationLinks.md)
+- [PaginationLinksSubscription](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationLinksSubscription.md)
+- [PaginationState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationState.md)
+- [PaginationStateFor](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationStateFor.md)
+- [PaginationSubscription](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PaginationSubscription.md)
+- [ParamConfig](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/ParamConfig.md)
+- [PendingPromise](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/PendingPromise.md)
+- [PersistedResourceKey](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/PersistedResourceKey.md)
+- [PlaceholderPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/PlaceholderPaginationLink.md)
+- [PolarisAliasField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/PolarisAliasField.md)
+- [PolarisModeFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/PolarisModeFieldSchema.md)
+- [PolarisResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/PolarisResourceSchema.md)
+- [PolarisTrait](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/PolarisTrait.md)
+- [PolicyConfig](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/store/types/PolicyConfig.md)
+- [PostQueryRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/PostQueryRequestOptions.md)
+- [PrimitiveValue](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/json/raw/types/PrimitiveValue.md)
+- [ProcessedExtension](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ProcessedExtension.md)
+- [PromiseState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/PromiseState.md)
+- [QueryOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/types/QueryOptions.md)
+- [QueryParamsSerializationOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/params/types/QueryParamsSerializationOptions.md)
+- [QueryParamsSource](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/params/types/QueryParamsSource.md)
+- [QueryRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/QueryRequestOptions.md)
+- [QueryState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/rest/types/QueryState.md)
+- [QueryUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/QueryUrlOptions.md)
+- [ReactiveDataDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ReactiveDataDocument.md)
+- [ReactiveDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ReactiveDocument.md)
+- [ReactiveErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ReactiveErrorDocument.md)
+- [ReactiveResource](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ReactiveResource.md)
+- [ReactiveResourceArray](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ReactiveResourceArray.md)
+- [ReactiveStorage](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/ReactiveStorage.md)
+- [ReactiveStorageOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/ReactiveStorageOptions.md)
+- [RealPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/RealPaginationLink.md)
+- [RecoveryFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RecoveryFeatures.md)
+- [RejectedPromise](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RejectedPromise.md)
+- [RelationalPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/RelationalPaginationLink.md)
+- [Relationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/relationship/types/Relationship.md)
+- [RelationshipDiff](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/types/RelationshipDiff.md)
+- [RelationshipsSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/schema-service/types/RelationshipsSchema.md)
+- [RemotelyAccessibleIdentifier](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/RemotelyAccessibleIdentifier.md)
+- [RemoteRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/RemoteRelationshipOperation.md)
+- [RemoveDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/RemoveDocumentOperation.md)
+- [RemoveFromDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/RemoveFromDocumentOperation.md)
+- [RemoveFromResourceRelationshipMutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/RemoveFromResourceRelationshipMutation.md)
+- [RemoveFromResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/RemoveFromResourceRelationshipOperation.md)
+- [RemoveResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/RemoveResourceOperation.md)
+- [ReplaceRelatedRecordMutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/ReplaceRelatedRecordMutation.md)
+- [ReplaceRelatedRecordOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/ReplaceRelatedRecordOperation.md)
+- [ReplaceRelatedRecordsMutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/ReplaceRelatedRecordsMutation.md)
+- [ReplaceRelatedRecordsOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/ReplaceRelatedRecordsOperation.md)
+- [RequestArgs](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RequestArgs.md)
+- [RequestContext](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/RequestContext.md)
+- [RequestData](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/rest/types/RequestData.md)
+- [RequestInfo](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/RequestInfo.md)
+- [RequestKey](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/RequestKey.md)
+- [RequestLoadingState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RequestLoadingState.md)
+- [RequestState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RequestState.md)
+- [RequestSubscription](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/RequestSubscription.md)
+- [ResolvedPromise](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/ResolvedPromise.md)
+- [ResourceBlob](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/aliases/types/ResourceBlob.md)
+- [ResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/ResourceDataDocument.md)
+- [ResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/ResourceDocument.md)
+- [ResourceErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/ResourceErrorDocument.md)
+- [ResourceField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ResourceField.md)
+- [ResourceIdentifier](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceIdentifier.md)
+- [ResourceIdentifierObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceIdentifierObject.md)
+- [ResourceKey](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/ResourceKey.md)
+- [ResourceMetaDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/ResourceMetaDocument.md)
+- [ResourceObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceObject.md)
+- [ResourceOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/ResourceOptions.md)
+- [ResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/relationship/types/ResourceRelationship.md)
+- [ResourceRelationshipsObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceRelationshipsObject.md)
+- [Resources](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/schemas/dsl/resource.md): Define a resource schema as a class with `@Resource`, `@field`, and `@id`, wire the `@warp-drive/schema-dsl` Vite plugin, and register the compiled output with the store (draft).
+- [ResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/ResourceSchema.md)
+- [ResponseGenerator](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/holodeck/mock/types/ResponseGenerator.md)
+- [ResponseInfo](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/ResponseInfo.md)
+- [RFC title](https://canary.warp-drive.io/pr-preview/pr-11292/rfcs/0000-template.md)
+- [Scaffold](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/holodeck/mock/types/Scaffold.md)
+- [ScaffoldGenerator](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/holodeck/mock/types/ScaffoldGenerator.md)
+- [Schema](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/Schema.md)
+- [Schema DSL](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/schemas/dsl.md): Author resource, object, and trait schemas as TypeScript classes with `@Resource`, `@Object`, `@Trait`, and field decorators that compile to JSON schemas (draft reference).
+- [SchemaArrayField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/SchemaArrayField.md)
+- [SchemaArrayOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/SchemaArrayOptions.md)
+- [SchemaObjectField](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/SchemaObjectField.md)
+- [SchemaObjectOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/SchemaObjectOptions.md)
+- [SchemaService](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/schema-service/types/SchemaService.md)
+- [Serializable](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/params/types/Serializable.md)
+- [SerializablePrimitive](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/params/types/SerializablePrimitive.md)
+- [SerializerOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/types/SerializerOptions.md)
+- [ServerError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/ServerError.md)
+- [SharedPaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/SharedPaginationContentFeatures.md)
+- [SharedPaginationState](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/pagination/types/SharedPaginationState.md)
+- [SignalHooks](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/configure/types/SignalHooks.md)
+- [SingleResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/document/types/SingleResourceDataDocument.md)
+- [SingleResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/SingleResourceDocument.md)
+- [SingleResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/spec/json-api-raw/types/SingleResourceRelationship.md)
+- [SortRelatedRecords](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/SortRelatedRecords.md)
+- [SortRelatedRecordsMutation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/mutations/types/SortRelatedRecordsMutation.md)
+- [StableDocumentIdentifier](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/StableDocumentIdentifier.md)
+- [StableExistingRecordIdentifier](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/StableExistingRecordIdentifier.md)
+- [StableRecordIdentifier](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/identifier/types/StableRecordIdentifier.md)
+- [StoreRequestContext](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/StoreRequestContext.md)
+- [StoreRequestInput](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/StoreRequestInput.md)
+- [StoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/StoreSetupOptions.md)
+- [StringSatisfiesIncludes](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/StringSatisfiesIncludes.md)
+- [StructuredDataDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/StructuredDataDocument.md)
+- [StructuredDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/StructuredDocument.md)
+- [StructuredErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/StructuredErrorDocument.md)
+- [SubscriptionArgs](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/SubscriptionArgs.md)
+- [Tag](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/ember/install/types/Tag.md)
+- [Terminology](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/misc/terminology.md): Look up the meaning of resource, resource type, abstract versus concrete type, and relationship terms such as inverse, reflexive, circular, and polymorphic.
+- [TimeoutError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/TimeoutError.md)
+- [Trait](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/fields/types/Trait.md)
+- [TraitOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/schema-dsl/types/TraitOptions.md)
+- [Transformation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/reactive/types/Transformation.md)
+- [Transformation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/schema/concepts/types/Transformation.md)
+- [TypedRecordInstance](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/TypedRecordInstance.md)
+- [TypeFromInstance](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/TypeFromInstance.md)
+- [TypeFromInstanceOrString](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/TypeFromInstanceOrString.md)
+- [UnauthorizedError](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/adapter/error/types/UnauthorizedError.md)
+- [UnknownOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/UnknownOperation.md)
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/data.md): Learn the four data representations (API, wire, cache, presentation) WarpDrive asks you to align and why JSON:API is the recommended wire and cache format.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/reactivity/misc.md): Learn how WarpDrive exposes cached documents, resources, and fields reactively through PolarisMode or LegacyMode records, with pluggable signals so Ember or React can integrate.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/misc/migrating.md): Find the current location of the WarpDrive v5 upgrade and migration docs, which have moved out of this section into the Upgrading guide.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/migrating/codemods.md): Find the current location of the WarpDrive codemods guide, which has moved to the v5 upgrading section at /upgrading/v5/codemods and is no longer maintained here.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/migrating.md): Find where the WarpDrive upgrade guides now live, since the migrating section has moved to /upgrading/v5 and this page only redirects readers there.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/migrating/two-store-migration.md): Find the current home of the WarpDrive two-store migration guide, which has moved to /upgrading/v5/two-store-migration and is no longer maintained on this page.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/about.md): Understand why WarpDrive exists, what it manages beyond fetch (dedupe, caching, cross-tab reactivity), and how it evolved from SproutCore and EmberData.
+- [Untitled](https://canary.warp-drive.io/pr-preview/pr-11292/contributors.md): See the WarpDrive core team and the full list of GitHub contributors whose work has shaped the project.
+- [UpdateRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/UpdateRecordUrlOptions.md)
+- [UpdateRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/graph/types/UpdateRelationshipOperation.md)
+- [UpdateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/request/types/UpdateRequestOptions.md)
+- [UpdateResourceFieldOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/UpdateResourceFieldOperation.md)
+- [UpdateResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/UpdateResourceOperation.md)
+- [UpdateResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/cache/operations/types/UpdateResourceRelationshipOperation.md)
+- [UrlOptions](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/types/UrlOptions.md)
+- [Using "Just Fetch"](https://canary.warp-drive.io/pr-preview/pr-11292/guides/the-manual/requests/using-just-fetch.md): Use a standalone RequestManager with the Fetch handler and no Store, register Handler objects with use, and read the Future and StructuredDocument it returns; draft page.
+- [Validate](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/record/types/Validate.md)
+- [Value](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/json/raw/types/Value.md)
+- [ValueTransition](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/experiments/storage/types/ValueTransition.md)
+- [WarpDrive Contributor Skills](https://canary.warp-drive.io/pr-preview/pr-11292/skills/contributors.md)
+- [WarpDriveConfig](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/build-config/types/WarpDriveConfig.md)
+- [WarpDriveConfig](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/build-config/types/WarpDriveConfig.md)
+- [WithArrayLike](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/extensions/types/WithArrayLike.md)
+- [WithEmberObject](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/compat/extensions/types/WithEmberObject.md)
+- [WithFragment](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/model-fragments/types/WithFragment.md)
+- [WithFragmentArray](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/model-fragments/types/WithFragmentArray.md)
+- [WithLegacy](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/model/migration-support/types/WithLegacy.md)
+- [WithLegacyDerivations](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/legacy/model/migration-support/types/WithLegacyDerivations.md)
+- [WithPartial](https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/core/types/utils/types/WithPartial.md)

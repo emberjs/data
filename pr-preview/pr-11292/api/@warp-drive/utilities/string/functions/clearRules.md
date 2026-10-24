@@ -1,0 +1,19 @@
+---
+url: >-
+  https://canary.warp-drive.io/pr-preview/pr-11292/api/@warp-drive/utilities/string/functions/clearRules.md
+---
+
+# &#x20;clearRules()&#x20;
+
+```ts
+function clearRules(): void;
+```
+
+Defined in: [-private/string/inflect.ts:117](https://github.com/warp-drive-data/warp-drive/blob/5127bc5b162f2ebe5d9578e3204f3e955b63c5f8/warp-drive-packages/utilities/src/-private/string/inflect.ts#L117)
+
+Clears all inflection rules
+and resets the caches for singularize and pluralize.
+
+## Returns
+
+`void`

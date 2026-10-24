@@ -1,0 +1,149 @@
+---
+url: >-
+  https://canary.warp-drive.io/pr-preview/pr-11389/api/@warp-drive/core/reactive/types/Transformation.md
+description: >-
+  A registered converter between a field's raw cache value and the value exposed
+  on the record, with optional default.
+---
+
+# &#x20;Transformation\<T *extends* [`Value`](../../types/json/raw/types/Value.md) = [`Value`](../../types/json/raw/types/Value.md), PT = `unknown`>
+
+```ts
+type Transformation<T extends Value = Value, PT = unknown> = {
+  ___(unique) Symbol($type): string;
+  defaultValue?: T;
+  hydrate: PT;
+  serialize: T;
+};
+```
+
+Defined in: [warp-drive-packages/core/src/reactive/-private/schema.ts:657](https://github.com/warp-drive-data/warp-drive/blob/80c0358b68e59bf240519e2eda8ddab711f3c5fd/warp-drive-packages/core/src/reactive/-private/schema.ts#L657)
+
+Defines how to convert a `GenericField`, `ObjectField`, or `ArrayField`
+between the raw value `T` stored in the cache and the presentation value
+`PT` exposed on the record.
+
+## Type Parameters
+
+### T
+
+`T` *extends* [`Value`](../../types/json/raw/types/Value.md) = [`Value`](../../types/json/raw/types/Value.md)
+
+### PT
+
+`PT` = `unknown`
+
+## Methods
+
+### defaultValue()?
+
+```ts
+optional defaultValue(options: 
+  | Record<string, unknown>
+  | null, identifier: ResourceKey): T;
+```
+
+Defined in: [warp-drive-packages/core/src/reactive/-private/schema.ts:663](https://github.com/warp-drive-data/warp-drive/blob/80c0358b68e59bf240519e2eda8ddab711f3c5fd/warp-drive-packages/core/src/reactive/-private/schema.ts#L663)
+
+Computes the value to use when the cache has no value for the field.
+
+#### Parameters
+
+##### options
+
+| [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type)<`string`, `unknown`>
+| `null`
+
+##### identifier
+
+[`ResourceKey`](../../types/identifier/types/ResourceKey.md)
+
+#### Returns
+
+`T`
+
+***
+
+### hydrate()
+
+```ts
+hydrate(
+   value: T | undefined, 
+   options: 
+  | Record<string, unknown>
+  | null, 
+   record: ReactiveResource
+): PT;
+```
+
+Defined in: [warp-drive-packages/core/src/reactive/-private/schema.ts:661](https://github.com/warp-drive-data/warp-drive/blob/80c0358b68e59bf240519e2eda8ddab711f3c5fd/warp-drive-packages/core/src/reactive/-private/schema.ts#L661)
+
+Converts the raw cache value into its presentation value.
+
+#### Parameters
+
+##### value
+
+`T` | `undefined`
+
+##### options
+
+| [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type)<`string`, `unknown`>
+| `null`
+
+##### record
+
+[`ReactiveResource`](ReactiveResource.md)
+
+#### Returns
+
+`PT`
+
+***
+
+### serialize()
+
+```ts
+serialize(
+   value: PT, 
+   options: 
+  | Record<string, unknown>
+  | null, 
+   record: ReactiveResource
+): T;
+```
+
+Defined in: [warp-drive-packages/core/src/reactive/-private/schema.ts:659](https://github.com/warp-drive-data/warp-drive/blob/80c0358b68e59bf240519e2eda8ddab711f3c5fd/warp-drive-packages/core/src/reactive/-private/schema.ts#L659)
+
+Converts the presentation value into the raw value to store in the cache.
+
+#### Parameters
+
+##### value
+
+`PT`
+
+##### options
+
+| [`Record`](https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type)<`string`, `unknown`>
+| `null`
+
+##### record
+
+[`ReactiveResource`](ReactiveResource.md)
+
+#### Returns
+
+`T`
+
+## Properties
+
+### \_\_\_(unique) Symbol($type)
+
+```ts
+___(unique) Symbol($type): string;
+```
+
+Defined in: [warp-drive-packages/core/src/reactive/-private/schema.ts:665](https://github.com/warp-drive-data/warp-drive/blob/80c0358b68e59bf240519e2eda8ddab711f3c5fd/warp-drive-packages/core/src/reactive/-private/schema.ts#L665)
+
+The name under which this transformation is registered and looked up.

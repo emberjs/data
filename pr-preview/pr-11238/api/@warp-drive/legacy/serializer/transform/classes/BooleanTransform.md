@@ -1,0 +1,145 @@
+---
+url: >-
+  https://canary.warp-drive.io/pr-preview/pr-11238/api/@warp-drive/legacy/serializer/transform/classes/BooleanTransform.md
+description: >-
+  Legacy transform for `attr('boolean')` that converts payload values to and
+  from booleans, optionally allowing `null`.
+---
+
+&#x20;
+
+# &#x20;BooleanTransform
+
+Defined in: [warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts:6](https://github.com/warp-drive-data/warp-drive/blob/8bf4cade6bfc227d414394a8cb69ecfab1c21cbe/warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts#L6)
+
+The `BooleanTransform` class is used to serialize and deserialize
+boolean attributes on Ember Data record objects. This transform is
+used when `'boolean'` is passed as the type parameter to the
+[attr](../../../model/functions/attr.md)function.
+
+Usage
+
+```js [app/models/user.js]
+import { Model, attr } from '@warp-drive/legacy/model';
+
+export default class UserModel extends Model {
+  @attr('boolean') isAdmin;
+  @attr('string') name;
+  @attr('string') email;
+}
+```
+
+By default, the boolean transform only allows for values of `true` or
+`false`. You can opt into allowing `null` values for
+boolean attributes via `attr('boolean', { allowNull: true })`
+
+```js [app/models/user.js]
+import { Model, attr } from '@warp-drive/legacy/model';
+
+export default class UserModel extends Model {
+  @attr('string') email;
+  @attr('string') username;
+  @attr('boolean', { allowNull: true }) wantsWeeklyEmail;
+}
+```
+
+## Constructors
+
+### Constructor
+
+```ts
+new BooleanTransform(): BooleanTransform;
+```
+
+#### Returns
+
+`BooleanTransform`
+
+## Methods
+
+### deserialize()
+
+```ts
+deserialize(serialized: string | number | boolean | null, options?: {
+  allowNull?: boolean;
+}): boolean | null;
+```
+
+Defined in: [warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts:54](https://github.com/warp-drive-data/warp-drive/blob/8bf4cade6bfc227d414394a8cb69ecfab1c21cbe/warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts#L54)
+
+Converts a serialized (raw payload) value into a `boolean` (or `null`
+when `allowNull` is set and the value is nullish).
+
+#### Parameters
+
+##### serialized
+
+`string` | `number` | `boolean` | `null`
+
+##### options?
+
+###### allowNull?
+
+`boolean`
+
+#### Returns
+
+`boolean` | `null`
+
+***
+
+### serialize()
+
+```ts
+serialize(deserialized: boolean | null, options?: {
+  allowNull?: boolean;
+}): boolean | null;
+```
+
+Defined in: [warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts:73](https://github.com/warp-drive-data/warp-drive/blob/8bf4cade6bfc227d414394a8cb69ecfab1c21cbe/warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts#L73)
+
+Converts a `boolean` attribute value into its serialized (raw payload) form.
+
+#### Parameters
+
+##### deserialized
+
+`boolean` | `null`
+
+##### options?
+
+###### allowNull?
+
+`boolean`
+
+#### Returns
+
+`boolean` | `null`
+
+***
+
+### create()
+
+```ts
+static create(): BooleanTransform;
+```
+
+Defined in: [warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts:84](https://github.com/warp-drive-data/warp-drive/blob/8bf4cade6bfc227d414394a8cb69ecfab1c21cbe/warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts#L84)
+
+Creates a new instance of this transform.
+
+#### Returns
+
+`BooleanTransform`
+
+## Properties
+
+### \_\_\_(unique) Symbol($type)
+
+```ts
+___(unique) Symbol($type): "boolean";
+```
+
+Defined in: [warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts:10](https://github.com/warp-drive-data/warp-drive/blob/8bf4cade6bfc227d414394a8cb69ecfab1c21cbe/warp-drive-packages/legacy/src/serializer/-private/transforms/boolean.ts#L10)
+
+see [TransformName](../../../../core/types/symbols/variables/TransformName.md)

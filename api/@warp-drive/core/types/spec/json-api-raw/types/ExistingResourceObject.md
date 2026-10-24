@@ -1,0 +1,143 @@
+---
+url: >-
+  https://canary.warp-drive.io/api/@warp-drive/core/types/spec/json-api-raw/types/ExistingResourceObject.md
+description: >-
+  A raw {json:api} resource object for a persisted resource: `type` and `id`
+  plus optional `lid`, `attributes`, `relationships`, `links`, and `meta`.
+---
+
+# &#x20;ExistingResourceObject\<T *extends* `string` = `string`>
+
+```ts
+interface ExistingResourceObject<T extends string = string> {
+  attributes?: ObjectValue;
+  id: string;
+  lid?: string;
+  links?: Links;
+  meta?: ObjectValue;
+  relationships?: ResourceRelationshipsObject<ExistingResourceIdentifierObject<string>>;
+  type: T;
+}
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:309](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L309)
+
+Contains the data for an existing resource in JSON:API format
+
+## Type Parameters
+
+### T
+
+`T` *extends* `string` = `string`
+
+## Properties
+
+### attributes?
+
+```ts
+attributes?: ObjectValue;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:317](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L317)
+
+the resource's attributes
+
+***
+
+### id
+
+```ts
+id: string;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:117](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L117)
+
+the resource's persisted id
+
+#### Inherited from
+
+`ExistingResourceIdentifierObject.id`
+
+***
+
+### lid?&#x20;
+
+```ts
+lid?: string;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:140](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L140)
+
+While not officially part of the `JSON:API` spec,
+`ember-data` allows the use of `lid` as a local
+identifier for a `Resource`.
+
+It is best to include the lid used when creating
+a new resource if this is the response to a new resource creation,
+also recommended if this resource type uses secondary indexes.
+
+Once a `ResourceIdentifierObject` has been seen by the cache, `lid`
+should always be present. Only when inbound from the an `API` response
+is `lid` considered optional.
+
+[Identifiers RFC](https://github.com/emberjs/rfcs/blob/main/text/0403-ember-data-identifiers.md#ember-data--identifiers)
+
+#### Inherited from
+
+`ExistingResourceIdentifierObject.lid`
+
+***
+
+### links?
+
+```ts
+links?: Links;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:325](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L325)
+
+links related to the resource
+
+***
+
+### meta?
+
+```ts
+meta?: ObjectValue;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:313](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L313)
+
+meta information about the resource
+
+#### Overrides
+
+`ExistingResourceIdentifierObject.meta`
+
+***
+
+### relationships?
+
+```ts
+relationships?: ResourceRelationshipsObject<ExistingResourceIdentifierObject<string>>;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:321](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L321)
+
+the resource's relationships to other resources
+
+***
+
+### type
+
+```ts
+type: T;
+```
+
+Defined in: [warp-drive-packages/core/src/types/spec/json-api-raw.ts:122](https://github.com/warp-drive-data/warp-drive/blob/a8ac10f9b2f8e2280b44fed40dedf5fb872cd5f4/warp-drive-packages/core/src/types/spec/json-api-raw.ts#L122)
+
+the resource's type
+
+#### Inherited from
+
+`ExistingResourceObject`.[`type`](#type)

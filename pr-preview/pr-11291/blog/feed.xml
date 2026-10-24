@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>WarpDrive Blog</title>
+    <link>https://canary.warp-drive.io/pr-preview/pr-11291/blog/</link>
+    <atom:link href="https://canary.warp-drive.io/pr-preview/pr-11291/blog/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Release announcements and other point-in-time posts from the WarpDrive project.</description>
+    <language>en</language>
+    <lastBuildDate>Sat, 05 Sep 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Introducing Upgrading &amp; Blog</title>
+      <link>https://canary.warp-drive.io/pr-preview/pr-11291/blog/v5/introducing-upgrading-and-blog</link>
+      <guid isPermaLink="true">https://canary.warp-drive.io/pr-preview/pr-11291/blog/v5/introducing-upgrading-and-blog</guid>
+      <pubDate>Sat, 05 Sep 2026 00:00:00 GMT</pubDate>
+      <description>Learn why WarpDrive 5.10 added the permanent Upgrading and Blog sections to warp-drive.io and where the former /guides/migrating/ pages now live.</description>
+    </item>
+    <item>
+      <title>WarpDrive 5.9</title>
+      <link>https://canary.warp-drive.io/pr-preview/pr-11291/blog/v5/warp-drive-5-9</link>
+      <guid isPermaLink="true">https://canary.warp-drive.io/pr-preview/pr-11291/blog/v5/warp-drive-5-9</guid>
+      <pubDate>Sat, 05 Sep 2026 00:00:00 GMT</pubDate>
+      <description>Learn what changed in WarpDrive 5.9 — reactive pagination, the migrate-to-schema codemod, Memory Alpha for AI agents, and rolled-up types — and why to install 5.9.1 rather than 5.9.0.</description>
+    </item>
+  </channel>
+</rss>

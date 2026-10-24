@@ -1,0 +1,1100 @@
+# The Manual
+
+> Boldly Read What No Dev Has Read Before
+
+Comprehensive Documentation for Engineers Aiming for the Stars 💫
+
+Guides for legacy setups and API reference for `@warp-drive/legacy`, `@ember-data/adapter`, `@ember-data/active-record`, `@ember-data/debug`, `@ember-data/legacy-compat`, `@ember-data/model`, `@ember-data/json-api`, `@ember-data/store`, `@ember-data/graph`, `@ember-data/request`, `@ember-data/request-utils`, `@ember-data/rest`, `@ember-data/serializer`, `@ember-data/tracking`, `@warp-drive/core-types`, `@warp-drive/build-config`, `@warp-drive/schema-record` are indexed separately in https://canary.warp-drive.io/llms-legacy.txt, with full text in https://canary.warp-drive.io/llms-legacy-full.txt.
+
+## Table of Contents
+
+### Installation
+
+- [Instructions](https://canary.warp-drive.io/pr-preview/pr-11218/guides/installation.md): Install @warp-drive/core and @warp-drive/json-api with exact pinned versions, then add the reactivity package and install import for Ember, React, or TC39 Signals.
+- [UNPKG](https://canary.warp-drive.io/pr-preview/pr-11218/guides/installation/unpkg.md): Load prebuilt ESM builds of WarpDrive packages from UNPKG and pick the unpkg, unpkg-dev, unpkg-deprecated, or unpkg-dev-deprecated export condition you need.
+
+### Configuration
+
+- [Setup](https://canary.warp-drive.io/pr-preview/pr-11218/guides/configuration.md): Set up WarpDrive's babel build plugin with compatWith and create a store with useRecommendedStore or useLegacyStore, the two steps required before making any request.
+- [Setup - Advanced](https://canary.warp-drive.io/pr-preview/pr-11218/guides/configuration/advanced.md): Build a Store class by hand, adding RequestManager, SchemaService, JSONAPICache, instantiateRecord, and DefaultCachePolicy step by step, with Ember Model and migration variants.
+
+### Tutorials
+
+- [Overview](https://canary.warp-drive.io/pr-preview/pr-11218/guides/tutorials.md): Placeholder for WarpDrive's step-by-step tutorials, which are still under construction with no walkthroughs published yet; use the manual instead for now.
+
+### The Manual
+
+- [Introduction](https://canary.warp-drive.io/pr-preview/pr-11218/guides.md): Learn what WarpDrive offers as a framework-agnostic data layer, from fine-grained reactivity and Fetch-style requests to schemas, the relational cache, mutations, and handlers.
+- [Community Resources](https://canary.warp-drive.io/pr-preview/pr-11218/guides/the-manual/community-resources.md): Find conference talks, blog posts, and podcasts about WarpDrive and EmberData from 2019 onward, and learn how to add your own to the list via PR.
+
+#### Requests
+
+- [Making Requests](https://canary.warp-drive.io/guides/the-manual/requests.md): Start here to make requests with store.request, the <Request /> component, and getRequestState, then set RequestInfo options and chain handlers in a RequestManager.
+- [Typing Requests](https://canary.warp-drive.io/guides/the-manual/requests/typing-requests.md): Type request responses in builders with withResponseType and withReactiveResponse, without casting, including the ReactiveDataDocument meta, errors, and error-meta type params.
+- [Using The Response](https://canary.warp-drive.io/guides/the-manual/requests/using-the-response.md): Read the Future a request returns, use its lid, getStream, and abort, handle FetchError rejections, and know when content is a ReactiveDocument.
+- [Builders](https://canary.warp-drive.io/guides/the-manual/requests/builders.md): Write documented, well-named builder functions that form a typed, cross-framework SDK for your API, produce stable RequestKeys, and drive the Request component and your own components.
+- [Handlers](https://canary.warp-drive.io/guides/the-manual/requests/handlers.md): Write a Handler middleware that calls next and normalizes a REST response into a JSON:API document with dasherize and singularize so the cache can consume it.
+
+#### Schemas
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/schemas.md): Start here for the schemas section to see how a ResourceSchema maps raw cached fields to camelCase reactive properties and relationships, then pick LegacyMode or PolarisMode.
+- [ObjectSchemas](https://canary.warp-drive.io/guides/the-manual/schemas/object-schemas.md): Define an embedded ObjectSchema with a null identity, reference it from a resource via a `schema-object` field, and register it with `registerResource` so nested data is reactive.
+- [SimpleFields](https://canary.warp-drive.io/guides/the-manual/schemas/simple-fields.md): Declare primitive string, number, boolean, or date attributes on a ResourceSchema or ObjectSchema as `field` kinds and attach a `type` to route them through a Transformation.
+- [Relational Fields](https://canary.warp-drive.io/guides/the-manual/schemas/relational-fields.md): Placeholder for the guide to relational fields such as `resource`, `collection`, `belongsTo`, and `hasMany` on a ResourceSchema; no content yet.
+- [Complex Fields](https://canary.warp-drive.io/guides/the-manual/schemas/complex-fields.md): Embed nested objects and lists inside a resource with `schema-object` and `schema-array` fields backed by an identity-less ObjectSchema, keeping every nested value reactive.
+- [Traits](https://canary.warp-drive.io/guides/the-manual/schemas/traits.md): Group reusable fields such as timestamps into a Trait, register it with `registerTrait`, and merge it into any ResourceSchema by listing its name in the `traits` array.
+- [Derivations](https://canary.warp-drive.io/guides/the-manual/schemas/derivations.md): Define memoized read-only `derived` fields, register the derivation function by its `Type` key on the store, and spot when relational or optional data makes it the wrong tool.
+- [Transformations](https://canary.warp-drive.io/guides/the-manual/schemas/transformations.md): Convert one field between its cache shape and app shape by writing a Transformation with `hydrate`, `serialize`, and `defaultValue`, then register it via `useRecommendedStore`.
+- [Extensions](https://canary.warp-drive.io/guides/the-manual/schemas/extensions.md): Placeholder for the guide to schema extensions, which add custom methods and properties to reactive arrays, objects, and resources during migration; no content yet.
+
+##### Resources
+
+- [ResourceSchemas](https://canary.warp-drive.io/guides/the-manual/schemas/resources.md): Create a top-level ResourceSchema with `withDefaults`, choose `field`, `resource`, `collection`, or `schema-object` kinds, register it, and pick LegacyMode or PolarisMode.
+- [LegacyMode (recommended)](https://canary.warp-drive.io/guides/the-manual/schemas/resources/legacy-mode.md): Emulate Model with ReactiveResource in LegacyMode using `attribute`, `belongsTo`, and `hasMany` fields, `registerDerivations` from `@warp-drive/legacy`, and `WithLegacy` types.
+- [PolarisMode (preview)](https://canary.warp-drive.io/guides/the-manual/schemas/resources/polaris-mode.md): Decide whether to try preview PolarisMode by weighing its immutable records and explicit editing against its current relationship and state-property limitations.
+
+#### Relational Data
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/relational-data.md): Start here to configure relationships in WarpDrive; links each cardinality page from one-to-none through many-to-many plus the inverses, LinksMode, and polymorphism guides.
+
+##### Configuration
+
+- [Many To Many Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-many.md): Define a bidirectional many-to-many hasMany relationship with a managed inverse, or split it into two many-to-none collections, via Model, JSON schema, or LegacyMode withDefaults.
+- [Many To None Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-none.md): Define a unidirectional many-to-none hasMany relationship with inverse null, for collections whose other side is too large to track, via Model, JSON schema, or LegacyMode.
+- [Many To One Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/many-to-one.md): Configure a many-to-one relationship, which WarpDrive treats as the one-to-many configuration viewed from the belongsTo side; this stub redirects to that page.
+- [One To Many Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-many.md): Define a bidirectional one-to-many relationship pairing belongsTo with hasMany and managed inverses, or split it into one-to-none plus many-to-none, via Model or schema.
+- [One To None Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-none.md): Define a unidirectional one-to-none belongsTo relationship with inverse null and learn how WarpDrive tracks its implicit inverse, via Model, JSON schema, or LegacyMode.
+- [One To One Relationships](https://canary.warp-drive.io/guides/the-manual/relational-data/configuration/one-to-one.md): Define a bidirectional one-to-one relationship with belongsTo on both sides and managed inverses, or split it into two one-to-none relationships, via Model or schema.
+
+##### Features
+
+- [Relationship Inverses](https://canary.warp-drive.io/guides/the-manual/relational-data/features/inverses.md): Placeholder for the guide to relationship inverses, how WarpDrive keeps both sides of a relationship in sync; still under construction, with no content yet.
+- [Relationship Polymorphism](https://canary.warp-drive.io/guides/the-manual/relational-data/features/polymorphism.md): Define open or closed polymorphic relationships using the polymorphic, inverse, and as field options on Model or schema, and handle abstract-to-concrete type upgrades on fetch.
+
+#### Caching
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/caching.md): Understand how the CacheHandler resolves a RequestKey, applies CachePolicy for staleness, and stores responses, resources, fields, and relationships by replace or upsert.
+- [Key Terminology](https://canary.warp-drive.io/guides/the-manual/caching/key-terms.md): Learn the difference between StructuredDocument, ResourceDocument, and ReactiveDocument, and what ResourceType, ResourceKey, ResourceSchema, and Collection mean.
+
+#### Reactivity
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/reactivity.md): Understand how WarpDrive uses signals as side-signals or gates to notify consumers of cache changes while letting you plug in your own or your framework's signals implementation.
+- [Async as Reactive State](https://canary.warp-drive.io/guides/the-manual/reactivity/derivation.md): Replace tracked loading, error, and value properties with getPromiseState and the Await component so a component stores a promise and derives pending, error, and success state.
+- [Reactive Control Flow](https://canary.warp-drive.io/guides/the-manual/reactivity/control-flow.md): Render request states declaratively with the Request component or getRequestState in Ember and React, handling loading, error, and retry without imperative async/await.
+
+#### TypeScript
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/typescript.md): Start here to opt in to WarpDrive's alpha-stage TypeScript types, then follow the installation, configuration, brands, model typing, and includes typing pages in order.
+- [Typing Includes](https://canary.warp-drive.io/guides/the-manual/typescript/typing-includes.md): Type relationship-path include strings with the `Includes` and `StringSatisfiesIncludes` utils and `createIncludeValidator` so typos in includes fail at compile time.
+- [WarpDrive's Types Strategy](https://canary.warp-drive.io/guides/the-manual/typescript/why-brands.md): Understand why WarpDrive brands classes with a `Type` symbol and passes them as generics to `findRecord` instead of using type registries or class tokens.
+
+#### Debugging
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/debugging.md): Enable WarpDrive's regionalized debug logging with `setWarpDriveLogging` at runtime or via build config, using flags such as LOG_REQUESTS, LOG_CACHE, and LOG_GRAPH.
+
+#### Testing with Holodeck
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/testing.md)
+- [Server Setup](https://canary.warp-drive.io/guides/the-manual/testing/server-setup.md)
+- [Client Setup](https://canary.warp-drive.io/guides/the-manual/testing/client-setup.md)
+- [Test Framework Integration](https://canary.warp-drive.io/guides/the-manual/testing/test-framework-integration.md)
+- [Writing Mocks](https://canary.warp-drive.io/guides/the-manual/testing/writing-mocks.md)
+- [Recording and Replaying](https://canary.warp-drive.io/guides/the-manual/testing/record-and-replay.md)
+- [Troubleshooting](https://canary.warp-drive.io/guides/the-manual/testing/troubleshooting.md)
+- [HoloPrograms](https://canary.warp-drive.io/guides/the-manual/testing/holo-programs.md)
+
+##### Common Setups
+
+- [Common Setups](https://canary.warp-drive.io/guides/the-manual/testing/common-setups.md): Serve the test page and the holodeck mock server from one origin, so mocked requests need no CORS and no preflight, with the forwarder that Vite, testem, and Caddy setups share.
+- [Vite Dev Server](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/vite.md): Forward holodeck's requests through the Vite dev server with a five-line plugin, so the suite you open at /tests runs on one origin.
+- [Testem](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/testem.md): Forward holodeck's requests through testem's own server with its middleware option, so the suite pnpm test runs has one origin.
+- [Caddy](https://canary.warp-drive.io/guides/the-manual/testing/common-setups/caddy.md): Put Caddy in front of the Vite dev server and holodeck, so the test page is served over HTTPS on one origin with the certificate holodeck already has.
+
+#### Mutations
+
+- [Overview](https://canary.warp-drive.io/guides/the-manual/mutations.md): Start here for how-to patterns on changing data in WarpDrive; routes to the Mutating State and Patching The Cache pages, both of which are still under construction.
+- [Mutations](https://canary.warp-drive.io/guides/the-manual/mutations/mutations.md): Placeholder for the Mutating State how-to on changing records and relationships through the Store; still under construction, with no content yet.
+- [Operations](https://canary.warp-drive.io/guides/the-manual/mutations/operations.md): Placeholder for the Patching The Cache how-to on applying operations directly to the cache; still under construction, with no content yet.
+
+#### Experiments
+
+- [Experiments](https://canary.warp-drive.io/guides/the-manual/experiments.md): Browse WarpDrive's experimental, pre-RFC features that may change or be removed, currently Storage Resources and Pagination, and pick which one to read next.
+- [Pagination](https://canary.warp-drive.io/guides/the-manual/experiments/pagination.md): Paginate a collection with the experimental `getPaginationState` primitives and the `<Paginate />` and `<EachLink />` Ember components in paged or infinite mode.
+- [Storage Resources](https://canary.warp-drive.io/guides/the-manual/experiments/storage-resources.md): Persist reactive class fields to localStorage or sessionStorage with the experimental `LocalResource`, `SessionResource`, `field`, `effect`, and `param` decorators.
+
+#### Cookbook
+
+- [Index](https://canary.warp-drive.io/guides/the-manual/cookbook.md): Start here for task-focused WarpDrive recipes, including the incremental adoption guide for legacy apps and guidance on singular versus plural resource types.
+- [Auth Handler](https://canary.warp-drive.io/guides/the-manual/cookbook/auth-handlers.md): Write a request `Handler` that adds JWT bearer tokens or CSRF tokens to outgoing requests, including an Ember class-based handler with injected services.
+- [Requests](https://canary.warp-drive.io/guides/the-manual/cookbook/basic-usage.md): Build a `RequestManager` with the `Fetch` handler, configure `setBuildURLConfig`, issue a JSON:API `query` request, page through results, and handle errors.
+- [Holodeck in Dev Mode](https://canary.warp-drive.io/guides/the-manual/cookbook/holodeck-in-dev-mode.md)
+- [Resource Type Naming: singular or plural? What to choose? Why is that?](https://canary.warp-drive.io/guides/the-manual/cookbook/naming-conventions.md): Decide whether resource types should be singular or plural and dasherized or snake_case, and keep that one `type` string the same across API responses, ResourceSchemas, relationship fields and request builders.
+- [Paginating POST Queries](https://canary.warp-drive.io/guides/the-manual/cookbook/paginating-post-queries.md): Write a request handler that generates `next` links for a query sent as a `POST` or `QUERY`, so `next()` and the pagination primitives work when the server can't return links itself.
+
+### Skills
+
+#### Schemas
+
+- [Define a Resource Schema](https://canary.warp-drive.io/skills/schemas/define-a-resource-schema.md)
+
+#### Requests
+
+- [Fetch and Cache Data](https://canary.warp-drive.io/skills/requests/fetch-and-cache-data.md)
+- [Write a Request Builder](https://canary.warp-drive.io/skills/requests/write-a-request-builder.md)
+
+#### Holodeck
+
+- [Set Up Holodeck](https://canary.warp-drive.io/skills/holodeck/set-up-holodeck.md)
+- [Mock HTTP Requests in Tests](https://canary.warp-drive.io/skills/holodeck/mock-http-requests-in-tests.md)
+- [Use RECORD in Holodeck Mocks](https://canary.warp-drive.io/skills/holodeck/using-record.md)
+
+#### Docs
+
+- [Read the Docs as Markdown](https://canary.warp-drive.io/skills/docs/read-the-docs-as-markdown.md)
+
+#### Contributors
+
+- [Start In A Fresh Worktree](https://canary.warp-drive.io/skills/contributors/start-in-a-fresh-worktree.md)
+- [Keep Commits Human-Authored](https://canary.warp-drive.io/skills/contributors/keep-commits-human-authored.md)
+- [Fix at the Source](https://canary.warp-drive.io/skills/contributors/fix-at-the-source.md)
+- [Commit Mock Cache Fixtures](https://canary.warp-drive.io/skills/contributors/commit-mock-cache-fixtures.md)
+- [Writing and Implementing RFCs](https://canary.warp-drive.io/skills/contributors/writing-and-implementing-rfcs.md)
+- [Write Documentation](https://canary.warp-drive.io/skills/contributors/write-documentation.md)
+- [Use CI as the Source of Truth](https://canary.warp-drive.io/skills/contributors/use-ci-as-the-source-of-truth.md)
+- [Extract Test Setup Into Functions](https://canary.warp-drive.io/skills/contributors/extract-test-setup-into-functions.md)
+- [Create Symbols With getOrSetGlobal](https://canary.warp-drive.io/skills/contributors/create-symbols.md)
+- [Submit a PR](https://canary.warp-drive.io/skills/contributors/submit-a-pr.md)
+
+### Linting
+
+- [Linting](https://canary.warp-drive.io/pr-preview/pr-11218/guides/linting.md): Install eslint-plugin-warp-drive and enable its recommended, template, and React flat configs, including the ember-eslint-parser setup that Glimmer template rules need.
+
+### Contributing
+
+- [Become A Contributor](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/become-a-contributor.md): Start contributing to WarpDrive itself: find the issue tracker, RFC label, and Discord, then follow links to project setup, architecture, docs, and the RFC process.
+- [Reporting Issues](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/issues.md): Report a WarpDrive bug through GitHub issues using the repo's issue template, and know to ask on Discord first when unsure whether something is a bug.
+- [Setting Up The Project](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/setting-up-the-project.md): Set up a WarpDrive contributor checkout: install mise, pnpm, and mkcert, run `pnpm install`, create holodeck certs, and use `pnpm start` plus `pnpm sync` while developing.
+- [Project Architecture](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/project-architecture.md): See how WarpDrive's packages and primitives fit together through interface-driven boundaries, via an architectural diagram for contributors to the library itself.
+- [Key Concepts](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/key-concepts.md): Choose the right identity type in WarpDrive internals: ResourceIdentifier, RecordIdentifier, or ResourceKey, based on whether lid is required and must be stable.
+- [Submitting PRs](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/submitting-prs.md): Open a PR against WarpDrive main with the right tests, a title like `feat: ...` that auto-applies its `:label:` changelog label, and `target:` labels for any backports.
+- [The RFC Process](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/rfc-process.md): Propose a WarpDrive feature or deprecation: discuss it on Discord, draft from rfcs/0000-template.md, open a PR labeled `:label: rfc`, and shepherd it through emberjs/rfcs.
+- [Performing A Release](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/RELEASE.md): Perform a WarpDrive release from the GitHub Actions workflow: order the lts, release, beta, and canary channels, then polish the GitHub release notes and announce it.
+- [The Project Roadmap](https://canary.warp-drive.io/pr-preview/pr-11218/guides/contributing/ROADMAP.md): Check which Polaris edition goals WarpDrive has shipped or still has open, what is planned beyond Polaris, and which features and deprecations land in each 5.x release.
+
+#### Writing Documentation
+
+- [Overview](https://canary.warp-drive.io/guides/contributing/writing-documentation.md): Which type of doc to write for a change, who each type is for, how the docs site is built from the repo, and the checks to run before opening the PR.
+- [Writing Guides](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-guides.md): How to write a tutorial, concept, or reference guide for the docs site, where the files live, and what frontmatter and tags shape the Markdown that coding agents read.
+- [Writing API Docs](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-api-docs.md): How to write the TSDoc comments that become the API reference, including which tags to use, the @summary each API page needs, usage examples, and what stays out of the published docs.
+- [Writing Agent Skills](https://canary.warp-drive.io/guides/contributing/writing-documentation/writing-agent-skills.md): How to add or change a skill in @warp-drive/memory-alpha so coding agents find and follow it, including the routing tables, file rules, and checks.
+
+### RFCs
+
+- [Transactional Notification Delivery and Reactive Request State](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0001-warp-drive-transactional-notifications.md): Proposes delivering all WarpDrive cache notifications in one synchronous batch at transaction close and rebuilding request state as signals-backed data.
+- [A Framework-Agnostic Build Plugin for WarpDrive](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0002-warp-drive-build-plugin.md): Proposes a framework-agnostic `@warp-drive/core/build-plugin` bundler plugin that replaces the babel and @embroider/macros build configuration for WarpDrive.
+- [A Browser Devtools Extension](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0003-warp-drive-devtools-extension.md): Proposes a Chrome and Firefox devtools extension for inspecting WarpDrive requests, cache, and schemas, attached via a production-strippable hook in @warp-drive/core.
+- [Dropping V1 Addon and Classic ember-cli Macros Support in 6.0](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0004-drop-v1-addon-and-classic-macros-support.md)
+- [Deprecating the Legacy ember-data Packages and @warp-drive/core-types](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0005-deprecate-legacy-packages.md): Proposes deprecating the ember-data package, every @ember-data/* package, and @warp-drive/core-types now, in favor of their already-shipping @warp-drive/* successors, with removal from publishing targeted for 6.0.
+- [Pointer and Reference Fields](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0006-pointer-and-reference-fields.md): Proposes four PolarisMode relationship field kinds (pointer, pointer-array, reference, reference-array) for relationships WarpDrive never fetches or validates for delivery, where pointers assert the related resource is loaded and references tolerate its absence.
+- [Virtualized Resources](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0007-virtualized-resources.md): Proposes virtual resource schemas, the frontend equivalent of a materialized view, whose fields reflect fields of other cached resources through pointers so that data read or written through the view stays consistent everywhere.
+- [A $state Field for PolarisMode ReactiveResources](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0008-reactive-resource-state.md): Proposes adding a reactive, read-only $state field to the PolarisMode defaults that reports a resource's lifecycle state (new, empty, deleted, dirty) and its per-field local changes, replacing the LegacyMode state flags that still apply and dropping the ones that don't.
+- [Deprecating Subscription-Based Request State](https://canary.warp-drive.io/pr-preview/pr-11218/rfcs/0009-deprecate-request-state-subscriptions.md): Proposes deprecating the imperative RequestStateService subscription API in favor of the signals-backed reactive request state introduced by RFC 0001, with removal targeted for 6.0.
+
+
+### Blog
+
+#### 5.x
+
+- [5.x](https://canary.warp-drive.io/blog/v5.md): Browse the WarpDrive 5.x blog posts, starting with the 5.10 announcement of the permanent Upgrading and Blog sections on warp-drive.io.
+- [Introducing Upgrading & Blog](https://canary.warp-drive.io/blog/v5/introducing-upgrading-and-blog.md): Learn why WarpDrive 5.10 added the permanent Upgrading and Blog sections to warp-drive.io and where the former /guides/migrating/ pages now live.
+
+### API Docs
+
+- [@warp-drive/core](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core.md): The core WarpDrive package, providing the `Store`, the `RequestManager` and its handlers, the Cache interface, reactive resources and `useRecommendedStore` for app setup.
+- [@warp-drive/json-api](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/json-api.md): The recommended in-memory JSON:API document and resource cache for WarpDrive, `JSONAPICache`, which most apps pass to `useRecommendedStore`.
+- [@warp-drive/utilities](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities.md): Request-building utilities for WarpDrive, including URL and query-param helpers such as `buildBaseURL` and ready-made request builders for JSON:API, REST and ActiveRecord APIs.
+- [@warp-drive/experiments](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments.md): Experimental WarpDrive features not yet through an RFC, one entry point each, including the SharedWorker-based `DataWorker` and `ImageWorker`, browser storage and reactive pagination.
+- [@warp-drive/ember](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/ember.md): Ember bindings for WarpDrive, providing the `<Request />` and `<Await />` components for rendering request and promise states, Ember reactivity setup and experimental pagination.
+- [@warp-drive/react](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/react.md): React bindings for WarpDrive, providing `StoreProvider`, `useStore` and the `<Request />` component for rendering request states with React reactivity.
+- [@warp-drive/tc39-proposal-signals](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/tc39-proposal-signals.md): Configures WarpDrive reactivity to use the TC39 Signals polyfill (signal-polyfill); import its install entry in apps that use TC39 Signals.
+- [@warp-drive/holodeck](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/holodeck.md): ⚡️ Simple, Fast HTTP Mocking for Tests: experimental mocking that makes real network requests and replays git-managed recordings, via `MockServerHandler` and the `GET`/`POST` helpers in `@warp-drive/holodeck/mock`.
+- [@warp-drive/schema-dsl](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl.md): TypeScript decorators such as `@Resource` and `@field` for authoring WarpDrive schemas as classes, compiled to plain JSON schemas at build time by a Vite plugin.
+- [eslint-plugin-warp-drive](https://canary.warp-drive.io/pr-preview/pr-11218/api/eslint-plugin-warp-drive.md): ESLint rules and a recommended flat config for apps using WarpDrive, catching invalid resource types, ids and relationships, legacy imports and discouraged request patterns.
+- [@warp-drive/memory-alpha](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/memory-alpha.md): WarpDrive knowledge packaged as plain markdown skill files for AI coding agents, with no code or exports, to read directly or adapt into Claude Skills, MCP servers or editor rules.
+
+#### @warp-drive/core
+
+- [@warp-drive/core/build-config](https://canary.warp-drive.io/api/@warp-drive/core/build-config.md): Build-time configuration for WarpDrive: `setConfig` and its babel plugin for deprecations, features, debug logging, and polyfill settings.
+- [@warp-drive/core/configure](https://canary.warp-drive.io/api/@warp-drive/core/configure.md): Provides `setupSignals`, which tells WarpDrive which signal and reactivity library to build its reactive values on.
+- [@warp-drive/core/reactive](https://canary.warp-drive.io/api/@warp-drive/core/reactive.md): Schema-driven reactive records, arrays, and documents the store builds from cached data, plus the `SchemaService` and schema types that define them.
+- [@warp-drive/core/request](https://canary.warp-drive.io/api/@warp-drive/core/request.md): Request-layer types such as `Future`, `Handler` and `Context`, plus `withResponseType` and `withReactiveResponse` for typing the response a request resolves with.
+- [@warp-drive/core/store](https://canary.warp-drive.io/api/@warp-drive/core/store.md): The `DefaultCachePolicy` and `parseCacheControl` for expiring cached requests, plus the `NotificationManager` type for subscribing to cache change notifications.
+- [@warp-drive/core/types](https://canary.warp-drive.io/api/@warp-drive/core/types.md): Shared WarpDrive types such as `ResourceKey`, `SchemaService`, `CacheCapabilitiesManager`, and the legacy finder option types.
+
+##### exports
+
+- [ConfiguredStore](https://canary.warp-drive.io/api/@warp-drive/core/classes/ConfiguredStore.md): Central coordinator that connects requests for data with schemas, the cache and reactivity.
+- [RequestManager](https://canary.warp-drive.io/api/@warp-drive/core/classes/RequestManager.md): Runs each request through a chain of handlers that can fulfill, modify, or pass it along, and returns a `Future` for the response.
+- [Store](https://canary.warp-drive.io/api/@warp-drive/core/classes/Store.md): Central coordinator that connects requests for data with schemas, the cache and reactivity.
+- [CacheHandler](https://canary.warp-drive.io/api/@warp-drive/core/variables/CacheHandler.md): The RequestManager cache handler that serves, dedupes, and caches store requests and returns reactive documents when hydration is enabled.
+- [Fetch](https://canary.warp-drive.io/api/@warp-drive/core/variables/Fetch.md): Terminal request handler that sends the request with native `fetch` and resolves with the parsed JSON body, turning HTTP failures into errors.
+- [recordIdentifierFor()](https://canary.warp-drive.io/api/@warp-drive/core/functions/recordIdentifierFor.md): Returns the stable `ResourceKey` (type, id, and lid) the store assigned to a record instance.
+- [setIdentifierForgetMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierForgetMethod.md): Registers a callback run when the store releases a resource key, for cleaning up your own lookup tables.
+- [setIdentifierGenerationMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierGenerationMethod.md): Overrides how the store generates `lid` cache keys for resources and documents; must be set before the store is created.
+- [setIdentifierResetMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierResetMethod.md): Registers a callback run when the store's key cache is torn down, for resetting any custom key-generation state.
+- [setIdentifierUpdateMethod()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setIdentifierUpdateMethod.md): Registers a callback run when an existing resource key receives new data, for updating your own secondary lookup tables.
+- [setKeyInfoForResource()](https://canary.warp-drive.io/api/@warp-drive/core/functions/setKeyInfoForResource.md): Overrides how the store derives the `type` and `id` of a new `ResourceKey` from resource data; must be set before the store is created.
+- [useRecommendedStore()](https://canary.warp-drive.io/api/@warp-drive/core/functions/useRecommendedStore.md): Builds a Store subclass preconfigured with the given cache, schemas, and handlers, plus `Fetch`, `CacheHandler`, and a default cache policy.
+
+##### /build-config
+
+- [@warp-drive/core/build-config/babel-macros](https://canary.warp-drive.io/api/@warp-drive/core/build-config/babel-macros.md): The `macros` function, which returns the Babel plugins that strip WarpDrive deprecation, canary-feature, debug-logging and env code at build time.
+- [@warp-drive/core/build-config/canary-features](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features.md): Build-time flags, such as `JSON_API_CACHE_VALIDATION_ERRORS`, that gate unreleased WarpDrive features for canary builds.
+- [@warp-drive/core/build-config/debugging](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging.md): Debug-only logging flags, such as `LOG_CACHE` and `LOG_REQUESTS`, set in build config or at runtime via `setWarpDriveLogging`.
+- [@warp-drive/core/build-config/deprecations](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations.md): Deprecation flags, such as `DEPRECATE_NON_STRICT_TYPES`, that keep deprecated WarpDrive behavior active until the build config drops it by `compatWith` version or by flag.
+
+###### exports
+
+- [babelPlugin()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/functions/babelPlugin.md): Creates the Babel plugins that apply a WarpDrive build config, for projects not already using `@embroider/macros`.
+- [setConfig()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/functions/setConfig.md): Applies a WarpDrive build config through `@embroider/macros`, controlling env behavior, logging, deprecated-code stripping, and canary features.
+
+###### /babel-macros
+
+####### exports
+
+- [macros()](https://canary.warp-drive.io/api/@warp-drive/core/build-config/babel-macros/functions/macros.md): Returns the Babel plugin entries that turn WarpDrive deprecation, canary-feature, debug-logging, env, and assert imports into build-time code-stripping macros.
+
+###### /canary-features
+
+####### exports
+
+- [ENFORCE_STRICT_RESOURCE_FINALIZATION](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features/variables/ENFORCE_STRICT_RESOURCE_FINALIZATION.md): Canary feature flag that throws in development when `schema.fields` is first called for a resource whose traits, or its traits' traits, are missing.
+- [JSON_API_CACHE_VALIDATION_ERRORS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/canary-features/variables/JSON_API_CACHE_VALIDATION_ERRORS.md): Canary feature flag that makes the JSON:API cache validate payloads given to `cache.put` against registered schemas and the JSON:API spec.
+
+###### /debugging
+
+####### exports
+
+- [DEBUG_RELATIONSHIP_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/DEBUG_RELATIONSHIP_NOTIFICATIONS.md): Debug logging flag that logs why a change notification fired while processing an update to a hasMany relationship.
+- [LOG_CACHE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_CACHE.md): Debug logging flag that logs cache updates to both local and remote state; it replaces `LOG_PAYLOADS`, `LOG_OPERATIONS`, and `LOG_MUTATIONS`.
+- [LOG_CACHE_POLICY](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_CACHE_POLICY.md): Debug logging flag that logs the decisions the default CachePolicy makes about whether cached requests are expired or stale.
+- [LOG_GRAPH](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_GRAPH.md): Debug logging flag that logs the updates the relationship graph receives.
+- [LOG_IDENTIFIERS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_IDENTIFIERS.md): Debug logging flag that logs lookups, generation, and updates of the identifiers (cache keys) WarpDrive assigns to resources.
+- [LOG_INSTANCE_CACHE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_INSTANCE_CACHE.md): Debug logging flag that logs when the store creates or removes record instances and their cache entries.
+- [LOG_METRIC_COUNTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_METRIC_COUNTS.md): Debug logging flag that logs counts of key internal operations, for performance debugging.
+- [LOG_MUTATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_MUTATIONS.md): Removed debug logging flag that no longer has any effect; use `LOG_CACHE` to log cache updates instead.
+- [LOG_NOTIFICATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_NOTIFICATIONS.md): Debug logging flag that logs the change notifications the store's NotificationManager receives and delivers to subscribers.
+- [LOG_OPERATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_OPERATIONS.md): Removed debug logging flag that no longer has any effect; use `LOG_CACHE` to log cache updates instead.
+- [LOG_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_PAYLOADS.md): Removed debug logging flag that no longer has any effect; use `LOG_CACHE` to log cache updates instead.
+- [LOG_REACT_SIGNAL_INTEGRATION](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REACT_SIGNAL_INTEGRATION.md): Debug logging flag that logs how the React integration watches signals and notifies React of updates, for debugging React reactivity issues.
+- [LOG_REQUEST_STATUS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REQUEST_STATUS.md): Debug logging flag meant to log status updates for requests the store sends to the network (adapter); it currently has no effect.
+- [LOG_REQUESTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/variables/LOG_REQUESTS.md): Debug logging flag that logs each request issued through the RequestManager.
+
+####### /Namespaces
+
+- [@warp-drive/core/build-config/debugging/t](https://canary.warp-drive.io/api/@warp-drive/core/build-config/debugging/namespaces/t.md)
+
+###### /deprecations
+
+####### exports
+
+- [DEPRECATE_COMPUTED_CHAINS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_COMPUTED_CHAINS.md): Planned deprecation flag, with no deprecation ID yet, guarding support for observer and computed chains on WarpDrive record arrays and ManyArrays.
+- [DEPRECATE_EMBER_INFLECTOR](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_EMBER_INFLECTOR.md): Deprecation flag for using ember-inflector for pluralization and singularization instead of the `@ember-data/request-utils/string` utilities.
+- [DEPRECATE_LEGACY_IMPORTS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_LEGACY_IMPORTS.md): Deprecation flag for importing from the legacy `ember-data/*` paths instead of `@ember-data/*`, except `ember-data/store`.
+- [DEPRECATE_MANY_ARRAY_DUPLICATES](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_MANY_ARRAY_DUPLICATES.md): Deprecation flag for adding duplicate records to a ManyArray; when `false`, adding duplicates throws an error instead of being deduped.
+- [DEPRECATE_NON_STRICT_ID](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_STRICT_ID.md): Deprecation flag for legacy support of numeric resource IDs that are coerced to strings; set it to `false` once resolved to strip that support.
+- [DEPRECATE_NON_STRICT_TYPES](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_STRICT_TYPES.md): Deprecation flag for resource `type` values that are not non-empty, singular, dasherized strings; set it to `false` once resolved to strip that support.
+- [DEPRECATE_NON_UNIQUE_PAYLOADS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_NON_UNIQUE_PAYLOADS.md): Deprecation flag for hasMany relationship payloads containing duplicate identifiers, which were silently de-duped and will instead error.
+- [DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_RELATIONSHIP_REMOTE_UPDATE_CLEARING_LOCAL_STATE.md): Deprecation flag for remote relationship updates discarding unsaved local changes; set it to `false`, or `resetOnRemoteUpdate: false`, to keep them.
+- [DEPRECATE_STORE_EXTENDS_EMBER_OBJECT](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_STORE_EXTENDS_EMBER_OBJECT.md): Deprecation flag controlling whether the Store extends `@ember/object`; set it to `false` to stop extending EmberObject.
+- [DEPRECATE_TRACKING_PACKAGE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DEPRECATE_TRACKING_PACKAGE.md): Deprecation flag for the `@ember-data/tracking` package, which is replaced by the Ember reactivity setup in `@warp-drive/ember/install`.
+- [DISABLE_7X_DEPRECATIONS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/DISABLE_7X_DEPRECATIONS.md): Opt-in flag: set it to `false` to make deprecations backported from 6.x print and become resolvable; by default they stay silent and unresolvable.
+- [ENABLE_LEGACY_REQUEST_METHODS](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_REQUEST_METHODS.md): Deprecation flag for store request methods like `findRecord`, `query`, and `saveRecord` that bypass `store.request()`; `false` strips them.
+- [ENABLE_LEGACY_SCHEMA_SERVICE](https://canary.warp-drive.io/api/@warp-drive/core/build-config/deprecations/variables/ENABLE_LEGACY_SCHEMA_SERVICE.md): Deprecation flag that keeps the legacy schema service APIs, such as `registerSchemaDefinitionService`, enabled while warning when they are used.
+
+##### /configure
+
+###### exports
+
+- [setupSignals()](https://canary.warp-drive.io/api/@warp-drive/core/configure/functions/setupSignals.md): Registers the signal hooks WarpDrive uses for reactivity, built by a callback that receives `HooksOptions`.
+
+##### /reactive
+
+###### exports
+
+- [SchemaService](https://canary.warp-drive.io/api/@warp-drive/core/reactive/classes/SchemaService.md): The default schema service, which stores resource and object schemas, traits, derivations, transformations, hash functions and extensions registered at runtime.
+- [Checkout](https://canary.warp-drive.io/api/@warp-drive/core/reactive/variables/Checkout.md): Deprecated symbol-keyed method on a ReactiveResource that resolves with an editable copy; use `checkout` instead.
+- [fromIdentity](https://canary.warp-drive.io/api/@warp-drive/core/reactive/variables/fromIdentity.md): The `@identity` derivation, which reads a record's `id`, `lid`, `type`, or whole resource key for use in derived fields.
+- [checkout()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/checkout.md): Resolves with an editable copy of an immutable `ReactiveResource` so its fields can be changed locally.
+- [commit()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/commit.md): Forcibly makes an editable resource's local changes its new remote (immutable) state, bypassing a save round-trip.
+- [createRequestSubscription()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/createRequestSubscription.md): Creates a reactive subscription to a request or query that tracks its state and handles autorefresh, retry, and refresh.
+- [getPromiseState()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/getPromiseState.md): Returns a cached, reactive state object tracking whether a promise is pending, fulfilled, or rejected, for use in JS or templates.
+- [getRequestState()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/getRequestState.md): Returns a cached, reactive state object tracking a request `Future` through pending, success, error, and cancellation.
+- [instantiateRecord()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/instantiateRecord.md): Default store `instantiateRecord` hook that creates a `ReactiveResource` for a resource key from its registered schema.
+- [registerDerivations()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/registerDerivations.md): Registers the `@identity` and `@constructor` derivations that schemas built with `withDefaults` depend on.
+- [teardownRecord()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/teardownRecord.md): Default store `teardownRecord` hook that destroys a `ReactiveResource` when the store releases it.
+- [withDefaults()](https://canary.warp-drive.io/api/@warp-drive/core/reactive/functions/withDefaults.md): Adds the default `id` identity plus `$key`, `$type`, and `constructor` derived fields to a PolarisMode resource schema.
+
+##### /request
+
+###### exports
+
+- [withBrand](https://canary.warp-drive.io/api/@warp-drive/core/request/variables/withBrand.md): Deprecated alias for `withResponseType`, which types a request object with its expected response type.
+- [createDeferred()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/createDeferred.md): Creates a promise together with its `resolve` and `reject` callbacks so it can be handed out before it is settled.
+- [getPromiseResult()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/getPromiseResult.md): Synchronously returns the settled value or error previously recorded for a promise, or `undefined` if none was recorded.
+- [setPromiseResult()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/setPromiseResult.md): Records a promise's settled value or error so it can later be read synchronously with `getPromiseResult`.
+- [withReactiveResponse()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/withReactiveResponse.md): Types a request object so its response resolves as a `ReactiveDataDocument` of the given data and meta types; no runtime effect.
+- [withResponseType()](https://canary.warp-drive.io/api/@warp-drive/core/request/functions/withResponseType.md): Types a request object with the response type that `store.request` or `RequestManager.request` should resolve with; no runtime effect.
+
+##### /store
+
+###### exports
+
+- [DefaultCachePolicy](https://canary.warp-drive.io/api/@warp-drive/core/store/classes/DefaultCachePolicy.md): The built-in cache policy, which expires cached requests using expiration headers or time since the response `date`, and invalidates queries after matching creates.
+- [parseCacheControl()](https://canary.warp-drive.io/api/@warp-drive/core/store/functions/parseCacheControl.md): Parses a `Cache-Control` header string into a `CacheControlValue` object, caching results per header string.
+
+##### /types
+
+- [@warp-drive/core/types/cache](https://canary.warp-drive.io/api/@warp-drive/core/types/cache.md): The `Cache` interface a cache implementation fulfills to store, patch, mutate and read documents and resources, plus the `ChangedAttributesHash` and `RelationshipDiff` types.
+- [@warp-drive/core/types/graph](https://canary.warp-drive.io/api/@warp-drive/core/types/graph.md): Types for the operations that update a relationship's remote (persisted) or local (uncommitted) state in the relationship Graph.
+- [@warp-drive/core/types/identifier](https://canary.warp-drive.io/api/@warp-drive/core/types/identifier.md): Types for the stable keys that reference cached data, `ResourceKey` for resources and `RequestKey` for request documents, plus their deprecated identifier aliases.
+- [@warp-drive/core/types/params](https://canary.warp-drive.io/api/@warp-drive/core/types/params.md): Types for the query params request builders serialize into a URL and the options that control how arrays are serialized.
+- [@warp-drive/core/types/record](https://canary.warp-drive.io/api/@warp-drive/core/types/record.md): Types for records that declare their resource type via the `[Type]` symbol, including `TypedRecordInstance`, `Includes`, `Mask` and the `createIncludeValidator` helper.
+- [@warp-drive/core/types/request](https://canary.warp-drive.io/api/@warp-drive/core/types/request.md): Types for requests and responses: `RequestInfo`, the request shapes builders return, cache options, the handler context and the documents a request's `Future` settles with.
+- [@warp-drive/core/types/symbols](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols.md): Symbol keys WarpDrive uses on records and requests, such as `Type` to brand a record with its resource type and `RequestSignature` to type a request's response.
+- [@warp-drive/core/types/utils](https://canary.warp-drive.io/api/@warp-drive/core/types/utils.md): Generic TypeScript utility types: `WithPartial` to make named properties optional and `Mutable` to strip `readonly`.
+
+###### /cache
+
+- [@warp-drive/core/types/cache/aliases](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/aliases.md): The `ResourceBlob` type for opaque raw resource data whose format the Cache defines.
+- [@warp-drive/core/types/cache/change](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/change.md): The `Change` type describing one upsert or removal of a resource or document recorded by the cache.
+- [@warp-drive/core/types/cache/mutations](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/mutations.md): Types for the mutations `cache.mutate` applies to a relationship's local (uncommitted) state, such as adding, removing, replacing or sorting related resources.
+- [@warp-drive/core/types/cache/operations](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/operations.md): Types for the operations passed to `cache.patch` to update the cache's remote (clean) state, such as from WebSocket or server-sent event messages.
+- [@warp-drive/core/types/cache/relationship](https://canary.warp-drive.io/api/@warp-drive/core/types/cache/relationship.md): Types for the cache-side state of to-one and to-many relationships, with related resources referenced by `ResourceKey`.
+
+###### /json
+
+- [@warp-drive/core/types/json/raw](https://canary.warp-drive.io/api/@warp-drive/core/types/json/raw.md): Types for JSON values: `PrimitiveValue`, `ObjectValue`, `ArrayValue` and their `Value` union.
+
+###### /record
+
+####### exports
+
+- [createIncludeValidator()](https://canary.warp-drive.io/api/@warp-drive/core/types/record/functions/createIncludeValidator.md): Returns a function that type-checks a comma-separated `include` string against the valid relationship paths of a record type and returns it unchanged.
+
+###### /request
+
+####### exports
+
+- [EnableHydration](https://canary.warp-drive.io/api/@warp-drive/core/types/request/variables/EnableHydration.md): Symbol flag on a request that makes the CacheHandler return reactive records instead of raw cache documents; `store.request` sets it automatically.
+- [SkipCache](https://canary.warp-drive.io/api/@warp-drive/core/types/request/variables/SkipCache.md): Symbol key for a request's `cacheOptions` that, when true, makes the request bypass the CacheHandler so it neither resolves from nor updates the cache.
+
+###### /schema
+
+- [@warp-drive/core/types/schema/concepts](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/concepts.md): Types for the functions schemas reference by name: `Transformation` to convert field values, `Derivation` for computed fields and `HashFn` for object identity.
+- [@warp-drive/core/types/schema/fields](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields.md): Types for every field schema kind and for PolarisMode and LegacyMode resource, object and trait schemas, plus the `resourceSchema` and `objectSchema` helpers and type guards.
+- [@warp-drive/core/types/schema/schema-service](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/schema-service.md): The `SchemaService` interface a store's schema service implements to describe resource types, traits, fields and derivations, plus the legacy `AttributesSchema` and `RelationshipsSchema` types.
+
+####### /fields
+
+######## exports
+
+- [isLegacyResourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isLegacyResourceSchema.md): Type guard that returns true when a schema is a LegacyMode resource schema, meaning it is a resource schema with `legacy: true`.
+- [isManyKind()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isManyKind.md)
+- [isRelationshipKind()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isRelationshipKind.md)
+- [isResourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isResourceSchema.md)
+- [isSingleKind()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/isSingleKind.md)
+- [objectSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/objectSchema.md): Returns the given object schema unchanged, typed so its definition is type-checked.
+- [resourceSchema()](https://canary.warp-drive.io/api/@warp-drive/core/types/schema/fields/functions/resourceSchema.md): Returns the given resource schema unchanged, typed so its definition is type-checked; relationship inverses and related types are not validated.
+
+###### /spec
+
+- [@warp-drive/core/types/spec/document](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/document.md): Types for the raw {json:api} documents the cache stores and returns for a request: meta-only, single-resource, collection and error documents.
+- [@warp-drive/core/types/spec/error](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/error.md): The `ApiError` type for one {json:api} error object in a document's `errors` array.
+- [@warp-drive/core/types/spec/json-api-raw](https://canary.warp-drive.io/api/@warp-drive/core/types/spec/json-api-raw.md): Types for raw {json:api} structures: resource objects, relationship objects, resource identifiers, links, meta and single, collection and empty documents.
+
+###### /symbols
+
+####### exports
+
+- [RecordStore](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/RecordStore.md): Internal symbol key under which a record instance keeps a reference to the store that owns it.
+- [RequestSignature](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/RequestSignature.md): Type-only symbol key that request builders set on the request they return so `store.request()` can infer the response type.
+- [ResourceType](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/ResourceType.md): Alias of the `Type` symbol that a record type can declare to tell WarpDrive APIs its resource type for better type inference.
+- [TransformName](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/TransformName.md): Alias of the `Type` symbol that a legacy transform can declare so `attr<Transform>('name')` checks the transform name at the type level.
+- [Type](https://canary.warp-drive.io/api/@warp-drive/core/types/symbols/variables/Type.md): Symbol key that brands a record with its resource type for TypeScript, and names a derivation or transformation when it is registered.
+
+#### @warp-drive/json-api
+
+##### exports
+
+- [JSONAPICache](https://canary.warp-drive.io/api/@warp-drive/json-api/classes/JSONAPICache.md): The JSON:API cache implementation: stores documents and normalized resources, tracks local, in-flight, and remote state, and manages relationships through the graph.
+
+#### @warp-drive/utilities
+
+- [@warp-drive/utilities/active-record](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record.md): Request builders for find, query, create, update, and delete against ActiveRecord-style APIs with underscored plural URLs.
+- [@warp-drive/utilities/derivations](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations.md): The `concat` derivation, which joins a record's listed fields into one string with an optional separator.
+- [@warp-drive/utilities/handlers](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers.md): Ready-made request handlers for body compression, conditional handling, and meta-only responses, plus tracing helpers.
+- [@warp-drive/utilities/json-api](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api.md): Request builders and cache serializers for JSON:API servers, with dasherized plural URLs and configurable `Accept` headers.
+- [@warp-drive/utilities/rest](https://canary.warp-drive.io/api/@warp-drive/utilities/rest.md): Request builders for find, query, create, update, and delete against REST APIs with camelCased plural URLs.
+- [@warp-drive/utilities/string](https://canary.warp-drive.io/api/@warp-drive/utilities/string.md): Cached case-conversion and English pluralization helpers, with configurable inflection rules, for mapping server names.
+
+##### exports
+
+- [buildBaseURL()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/buildBaseURL.md): Joins host, namespace, resource path, id, and relationship field into a request URL without query params.
+- [buildQueryParams()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/buildQueryParams.md): Serializes query params into a string with keys and array values sorted, so equivalent queries share one URL.
+- [filterEmpty()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/filterEmpty.md): Returns a copy of an object without keys whose values are `undefined`, `null`, empty strings, or empty arrays.
+- [setBuildURLConfig()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/setBuildURLConfig.md): Sets the app-wide default `host` and `namespace` used by `buildBaseURL` and the request builders.
+- [sortQueryParams()](https://canary.warp-drive.io/api/@warp-drive/utilities/functions/sortQueryParams.md): Builds a `URLSearchParams` with keys and array values sorted, so equivalent queries produce identical params.
+
+##### /active-record
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/createRecord.md): Builds a `POST` request that saves a newly created record, using ActiveRecord-style URLs.
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/deleteRecord.md): Builds a `DELETE` request that persists deletion of an existing record, using ActiveRecord-style URLs.
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/findRecord.md): Builds a `GET` request for one resource by type and id, using ActiveRecord-style pluralized, underscored URLs.
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/query.md): Builds a `GET` request that queries a resource type with query params, using ActiveRecord-style URLs.
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/active-record/functions/updateRecord.md): Builds a `PUT` (or `PATCH`) request that saves changes to an existing record, using ActiveRecord-style URLs.
+
+##### /derivations
+
+###### exports
+
+- [concat](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations/variables/concat.md): Derivation registered as `concat` that joins a record's listed `fields` into one string with an optional `separator`.
+
+###### /Namespaces
+
+- [@warp-drive/utilities/derivations/concat](https://canary.warp-drive.io/api/@warp-drive/utilities/derivations/namespaces/concat.md): Derivation registered as `concat` that joins a record's listed `fields` into one string with an optional `separator`.
+
+##### /handlers
+
+###### /Handlers
+
+- [AutoCompress](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/classes/AutoCompress.md): Request handler that compresses large `POST`, `PUT`, `PATCH`, and `DELETE` bodies with `CompressionStream`, optionally streaming them.
+- [Gate](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/classes/Gate.md): Request handler that wraps another handler and runs it only when a check function returns true for the request.
+- [MetaDocHandler](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/MetaDocHandler.md): Request handler that wraps the whole response body in `meta` for requests with `options.isMetaRequest` set.
+
+###### /Constants
+
+- [MAX_URL_LENGTH](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/MAX_URL_LENGTH.md): The 8192-byte URL length limit, taken from AWS CloudFront, that `assertInvalidUrlLength` checks against.
+- [SupportsRequestStreams](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/SupportsRequestStreams.md): Whether the current browser can send a `ReadableStream` as a `fetch` request body, detected once at module load.
+- [TAB_ASSIGNED](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/TAB_ASSIGNED.md): Epoch seconds recorded when this module loaded, paired with `TAB_ID` in trace headers.
+- [TAB_ID](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/variables/TAB_ID.md): Random UUID identifying the current browser tab, kept in `sessionStorage` across reloads, for request tracing.
+
+###### /Utility Functions
+
+- [addTraceHeader()](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/functions/addTraceHeader.md): Sets an `X-Amzn-Trace-Id` header carrying a per-request id and the tab id, so requests can be traced to their browser tab.
+- [assertInvalidUrlLength()](https://canary.warp-drive.io/api/@warp-drive/utilities/handlers/functions/assertInvalidUrlLength.md): Dev-mode assertion that throws when a URL is longer than `MAX_URL_LENGTH`, suggesting a `POST` or `QUERY` request instead.
+
+##### /json-api
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/createRecord.md): Builds a JSON:API `POST` request for saving a new record; the app must set the request body itself.
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/deleteRecord.md): Builds a JSON:API `DELETE` request that persists deletion of an existing record.
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/findRecord.md): Builds a JSON:API `GET` request for one resource by type and id, with optional `include`.
+- [postQuery()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/postQuery.md): Builds a JSON:API `POST` request that sends a query as the JSON body, cached under a key built from the query params.
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/query.md): Builds a JSON:API `GET` request that queries a resource type, sending the query as URL query params.
+- [serializePatch()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/serializePatch.md): Serializes only a resource's changed attributes and relationships from the cache into a JSON:API-style `{ data }` patch.
+- [serializeResources()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/serializeResources.md): Copies the cached state of one or more resources into a JSON:API-style `{ data }` object, a starting point for request bodies.
+- [setBuildURLConfig()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/setBuildURLConfig.md): Sets the JSON:API extensions and profiles sent in the `Accept` header, plus the global URL host and namespace.
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/json-api/functions/updateRecord.md): Builds a JSON:API `PUT` (or `PATCH`) request for saving an existing record; the app must set the request body itself.
+
+##### /rest
+
+###### exports
+
+- [createRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/createRecord.md): Builds a `POST` request that saves a newly created record, using REST-style URLs.
+- [deleteRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/deleteRecord.md): Builds a `DELETE` request that persists deletion of an existing record, using REST-style URLs.
+- [findRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/findRecord.md): Builds a `GET` request for one resource by type and id, using REST-style pluralized, camelCased URLs.
+- [query()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/query.md): Builds a `GET` request that queries a resource type with query params, using REST-style URLs.
+- [updateRecord()](https://canary.warp-drive.io/api/@warp-drive/utilities/rest/functions/updateRecord.md): Builds a `PUT` (or `PATCH`) request that saves changes to an existing record, using REST-style URLs.
+
+##### /string
+
+###### exports
+
+- [dasherize](https://canary.warp-drive.io/api/@warp-drive/utilities/string/variables/dasherize.md): Converts camelCase, underscored, or spaced strings to dasherized form, such as `innerHTML` to `inner-html`.
+- [camelize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/camelize.md): Converts dashed, underscored, dotted, or spaced strings to lowerCamelCase, such as `action_name` to `actionName`.
+- [capitalize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/capitalize.md): Uppercases the first letter of a string, and of each `/`-separated path segment, leaving the rest unchanged.
+- [clear()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/clear.md): Empties the cached results of `singularize` and `pluralize` while keeping all inflection rules.
+- [clearRules()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/clearRules.md): Removes every inflection rule, including the defaults, and empties the `singularize` and `pluralize` caches.
+- [irregular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/irregular.md): Registers a singular and plural word pair that `pluralize` and `singularize` map directly instead of applying rules.
+- [loadIrregular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/loadIrregular.md): Registers a list of singular and plural word pairs that `pluralize` and `singularize` map directly.
+- [loadUncountable()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/loadUncountable.md): Registers a list of words that `pluralize` and `singularize` should always return unchanged.
+- [plural()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/plural.md): Adds a regex and replacement rule that `pluralize` checks before all existing plural rules.
+- [pluralize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/pluralize.md): Returns the plural form of an English word using the registered inflection rules, with cached results.
+- [resetToDefaults()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/resetToDefaults.md): Discards all custom inflection rules and caches, then restores the built-in default rules.
+- [setMaxLRUCacheSize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/setMaxLRUCacheSize.md): Sets how many results the `camelize`, `underscore`, `capitalize`, and `dasherize` caches each keep (default 10,000).
+- [singular()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/singular.md): Adds a regex and replacement rule that `singularize` checks before all existing singular rules.
+- [singularize()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/singularize.md): Returns the singular form of an English word using the registered inflection rules, with cached results.
+- [uncountable()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/uncountable.md): Registers a word that `pluralize` and `singularize` should always return unchanged.
+- [underscore()](https://canary.warp-drive.io/api/@warp-drive/utilities/string/functions/underscore.md): Converts camelCase, dashed, or spaced strings to lowercase snake_case, such as `innerHTML` to `inner_html`.
+
+#### @warp-drive/experiments
+
+- [@warp-drive/experiments/data-worker](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker.md): Experimental `DataWorker`, which runs a store inside a Worker or SharedWorker, and the `CacheHandler` it uses to serve requests from its in-memory or persisted cache.
+- [@warp-drive/experiments/document-storage](https://canary.warp-drive.io/api/@warp-drive/experiments/document-storage.md): Experimental `DocumentStorage`, a persistent store for request documents and their resources backed by the Origin Private File System and synced across tabs.
+- [@warp-drive/experiments/image-fetch](https://canary.warp-drive.io/api/@warp-drive/experiments/image-fetch.md): Experimental main-thread client for loading images through an `ImageWorker` running in a SharedWorker.
+- [@warp-drive/experiments/image-worker](https://canary.warp-drive.io/api/@warp-drive/experiments/image-worker.md): Experimental worker-side image loader that fetches and caches images for main-thread `ImageFetch` clients.
+- [@warp-drive/experiments/pagination](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination.md): Experimental reactive pagination primitives for tracking page state, links, and caches across paginated requests.
+- [@warp-drive/experiments/storage](https://canary.warp-drive.io/api/@warp-drive/experiments/storage.md): Experimental reactive wrappers over localStorage, sessionStorage and the Cache API, with decorators such as `LocalResource` and `param` that bind class fields to storage or query params.
+- [@warp-drive/experiments/worker-fetch](https://canary.warp-drive.io/api/@warp-drive/experiments/worker-fetch.md): Experimental `WorkerFetch` request handler that sends requests from the main thread to a `DataWorker` and settles them with its responses.
+
+##### /data-worker
+
+###### exports
+
+- [DataWorker](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker/classes/DataWorker.md)
+- [CacheHandler](https://canary.warp-drive.io/api/@warp-drive/experiments/data-worker/variables/CacheHandler.md): Experimental cache handler for a DataWorker that serves requests from the in-memory or persisted cache and returns documents hydrated with their resources.
+
+##### /document-storage
+
+###### exports
+
+- [DocumentStorage](https://canary.warp-drive.io/api/@warp-drive/experiments/document-storage/classes/DocumentStorage.md): Experimental persistent store for request documents and their resources, backed by the Origin Private File System and synced across tabs via `BroadcastChannel`.
+
+##### /image-fetch
+
+###### exports
+
+- [ImageFetch](https://canary.warp-drive.io/api/@warp-drive/experiments/image-fetch/classes/ImageFetch.md): Experimental main-thread client that asks an `ImageWorker` to load image urls and resolves with cached object urls.
+
+##### /image-worker
+
+###### exports
+
+- [ImageWorker](https://canary.warp-drive.io/api/@warp-drive/experiments/image-worker/classes/ImageWorker.md): Experimental worker-side image loader that fetches images for connected `ImageFetch` clients and returns deduped, cached object urls.
+
+##### /pagination
+
+###### exports
+
+- [defaultPageHints](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/variables/defaultPageHints.md): Experimental: the fallback page-hints function, reading `meta.page` or `meta.currentPage` and `meta.totalPages` from a document, with `0` meaning unknown.
+- [clearPaginationCache()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/clearPaginationCache.md): Experimental: discards every shared pagination cache, mainly so tests start from a clean state.
+- [createPaginationLinksSubscription()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/createPaginationLinksSubscription.md): Experimental: creates the subscription a pagination links component such as `<EachLink />` uses to derive navigation links from a paged pagination state.
+- [createPaginationSubscription()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/createPaginationSubscription.md): Experimental: creates the subscription that manages a `<Paginate />` component's initial request lifecycle and pagination state, for managing that lifecycle yourself.
+- [getPaginationCache()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationCache.md): Experimental: returns the shared pagination cache for a collection's `first` or `self` link, creating it on first use.
+- [getPaginationLinks()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationLinks.md): Experimental: returns the navigation links for a paged pagination state, creating them on first call and returning the same instance for the same state.
+- [getPaginationState()](https://canary.warp-drive.io/api/@warp-drive/experiments/pagination/functions/getPaginationState.md): Experimental: returns the pagination state for a request, creating it on first call and returning the same instance for the same request thereafter.
+
+##### /storage
+
+###### exports
+
+- [CacheStorage](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/classes/CacheStorage.md): Experimental `Storage`-compatible interface over the browser Cache API, suited to larger JSON data sets than localStorage.
+- [DEFAULT_CACHE_ID](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/variables/DEFAULT_CACHE_ID.md)
+- [_initializeFields()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/initializeFields.md)
+- [BooleanParam()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/BooleanParam.md): Experimental helper that creates a query-param config serializing a boolean field as '1' when true and omitting it when false.
+- [CacheResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/CacheResource.md): Experimental class decorator that turns a class into a reactive resource whose fields persist via the Cache API and are shared across tabs.
+- [configureLocalStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/configureLocalStorage.md): Experimental function that sets fallback and quota-handling options for the reactive localStorage singleton before its first use.
+- [configureSessionStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/configureSessionStorage.md): Experimental function that sets fallback and quota-handling options for the reactive sessionStorage singleton before its first use.
+- [effect()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/effect.md): Experimental field decorator for storage resources that runs a callback when the stored value changes in another tab or window.
+- [field()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/field.md): Experimental decorator that makes a storage resource property a reactive field persisted to local, session, or cache storage.
+- [getCacheStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getCacheStorage.md)
+- [getLocalStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getLocalStorage.md): Experimental function that returns the shared reactive wrapper around localStorage, creating it on first call.
+- [getSessionStorage()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/getSessionStorage.md)
+- [input()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/input.md)
+- [LocalResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/LocalResource.md): Experimental class decorator that turns a class into a reactive resource whose fields persist in localStorage.
+- [NumberParam()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/NumberParam.md): Experimental helper that creates a query-param config serializing numbers, optionally to a fixed precision, with an optional default value.
+- [onStorageEvent()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/onStorageEvent.md): Experimental helper that subscribes to storage changes from both native `StorageEvent`s and `CacheStorage` notifications, returning an unsubscribe function.
+- [param()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/param.md): Experimental decorator that marks a storage resource field as a URL query parameter, recording how to serialize it for a router integration.
+- [SessionResource()](https://canary.warp-drive.io/api/@warp-drive/experiments/storage/functions/SessionResource.md): Experimental class decorator that turns a class into a reactive resource whose fields persist in sessionStorage.
+
+##### /worker-fetch
+
+###### exports
+
+- [WorkerFetch](https://canary.warp-drive.io/api/@warp-drive/experiments/worker-fetch/classes/WorkerFetch.md)
+
+#### @warp-drive/ember
+
+- [@warp-drive/ember/experiments](https://canary.warp-drive.io/api/@warp-drive/ember/experiments.md): Experimental Ember components, `Paginate` and `EachLink`, for rendering reactive paginated collections built on `@warp-drive/experiments/pagination`.
+- [@warp-drive/ember/install](https://canary.warp-drive.io/api/@warp-drive/ember/install.md): The `buildSignalConfig` function, which creates the signal hooks that wire WarpDrive reactivity into Ember autotracking using `@glimmer/validator` tags.
+
+##### exports
+
+- [<Await />](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Await.md): Component that renders a pending, error or success block for the state of a promise or awaitable.
+- [Request](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Request.md): Component that monitors a request and renders a block for its idle, loading, error, cancelled or content state, with controls to retry, refresh or reload it.
+- [Throw](https://canary.warp-drive.io/api/@warp-drive/ember/classes/Throw.md): Component that throws its `@error` argument when rendered, for templates that should fail if they reach that point.
+
+##### /experiments
+
+###### exports
+
+- [<EachLink />](https://canary.warp-drive.io/api/@warp-drive/ember/experiments/classes/EachLink.md): Renderless component that yields the numbered, previous, next, first and last navigation links for a `<Paginate />` collection.
+- [<Paginate />](https://canary.warp-drive.io/api/@warp-drive/ember/experiments/classes/Paginate.md): Component that monitors the request for a paginated collection and yields its pages, in paged or infinite mode, for navigating and rendering them.
+
+##### /install
+
+###### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@warp-drive/ember/install/functions/buildSignalConfig.md): Creates the signal hooks that wire WarpDrive reactivity into Ember autotracking using `@glimmer/validator` tags.
+
+#### @warp-drive/react
+
+- [@warp-drive/react/install](https://canary.warp-drive.io/api/@warp-drive/react/install.md): Side-effect import that configures WarpDrive to use Signal polyfill based reactivity so its data updates re-render React components.
+
+##### exports
+
+- [WatcherContext](https://canary.warp-drive.io/api/@warp-drive/react/variables/WatcherContext.md): React context holding the signal watcher that the nearest `ReactiveContext` uses to track which WarpDrive signals its children read.
+- [ReactiveContext()](https://canary.warp-drive.io/api/@warp-drive/react/functions/ReactiveContext.md): Component that re-renders its children when WarpDrive signals they read change, by providing a signal watcher through `WatcherContext`.
+- [Request()](https://canary.warp-drive.io/api/@warp-drive/react/functions/Request.md): Component that renders idle, loading, error, cancelled, or content states for a request as it progresses, with retry and refresh support.
+- [StoreProvider()](https://canary.warp-drive.io/api/@warp-drive/react/functions/StoreProvider.md): Component that provides a Store to its children, either the instance passed in or a new instance of the Store class passed in.
+- [useStore()](https://canary.warp-drive.io/api/@warp-drive/react/functions/useStore.md): Hook that returns the Store provided by the nearest `StoreProvider`, asserting that one exists.
+
+##### /install
+
+###### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@warp-drive/react/install/functions/buildSignalConfig.md): Builds the signal hooks, backed by the Signal polyfill, that connect WarpDrive reactivity to React rendering and test waiters.
+- [settled()](https://canary.warp-drive.io/api/@warp-drive/react/install/functions/settled.md): Resolves once all requests tracked by the React signal integration have settled, for use in tests; a no-op unless `TESTING` is enabled.
+
+#### @warp-drive/tc39-proposal-signals
+
+- [@warp-drive/tc39-proposal-signals/install](https://canary.warp-drive.io/api/@warp-drive/tc39-proposal-signals/install.md): Side-effect import that configures WarpDrive to use the TC39 Signals polyfill, `signal-polyfill`, for reactivity.
+
+##### /install
+
+###### exports
+
+- [buildSignalConfig()](https://canary.warp-drive.io/api/@warp-drive/tc39-proposal-signals/install/functions/buildSignalConfig.md): Builds the signal hooks that back WarpDrive reactivity with `Signal.State` and `Signal.Computed` from the TC39 Signals polyfill.
+
+#### @warp-drive/holodeck
+
+- [@warp-drive/holodeck/mock](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock.md): Helpers `GET`, `POST`, `PUT`, `PATCH`, `DELETE` and `HEAD` that register a mocked request and its response with the Holodeck test server, plus the scaffold types they accept.
+
+##### exports
+
+- [MockServerHandler](https://canary.warp-drive.io/api/@warp-drive/holodeck/classes/MockServerHandler.md): RequestManager handler that routes requests to the Holodeck mock server by tagging each url with the test id and request count.
+- [getIsRecording()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/getIsRecording.md): Reports whether Holodeck mocks are recorded to fixtures, using the `setIsRecording` override when set or the build-time `SHOULD_RECORD` flag otherwise.
+- [installAdapterFor()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/installAdapterFor.md): Patches a legacy store so its adapters send `_fetchRequest` calls through the Holodeck mock server for the given test context.
+- [mock()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/mock.md): Registers a mock response with the Holodeck server for the current test, recording it as a fixture when recording and only counting it when replaying.
+- [setConfig()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setConfig.md): Sets the host url of the Holodeck mock server that recordings are sent to.
+- [setIsRecording()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setIsRecording.md): Overrides at runtime whether Holodeck mocks are recorded to fixtures, in place of the build-time `SHOULD_RECORD` flag.
+- [setTestId()](https://canary.warp-drive.io/api/@warp-drive/holodeck/functions/setTestId.md): Assigns a test context its Holodeck test id before a test, or clears it after, reporting an error for any mock the test never requested.
+
+##### /mock
+
+###### exports
+
+- [DELETE()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/DELETE.md): Mocks a DELETE request to a url on the Holodeck server, returning a generated response with a 200 status, or 204 when it has no body.
+- [GET()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/GET.md): Mocks a GET request to a url on the Holodeck server, returning a generated response with a default 200 status.
+- [HEAD()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/HEAD.md): Mocks a HEAD request to a url on the Holodeck server, returning a generated response with a default 200 status.
+- [PATCH()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/PATCH.md): Mocks a PATCH request to a url on the Holodeck server, returning a generated response with a 200 status, or 204 when it has no body.
+- [POST()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/POST.md): Mocks a POST request to a url on the Holodeck server, returning a generated response with a 201 status, or 204 when it has no body.
+- [PUT()](https://canary.warp-drive.io/api/@warp-drive/holodeck/mock/functions/PUT.md): Mocks a PUT request to a url on the Holodeck server, returning a generated response with a 200 status, or 204 when it has no body.
+
+#### @warp-drive/schema-dsl
+
+##### /Entity Decorators
+
+- [ObjectSchema()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/ObjectSchema.md): Class decorator that compiles a class into an object schema for embedded, identity-less data used as the value of `schemaObject` and `schemaArray` fields.
+- [Resource()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/Resource.md): Class decorator that compiles a class into a resource schema, with a type derived from the class name and one field per decorated property.
+- [trait()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/trait.md): Class decorator that records which traits a schema-dsl resource or trait composes, compiling their names into its `traits` array without merging their fields.
+- [Trait()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/Trait-1.md): Class decorator that compiles a class into a trait, a reusable set of fields that resources and other traits can compose via `@trait`.
+
+##### /Field Decorators
+
+- [alias()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/alias.md): Property decorator that compiles to an alias field, which reads from another field in the same schema and can write back to it in editable modes.
+- [array()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/array.md): Property decorator that compiles to an array field holding primitive values; use `schemaArray` for arrays of structured objects.
+- [attribute()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/attribute.md): LEGACY property decorator that compiles to an attribute field for `@warp-drive/legacy/model` resources; prefer `field` for new schemas.
+- [belongsTo()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/belongsTo.md): LEGACY property decorator that compiles to a belongsTo relationship field, valid only on resources declared with `@Resource({ legacy: true })`.
+- [createonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/createonly.md): Reserved property decorator for marking a field create-only in future generated types; currently a no-op with no effect on the compiled schema.
+- [derived()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/derived.md): Property decorator that compiles to a derived field, a read-only value computed by a registered derivation and never cached or sent to the server.
+- [editonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/editonly.md): Reserved property decorator for marking a field edit-only in future generated types; currently a no-op with no effect on the compiled schema.
+- [field()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/field.md): Property decorator that compiles to a generic field holding a primitive value, usable on resources, object schemas, and traits.
+- [hash()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/hash.md): Property decorator that compiles to the hash field an object schema uses as its identity, computed by a registered hash function.
+- [hasMany()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/hasMany.md): LEGACY property decorator that compiles to a hasMany relationship field, valid only on resources declared with `@Resource({ legacy: true })`.
+- [id()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/id.md): Property decorator that makes the decorated property a resource's identity field, needed only when the primary key is not named `id`.
+- [local()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/local.md): Property decorator that compiles to a local field, instance-only state that is never read from or written to the cache or sent to the server.
+- [object()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/object.md): Property decorator that compiles to an object field, a map of primitive values with no defined shape; use `schemaObject` for shaped objects.
+- [optional()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/optional.md): Reserved property decorator for marking a field optional in future generated create types; currently a no-op with no effect on the compiled schema.
+- [readonly()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/readonly.md): Reserved property decorator for marking a field read-only in future generated types; currently a no-op with no effect on the compiled schema.
+- [schemaArray()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/schemaArray.md): Property decorator that compiles to a schema-array field, an inline array of embedded objects whose shape is defined by an object schema.
+- [schemaObject()](https://canary.warp-drive.io/api/@warp-drive/schema-dsl/functions/schemaObject.md): Property decorator that compiles to a schema-object field, an inline embedded object whose shape is defined by an object schema.
+
+#### eslint-plugin-warp-drive
+
+- [eslint-plugin-warp-drive/recommended](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/recommended.md): Flat ESLint config that registers the `warp-drive` plugin and turns on its recommended rules as errors.
+
+##### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/variables/export=.md)
+
+##### /recommended
+
+###### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/recommended/variables/export=.md): Flat ESLint config array that registers the `warp-drive` plugin and turns on its recommended set of rules as errors.
+
+##### /rules
+
+- [eslint-plugin-warp-drive/rules/no-create-record-rerender](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-create-record-rerender.md): Lint rule that disallows `store.createRecord` in getters, constructors, class properties, and component lifecycle hooks, where it can cause re-render issues.
+- [eslint-plugin-warp-drive/rules/no-external-request-patterns](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-external-request-patterns.md): Lint rule that disallows `fetch`, jQuery, ajax-service, and `XMLHttpRequest` requests in favor of `store.request()`.
+- [eslint-plugin-warp-drive/rules/no-invalid-relationships](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-relationships.md): Lint rule that requires `@belongsTo` and `@hasMany` decorators to specify a boolean `async` and an `inverse`.
+- [eslint-plugin-warp-drive/rules/no-invalid-resource-ids](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-ids.md): Lint rule, with autofix, that requires resource IDs passed to store methods and request builders to be strings.
+- [eslint-plugin-warp-drive/rules/no-invalid-resource-types](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-types.md): Lint rule, with autofix, that enforces a configurable naming convention for resource types, defaulting to singular dasherized.
+- [eslint-plugin-warp-drive/rules/no-legacy-imports](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-imports.md): Lint rule, with autofix, that rewrites imports from legacy EmberData module paths to their modern replacements.
+- [eslint-plugin-warp-drive/rules/no-legacy-request-patterns](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-request-patterns.md): Lint rule that disallows legacy store and model request methods such as `findRecord`, `query`, and `save` in favor of `store.request()`.
+- [eslint-plugin-warp-drive/rules/no-test-module-hooks](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-test-module-hooks.md): Lint rule that disallows `hooks.beforeEach` and `hooks.afterEach` in tests in favor of setup functions each test calls explicitly.
+- [eslint-plugin-warp-drive/rules/require-request-error-block](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/require-request-error-block.md): Lint rule that requires every React `<Request>` component to be given a `states.error` handler.
+- [eslint-plugin-warp-drive/rules/template-always-use-request-content](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-always-use-request-content.md): Lint rule that requires a `<Request>` component's `:content` block to capture and use the yielded request result.
+- [eslint-plugin-warp-drive/rules/template-require-request-error-block](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-require-request-error-block.md): Lint rule that requires `<Request>` and `<Await>` components to provide an `:error` block so rejections do not crash the app.
+
+###### /no-create-record-rerender
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-create-record-rerender/variables/export=.md): ESLint rule object that reports `store.createRecord` calls in getters, constructors, class properties, and component lifecycle hooks.
+
+###### /no-external-request-patterns
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-external-request-patterns/variables/export=.md): ESLint rule object that reports `fetch`, jQuery, ajax-service, and `XMLHttpRequest` requests in favor of `store.request()`.
+
+###### /no-invalid-relationships
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-relationships/variables/export=.md): ESLint rule object that reports `@belongsTo` and `@hasMany` decorators missing a boolean `async` or an `inverse` option.
+
+###### /no-invalid-resource-ids
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-ids/variables/export=.md): ESLint rule object that reports and autofixes non-string resource IDs passed to store methods and request builders.
+
+###### /no-invalid-resource-types
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-invalid-resource-types/variables/export=.md): ESLint rule object that reports and autofixes resource types passed to store methods and request builders that break the naming convention.
+
+###### /no-legacy-imports
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-imports/variables/export=.md): ESLint rule object that autofixes imports from legacy EmberData module paths to their modern replacements.
+
+###### /no-legacy-request-patterns
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-legacy-request-patterns/variables/export=.md): ESLint rule object that reports legacy store and model request methods such as `findRecord`, `query`, and `save` in favor of `store.request()`.
+
+###### /no-test-module-hooks
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/no-test-module-hooks/variables/export=.md): ESLint rule object that reports `hooks.beforeEach` and `hooks.afterEach` in tests in favor of setup functions each test calls explicitly.
+
+###### /require-request-error-block
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/require-request-error-block/variables/export=.md): ESLint rule object that reports React `<Request>` components that are not given a `states.error` handler.
+
+###### /template-always-use-request-content
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-always-use-request-content/variables/export=.md): ESLint rule object that reports `<Request>` components whose `:content` block is missing or never uses the yielded result.
+
+###### /template-require-request-error-block
+
+####### exports
+
+- [export=](https://canary.warp-drive.io/api/eslint-plugin-warp-drive/rules/template-require-request-error-block/variables/export=.md): ESLint rule object that reports `<Request>` and `<Await>` components used without an `:error` block.
+
+
+### Other
+
+- [AddResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/AddResourceOperation.md): Cache operation passed to `cache.patch` that adds a persisted resource's data to the cache's remote state.
+- [AddToDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/AddToDocumentOperation.md): Cache operation passed to `cache.patch` that adds resources to a request document's `data` or `included`, optionally at an index.
+- [AddToResourceRelationshipMutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/AddToResourceRelationshipMutation.md): Cache mutation passed to `cache.mutate` that adds one or more resources to a relationship's local state, optionally at an index.
+- [AddToResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/AddToResourceRelationshipOperation.md): Cache operation passed to `cache.patch` that adds resources to a relationship's remote state, optionally at an index.
+- [AliasOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/AliasOptions.md): Options for the `@alias` decorator that identify the existing field (its kind, name, transformation type, and sourceKey) the alias points to.
+- [ApiError](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/error/types/ApiError.md): One {json:api} error object, with optional `status`, `code`, `title`, `detail`, `source`, `links`, and `meta`, found in a document's `errors` array.
+- [ArrayField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ArrayField.md): Field schema of kind `array` for an array of primitive values, each optionally passed through a registered transformation.
+- [ArrayFieldOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/ArrayFieldOptions.md): Options for the `@array` decorator that set the compiled array field's `sourceKey` and the transformation applied to each item.
+- [ArrayValue](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/json/raw/types/ArrayValue.md): A JSON array whose members are all JSON values.
+- [AttributeOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/AttributeOptions.md): Options for the legacy `@attribute` decorator that set the compiled attribute field's `sourceKey` and legacy transform `type`.
+- [AttributesSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/schema-service/types/AttributesSchema.md): Legacy attribute field definitions keyed by attribute name, returned by the deprecated `attributesDefinitionFor` schema hook.
+- [AttrOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/AttrOptions.md): Options object on a legacy `attribute` field schema, holding a `defaultValue` (a primitive or a function producing one) plus any transform-specific options.
+- [Autogeneration Notice](https://canary.warp-drive.io/pr-preview/pr-11218/public/logos/synced/README.md)
+- [AutorefreshBehaviorCombos](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/AutorefreshBehaviorCombos.md): The accepted values for a request subscription's `autorefresh` option: a boolean or a comma-separated mix of `online`, `interval`, and `invalid`.
+- [AutorefreshBehaviorType](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/AutorefreshBehaviorType.md): One autorefresh trigger for a request subscription: on reconnecting (`online`), on a timer (`interval`), or on store invalidation (`invalid`).
+- [Awaitable](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/Awaitable.md): Any promise-like value with `then`, `catch`, and `finally`, as accepted by the promise-result cache and `getPromiseState`.
+- [BaseFinderOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/BaseFinderOptions.md): Legacy reload, background-reload, include, and adapterOptions settings shared by `store.findRecord` and `store.findAll`.
+- [BelongsToOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/BelongsToOptions.md): Options for the legacy `@belongsTo` decorator that describe the related type, inverse, async and polymorphic behavior, and `sourceKey`.
+- [BuildURLConfig](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/BuildURLConfig.md): The global `host` and `namespace` that `buildBaseURL` prefixes onto URLs when a call does not pass its own.
+- [Cache](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/types/Cache.md): Contract a Cache implementation fulfills to store, patch, mutate, and read document and resource data for the Store, including local changes, errors, and SSR hydration.
+- [CacheableFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/CacheableFieldSchema.md): Union of the field schemas whose values live in the cache, excluding alias, local, and derived fields.
+- [CacheCapabilitiesManager](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/CacheCapabilitiesManager.md): The narrow slice of Store API handed to a Cache via `createCache`, for key lookup, schema access, record id updates, and change notifications.
+- [CacheControlValue](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/store/types/CacheControlValue.md): The directives of a `Cache-Control` header as an object of flags and second counts, as returned by `parseCacheControl`.
+- [CacheHandler](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/CacheHandler.md): The single handler a RequestManager runs before all others via `useCache`, which may return a result synchronously.
+- [CacheKeyType](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/CacheKeyType.md): Which cache bucket a key belongs to: `'record'` for resource keys or `'document'` for request keys.
+- [CacheOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/CacheOperation.md): The lifecycle notification kinds sent to resource subscribers: `added`, `removed`, `updated`, or `state`.
+- [CacheOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/CacheOptions.md): Per-request settings on `cacheOptions` that control the cache key, forced or background reloads, invalidation by resource type, and cache bypass.
+- [CachePolicy](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/CachePolicy.md): The interface a store's `lifetimes` service implements to decide when cached requests are hard or soft expired and should be refetched.
+- [CacheStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/CacheStorageEvent.md)
+- [CancelledRequest](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/CancelledRequest.md)
+- [CAUTION_MEGA_DANGER_ZONE_Extension](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/CAUTION_MEGA_DANGER_ZONE_Extension.md): Registers named methods, getters, and values to add to ReactiveResources, ReactiveObjects, or ReactiveArrays; meant only as a temporary aid when migrating from Model or ModelFragments.
+- [Change](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/change/types/Change.md): One upsert or removal of a resource or document recorded by the cache, with an optional patch, as returned by `cache.diff`.
+- [ChangedAttributesHash](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/types/ChangedAttributesHash.md): Map of attribute name to `[oldValue, newValue]` for a resource's uncommitted attribute changes, as returned by `cache.changedAttrs`.
+- [ChromeComponentProps](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/react/types/ChromeComponentProps.md): The props the React `<Request />` component passes to its `chrome` component: the rendered state, the request state, and the content features.
+- [CollectionField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/CollectionField.md): Field schema of kind `collection` for a reference to other resources, whose value is a `ReactiveRelationshipDocument`.
+- [CollectionRelationship](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/relationship/types/CollectionRelationship.md): Cache-side state of a to-many relationship, with `data` as an array of `ResourceKey`s plus optional meta and pagination links.
+- [CollectionResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/CollectionResourceDataDocument.md): A raw {json:api} document whose `data` is an array of resources, as returned by a request and inserted into the cache.
+- [CollectionResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/CollectionResourceDocument.md): A raw {json:api} document whose `data` is an array of existing resource objects, with optional `included`, `meta`, and `links`.
+- [CollectionResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/CollectionResourceRelationship.md): A to-many {json:api} relationship object whose `data` is an array of resource identifiers, with optional `meta` and pagination `links`.
+- [CompressionOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/handlers/types/CompressionOptions.md): Options for `new AutoCompress()`: the compression format, size constraints and whether to stream the body.
+- [ConstrainedRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ConstrainedRequestOptions.md): Options the request builders accept to set reload behavior and override the url's host, namespace, resource path, and query param serialization.
+- [Constraints](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/handlers/types/Constraints.md): Minimum request body sizes, per body type, at which `AutoCompress` compresses a body.
+- [ContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ContentFeatures.md): The online, visibility, and refreshing state plus `refresh`, `reload`, and `abort` functions a request subscription exposes alongside successful content.
+- [Context](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/Context.md): The per-request object passed to each handler, exposing the immutable request plus methods to set the response, stream, and request key.
+- [Contributors](https://canary.warp-drive.io/pr-preview/pr-11218/contributors.md): See the WarpDrive core team and the full list of GitHub contributors whose work has shaped the project.
+- [CreateRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/CreateRecordUrlOptions.md): Options passed to `buildBaseURL` to build the collection URL a new record of a given type is saved to.
+- [CreateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/CreateRequestOptions.md): Shape of the `POST` request object that `createRecord` builders return for `store.request`, identifying the new resource being saved.
+- [Deferred](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/Deferred.md): A promise bundled with the `resolve` and `reject` callbacks that settle it, as returned by `createDeferred`.
+- [DeleteRecordOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/DeleteRecordOperation.md): Graph operation signaling that a resource was deleted so it is removed from every relationship that references it.
+- [DeleteRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/DeleteRecordUrlOptions.md): Options passed to `buildBaseURL` to build the URL for deleting an existing record by type and id.
+- [DeleteRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/DeleteRequestOptions.md): Shape of the `DELETE` request object that `deleteRecord` builders return for `store.request`, identifying the resource being deleted.
+- [Derivation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/concepts/types/Derivation.md): A registered function that computes a memoized, read-only field value from a record's other fields, backing `derived` fields.
+- [DerivedField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/DerivedField.md): Field schema of kind `derived` for a read-only, memoized value computed by a registered derivation and never cached or sent to the server.
+- [DerivedOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/DerivedOptions.md): Options for the `@derived` decorator that name the registered derivation that computes the field and the options passed to it.
+- [Document](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/Document.md): Deprecated alias for `ReactiveDocument`, the reactive wrapper around a request's response document.
+- [DocumentCacheOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/DocumentCacheOperation.md): The notification kinds sent to request document subscribers, such as `updated` or `invalidated`.
+- [EffectStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/EffectStorageEvent.md)
+- [EmberRequestArgs](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/ember/types/EmberRequestArgs.md): The args of the Ember `<Request />` component: the request or query to run, store, subscription, autorefresh options, and chrome.
+- [EmptyResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/EmptyResourceDocument.md): A raw {json:api} document whose `data` is `null`, such as the response to a `DELETE` request.
+- [ExistingResourceObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/ExistingResourceObject.md): A raw {json:api} resource object for a persisted resource: `type` and `id` plus optional `lid`, `attributes`, `relationships`, `links`, and `meta`.
+- [ExtensionDef](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ExtensionDef.md): One normalized feature of a schema extension, tagged by kind as a method, a readonly or mutable value, or a getter/setter accessor.
+- [ExtractSuggestedCacheTypes](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/ExtractSuggestedCacheTypes.md): Type utility giving the union of resource types reachable from a typed record through its relationships, up to a max depth.
+- [FetchError](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/FetchError.md): The shape of errors thrown by the Fetch handler for failed, aborted, or network-errored requests, carrying the HTTP `status` and `statusText`.
+- [FieldOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/FieldOptions.md): Options for the `@field` decorator that set the compiled field's transformation `type` and `sourceKey`.
+- [FieldSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/FieldSchema.md): Union of every LegacyMode and PolarisMode field schema; prefer the mode-specific unions for more precise type-checking.
+- [FindAllOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/FindAllOptions.md): Legacy reload, background-reload, include, and adapterOptions settings for `store.findAll`.
+- [FindManyUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/FindManyUrlOptions.md): Options passed to `buildBaseURL` to build the URL for fetching several resources, pathed by the first identifier's type.
+- [FindRecordOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/FindRecordOptions.md): Legacy options for `store.findRecord`, adding a discouraged `preload` of field values to the shared reload and adapter settings.
+- [FindRecordOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/FindRecordOptions.md): Options the `findRecord` request builders accept: the shared url and reload options plus the relationship paths to `include`.
+- [FindRecordRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/FindRecordRequestOptions.md): Shape of the `GET` request object that `findRecord` builders return for `store.request`, carrying the url, headers, and requested resource identifier.
+- [FindRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/FindRecordUrlOptions.md): Options passed to `buildBaseURL` to build the URL for fetching one resource by type and id.
+- [FindRelatedCollectionUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/FindRelatedCollectionUrlOptions.md): Options passed to `buildBaseURL` to build the URL for a record's has-many relationship, ending in the field name.
+- [FindRelatedResourceUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/FindRelatedResourceUrlOptions.md): Options passed to `buildBaseURL` to build the URL for a record's belongs-to relationship, ending in the field name.
+- [Future](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/Future.md): The promise returned for every request, resolving with the response document and able to abort the request or expose its response stream early.
+- [GenericField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/GenericField.md): Field schema of kind `field` for a primitive value, optionally converted by a registered `Transformation`; objects and arrays in it are not deep-tracked.
+- [GenericUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/GenericUrlOptions.md): Options passed to `buildBaseURL` to build a URL from an explicit `resourcePath` with no request `op`.
+- [Handler](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/Handler.md): An object with a `request` method that a RequestManager calls to fulfill a request, either itself or by calling `next` to pass it along.
+- [HashField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/HashField.md): Field schema of kind `@hash` that computes a schema-object's identity from its cache data using a registered hash function.
+- [HashFn](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/concepts/types/HashFn.md): A registered function that computes a stable string identity from an object's cache data, used for `@hash` fields and polymorphic schema-object types.
+- [HashOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/HashOptions.md): Options for the `@hash` decorator that name the registered hash function used to compute an object schema's identity.
+- [HasManyOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/HasManyOptions.md): Options for the legacy `@hasMany` decorator that describe the related type, inverse, async and polymorphic behavior, and `sourceKey`.
+- [HooksOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/configure/types/HooksOptions.md): The options passed to the `setupSignals` callback, including the well-known key WarpDrive uses for an array's contents signal.
+- [HTTPMethod](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/HTTPMethod.md): Union of the HTTP method strings, including `QUERY`, that a WarpDrive request's `method` may be set to.
+- [IdentityField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/IdentityField.md): Field schema of kind `@id` naming which field holds a resource's primary key, with an optional `sourceKey` when the API uses another name like `uuid`.
+- [IdOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/IdOptions.md): Options for the `@id` decorator that set the compiled identity field's `sourceKey`.
+- [ImmutableCreateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ImmutableCreateRequestOptions.md): Read-only view of a `createRecord` request as a handler receives it, with immutable headers and `records` as resource keys.
+- [ImmutableDeleteRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ImmutableDeleteRequestOptions.md): Read-only view of a `deleteRecord` request as a handler receives it, with immutable headers and `records` as resource keys.
+- [ImmutableHeaders](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ImmutableHeaders.md): Read-only `Headers` that handlers see on a request, adding `toJSON` to serialize them as `[key, value]` pairs and an optional mutable `clone`.
+- [ImmutableRequestInfo](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ImmutableRequestInfo.md): Read-only form of a request as handlers receive it, with frozen headers, data, options, and cache options and no `controller`.
+- [ImmutableUpdateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ImmutableUpdateRequestOptions.md): Read-only view of an `updateRecord` request as a handler receives it, with immutable headers and `records` as resource keys.
+- [Includes](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/Includes.md): Type utility giving the union of valid dot-separated `include` relationship paths for a typed record, excluding cycles.
+- [InfinitePaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/InfinitePaginationContentFeatures.md): Experimental: the request controls `<Paginate />` yields to its content block in infinite mode, adding `loadNext` and `loadPrev` to extend the loaded pages.
+- [InfinitePaginationState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/InfinitePaginationState.md): Experimental: the pagination state `<Paginate />` yields in infinite mode, exposing the accumulated items and pages plus `loadNext` and `loadPrev` to extend them.
+- [InnerRelationshipDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/InnerRelationshipDocument.md): A single {json:api} relationship object, either to-one or to-many, as found in a resource's `relationships` member.
+- [InternalCacheStorageEvent](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/InternalCacheStorageEvent.md)
+- [JSONAPIConfig](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/json-api/types/JSONAPIConfig.md): Configuration for the JSON:API request builders: host, namespace, and the profile and extension URIs for `Accept`.
+- [JsonApiResourcePatch](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/json-api/types/JsonApiResourcePatch.md): A JSON:API resource object holding only a record's changed attributes and relationships, as produced by `serializePatch`.
+- [KeyFn](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/KeyFn.md): Experimental function type that derives a unique storage key from a storage resource instance, so each instance persists its own data.
+- [LazyScaffold](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/holodeck/mock/types/LazyScaffold.md): Mock whose method and url are known up front and whose full scaffold is built only when recording, as passed by the Holodeck mock helpers to `mock`.
+- [LegacyAliasField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyAliasField.md): Field schema of kind `alias` for LegacyMode resources that exposes another field's cache value, including legacy attributes and relationships, under a new name.
+- [LegacyAttributeField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyAttributeField.md): Legacy field schema of kind `attribute` for a primitive value whose `type` names a legacy transform a serializer may apply; LegacyMode only.
+- [LegacyBelongsToField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyBelongsToField.md): Legacy field schema of kind `belongsTo` for a reference to one related resource, with required `async` and `inverse` options and optional `linksMode`.
+- [LegacyField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyField.md): Union of the legacy attribute, belongsTo, and hasMany field schemas, including the LinksMode relationship variants.
+- [LegacyHasManyField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyHasManyField.md): Legacy field schema of kind `hasMany` for a reference to many related resources, with required `async` and `inverse` options and optional `linksMode`.
+- [LegacyLiveArray](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/LegacyLiveArray.md): Legacy reactive array of every record of one type in the store, returned by `store.peekAll` and `store.findAll`. we recommend againt using LiveArrays. Use Store.request instead
+- [LegacyManyArray](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/LegacyManyArray.md): Legacy mutable reactive array holding the related records of a legacy or linksMode has-many relationship.
+- [LegacyModeFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyModeFieldSchema.md): Union of every field schema allowed on a LegacyMode resource schema, including legacy attribute, belongsTo, and hasMany fields.
+- [LegacyQueryArray](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/LegacyQueryArray.md): Legacy immutable reactive array of the primary records returned by `store.query`, refreshable with `update()` and released with `destroy()`. we recommend againt using QueryArrays. Use Store.request instead
+- [LegacyRelationshipField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyRelationshipField.md): Union of the legacy belongsTo and hasMany field schemas, including their LinksMode variants.
+- [LegacyResourceQuery](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/LegacyResourceQuery.md): Legacy query object for `store.query` and `store.queryRecord` that the adapter turns into request query params, with an optional `include`.
+- [LegacyResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyResourceSchema.md): Schema describing a LegacyMode resource type, marked `legacy: true`, with its identity field, fields, traits, and optional extensions.
+- [LegacyTrait](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LegacyTrait.md): A named, reusable set of LegacyMode fields that resource schemas compose in via their `traits`, often to model polymorphic capabilities.
+- [Link](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/Link.md): A {json:api} link value, either a plain URI-reference string or an object with `href` and optional `meta`.
+- [LinkObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/LinkObject.md): The object form of a {json:api} link: an `href` URI-reference plus optional `meta`.
+- [Links](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/Links.md): The `links` member of a {json:api} resource, relationship, or document, with optional `self` and `related` links.
+- [LinksModeBelongsToField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LinksModeBelongsToField.md): Legacy field schema of kind `belongsTo` in LinksMode: a sync reference to one related resource, loaded via links without adapters, usable in PolarisMode.
+- [LinksModeHasManyField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LinksModeHasManyField.md): Legacy field schema of kind `hasMany` in LinksMode: a sync reference to many related resources, loaded via links without adapters, usable in PolarisMode.
+- [LLM Optimized Documentation](https://canary.warp-drive.io/pr-preview/pr-11218/llm-docs.md): Where to find llms.txt, llms-full.txt, their legacy counterparts, and the plain-Markdown twin of every page, and how the Copy page button uses them.
+- [LocalField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/LocalField.md): Field schema of kind `@local` for memoized, writable per-record state that is never cached or sent to the server; currently private to built-in fields.
+- [LocalOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/LocalOptions.md): Options for the `@local` decorator that set the local field's value before it is first set.
+- [LocalRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/LocalRelationshipOperation.md): Union of the Graph operations that update a relationship's local (uncommitted) state.
+- [ManagedRequestPriority](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/ManagedRequestPriority.md): Marks whether a deduped managed request blocks its caller's promise or runs as a non-blocking background reload.
+- [Mask](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/Mask.md): Type utility that builds a preview type from `T` by replacing selected fields with narrower subset types from `K`, resolving to `never` where a field is not compatible.
+- [MergeOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/MergeOperation.md): Cache operation telling the Cache that two resource keys refer to the same resource, so it can merge the stale one into the kept one.
+- [Meta](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/Meta.md): A JSON object of non-standard information found in the `meta` member of a {json:api} document, resource, relationship, or link.
+- [ModelSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/ModelSchema.md): Legacy shape of a Model class's static schema API (fields, attributes, relationships, iterators) used by the legacy schema service and Adapters/Serializers.
+- [Mutable](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/utils/types/Mutable.md): Utility type that strips `readonly` from every property of an object type.
+- [Mutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/Mutation.md): Union of the relationship changes `cache.mutate` applies to local (uncommitted) state rather than remote state.
+- [NewResourceKey](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/NewResourceKey.md): Resource key for a record created locally with `store.createRecord`, whose `id` may still be `null`.
+- [NewResourceObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/NewResourceObject.md): A raw {json:api} resource object for a client-created resource not yet persisted, identified by `type` and `lid` with an `id` that may be `null`.
+- [NextFn](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/request/types/NextFn.md): The function a request handler calls to pass a request to the next handler in the chain, returning a `Future` for its response.
+- [NotificationChannel](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/NotificationChannel.md): Scopes an `attributes` or `relationships` notification to a resource's local (editable) or remote (persisted) view so only matching subscribers hear it.
+- [NotificationManager](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/store/types/NotificationManager.md): The store service that lets code subscribe to and batch-deliver change notifications for cached resources and request documents.
+- [NotificationType](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/NotificationType.md): Every notification kind a resource subscriber can receive, from lifecycle operations to `attributes`, `relationships`, `errors`, `meta`, and `identity` changes.
+- [NotifyKeys](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/NotifyKeys.md): A set of field names passed to `notify` or `notifyChange` to report many `attributes` or `relationships` changes in one call.
+- [ObjectAliasField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ObjectAliasField.md): Field schema of kind `alias` for object schemas that exposes another non-relationship field's cache value under a new name.
+- [ObjectField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ObjectField.md): Field schema of kind `object` for a plain object of primitive values, optionally passed as a whole through a registered transformation.
+- [ObjectFieldOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/ObjectFieldOptions.md): Options for the `@object` decorator that set the compiled object field's `sourceKey` and the transformation applied to the whole object.
+- [ObjectFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ObjectFieldSchema.md): Union of the field schemas allowed in an `ObjectSchema`, which excludes identity and relationship fields.
+- [ObjectSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ObjectSchema.md): Schema describing an embedded object that has no identity of its own, used by `schema-object` and `schema-array` fields.
+- [ObjectSchemaOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/ObjectSchemaOptions.md): Options for the `ObjectSchema` class decorator; currently only a reserved `hash` flag that has no effect on the compiled object schema.
+- [ObjectValue](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/json/raw/types/ObjectValue.md): A plain JSON object whose property values are all JSON values.
+- [Op](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/Op.md): Base shape of every cache operation, carrying the operation's name in `op`.
+- [OpaqueRecordInstance](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/OpaqueRecordInstance.md): Type-erased (`unknown`) stand-in for a record instance where its specific type is unknown or irrelevant.
+- [Operation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/Operation.md): Union of the updates `cache.patch` applies to the cache's remote (clean) state, typically from server pushes such as WebSocket or SSE messages.
+- [Operation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/Operation.md): Base shape of every relationship Graph operation, carrying the operation's name in `op`.
+- [PageCache](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PageCache.md): Experimental: one page of a paginated collection, exposing its request, loading and error status, data, and links to neighboring pages.
+- [PagedPaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PagedPaginationContentFeatures.md): Experimental: the request controls `<Paginate />` yields to its content block in paged mode, adding `loadPage` to navigate to a page by URL.
+- [PagedPaginationState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PagedPaginationState.md): Experimental: the pagination state `<Paginate />` yields in paged mode, exposing the active page, its request, and `loadPage` for navigating to a page by URL.
+- [PageHints](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PageHints.md): Experimental: a function you pass to `<Paginate />` that reads `currentPage` and `totalPages` from a loaded document when they are not in the default `meta` locations.
+- [PaginateArgs](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginateArgs.md)
+- [PaginateMode](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginateMode.md): Experimental: the `@mode` value of `<Paginate />`, either `'paged'` for a single-page view or `'infinite'` for an accumulated view, which selects the yielded pagination API.
+- [PaginationCache](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationCache.md): Experimental: the shared, app-wide store of loaded pages, page order, and `totalPages` for one paginated collection, keyed by its `first` or `self` link.
+- [PaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationContentFeatures.md): Experimental: the combined paged and infinite content features a pagination subscription builds, before `<Paginate />` narrows them to one mode.
+- [PaginationContentFeaturesFor](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationContentFeaturesFor.md): Experimental: resolves a pagination mode to the content features `<Paginate />` yields, the infinite set for `'infinite'` and the paged set otherwise.
+- [PaginationLink](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationLink.md): Experimental: an entry in the numbered pagination links list, either a navigable numbered link or a placeholder for a gap, told apart by `isReal`.
+- [PaginationLinks](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationLinks.md): Experimental: the reactive navigation links for a pagination state, with numbered links and gap placeholders plus `first`, `prev`, `next`, and `last` links for the active page.
+- [PaginationLinks](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/PaginationLinks.md): A {json:api} `links` member that adds `first`, `last`, `prev`, and `next` pagination links to `self` and `related`.
+- [PaginationLinksSubscription](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationLinksSubscription.md): Experimental: the framework-agnostic lifecycle core of a pagination links component such as `<EachLink />`, exposing the navigation links for a paged pagination state.
+- [PaginationState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationState.md): Experimental: one component's pagination state over a shared collection, tracking the active page and the loaded run and providing paged and infinite navigation.
+- [PaginationStateFor](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationStateFor.md): Experimental: resolves a pagination mode to its state type, the infinite-mode state for `'infinite'` and the paged-mode state otherwise.
+- [PaginationSubscription](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PaginationSubscription.md): Experimental: the lifecycle core of `<Paginate />`, owning the initial request subscription and the component's pagination state.
+- [ParamConfig](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/ParamConfig.md): Experimental config passed to the `param` decorator that describes how a field is serialized to and parsed from a URL query parameter.
+- [PendingPromise](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/PendingPromise.md): The `getPromiseState` state for a promise that has not yet settled, with `isPending` true and no value or reason.
+- [PendingRequest](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/PendingRequest.md)
+- [PersistedResourceKey](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/PersistedResourceKey.md): Resource key whose `id` is a known string, the form keys for server-loaded resources take.
+- [PlaceholderPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/PlaceholderPaginationLink.md): Experimental: a non-navigable gap marker in numbered pagination links, standing in for a range of not-yet-loaded pages, usually shown as an ellipsis.
+- [PolarisAliasField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/PolarisAliasField.md): Field schema of kind `alias` for PolarisMode resources that exposes another field's cache value, including LinksMode relationships, under a new name.
+- [PolarisModeFieldSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/PolarisModeFieldSchema.md): Union of every field schema allowed on a PolarisMode resource schema, with relationships limited to their LinksMode forms.
+- [PolarisResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/PolarisResourceSchema.md): Schema describing a PolarisMode resource type: its `@id` identity field, its fields, and the traits it implements.
+- [PolarisTrait](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/PolarisTrait.md): A named, reusable set of PolarisMode fields that resource schemas compose in via their `traits`, often to model polymorphic capabilities.
+- [PolicyConfig](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/store/types/PolicyConfig.md): Options for `DefaultCachePolicy`: soft and hard expiration times, header-based expiration constraints, and test-mode behavior.
+- [PostQueryRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/PostQueryRequestOptions.md): Shape of the `POST` or `QUERY` request object that `postQuery` builders return, with a body and a required cache key since the url cannot serve as one.
+- [PrimitiveValue](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/json/raw/types/PrimitiveValue.md): A JSON primitive (string, number, boolean, or `null`), the scalar case of the JSON `Value` type.
+- [ProcessedExtension](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ProcessedExtension.md): A registered schema extension normalized into its kind, name, and a map of its features keyed by property name.
+- [PromiseState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/PromiseState.md): The reactive pending, fulfilled, or rejected state of a promise, as returned by `getPromiseState`.
+- [QueryOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/types/QueryOptions.md): Legacy options for `store.query` and `store.queryRecord`, of which only `adapterOptions` is used, passed to the adapter rather than the server.
+- [QueryParamsSerializationOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/params/types/QueryParamsSerializationOptions.md): Options for query-string serialization, choosing how arrays are encoded: bracket, indices, repeat, or comma.
+- [QueryParamsSource](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/params/types/QueryParamsSource.md): Query params to serialize into a request URL: a dictionary of serializable values with optional `include`, or a `URLSearchParams`.
+- [QueryRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/QueryRequestOptions.md): Shape of the `GET` request object that `query` builders return for `store.request`, carrying the url, headers, and cache options.
+- [QueryUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/QueryUrlOptions.md): Options passed to `buildBaseURL` to build the URL for querying a collection of one resource type.
+- [ReactiveDataDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveDataDocument.md): The shape of a reactive response document whose `data` holds the request's primary records, with no `errors`.
+- [ReactiveDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveDocument.md): The reactive wrapper around a request's response document that exposes its data or errors as live records, plus meta, links, and pagination helpers.
+- [ReactiveErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveErrorDocument.md): The shape of a reactive response document that carries `errors` and no primary `data`, such as the result of a failed request.
+- [ReactiveRelationshipDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveRelationshipDocument.md)
+- [ReactiveResource](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveResource.md): The rich, reactive record object that presents a resource's cached data through its `ResourceSchema`.
+- [ReactiveResourceArray](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ReactiveResourceArray.md): Native-Array-compatible reactive list of records backed by cache keys, returned for collection responses and underlying relationship and legacy record arrays.
+- [ReactiveStorage](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/ReactiveStorage.md): Experimental signal-backed wrapper around a `Storage` area that makes reads reactive and updates on changes from other tabs.
+- [ReactiveStorageOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/ReactiveStorageOptions.md)
+- [RealPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/RealPaginationLink.md): Experimental: a numbered page link with its page number, whether it is current, its distance from the active page, and `setActive` to load and show that page.
+- [RecoveryFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RecoveryFeatures.md): The online and visibility state plus a `retry` function that a request subscription exposes for recovering from a failed request.
+- [RejectedPromise](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RejectedPromise.md): The `getPromiseState` state for a promise that rejected, with `isError` true and the rejection `reason`.
+- [RejectedRequest](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RejectedRequest.md)
+- [RelationalPaginationLink](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/RelationalPaginationLink.md): Experimental: a `first`, `prev`, `next`, or `last` link relative to the active page, with `setActive` to load it, and the only kind of link cursor-based pagination has.
+- [Relationship](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/relationship/types/Relationship.md): Cache-side state of a to-one or to-many relationship, with related resources as `ResourceKey`s, as returned by `cache.getRelationship`.
+- [RelationshipDiff](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/types/RelationshipDiff.md): Remote versus local state of one relationship, with additions, removals, and reordering for to-many, as returned by `cache.changedRelationships`.
+- [RelationshipsSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/schema-service/types/RelationshipsSchema.md): Legacy relationship field definitions keyed by relationship name, returned by the deprecated `relationshipsDefinitionFor` schema hook.
+- [RemotelyAccessibleIdentifier](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/RemotelyAccessibleIdentifier.md): A resource reference with a persisted `id` and `type` and an optional `lid`, which is enough for request builders to construct its url.
+- [RemoteRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/RemoteRelationshipOperation.md): Union of the Graph operations that update a relationship's remote (persisted) state.
+- [RemoveDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/RemoveDocumentOperation.md): Cache operation passed to `cache.patch` that removes a request's document from the cache.
+- [RemoveFromDocumentOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/RemoveFromDocumentOperation.md): Cache operation passed to `cache.patch` that removes resources from a request document's `data` or `included`.
+- [RemoveFromResourceRelationshipMutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/RemoveFromResourceRelationshipMutation.md): Cache mutation passed to `cache.mutate` that removes one or more resources from a relationship's local state.
+- [RemoveFromResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/RemoveFromResourceRelationshipOperation.md): Cache operation passed to `cache.patch` that removes resources from a relationship's remote state.
+- [RemoveResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/RemoveResourceOperation.md): Cache operation passed to `cache.patch` that removes a resource as if deleted remotely, eliminating all references to it.
+- [ReplaceRelatedRecordMutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/ReplaceRelatedRecordMutation.md): Cache mutation passed to `cache.mutate` that sets a to-one relationship's local value, or swaps a single member of a to-many.
+- [ReplaceRelatedRecordOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/ReplaceRelatedRecordOperation.md): Graph operation that sets a to-one relationship's value, or swaps a single member of a to-many.
+- [ReplaceRelatedRecordsMutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/ReplaceRelatedRecordsMutation.md): Cache mutation passed to `cache.mutate` that replaces or splices a to-many relationship's local members.
+- [ReplaceRelatedRecordsOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/ReplaceRelatedRecordsOperation.md): Graph operation that replaces or splices the members of a to-many relationship.
+- [RequestArgs](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RequestArgs.md): The arguments of the `<Request />` component: the request or query to run, autorefresh options, and an optional store or subscription.
+- [RequestContext](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/RequestContext.md): Object passed to each request handler with the immutable request, a request id, and methods for setting the response stream and the response.
+- [RequestInfo](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/RequestInfo.md): Describes a request for `store.request` or `RequestManager.request`: native fetch options plus cache options, operation name, records, data, and the store.
+- [RequestKey](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/RequestKey.md): Stable object with a unique `lid` that references a cached request document, letting that request's result be retrieved or replayed.
+- [RequestLoadingState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RequestLoadingState.md): Reactive download progress for a request, such as bytes loaded and timing, built by lazily reading its response stream.
+- [RequestProps](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/react/types/RequestProps.md): The props of the React `<Request />` component: the state components, the request or query to run, store, subscription, autorefresh options, and chrome.
+- [RequestSignature](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/ember/types/RequestSignature.md): The Glint signature of the Ember `<Request />` component: its args and the blocks it yields to for each request state.
+- [RequestState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RequestState.md): The reactive pending, fulfilled, rejected, or cancelled state of a request `Future`, as returned by `getRequestState`.
+- [RequestStates](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/react/types/RequestStates.md): The components the React `<Request />` component renders for its idle, loading, cancelled, error, and content states.
+- [RequestSubscription](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/RequestSubscription.md): Reactive subscription that monitors a request or query, tracking online, visibility and refresh state and handling autorefresh, reload and retry.
+- [ResolvedPromise](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ResolvedPromise.md): The `getPromiseState` state for a promise that resolved, with `isSuccess` true and the resolved `value`.
+- [ResolvedRequest](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/ResolvedRequest.md)
+- [ResourceBlob](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/aliases/types/ResourceBlob.md): Opaque raw resource data whose format the Cache defines and from which the CacheKeyManager can derive a `ResourceKey`.
+- [ResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/ResourceDataDocument.md): Either a single-resource or a collection raw {json:api} data document, as stored in and returned by the cache.
+- [ResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/ResourceDocument.md): Any raw {json:api} document the cache stores and returns: meta-only, single-resource, collection, or error.
+- [ResourceErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/ResourceErrorDocument.md): A raw {json:api} document carrying an `errors` array for a failed request, as stored in and returned by the cache.
+- [ResourceField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ResourceField.md): Field schema of kind `resource` for a reference to another resource, whose value is a `ReactiveRelationshipDocument`.
+- [ResourceIdentifier](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceIdentifier.md): A reference to a resource by its WarpDrive-assigned `lid` alone, accepted by the cache once the resource's identity is known.
+- [ResourceIdentifierObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceIdentifierObject.md): A reference to a resource in any form the cache accepts: `lid` only, `type` plus `id`, or a new resource's `type` plus `lid`.
+- [ResourceKey](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/ResourceKey.md): Stable object with a unique `lid` plus `type` and `id` that uniquely references one resource's data in the cache, loaded or not.
+- [ResourceMetaDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/ResourceMetaDocument.md): A raw {json:api} document carrying only `meta` and optional `links`, as returned by a request and inserted into the cache.
+- [ResourceObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceObject.md): A raw {json:api} resource object, either for a persisted resource or for a new one created on the client.
+- [ResourceOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/ResourceOptions.md): Options for the `Resource` class decorator that select legacy-mode compilation and name the primary key property when no property uses `@id`.
+- [ResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/relationship/types/ResourceRelationship.md): Cache-side state of a to-one relationship, with `data` as a `ResourceKey` or `null` plus optional meta and links.
+- [ResourceRelationshipsObject](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/ResourceRelationshipsObject.md): The `relationships` member of a {json:api} resource object: to-one or to-many relationship objects keyed by relationship name.
+- [ResourceSchema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/ResourceSchema.md): Union of the PolarisMode and LegacyMode schema definitions for a primary resource type, as registered with the schema service.
+- [ResponseGenerator](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/holodeck/mock/types/ResponseGenerator.md): Function passed to the Holodeck mock helpers that builds the response body, called only when recording a fixture.
+- [ResponseInfo](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/ResponseInfo.md): Immutable, JSON-serializable snapshot of a fetch `Response`'s headers, status, url, and type, usable in place of a `Response` in request results.
+- [Scaffold](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/holodeck/mock/types/Scaffold.md): Full description of a mocked request, its request body to match, and its response status, headers, and body, as sent to the Holodeck server to record a fixture.
+- [ScaffoldGenerator](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/holodeck/mock/types/ScaffoldGenerator.md): Function that builds a complete mock scaffold, accepted by `mock` in place of a `LazyScaffold`.
+- [Schema](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/Schema.md): Union of resource and object schemas, covering any schema that can be registered with or returned by the schema service.
+- [SchemaArrayField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/SchemaArrayField.md): Field schema of kind `schema-array` for an array of objects described by an `ObjectSchema`, with options for member identity keys and polymorphism.
+- [SchemaArrayOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/SchemaArrayOptions.md): Options for the `@schemaArray` decorator that choose the element object schema, polymorphic type resolution, element identity key, and default value.
+- [SchemaObjectField](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/SchemaObjectField.md): Field schema of kind `schema-object` for a nested object whose shape is described by an `ObjectSchema`, with optional polymorphism.
+- [SchemaObjectOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/SchemaObjectOptions.md): Options for the `@schemaObject` decorator that choose the embedded object schema, polymorphic type resolution, and default value.
+- [SchemaService](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/schema-service/types/SchemaService.md): The contract a store's schema service implements to answer which resource types, traits, fields, transformations, and derivations exist.
+- [Serializable](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/params/types/Serializable.md): A query parameter value: one serializable primitive or an array of them.
+- [SerializablePrimitive](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/params/types/SerializablePrimitive.md): A string, number, boolean, or `null` usable as a single query parameter value.
+- [SharedPaginationContentFeatures](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/SharedPaginationContentFeatures.md): Experimental: the request status flags and controls, like `isRefreshing`, `refresh`, and `reload`, that `<Paginate />` yields to its content block in both modes.
+- [SharedPaginationState](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/pagination/types/SharedPaginationState.md): Experimental: the pagination state members available in both paged and infinite mode, namely `totalPages` and `adoptPage`.
+- [SignalHooks](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/configure/types/SignalHooks.md): The create, consume, notify, and memo hooks a framework or TC39 signals implementation supplies to `setupSignals` to make WarpDrive data reactive.
+- [SingleResourceDataDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/document/types/SingleResourceDataDocument.md): A raw {json:api} document whose `data` is a single resource or `null`, as returned by a request and inserted into the cache.
+- [SingleResourceDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/SingleResourceDocument.md): A raw {json:api} document whose `data` is one existing resource object, with optional `included`, `meta`, and `links`.
+- [SingleResourceRelationship](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/spec/json-api-raw/types/SingleResourceRelationship.md): A to-one {json:api} relationship object whose `data` is a single resource identifier or `null`, with optional `meta` and `links`.
+- [SortRelatedRecords](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/SortRelatedRecords.md): Graph operation that reorders the members of a to-many relationship.
+- [SortRelatedRecordsMutation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/mutations/types/SortRelatedRecordsMutation.md): Cache mutation passed to `cache.mutate` that reorders a to-many relationship's local members.
+- [StableDocumentIdentifier](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/StableDocumentIdentifier.md): Deprecated alias for `RequestKey`, the stable cache reference to a request document.
+- [StableExistingRecordIdentifier](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/StableExistingRecordIdentifier.md): Deprecated alias for `PersistedResourceKey`, a resource key whose `id` is known.
+- [StableRecordIdentifier](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/identifier/types/StableRecordIdentifier.md): Deprecated alias for `ResourceKey`, the stable cache reference to a single resource.
+- [StoreProviderProps](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/react/types/StoreProviderProps.md): The props of the React `<StoreProvider />` component: its children plus either a Store instance or a Store class to instantiate.
+- [StoreRequestContext](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/StoreRequestContext.md): Object passed to each request handler with the immutable request, a request id, and methods for setting the response stream and the response.
+- [StoreRequestInput](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/StoreRequestInput.md): The request object `store.request` accepts, either a full immutable request info or a looser form with plain `records` and `headers`.
+- [StoreSetupOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/StoreSetupOptions.md): Configures the cache, cache policy, request handlers, schemas, and schema extensions that `useRecommendedStore` wires into a Store class.
+- [StringSatisfiesIncludes](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/StringSatisfiesIncludes.md): Type utility that checks a comma-separated `include` string contains only paths from an allowed union, resolving to `never` otherwise.
+- [StructuredDataDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/StructuredDataDocument.md): The `{ request, response, content }` object that a request's `Future` resolves with when the request succeeds.
+- [StructuredDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/StructuredDocument.md): Union of the success and error documents that a request's `Future` resolves or rejects with.
+- [StructuredErrorDocument](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/StructuredErrorDocument.md): The Error a request's `Future` rejects with when the request fails, carrying the `request`, `response`, `error`, and any `content` received.
+- [SubscriptionArgs](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/SubscriptionArgs.md): Options for a request subscription: the request or query to monitor and its autorefresh settings.
+- [Trait](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/fields/types/Trait.md): Union of the LegacyMode and PolarisMode trait definitions that can be registered with the schema service.
+- [TraitOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/schema-dsl/types/TraitOptions.md): Options for the `Trait` class decorator that select whether it compiles to a polaris-mode or a legacy-mode trait.
+- [Transformation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/reactive/types/Transformation.md): A registered converter between a field's raw cache value and the value exposed on the record, with optional default.
+- [Transformation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/schema/concepts/types/Transformation.md): A registered pair of `serialize` and `hydrate` functions that convert a field's raw cached value to and from the value exposed on a record.
+- [TypedRecordInstance](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/TypedRecordInstance.md): Shape of a record type that declares its resource type via the `[Type]` symbol, letting WarpDrive APIs infer types for better type safety. TypedRecordInstance
+- [TypeFromInstance](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/TypeFromInstance.md): Type utility giving a record type's `[Type]` resource type string, or `never` if it declares none.
+- [TypeFromInstanceOrString](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/TypeFromInstanceOrString.md): Type utility giving a record type's `[Type]` resource type string, or `string` if it declares none.
+- [UnknownOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/UnknownOperation.md): Placeholder Graph operation, with `op: 'never'`, for a relationship whose to-one or to-many kind is not yet known.
+- [UpdateRecordUrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/UpdateRecordUrlOptions.md): Options passed to `buildBaseURL` to build the URL for saving changes to an existing record by type and id.
+- [UpdateRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/graph/types/UpdateRelationshipOperation.md): Graph operation that replaces a relationship's remote state with a raw JSON:API relationship object.
+- [UpdateRequestOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/request/types/UpdateRequestOptions.md): Shape of the `PATCH` or `PUT` request object that `updateRecord` builders return for `store.request`, identifying the resource being saved.
+- [UpdateResourceFieldOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/UpdateResourceFieldOperation.md): Cache operation passed to `cache.patch` that replaces the remote value of a single field on a persisted resource.
+- [UpdateResourceOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/UpdateResourceOperation.md): Cache operation passed to `cache.patch` that merges new remote state into a persisted resource.
+- [UpdateResourceRelationshipOperation](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/cache/operations/types/UpdateResourceRelationshipOperation.md): Cache operation that replaces the remote state of one relationship on a persisted resource.
+- [UrlOptions](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/utilities/types/UrlOptions.md): Any of the option shapes `buildBaseURL` accepts, one per request `op` plus a generic `resourcePath` form.
+- [Validate](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/record/types/Validate.md): Type utility that checks a hand-written preview type `K` is a valid subset of the full type `T`, resolving to `K` if so and `never` otherwise.
+- [Value](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/json/raw/types/Value.md): Any JSON-serializable value (primitive, array, or object), used for raw field and payload data throughout WarpDrive.
+- [ValueTransition](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/experiments/storage/types/ValueTransition.md)
+- [WarpDrive Contributor Skills](https://canary.warp-drive.io/pr-preview/pr-11218/skills/contributors.md)
+- [WarpDriveConfig](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/build-config/types/WarpDriveConfig.md): The options passed to `setConfig` or `babelPlugin` to control WarpDrive logging, deprecation code stripping, canary features, and optional features.
+- [WithPartial](https://canary.warp-drive.io/pr-preview/pr-11218/api/@warp-drive/core/types/utils/types/WithPartial.md): Utility type that makes only the named properties of an object type optional.
